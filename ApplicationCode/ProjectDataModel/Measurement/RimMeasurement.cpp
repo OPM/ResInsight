@@ -141,5 +141,5 @@ RimMeasurement::Lengths RimMeasurement::calculateLenghts() const
 void RimMeasurement::updateView() const
 {
     auto view = RiaApplication::instance()->activeReservoirView();
-    if (view) view->scheduleCreateDisplayModelAndRedraw();
+    if (view) view->createDisplayModelAndRedraw();
 }
