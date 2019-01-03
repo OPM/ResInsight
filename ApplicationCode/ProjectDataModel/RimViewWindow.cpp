@@ -156,6 +156,21 @@ RimMdiWindowGeometry RimViewWindow::mdiWindowGeometry()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::viewNavigationChanged()
+{
+    onViewNavigationChanged();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Default implementation of virtual method to trigger updates on view navigation (zoom, camera move, etc)
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::onViewNavigationChanged()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimViewWindow::objectToggleField()
@@ -206,7 +221,6 @@ void RimViewWindow::setAsMdiWindow(int mainWindowID)
         setMdiWindowGeometry(mwg);
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

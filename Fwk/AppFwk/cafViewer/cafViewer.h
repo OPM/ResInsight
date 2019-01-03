@@ -174,6 +174,7 @@ protected:
 
     // Support the navigation policy concept
     virtual bool                        event( QEvent* e );
+
     cvf::ref<caf::NavigationPolicy>     m_navigationPolicy;
     bool                                m_navigationPolicyEnabled;
 
@@ -196,7 +197,6 @@ private:
     void                                removeModelFromAllFrames(cvf::Model* model);
 
     void                                updateCamera(int width, int height);
-
     void                                releaseOGlResourcesForCurrentFrame();
     void                                debugShowRenderingSequencePartNames();
 

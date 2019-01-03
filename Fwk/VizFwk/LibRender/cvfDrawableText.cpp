@@ -189,13 +189,22 @@ void DrawableText::setUseDepthBuffer(bool useDepthBuffer)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void DrawableText::addText(const String& text, const Vec3f& position)
+void DrawableText::addText(const String& text, const Vec3f& position, const Vec3f& direction)
 {
     m_positions.push_back(position);
     m_texts.push_back(text);
-    m_boundingBox.add(position);  
+    m_directions.push_back(direction);
+    m_boundingBox.add(position);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t DrawableText::numberOfTexts() const
+{
+    return m_texts.size();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Main shader based rendering path for the geometry 
@@ -270,6 +279,28 @@ BoundingBox DrawableText::boundingBox() const
 
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox
+    DrawableText::textBoundingBox(const String& text, const Vec3f& position, const Vec3f& direction /*= Vec3f::X_AXIS*/)
+{
+    ref<Glyph> glyph = m_font->getGlyph(L'A');
+    Vec2f      textExtent(m_font->textExtent(text));
+    short      verticalAlignment = TextDrawer::calculateVerticalAlignmentOffset(*m_font, m_verticalAlignment);
+    float      glyphMarginX      = 0.25f * static_cast<float>(glyph->width());
+    float      glyphMarginY      = 0.25f * static_cast<float>(glyph->height());
+
+    BoundingBox textBox;
+    std::array<Vec3f, 4> corners =
+        TextDrawer::textCorners(*glyph, cvf::Vec2f::ZERO, textExtent, verticalAlignment, direction, glyphMarginX, glyphMarginY);
+    for (const Vec3f& corner : corners)
+    {
+        textBox.add(position + corner);
+    }
+    return textBox;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool DrawableText::rayIntersectCreateDetail(const Ray& ray, Vec3d* intersectionPoint, ref<HitDetail>* hitDetail) const
@@ -293,7 +324,7 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
     CVF_ASSERT(!shaderProgram || ShaderProgram::supportedOpenGL(oglContext));
 
     if (m_texts.size() == 0) return;
-    CVF_ASSERT(m_positions.size() == m_texts.size());
+    CVF_ASSERT(m_positions.size() == m_texts.size() && m_positions.size() == m_directions.size());
 
     if (m_checkPosVisible)
     {
@@ -342,6 +373,7 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
     Mat4d modelViewProjectionMatrix = Mat4d(matrixState.modelViewProjectionMatrix());
     std::vector<Vec3f> projCoords;
     std::vector<String> textsToDraw;            // Text strings to be drawn
+    std::vector<Vec3f> directions;
     size_t pos;
     for (pos = 0; pos < m_positions.size(); pos++)
     {
@@ -353,6 +385,7 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
             // Note: Need to adjust for the current viewport, as the coords returned from project are in global windows coordinates
             projCoords.push_back(Vec3f(static_cast<float>(proj.x() - matrixState.viewportPosition().x()), static_cast<float>(proj.y() - matrixState.viewportPosition().y()), static_cast<float>(1.0 - 2.0*proj.z())));  // Map z into 1 .. -1
             textsToDraw.push_back(m_texts[pos]);
+            directions.push_back(m_directions[pos]);
         }
     }
 
@@ -389,7 +422,7 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
     for (i = 0; i < textsToDraw.size(); i++)
     {
         Vec3f pos = projCoords[i];
-        drawer.addText(textsToDraw[i], pos);
+        drawer.addText(textsToDraw[i], pos, directions[i]);
     }
 
     if (shaderProgram)

@@ -63,6 +63,8 @@ public:
     virtual QImage               snapshotWindowContent() = 0;
     virtual void                 zoomAll() = 0;
 
+    void                         viewNavigationChanged();
+
 protected:
     void                         removeMdiWindowFromMdiArea(); 
 
@@ -75,6 +77,7 @@ protected:
     virtual void                 updateMdiWindowTitle(); // Has real default implementation
     virtual void                 deleteViewWidget() = 0;
     virtual void                 onLoadDataAndUpdate() = 0; 
+    virtual void                 onViewNavigationChanged();
     virtual bool                 isWindowVisible() { return m_showWindow();} // Virtual To allow special visibility control
     //////////
 

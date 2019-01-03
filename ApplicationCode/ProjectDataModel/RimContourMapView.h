@@ -43,7 +43,9 @@ protected:
     void updateCurrentTimeStep() override;
     void updateGeometry();
     void setFaultVisParameters();
+    void createContourMapGeometry();
     void appendContourMapProjectionToModel();
+    void appendContourLinesToModel();
     void appendPickPointVisToModel();
     void updateLegends() override;
     void updateViewWidgetAfterCreation() override;  
@@ -57,10 +59,14 @@ protected:
     
     QWidget* createViewWidget(QWidget* mainWindowParent) override;
 
+    void onViewNavigationChanged() override;
+
+    bool zoomChangeAboveTreshold(const cvf::Vec3d& currentCameraPosition) const;
 private:
     cvf::ref<RivContourMapProjectionPartMgr>     m_contourMapProjectionPartMgr;
     caf::PdmChildField<RimContourMapProjection*> m_contourMapProjection;
     caf::PdmField<bool>                          m_showAxisLines;
     caf::PdmField<bool>                          m_showScaleLegend;
+    cvf::Vec3d                                   m_cameraPositionLastUpdate;  
 };
 

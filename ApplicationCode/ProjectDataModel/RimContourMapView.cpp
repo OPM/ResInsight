@@ -49,6 +49,7 @@ const cvf::Mat4d defaultViewMatrix(1, 0, 0, 0,
     0, 0, 0, 1);
 
 RimContourMapView::RimContourMapView()
+    : m_cameraPositionLastUpdate(cvf::Vec3d::UNDEFINED)
 {
     CAF_PDM_InitObject("Contour Map View", ":/2DMap16x16.png", "", "");
 
@@ -224,7 +225,9 @@ void RimContourMapView::updateGeometry()
 
     appendWellsAndFracturesToModel();
 
+    createContourMapGeometry();
     appendContourMapProjectionToModel();
+    appendContourLinesToModel();
 
     appendPickPointVisToModel();
 
@@ -241,6 +244,17 @@ void RimContourMapView::setFaultVisParameters()
     faultCollection()->faultResult            = RimFaultInViewCollection::FAULT_NO_FACE_CULLING;
     faultResultSettings()->showCustomFaultResult = true;
     faultResultSettings()->customFaultResult()->setResultVariable("None");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapView::createContourMapGeometry()
+{
+    if (m_viewer && m_contourMapProjection->isChecked())
+    {
+        m_contourMapProjectionPartMgr->createProjectionGeometry();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,6 +278,31 @@ void RimContourMapView::appendContourMapProjectionToModel()
             m_contourMapProjectionPartMgr->appendProjectionToModel(contourMapProjectionModelBasicList.p(), transForm.p());
             contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel(contourMapProjectionModelBasicList.p());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapView::appendContourLinesToModel()
+{
+    if (m_viewer && m_contourMapProjection->isChecked())
+    {
+        cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
+        if (frameScene)
+        {
+            cvf::String name = "ContourMapLines";
+            this->removeModelByName(frameScene, name);
+
+            cvf::ref<cvf::ModelBasicList> contourMapLabelModelBasicList = new cvf::ModelBasicList;
+            contourMapLabelModelBasicList->setName(name);
+
+            cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
+
+            m_contourMapProjectionPartMgr->appendContourLinesToModel(viewer()->mainCamera(), contourMapLabelModelBasicList.p(), transForm.p());
+            contourMapLabelModelBasicList->updateBoundingBoxesRecursive();
+            frameScene->addModel(contourMapLabelModelBasicList.p());
         }
     }
 }
@@ -413,4 +452,27 @@ QWidget* RimContourMapView::createViewWidget(QWidget* mainWindowParent)
         viewer()->hideZScaleCheckbox(true);
     }
     return widget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapView::onViewNavigationChanged()
+{
+    cvf::Vec3d currentCameraPosition = viewer()->mainCamera()->position();
+    if (m_cameraPositionLastUpdate.isUndefined() || zoomChangeAboveTreshold(currentCameraPosition))
+    {
+        appendContourLinesToModel();
+        m_cameraPositionLastUpdate = currentCameraPosition;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimContourMapView::zoomChangeAboveTreshold(const cvf::Vec3d& currentCameraPosition) const
+{
+    double distance = std::max(std::fabs(m_cameraPositionLastUpdate.z()), std::fabs(currentCameraPosition.z()));
+    const double threshold = 0.01 * distance;
+    return (m_cameraPositionLastUpdate - currentCameraPosition).length() > threshold;
 }

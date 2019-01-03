@@ -749,7 +749,7 @@ void RiuViewer::updateNavigationPolicy()
 void RiuViewer::navigationPolicyUpdate()
 {
     caf::Viewer::navigationPolicyUpdate();
-
+    ownerViewWindow()->viewNavigationChanged();
     if (m_rimView)
     {
         RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
