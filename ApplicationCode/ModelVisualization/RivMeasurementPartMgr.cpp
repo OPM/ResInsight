@@ -82,7 +82,7 @@ void RivMeasurementPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList*     
     }
 
     if (m_measurement.isNull()) return;
-    if (m_measurement->pointsInDomain().empty()) return;
+    if (m_measurement->pointsInDomainCoords().empty()) return;
 
     // Check bounding box
     if (!isPolylinesInBoundingBox(boundingBox)) return;
@@ -120,7 +120,7 @@ void RivMeasurementPartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 void RivMeasurementPartMgr::buildPolyLineParts(const caf::DisplayCoordTransform* displayCoordTransform)
 {
-    auto pointsInDisplay = transformPolylinesPointsToDisplay(m_measurement->pointsInDomain(), displayCoordTransform);
+    auto pointsInDisplay = transformPolylinesPointsToDisplay(m_measurement->pointsInDomainCoords(), displayCoordTransform);
 
     // Measurement lines
     {
@@ -234,7 +234,7 @@ std::vector<RivMeasurementPartMgr::Vec3d>
 bool RivMeasurementPartMgr::isPolylinesInBoundingBox(const cvf::BoundingBox& boundingBox)
 {
     auto effectiveBoundingBox = RiaBoundingBoxTools::inflate(boundingBox, 3);
-    for (const auto& pt : m_measurement->pointsInDomain())
+    for (const auto& pt : m_measurement->pointsInDomainCoords())
     {
         if (effectiveBoundingBox.contains(pt)) return true;
     }

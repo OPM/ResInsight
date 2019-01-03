@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,9 +26,7 @@
 
 #include "RiuViewerCommands.h"
 
-
 CAF_PDM_SOURCE_INIT(RimMeasurement, "RimMeasurement");
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -40,12 +38,9 @@ RimMeasurement::RimMeasurement()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimMeasurement::~RimMeasurement()
-{
-
-}
+RimMeasurement::~RimMeasurement() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -74,18 +69,27 @@ bool RimMeasurement::isInMeasurementMode() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMeasurement::addPointInDomain(const Vec3d& pointInDomain)
+void RimMeasurement::addPointInDomainCoords(const Vec3d& domainCoord)
 {
-    m_pointsInDomain.push_back(pointInDomain);
+    auto activeView = RiaApplication::instance()->activeReservoirView();
+
+    if (m_sourceView.p() != activeView)
+    {
+        removeAllPoints();
+    }
+
+    m_pointsInDomainCoords.push_back(domainCoord);
+    m_sourceView = activeView;
+
     updateView();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimMeasurement::pointsInDomain() const
+std::vector<cvf::Vec3d> RimMeasurement::pointsInDomainCoords() const
 {
-    return m_pointsInDomain;
+    return m_pointsInDomainCoords;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,7 +97,7 @@ std::vector<cvf::Vec3d> RimMeasurement::pointsInDomain() const
 //--------------------------------------------------------------------------------------------------
 void RimMeasurement::removeAllPoints()
 {
-    m_pointsInDomain.clear();
+    m_pointsInDomainCoords.clear();
     updateView();
 }
 
@@ -117,10 +121,10 @@ RimMeasurement::Lengths RimMeasurement::calculateLenghts() const
 {
     Lengths lengths;
 
-    for (size_t p = 1; p < m_pointsInDomain.size(); p++)
+    for (size_t p = 1; p < m_pointsInDomainCoords.size(); p++)
     {
-        const auto& p0 = m_pointsInDomain[p - 1];
-        const auto& p1 = m_pointsInDomain[p];
+        const auto& p0 = m_pointsInDomainCoords[p - 1];
+        const auto& p1 = m_pointsInDomainCoords[p];
 
         lengths.lastSegmentLength = (p1 - p0).length();
 
@@ -140,6 +144,8 @@ RimMeasurement::Lengths RimMeasurement::calculateLenghts() const
 //--------------------------------------------------------------------------------------------------
 void RimMeasurement::updateView() const
 {
-    auto view = RiaApplication::instance()->activeReservoirView();
-    if (view) view->createDisplayModelAndRedraw();
+    if (m_sourceView)
+    {
+        m_sourceView->createDisplayModelAndRedraw();
+    }
 }

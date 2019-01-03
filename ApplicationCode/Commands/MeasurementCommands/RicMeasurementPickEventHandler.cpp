@@ -57,13 +57,13 @@ bool RicMeasurementPickEventHandler::handlePickEvent(const Ric3DPickEvent& event
 
         if (!isControlButtonDown)
         {
-            if (measurement->pointsInDomain().size() > 1)
+            if (measurement->pointsInDomainCoords().size() > 1)
             {
                 measurement->removeAllPoints();
             }
         }
 
-        measurement->addPointInDomain(domainCoord);
+        measurement->addPointInDomainCoords(domainCoord);
 
         // Further Ui processing is stopped when true is returned
         return true;

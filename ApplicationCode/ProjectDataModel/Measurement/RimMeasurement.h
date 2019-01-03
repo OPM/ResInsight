@@ -1,26 +1,28 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
+#include "cafPdmObject.h"
 #include "cvfBase.h"
 #include "cvfVector3.h"
-#include "cafPdmObject.h"
+
+class Rim3dView;
 
 //==================================================================================================
 ///
@@ -37,11 +39,13 @@ public:
     {
     public:
         Lengths()
-            : totalLength(0),
-            lastSegmentLength(0),
-            totalHorizontalLength(0),
-            lastSegmentHorisontalLength(0),
-            area(0) {}
+            : totalLength(0)
+            , lastSegmentLength(0)
+            , totalHorizontalLength(0)
+            , lastSegmentHorisontalLength(0)
+            , area(0)
+        {
+        }
 
         double totalLength;
         double lastSegmentLength;
@@ -53,24 +57,23 @@ public:
     RimMeasurement();
     ~RimMeasurement() override;
 
-    void                setMeasurementMode(bool measurementMode);
-    bool                isInMeasurementMode() const;
+    void setMeasurementMode(bool measurementMode);
+    bool isInMeasurementMode() const;
 
-    void                addPointInDomain(const Vec3d& pointInDomain);
-    std::vector<Vec3d>  pointsInDomain() const;
+    void               addPointInDomainCoords(const Vec3d& pointInDomainCoord);
+    std::vector<Vec3d> pointsInDomainCoords() const;
 
-    void                removeAllPoints();
+    void removeAllPoints();
 
-    QString             label() const;
+    QString label() const;
 
 private:
-    Lengths             calculateLenghts() const;
+    Lengths calculateLenghts() const;
 
+    void updateView() const;
 
-    void                updateView() const;
-
-    bool                m_isInMeasurementMode;
-
-    std::vector<Vec3d>  m_pointsInDomain;
+private:
+    bool                       m_isInMeasurementMode;
+    std::vector<Vec3d>         m_pointsInDomainCoords;
+    caf::PdmPointer<Rim3dView> m_sourceView;
 };
-

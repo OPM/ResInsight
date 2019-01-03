@@ -751,7 +751,7 @@ void Rim3dView::addMeasurementToModel(cvf::ModelBasicList* wellPathModelBasicLis
 
     RimMeasurement* measurement = RiaApplication::instance()->project()->measurement();
 
-    if (!measurement || measurement->pointsInDomain().empty())
+    if (!measurement || measurement->pointsInDomainCoords().empty())
     {
         m_measurementPartManager->clearGeometryCache();
     }
