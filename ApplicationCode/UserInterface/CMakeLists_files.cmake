@@ -153,7 +153,6 @@ ${CMAKE_CURRENT_LIST_DIR}/Riu3DMainWindowTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuDockWidgetTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItemGroup.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellPathComponentPlotItem.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuMeasurementViewEventFilter.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -198,7 +197,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuMessagePanel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuExpressionContextMenuManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuCalculationsContextMenuManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMohrsCirclePlot.h
-${CMAKE_CURRENT_LIST_DIR}/RiuMeasurementViewEventFilter.h
 )
 
 list(APPEND QT_UI_FILES

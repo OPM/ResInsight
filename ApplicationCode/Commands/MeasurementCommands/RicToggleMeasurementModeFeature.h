@@ -45,6 +45,4 @@ protected:
 private:
     RimMeasurement* measurement() const;
     Rim3dView* activeView() const;
-
-    static RiuMeasurementViewEventFilter* eventFilter(QObject* parent);
 };
