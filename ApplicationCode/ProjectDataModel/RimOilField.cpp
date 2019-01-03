@@ -61,6 +61,7 @@ RimOilField::RimOilField(void)
 
     CAF_PDM_InitFieldNoDefault(&measurement, "Measurement", "Measurement", "", "", "");
     measurement = new RimMeasurement();
+    measurement.xmlCapability()->disableIO();
 
     analysisModels = new RimEclipseCaseCollection();
     wellPathCollection = new RimWellPathCollection();

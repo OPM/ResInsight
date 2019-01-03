@@ -1254,7 +1254,6 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             if (oilField->formationNamesCollection())       uiTreeOrdering.add(oilField->formationNamesCollection());
             if (oilField->completionTemplateCollection())   uiTreeOrdering.add(oilField->completionTemplateCollection());
             if (oilField->annotationCollection())           uiTreeOrdering.add(oilField->annotationCollection());
-            if (oilField->measurement())                    uiTreeOrdering.add(oilField->measurement());
         }
 
         uiTreeOrdering.add(scriptCollection());
