@@ -41,11 +41,13 @@ class RimPolylinesAnnotation;
 class RimSummaryCalculationCollection;
 class RimCase;
 class RimCommandObject;
+class RimCommandObject;
 class RimDialogData;
 class RimEclipseCase;
 class RimGeoMechCase;
 class RimIdenticalGridCaseGroup;
 class RimMainPlotCollection;
+class RimMeasurement;
 class RimMultiSnapshotDefinition; 
 class RimObservedData;
 class RimOilField;
@@ -161,6 +163,7 @@ public:
     std::vector<RimValveTemplate*>           allValveTemplates() const;
 
     RiaEclipseUnitTools::UnitSystemType commonUnitSystemForAllCases() const;
+    RimMeasurement*                     measurement() const;
 
 protected:
     // Overridden methods

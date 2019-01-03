@@ -32,7 +32,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimWellPathCollection.h"
-
+#include "RimMeasurement.h"
 
 CAF_PDM_SOURCE_INIT(RimOilField, "ResInsightOilField");
 //--------------------------------------------------------------------------------------------------
@@ -58,6 +58,11 @@ RimOilField::RimOilField(void)
         &m_fractureTemplateCollection_OBSOLETE, "FractureDefinitionCollection", "Defenition of Fractures", "", "", "");
     
     completionTemplateCollection = new RimCompletionTemplateCollection;
+
+    CAF_PDM_InitFieldNoDefault(&measurement, "Measurement", "Measurement", "", "", "");
+    measurement = new RimMeasurement();
+    measurement.xmlCapability()->disableIO();
+
     analysisModels = new RimEclipseCaseCollection();
     wellPathCollection = new RimWellPathCollection();
     summaryCaseMainCollection = new RimSummaryCaseMainCollection();

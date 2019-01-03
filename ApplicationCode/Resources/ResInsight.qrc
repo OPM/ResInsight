@@ -147,7 +147,8 @@
     <file>PolylinesFromFile16x16.png</file>
     <file>ReachCircle16x16.png</file>
     <file>2DMapProjection16x16.png</file>
-
+    <file>Ruler16x16.png</file>
+    <file>NoRuler16x16.png</file>
   </qresource>
   <qresource prefix="/Shader/">
     <file>fs_CellFace.glsl</file>

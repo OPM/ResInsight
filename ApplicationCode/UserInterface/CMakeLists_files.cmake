@@ -76,6 +76,7 @@ ${CMAKE_CURRENT_LIST_DIR}/Riu3DMainWindowTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuDockWidgetTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItemGroup.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellPathComponentPlotItem.h
+${CMAKE_CURRENT_LIST_DIR}/RiuMeasurementViewEventFilter.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES

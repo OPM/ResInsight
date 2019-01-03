@@ -55,6 +55,7 @@
 #include "RimGridView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
+#include "RimMeasurement.h"
 #include "RimMultiSnapshotDefinition.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
@@ -1158,6 +1159,14 @@ RiaEclipseUnitTools::UnitSystemType RimProject::commonUnitSystemForAllCases() co
     }
 
     return commonUnitSystem;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMeasurement* RimProject::measurement() const
+{
+    return activeOilField()->measurement;
 }
 
 //--------------------------------------------------------------------------------------------------

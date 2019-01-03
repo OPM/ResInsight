@@ -35,9 +35,11 @@
 #include "RimViewLinker.h"
 #include "RimWellPathCollection.h"
 #include "RimViewNameConfig.h"
+#include "RimMeasurement.h"
 
 #include "RivAnnotationsPartMgr.h"
 #include "RivWellPathsPartMgr.h"
+#include "RivMeasurementPartMgr.h"
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
@@ -141,6 +143,7 @@ Rim3dView::Rim3dView(void)
     m_wellPathsPartManager = new RivWellPathsPartMgr(this); 
     m_annotationsPartManager = new RivAnnotationsPartMgr(this);
 
+    m_measurementPartManager = new RivMeasurementPartMgr(this);
     this->setAs3DViewMdiWindow();
 }
 
@@ -350,6 +353,7 @@ void Rim3dView::setCurrentTimeStepAndUpdate(int frameIndex)
     project->mainPlotCollection()->updateCurrentTimeStepInPlots();
 
     appendAnnotationsToModel();
+    appendMeasurementToModel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -739,6 +743,29 @@ void Rim3dView::addAnnotationsToModel(cvf::ModelBasicList* wellPathModelBasicLis
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::addMeasurementToModel(cvf::ModelBasicList* wellPathModelBasicList)
+{
+    if (!this->ownerCase()) return;
+
+    RimMeasurement* measurement = RiaApplication::instance()->project()->measurement();
+
+    if (!measurement || measurement->pointsInDomainCoords().empty())
+    {
+        m_measurementPartManager->clearGeometryCache();
+    }
+    else
+    {
+        cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+        m_measurementPartManager->appendGeometryPartsToModel(
+            wellPathModelBasicList, transForm.p(), ownerCase()->allCellsBoundingBox());
+    }
+
+    wellPathModelBasicList->updateBoundingBoxesRecursive();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setScaleZAndUpdate(double scalingFactor)
@@ -1068,6 +1095,28 @@ void Rim3dView::appendAnnotationsToModel()
         model->setName(name);
 
         addAnnotationsToModel(model.p());
+
+        frameScene->addModel(model.p());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::appendMeasurementToModel()
+{
+    if (!m_viewer) return;
+
+    cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
+    if (frameScene)
+    {
+        cvf::String name = "Measurement";
+        this->removeModelByName(frameScene, name);
+
+        cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+        model->setName(name);
+
+        addMeasurementToModel(model.p());
 
         frameScene->addModel(model.p());
     }

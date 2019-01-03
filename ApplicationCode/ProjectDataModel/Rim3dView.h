@@ -43,6 +43,7 @@ class RimLegendConfig;
 class RimWellPathCollection;
 class RiuViewer;
 class RivAnnotationsPartMgr;
+class RivMeasurementPartMgr;
 class RivWellPathsPartMgr; 
 class RimViewNameConfig;
 
@@ -171,6 +172,7 @@ protected:
                                                                        const cvf::BoundingBox& wellPathClipBoundingBox);
 
     void                                    addAnnotationsToModel(cvf::ModelBasicList* wellPathModelBasicList);
+    void                                    addMeasurementToModel(cvf::ModelBasicList* wellPathModelBasicList);
 
     void                                    createHighlightAndGridBoxDisplayModel();
 
@@ -208,6 +210,7 @@ protected:
 
     cvf::ref<RivWellPathsPartMgr>           m_wellPathsPartManager; 
     cvf::ref<RivAnnotationsPartMgr>         m_annotationsPartManager;
+    cvf::ref<RivMeasurementPartMgr>         m_measurementPartManager;
 
 private:
     // Overridden PdmObject methods:
@@ -239,6 +242,7 @@ private:
     void                            handleMdiWindowClosed() override;
     void                            setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry) override;
     void                            appendAnnotationsToModel();
+    void                            appendMeasurementToModel();
 
 private:
     caf::PdmField<QString>                  m_name_OBSOLETE;

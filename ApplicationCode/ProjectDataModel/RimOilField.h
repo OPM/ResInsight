@@ -36,6 +36,7 @@ class RimSummaryCase;
 class RimSummaryCaseMainCollection;
 class RimWellPathCollection;
 class RimAnnotationCollection;
+class RimMeasurement;
 
 //==================================================================================================
 ///  
@@ -65,11 +66,11 @@ public:
     caf::PdmChildField<RimObservedDataCollection*>          observedDataCollection;
     caf::PdmChildField<RimFormationNamesCollection*>        formationNamesCollection;
     caf::PdmChildField<RimAnnotationCollection*>            annotationCollection;
+    caf::PdmChildField<RimMeasurement*>                     measurement;
 
 protected:
     virtual void initAfterRead() override;
 
 private:
     caf::PdmChildField<RimFractureTemplateCollection*>      m_fractureTemplateCollection_OBSOLETE;
-
 };
