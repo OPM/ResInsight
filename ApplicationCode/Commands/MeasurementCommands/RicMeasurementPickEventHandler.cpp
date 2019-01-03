@@ -28,6 +28,10 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
 
+#include "RivPartPriority.h"
+
+#include "cvfPart.h"
+
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -48,22 +52,36 @@ bool RicMeasurementPickEventHandler::handlePickEvent(const Ric3DPickEvent& event
 
     if (measurement && measurement->isInMeasurementMode())
     {
-        Rim3dView* rimView = RiaApplication::instance()->activeReservoirView();
-
-        cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-        cvf::Vec3d domainCoord = transForm->transformToDomainCoord(eventObject.m_pickItemInfos.front().globalPickedPoint());
-
-        bool isControlButtonDown = QApplication::keyboardModifiers() & Qt::ControlModifier;
-
-        if (!isControlButtonDown)
+        const RiuPickItemInfo* firstGeometryPickInfo = nullptr;
+        for (const auto& info : eventObject.m_pickItemInfos)
         {
-            if (measurement->pointsInDomainCoords().size() > 1)
+            auto partCandidate = info.pickedPart();
+            if (!firstGeometryPickInfo && partCandidate->priority() != RivPartPriority::PartType::Text)
             {
-                measurement->removeAllPoints();
+                firstGeometryPickInfo = &info;
             }
         }
 
-        measurement->addPointInDomainCoords(domainCoord);
+        Rim3dView* rimView = RiaApplication::instance()->activeReservoirView();
+
+        if (firstGeometryPickInfo && rimView)
+        {
+            cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+
+            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(firstGeometryPickInfo->globalPickedPoint());
+
+            bool isControlButtonDown = QApplication::keyboardModifiers() & Qt::ControlModifier;
+
+            if (!isControlButtonDown)
+            {
+                if (measurement->pointsInDomainCoords().size() > 1)
+                {
+                    measurement->removeAllPoints();
+                }
+            }
+
+            measurement->addPointInDomainCoords(domainCoord);
+        }
 
         // Further Ui processing is stopped when true is returned
         return true;

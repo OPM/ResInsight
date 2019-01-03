@@ -26,6 +26,8 @@
 
 #include "RiuViewerCommands.h"
 
+#include "cvfGeometryTools.h"
+
 CAF_PDM_SOURCE_INIT(RimMeasurement, "RimMeasurement");
 
 //--------------------------------------------------------------------------------------------------
@@ -107,11 +109,16 @@ void RimMeasurement::removeAllPoints()
 QString RimMeasurement::label() const
 {
     auto lengths = calculateLenghts();
-    return QString("Total length: \t%1\nLast length: \t%2\nTotal horizontal length: \t%3\nLast horizontal length: \t%4")
-        .arg(lengths.totalLength)
-        .arg(lengths.lastSegmentLength)
-        .arg(lengths.totalHorizontalLength)
-        .arg(lengths.lastSegmentHorisontalLength);
+
+    auto text = QString("Total length: \t%1\nLast length: \t%2\nTotal horizontal length: \t%3\nLast horizontal length: \t%4")
+                    .arg(lengths.totalLength)
+                    .arg(lengths.lastSegmentLength)
+                    .arg(lengths.totalHorizontalLength)
+                    .arg(lengths.lastSegmentHorisontalLength);
+
+    text += QString("\nArea : %1").arg(lengths.area);
+
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,6 +141,20 @@ RimMeasurement::Lengths RimMeasurement::calculateLenghts() const
 
         lengths.totalLength += lengths.lastSegmentLength;
         lengths.totalHorizontalLength += lengths.lastSegmentHorisontalLength;
+    }
+
+    {
+        std::vector<Vec3d> pointsProjectedInZPlane;
+        for (const auto& p : m_pointsInDomainCoords)
+        {
+            auto pointInZ = p;
+            pointInZ.z()  = 0.0;
+            pointsProjectedInZPlane.push_back(pointInZ);
+        }
+
+        Vec3d area = cvf::GeometryTools::polygonAreaNormal3D(pointsProjectedInZPlane);
+
+        lengths.area = cvf::Math::abs(area.z());
     }
 
     return lengths;
