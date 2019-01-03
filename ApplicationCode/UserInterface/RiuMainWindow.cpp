@@ -599,10 +599,11 @@ void RiuMainWindow::createToolBars()
     }
 
     {
-        QToolBar* measToolBar = addToolBar(tr("Measurement"));
+        QToolBar* toolbar = addToolBar(tr("Measurement"));
+        toolbar->setObjectName(toolbar->windowTitle());
         auto action = cmdFeatureMgr->action("RicToggleMeasurementModeFeature");
         action->setCheckable(true);
-        measToolBar->addAction(action);
+        toolbar->addAction(action);
     }
 
     RiaApplication* app = RiaApplication::instance();
