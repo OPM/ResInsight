@@ -209,12 +209,9 @@ std::vector<std::vector<cvf::Vec3d>> RivPolylineAnnotationPartMgr::transformPoly
     std::vector<std::vector<Vec3d>> pointsInDisplay;
     for (const auto& pts : pointsInDomain)
     {
-        std::vector<Vec3d> polyline;
-        for (const auto& pt : pts)
-        {
-            polyline.push_back(displayXf->transformToDisplayCoord(pt));
-        }
-        pointsInDisplay.push_back(polyline);
+        std::vector<cvf::Vec3d> displayCoords = displayXf->transformToDisplayCoords(pts);
+
+        pointsInDisplay.push_back(displayCoords);
 
     }
     return pointsInDisplay;

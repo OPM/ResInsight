@@ -79,7 +79,7 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
     if(collection)
     {
         std::vector<Vec3d> pointsInDomain = computeCirclePointsInDomain(collection->snapAnnotations(), collection->annotationPlaneZ());
-        std::vector<Vec3d> points = transformCirclePointsToDisplay(pointsInDomain, displayXf);
+        std::vector<cvf::Vec3d> points = displayXf->transformToDisplayCoords(pointsInDomain);
 
         cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(points);
 
@@ -207,17 +207,6 @@ std::vector<cvf::Vec3d> RivReachCircleAnnotationPartMgr::computeCirclePointsInDo
     return points;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RivReachCircleAnnotationPartMgr::Vec3d>
-    RivReachCircleAnnotationPartMgr::transformCirclePointsToDisplay(const std::vector<Vec3d>& pointsInDomain,
-                                                                    const caf::DisplayCoordTransform* displayXf)
-{
-    std::vector<Vec3d> pointsInDisplay;
-    for (const auto& pt : pointsInDomain) pointsInDisplay.push_back(displayXf->transformToDisplayCoord(pt));
-    return pointsInDisplay;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

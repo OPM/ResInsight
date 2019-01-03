@@ -59,8 +59,6 @@ public:
 private:
     void buildPolyLineParts(const caf::DisplayCoordTransform* displayCoordTransform);
 
-    std::vector<Vec3d> transformPolylinesPointsToDisplay(const std::vector<Vec3d>& pointsInDomain,
-                                                          const caf::DisplayCoordTransform* displayXf);
     bool               isPolylinesInBoundingBox(const cvf::BoundingBox& boundingBox);
 
 private:

@@ -95,11 +95,7 @@ void RivFishbonesSubsPartMgr::buildParts(const caf::DisplayCoordTransform* displ
         {
             std::vector<cvf::Vec3d> lateralDomainCoords = m_rimFishbonesSubs->coordsForLateral(sub.subIndex, lateralIndex);
 
-            std::vector<cvf::Vec3d> displayCoords;
-            for (auto domainCoord : lateralDomainCoords)
-            {
-                displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(domainCoord));
-            }
+            std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords(lateralDomainCoords);
 
             geoGenerator.cylinderWithCenterLineParts(&m_parts, displayCoords, m_rimFishbonesSubs->fishbonesColor(), wellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
         }

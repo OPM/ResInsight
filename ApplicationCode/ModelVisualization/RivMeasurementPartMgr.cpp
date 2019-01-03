@@ -120,7 +120,7 @@ void RivMeasurementPartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 void RivMeasurementPartMgr::buildPolyLineParts(const caf::DisplayCoordTransform* displayCoordTransform)
 {
-    auto pointsInDisplay = transformPolylinesPointsToDisplay(m_measurement->pointsInDomainCoords(), displayCoordTransform);
+    auto pointsInDisplay = displayCoordTransform->transformToDisplayCoords(m_measurement->pointsInDomainCoords());
 
     // Measurement lines
     {
@@ -211,21 +211,6 @@ void RivMeasurementPartMgr::buildPolyLineParts(const caf::DisplayCoordTransform*
 
         m_labelPart = part;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RivMeasurementPartMgr::Vec3d>
-    RivMeasurementPartMgr::transformPolylinesPointsToDisplay(const std::vector<Vec3d>& pointsInDomain,
-                                                             const caf::DisplayCoordTransform* displayXf)
-{
-    std::vector<Vec3d> pointsInDisplay;
-    for (const auto& pt : pointsInDomain)
-    {
-        pointsInDisplay.push_back(displayXf->transformToDisplayCoord(pt));
-    }
-    return pointsInDisplay;
 }
 
 //--------------------------------------------------------------------------------------------------

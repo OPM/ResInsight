@@ -255,11 +255,7 @@ void RivWellPathPartMgr::appendImportedFishbonesToModel(cvf::ModelBasicList* mod
     {
         if (!fbWellPath->isChecked()) continue;
 
-        std::vector<cvf::Vec3d> displayCoords;
-        for (const auto& lateralDomainCoords : fbWellPath->coordinates())
-        {
-            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(lateralDomainCoords));
-        }
+        std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords(fbWellPath->coordinates());
 
         cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(fbWellPath);
 

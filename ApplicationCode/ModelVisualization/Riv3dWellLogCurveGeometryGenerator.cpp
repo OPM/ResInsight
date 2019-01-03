@@ -98,21 +98,17 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
     }
     clipLocation = displayCoordTransform->transformToDisplayCoord(clipLocation);
 
-    std::vector<cvf::Vec3d> wellPathPoints = wellPathGeometry()->m_wellPathPoints;
-    for (cvf::Vec3d& wellPathPoint : wellPathPoints)
-    {
-        wellPathPoint = displayCoordTransform->transformToDisplayCoord(wellPathPoint);
-    }
+    std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords(wellPathGeometry()->m_wellPathPoints);
 
     std::vector<cvf::Vec3d> wellPathCurveNormals =
-        RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathPoints, rim3dWellLogCurve->drawPlaneAngle(rim3dWellLogCurve->drawPlane()));
+        RigWellPathGeometryTools::calculateLineSegmentNormals(displayCoords, rim3dWellLogCurve->drawPlaneAngle(rim3dWellLogCurve->drawPlane()));
 
     std::vector<cvf::Vec3d> interpolatedWellPathPoints;
     std::vector<cvf::Vec3d> interpolatedCurveNormals;
     // Iterate from bottom of well path and up to be able to stop at given Z max clipping height
     for (auto md = resultMds.rbegin(); md != resultMds.rend(); md++)
     {
-        cvf::Vec3d point  = wellPathGeometry()->interpolatedVectorValuesAlongWellPath(wellPathPoints, *md);
+        cvf::Vec3d point  = wellPathGeometry()->interpolatedVectorValuesAlongWellPath(displayCoords, *md);
         cvf::Vec3d normal = wellPathGeometry()->interpolatedVectorValuesAlongWellPath(wellPathCurveNormals, *md);
         if (point.z() > clipLocation.z()) break;
 

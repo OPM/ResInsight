@@ -65,8 +65,6 @@ private:
     bool isCircleInBoundingBox(const cvf::BoundingBox& boundingBox);
 
     std::vector<Vec3d> computeCirclePointsInDomain(bool snapToPlaneZ, double planeZ);
-    std::vector<Vec3d> transformCirclePointsToDisplay(const std::vector<Vec3d>& pointsInDomain,
-                                                      const caf::DisplayCoordTransform* displayXf);
 
     RimAnnotationInViewCollection* annotationCollection() const;
 

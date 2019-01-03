@@ -72,20 +72,20 @@ Riv3dWellLogDrawSurfaceGenerator::createDrawSurface(const caf::DisplayCoordTrans
     RimWellPathCollection* wellPathCollection = nullptr;
     m_wellPath->firstAncestorOrThisOfTypeAsserted(wellPathCollection);
 
-    std::vector<cvf::Vec3d> wellPathPoints = wellPathGeometry()->m_wellPathPoints;
-    if (wellPathPoints.size() < (size_t)2)
+    std::vector<cvf::Vec3d> wellPathDisplayCoords;
     {
-        // Need at least two well path points to create a valid path.
-        return false;
-    }
+        std::vector<cvf::Vec3d> domainCoords = wellPathGeometry()->m_wellPathPoints;
+        if (domainCoords.size() < (size_t)2)
+        {
+            // Need at least two well path points to create a valid path.
+            return false;
+        }
 
-    for (cvf::Vec3d& wellPathPoint : wellPathPoints)
-    {
-        wellPathPoint = displayCoordTransform->transformToDisplayCoord(wellPathPoint);
+        wellPathDisplayCoords = displayCoordTransform->transformToDisplayCoords(domainCoords);
     }
 
     std::vector<cvf::Vec3d> wellPathSegmentNormals =
-        RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathPoints, planeAngle);
+        RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathDisplayCoords, planeAngle);
 
     size_t indexToFirstVisibleSegment = 0u;
     if (wellPathCollection->wellPathClip)
@@ -95,27 +95,27 @@ Riv3dWellLogDrawSurfaceGenerator::createDrawSurface(const caf::DisplayCoordTrans
         clipLocation = displayCoordTransform->transformToDisplayCoord(clipLocation);
         double horizontalLengthAlongWellToClipPoint;
         
-        wellPathPoints = RigWellPath::clipPolylineStartAboveZ(
-            wellPathPoints, clipLocation.z(), &horizontalLengthAlongWellToClipPoint, &indexToFirstVisibleSegment);
+        wellPathDisplayCoords = RigWellPath::clipPolylineStartAboveZ(
+            wellPathDisplayCoords, clipLocation.z(), &horizontalLengthAlongWellToClipPoint, &indexToFirstVisibleSegment);
     }
       
     // Create curve normal vectors using the unclipped well path points and normals.
     createCurveNormalVectors(displayCoordTransform, indexToFirstVisibleSegment, planeOffsetFromWellPathCenter, planeWidth, samplingIntervalSize, wellPathSegmentNormals);
 
     // Note that normals are calculated on the full non-clipped well path. So we need to clip the start here.
-    wellPathSegmentNormals.erase(wellPathSegmentNormals.begin(), wellPathSegmentNormals.end() - wellPathPoints.size());
+    wellPathSegmentNormals.erase(wellPathSegmentNormals.begin(), wellPathSegmentNormals.end() - wellPathDisplayCoords.size());
 
-    if (wellPathPoints.size() < (size_t)2)
+    if (wellPathDisplayCoords.size() < (size_t)2)
     {
         // Need at least two well path points to create a valid path.
         return false;
     }
 
-    m_vertices.reserve(wellPathPoints.size() * 2);
-    for (size_t i = 0; i < wellPathPoints.size(); i++)
+    m_vertices.reserve(wellPathDisplayCoords.size() * 2);
+    for (size_t i = 0; i < wellPathDisplayCoords.size(); i++)
     {
-        m_vertices.push_back(wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter - 0.025*planeWidth));
-        m_vertices.push_back(wellPathPoints[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter + 1.025*planeWidth));
+        m_vertices.push_back(wellPathDisplayCoords[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter - 0.025*planeWidth));
+        m_vertices.push_back(wellPathDisplayCoords[i] + wellPathSegmentNormals[i] * (planeOffsetFromWellPathCenter + 1.025*planeWidth));
     }
         
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(m_vertices.size());
