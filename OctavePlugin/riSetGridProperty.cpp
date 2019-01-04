@@ -6,6 +6,10 @@
 #include "riSettings.h"
 #include "RiaSocketDataTransfer.cpp"  // NB! Include cpp-file to avoid linking of additional file in oct-compile configuration
 
+#ifdef WIN32
+#include <Windows.h>
+#endif //WIN32
+
 
 void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, quint16 port,
                         const qint64& caseId, const qint64& gridIndex, QString propertyName, const int32NDArray& timeStepIndices, QString porosityModel)
@@ -114,7 +118,9 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
 #ifdef WIN32
     // TODO: Due to synchronization issues seen on Windows 10, it is required to do a sleep here to be able to catch disconnect
     // signals from the socket. No sleep causes the server to hang.
+
     Sleep(100);
+
 #endif //WIN32
 
     return;
