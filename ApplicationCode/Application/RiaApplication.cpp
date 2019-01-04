@@ -1580,9 +1580,13 @@ std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileNa
 void RiaApplication::waitUntilCommandObjectsHasBeenProcessed()
 {
     // Wait until all command objects have completed
-    while (!m_commandQueueLock.tryLock())
+    bool mutexLockedSuccessfully = m_commandQueueLock.tryLock();
+    
+    while (!mutexLockedSuccessfully)
     {
         processEvents();
+        
+        mutexLockedSuccessfully = m_commandQueueLock.tryLock();
     }
     m_commandQueueLock.unlock();
 }
@@ -2219,6 +2223,8 @@ void RiaApplication::executeCommandObjects()
     else
     {
         // Unlock the command queue lock when the command queue is empty
+        // Required to lock the mutex before unlocking to avoid undefined behavior
+        m_commandQueueLock.tryLock(); 
         m_commandQueueLock.unlock();
     }
 }
