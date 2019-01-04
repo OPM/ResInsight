@@ -10,6 +10,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
 ################################################################################
 # Setup the main platform defines
 ################################################################################
@@ -52,6 +54,11 @@ include (ResInsightVersion.cmake)
 
 
 ################################################################################
+# Octave
+################################################################################
+find_package(Octave)
+
+################################################################################
 # cotire 
 # Fully automated CMake module for build speedup
 # https://github.com/sakra/cotire
@@ -60,11 +67,8 @@ include (ResInsightVersion.cmake)
 option(RESINSIGHT_ENABLE_COTIRE "Experimental speedup of compilation using cotire" OFF)
 mark_as_advanced(FORCE RESINSIGHT_ENABLE_COTIRE)
 if(RESINSIGHT_ENABLE_COTIRE)
-    set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-
     include(cotire)
 endif()
-
 
 ################################################################################
 # ERT
@@ -453,7 +457,14 @@ endif (RESINSIGHT_PRIVATE_INSTALL)
 # Application 
 ################################################################################
 add_subdirectory(ApplicationCode)
-add_subdirectory(OctavePlugin)
+
+if (OCTAVE_MKOCTFILE)
+  message ("Adding OctavePlugin library")
+  
+  add_subdirectory(OctavePlugin)
+else (OCTAVE_MKOCTFILE)
+  message ("Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library")
+endif(OCTAVE_MKOCTFILE)
 
 ################################################################################
 # Code documentation using Doxygen

@@ -592,14 +592,6 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(CPACK_GENERATOR ZIP)
 endif()
 
-if(RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE) 
-    get_filename_component(RESINSIGHT_OCTAVE_DIRECTORY ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} DIRECTORY)
-    
-    execute_process (COMMAND octave-config -v
-        WORKING_DIRECTORY ${RESINSIGHT_OCTAVE_DIRECTORY}
-                    OUTPUT_VARIABLE OCTAVE_VERSION_STRING
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif ()
 
 # Handling of system name on Windows
 if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
