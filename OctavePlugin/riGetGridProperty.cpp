@@ -27,11 +27,11 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
     QString command;
     command += "GetGridProperty " + QString::number(caseId) + " " + QString::number(gridIdx) + " " + propertyName + " " + porosityModel;
 
-    for (qint64 i = 0; i < requestedTimeSteps.length(); ++i)
+    for (qint64 i = 0; i < requestedTimeSteps.numel(); ++i)
     {
         if (i == 0) command += " ";
         command += QString::number(static_cast<int>(requestedTimeSteps.elem(i)) - 1); // To make the index 0-based
-        if (i != requestedTimeSteps.length() -1) command += " ";
+        if (i != requestedTimeSteps.numel() -1) command += " ";
     }
 
     QByteArray cmdBytes = command.toLatin1();

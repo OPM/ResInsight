@@ -31,11 +31,11 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
     QString command;
     command += "SetActiveCellProperty " + QString::number(caseId) + " " + propertyName + " " + porosityModel;
 
-    for (int i = 0; i < requestedTimeSteps.length(); ++i)
+    for (int i = 0; i < requestedTimeSteps.numel(); ++i)
     {
         if (i == 0) command += " ";
         command += QString::number(static_cast<int>(requestedTimeSteps.elem(i)) - 1); // To make the index 0-based
-        if (i != requestedTimeSteps.length() -1) command += " ";
+        if (i != requestedTimeSteps.numel() -1) command += " ";
     }
 
     QByteArray cmdBytes = command.toLatin1();
@@ -205,11 +205,11 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
     if (argIndices[3] >= 0) requestedTimeSteps  = args(argIndices[3]).int32_array_value();
     if (argIndices[4] >= 0) porosityModel       = args(argIndices[4]).string_value();
 
-    if (requestedTimeSteps.length())
+    if (requestedTimeSteps.numel())
     {
 
         int timeStepCount = mxDims.elem(1);
-        if (requestedTimeSteps.length() != timeStepCount)
+        if (requestedTimeSteps.numel() != timeStepCount)
         {
             error("riSetActiveCellProperty: The number of timesteps in the input matrix must match the number of timesteps in the TimeStepIndices array.");
             print_usage();

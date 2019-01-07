@@ -31,11 +31,11 @@ void setNNCProperty(const Matrix& propertyFrames, const QString &hostName, quint
     QString command;
     command += "SetNNCProperty " + QString::number(caseId) + " " + propertyName;
 
-    for (int i = 0; i < requestedTimeSteps.length(); ++i)
+    for (int i = 0; i < requestedTimeSteps.numel(); ++i)
     {
         if (i == 0) command += " ";
         command += QString::number(static_cast<int>(requestedTimeSteps.elem(i)) - 1); // To make the index 0-based
-        if (i != requestedTimeSteps.length() -1) command += " ";
+        if (i != requestedTimeSteps.numel() -1) command += " ";
     }
 
     QByteArray cmdBytes = command.toLatin1();
@@ -182,11 +182,11 @@ DEFUN_DLD (riSetNNCProperty, args, nargout,
     if (argIndices[2] >= 0) propertyName        = args(argIndices[2]).char_matrix_value().row_as_string(0);
     if (argIndices[3] >= 0) requestedTimeSteps  = args(argIndices[3]).int32_array_value();
 
-    if (requestedTimeSteps.length())
+    if (requestedTimeSteps.numel())
     {
 
         int timeStepCount = mxDims.elem(1);
-        if (requestedTimeSteps.length() != timeStepCount)
+        if (requestedTimeSteps.numel() != timeStepCount)
         {
             error("riSetNNCProperty: The number of time steps in the input matrix must match the number of time steps in the TimeStepIndices array.");
             print_usage();

@@ -27,11 +27,11 @@ void getGridPropertyForSelectedCells(Matrix& propertyFrames, const QString &serv
     QString command;
     command += "GetGridPropertyForSelectedCells " + QString::number(caseId) + " " + propertyName + " " + porosityModel;
 
-    for (int i = 0; i < requestedTimeSteps.length(); ++i)
+    for (int i = 0; i < requestedTimeSteps.numel(); ++i)
     {
         if (i == 0) command += " ";
         command += QString::number(static_cast<int>(requestedTimeSteps.elem(i)) - 1); // To make the index 0-based
-        if (i != requestedTimeSteps.length() - 1) command += " ";
+        if (i != requestedTimeSteps.numel() - 1) command += " ";
     }
 
     QByteArray cmdBytes = command.toLatin1();
