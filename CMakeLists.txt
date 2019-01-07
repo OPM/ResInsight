@@ -236,6 +236,7 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 # Qt
 ################################################################################
+option(RESINSIGHT_BUILD_WITH_QT5 "Use Qt5 folder" OFF)
 if (RESINSIGHT_BUILD_WITH_QT5)
 	message(STATUS "Attempting to build with Qt5")
 	find_package(Qt5 COMPONENTS Core QUIET)
