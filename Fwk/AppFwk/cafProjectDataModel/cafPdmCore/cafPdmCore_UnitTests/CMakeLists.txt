@@ -10,6 +10,12 @@ else()
 	include(${QT_USE_FILE})
 endif(Qt5Core_FOUND)
 
+if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
+  # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
+  add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
+  message("Add flag to disable warings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
+endif()
+
 include_directories (
 	${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
 )
