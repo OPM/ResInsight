@@ -71,12 +71,12 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     endif ()
 endif ()
 
-# TODO : Remove OCTAVE_HOME, replace with OCTAVE_ROOT_DIR
-SET(OCTAVE_HOME ${OCTAVE_ROOT_DIR})
-
 message ("Compiling Octave plugins using : ${OCTAVE_MKOCTFILE}")
 
-option(RESINSIGHT_OCTAVE_PLUGIN_QT "Compile Octave plugin using Qt located insided Octave root folder" OFF)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  option(RESINSIGHT_OCTAVE_PLUGIN_QT "Compile Octave plugin using Qt located insided Octave root folder" OFF)
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+
 if(RESINSIGHT_OCTAVE_PLUGIN_QT)
 
     message(STATUS "Compiling Octave plugins using custom Qt located at ${OCTAVE_ROOT_DIR}")
@@ -96,10 +96,6 @@ if(RESINSIGHT_OCTAVE_PLUGIN_QT)
       SET(OCTAVE_QT_QTCORE_LIB              QtCore4)
       SET(OCTAVE_QT_QTNETWORK_LIB           QtNetwork4)
     endif(EXISTS ${OCTAVE_ROOT_DIR}/qt5)
-
-    list (APPEND MKOCTFILE_INCLUDE_DIRS ${OCTAVE_QT_INCLUDE_DIR})
-    list (APPEND MKOCTFILE_INCLUDE_DIRS ${OCTAVE_QT_QTCORE_INCLUDE_DIR})
-    list (APPEND MKOCTFILE_INCLUDE_DIRS ${OCTAVE_QT_QTNETWORK_INCLUDE_DIR})
 
 else()
 
@@ -129,10 +125,12 @@ else()
 
   endif(Qt5Core_FOUND)
 
-  list (APPEND MKOCTFILE_INCLUDE_DIRS ${OCTAVE_QT_QTCORE_INCLUDE_DIR})
-  list (APPEND MKOCTFILE_INCLUDE_DIRS ${OCTAVE_QT_QTNETWORK_INCLUDE_DIR})
-
 endif(RESINSIGHT_OCTAVE_PLUGIN_QT)
+
+list (APPEND MKOCTFILE_INCLUDE_DIRS ${OCTAVE_QT_INCLUDE_DIR})
+list (APPEND MKOCTFILE_INCLUDE_DIRS ${OCTAVE_QT_QTCORE_INCLUDE_DIR})
+list (APPEND MKOCTFILE_INCLUDE_DIRS ${OCTAVE_QT_QTNETWORK_INCLUDE_DIR})
+
 
 # Add socket interface source code folder
 list (APPEND MKOCTFILE_INCLUDE_DIRS ${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface)
@@ -165,7 +163,7 @@ if (OCTAVE_MKOCTFILE)
         if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
             add_custom_command(
                 OUTPUT "${octFileName}"
-                COMMAND set "OCTAVE_HOME=${OCTAVE_HOME}"
+                COMMAND set "OCTAVE_HOME=${OCTAVE_ROOT_DIR}"
             	COMMAND set "PATH=%OCTAVE_HOME%\\bin;%PATH%"
                 COMMAND ${OCTAVE_MKOCTFILE}
                     ${MKOCTFILE_INCLUDE_COMMAND_STRING} 
@@ -194,7 +192,7 @@ if (OCTAVE_MKOCTFILE)
         else()
             add_custom_command(
                 OUTPUT "${octFileName}"
-                COMMAND OCTAVE_HOME=${OCTAVE_HOME}
+                COMMAND OCTAVE_HOME=${OCTAVE_ROOT_DIR}
                     ${OCTAVE_MKOCTFILE}
                     ${MKOCTFILE_INCLUDE_COMMAND_STRING} 
                     ${RPATH_COMMAND}
