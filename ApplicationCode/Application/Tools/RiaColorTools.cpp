@@ -28,10 +28,11 @@
 /// Uses W3.org relative luminance calculation taking into account the different luminance of the different colors
 /// https://www.w3.org/TR/WCAG20-TECHS/G18.html
 /// Luminance is between [0, 1] so anything above 0.5 is considered in the bright half of the spectrum.
+/// However, subjectively the contrast looks better if the threshold is to 0.4 so black contrast is used a bit more often.
 //--------------------------------------------------------------------------------------------------
 bool RiaColorTools::isBrightnessAboveThreshold(cvf::Color3f backgroundColor)
 {
-    if (relativeLuminance(backgroundColor) > 0.5)
+    if (relativeLuminance(backgroundColor) > 0.4)
     {
         return true;
     }
