@@ -145,6 +145,7 @@ void RivContourMapProjectionPartMgr::appendContourLinesToModel(const cvf::Camera
                     cvf::ref<cvf::Part> part = new cvf::Part;
                     part->setDrawable(contourDrawable.p());
                     part->setEffect(effect.p());
+                    part->setPriority(RivPartPriority::MeshLines);
                     part->setSourceInfo(new RivMeshLinesSourceInfo(m_contourMapProjection.p()));
 
                     model->addPart(part.p());
@@ -153,11 +154,7 @@ void RivContourMapProjectionPartMgr::appendContourLinesToModel(const cvf::Camera
         }
         for (auto labelDrawableRef : labelDrawables)
         {
-            caf::MeshEffectGenerator meshEffectGen(cvf::Color3::BLACK);
-            meshEffectGen.setLineWidth(1.0f);
-            meshEffectGen.createAndConfigurePolygonOffsetRenderState(caf::PO_2);
-
-            cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
+            cvf::ref<cvf::Effect> effect = new cvf::Effect;
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setDrawable(labelDrawableRef.p());
@@ -228,7 +225,7 @@ cvf::ref<cvf::Part> RivContourMapProjectionPartMgr::createProjectionMapPart(cons
         part.p(), textureCoords.p(), mapper, 1.0f, caf::FC_NONE, true, m_parentContourMap->backgroundColor());
 
     part->setSourceInfo(new RivObjectSourceInfo(m_contourMapProjection.p()));
-
+    part->setPriority(RivPartPriority::BaseLevel);
     return part;
 }
 
