@@ -22,7 +22,10 @@
 #include "cvfBase.h"
 #include "cvfVector3.h"
 
+#include <QPointer>
+
 class Rim3dView;
+class RiuMeasurementEventFilter;
 
 //==================================================================================================
 ///
@@ -76,4 +79,6 @@ private:
     bool                       m_isInMeasurementMode;
     std::vector<Vec3d>         m_pointsInDomainCoords;
     caf::PdmPointer<Rim3dView> m_sourceView;
+    
+    QPointer<RiuMeasurementEventFilter> m_eventFilter;
 };

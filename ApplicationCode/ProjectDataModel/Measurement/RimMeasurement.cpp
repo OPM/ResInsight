@@ -24,9 +24,11 @@
 
 #include "MeasurementCommands/RicMeasurementPickEventHandler.h"
 
+#include "RiuMeasurementEventFilter.h"
 #include "RiuViewerCommands.h"
 
 #include "cvfGeometryTools.h"
+#include "RiuMainWindow.h"
 
 CAF_PDM_SOURCE_INIT(RimMeasurement, "RimMeasurement");
 
@@ -52,12 +54,26 @@ void RimMeasurement::setMeasurementMode(bool measurementMode)
     m_isInMeasurementMode = measurementMode;
 
     if (m_isInMeasurementMode)
+    {
         RiuViewerCommands::setPickEventHandler(RicMeasurementPickEventHandler::instance());
+
+        m_eventFilter = new RiuMeasurementEventFilter(this);
+        m_eventFilter->registerFilter();
+    }
     else
     {
         RiuViewerCommands::removePickEventHandlerIfActive(RicMeasurementPickEventHandler::instance());
         removeAllPoints();
+
+        if (m_eventFilter)
+        {
+            m_eventFilter->unregisterFilter();
+            m_eventFilter->deleteLater();
+            m_eventFilter = nullptr;
+        }
     }
+
+    RiuMainWindow::instance()->refreshViewActions();
 }
 
 //--------------------------------------------------------------------------------------------------

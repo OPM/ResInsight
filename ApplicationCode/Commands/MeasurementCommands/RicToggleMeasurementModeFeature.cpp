@@ -55,6 +55,7 @@ void RicToggleMeasurementModeFeature::onActionTriggered(bool isChecked)
 {
     auto meas = measurement();
     meas->setMeasurementMode(!meas->isInMeasurementMode());
+    
     refreshActionLook();
 }
 
@@ -64,12 +65,29 @@ void RicToggleMeasurementModeFeature::onActionTriggered(bool isChecked)
 void RicToggleMeasurementModeFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Measurement Mode");
+    actionToSetup->setIcon(QIcon(":/Ruler16x16.png"));
 
+/*
     auto* meas = measurement();
     if (meas && meas->isInMeasurementMode())
         actionToSetup->setIcon(QIcon(":/NoRuler16x16.png"));
     else
         actionToSetup->setIcon(QIcon(":/Ruler16x16.png"));
+*/
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicToggleMeasurementModeFeature::isCommandChecked()
+{
+    auto meas = measurement();
+    if (meas)
+    {
+        return meas->isInMeasurementMode();
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

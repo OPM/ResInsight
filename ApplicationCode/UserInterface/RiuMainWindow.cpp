@@ -871,21 +871,21 @@ void RiuMainWindow::slotRefreshViewActions()
 
     updateScaleValue();
 
-    QStringList commandIds;
-    commandIds << "RicLinkVisibleViewsFeature"
-               << "RicTileWindowsFeature"
-               << "RicTogglePerspectiveViewFeature"
-               << "RicViewZoomAllFeature";
-
-    caf::CmdFeatureManager::instance()->refreshEnabledState(commandIds);
-
-
-    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-    auto feature = dynamic_cast<RicToggleMeasurementModeFeature*>(
-        cmdFeatureMgr->getCommandFeature("RicToggleMeasurementModeFeature"));
-    if (feature)
     {
-        feature->refreshActionLook();
+        QStringList commandIds;
+        commandIds << "RicLinkVisibleViewsFeature"
+                   << "RicTileWindowsFeature"
+                   << "RicTogglePerspectiveViewFeature"
+                   << "RicViewZoomAllFeature";
+
+        caf::CmdFeatureManager::instance()->refreshEnabledState(commandIds);
+    }
+
+    {
+        QStringList commandIds;
+        commandIds << "RicToggleMeasurementModeFeature";
+
+        caf::CmdFeatureManager::instance()->refreshCheckedState(commandIds);
     }
 }
 
