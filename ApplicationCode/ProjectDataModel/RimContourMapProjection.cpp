@@ -268,6 +268,8 @@ void RimContourMapProjection::generateContourPolygons()
 {    
     std::vector<ContourPolygons> contourPolygons;
 
+    const double areaTreshold = 1.5 * m_sampleSpacing * m_sampleSpacing;
+
     if (minValue() != std::numeric_limits<double>::infinity() &&
         maxValue() != -std::numeric_limits<double>::infinity() &&
         std::fabs(maxValue() - minValue()) > 1.0e-8)
@@ -280,7 +282,7 @@ void RimContourMapProjection::generateContourPolygons()
             if (nContourLevels > 2)
             {
                 std::vector<caf::ContourLines::ClosedPolygons> closedContourLines =
-                    caf::ContourLines::create(m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels);
+                    caf::ContourLines::create(m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels, areaTreshold);
 
                 contourPolygons.resize(closedContourLines.size());
 
@@ -300,7 +302,6 @@ void RimContourMapProjection::generateContourPolygons()
                         contourPolygons[i].push_back(contourPolygon);
                     }
                 }
-
                 smoothPolygonLoops(&contourPolygons[0]);
             }
         }

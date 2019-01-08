@@ -216,7 +216,8 @@ void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vec
 std::vector<caf::ContourLines::ClosedPolygons> caf::ContourLines::create(const std::vector<double>& dataXY,
     const std::vector<double>& xPositions,
     const std::vector<double>& yPositions,
-    const std::vector<double>& contourLevels)
+    const std::vector<double>& contourLevels,
+    double                     areaThreshold)
 {
     const double eps = 1.0e-4;
     std::vector<std::vector<cvf::Vec2d>> contourLineSegments;
@@ -291,15 +292,17 @@ std::vector<caf::ContourLines::ClosedPolygons> caf::ContourLines::create(const s
                         signedArea += (closedPolygonDeque[j + 1].x() - closedPolygonDeque[j].x()) *
                                       (closedPolygonDeque[j + 1].y() + closedPolygonDeque[j].y());
                     }
-                    if (signedArea < 0.0)
+                    if (std::abs(signedArea) > areaThreshold)
                     {
-                        closedPolygonsPerLevel[i].emplace_back(closedPolygonDeque.rbegin(), closedPolygonDeque.rend());
+                        if (signedArea < 0.0)
+                        {
+                            closedPolygonsPerLevel[i].emplace_back(closedPolygonDeque.rbegin(), closedPolygonDeque.rend());
+                        }
+                        else
+                        {
+                            closedPolygonsPerLevel[i].emplace_back(closedPolygonDeque.begin(), closedPolygonDeque.end());
+                        }
                     }
-                    else
-                    {
-                        closedPolygonsPerLevel[i].emplace_back(closedPolygonDeque.begin(), closedPolygonDeque.end());
-                    }
-
                     closedPolygonDeque.clear();
                 }
             }

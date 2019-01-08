@@ -25,7 +25,9 @@
 
 #include "cvfBase.h"
 #include "cvfVector2.h"
+
 #include <deque>
+#include <limits>
 #include <vector>
 
 namespace caf
@@ -39,7 +41,8 @@ public:
     static std::vector<ClosedPolygons> create(const std::vector<double>&            dataXY,
                                               const std::vector<double>&            xPositions,
                                               const std::vector<double>&            yPositions,
-                                              const std::vector<double>&            contourLevels);
+                                              const std::vector<double>&            contourLevels,
+                                              double                                areaTreshold = std::numeric_limits<double>::infinity());
     
 private:
     static void create(const std::vector<double>& dataXY,
