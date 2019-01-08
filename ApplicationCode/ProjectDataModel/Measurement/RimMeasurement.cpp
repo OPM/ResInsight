@@ -110,13 +110,26 @@ QString RimMeasurement::label() const
 {
     auto lengths = calculateLenghts();
 
-    auto text = QString("Total length: \t%1\nLast length: \t%2\nTotal horizontal length: \t%3\nLast horizontal length: \t%4")
-                    .arg(lengths.totalLength)
-                    .arg(lengths.lastSegmentLength)
-                    .arg(lengths.totalHorizontalLength)
-                    .arg(lengths.lastSegmentHorisontalLength);
+    QString text;
 
-    text += QString("\nArea : %1").arg(lengths.area);
+    if (m_pointsInDomainCoords.size() > 2)
+    {
+        text = QString("Segment Length: %1\nSegment Horizontal Length: %2\n")
+                   .arg(lengths.lastSegmentLength)
+                   .arg(lengths.lastSegmentHorisontalLength);
+
+        text += QString("Total Length: %1\nTotal Horizontal Length: %2\n")
+                    .arg(lengths.totalLength)
+                    .arg(lengths.totalHorizontalLength);
+
+        text += QString("\nHorizontal Area : %1").arg(lengths.area);
+    }
+    else
+    {
+        text = QString("Length: %1\nHorizontal Length: %2\n")
+                   .arg(lengths.lastSegmentLength)
+                   .arg(lengths.lastSegmentHorisontalLength);
+    }
 
     return text;
 }
