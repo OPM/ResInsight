@@ -72,7 +72,7 @@ public:
     RimContourMapProjection();
     ~RimContourMapProjection() override;
 
-    std::vector<cvf::Vec4d>      generateTriangles() const;
+    std::vector<cvf::Vec4d>      generateTrianglesWithVertexValues() const;
     std::vector<cvf::Vec3d>      generateVertices() const;
     void                         generateContourPolygons();
     std::vector<cvf::Vec3d>      generatePickPointPolygon();

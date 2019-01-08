@@ -41,7 +41,7 @@ void RivContourMapProjectionPartMgr::createProjectionGeometry()
 {
     m_contourMapProjection->generateContourPolygons();
     m_contourLinePolygons = m_contourMapProjection->contourPolygons();
-    m_contourMapTriangles = m_contourMapProjection->generateTriangles();
+    m_contourMapTriangles = m_contourMapProjection->generateTrianglesWithVertexValues();
 }
 
 //--------------------------------------------------------------------------------------------------

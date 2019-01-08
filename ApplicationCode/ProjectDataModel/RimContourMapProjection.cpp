@@ -107,7 +107,7 @@ RimContourMapProjection::~RimContourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec4d> RimContourMapProjection::generateTriangles() const
+std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValues() const
 {
     std::vector<cvf::Vec3d> vertices = generateVertices();
 
