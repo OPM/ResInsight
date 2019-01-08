@@ -81,6 +81,7 @@ RimContourMapProjection::RimContourMapProjection()
 
     CAF_PDM_InitField(&m_showContourLines, "ContourLines", true, "Show Contour Lines", "", "", "");
     CAF_PDM_InitField(&m_showContourLabels, "ContourLabels", true, "Show Contour Labels", "", "", "");
+    CAF_PDM_InitField(&m_smoothContourLines, "SmoothContourLines", true, "Smooth Contour Lines", "", "", "");
 
     CAF_PDM_InitField(&m_weightByParameter, "WeightByParameter", false, "Weight by Result Parameter", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_weightingResult, "WeightingResult", "", "", "", "");
@@ -301,9 +302,12 @@ void RimContourMapProjection::generateContourPolygons()
                         }
                         contourPolygons[i].push_back(contourPolygon);
                     }
+                    if (i == 0 || m_smoothContourLines())
+                    {
+                        smoothPolygonLoops(&contourPolygons[i], true);
+                    }
                 }
-                smoothPolygonLoops(&contourPolygons[0]);
-            }
+            }            
         }
     }
     m_contourPolygons = contourPolygons;
@@ -728,7 +732,7 @@ bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::smoothPolygonLoops(ContourPolygons* contourPolygons)
+void RimContourMapProjection::smoothPolygonLoops(ContourPolygons* contourPolygons, bool favourExpansion)
 {
     CVF_ASSERT(contourPolygons);
     for (size_t i = 0; i < contourPolygons->size(); ++i)
@@ -758,7 +762,7 @@ void RimContourMapProjection::smoothPolygonLoops(ContourPolygons* contourPolygon
                 cvf::Vec3d tangent3d = vp1 - vm1;
                 cvf::Vec2d tangent2d(tangent3d.x(), tangent3d.y());
                 cvf::Vec3d norm3d (tangent2d.getNormalized().perpendicularVector());
-                if (delta * norm3d > 0)
+                if (delta * norm3d > 0 && favourExpansion)
                 {
                     // Normal is always inwards facing so a positive dot product means inward movement
                     // Favour expansion rather than contraction by only contracting by half the amount
@@ -870,6 +874,7 @@ void RimContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiO
     mainGroup->add(&m_relativeSampleSpacing);
     mainGroup->add(&m_showContourLines);
     mainGroup->add(&m_showContourLabels);
+    mainGroup->add(&m_smoothContourLines);
     m_showContourLabels.uiCapability()->setUiReadOnly(!m_showContourLines());
     mainGroup->add(&m_resultAggregation);
 

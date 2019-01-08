@@ -117,7 +117,7 @@ public:
     cvf::Vec3d                   origin3d() const;
 
 protected:
-    void   smoothPolygonLoops(ContourPolygons* contourPolygons);
+    void   smoothPolygonLoops(ContourPolygons* contourPolygons, bool favourExpansion);
     double interpolateValue(const cvf::Vec2d& gridPosition2d) const;
 
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -178,6 +178,7 @@ protected:
     caf::PdmField<ResultAggregation>                    m_resultAggregation;
     caf::PdmField<bool>                                 m_showContourLines;
     caf::PdmField<bool>                                 m_showContourLabels;
+    caf::PdmField<bool>                                 m_smoothContourLines;
     caf::PdmField<bool>                                 m_weightByParameter;
     caf::PdmChildField<RimEclipseResultDefinition*>     m_weightingResult;
 
