@@ -32,6 +32,11 @@
 
 class RimContourMapView;
 
+namespace cvf
+{
+    class Effect;
+}
+
 class RivContourMapProjectionPartMgr : public cvf::Object
 {
 public:
@@ -40,7 +45,7 @@ public:
     void createProjectionGeometry();
     void appendProjectionToModel(cvf::ModelBasicList*              model,
                                  const caf::DisplayCoordTransform* displayCoordTransform) const;
-    void appendContourLinesToModel(const cvf::Camera* camera, cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform) const;
+    void appendContourLinesToModel(const cvf::Camera* camera, cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform);
     void appendPickPointVisToModel(cvf::ModelBasicList* model,
                                    const caf::DisplayCoordTransform* displayCoordTransform) const;
 
@@ -60,5 +65,6 @@ private:
     std::vector<RimContourMapProjection::ContourPolygons> m_contourLinePolygons;
     std::vector<cvf::Vec4d>                               m_contourMapTriangles;
     std::vector<std::vector<cvf::BoundingBox>>            m_labelBoundingBoxes;
+    cvf::ref<cvf::Effect>                                 m_labelEffect;
 };
 

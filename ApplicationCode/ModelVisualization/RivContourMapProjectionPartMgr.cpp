@@ -32,6 +32,8 @@ RivContourMapProjectionPartMgr::RivContourMapProjectionPartMgr(RimContourMapProj
 {
     m_contourMapProjection = contourMapProjection;
     m_parentContourMap = contourMap;
+
+    m_labelEffect = new cvf::Effect;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +112,7 @@ cvf::ref<cvf::Vec2fArray> RivContourMapProjectionPartMgr::createTextureCoords(co
 //--------------------------------------------------------------------------------------------------
 void RivContourMapProjectionPartMgr::appendContourLinesToModel(const cvf::Camera*                camera,
                                                                cvf::ModelBasicList*              model,
-                                                               const caf::DisplayCoordTransform* displayCoordTransform) const
+                                                               const caf::DisplayCoordTransform* displayCoordTransform)
 {
     if (m_contourMapProjection->showContourLines())
     {
@@ -154,11 +156,9 @@ void RivContourMapProjectionPartMgr::appendContourLinesToModel(const cvf::Camera
         }
         for (auto labelDrawableRef : labelDrawables)
         {
-            cvf::ref<cvf::Effect> effect = new cvf::Effect;
-
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setDrawable(labelDrawableRef.p());
-            part->setEffect(effect.p());
+            part->setEffect(m_labelEffect.p());
             part->setPriority(RivPartPriority::Text);
             part->setSourceInfo(new RivMeshLinesSourceInfo(m_contourMapProjection.p()));
             model->addPart(part.p());
@@ -378,7 +378,7 @@ std::vector<cvf::ref<cvf::Drawable>>
             cvf::String labelText(m_contourLinePolygons[i][j].value);
 
             size_t nVertices = m_contourLinePolygons[i][j].vertices.size();
-            size_t nLabels = m_contourMapProjection->showContourLabels() ? std::max((size_t)1, nVertices / 50u) : 0u;
+            size_t nLabels = m_contourMapProjection->showContourLabels() ? std::max((size_t)1, (size_t) (nVertices / 50u * m_contourMapProjection->sampleSpacingFactor())) : 0u;
             for (size_t l = 0; l < nLabels; ++l)
             {
                 size_t     nVertex = (nVertices * l) / nLabels;
