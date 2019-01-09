@@ -76,7 +76,7 @@ bool RiaArgumentParser::parseArguments()
     progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
 
     QString helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(RiaApplication::getVersionStringApp(false));
-    helpText += "Copyright Statoil ASA, Ceetron Solution AS, Ceetron AS\n\n";
+    helpText += "Copyright Equinor ASA, Ceetron Solution AS, Ceetron AS\n\n";
 
     const cvf::String usageText = progOpt.usageText(110, 30);
     helpText += cvfqt::Utils::toQString(usageText);
