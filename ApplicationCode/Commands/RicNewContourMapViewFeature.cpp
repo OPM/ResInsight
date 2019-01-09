@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -42,25 +42,25 @@
 CAF_CMD_SOURCE_INIT(RicNewContourMapViewFeature, "RicNewContourMapViewFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewContourMapViewFeature::isCommandEnabled()
 {
-    bool selectedView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>() != nullptr;
-    bool selectedCase = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>() != nullptr;
+    bool selectedView          = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>() != nullptr;
+    bool selectedCase          = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>() != nullptr;
     bool selectedMapCollection = caf::SelectionManager::instance()->selectedItemOfType<RimContourMapViewCollection>();
     return selectedView || selectedCase || selectedMapCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewContourMapViewFeature::onActionTriggered(bool isChecked)
 {
-    RimEclipseView* reservoirView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
+    RimEclipseView*    reservoirView      = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
     RimContourMapView* existingContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimContourMapView>();
-    RimEclipseCase* eclipseCase = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseCase>();
-    RimContourMapView* contourMap = nullptr;
+    RimEclipseCase*    eclipseCase        = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseCase>();
+    RimContourMapView* contourMap         = nullptr;
 
     // Find case to insert into
     if (existingContourMap)
@@ -95,12 +95,12 @@ void RicNewContourMapViewFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewContourMapViewFeature::setupActionLook(QAction* actionToSetup)
 {
-    RimContourMapView* contourMap = caf::SelectionManager::instance()->selectedItemOfType<RimContourMapView>();
-    RimEclipseView* eclipseView  = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
+    RimContourMapView* contourMap  = caf::SelectionManager::instance()->selectedItemOfType<RimContourMapView>();
+    RimEclipseView*    eclipseView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
     if (contourMap)
     {
         actionToSetup->setText("Duplicate Contour Map");
@@ -114,15 +114,16 @@ void RicNewContourMapViewFeature::setupActionLook(QAction* actionToSetup)
         actionToSetup->setText("New Contour Map");
     }
     actionToSetup->setIcon(QIcon(":/2DMap16x16.png"));
-}    
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFromExistingContourMap(RimEclipseCase* eclipseCase, RimContourMapView* existingContourMap)
+RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFromExistingContourMap(RimEclipseCase*    eclipseCase,
+                                                                                         RimContourMapView* existingContourMap)
 {
-    RimContourMapView* contourMap =
-        dynamic_cast<RimContourMapView*>(existingContourMap->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(
+        existingContourMap->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
     CVF_ASSERT(contourMap);
 
     contourMap->setEclipseCase(eclipseCase);
@@ -144,7 +145,8 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFromExistingCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFrom3dView(RimEclipseCase* eclipseCase, const RimEclipseView* sourceView)
+RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFrom3dView(RimEclipseCase*       eclipseCase,
+                                                                             const RimEclipseView* sourceView)
 {
     RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(sourceView->xmlCapability()->copyAndCastByXmlSerialization(
         RimContourMapView::classKeywordStatic(), sourceView->classKeyword(), caf::PdmDefaultObjectFactory::instance()));
@@ -154,7 +156,7 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFrom3dView(Rim
     contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f)); // Ignore original view background
     contourMap->setDefaultCustomName();
     contourMap->faultCollection()->showFaultCollection = false;
-    contourMap->wellCollection()->isActive = false;
+    contourMap->wellCollection()->isActive             = false;
 
     caf::PdmDocument::updateUiIconStateRecursively(contourMap);
 
@@ -168,7 +170,7 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFrom3dView(Rim
 
     // TODO: Introduce the assert when code is stable
     // If we have intersections on well paths, the resolving is now failing
-    //CVF_ASSERT(fieldsWithFailingResolve.empty());
+    // CVF_ASSERT(fieldsWithFailingResolve.empty());
 
     contourMap->initAfterReadRecursively();
 
@@ -190,7 +192,7 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMap(RimEclipseCas
         if (RiaApplication::instance()->preferences()->loadAndShowSoil)
         {
             contourMap->cellResult()->setResultVariable("SOIL");
-        }       
+        }
     }
 
     caf::PdmDocument::updateUiIconStateRecursively(contourMap);
