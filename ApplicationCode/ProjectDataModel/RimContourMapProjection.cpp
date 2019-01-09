@@ -116,10 +116,16 @@ std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValu
     cvf::ref<cvf::UIntArray> faceList = new cvf::UIntArray;
     cvf::GeometryUtils::tesselatePatchAsTriangles(patchSize.x(), patchSize.y(), 0u, true, faceList.p());
 
+    bool discrete = false;
     std::vector<double> contourLevels;
     if (legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER)
     {
         legendConfig()->scalarMapper()->majorTickValues(&contourLevels);     
+        if (legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_DISCRETE ||
+            legendConfig()->mappingMode() == RimRegularLegendConfig::LOG10_DISCRETE)
+        {
+            discrete = true;
+        }
     }
 
     std::vector<std::vector<cvf::Vec4d>> threadTriangles(omp_get_max_threads());
@@ -134,97 +140,117 @@ std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValu
         {
             std::vector<cvf::Vec3d> triangle(3);
             std::vector<cvf::Vec4d> triangleWithValues(3);
-            bool allValuesAboveLevelOneTreshold = true;
-            RiaWeightedMeanCalculator<double> meanValueCalc;
             for (size_t n = 0; n < 3; ++n)
             {
                 uint vn = (*faceList)[i + n];
                 double value = m_aggregatedVertexResults[vn];
                 triangle[n] = vertices[vn];
                 triangleWithValues[n] = cvf::Vec4d(vertices[vn], value);
-                if (value == std::numeric_limits<double>::infinity())
-                {
-                    allValuesAboveLevelOneTreshold = false;
-                }
-                else
-                {
-                    if (contourLevels.size() >= 2u && value < contourLevels[1])
-                    {
-                        allValuesAboveLevelOneTreshold = false;
-                    }
-                    meanValueCalc.addValueAndWeight(value, 1.0);
-                }
             }
 
-            if (allValuesAboveLevelOneTreshold || m_contourPolygons.empty())
+            if (m_contourPolygons.empty())
             {
-                // Triangle is completely within the threshold. Include it.
                 threadTriangles[myThread].insert(threadTriangles[myThread].end(), triangleWithValues.begin(), triangleWithValues.end());
                 continue;
             }
 
-            double triangleMeanValue = std::numeric_limits<double>::infinity();
-
-            if (meanValueCalc.validAggregatedWeight())
+            for (size_t c = 0; c < m_contourPolygons.size(); ++c)
             {
-                triangleMeanValue = meanValueCalc.weightedMean();
-            }
-
-            for (size_t j = 0; j < m_contourPolygons.front().size(); ++j)
-            {
-                const std::vector<cvf::Vec3d>& contourLine = m_contourPolygons.front()[j].vertices;
-                std::vector<std::vector<cvf::Vec3d>> clippedPolygons = RigCellGeometryTools::intersectPolygons(triangle, contourLine);
-
-                std::vector<cvf::Vec4d> clippedTriangles;
-                for (std::vector<cvf::Vec3d>& clippedPolygon : clippedPolygons)
+                std::vector<std::vector<cvf::Vec3d>> intersectPolygons;
+                for (size_t j = 0; j < m_contourPolygons[c].size(); ++j)
                 {
-                    std::vector<std::vector<cvf::Vec3d>> polygonTriangles;
-                    if (clippedPolygon.size() == 3u)
+                    std::vector<std::vector<cvf::Vec3d>> clippedPolygons = RigCellGeometryTools::intersectPolygons(triangle, m_contourPolygons[c][j].vertices);
+                    intersectPolygons.insert(intersectPolygons.end(), clippedPolygons.begin(), clippedPolygons.end());
+                }
+              
+                std::vector<std::vector<cvf::Vec3d>> subtractPolygons;
+                if (c < m_contourPolygons.size() - 1)
+                {
+                    for (size_t j = 0; j < m_contourPolygons[c + 1].size(); ++j)
                     {
-                        polygonTriangles.push_back(clippedPolygon);
-                    }
-                    else
-                    {
-                        cvf::Vec3d baryCenter = cvf::Vec3d::ZERO;
-                        for (size_t v = 0; v < clippedPolygon.size(); ++v)
-                        {
-                            cvf::Vec3d& clippedVertex = clippedPolygon[v];
-                            baryCenter += clippedVertex;
-                        }
-                        baryCenter /= clippedPolygon.size();
-                        for (size_t v = 0; v < clippedPolygon.size(); ++v)
-                        {
-                            std::vector<cvf::Vec3d> clippedTriangle;
-                            if (v == clippedPolygon.size() - 1)
-                            {
-                                clippedTriangle = { clippedPolygon[v], clippedPolygon[0], baryCenter };
-                            }
-                            else
-                            {
-                                clippedTriangle = { clippedPolygon[v], clippedPolygon[v + 1], baryCenter };
-                            }
-                            polygonTriangles.push_back(clippedTriangle);
-                        }
-                    }
-                    for (const std::vector<cvf::Vec3d>& polygonTriangle: polygonTriangles)
-                    {
-                        for (const cvf::Vec3d& localVertex : polygonTriangle)
-                        {
-                            double value = triangleMeanValue;
-                            for (size_t n = 0; n < 3; ++n)
-                            {
-                                if ((triangle[n] - localVertex).length() < m_sampleSpacing * 0.01 && triangleWithValues[n].w() != std::numeric_limits<double>::infinity())
-                                {
-                                    value = triangleWithValues[n].w();
-                                    break;
-                                }
-                            }
-                            cvf::Vec4d globalVertex(localVertex, value);
-                            clippedTriangles.push_back(globalVertex);
-                        }
+                        subtractPolygons.push_back(m_contourPolygons[c + 1][j].vertices);
                     }
                 }
-                threadTriangles[myThread].insert(threadTriangles[myThread].end(), clippedTriangles.begin(), clippedTriangles.end());
+                std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
+
+                if (!subtractPolygons.empty())
+                {
+                    for (const std::vector<cvf::Vec3d>& polygon : intersectPolygons)
+                    {
+                        std::vector<std::vector<cvf::Vec3d>> fullyClippedPolygons = RigCellGeometryTools::subtractPolygons(polygon, subtractPolygons);
+                        clippedPolygons.insert(clippedPolygons.end(), fullyClippedPolygons.begin(), fullyClippedPolygons.end());
+                    }
+                }
+                else
+                {
+                    clippedPolygons.swap(intersectPolygons);
+                }
+                {                
+                    std::vector<cvf::Vec4d> clippedTriangles;
+                    for (std::vector<cvf::Vec3d>& clippedPolygon : clippedPolygons)
+                    {
+                        std::vector<std::vector<cvf::Vec3d>> polygonTriangles;
+                        if (clippedPolygon.size() == 3u)
+                        {
+                            polygonTriangles.push_back(clippedPolygon);
+                        }
+                        else
+                        {
+                            cvf::Vec3d baryCenter = cvf::Vec3d::ZERO;
+                            for (size_t v = 0; v < clippedPolygon.size(); ++v)
+                            {
+                                cvf::Vec3d& clippedVertex = clippedPolygon[v];
+                                baryCenter += clippedVertex;
+                            }
+                            baryCenter /= clippedPolygon.size();
+                            for (size_t v = 0; v < clippedPolygon.size(); ++v)
+                            {
+                                std::vector<cvf::Vec3d> clippedTriangle;
+                                if (v == clippedPolygon.size() - 1)
+                                {
+                                    clippedTriangle = { clippedPolygon[v], clippedPolygon[0], baryCenter };
+                                }
+                                else
+                                {
+                                    clippedTriangle = { clippedPolygon[v], clippedPolygon[v + 1], baryCenter };
+                                }
+                                polygonTriangles.push_back(clippedTriangle);
+                            }
+                        }
+                        for (const std::vector<cvf::Vec3d>& polygonTriangle : polygonTriangles)
+                        {
+                            for (const cvf::Vec3d& localVertex : polygonTriangle)
+                            {
+                                double value = std::numeric_limits<double>::infinity();
+                                if (discrete)
+                                {
+                                    value = contourLevels[c] + 0.01 * (contourLevels.back() - contourLevels.front()) / contourLevels.size();
+                                }
+                                else
+                                {
+                                    value = interpolateValue(cvf::Vec2d(localVertex.x(), localVertex.y()));
+                                    for (size_t n = 0; n < 3; ++n)
+                                    {
+                                        if ((triangle[n] - localVertex).length() < m_sampleSpacing * 0.01 &&
+                                            triangleWithValues[n].w() != std::numeric_limits<double>::infinity())
+                                        {
+                                            value = triangleWithValues[n].w();
+                                            break;
+                                        }
+                                    }
+                                    if (value == std::numeric_limits<double>::infinity())
+                                    {
+                                        value = contourLevels[c];
+                                    }
+                                }
+
+                                cvf::Vec4d globalVertex(localVertex, value);
+                                clippedTriangles.push_back(globalVertex);
+                            }
+                        }
+                    }
+                    threadTriangles[myThread].insert(threadTriangles[myThread].end(), clippedTriangles.begin(), clippedTriangles.end());
+                }
             }
         }
     }
@@ -800,16 +826,36 @@ double RimContourMapProjection::interpolateValue(const cvf::Vec2d& gridPos2d) co
     v[2] = cvf::Vec2ui(cellContainingPoint.x() + 1u, cellContainingPoint.y() + 1u);
     v[3] = cvf::Vec2ui(cellContainingPoint.x(), cellContainingPoint.y() + 1u);
 
-    double value = 0.0;
+    std::array<double, 4> vertexValues;
+    double validBarycentricCoordsSum = 0.0;
     for (int i = 0; i < 4; ++i)
     {
         double vertexValue = valueAtVertex(v[i].x(), v[i].y());
         if (vertexValue == std::numeric_limits<double>::infinity())
         {
-            return vertexValue;
+            baryCentricCoords[i] = 0.0;
+            vertexValues[i] = 0.0;
+            return std::numeric_limits<double>::infinity();
         }
-        value += baryCentricCoords[i] * vertexValue;
+        else
+        {
+            vertexValues[i] = vertexValue;
+            validBarycentricCoordsSum += baryCentricCoords[i];
+        }
     }
+
+    if (validBarycentricCoordsSum < 1.0e-8)
+    {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    // Calculate final value
+    double value = 0.0;
+    for (int i = 0; i < 4; ++i)
+    {
+        value += baryCentricCoords[i] / validBarycentricCoordsSum * vertexValues[i];
+    }
+
     return value;
 }
 
