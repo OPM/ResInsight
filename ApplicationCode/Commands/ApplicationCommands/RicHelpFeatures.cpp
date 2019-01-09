@@ -54,7 +54,7 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
     dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));
-    dlg.setCopyright("Copyright Statoil ASA, Ceetron Solutions AS, Ceetron AS");
+    dlg.setCopyright("Copyright Equinor ASA, Ceetron Solutions AS, Ceetron AS");
     dlg.showQtVersion(false);
 #ifdef _DEBUG
     dlg.setIsDebugBuild(true);
