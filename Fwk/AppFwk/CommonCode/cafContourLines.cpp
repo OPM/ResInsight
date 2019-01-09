@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <list>
+#include <cmath>
 
 const int caf::ContourLines::s_castab[3][3][3] =
 {
