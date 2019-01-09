@@ -231,7 +231,7 @@ void RimContourMapView::updateGeometry()
 
     appendPickPointVisToModel();
 
-     m_overlayInfoConfig()->update3DInfo();
+    m_overlayInfoConfig()->update3DInfo();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -473,6 +473,6 @@ void RimContourMapView::onViewNavigationChanged()
 bool RimContourMapView::zoomChangeAboveTreshold(const cvf::Vec3d& currentCameraPosition) const
 {
     double distance = std::max(std::fabs(m_cameraPositionLastUpdate.z()), std::fabs(currentCameraPosition.z()));
-    const double threshold = 0.01 * distance;
-    return (m_cameraPositionLastUpdate - currentCameraPosition).length() > threshold;
+    const double threshold = 0.05 * distance;
+    return std::fabs(m_cameraPositionLastUpdate.z() - currentCameraPosition.z()) > threshold;
 }
