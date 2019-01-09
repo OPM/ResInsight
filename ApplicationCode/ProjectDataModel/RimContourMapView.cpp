@@ -385,6 +385,18 @@ void RimContourMapView::updateViewFollowingRangeFilterUpdates()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimContourMapView::updatePickPointAndRedraw()
+{
+    appendPickPointVisToModel();
+    if (m_viewer)
+    {
+        m_viewer->update();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimContourMapView::onLoadDataAndUpdate()
 {
     RimEclipseView::onLoadDataAndUpdate();

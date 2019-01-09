@@ -34,6 +34,7 @@ public:
 
     QString createAutoName() const override;
     void    setDefaultCustomName();
+    void    updatePickPointAndRedraw();
 
 protected:
     void initAfterRead() override;

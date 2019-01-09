@@ -74,7 +74,7 @@ bool RicContourMapPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventO
                 RiuMainWindow::instance()->setResultInfo(curveText);
 
                 contourMap->setPickPoint(pickedPoint);
-                view->updateCurrentTimeStepAndRedraw();
+                view->updatePickPointAndRedraw();
                 return true;
             }
             contourMap->setPickPoint(cvf::Vec2d::UNDEFINED);
