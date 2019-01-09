@@ -18,13 +18,15 @@
 
 #include "RicNewContourMapViewFeature.h"
 
+#include "Rim3dView.h"
+#include "RimCellEdgeColors.h"
 #include "RimContourMapView.h"
 #include "RimContourMapViewCollection.h"
-#include "RimCellEdgeColors.h"
-#include "RimEclipseView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "Rim3dView.h"
+#include "RimEclipseView.h"
+#include "RimFaultInViewCollection.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -151,6 +153,8 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFrom3dView(Rim
     contourMap->setEclipseCase(eclipseCase);
     contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f)); // Ignore original view background
     contourMap->setDefaultCustomName();
+    contourMap->faultCollection()->showFaultCollection = false;
+    contourMap->wellCollection()->isActive = false;
 
     caf::PdmDocument::updateUiIconStateRecursively(contourMap);
 
