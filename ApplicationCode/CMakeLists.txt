@@ -316,6 +316,7 @@ set( EXE_FILES
     ${REFERENCED_CMAKE_FILES}
     ../ResInsightVersion.cmake
     ../.clang-format
+    ../.clang-tidy
 )
 
 add_executable( ResInsight ${EXE_FILES} )
