@@ -128,8 +128,8 @@ public:
         CVF_ASSERT(renderConfiguration);
         m_renderConfiguration = renderConfiguration;
     }
-    virtual cvf::UniformSet* uniformSet()  { return nullptr; }
-    virtual void        update(cvf::Rendering* rendering)
+    cvf::UniformSet* uniformSet() override  { return nullptr; }
+    void        update(cvf::Rendering* rendering) override
     {
         m_renderConfiguration->updateEffectsForRendering(rendering);
     }
@@ -151,7 +151,7 @@ public:
         m_isOpaquePass = isOpaquePass;
     }
 
-    virtual void    sort(cvf::RenderQueue* renderQueue) const
+    void    sort(cvf::RenderQueue* renderQueue) const override
     {
         using namespace cvf;
         std::vector<RenderItem*>* renderItems = renderQueue->renderItemsForSorting();

@@ -78,7 +78,7 @@ class OverlayScalarMapperLegend : public caf::TitledOverlayFrame
 
 public:
     OverlayScalarMapperLegend(Font* font);
-    virtual ~OverlayScalarMapperLegend();
+    ~OverlayScalarMapperLegend() override;
 
     void            setScalarMapper(const ScalarMapper* scalarMapper);
 
@@ -86,7 +86,7 @@ public:
     enum            NumberFormat { AUTO, SCIENTIFIC, FIXED};
     void            setTickFormat(NumberFormat format);
 
-    virtual cvf::Vec2ui preferredSize() override;
+    cvf::Vec2ui preferredSize() override;
     
 protected:
     void            render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;

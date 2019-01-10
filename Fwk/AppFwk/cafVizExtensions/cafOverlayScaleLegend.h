@@ -80,7 +80,7 @@ public:
 
 public:
     OverlayScaleLegend(Font* font);
-    virtual ~OverlayScaleLegend();
+    ~OverlayScaleLegend() override;
 
     void            setTickPrecision(int precision);
     enum            NumberFormat { AUTO, SCIENTIFIC, FIXED};
@@ -88,7 +88,7 @@ public:
     void            setOrientation(Orientation orientation);
     Orientation     orientation() const;
 
-    virtual cvf::Vec2ui preferredSize() override;
+    cvf::Vec2ui preferredSize() override;
     
     void setDisplayCoordTransform(const caf::DisplayCoordTransform* displayCoordTransform);
     void updateFromCamera(const Camera* camera);

@@ -90,13 +90,13 @@ public:
         m_uniformSet->setUniform(m_headlightPosition.p());
     }
 
-    virtual ~GlobalViewerDynUniformSet() {}
+    ~GlobalViewerDynUniformSet() override {}
 
     void setHeadLightPosition(const cvf::Vec3f posRelativeToCamera) { m_headlightPosition->set(posRelativeToCamera);}
 
 
-    virtual cvf::UniformSet* uniformSet() { return m_uniformSet.p(); }
-    virtual void        update(cvf::Rendering* rendering){};      
+    cvf::UniformSet* uniformSet() override { return m_uniformSet.p(); }
+    void        update(cvf::Rendering* rendering) override{};      
 
 private:
     cvf::ref<cvf::UniformSet>   m_uniformSet;

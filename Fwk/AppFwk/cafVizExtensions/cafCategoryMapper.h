@@ -30,14 +30,14 @@ public:
     
     // Overrides used from legend
 
-    virtual cvf::Vec2f  mapToTextureCoord(double scalarValue) const;
-    virtual bool        updateTexture(cvf::TextureImage* image) const;
+    cvf::Vec2f  mapToTextureCoord(double scalarValue) const override;
+    bool        updateTexture(cvf::TextureImage* image) const override;
 
-    virtual cvf::Color3ub   mapToColor(double normalizedValue) const;
+    cvf::Color3ub   mapToColor(double normalizedValue) const override;
 
-    virtual void        majorTickValues(std::vector<double>* domainValues) const;
-    virtual double      normalizedValue(double domainValue) const;
-    virtual double      domainValue(double normalizedValue) const;
+    void        majorTickValues(std::vector<double>* domainValues) const override;
+    double      normalizedValue(double domainValue) const override;
+    double      domainValue(double normalizedValue) const override;
 
 private:
     friend class CategoryLegend;

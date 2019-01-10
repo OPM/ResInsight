@@ -46,9 +46,9 @@ class CadNavigation : public TrackBallBasedNavigation
 {
 public:
     CadNavigation();
-    virtual ~CadNavigation();
+    ~CadNavigation() override;
 protected:
-    virtual bool    handleInputEvent(QInputEvent* inputEvent);
+    bool    handleInputEvent(QInputEvent* inputEvent) override;
 };
 
 } // End namespace caf

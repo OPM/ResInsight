@@ -56,7 +56,7 @@ namespace caf {
     {
     public:
         TitledOverlayFrame(cvf::Font* font, unsigned int width = 100, unsigned int height = 200);
-        virtual ~TitledOverlayFrame();
+        ~TitledOverlayFrame() override;
 
         void                 setRenderSize(const cvf::Vec2ui& size);
         cvf::Vec2ui          renderSize() const;
@@ -85,7 +85,7 @@ namespace caf {
         cvf::Font*                font();
 
     private:
-        cvf::Vec2ui               sizeHint() override final; // Will return the size to use for rendering, and is really not a hint.
+        cvf::Vec2ui               sizeHint() final; // Will return the size to use for rendering, and is really not a hint.
         cvf::Vec2ui               m_renderSize;          // The rendered size of the color legend area in pixels
 
         cvf::Color3f              m_textColor;

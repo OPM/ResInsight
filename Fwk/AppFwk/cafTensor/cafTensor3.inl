@@ -22,7 +22,7 @@
 #include "cvfSystem.h"
 #include <algorithm>
 #include "cvfMatrix3.h"
-#include <math.h>
+#include <cmath>
 
 namespace caf {
 

@@ -28,7 +28,7 @@ namespace caf
     {
     public:
         TransparentWBRenderConfiguration();
-        virtual ~TransparentWBRenderConfiguration();
+        ~TransparentWBRenderConfiguration() override;
 
         void resize(int width, int height);
         void prepareForRendering(); // UpdateCameras and scene ...
@@ -79,14 +79,14 @@ namespace caf
     {
     public:
         WBTransparencySurfaceEffectGenerator(const cvf::Color4f& color, caf::PolygonOffset polygonOffset, bool useSpecular);
-        ~WBTransparencySurfaceEffectGenerator();
+        ~WBTransparencySurfaceEffectGenerator() override;
 
     protected:
-        virtual bool                    isEqual(const EffectGenerator* other) const;
-        virtual EffectGenerator*        copy() const;
+        bool                    isEqual(const EffectGenerator* other) const override;
+        EffectGenerator*        copy() const override;
 
-        virtual void                    updateForShaderBasedRendering(cvf::Effect* effect) const;
-        virtual void                    updateForFixedFunctionRendering(cvf::Effect* effect) const;
+        void                    updateForShaderBasedRendering(cvf::Effect* effect) const override;
+        void                    updateForFixedFunctionRendering(cvf::Effect* effect) const override;
 
     private:
         void                            updateCommonEffect(cvf::Effect* effect) const;

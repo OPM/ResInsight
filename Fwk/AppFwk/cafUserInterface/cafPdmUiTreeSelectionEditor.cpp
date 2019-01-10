@@ -93,7 +93,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void keyPressEvent(QKeyEvent *event)
+    void keyPressEvent(QKeyEvent *event) override
     {
         QTreeView::keyPressEvent(event);
 

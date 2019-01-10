@@ -178,7 +178,7 @@ namespace caf
         class ObjectCreator : public ObjectCreatorBase
         {
         public:
-            virtual BaseType * create() { return new TypeToCreate(); }
+            BaseType * create() override { return new TypeToCreate(); }
         };
 
         // Map to store factory

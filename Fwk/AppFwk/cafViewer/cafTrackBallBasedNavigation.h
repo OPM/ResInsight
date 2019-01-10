@@ -59,17 +59,17 @@ class TrackBallBasedNavigation: public NavigationPolicy
 {
 public:
     TrackBallBasedNavigation();
-    virtual ~TrackBallBasedNavigation();
+    ~TrackBallBasedNavigation() override;
     void enableEventEating(bool enable) { m_consumeEvents = enable; }
     void enableRotation(bool enable)    { m_isRotationEnabled = enable; }
 
 protected:
     // General navigation policy overrides
-    virtual void                        init();
+    void                        init() override;
 
-    virtual void                        setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
-    virtual cvf::Vec3d                  pointOfInterest(); 
-    virtual void                        setPointOfInterest(cvf::Vec3d poi);
+    void                        setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection ) override;
+    cvf::Vec3d                  pointOfInterest() override; 
+    void                        setPointOfInterest(cvf::Vec3d poi) override;
     void                                updatePointOfInterestDuringZoomIfNecessary(int zoomX, int zoomY);
     void                                forcePointOfInterestUpdateDuringNextWheelZoom();
 

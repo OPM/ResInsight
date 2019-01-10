@@ -39,7 +39,7 @@ public:
 
     PdmPtrField() : m_isResolved(false)                                     { }
     explicit PdmPtrField(const DataTypePtr& fieldValue);                
-    virtual ~PdmPtrField();
+    ~PdmPtrField() override;
 
     //  Assignment 
 
@@ -52,9 +52,9 @@ public:
     void                        setValue(const DataTypePtr& fieldValue);    
 
     // QVariant access
-    virtual QVariant            toQVariant() const override;
-    virtual void                setFromQVariant(const QVariant& variant) override;
-    virtual bool                isReadOnly() const override { return false; }
+    QVariant            toQVariant() const override;
+    void                setFromQVariant(const QVariant& variant) override;
+    bool                isReadOnly() const override { return false; }
 
     // Access operators
 
@@ -66,7 +66,7 @@ public:
 
     // Ptr referenced objects
 
-    virtual void ptrReferencedObjects(std::vector<PdmObjectHandle*>* objectsToFill);
+    void ptrReferencedObjects(std::vector<PdmObjectHandle*>* objectsToFill) override;
 
 
 private:

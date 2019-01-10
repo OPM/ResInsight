@@ -63,7 +63,7 @@ public:
     void            showWarning(QString warn);
     void            showError(QString error);
 
-    virtual QSize    sizeHint () const;
+    QSize    sizeHint () const override;
     bool            isVisibleToUser();
 
 private:
