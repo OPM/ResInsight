@@ -199,7 +199,8 @@ protected:
     caf::PdmPointer<RimEclipseResultCase>               m_eclipseCase;
     cvf::ref<RigMainGrid>                               m_mainGrid;
     cvf::Vec2ui                                         m_mapSize;
-    cvf::BoundingBox                                    m_fullBoundingBox;
+    cvf::BoundingBox                                    m_expandedBoundingBox;
+    cvf::BoundingBox                                    m_gridBoundingBox;
     double                                              m_sampleSpacing;
     std::vector<ContourPolygons>                        m_contourPolygons;
 };

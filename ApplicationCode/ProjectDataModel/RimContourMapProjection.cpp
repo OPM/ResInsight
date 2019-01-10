@@ -776,7 +776,7 @@ bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoi
 
     cvf::Vec3d localPos3d(localPoint3d.x() + gridEdgeOffset(), localPoint3d.y() + gridEdgeOffset(), 0.0);
     cvf::Vec2d gridPos2d(localPos3d.x(), localPos3d.y());
-    cvf::Vec2d gridorigin(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
+    cvf::Vec2d gridorigin(m_expandedBoundingBox.min().x(), m_expandedBoundingBox.min().y());
 
     double value = interpolateValue(gridPos2d);
     if (value != std::numeric_limits<double>::infinity())
@@ -918,7 +918,7 @@ void RimContourMapProjection::setPickPoint(cvf::Vec2d globalPickPoint)
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimContourMapProjection::origin3d() const
 {
-    return m_fullBoundingBox.min();
+    return m_expandedBoundingBox.min();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1313,13 +1313,21 @@ std::vector<std::pair<size_t, double>>
     RimContourMapProjection::visibleCellsAndOverlapVolumeFrom2dPoint(const cvf::Vec2d&          globalPos2d,
                                                                      const std::vector<double>* weightingResultValues) const
 {
-    cvf::Vec3d top2dElementCentroid(globalPos2d, m_fullBoundingBox.max().z());
-    cvf::Vec3d bottom2dElementCentroid(globalPos2d, m_fullBoundingBox.min().z());
+    cvf::Vec3d top2dElementCentroid(globalPos2d, m_expandedBoundingBox.max().z());
+    cvf::Vec3d bottom2dElementCentroid(globalPos2d, m_expandedBoundingBox.min().z());
     cvf::Vec3d planarDiagonalVector(0.5 * m_sampleSpacing, 0.5 * m_sampleSpacing, 0.0);
     cvf::Vec3d topNECorner    = top2dElementCentroid + planarDiagonalVector;
     cvf::Vec3d bottomSWCorner = bottom2dElementCentroid - planarDiagonalVector;
 
     cvf::BoundingBox bbox2dElement(bottomSWCorner, topNECorner);
+
+    std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
+
+    // Bounding box has been expanded, so 2d element may be outside actual 3d grid
+    if (!bbox2dElement.intersects(m_gridBoundingBox))
+    {
+        return matchingVisibleCellsAndWeight;
+    }
 
     std::vector<size_t> allCellIndices;
     m_mainGrid->findIntersectingCells(bbox2dElement, &allCellIndices);
@@ -1372,7 +1380,6 @@ std::vector<std::pair<size_t, double>>
         }
     }
 
-    std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
     for (auto kLayerCellWeight : matchingVisibleCellsWeightPerKLayer)
     {
         for (auto cellWeight : kLayerCellWeight.second)
@@ -1391,8 +1398,16 @@ std::vector<std::pair<size_t, double>> RimContourMapProjection::visibleCellsAndL
     const cvf::Vec2d&          globalPos2d,
     const std::vector<double>* weightingResultValues /*= nullptr*/) const
 {
-    cvf::Vec3d highestPoint(globalPos2d, m_fullBoundingBox.max().z());
-    cvf::Vec3d lowestPoint(globalPos2d, m_fullBoundingBox.min().z());
+    std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
+
+    cvf::Vec3d highestPoint(globalPos2d, m_expandedBoundingBox.max().z());
+    cvf::Vec3d lowestPoint(globalPos2d, m_expandedBoundingBox.min().z());
+
+    // Bounding box has been expanded, so ray may be outside actual grid
+    if (!m_gridBoundingBox.contains(highestPoint))
+    {
+        return matchingVisibleCellsAndWeight;
+    }
 
     cvf::BoundingBox rayBBox;
     rayBBox.add(highestPoint);
@@ -1429,7 +1444,6 @@ std::vector<std::pair<size_t, double>> RimContourMapProjection::visibleCellsAndL
         }
     }
 
-    std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
     for (auto kLayerCellWeight : matchingVisibleCellsAndWeightPerKLayer)
     {
         // Make sure the sum of all weights in the same K-layer is 1.
@@ -1598,7 +1612,7 @@ cvf::Vec2ui RimContourMapProjection::ijFromLocalPos(const cvf::Vec2d& localPos2d
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2d RimContourMapProjection::cellCenterPosition(uint i, uint j) const
 {
-    cvf::Vec3d gridExtent = m_fullBoundingBox.extent();
+    cvf::Vec3d gridExtent = m_expandedBoundingBox.extent();
     cvf::Vec2d cellCorner = cvf::Vec2d((i * gridExtent.x()) / (m_mapSize.x()), (j * gridExtent.y()) / (m_mapSize.y()));
 
     return cellCorner + cvf::Vec2d(m_sampleSpacing * 0.5, m_sampleSpacing * 0.5);
@@ -1609,7 +1623,7 @@ cvf::Vec2d RimContourMapProjection::cellCenterPosition(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2d RimContourMapProjection::origin2d() const
 {
-    return cvf::Vec2d(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
+    return cvf::Vec2d(m_expandedBoundingBox.min().x(), m_expandedBoundingBox.min().y());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1617,7 +1631,7 @@ cvf::Vec2d RimContourMapProjection::origin2d() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimContourMapProjection::xVertexPositions() const
 {
-    double gridExtent = m_fullBoundingBox.extent().x();
+    double gridExtent = m_expandedBoundingBox.extent().x();
 
     cvf::Vec2ui         gridSize = numberOfVerticesIJ();
     std::vector<double> positions;
@@ -1635,7 +1649,7 @@ std::vector<double> RimContourMapProjection::xVertexPositions() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimContourMapProjection::yVertexPositions() const
 {
-    double gridExtent = m_fullBoundingBox.extent().y();
+    double gridExtent = m_expandedBoundingBox.extent().y();
 
     cvf::Vec2ui         gridSize = numberOfVerticesIJ();
     std::vector<double> positions;
@@ -1671,16 +1685,19 @@ void RimContourMapProjection::updateGridInformation()
 {
     m_mainGrid        = eclipseCase()->eclipseCaseData()->mainGrid();
     m_sampleSpacing   = m_relativeSampleSpacing * m_mainGrid->characteristicIJCellSize();
-    m_fullBoundingBox = eclipseCase()->activeCellsBoundingBox();
-    m_fullBoundingBox.expand(gridEdgeOffset() * 2.0);
+    m_gridBoundingBox = eclipseCase()->activeCellsBoundingBox();
+    cvf::Vec3d minExpandedPoint = m_gridBoundingBox.min() - cvf::Vec3d(gridEdgeOffset(), gridEdgeOffset(), 0.0);
+    cvf::Vec3d maxExpandedPoint = m_gridBoundingBox.max() + cvf::Vec3d(gridEdgeOffset(), gridEdgeOffset(), 0.0);
+    m_expandedBoundingBox = cvf::BoundingBox(minExpandedPoint, maxExpandedPoint);
+
     m_mapSize         = calculateMapSize();
 
     // Re-jig max point to be an exact multiple of cell size
-    cvf::Vec3d minPoint = m_fullBoundingBox.min();
-    cvf::Vec3d maxPoint = m_fullBoundingBox.max();
+    cvf::Vec3d minPoint = m_expandedBoundingBox.min();
+    cvf::Vec3d maxPoint = m_expandedBoundingBox.max();
     maxPoint.x() = minPoint.x() + m_mapSize.x() * m_sampleSpacing;
     maxPoint.y() = minPoint.y() + m_mapSize.y() * m_sampleSpacing;
-    m_fullBoundingBox = cvf::BoundingBox(minPoint, maxPoint);
+    m_expandedBoundingBox = cvf::BoundingBox(minPoint, maxPoint);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1688,7 +1705,7 @@ void RimContourMapProjection::updateGridInformation()
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui RimContourMapProjection::calculateMapSize() const
 {
-    cvf::Vec3d       gridExtent  = m_fullBoundingBox.extent();
+    cvf::Vec3d       gridExtent  = m_expandedBoundingBox.extent();
 
     uint projectionSizeX = static_cast<uint>(std::ceil(gridExtent.x() / m_sampleSpacing));
     uint projectionSizeY = static_cast<uint>(std::ceil(gridExtent.y() / m_sampleSpacing));
