@@ -118,7 +118,7 @@ public:
     cvf::Vec3d                   origin3d() const;
 
 protected:
-    void   smoothPolygonLoops(ContourPolygons* contourPolygons, bool favourExpansion);
+    void smoothContourPolygons(ContourPolygons* contourPolygons, const ContourPolygons* clipBy, bool favourExpansion);
     double interpolateValue(const cvf::Vec2d& gridPosition2d) const;
 
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

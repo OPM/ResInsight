@@ -352,9 +352,13 @@ void RimContourMapProjection::generateContourPolygons()
                         }
                         contourPolygons[i].push_back(contourPolygon);
                     }
+                }
+                for (size_t i = 0; i < contourPolygons.size(); ++i)
+                {
                     if (i == 0 || m_smoothContourLines())
                     {
-                        smoothPolygonLoops(&contourPolygons[i], true);
+                        const ContourPolygons* clipBy = i > 0 ? &contourPolygons[i - 1] : nullptr;
+                        smoothContourPolygons(&contourPolygons[i], clipBy, true);
                     }
                 }
             }            
@@ -782,13 +786,14 @@ bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::smoothPolygonLoops(ContourPolygons* contourPolygons, bool favourExpansion)
+void RimContourMapProjection::smoothContourPolygons(ContourPolygons* contourPolygons, const ContourPolygons* clipBy, bool favourExpansion)
 {
     CVF_ASSERT(contourPolygons);
     for (size_t i = 0; i < contourPolygons->size(); ++i)
     {
         ContourPolygon& polygon = contourPolygons->at(i);
-        for (size_t n = 0; n < 50; ++n)
+
+        for (size_t n = 0; n < 20; ++n)
         {
             std::vector<cvf::Vec3d> newVertices;
             newVertices.resize(polygon.vertices.size());
@@ -811,7 +816,7 @@ void RimContourMapProjection::smoothPolygonLoops(ContourPolygons* contourPolygon
                 cvf::Vec3d delta = (modifiedVertex - v).getNormalized();
                 cvf::Vec3d tangent3d = vp1 - vm1;
                 cvf::Vec2d tangent2d(tangent3d.x(), tangent3d.y());
-                cvf::Vec3d norm3d (tangent2d.getNormalized().perpendicularVector());
+                cvf::Vec3d norm3d(tangent2d.getNormalized().perpendicularVector());
                 if (delta * norm3d > 0 && favourExpansion)
                 {
                     // Normal is always inwards facing so a positive dot product means inward movement
@@ -819,11 +824,22 @@ void RimContourMapProjection::smoothPolygonLoops(ContourPolygons* contourPolygon
                     modifiedVertex = v + 0.5 *delta;
                 }
                 newVertices[j] = modifiedVertex;
-                maxChange      = std::max(maxChange, (modifiedVertex - v).length());
+                maxChange = std::max(maxChange, (modifiedVertex - v).length());
             }
             polygon.vertices.swap(newVertices);
             if (maxChange < m_sampleSpacing * 1.0e-2)
                 break;
+        }
+        if (clipBy)
+        {
+            for (size_t j = 0; j < clipBy->size(); ++j)
+            {
+                std::vector<std::vector<cvf::Vec3d>> intersections = RigCellGeometryTools::intersectPolygons(polygon.vertices, clipBy->at(j).vertices);
+                if (!intersections.empty())
+                {
+                    polygon.vertices = intersections.front();
+                }
+            }
         }
     }
 }
