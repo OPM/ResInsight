@@ -57,7 +57,7 @@
 #include <cvfAssert.h>
 
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <thread>
 
 #define DEFAULT_DIALOG_WIDTH        550

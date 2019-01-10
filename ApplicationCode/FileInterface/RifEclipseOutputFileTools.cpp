@@ -38,7 +38,7 @@
 #include <QFileInfo>
 #include <QDebug>
 
-#include <assert.h>
+#include <cassert>
 #include <algorithm>
 
 

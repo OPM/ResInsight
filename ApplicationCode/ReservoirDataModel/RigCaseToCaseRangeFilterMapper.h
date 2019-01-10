@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include <stddef.h>
+#include <cstddef>
 
 class RimCellRangeFilter;
 class RigMainGrid;

@@ -54,7 +54,7 @@
 
 #include <cafDisplayCoordTransform.h>
 
-#include <assert.h>
+#include <cassert>
 
 
 

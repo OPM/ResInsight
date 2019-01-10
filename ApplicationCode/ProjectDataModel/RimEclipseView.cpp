@@ -100,7 +100,7 @@
 
 #include <QMessageBox>
 
-#include <limits.h>
+#include <climits>
 
 
 

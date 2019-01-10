@@ -57,7 +57,7 @@
 #include <QMessageBox>
 #include <QString>
 
-#include <math.h>
+#include <cmath>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
 

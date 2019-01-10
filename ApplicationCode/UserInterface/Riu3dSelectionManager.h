@@ -27,7 +27,7 @@
 #include "cvfStructGrid.h"
 
 #include <vector>
-#include <assert.h>
+#include <cassert>
 #include <array>
 // #include "RivWellPathSourceInfo.h"
 // #include "RivWellPipeSourceInfo.h"

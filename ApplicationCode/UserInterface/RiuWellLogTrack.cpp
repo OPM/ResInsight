@@ -45,7 +45,7 @@
 #include <QScrollArea>
 #include <QWheelEvent>
 
-#include <float.h>
+#include <cfloat>
 #include "RiuSummaryQwtPlot.h"
 
 #define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1

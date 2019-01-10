@@ -63,7 +63,7 @@
 #include "RiuRimQwtPlotCurve.h"
 #include "RimSummaryCurve.h"
 
-#include <float.h>
+#include <cfloat>
 
 
 //--------------------------------------------------------------------------------------------------

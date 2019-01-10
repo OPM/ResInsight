@@ -23,7 +23,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigResultModifier.h"
 
-#include <math.h>
+#include <cmath>
 
 
 //--------------------------------------------------------------------------------------------------

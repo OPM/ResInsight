@@ -25,7 +25,7 @@
 #include "RigStatisticsMath.h"
 #include "RigWeightedMeanCalc.h"
 
-#include <math.h>
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 

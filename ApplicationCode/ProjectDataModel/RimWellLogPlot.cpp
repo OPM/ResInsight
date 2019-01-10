@@ -42,7 +42,7 @@
 
 #include <QKeyEvent>
 
-#include <math.h>
+#include <cmath>
 
 #define RI_LOGPLOT_MINDEPTH_DEFAULT 0.0
 #define RI_LOGPLOT_MAXDEPTH_DEFAULT 1000.0

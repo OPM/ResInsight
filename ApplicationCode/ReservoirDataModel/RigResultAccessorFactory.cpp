@@ -34,7 +34,7 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimFlowDiagSolution.h"
 
-#include <math.h>
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 

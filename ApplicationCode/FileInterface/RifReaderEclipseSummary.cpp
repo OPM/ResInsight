@@ -23,7 +23,7 @@
 #include "RifEclipseSummaryTools.h"
 
 #include <string>
-#include <assert.h>
+#include <cassert>
 
 #include <QDateTime>
 #include <QString>

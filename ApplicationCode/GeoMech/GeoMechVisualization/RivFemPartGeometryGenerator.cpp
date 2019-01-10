@@ -29,7 +29,7 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapper.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <cmath>
 
 
