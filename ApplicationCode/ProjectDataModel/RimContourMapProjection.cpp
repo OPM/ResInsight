@@ -128,6 +128,18 @@ std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValu
         }
     }
 
+    std::vector<std::vector<std::vector<cvf::Vec3d>>> subtractPolygons;
+    if (!m_contourPolygons.empty())
+    {
+        subtractPolygons.resize(m_contourPolygons.size());
+        for (size_t i = 0; i < m_contourPolygons.size() - 1; ++i)
+        {
+            for (size_t j = 0; j < m_contourPolygons[i + 1].size(); ++j)
+            {
+                subtractPolygons[i].push_back(m_contourPolygons[i + 1][j].vertices);
+            }
+        }
+    }
     std::vector<std::vector<cvf::Vec4d>> threadTriangles(omp_get_max_threads());
     
 #pragma omp parallel
@@ -137,7 +149,7 @@ std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValu
 
         std::set<int64_t> excludedFaceIndices;
 
-#pragma omp for
+#pragma omp for schedule(dynamic)
         for (int64_t i = 0; i < (int64_t) faceList->size(); i += 3)
         {
             std::vector<cvf::Vec3d> triangle(3);
@@ -182,22 +194,14 @@ std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValu
                     excludedFaceIndices.insert(i);
                     continue;
                 }
-
-                std::vector<std::vector<cvf::Vec3d>> subtractPolygons;
-                if (c < m_contourPolygons.size() - 1)
-                {
-                    for (size_t j = 0; j < m_contourPolygons[c + 1].size(); ++j)
-                    {
-                        subtractPolygons.push_back(m_contourPolygons[c + 1][j].vertices);
-                    }
-                }
+             
                 std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
 
-                if (!subtractPolygons.empty())
+                if (!subtractPolygons[c].empty())
                 {
                     for (const std::vector<cvf::Vec3d>& polygon : intersectPolygons)
                     {
-                        std::vector<std::vector<cvf::Vec3d>> fullyClippedPolygons = RigCellGeometryTools::subtractPolygons(polygon, subtractPolygons);
+                        std::vector<std::vector<cvf::Vec3d>> fullyClippedPolygons = RigCellGeometryTools::subtractPolygons(polygon, subtractPolygons[c]);
                         clippedPolygons.insert(clippedPolygons.end(), fullyClippedPolygons.begin(), fullyClippedPolygons.end());
                     }
                 }
