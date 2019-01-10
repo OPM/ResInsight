@@ -27,7 +27,7 @@ class RigFemPartCollection: public cvf::Object
 {
 public:
     RigFemPartCollection();
-    ~RigFemPartCollection();
+    ~RigFemPartCollection() override;
 
     void addFemPart(RigFemPart* part);
     RigFemPart* part(size_t index);

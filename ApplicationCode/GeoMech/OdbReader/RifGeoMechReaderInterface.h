@@ -39,7 +39,7 @@ class RifGeoMechReaderInterface : public cvf::Object
 {
 public:
     RifGeoMechReaderInterface();
-    virtual ~RifGeoMechReaderInterface();
+    ~RifGeoMechReaderInterface() override;
 
     virtual bool                                             openFile(const std::string& fileName, std::string* errorMessage) = 0;
     virtual bool                                             isOpen() const = 0;

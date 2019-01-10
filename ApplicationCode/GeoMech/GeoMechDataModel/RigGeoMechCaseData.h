@@ -37,7 +37,7 @@ class RigGeoMechCaseData: public cvf::Object
 {
 public:
     explicit RigGeoMechCaseData(const std::string& fileName);
-    ~RigGeoMechCaseData();
+    ~RigGeoMechCaseData() override;
 
     bool                                 open(std::string* errorMessage);
     bool                                 readTimeSteps(std::string* errorMessage, std::vector<std::string>* stepNames);

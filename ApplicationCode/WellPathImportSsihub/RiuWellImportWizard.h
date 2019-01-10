@@ -59,7 +59,7 @@ class AuthenticationPage : public QWizardPage
 public:
     AuthenticationPage(const QString& webServiceAddress, QWidget *parent = nullptr);
 
-    virtual void initializePage();
+    void initializePage() override;
 };
 
 
@@ -72,9 +72,9 @@ class FieldSelectionPage : public QWizardPage
 
 public:
     FieldSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent = nullptr);
-    ~FieldSelectionPage();
+    ~FieldSelectionPage() override;
 
-    virtual void initializePage();
+    void initializePage() override;
 
 private:
     caf::PdmUiPropertyView* m_propertyView;
@@ -90,7 +90,7 @@ class ObjectGroupWithHeaders : public caf::PdmObjectCollection
 public:
     ObjectGroupWithHeaders()    {};
 
-    virtual void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute * attribute);
+    void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -128,9 +128,9 @@ class WellSelectionPage : public QWizardPage
 
 public:
     WellSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent = nullptr);
-    ~WellSelectionPage();
+    ~WellSelectionPage() override;
 
-    virtual void initializePage();
+    void initializePage() override;
     void         buildWellTreeView();
 
     void        selectedWellPathEntries(std::vector<DownloadEntity>& downloadEntities, caf::PdmObjectHandle* objHandle);
@@ -155,7 +155,7 @@ class WellSummaryPage : public QWizardPage
 public:
     WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* parent = nullptr);
 
-    virtual void initializePage();
+    void initializePage() override;
 
     void updateSummaryPage();
 
@@ -183,7 +183,7 @@ public:
 
 public:
     RiuWellImportWizard(const QString& webServiceAddress, const QString& downloadFolder, RimWellPathImport* wellPathImportObject, QWidget *parent = nullptr);
-    ~RiuWellImportWizard();
+    ~RiuWellImportWizard() override;
 
     void        setCredentials(const QString& username, const QString& password);
     QStringList absoluteFilePathsToWellPaths() const;

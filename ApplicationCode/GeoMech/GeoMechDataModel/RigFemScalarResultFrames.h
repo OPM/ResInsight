@@ -29,7 +29,7 @@ class RigFemScalarResultFrames: public cvf::Object
 {
 public:
     explicit RigFemScalarResultFrames(int frameCount);
-    virtual ~RigFemScalarResultFrames();
+    ~RigFemScalarResultFrames() override;
 
     void                      enableAsSingleFrameResult();
 

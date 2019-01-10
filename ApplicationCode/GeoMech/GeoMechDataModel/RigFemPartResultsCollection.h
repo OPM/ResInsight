@@ -51,7 +51,7 @@ public:
     static const std::string FIELD_NAME_COMPACTION;
 
     RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, RifElementPropertyReader* elementPropertyReader, const RigFemPartCollection * femPartCollection);
-    ~RigFemPartResultsCollection();
+    ~RigFemPartResultsCollection() override;
 
     void                                             setActiveFormationNames(RigFormationNames* activeFormationNames);
     RigFormationNames*                               activeFormationNames();

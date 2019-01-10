@@ -47,7 +47,7 @@ class RigFemPart : public cvf::Object
 {
 public:
     RigFemPart();
-    virtual ~RigFemPart();
+    ~RigFemPart() override;
 
     int                         elementPartId() const                      { return m_elementPartId; }
     void                        setElementPartId(int partId)               { m_elementPartId = partId; }

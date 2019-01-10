@@ -28,7 +28,7 @@ class RigFemPartGrid : public cvf::StructGridInterface
 {
 public:
     explicit RigFemPartGrid(const RigFemPart* femPart);
-    virtual ~RigFemPartGrid();
+    ~RigFemPartGrid() override;
 
     bool        ijkFromCellIndex(size_t cellIndex, size_t* i, size_t* j, size_t* k) const override;
     size_t      cellIndexFromIJK(size_t i, size_t j, size_t k) const override;
@@ -59,7 +59,7 @@ private: // Unused, Not implemented
 
 
     bool        cellIJKFromCoordinate(const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k) const override;
-    virtual void        cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) const;
+    void        cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) const override;
     cvf::Vec3d  cellCentroid(size_t cellIndex) const override;
     void        cellMinMaxCordinates(size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate) const override;
     size_t      gridPointIndexFromIJK(size_t i, size_t j, size_t k) const override;
