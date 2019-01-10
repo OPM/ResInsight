@@ -134,6 +134,8 @@ private:
 
 private:
     void                            generateGridMapping();
+    bool                            gridMappingNeedsUpdating() const;
+    void                            invalidateGridMapping();
 
     double                          valueInCell(uint i, uint j) const;
     bool                            hasResultInCell(uint i, uint j) const;

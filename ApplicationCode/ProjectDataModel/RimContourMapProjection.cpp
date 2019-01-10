@@ -174,12 +174,11 @@ std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValu
                 for (size_t j = 0; j < m_contourPolygons[c].size(); ++j)
                 {
                     bool containsAtLeastOne = false;
-                    for (cvf::Vec3d point : triangle)
+                    for (size_t t = 0; t < 3; ++t)
                     {
-                        if (m_contourPolygons[c][j].bbox.contains(point))
+                        if (m_contourPolygons[c][j].bbox.contains(triangle[t]))
                         {
                             containsAtLeastOne = true;
-                            break;
                         }
                     }
                     if (containsAtLeastOne)
@@ -187,7 +186,7 @@ std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValu
                         std::vector<std::vector<cvf::Vec3d>> clippedPolygons = RigCellGeometryTools::intersectPolygons(triangle, m_contourPolygons[c][j].vertices);
                         intersectPolygons.insert(intersectPolygons.end(), clippedPolygons.begin(), clippedPolygons.end());
                     }
-                }               
+                }
               
                 if (intersectPolygons.empty())
                 {
@@ -322,7 +321,7 @@ void RimContourMapProjection::generateContourPolygons()
 {    
     std::vector<ContourPolygons> contourPolygons;
 
-    const double areaTreshold = 1.5 * m_sampleSpacing * m_sampleSpacing;
+    const double areaTreshold = (m_sampleSpacing * m_sampleSpacing) / (sampleSpacingFactor() * sampleSpacingFactor());
 
     if (minValue() != std::numeric_limits<double>::infinity() &&
         maxValue() != -std::numeric_limits<double>::infinity() &&
@@ -412,7 +411,10 @@ void RimContourMapProjection::generateResults()
 {
     updateGridInformation();
 
-    generateGridMapping();
+    if (gridMappingNeedsUpdating())
+    {
+        generateGridMapping();
+    }
 
     size_t nCells = numberOfCells();
     size_t nVertices = numberOfVertices();
@@ -928,6 +930,19 @@ void RimContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* change
 {
     legendConfig()->disableAllTimeStepsRange(!getLegendRangeFrom3dGrid());
 
+    if (changedField == &m_weightByParameter || changedField == &m_weightingResult)
+    {
+        invalidateGridMapping();
+    }
+    if (changedField == &m_resultAggregation)
+    {
+        ResultAggregation previousAggregation = static_cast<ResultAggregationEnum>(oldValue.toInt());
+        if (isStraightSummationResult(previousAggregation) != isStraightSummationResult())
+        {
+            invalidateGridMapping();
+        }
+    }
+
     m_weightingResult->loadResult();
 
     view()->updateConnectedEditors();
@@ -1035,6 +1050,7 @@ void RimContourMapProjection::generateGridMapping()
 
     if (isStraightSummationResult())
     {
+#pragma omp parallel for
         for (int index = 0; index < nCells; ++index)
         {
             cvf::Vec2ui ij = ijFromCellIndex(index);
@@ -1054,6 +1070,36 @@ void RimContourMapProjection::generateGridMapping()
             m_projected3dGridIndices[index] = visibleCellsAndOverlapVolumeFrom2dPoint(globalPos, weightingResultValues);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::gridMappingNeedsUpdating() const
+{
+    // Check grid visibility and projected grid indices;
+
+    if (m_projected3dGridIndices.size() != numberOfCells())
+    {
+        return true;
+    }
+
+    cvf::ref<cvf::UByteArray> currentVisibility = view()->currentTotalCellVisibility();
+    CVF_ASSERT(currentVisibility->size() == m_cellGridIdxVisibility->size());
+    for (size_t i = 0; i < currentVisibility->size(); ++i)
+    {
+        if ((*currentVisibility)[i] != (*m_cellGridIdxVisibility)[i]) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::invalidateGridMapping()
+{
+    m_projected3dGridIndices.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
