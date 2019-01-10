@@ -135,6 +135,8 @@ std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValu
         int myThread = omp_get_thread_num();
         threadTriangles[myThread].reserve(faceList->size() / omp_get_num_threads());
 
+        std::set<int64_t> excludedFaceIndices;
+
 #pragma omp for
         for (int64_t i = 0; i < (int64_t) faceList->size(); i += 3)
         {
@@ -154,15 +156,33 @@ std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValu
                 continue;
             }
 
-            for (size_t c = 0; c < m_contourPolygons.size(); ++c)
+            for (size_t c = 0; c < m_contourPolygons.size() && excludedFaceIndices.count(i) == 0u; ++c)
             {
                 std::vector<std::vector<cvf::Vec3d>> intersectPolygons;
                 for (size_t j = 0; j < m_contourPolygons[c].size(); ++j)
                 {
-                    std::vector<std::vector<cvf::Vec3d>> clippedPolygons = RigCellGeometryTools::intersectPolygons(triangle, m_contourPolygons[c][j].vertices);
-                    intersectPolygons.insert(intersectPolygons.end(), clippedPolygons.begin(), clippedPolygons.end());
-                }
+                    bool containsAtLeastOne = false;
+                    for (cvf::Vec3d point : triangle)
+                    {
+                        if (m_contourPolygons[c][j].bbox.contains(point))
+                        {
+                            containsAtLeastOne = true;
+                            break;
+                        }
+                    }
+                    if (containsAtLeastOne)
+                    {
+                        std::vector<std::vector<cvf::Vec3d>> clippedPolygons = RigCellGeometryTools::intersectPolygons(triangle, m_contourPolygons[c][j].vertices);
+                        intersectPolygons.insert(intersectPolygons.end(), clippedPolygons.begin(), clippedPolygons.end());
+                    }
+                }               
               
+                if (intersectPolygons.empty())
+                {
+                    excludedFaceIndices.insert(i);
+                    continue;
+                }
+
                 std::vector<std::vector<cvf::Vec3d>> subtractPolygons;
                 if (c < m_contourPolygons.size() - 1)
                 {
@@ -228,7 +248,6 @@ std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValu
                                 }
                                 else
                                 {
-                                    value = interpolateValue(cvf::Vec2d(localVertex.x(), localVertex.y()));
                                     for (size_t n = 0; n < 3; ++n)
                                     {
                                         if ((triangle[n] - localVertex).length() < m_sampleSpacing * 0.01 &&
@@ -240,7 +259,11 @@ std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValu
                                     }
                                     if (value == std::numeric_limits<double>::infinity())
                                     {
-                                        value = contourLevels[c];
+                                        value = interpolateValue(cvf::Vec2d(localVertex.x(), localVertex.y()));
+                                        if (value == std::numeric_limits<double>::infinity())
+                                        {
+                                            value = contourLevels[c];
+                                        }
                                     }
                                 }
 
@@ -325,6 +348,7 @@ void RimContourMapProjection::generateContourPolygons()
                         {
                             cvf::Vec3d contourPoint3d = cvf::Vec3d(closedContourLines[i][j][k], 0.0);
                             contourPolygon.vertices.push_back(contourPoint3d);
+                            contourPolygon.bbox.add(contourPoint3d);
                         }
                         contourPolygons[i].push_back(contourPolygon);
                     }

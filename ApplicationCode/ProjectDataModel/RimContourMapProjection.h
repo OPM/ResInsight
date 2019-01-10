@@ -50,6 +50,7 @@ public:
     {
         std::vector<cvf::Vec3d> vertices;
         double value;
+        cvf::BoundingBox bbox;
     };
 
     enum ResultAggregationEnum
