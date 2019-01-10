@@ -49,7 +49,7 @@ class RimWellPathAicdParameters : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimWellPathAicdParameters();
-    ~RimWellPathAicdParameters();
+    ~RimWellPathAicdParameters() override;
     bool isValid() const;
 
     bool isOpen() const;

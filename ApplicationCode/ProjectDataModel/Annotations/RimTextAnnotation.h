@@ -71,7 +71,7 @@ protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     caf::PdmFieldHandle* userDescriptionField() override;
-    virtual caf::PdmFieldHandle* objectToggleField() override;
+    caf::PdmFieldHandle* objectToggleField() override;
 
 private:
     friend class RicTextAnnotation3dEditor;

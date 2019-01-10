@@ -40,7 +40,7 @@ class RimGridView;
 class RicHoloLensSession : public QObject, private RicHoloLensRestResponseHandler
 {
 public:
-    ~RicHoloLensSession();
+    ~RicHoloLensSession() override;
 
     static RicHoloLensSession*  createSession(const QString& serverUrl, const QString& sessionName, const QByteArray& sessionPinCode, RicHoloLensSessionObserver* sessionObserver);
     static RicHoloLensSession*  createDummyFileBackedSession();
@@ -53,10 +53,10 @@ public:
 private:
     RicHoloLensSession();
 
-    virtual void    handleSuccessfulCreateSession() override;
-    virtual void    handleFailedCreateSession() override;
-    virtual void    handleSuccessfulSendMetaData(int metaDataSequenceNumber, const QByteArray& jsonServerResponseString) override;
-    virtual void    handleError(const QString& errMsg, const QString& url, const QString& serverData) override;
+    void    handleSuccessfulCreateSession() override;
+    void    handleFailedCreateSession() override;
+    void    handleSuccessfulSendMetaData(int metaDataSequenceNumber, const QByteArray& jsonServerResponseString) override;
+    void    handleError(const QString& errMsg, const QString& url, const QString& serverData) override;
 
     static bool     parseJsonIntegerArray(const QByteArray& jsonString, std::vector<int>* integerArr);
 

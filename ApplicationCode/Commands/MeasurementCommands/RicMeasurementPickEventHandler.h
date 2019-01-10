@@ -30,6 +30,6 @@ public:
 
 protected:
     bool handlePickEvent(const Ric3DPickEvent& eventObject) override;
-    void notifyUnregistered();
+    void notifyUnregistered() override;
 };
 

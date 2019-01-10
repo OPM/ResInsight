@@ -32,7 +32,7 @@ class RigPolyLinesData : public cvf::Object
 {
 public:
     RigPolyLinesData();
-    ~RigPolyLinesData();
+    ~RigPolyLinesData() override;
 
     const std::vector<std::vector<cvf::Vec3d> >& polyLines() const            { return m_polylines;}
     void setPolyLines(const std::vector<std::vector<cvf::Vec3d> >& polyLines) { m_polylines = polyLines;}

@@ -38,7 +38,7 @@ class RimPolylinesAnnotation : public caf::PdmObject
 
 public:
     RimPolylinesAnnotation();
-    ~RimPolylinesAnnotation();
+    ~RimPolylinesAnnotation() override;
 
     virtual cvf::ref<RigPolyLinesData> polyLinesData() = 0;
     virtual bool isEmpty() = 0;
@@ -53,7 +53,7 @@ public:
     RimPolylineAppearance* appearance() const;
 
 protected:
-    virtual caf::PdmFieldHandle* objectToggleField() override;
+    caf::PdmFieldHandle* objectToggleField() override;
 
 protected:
     caf::PdmField<bool>   m_isActive;

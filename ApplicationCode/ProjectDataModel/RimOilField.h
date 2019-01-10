@@ -69,7 +69,7 @@ public:
     caf::PdmChildField<RimMeasurement*>                     measurement;
 
 protected:
-    virtual void initAfterRead() override;
+    void initAfterRead() override;
 
 private:
     caf::PdmChildField<RimFractureTemplateCollection*>      m_fractureTemplateCollection_OBSOLETE;

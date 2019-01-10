@@ -39,11 +39,11 @@ class RimUserDefinedPolylinesAnnotation : public RimPolylinesAnnotation
     CAF_PDM_HEADER_INIT;
 public:
     RimUserDefinedPolylinesAnnotation();
-    ~RimUserDefinedPolylinesAnnotation();
+    ~RimUserDefinedPolylinesAnnotation() override;
 
     cvf::ref<RigPolyLinesData>  polyLinesData() override;
     std::vector<RimPolylineTarget*> activeTargets() const;
-    virtual bool isEmpty() override;
+    bool isEmpty() override;
 
     void appendTarget(const cvf::Vec3d& defaultPos = cvf::Vec3d::ZERO);
     void insertTarget(const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert);

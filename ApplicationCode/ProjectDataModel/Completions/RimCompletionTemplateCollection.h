@@ -46,6 +46,6 @@ private:
     caf::PdmChildField<RimValveTemplateCollection*>    m_valveTemplates;
 
 protected:
-    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 };

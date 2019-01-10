@@ -56,7 +56,7 @@ protected:
 
     caf::PdmFieldHandle* userDescriptionField() override;
 
-    virtual std::set<RivCellSetEnum> allVisibleFaultGeometryTypes() const override;
+    std::set<RivCellSetEnum> allVisibleFaultGeometryTypes() const override;
     
     QWidget* createViewWidget(QWidget* mainWindowParent) override;
 

@@ -29,14 +29,14 @@ class RimPolylinesFromFileAnnotation : public RimPolylinesAnnotation
 
 public:
     RimPolylinesFromFileAnnotation();
-    ~RimPolylinesFromFileAnnotation();
+    ~RimPolylinesFromFileAnnotation() override;
 
     void                        setFileName(const QString& fileName);
     QString                     fileName() const;
     void                        readPolyLinesFile(QString * errorMessage);
 
     cvf::ref<RigPolyLinesData>  polyLinesData() override;
-    virtual bool                isEmpty() override;
+    bool                isEmpty() override;
 
     void                        setDescriptionFromFileName();
 
@@ -45,7 +45,7 @@ protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
     caf::PdmField<QString>       m_userDescription;
     caf::PdmField<caf::FilePath> m_polyLinesFileName;

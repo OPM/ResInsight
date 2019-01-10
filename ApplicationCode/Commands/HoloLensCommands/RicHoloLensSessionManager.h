@@ -44,7 +44,7 @@ public:
     static void         refreshToolbarState();
 
 private:
-    virtual void        handleSessionNotification(const RicHoloLensSession* session, Notification notification) override;
+    void        handleSessionNotification(const RicHoloLensSession* session, Notification notification) override;
 
 private:
     RicHoloLensSessionManager();

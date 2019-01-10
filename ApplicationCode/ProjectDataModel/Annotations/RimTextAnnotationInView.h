@@ -59,7 +59,7 @@ public:
 
 protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual caf::PdmFieldHandle* objectToggleField() override;
+    caf::PdmFieldHandle* objectToggleField() override;
     caf::PdmFieldHandle*         userDescriptionField() override;
 
 private:
