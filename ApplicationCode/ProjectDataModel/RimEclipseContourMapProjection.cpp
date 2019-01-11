@@ -1,4 +1,22 @@
-#include "RimContourMapProjection.h"
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2018- Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RimEclipseContourMapProjection.h"
 
 #include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedHarmonicMeanCalculator.h"
@@ -43,31 +61,31 @@
 namespace caf
 {
     template<>
-    void RimContourMapProjection::ResultAggregation::setUp()
+    void RimEclipseContourMapProjection::ResultAggregation::setUp()
     {
-        addItem(RimContourMapProjection::RESULTS_OIL_COLUMN, "OIL_COLUMN", "Oil Column");
-        addItem(RimContourMapProjection::RESULTS_GAS_COLUMN, "GAS_COLUMN", "Gas Column");
-        addItem(RimContourMapProjection::RESULTS_HC_COLUMN, "HC_COLUMN", "Hydrocarbon Column");
+        addItem(RimEclipseContourMapProjection::RESULTS_OIL_COLUMN, "OIL_COLUMN", "Oil Column");
+        addItem(RimEclipseContourMapProjection::RESULTS_GAS_COLUMN, "GAS_COLUMN", "Gas Column");
+        addItem(RimEclipseContourMapProjection::RESULTS_HC_COLUMN, "HC_COLUMN", "Hydrocarbon Column");
 
-        addItem(RimContourMapProjection::RESULTS_MEAN_VALUE, "MEAN_VALUE", "Arithmetic Mean");
-        addItem(RimContourMapProjection::RESULTS_HARM_VALUE, "HARM_VALUE", "Harmonic Mean");
-        addItem(RimContourMapProjection::RESULTS_GEOM_VALUE, "GEOM_VALUE", "Geometric Mean");
-        addItem(RimContourMapProjection::RESULTS_VOLUME_SUM, "VOLUME_SUM", "Volume Weighted Sum");
-        addItem(RimContourMapProjection::RESULTS_SUM, "SUM", "Sum");
+        addItem(RimEclipseContourMapProjection::RESULTS_MEAN_VALUE, "MEAN_VALUE", "Arithmetic Mean");
+        addItem(RimEclipseContourMapProjection::RESULTS_HARM_VALUE, "HARM_VALUE", "Harmonic Mean");
+        addItem(RimEclipseContourMapProjection::RESULTS_GEOM_VALUE, "GEOM_VALUE", "Geometric Mean");
+        addItem(RimEclipseContourMapProjection::RESULTS_VOLUME_SUM, "VOLUME_SUM", "Volume Weighted Sum");
+        addItem(RimEclipseContourMapProjection::RESULTS_SUM, "SUM", "Sum");
 
-        addItem(RimContourMapProjection::RESULTS_TOP_VALUE, "TOP_VALUE", "Top  Value");
-        addItem(RimContourMapProjection::RESULTS_MIN_VALUE, "MIN_VALUE", "Min Value");
-        addItem(RimContourMapProjection::RESULTS_MAX_VALUE, "MAX_VALUE", "Max Value");
+        addItem(RimEclipseContourMapProjection::RESULTS_TOP_VALUE, "TOP_VALUE", "Top  Value");
+        addItem(RimEclipseContourMapProjection::RESULTS_MIN_VALUE, "MIN_VALUE", "Min Value");
+        addItem(RimEclipseContourMapProjection::RESULTS_MAX_VALUE, "MAX_VALUE", "Max Value");
 
-        setDefault(RimContourMapProjection::RESULTS_MEAN_VALUE);
+        setDefault(RimEclipseContourMapProjection::RESULTS_MEAN_VALUE);
     }
 }
-CAF_PDM_SOURCE_INIT(RimContourMapProjection, "RimContourMapProjection");
+CAF_PDM_SOURCE_INIT(RimEclipseContourMapProjection, "RimContourMapProjection");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapProjection::RimContourMapProjection()
+RimEclipseContourMapProjection::RimEclipseContourMapProjection()
     : m_pickPoint(cvf::Vec2d::UNDEFINED)
     , m_mapSize(cvf::Vec2ui(0u, 0u))
     , m_sampleSpacing(-1.0)
@@ -100,7 +118,7 @@ RimContourMapProjection::RimContourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapProjection::~RimContourMapProjection()
+RimEclipseContourMapProjection::~RimEclipseContourMapProjection()
 {
 
 }
@@ -109,7 +127,7 @@ RimContourMapProjection::~RimContourMapProjection()
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d>
-RimContourMapProjection::generatePickPointPolygon()
+RimEclipseContourMapProjection::generatePickPointPolygon()
 {
     std::vector<cvf::Vec3d> points;
 
@@ -142,7 +160,7 @@ RimContourMapProjection::generatePickPointPolygon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateResultsIfNecessary(int timeStep)
+void RimEclipseContourMapProjection::generateResultsIfNecessary(int timeStep)
 {
     updateGridInformation();
 
@@ -160,7 +178,7 @@ void RimContourMapProjection::generateResultsIfNecessary(int timeStep)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateGeometryIfNecessary()
+void RimEclipseContourMapProjection::generateGeometryIfNecessary()
 {
     if (geometryNeedsUpdating())
     {
@@ -172,7 +190,7 @@ void RimContourMapProjection::generateGeometryIfNecessary()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RimContourMapProjection::ContourPolygons>& RimContourMapProjection::contourPolygons() const
+const std::vector<RimEclipseContourMapProjection::ContourPolygons>& RimEclipseContourMapProjection::contourPolygons() const
 {
     return m_contourPolygons;
 }
@@ -180,7 +198,7 @@ const std::vector<RimContourMapProjection::ContourPolygons>& RimContourMapProjec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec4d>& RimContourMapProjection::trianglesWithVertexValues()
+const std::vector<cvf::Vec4d>& RimEclipseContourMapProjection::trianglesWithVertexValues()
 {
     return m_trianglesWithVertexValues;
 }
@@ -188,7 +206,7 @@ const std::vector<cvf::Vec4d>& RimContourMapProjection::trianglesWithVertexValue
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapProjection::ResultAggregation RimContourMapProjection::resultAggregation() const
+RimEclipseContourMapProjection::ResultAggregation RimEclipseContourMapProjection::resultAggregation() const
 {
     return m_resultAggregation();
 }
@@ -196,7 +214,7 @@ RimContourMapProjection::ResultAggregation RimContourMapProjection::resultAggreg
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::sampleSpacing() const
+double RimEclipseContourMapProjection::sampleSpacing() const
 {
     return m_sampleSpacing;
 }
@@ -204,7 +222,7 @@ double RimContourMapProjection::sampleSpacing() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::sampleSpacingFactor() const
+double RimEclipseContourMapProjection::sampleSpacingFactor() const
 {
     return m_relativeSampleSpacing();
 }
@@ -212,7 +230,7 @@ double RimContourMapProjection::sampleSpacingFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::showContourLines() const
+bool RimEclipseContourMapProjection::showContourLines() const
 {
     return m_showContourLines();
 }
@@ -220,7 +238,7 @@ bool RimContourMapProjection::showContourLines() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::showContourLabels() const
+bool RimEclipseContourMapProjection::showContourLabels() const
 {
     return m_showContourLines() && m_showContourLabels();
 }
@@ -228,7 +246,7 @@ bool RimContourMapProjection::showContourLabels() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimContourMapProjection::resultAggregationText() const
+QString RimEclipseContourMapProjection::resultAggregationText() const
 {
     return m_resultAggregation().uiText();
 }
@@ -236,7 +254,7 @@ QString RimContourMapProjection::resultAggregationText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimContourMapProjection::resultDescriptionText() const
+QString RimEclipseContourMapProjection::resultDescriptionText() const
 {
     QString resultText = resultAggregationText();
     if (!isColumnResult())
@@ -250,7 +268,7 @@ QString RimContourMapProjection::resultDescriptionText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimContourMapProjection::weightingParameter() const
+QString RimEclipseContourMapProjection::weightingParameter() const
 {
     QString parameter = "None";
     if (m_weightByParameter() && !m_weightingResult->isTernarySaturationSelected())
@@ -263,7 +281,7 @@ QString RimContourMapProjection::weightingParameter() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::maxValue() const
+double RimEclipseContourMapProjection::maxValue() const
 {
     double maxV = -std::numeric_limits<double>::infinity();
 
@@ -282,7 +300,7 @@ double RimContourMapProjection::maxValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::minValue() const
+double RimEclipseContourMapProjection::minValue() const
 {
     double minV = std::numeric_limits<double>::infinity();
 
@@ -301,7 +319,7 @@ double RimContourMapProjection::minValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::meanValue() const
+double RimEclipseContourMapProjection::meanValue() const
 {
     return sumAllValues() / numberOfValidCells();
 }
@@ -309,7 +327,7 @@ double RimContourMapProjection::meanValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::sumAllValues() const
+double RimEclipseContourMapProjection::sumAllValues() const
 {
     double sum = 0.0;
 
@@ -328,7 +346,7 @@ double RimContourMapProjection::sumAllValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2ui RimContourMapProjection::numberOfElementsIJ() const
+cvf::Vec2ui RimEclipseContourMapProjection::numberOfElementsIJ() const
 {
     return m_mapSize;
 }
@@ -336,7 +354,7 @@ cvf::Vec2ui RimContourMapProjection::numberOfElementsIJ() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2ui RimContourMapProjection::numberOfVerticesIJ() const
+cvf::Vec2ui RimEclipseContourMapProjection::numberOfVerticesIJ() const
 {
     cvf::Vec2ui mapSize = this->numberOfElementsIJ();
     mapSize.x() += 1u;
@@ -347,7 +365,7 @@ cvf::Vec2ui RimContourMapProjection::numberOfVerticesIJ() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::isColumnResult() const
+bool RimEclipseContourMapProjection::isColumnResult() const
 {
     return m_resultAggregation() == RESULTS_OIL_COLUMN ||
            m_resultAggregation() == RESULTS_GAS_COLUMN ||
@@ -357,7 +375,7 @@ bool RimContourMapProjection::isColumnResult() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::valueAtVertex(uint i, uint j) const
+double RimEclipseContourMapProjection::valueAtVertex(uint i, uint j) const
 {
     size_t index = vertexIndexFromIJ(i, j);
     if (index < numberOfVertices())
@@ -371,7 +389,7 @@ double RimContourMapProjection::valueAtVertex(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::hasResultAtVertex(uint i, uint j) const
+bool RimEclipseContourMapProjection::hasResultAtVertex(uint i, uint j) const
 {
     size_t index = vertexIndexFromIJ(i, j);
     return m_aggregatedVertexResults[index] != std::numeric_limits<double>::infinity();
@@ -380,7 +398,7 @@ bool RimContourMapProjection::hasResultAtVertex(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig* RimContourMapProjection::legendConfig() const
+RimRegularLegendConfig* RimEclipseContourMapProjection::legendConfig() const
 {
     return view()->cellResult()->legendConfig();
 }
@@ -388,7 +406,7 @@ RimRegularLegendConfig* RimContourMapProjection::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::updateLegend()
+void RimEclipseContourMapProjection::updateLegend()
 {    
     RimEclipseCellColors* cellColors = view()->cellResult();
 
@@ -426,7 +444,7 @@ void RimContourMapProjection::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-uint RimContourMapProjection::numberOfCells() const
+uint RimEclipseContourMapProjection::numberOfCells() const
 {
     return m_mapSize.x() * m_mapSize.y();
 }
@@ -434,7 +452,7 @@ uint RimContourMapProjection::numberOfCells() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-uint RimContourMapProjection::numberOfValidCells() const
+uint RimEclipseContourMapProjection::numberOfValidCells() const
 {
     uint validCount = 0u;
     for (uint i = 0; i < numberOfCells(); ++i)
@@ -451,7 +469,7 @@ uint RimContourMapProjection::numberOfValidCells() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimContourMapProjection::numberOfVertices() const
+size_t RimEclipseContourMapProjection::numberOfVertices() const
 {
     cvf::Vec2ui gridSize = numberOfVerticesIJ();
     return static_cast<size_t>(gridSize.x()) * static_cast<size_t>(gridSize.y());
@@ -461,7 +479,7 @@ size_t RimContourMapProjection::numberOfVertices() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::updatedWeightingResult()
+void RimEclipseContourMapProjection::updatedWeightingResult()
 {
     this->clearGridMapping();
     this->updateConnectedEditors();
@@ -476,7 +494,7 @@ void RimContourMapProjection::updatedWeightingResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint) const
+bool RimEclipseContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint) const
 {
     CVF_TIGHT_ASSERT(contourMapPoint);
     CVF_TIGHT_ASSERT(valueAtPoint);
@@ -499,7 +517,7 @@ bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::smoothContourPolygons(ContourPolygons* contourPolygons, const ContourPolygons* clipBy, bool favourExpansion)
+void RimEclipseContourMapProjection::smoothContourPolygons(ContourPolygons* contourPolygons, const ContourPolygons* clipBy, bool favourExpansion)
 {
     CVF_ASSERT(contourPolygons);
     for (size_t i = 0; i < contourPolygons->size(); ++i)
@@ -560,7 +578,7 @@ void RimContourMapProjection::smoothContourPolygons(ContourPolygons* contourPoly
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::interpolateValue(const cvf::Vec2d& gridPos2d) const
+double RimEclipseContourMapProjection::interpolateValue(const cvf::Vec2d& gridPos2d) const
 {
     cvf::Vec2ui cellContainingPoint = ijFromLocalPos(gridPos2d);
     cvf::Vec2d  cellCenter          = cellCenterPosition(cellContainingPoint.x(), cellContainingPoint.y());
@@ -615,7 +633,7 @@ double RimContourMapProjection::interpolateValue(const cvf::Vec2d& gridPos2d) co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::setPickPoint(cvf::Vec2d globalPickPoint)
+void RimEclipseContourMapProjection::setPickPoint(cvf::Vec2d globalPickPoint)
 {
     m_pickPoint = globalPickPoint - origin2d();
 }
@@ -623,7 +641,7 @@ void RimContourMapProjection::setPickPoint(cvf::Vec2d globalPickPoint)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimContourMapProjection::origin3d() const
+cvf::Vec3d RimEclipseContourMapProjection::origin3d() const
 {
     return m_expandedBoundingBox.min();
 }
@@ -631,7 +649,7 @@ cvf::Vec3d RimContourMapProjection::origin3d() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+void RimEclipseContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                const QVariant&            oldValue,
                                                const QVariant&            newValue)
 {
@@ -672,7 +690,7 @@ void RimContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::defineEditorAttribute(const caf::PdmFieldHandle* field,
+void RimEclipseContourMapProjection::defineEditorAttribute(const caf::PdmFieldHandle* field,
                                                     QString                    uiConfigName,
                                                     caf::PdmUiEditorAttribute* attribute)
 {
@@ -690,7 +708,7 @@ void RimContourMapProjection::defineEditorAttribute(const caf::PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimEclipseContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup("Projection Settings");
     mainGroup->add(&m_relativeSampleSpacing);
@@ -722,7 +740,7 @@ void RimContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimEclipseContourMapProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.skipRemainingChildren(true);
 }
@@ -730,7 +748,7 @@ void RimContourMapProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::initAfterRead()
+void RimEclipseContourMapProjection::initAfterRead()
 {
     legendConfig()->disableAllTimeStepsRange(!getLegendRangeFrom3dGrid());
     if (eclipseCase())
@@ -742,7 +760,7 @@ void RimContourMapProjection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateGridMapping()
+void RimEclipseContourMapProjection::generateGridMapping()
 {
     clearResults();
 
@@ -795,7 +813,7 @@ void RimContourMapProjection::generateGridMapping()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateResults(int timeStep)
+void RimEclipseContourMapProjection::generateResults(int timeStep)
 {
     clearGeometry();
 
@@ -862,7 +880,7 @@ void RimContourMapProjection::generateResults(int timeStep)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateTrianglesWithVertexValues()
+void RimEclipseContourMapProjection::generateTrianglesWithVertexValues()
 {
     std::vector<cvf::Vec3d> vertices = generateVertices();
 
@@ -1051,7 +1069,7 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimContourMapProjection::generateVertices() const
+std::vector<cvf::Vec3d> RimEclipseContourMapProjection::generateVertices() const
 {
     size_t                  nVertices = numberOfVertices();
     std::vector<cvf::Vec3d> vertices(nVertices, cvf::Vec3d::ZERO);
@@ -1074,7 +1092,7 @@ std::vector<cvf::Vec3d> RimContourMapProjection::generateVertices() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateContourPolygons()
+void RimEclipseContourMapProjection::generateContourPolygons()
 {
     std::vector<ContourPolygons> contourPolygons;
 
@@ -1139,7 +1157,7 @@ void RimContourMapProjection::generateContourPolygons()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::gridMappingNeedsUpdating() const
+bool RimEclipseContourMapProjection::gridMappingNeedsUpdating() const
 {
     // Check grid visibility and projected grid indices;
 
@@ -1161,7 +1179,7 @@ bool RimContourMapProjection::gridMappingNeedsUpdating() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::resultsNeedUpdating(int timeStep) const
+bool RimEclipseContourMapProjection::resultsNeedUpdating(int timeStep) const
 {
     if (m_aggregatedResults.size() != numberOfCells())
     {
@@ -1193,7 +1211,7 @@ bool RimContourMapProjection::resultsNeedUpdating(int timeStep) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::geometryNeedsUpdating() const
+bool RimEclipseContourMapProjection::geometryNeedsUpdating() const
 {
     return m_contourPolygons.empty() || m_trianglesWithVertexValues.empty();
 }
@@ -1201,7 +1219,7 @@ bool RimContourMapProjection::geometryNeedsUpdating() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::clearGridMapping()
+void RimEclipseContourMapProjection::clearGridMapping()
 {
     m_projected3dGridIndices.clear();
     clearResults();
@@ -1210,7 +1228,7 @@ void RimContourMapProjection::clearGridMapping()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::clearResults()
+void RimEclipseContourMapProjection::clearResults()
 {
     m_aggregatedResults.clear();
     m_aggregatedVertexResults.clear();
@@ -1221,7 +1239,7 @@ void RimContourMapProjection::clearResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::clearGeometry()
+void RimEclipseContourMapProjection::clearGeometry()
 {
     m_contourPolygons.clear();
     m_trianglesWithVertexValues.clear();
@@ -1230,7 +1248,7 @@ void RimContourMapProjection::clearGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::valueInCell(uint i, uint j) const
+double RimEclipseContourMapProjection::valueInCell(uint i, uint j) const
 {
     size_t index = cellIndexFromIJ(i, j);
     if (index < numberOfCells())
@@ -1243,7 +1261,7 @@ double RimContourMapProjection::valueInCell(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::hasResultInCell(uint i, uint j) const
+bool RimEclipseContourMapProjection::hasResultInCell(uint i, uint j) const
 {
     RimEclipseCellColors* cellColors = view()->cellResult();
 
@@ -1257,7 +1275,7 @@ bool RimContourMapProjection::hasResultInCell(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::calculateValueInCell(uint i, uint j) const
+double RimEclipseContourMapProjection::calculateValueInCell(uint i, uint j) const
 {
     if (!isColumnResult())        
     {
@@ -1388,7 +1406,7 @@ double RimContourMapProjection::calculateValueInCell(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::calculateValueAtVertex(uint vi, uint vj) const
+double RimEclipseContourMapProjection::calculateValueAtVertex(uint vi, uint vj) const
 {
     std::vector<uint> averageIs;
     std::vector<uint> averageJs;
@@ -1420,7 +1438,7 @@ double RimContourMapProjection::calculateValueAtVertex(uint vi, uint vj) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<size_t, double>> RimContourMapProjection::cellsAtIJ(uint i, uint j) const
+std::vector<std::pair<size_t, double>> RimEclipseContourMapProjection::cellsAtIJ(uint i, uint j) const
 {
     size_t cellIndex = this->cellIndexFromIJ(i, j);
     if (cellIndex < m_projected3dGridIndices.size())
@@ -1434,7 +1452,7 @@ std::vector<std::pair<size_t, double>> RimContourMapProjection::cellsAtIJ(uint i
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<size_t, double>>
-    RimContourMapProjection::visibleCellsAndOverlapVolumeFrom2dPoint(const cvf::Vec2d&          globalPos2d,
+    RimEclipseContourMapProjection::visibleCellsAndOverlapVolumeFrom2dPoint(const cvf::Vec2d&          globalPos2d,
                                                                      const std::vector<double>* weightingResultValues) const
 {
     cvf::Vec3d top2dElementCentroid(globalPos2d, m_expandedBoundingBox.max().z());
@@ -1518,7 +1536,7 @@ std::vector<std::pair<size_t, double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<size_t, double>> RimContourMapProjection::visibleCellsAndLengthInCellFrom2dPoint(
+std::vector<std::pair<size_t, double>> RimEclipseContourMapProjection::visibleCellsAndLengthInCellFrom2dPoint(
     const cvf::Vec2d&          globalPos2d,
     const std::vector<double>* weightingResultValues /*= nullptr*/) const
 {
@@ -1589,7 +1607,7 @@ std::vector<std::pair<size_t, double>> RimContourMapProjection::visibleCellsAndL
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const
+double RimEclipseContourMapProjection::findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const
 {
     const RigCaseCellResultsData* resultData      = eclipseCase()->results(RiaDefines::MATRIX_MODEL);
     size_t                        poroResultIndex = resultData->findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PORO");
@@ -1645,7 +1663,7 @@ double RimContourMapProjection::findColumnResult(ResultAggregation resultAggrega
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::isMeanResult() const
+bool RimEclipseContourMapProjection::isMeanResult() const
 {
     return m_resultAggregation() == RESULTS_MEAN_VALUE || m_resultAggregation() == RESULTS_HARM_VALUE ||
            m_resultAggregation() == RESULTS_GEOM_VALUE;
@@ -1654,7 +1672,7 @@ bool RimContourMapProjection::isMeanResult() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::isSummationResult() const
+bool RimEclipseContourMapProjection::isSummationResult() const
 {
     return isStraightSummationResult() || m_resultAggregation() == RESULTS_VOLUME_SUM;
 }
@@ -1662,7 +1680,7 @@ bool RimContourMapProjection::isSummationResult() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::isStraightSummationResult() const
+bool RimEclipseContourMapProjection::isStraightSummationResult() const
 {
     return isStraightSummationResult(m_resultAggregation());
 }
@@ -1670,7 +1688,7 @@ bool RimContourMapProjection::isStraightSummationResult() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::isStraightSummationResult(ResultAggregationEnum aggregationType)
+bool RimEclipseContourMapProjection::isStraightSummationResult(ResultAggregationEnum aggregationType)
 {
     return aggregationType == RESULTS_OIL_COLUMN || aggregationType == RESULTS_GAS_COLUMN ||
            aggregationType == RESULTS_HC_COLUMN || aggregationType == RESULTS_SUM;
@@ -1679,7 +1697,7 @@ bool RimContourMapProjection::isStraightSummationResult(ResultAggregationEnum ag
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimContourMapProjection::cellIndexFromIJ(uint i, uint j) const
+size_t RimEclipseContourMapProjection::cellIndexFromIJ(uint i, uint j) const
 {
     CVF_ASSERT(i < m_mapSize.x());
     CVF_ASSERT(j < m_mapSize.y());
@@ -1690,7 +1708,7 @@ size_t RimContourMapProjection::cellIndexFromIJ(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimContourMapProjection::vertexIndexFromIJ(uint i, uint j) const
+size_t RimEclipseContourMapProjection::vertexIndexFromIJ(uint i, uint j) const
 {
     return i + j * (m_mapSize.x() + 1);
 }
@@ -1698,7 +1716,7 @@ size_t RimContourMapProjection::vertexIndexFromIJ(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2ui RimContourMapProjection::ijFromVertexIndex(size_t gridIndex) const
+cvf::Vec2ui RimEclipseContourMapProjection::ijFromVertexIndex(size_t gridIndex) const
 {
     cvf::Vec2ui gridSize = numberOfVerticesIJ();
 
@@ -1711,7 +1729,7 @@ cvf::Vec2ui RimContourMapProjection::ijFromVertexIndex(size_t gridIndex) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2ui RimContourMapProjection::ijFromCellIndex(size_t cellIndex) const
+cvf::Vec2ui RimEclipseContourMapProjection::ijFromCellIndex(size_t cellIndex) const
 {
     CVF_TIGHT_ASSERT(cellIndex < numberOfCells());
 
@@ -1724,7 +1742,7 @@ cvf::Vec2ui RimContourMapProjection::ijFromCellIndex(size_t cellIndex) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2ui RimContourMapProjection::ijFromLocalPos(const cvf::Vec2d& localPos2d) const
+cvf::Vec2ui RimEclipseContourMapProjection::ijFromLocalPos(const cvf::Vec2d& localPos2d) const
 {
     uint i = localPos2d.x() / m_sampleSpacing;
     uint j = localPos2d.y() / m_sampleSpacing;
@@ -1734,7 +1752,7 @@ cvf::Vec2ui RimContourMapProjection::ijFromLocalPos(const cvf::Vec2d& localPos2d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2d RimContourMapProjection::cellCenterPosition(uint i, uint j) const
+cvf::Vec2d RimEclipseContourMapProjection::cellCenterPosition(uint i, uint j) const
 {
     cvf::Vec3d gridExtent = m_expandedBoundingBox.extent();
     cvf::Vec2d cellCorner = cvf::Vec2d((i * gridExtent.x()) / (m_mapSize.x()), (j * gridExtent.y()) / (m_mapSize.y()));
@@ -1745,7 +1763,7 @@ cvf::Vec2d RimContourMapProjection::cellCenterPosition(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2d RimContourMapProjection::origin2d() const
+cvf::Vec2d RimEclipseContourMapProjection::origin2d() const
 {
     return cvf::Vec2d(m_expandedBoundingBox.min().x(), m_expandedBoundingBox.min().y());
 }
@@ -1753,7 +1771,7 @@ cvf::Vec2d RimContourMapProjection::origin2d() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimContourMapProjection::xVertexPositions() const
+std::vector<double> RimEclipseContourMapProjection::xVertexPositions() const
 {
     double gridExtent = m_expandedBoundingBox.extent().x();
 
@@ -1771,7 +1789,7 @@ std::vector<double> RimContourMapProjection::xVertexPositions() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimContourMapProjection::yVertexPositions() const
+std::vector<double> RimEclipseContourMapProjection::yVertexPositions() const
 {
     double gridExtent = m_expandedBoundingBox.extent().y();
 
@@ -1789,7 +1807,7 @@ std::vector<double> RimContourMapProjection::yVertexPositions() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::getLegendRangeFrom3dGrid() const
+bool RimEclipseContourMapProjection::getLegendRangeFrom3dGrid() const
 {
     if (isMeanResult())
     {
@@ -1805,7 +1823,7 @@ bool RimContourMapProjection::getLegendRangeFrom3dGrid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::updateGridInformation()
+void RimEclipseContourMapProjection::updateGridInformation()
 {
     m_mainGrid        = eclipseCase()->eclipseCaseData()->mainGrid();
     m_sampleSpacing   = m_relativeSampleSpacing * m_mainGrid->characteristicIJCellSize();
@@ -1827,7 +1845,7 @@ void RimContourMapProjection::updateGridInformation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2ui RimContourMapProjection::calculateMapSize() const
+cvf::Vec2ui RimEclipseContourMapProjection::calculateMapSize() const
 {
     cvf::Vec3d       gridExtent  = m_expandedBoundingBox.extent();
 
@@ -1840,7 +1858,7 @@ cvf::Vec2ui RimContourMapProjection::calculateMapSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultCase* RimContourMapProjection::eclipseCase() const
+RimEclipseResultCase* RimEclipseContourMapProjection::eclipseCase() const
 {
     RimEclipseResultCase* eclipseCase = nullptr;
     firstAncestorOrThisOfType(eclipseCase);
@@ -1850,7 +1868,7 @@ RimEclipseResultCase* RimContourMapProjection::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapView* RimContourMapProjection::view() const
+RimContourMapView* RimEclipseContourMapProjection::view() const
 {
     RimContourMapView* view = nullptr;
     firstAncestorOrThisOfTypeAsserted(view);
@@ -1860,7 +1878,7 @@ RimContourMapView* RimContourMapProjection::view() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::gridEdgeOffset() const
+double RimEclipseContourMapProjection::gridEdgeOffset() const
 {
     return m_sampleSpacing * 2.0;
 }

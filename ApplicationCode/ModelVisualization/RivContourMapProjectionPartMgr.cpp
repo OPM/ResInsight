@@ -9,7 +9,7 @@
 #include "RivPartPriority.h"
 
 #include "RimContourMapView.h"
-#include "RimContourMapProjection.h"
+#include "RimEclipseContourMapProjection.h"
 
 #include "cafEffectGenerator.h"
 
@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivContourMapProjectionPartMgr::RivContourMapProjectionPartMgr(RimContourMapProjection* contourMapProjection, RimContourMapView* contourMap)
+RivContourMapProjectionPartMgr::RivContourMapProjectionPartMgr(RimEclipseContourMapProjection* contourMapProjection, RimContourMapView* contourMap)
 {
     m_contourMapProjection = contourMapProjection;
     m_parentContourMap = contourMap;

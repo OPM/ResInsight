@@ -26,7 +26,7 @@
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimViewNameConfig.h"
-#include "RimContourMapProjection.h"
+#include "RimEclipseContourMapProjection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -54,7 +54,7 @@ RimContourMapView::RimContourMapView()
     CAF_PDM_InitObject("Contour Map View", ":/2DMap16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_contourMapProjection, "ContourMapProjection", "Contour Map Projection", "", "", "");
-    m_contourMapProjection = new RimContourMapProjection();
+    m_contourMapProjection = new RimEclipseContourMapProjection();
 
     CAF_PDM_InitField(&m_showAxisLines,   "ShowAxisLines", true, "Show Axis Lines", "", "", "");
     CAF_PDM_InitField(&m_showScaleLegend, "ShowScaleLegend", true, "Show Scale Legend", "", "", "");
@@ -72,7 +72,7 @@ RimContourMapView::RimContourMapView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapProjection* RimContourMapView::contourMapProjection() const
+RimEclipseContourMapProjection* RimContourMapView::contourMapProjection() const
 {
     return m_contourMapProjection().p();
 }

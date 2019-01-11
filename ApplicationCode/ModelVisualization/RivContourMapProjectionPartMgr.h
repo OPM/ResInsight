@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimContourMapProjection.h"
+#include "RimEclipseContourMapProjection.h"
 
 #include "cafPdmPointer.h"
 #include "cafDisplayCoordTransform.h"
@@ -40,7 +40,7 @@ namespace cvf
 class RivContourMapProjectionPartMgr : public cvf::Object
 {
 public:
-    RivContourMapProjectionPartMgr(RimContourMapProjection* contourMapProjection, RimContourMapView* contourMap);
+    RivContourMapProjectionPartMgr(RimEclipseContourMapProjection* contourMapProjection, RimContourMapView* contourMap);
 
     void createProjectionGeometry();
     void appendProjectionToModel(cvf::ModelBasicList*              model,
@@ -59,10 +59,10 @@ private:
     std::vector<cvf::ref<cvf::Drawable>>                 createContourLabels(const cvf::Camera* camera, const caf::DisplayCoordTransform* displayCoordTransform, std::vector<std::vector<cvf::BoundingBox>>* labelBBoxes) const;
     cvf::ref<cvf::DrawableGeo>                           createPickPointVisDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
 private:
-    caf::PdmPointer<RimContourMapProjection>  m_contourMapProjection;
+    caf::PdmPointer<RimEclipseContourMapProjection>  m_contourMapProjection;
     caf::PdmPointer<RimContourMapView>        m_parentContourMap;
 
-    std::vector<RimContourMapProjection::ContourPolygons> m_contourLinePolygons;
+    std::vector<RimEclipseContourMapProjection::ContourPolygons> m_contourLinePolygons;
     std::vector<cvf::Vec4d>                               m_contourMapTriangles;
     std::vector<std::vector<cvf::BoundingBox>>            m_labelBoundingBoxes;
     cvf::ref<cvf::Effect>                                 m_labelEffect;

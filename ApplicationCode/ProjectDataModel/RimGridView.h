@@ -24,7 +24,7 @@
 #include "cvfArray.h"
 
 class RimAnnotationInViewCollection;
-class RimContourMapProjection;
+class RimEclipseContourMapProjection;
 class Rim3dOverlayInfoConfig;
 class RimIntersectionCollection;
 class RimPropertyFilterCollection;

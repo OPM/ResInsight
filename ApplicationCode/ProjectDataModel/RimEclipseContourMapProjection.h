@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
-//  Copyright (C) Ceetron Solutions AS
+//  Copyright (C) 2018- Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -42,7 +41,7 @@ class RimEclipseResultDefinition;
 ///  
 ///  
 //==================================================================================================
-class RimContourMapProjection : public RimCheckableNamedObject
+class RimEclipseContourMapProjection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -70,8 +69,8 @@ public:
     typedef caf::AppEnum<ResultAggregationEnum> ResultAggregation;
     typedef std::vector<ContourPolygon> ContourPolygons;
 
-    RimContourMapProjection();
-    ~RimContourMapProjection() override;
+    RimEclipseContourMapProjection();
+    ~RimEclipseContourMapProjection() override;
 
     void generateResultsIfNecessary(int timeStep);
     void generateGeometryIfNecessary();

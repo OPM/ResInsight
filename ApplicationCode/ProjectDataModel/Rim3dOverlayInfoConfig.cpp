@@ -38,7 +38,7 @@
 #include "RigStatisticsDataCache.h"
 
 #include "RimContourMapView.h"
-#include "RimContourMapProjection.h"
+#include "RimEclipseContourMapProjection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"

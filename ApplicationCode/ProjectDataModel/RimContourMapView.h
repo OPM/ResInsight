@@ -30,7 +30,7 @@ class RimContourMapView : public RimEclipseView
     CAF_PDM_HEADER_INIT;
 public:
     RimContourMapView();
-    RimContourMapProjection*                     contourMapProjection() const;
+    RimEclipseContourMapProjection*                     contourMapProjection() const;
 
     QString createAutoName() const override;
     void    setDefaultCustomName();
@@ -66,7 +66,7 @@ protected:
     bool zoomChangeAboveTreshold(const cvf::Vec3d& currentCameraPosition) const;
 private:
     cvf::ref<RivContourMapProjectionPartMgr>     m_contourMapProjectionPartMgr;
-    caf::PdmChildField<RimContourMapProjection*> m_contourMapProjection;
+    caf::PdmChildField<RimEclipseContourMapProjection*> m_contourMapProjection;
     caf::PdmField<bool>                          m_showAxisLines;
     caf::PdmField<bool>                          m_showScaleLegend;
     cvf::Vec3d                                   m_cameraPositionLastUpdate;  

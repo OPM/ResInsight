@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicContourMapPickEventHandler.h"
-#include "RimContourMapProjection.h"
+#include "RimEclipseContourMapProjection.h"
 #include "RimContourMapView.h"
 #include "RimEclipseCellColors.h"
 #include "Rim3dView.h"
@@ -53,7 +53,7 @@ bool RicContourMapPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventO
     const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(firstPickedPart->sourceInfo());
     if (sourceInfo)
     {
-        RimContourMapProjection* contourMap = dynamic_cast<RimContourMapProjection*>(sourceInfo->object());
+        RimEclipseContourMapProjection* contourMap = dynamic_cast<RimEclipseContourMapProjection*>(sourceInfo->object());
         if (contourMap)
         {
             RiuMainWindow::instance()->selectAsCurrentItem(contourMap);
