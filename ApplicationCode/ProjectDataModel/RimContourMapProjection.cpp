@@ -68,9 +68,10 @@ CAF_PDM_SOURCE_INIT(RimContourMapProjection, "RimContourMapProjection");
 ///
 //--------------------------------------------------------------------------------------------------
 RimContourMapProjection::RimContourMapProjection()
-    : m_pickPoint(cvf::Vec2d::UNDEFINED),
-      m_mapSize(cvf::Vec2ui(0u, 0u)),
-      m_sampleSpacing(-1.0)
+    : m_pickPoint(cvf::Vec2d::UNDEFINED)
+    , m_mapSize(cvf::Vec2ui(0u, 0u))
+    , m_sampleSpacing(-1.0)
+    , m_currentResultTimestep(-1)
 {
     CAF_PDM_InitObject("RimContourMapProjection", ":/2DMapProjection16x16.png", "", "");
 
@@ -102,272 +103,6 @@ RimContourMapProjection::RimContourMapProjection()
 RimContourMapProjection::~RimContourMapProjection()
 {
 
-}
-
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec4d> RimContourMapProjection::generateTrianglesWithVertexValues() const
-{
-    std::vector<cvf::Vec3d> vertices = generateVertices();
-
-    cvf::Vec2ui patchSize = numberOfVerticesIJ();
-    cvf::ref<cvf::UIntArray> faceList = new cvf::UIntArray;
-    cvf::GeometryUtils::tesselatePatchAsTriangles(patchSize.x(), patchSize.y(), 0u, true, faceList.p());
-
-    bool discrete = false;
-    std::vector<double> contourLevels;
-    if (legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER)
-    {
-        legendConfig()->scalarMapper()->majorTickValues(&contourLevels);     
-        if (legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_DISCRETE ||
-            legendConfig()->mappingMode() == RimRegularLegendConfig::LOG10_DISCRETE)
-        {
-            discrete = true;
-        }
-    }
-
-    std::vector<std::vector<std::vector<cvf::Vec3d>>> subtractPolygons;
-    if (!m_contourPolygons.empty())
-    {
-        subtractPolygons.resize(m_contourPolygons.size());
-        for (size_t i = 0; i < m_contourPolygons.size() - 1; ++i)
-        {
-            for (size_t j = 0; j < m_contourPolygons[i + 1].size(); ++j)
-            {
-                subtractPolygons[i].push_back(m_contourPolygons[i + 1][j].vertices);
-            }
-        }
-    }
-    std::vector<std::vector<cvf::Vec4d>> threadTriangles(omp_get_max_threads());
-    
-#pragma omp parallel
-    {
-        int myThread = omp_get_thread_num();
-        threadTriangles[myThread].reserve(faceList->size() / omp_get_num_threads());
-
-        std::set<int64_t> excludedFaceIndices;
-
-#pragma omp for schedule(dynamic)
-        for (int64_t i = 0; i < (int64_t) faceList->size(); i += 3)
-        {
-            std::vector<cvf::Vec3d> triangle(3);
-            std::vector<cvf::Vec4d> triangleWithValues(3);
-            for (size_t n = 0; n < 3; ++n)
-            {
-                uint vn = (*faceList)[i + n];
-                double value = m_aggregatedVertexResults[vn];
-                triangle[n] = vertices[vn];
-                triangleWithValues[n] = cvf::Vec4d(vertices[vn], value);
-            }
-
-            if (m_contourPolygons.empty())
-            {
-                threadTriangles[myThread].insert(threadTriangles[myThread].end(), triangleWithValues.begin(), triangleWithValues.end());
-                continue;
-            }
-
-            for (size_t c = 0; c < m_contourPolygons.size() && excludedFaceIndices.count(i) == 0u; ++c)
-            {
-                std::vector<std::vector<cvf::Vec3d>> intersectPolygons;
-                for (size_t j = 0; j < m_contourPolygons[c].size(); ++j)
-                {
-                    bool containsAtLeastOne = false;
-                    for (size_t t = 0; t < 3; ++t)
-                    {
-                        if (m_contourPolygons[c][j].bbox.contains(triangle[t]))
-                        {
-                            containsAtLeastOne = true;
-                        }
-                    }
-                    if (containsAtLeastOne)
-                    {
-                        std::vector<std::vector<cvf::Vec3d>> clippedPolygons = RigCellGeometryTools::intersectPolygons(triangle, m_contourPolygons[c][j].vertices);
-                        intersectPolygons.insert(intersectPolygons.end(), clippedPolygons.begin(), clippedPolygons.end());
-                    }
-                }
-              
-                if (intersectPolygons.empty())
-                {
-                    excludedFaceIndices.insert(i);
-                    continue;
-                }
-             
-                std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
-
-                if (!subtractPolygons[c].empty())
-                {
-                    for (const std::vector<cvf::Vec3d>& polygon : intersectPolygons)
-                    {
-                        std::vector<std::vector<cvf::Vec3d>> fullyClippedPolygons = RigCellGeometryTools::subtractPolygons(polygon, subtractPolygons[c]);
-                        clippedPolygons.insert(clippedPolygons.end(), fullyClippedPolygons.begin(), fullyClippedPolygons.end());
-                    }
-                }
-                else
-                {
-                    clippedPolygons.swap(intersectPolygons);
-                }
-                {                
-                    std::vector<cvf::Vec4d> clippedTriangles;
-                    for (std::vector<cvf::Vec3d>& clippedPolygon : clippedPolygons)
-                    {
-                        std::vector<std::vector<cvf::Vec3d>> polygonTriangles;
-                        if (clippedPolygon.size() == 3u)
-                        {
-                            polygonTriangles.push_back(clippedPolygon);
-                        }
-                        else
-                        {
-                            cvf::Vec3d baryCenter = cvf::Vec3d::ZERO;
-                            for (size_t v = 0; v < clippedPolygon.size(); ++v)
-                            {
-                                cvf::Vec3d& clippedVertex = clippedPolygon[v];
-                                baryCenter += clippedVertex;
-                            }
-                            baryCenter /= clippedPolygon.size();
-                            for (size_t v = 0; v < clippedPolygon.size(); ++v)
-                            {
-                                std::vector<cvf::Vec3d> clippedTriangle;
-                                if (v == clippedPolygon.size() - 1)
-                                {
-                                    clippedTriangle = { clippedPolygon[v], clippedPolygon[0], baryCenter };
-                                }
-                                else
-                                {
-                                    clippedTriangle = { clippedPolygon[v], clippedPolygon[v + 1], baryCenter };
-                                }
-                                polygonTriangles.push_back(clippedTriangle);
-                            }
-                        }
-                        for (const std::vector<cvf::Vec3d>& polygonTriangle : polygonTriangles)
-                        {
-                            for (const cvf::Vec3d& localVertex : polygonTriangle)
-                            {
-                                double value = std::numeric_limits<double>::infinity();
-                                if (discrete)
-                                {
-                                    value = contourLevels[c] + 0.01 * (contourLevels.back() - contourLevels.front()) / contourLevels.size();
-                                }
-                                else
-                                {
-                                    for (size_t n = 0; n < 3; ++n)
-                                    {
-                                        if ((triangle[n] - localVertex).length() < m_sampleSpacing * 0.01 &&
-                                            triangleWithValues[n].w() != std::numeric_limits<double>::infinity())
-                                        {
-                                            value = triangleWithValues[n].w();
-                                            break;
-                                        }
-                                    }
-                                    if (value == std::numeric_limits<double>::infinity())
-                                    {
-                                        value = interpolateValue(cvf::Vec2d(localVertex.x(), localVertex.y()));
-                                        if (value == std::numeric_limits<double>::infinity())
-                                        {
-                                            value = contourLevels[c];
-                                        }
-                                    }
-                                }
-
-                                cvf::Vec4d globalVertex(localVertex, value);
-                                clippedTriangles.push_back(globalVertex);
-                            }
-                        }
-                    }
-                    threadTriangles[myThread].insert(threadTriangles[myThread].end(), clippedTriangles.begin(), clippedTriangles.end());
-                }
-            }
-        }
-    }
-    std::vector<cvf::Vec4d> finalTriangles;
-    for (size_t i = 0; i < threadTriangles.size(); ++i)
-    {
-        finalTriangles.insert(finalTriangles.end(), threadTriangles[i].begin(), threadTriangles[i].end());
-    }
-
-    return finalTriangles;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimContourMapProjection::generateVertices() const
-{
-    size_t nVertices = numberOfVertices();
-    std::vector<cvf::Vec3d> vertices(nVertices, cvf::Vec3d::ZERO);
-
-#pragma omp parallel for
-    for (int index = 0; index < static_cast<int>(nVertices); ++index)
-    {
-        cvf::Vec2ui ij = ijFromVertexIndex(index);
-        cvf::Vec2d mapPos = cellCenterPosition(ij.x(), ij.y());
-        // Shift away from sample point to vertex
-        mapPos.x() -= m_sampleSpacing * 0.5;
-        mapPos.y() -= m_sampleSpacing * 0.5;
-
-        cvf::Vec3d vertexPos(mapPos, 0.0);
-        vertices[index] = vertexPos;
-    }
-    return vertices;
-}
-
-
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateContourPolygons()
-{    
-    std::vector<ContourPolygons> contourPolygons;
-
-    const double areaTreshold = (m_sampleSpacing * m_sampleSpacing) / (sampleSpacingFactor() * sampleSpacingFactor());
-
-    if (minValue() != std::numeric_limits<double>::infinity() &&
-        maxValue() != -std::numeric_limits<double>::infinity() &&
-        std::fabs(maxValue() - minValue()) > 1.0e-8)
-    {
-        std::vector<double> contourLevels;
-        if (legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER)
-        {
-            legendConfig()->scalarMapper()->majorTickValues(&contourLevels);
-            int nContourLevels = static_cast<int>(contourLevels.size());
-            if (nContourLevels > 2)
-            {
-                std::vector<caf::ContourLines::ClosedPolygons> closedContourLines =
-                    caf::ContourLines::create(m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels, areaTreshold);
-
-                contourPolygons.resize(closedContourLines.size());
-
-                for (size_t i = 0; i < closedContourLines.size(); ++i)
-                {
-                    for (size_t j = 0; j < closedContourLines[i].size(); ++j)
-                    {
-                        ContourPolygon contourPolygon;
-                        contourPolygon.value = contourLevels[i];
-                        contourPolygon.vertices.reserve(closedContourLines[i][j].size() / 2);
-                        
-                        for (size_t k = 0; k < closedContourLines[i][j].size(); k += 2)
-                        {
-                            cvf::Vec3d contourPoint3d = cvf::Vec3d(closedContourLines[i][j][k], 0.0);
-                            contourPolygon.vertices.push_back(contourPoint3d);
-                            contourPolygon.bbox.add(contourPoint3d);
-                        }
-                        contourPolygons[i].push_back(contourPolygon);
-                    }
-                }
-                for (size_t i = 0; i < contourPolygons.size(); ++i)
-                {
-                    if (i == 0 || m_smoothContourLines())
-                    {
-                        const ContourPolygons* clipBy = i > 0 ? &contourPolygons[i - 1] : nullptr;
-                        smoothContourPolygons(&contourPolygons[i], clipBy, true);
-                    }
-                }
-            }            
-        }
-    }
-    m_contourPolygons = contourPolygons;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -407,7 +142,7 @@ RimContourMapProjection::generatePickPointPolygon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateResults()
+void RimContourMapProjection::generateResultsIfNecessary(int timeStep)
 {
     updateGridInformation();
 
@@ -415,59 +150,22 @@ void RimContourMapProjection::generateResults()
     {
         generateGridMapping();
     }
-
-    size_t nCells = numberOfCells();
-    size_t nVertices = numberOfVertices();
     
-    m_aggregatedResults = std::vector<double>(nCells, std::numeric_limits<double>::infinity());
-    m_aggregatedVertexResults = std::vector<double>(nVertices, std::numeric_limits<double>::infinity());
-    int timeStep = view()->currentTimeStep();
-    RimEclipseCellColors* cellColors = view()->cellResult();
-
-    RimEclipseResultCase* eclipseCase = this->eclipseCase();
+    if (resultsNeedUpdating(timeStep))
     {
-        if (!cellColors->isTernarySaturationSelected())
-        {
-            RigCaseCellResultsData* resultData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
+        generateResults(timeStep);
+    }
+}
 
-            if (isColumnResult())
-            {                
-                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
-                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
-                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
-                if (m_resultAggregation == RESULTS_OIL_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN)
-                {
-                    resultData->findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SOIL", timeStep);
-                }
-                if (m_resultAggregation == RESULTS_GAS_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN)
-                {
-                    resultData->findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStep);
-                }
-            }
-            else
-            {
-                m_resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(), 0, timeStep, cellColors);
-
-                if (m_resultAccessor.isNull())
-                {
-                    m_resultAccessor = new RigHugeValResultAccessor;
-                }
-            }
-
-#pragma omp parallel for
-            for (int index = 0; index < static_cast<int>(nCells); ++index)
-            {
-                cvf::Vec2ui ij = ijFromCellIndex(index);
-                m_aggregatedResults[index] = calculateValueInCell(ij.x(), ij.y());
-            }
-
-#pragma omp parallel for
-            for (int index = 0; index < static_cast<int>(nVertices); ++index)
-            {
-                cvf::Vec2ui ij = ijFromVertexIndex(index);
-                m_aggregatedVertexResults[index] = calculateValueAtVertex(ij.x(), ij.y());
-            }
-        }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::generateGeometryIfNecessary()
+{
+    if (geometryNeedsUpdating())
+    {
+        generateContourPolygons();
+        generateTrianglesWithVertexValues();
     }
 }
 
@@ -477,6 +175,14 @@ void RimContourMapProjection::generateResults()
 const std::vector<RimContourMapProjection::ContourPolygons>& RimContourMapProjection::contourPolygons() const
 {
     return m_contourPolygons;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec4d>& RimContourMapProjection::trianglesWithVertexValues()
+{
+    return m_trianglesWithVertexValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -758,7 +464,7 @@ size_t RimContourMapProjection::numberOfVertices() const
 void RimContourMapProjection::updatedWeightingResult()
 {
     this->updateConnectedEditors();
-    this->generateResults();
+    this->generateResultsIfNecessary(view()->currentTimeStep());
     this->updateLegend();
 
     RimProject* proj;
@@ -932,18 +638,28 @@ void RimContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* change
 
     if (changedField == &m_weightByParameter || changedField == &m_weightingResult)
     {
-        invalidateGridMapping();
+        clearGridMapping();
     }
-    if (changedField == &m_resultAggregation)
+    else if (changedField == &m_resultAggregation)
     {
         ResultAggregation previousAggregation = static_cast<ResultAggregationEnum>(oldValue.toInt());
         if (isStraightSummationResult(previousAggregation) != isStraightSummationResult())
         {
-            invalidateGridMapping();
+            clearGridMapping();
+        }
+        else
+        {
+            clearResults();
         }
     }
-
-    m_weightingResult->loadResult();
+    else if (changedField == &m_smoothContourLines)
+    {
+        clearGeometry();
+    }
+    else if (changedField == &m_relativeSampleSpacing || changedField == &m_weightingResult)
+    {
+        clearResults();
+    }
 
     view()->updateConnectedEditors();
 
@@ -1027,6 +743,8 @@ void RimContourMapProjection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::generateGridMapping()
 {
+    clearResults();
+
     m_cellGridIdxVisibility = view()->currentTotalCellVisibility();
 
     int nCells = numberOfCells();
@@ -1076,6 +794,338 @@ void RimContourMapProjection::generateGridMapping()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::generateResults(int timeStep)
+{
+    clearGeometry();
+
+    m_weightingResult->loadResult();
+
+    size_t nCells    = numberOfCells();
+    size_t nVertices = numberOfVertices();
+
+    m_aggregatedResults              = std::vector<double>(nCells, std::numeric_limits<double>::infinity());
+    m_aggregatedVertexResults        = std::vector<double>(nVertices, std::numeric_limits<double>::infinity());
+    RimEclipseCellColors* cellColors = view()->cellResult();
+
+    RimEclipseResultCase* eclipseCase = this->eclipseCase();
+    {
+        if (!cellColors->isTernarySaturationSelected())
+        {
+            RigCaseCellResultsData* resultData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
+
+            if (isColumnResult())
+            {
+                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
+                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
+                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
+                if (m_resultAggregation == RESULTS_OIL_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN)
+                {
+                    resultData->findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SOIL", timeStep);
+                }
+                if (m_resultAggregation == RESULTS_GAS_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN)
+                {
+                    resultData->findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStep);
+                }
+            }
+            else
+            {
+                m_resultAccessor =
+                    RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(), 0, timeStep, cellColors);
+
+                if (m_resultAccessor.isNull())
+                {
+                    m_resultAccessor = new RigHugeValResultAccessor;
+                }
+            }
+
+#pragma omp parallel for
+            for (int index = 0; index < static_cast<int>(nCells); ++index)
+            {
+                cvf::Vec2ui ij             = ijFromCellIndex(index);
+                m_aggregatedResults[index] = calculateValueInCell(ij.x(), ij.y());
+            }
+
+#pragma omp parallel for
+            for (int index = 0; index < static_cast<int>(nVertices); ++index)
+            {
+                cvf::Vec2ui ij                   = ijFromVertexIndex(index);
+                m_aggregatedVertexResults[index] = calculateValueAtVertex(ij.x(), ij.y());
+            }
+        }
+    }
+    m_currentResultTimestep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::generateTrianglesWithVertexValues()
+{
+    std::vector<cvf::Vec3d> vertices = generateVertices();
+
+    cvf::Vec2ui              patchSize = numberOfVerticesIJ();
+    cvf::ref<cvf::UIntArray> faceList  = new cvf::UIntArray;
+    cvf::GeometryUtils::tesselatePatchAsTriangles(patchSize.x(), patchSize.y(), 0u, true, faceList.p());
+
+    bool                discrete = false;
+    std::vector<double> contourLevels;
+    if (legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER)
+    {
+        legendConfig()->scalarMapper()->majorTickValues(&contourLevels);
+        if (legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_DISCRETE ||
+            legendConfig()->mappingMode() == RimRegularLegendConfig::LOG10_DISCRETE)
+        {
+            discrete = true;
+        }
+    }
+
+    std::vector<std::vector<std::vector<cvf::Vec3d>>> subtractPolygons;
+    if (!m_contourPolygons.empty())
+    {
+        subtractPolygons.resize(m_contourPolygons.size());
+        for (size_t i = 0; i < m_contourPolygons.size() - 1; ++i)
+        {
+            for (size_t j = 0; j < m_contourPolygons[i + 1].size(); ++j)
+            {
+                subtractPolygons[i].push_back(m_contourPolygons[i + 1][j].vertices);
+            }
+        }
+    }
+    std::vector<std::vector<cvf::Vec4d>> threadTriangles(omp_get_max_threads());
+
+#pragma omp parallel
+    {
+        int myThread = omp_get_thread_num();
+        threadTriangles[myThread].reserve(faceList->size() / omp_get_num_threads());
+
+        std::set<int64_t> excludedFaceIndices;
+
+#pragma omp for schedule(dynamic)
+        for (int64_t i = 0; i < (int64_t)faceList->size(); i += 3)
+        {
+            std::vector<cvf::Vec3d> triangle(3);
+            std::vector<cvf::Vec4d> triangleWithValues(3);
+            for (size_t n = 0; n < 3; ++n)
+            {
+                uint   vn             = (*faceList)[i + n];
+                double value          = m_aggregatedVertexResults[vn];
+                triangle[n]           = vertices[vn];
+                triangleWithValues[n] = cvf::Vec4d(vertices[vn], value);
+            }
+
+            if (m_contourPolygons.empty())
+            {
+                threadTriangles[myThread].insert(
+                    threadTriangles[myThread].end(), triangleWithValues.begin(), triangleWithValues.end());
+                continue;
+            }
+
+            for (size_t c = 0; c < m_contourPolygons.size() && excludedFaceIndices.count(i) == 0u; ++c)
+            {
+                std::vector<std::vector<cvf::Vec3d>> intersectPolygons;
+                for (size_t j = 0; j < m_contourPolygons[c].size(); ++j)
+                {
+                    bool containsAtLeastOne = false;
+                    for (size_t t = 0; t < 3; ++t)
+                    {
+                        if (m_contourPolygons[c][j].bbox.contains(triangle[t]))
+                        {
+                            containsAtLeastOne = true;
+                        }
+                    }
+                    if (containsAtLeastOne)
+                    {
+                        std::vector<std::vector<cvf::Vec3d>> clippedPolygons =
+                            RigCellGeometryTools::intersectPolygons(triangle, m_contourPolygons[c][j].vertices);
+                        intersectPolygons.insert(intersectPolygons.end(), clippedPolygons.begin(), clippedPolygons.end());
+                    }
+                }
+
+                if (intersectPolygons.empty())
+                {
+                    excludedFaceIndices.insert(i);
+                    continue;
+                }
+
+                std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
+
+                if (!subtractPolygons[c].empty())
+                {
+                    for (const std::vector<cvf::Vec3d>& polygon : intersectPolygons)
+                    {
+                        std::vector<std::vector<cvf::Vec3d>> fullyClippedPolygons =
+                            RigCellGeometryTools::subtractPolygons(polygon, subtractPolygons[c]);
+                        clippedPolygons.insert(clippedPolygons.end(), fullyClippedPolygons.begin(), fullyClippedPolygons.end());
+                    }
+                }
+                else
+                {
+                    clippedPolygons.swap(intersectPolygons);
+                }
+                {
+                    std::vector<cvf::Vec4d> clippedTriangles;
+                    for (std::vector<cvf::Vec3d>& clippedPolygon : clippedPolygons)
+                    {
+                        std::vector<std::vector<cvf::Vec3d>> polygonTriangles;
+                        if (clippedPolygon.size() == 3u)
+                        {
+                            polygonTriangles.push_back(clippedPolygon);
+                        }
+                        else
+                        {
+                            cvf::Vec3d baryCenter = cvf::Vec3d::ZERO;
+                            for (size_t v = 0; v < clippedPolygon.size(); ++v)
+                            {
+                                cvf::Vec3d& clippedVertex = clippedPolygon[v];
+                                baryCenter += clippedVertex;
+                            }
+                            baryCenter /= clippedPolygon.size();
+                            for (size_t v = 0; v < clippedPolygon.size(); ++v)
+                            {
+                                std::vector<cvf::Vec3d> clippedTriangle;
+                                if (v == clippedPolygon.size() - 1)
+                                {
+                                    clippedTriangle = {clippedPolygon[v], clippedPolygon[0], baryCenter};
+                                }
+                                else
+                                {
+                                    clippedTriangle = {clippedPolygon[v], clippedPolygon[v + 1], baryCenter};
+                                }
+                                polygonTriangles.push_back(clippedTriangle);
+                            }
+                        }
+                        for (const std::vector<cvf::Vec3d>& polygonTriangle : polygonTriangles)
+                        {
+                            for (const cvf::Vec3d& localVertex : polygonTriangle)
+                            {
+                                double value = std::numeric_limits<double>::infinity();
+                                if (discrete)
+                                {
+                                    value = contourLevels[c] +
+                                            0.01 * (contourLevels.back() - contourLevels.front()) / contourLevels.size();
+                                }
+                                else
+                                {
+                                    for (size_t n = 0; n < 3; ++n)
+                                    {
+                                        if ((triangle[n] - localVertex).length() < m_sampleSpacing * 0.01 &&
+                                            triangleWithValues[n].w() != std::numeric_limits<double>::infinity())
+                                        {
+                                            value = triangleWithValues[n].w();
+                                            break;
+                                        }
+                                    }
+                                    if (value == std::numeric_limits<double>::infinity())
+                                    {
+                                        value = interpolateValue(cvf::Vec2d(localVertex.x(), localVertex.y()));
+                                        if (value == std::numeric_limits<double>::infinity())
+                                        {
+                                            value = contourLevels[c];
+                                        }
+                                    }
+                                }
+
+                                cvf::Vec4d globalVertex(localVertex, value);
+                                clippedTriangles.push_back(globalVertex);
+                            }
+                        }
+                    }
+                    threadTriangles[myThread].insert(
+                        threadTriangles[myThread].end(), clippedTriangles.begin(), clippedTriangles.end());
+                }
+            }
+        }
+    }
+    std::vector<cvf::Vec4d> finalTriangles;
+    for (size_t i = 0; i < threadTriangles.size(); ++i)
+    {
+        finalTriangles.insert(finalTriangles.end(), threadTriangles[i].begin(), threadTriangles[i].end());
+    }
+
+    m_trianglesWithVertexValues = finalTriangles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimContourMapProjection::generateVertices() const
+{
+    size_t                  nVertices = numberOfVertices();
+    std::vector<cvf::Vec3d> vertices(nVertices, cvf::Vec3d::ZERO);
+
+#pragma omp parallel for
+    for (int index = 0; index < static_cast<int>(nVertices); ++index)
+    {
+        cvf::Vec2ui ij     = ijFromVertexIndex(index);
+        cvf::Vec2d  mapPos = cellCenterPosition(ij.x(), ij.y());
+        // Shift away from sample point to vertex
+        mapPos.x() -= m_sampleSpacing * 0.5;
+        mapPos.y() -= m_sampleSpacing * 0.5;
+
+        cvf::Vec3d vertexPos(mapPos, 0.0);
+        vertices[index] = vertexPos;
+    }
+    return vertices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::generateContourPolygons()
+{
+    std::vector<ContourPolygons> contourPolygons;
+
+    const double areaTreshold = (m_sampleSpacing * m_sampleSpacing) / (sampleSpacingFactor() * sampleSpacingFactor());
+
+    if (minValue() != std::numeric_limits<double>::infinity() && maxValue() != -std::numeric_limits<double>::infinity() &&
+        std::fabs(maxValue() - minValue()) > 1.0e-8)
+    {
+        std::vector<double> contourLevels;
+        if (legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER)
+        {
+            legendConfig()->scalarMapper()->majorTickValues(&contourLevels);
+            int nContourLevels = static_cast<int>(contourLevels.size());
+            if (nContourLevels > 2)
+            {
+                std::vector<caf::ContourLines::ClosedPolygons> closedContourLines = caf::ContourLines::create(
+                    m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels, areaTreshold);
+
+                contourPolygons.resize(closedContourLines.size());
+
+                for (size_t i = 0; i < closedContourLines.size(); ++i)
+                {
+                    for (size_t j = 0; j < closedContourLines[i].size(); ++j)
+                    {
+                        ContourPolygon contourPolygon;
+                        contourPolygon.value = contourLevels[i];
+                        contourPolygon.vertices.reserve(closedContourLines[i][j].size() / 2);
+
+                        for (size_t k = 0; k < closedContourLines[i][j].size(); k += 2)
+                        {
+                            cvf::Vec3d contourPoint3d = cvf::Vec3d(closedContourLines[i][j][k], 0.0);
+                            contourPolygon.vertices.push_back(contourPoint3d);
+                            contourPolygon.bbox.add(contourPoint3d);
+                        }
+                        contourPolygons[i].push_back(contourPolygon);
+                    }
+                }
+                for (size_t i = 0; i < contourPolygons.size(); ++i)
+                {
+                    if (i == 0 || m_smoothContourLines())
+                    {
+                        const ContourPolygons* clipBy = i > 0 ? &contourPolygons[i - 1] : nullptr;
+                        smoothContourPolygons(&contourPolygons[i], clipBy, true);
+                    }
+                }
+            }
+        }
+    }
+    m_contourPolygons = contourPolygons;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimContourMapProjection::gridMappingNeedsUpdating() const
 {
     // Check grid visibility and projected grid indices;
@@ -1098,9 +1148,61 @@ bool RimContourMapProjection::gridMappingNeedsUpdating() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::invalidateGridMapping()
+bool RimContourMapProjection::resultsNeedUpdating(int timeStep) const
+{
+    if (m_aggregatedResults.size() != numberOfCells())
+    {
+        return true;
+    }
+
+    if (m_aggregatedVertexResults.size() != numberOfVertices())
+    {
+        return true;
+    }
+
+    if (timeStep != m_currentResultTimestep)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::geometryNeedsUpdating() const
+{
+    return m_contourPolygons.empty() || m_trianglesWithVertexValues.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::clearGridMapping()
 {
     m_projected3dGridIndices.clear();
+    clearResults();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::clearResults()
+{
+    m_aggregatedResults.clear();
+    m_aggregatedVertexResults.clear();
+    m_currentResultTimestep = -1;
+    clearGeometry();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::clearGeometry()
+{
+    m_contourPolygons.clear();
+    m_trianglesWithVertexValues.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

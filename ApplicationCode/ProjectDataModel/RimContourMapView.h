@@ -35,6 +35,7 @@ public:
     QString createAutoName() const override;
     void    setDefaultCustomName();
     void    updatePickPointAndRedraw();
+    void    updateCurrentTimeStepAndRedraw() override;
 
 protected:
     void initAfterRead() override;

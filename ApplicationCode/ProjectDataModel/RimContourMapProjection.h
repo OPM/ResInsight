@@ -73,13 +73,14 @@ public:
     RimContourMapProjection();
     ~RimContourMapProjection() override;
 
-    std::vector<cvf::Vec4d>      generateTrianglesWithVertexValues() const;
-    std::vector<cvf::Vec3d>      generateVertices() const;
-    void                         generateContourPolygons();
+    void generateResultsIfNecessary(int timeStep);
+    void generateGeometryIfNecessary();
+    void clearGeometry();
+
     std::vector<cvf::Vec3d>      generatePickPointPolygon();
-    void                         generateResults();
 
     const std::vector<ContourPolygons>& contourPolygons() const;
+    const std::vector<cvf::Vec4d>&      trianglesWithVertexValues();
 
     ResultAggregation            resultAggregation() const;
     double                       sampleSpacing() const;
@@ -134,8 +135,16 @@ private:
 
 private:
     void                            generateGridMapping();
+    void                            generateResults(int timeStep);
+    void                            generateTrianglesWithVertexValues();
+    std::vector<cvf::Vec3d>         generateVertices() const;
+    void                            generateContourPolygons();
+
     bool                            gridMappingNeedsUpdating() const;
-    void                            invalidateGridMapping();
+    bool                            resultsNeedUpdating(int timeStep) const;
+    bool                            geometryNeedsUpdating() const;
+    void                            clearGridMapping();
+    void                            clearResults();
 
     double                          valueInCell(uint i, uint j) const;
     bool                            hasResultInCell(uint i, uint j) const;
@@ -203,4 +212,6 @@ protected:
     cvf::BoundingBox                                    m_gridBoundingBox;
     double                                              m_sampleSpacing;
     std::vector<ContourPolygons>                        m_contourPolygons;
+    std::vector<cvf::Vec4d>                             m_trianglesWithVertexValues;
+    int                                                 m_currentResultTimestep;
 };

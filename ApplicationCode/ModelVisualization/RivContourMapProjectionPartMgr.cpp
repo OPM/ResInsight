@@ -41,9 +41,10 @@ RivContourMapProjectionPartMgr::RivContourMapProjectionPartMgr(RimContourMapProj
 //--------------------------------------------------------------------------------------------------
 void RivContourMapProjectionPartMgr::createProjectionGeometry()
 {
-    m_contourMapProjection->generateContourPolygons();
+    m_contourMapProjection->generateGeometryIfNecessary();
+
     m_contourLinePolygons = m_contourMapProjection->contourPolygons();
-    m_contourMapTriangles = m_contourMapProjection->generateTrianglesWithVertexValues();
+    m_contourMapTriangles = m_contourMapProjection->trianglesWithVertexValues();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,7 +344,10 @@ std::vector<std::vector<cvf::ref<cvf::Drawable>>> RivContourMapProjectionPartMgr
             geo->setVertexArray(vertexArray.p());
             contourDrawables.push_back(geo);
         }
-        contourDrawablesForAllLevels[i] = contourDrawables;
+        if (!contourDrawables.empty())
+        {
+            contourDrawablesForAllLevels[i] = contourDrawables;
+        }
     }
     return contourDrawablesForAllLevels;
 }

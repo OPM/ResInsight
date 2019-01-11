@@ -213,14 +213,24 @@ void RimContourMapView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimContourMapView::updateCurrentTimeStepAndRedraw()
+{
+    m_contourMapProjection->clearGeometry();
+    RimEclipseView::updateCurrentTimeStepAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimContourMapView::updateGeometry()
 {
     this->updateVisibleGeometriesAndCellColors();
 
     if (m_contourMapProjection->isChecked())
     {
-        m_contourMapProjection->generateResults();
+        m_contourMapProjection->generateResultsIfNecessary(m_currentTimeStep());
     }
+
     updateLegends(); // To make sure the scalar mappers are set up correctly
 
     appendWellsAndFracturesToModel();
