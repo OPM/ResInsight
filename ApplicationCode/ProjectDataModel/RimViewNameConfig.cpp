@@ -37,7 +37,7 @@ RimViewNameConfig::RimViewNameConfig(const RimNameConfigHolderInterface* configH
 {
     CAF_PDM_InitObject("View Name Generator", "", "", "");
 
-    CAF_PDM_InitField(&m_addCaseName, "AddCaseName", true, "Add Case Name", "", "", "");
+    CAF_PDM_InitField(&m_addCaseName, "AddCaseName", false, "Add Case Name", "", "", "");
     CAF_PDM_InitField(&m_addAggregationType, "AddAggregationType", true, "Add Aggregation Type", "", "", "");
     CAF_PDM_InitField(&m_addProperty, "AddProperty", true, "Add Property Type", "", "", "");
     CAF_PDM_InitField(&m_addSampleSpacing, "AddSampleSpacing", false, "Add Sample Spacing", "", "", "");
