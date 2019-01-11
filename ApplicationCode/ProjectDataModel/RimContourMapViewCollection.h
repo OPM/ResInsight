@@ -22,7 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
 
-class RimContourMapView;
+class RimEclipseContourMapView;
 
 class RimContourMapViewCollection : public caf::PdmObject
 {
@@ -31,10 +31,10 @@ public:
     RimContourMapViewCollection();
     ~RimContourMapViewCollection() override;
 
-    std::vector<RimContourMapView*> views(); 
-    void push_back(RimContourMapView* contourMap);
+    std::vector<RimEclipseContourMapView*> views(); 
+    void push_back(RimEclipseContourMapView* contourMap);
 private:
-    caf::PdmChildArrayField<RimContourMapView*> m_contourMapViews;
+    caf::PdmChildArrayField<RimEclipseContourMapView*> m_contourMapViews;
 };
 
 

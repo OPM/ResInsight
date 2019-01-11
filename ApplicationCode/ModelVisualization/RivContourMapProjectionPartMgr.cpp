@@ -8,7 +8,7 @@
 #include "RivScalarMapperUtils.h"
 #include "RivPartPriority.h"
 
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapProjection.h"
 
 #include "cafEffectGenerator.h"
@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivContourMapProjectionPartMgr::RivContourMapProjectionPartMgr(RimEclipseContourMapProjection* contourMapProjection, RimContourMapView* contourMap)
+RivContourMapProjectionPartMgr::RivContourMapProjectionPartMgr(RimEclipseContourMapProjection* contourMapProjection, RimEclipseContourMapView* contourMap)
 {
     m_contourMapProjection = contourMapProjection;
     m_parentContourMap = contourMap;

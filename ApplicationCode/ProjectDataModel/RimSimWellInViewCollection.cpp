@@ -28,7 +28,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigSimWellData.h"
 
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
@@ -519,7 +519,7 @@ void RimSimWellInViewCollection::defineUiOrdering(QString uiConfigName, caf::Pdm
 {
     updateStateForVisibilityCheckboxes();
 
-    bool isContourMap = dynamic_cast<const RimContourMapView*>(m_reservoirView) != nullptr;
+    bool isContourMap = dynamic_cast<const RimEclipseContourMapView*>(m_reservoirView) != nullptr;
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Visibility");
     if (!isContourMap)

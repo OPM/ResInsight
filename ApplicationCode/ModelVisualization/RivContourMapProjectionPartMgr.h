@@ -30,7 +30,7 @@
 #include "cvfObject.h"
 #include "cvfVector4.h"
 
-class RimContourMapView;
+class RimEclipseContourMapView;
 
 namespace cvf
 {
@@ -40,7 +40,7 @@ namespace cvf
 class RivContourMapProjectionPartMgr : public cvf::Object
 {
 public:
-    RivContourMapProjectionPartMgr(RimEclipseContourMapProjection* contourMapProjection, RimContourMapView* contourMap);
+    RivContourMapProjectionPartMgr(RimEclipseContourMapProjection* contourMapProjection, RimEclipseContourMapView* contourMap);
 
     void createProjectionGeometry();
     void appendProjectionToModel(cvf::ModelBasicList*              model,
@@ -60,7 +60,7 @@ private:
     cvf::ref<cvf::DrawableGeo>                           createPickPointVisDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
 private:
     caf::PdmPointer<RimEclipseContourMapProjection>  m_contourMapProjection;
-    caf::PdmPointer<RimContourMapView>        m_parentContourMap;
+    caf::PdmPointer<RimEclipseContourMapView>        m_parentContourMap;
 
     std::vector<RimEclipseContourMapProjection::ContourPolygons> m_contourLinePolygons;
     std::vector<cvf::Vec4d>                               m_contourMapTriangles;

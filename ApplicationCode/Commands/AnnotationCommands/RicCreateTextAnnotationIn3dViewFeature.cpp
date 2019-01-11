@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimAnnotationInViewCollection.h"
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimCase.h"
 #include "RimGridView.h"
 #include "RimTextAnnotation.h"
@@ -54,7 +54,7 @@ void RicCreateTextAnnotationIn3dViewFeature::onActionTriggered(bool isChecked)
 
 {
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
-    RimContourMapView * contMapView = dynamic_cast<RimContourMapView*>(activeView);
+    RimEclipseContourMapView * contMapView = dynamic_cast<RimEclipseContourMapView*>(activeView);
 
     if ( activeView )
     {

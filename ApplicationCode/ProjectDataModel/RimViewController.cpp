@@ -28,7 +28,7 @@
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellRangeFilter.h"
@@ -671,8 +671,8 @@ RimGridView* RimViewController::masterView() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isCameraControlPossible() const
 {
-    RimContourMapView* contourMapMasterView  = dynamic_cast<RimContourMapView*>(masterView());
-    RimContourMapView* contourMapManagedView = dynamic_cast<RimContourMapView*>(managedEclipseView());
+    RimEclipseContourMapView* contourMapMasterView  = dynamic_cast<RimEclipseContourMapView*>(masterView());
+    RimEclipseContourMapView* contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>(managedEclipseView());
     return !(contourMapMasterView || contourMapManagedView);
 }
 
@@ -910,8 +910,8 @@ bool RimViewController::isRangeFilterMappingApplicable() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isCellResultControlAdvisable() const
 {
-    bool contourMapMasterView = dynamic_cast<RimContourMapView*>(masterView()) != nullptr;
-    bool contourMapManagedView = dynamic_cast<RimContourMapView*>(managedEclipseView()) != nullptr;
+    bool contourMapMasterView = dynamic_cast<RimEclipseContourMapView*>(masterView()) != nullptr;
+    bool contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>(managedEclipseView()) != nullptr;
     return !isMasterAndDepViewDifferentType() && contourMapMasterView != contourMapManagedView;
 }
 
@@ -920,8 +920,8 @@ bool RimViewController::isCellResultControlAdvisable() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isRangeFilterControlAdvisable() const
 {
-    bool contourMapMasterView  = dynamic_cast<RimContourMapView*>(masterView()) != nullptr;
-    bool contourMapManagedView = dynamic_cast<RimContourMapView*>(managedEclipseView()) != nullptr;
+    bool contourMapMasterView  = dynamic_cast<RimEclipseContourMapView*>(masterView()) != nullptr;
+    bool contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>(managedEclipseView()) != nullptr;
     return isRangeFilterControlPossible() && contourMapMasterView != contourMapManagedView;
 }
 
@@ -930,8 +930,8 @@ bool RimViewController::isRangeFilterControlAdvisable() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isPropertyFilterControlAdvisable() const
 {
-    bool contourMapMasterView = dynamic_cast<RimContourMapView*>(masterView()) != nullptr;
-    bool contourMapManagedView = dynamic_cast<RimContourMapView*>(managedEclipseView()) != nullptr;
+    bool contourMapMasterView = dynamic_cast<RimEclipseContourMapView*>(masterView()) != nullptr;
+    bool contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>(managedEclipseView()) != nullptr;
     return isPropertyFilterControlPossible() && contourMapMasterView != contourMapManagedView;
 }
 

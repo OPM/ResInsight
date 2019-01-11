@@ -35,7 +35,7 @@
 #include "RivReservoirViewPartMgr.h"
 
 #include "RimCellRangeFilterCollection.h"
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimEclipseResultCase.h"
@@ -1868,9 +1868,9 @@ RimEclipseResultCase* RimEclipseContourMapProjection::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapView* RimEclipseContourMapProjection::view() const
+RimEclipseContourMapView* RimEclipseContourMapProjection::view() const
 {
-    RimContourMapView* view = nullptr;
+    RimEclipseContourMapView* view = nullptr;
     firstAncestorOrThisOfTypeAsserted(view);
     return view;
 }

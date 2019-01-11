@@ -37,7 +37,7 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapProjection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
@@ -176,7 +176,7 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData()
 {
     auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     auto geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
-    auto contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
+    auto contourMap = dynamic_cast<RimEclipseContourMapView*>(eclipseView);
     
     if (contourMap) return histogramData(contourMap);
     else if (eclipseView) return histogramData(eclipseView);
@@ -278,7 +278,7 @@ void Rim3dOverlayInfoConfig::setIsActive(bool active)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimContourMapView* contourMap)
+Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimEclipseContourMapView* contourMap)
 {
     HistogramData histData;
 
@@ -496,7 +496,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimEclipseView* eclipseView)
     {
         QString caseName = eclipseView->eclipseCase()->caseUserDescription();
 
-        RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
+        RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>(eclipseView);
         if (contourMap && contourMap->contourMapProjection())
         {
             QString totCellCount = QString::number(contourMap->contourMapProjection()->numberOfCells());
@@ -578,7 +578,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
 {
     QString infoText;
 
-    RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
+    RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>(eclipseView);
 
     if (contourMap)
     {
@@ -823,7 +823,7 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* visGroup = uiOrdering.addNewGroup("Visibility");
 
     RimEclipseView * eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
-    RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
+    RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>(eclipseView);
     RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
 
     visGroup->add(&m_showAnimProgress);

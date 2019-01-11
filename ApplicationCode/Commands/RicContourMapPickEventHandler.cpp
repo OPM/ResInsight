@@ -18,7 +18,7 @@
 
 #include "RicContourMapPickEventHandler.h"
 #include "RimEclipseContourMapProjection.h"
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseCellColors.h"
 #include "Rim3dView.h"
 
@@ -58,7 +58,7 @@ bool RicContourMapPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventO
         {
             RiuMainWindow::instance()->selectAsCurrentItem(contourMap);
 
-            RimContourMapView* view = nullptr;
+            RimEclipseContourMapView* view = nullptr;
             contourMap->firstAncestorOrThisOfTypeAsserted(view);
 
             cvf::Vec2d pickedPoint;

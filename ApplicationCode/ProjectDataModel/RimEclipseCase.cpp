@@ -35,7 +35,7 @@
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimContourMapViewCollection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
@@ -239,7 +239,7 @@ void RimEclipseCase::initAfterRead()
 
         riv->setEclipseCase(this);
     }
-    for (RimContourMapView* contourMap : m_contourMapCollection->views())
+    for (RimEclipseContourMapView* contourMap : m_contourMapCollection->views())
     {
         contourMap->setEclipseCase(this);
     }
@@ -866,7 +866,7 @@ std::vector<Rim3dView*> RimEclipseCase::allSpecialViews() const
         views.push_back(view);
     }
 
-    for (RimContourMapView* view : m_contourMapCollection->views())
+    for (RimEclipseContourMapView* view : m_contourMapCollection->views())
     {
         views.push_back(view);
     }
@@ -940,7 +940,7 @@ void RimEclipseCase::reloadDataAndUpdate()
             reservoirView->updateAnnotationItems();
         }
 
-        for (RimContourMapView* contourMap : m_contourMapCollection->views())
+        for (RimEclipseContourMapView* contourMap : m_contourMapCollection->views())
         {
             CVF_ASSERT(contourMap);
             contourMap->loadDataAndUpdate();

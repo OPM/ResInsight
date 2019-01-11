@@ -23,7 +23,7 @@
 
 #include "RicLinkVisibleViewsFeatureUi.h"
 
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewController.h"
@@ -151,7 +151,7 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<RimGridView*>& views)
     std::vector<RimGridView*> masterCandidates;
     for (RimGridView* view : views)
     {
-        if (dynamic_cast<RimContourMapView*>(view) == nullptr)
+        if (dynamic_cast<RimEclipseContourMapView*>(view) == nullptr)
         {
             masterCandidates.push_back(view);
         }

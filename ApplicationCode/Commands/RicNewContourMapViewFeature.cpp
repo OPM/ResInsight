@@ -20,7 +20,7 @@
 
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimContourMapViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -58,9 +58,9 @@ bool RicNewContourMapViewFeature::isCommandEnabled()
 void RicNewContourMapViewFeature::onActionTriggered(bool isChecked)
 {
     RimEclipseView*    reservoirView      = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
-    RimContourMapView* existingContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimContourMapView>();
+    RimEclipseContourMapView* existingContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>();
     RimEclipseCase*    eclipseCase        = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseCase>();
-    RimContourMapView* contourMap         = nullptr;
+    RimEclipseContourMapView* contourMap         = nullptr;
 
     // Find case to insert into
     if (existingContourMap)
@@ -99,7 +99,7 @@ void RicNewContourMapViewFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicNewContourMapViewFeature::setupActionLook(QAction* actionToSetup)
 {
-    RimContourMapView* contourMap  = caf::SelectionManager::instance()->selectedItemOfType<RimContourMapView>();
+    RimEclipseContourMapView* contourMap  = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>();
     RimEclipseView*    eclipseView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
     if (contourMap)
     {
@@ -119,10 +119,10 @@ void RicNewContourMapViewFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFromExistingContourMap(RimEclipseCase*    eclipseCase,
-                                                                                         RimContourMapView* existingContourMap)
+RimEclipseContourMapView* RicNewContourMapViewFeature::create2dContourMapFromExistingContourMap(RimEclipseCase*    eclipseCase,
+                                                                                         RimEclipseContourMapView* existingContourMap)
 {
-    RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(
+    RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>(
         existingContourMap->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
     CVF_ASSERT(contourMap);
 
@@ -145,11 +145,11 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFromExistingCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFrom3dView(RimEclipseCase*       eclipseCase,
+RimEclipseContourMapView* RicNewContourMapViewFeature::create2dContourMapFrom3dView(RimEclipseCase*       eclipseCase,
                                                                              const RimEclipseView* sourceView)
 {
-    RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(sourceView->xmlCapability()->copyAndCastByXmlSerialization(
-        RimContourMapView::classKeywordStatic(), sourceView->classKeyword(), caf::PdmDefaultObjectFactory::instance()));
+    RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>(sourceView->xmlCapability()->copyAndCastByXmlSerialization(
+        RimEclipseContourMapView::classKeywordStatic(), sourceView->classKeyword(), caf::PdmDefaultObjectFactory::instance()));
     CVF_ASSERT(contourMap);
 
     contourMap->setEclipseCase(eclipseCase);
@@ -180,9 +180,9 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFrom3dView(Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapView* RicNewContourMapViewFeature::create2dContourMap(RimEclipseCase* eclipseCase)
+RimEclipseContourMapView* RicNewContourMapViewFeature::create2dContourMap(RimEclipseCase* eclipseCase)
 {
-    RimContourMapView* contourMap = new RimContourMapView();
+    RimEclipseContourMapView* contourMap = new RimEclipseContourMapView();
     contourMap->setEclipseCase(eclipseCase);
 
     // Set default values

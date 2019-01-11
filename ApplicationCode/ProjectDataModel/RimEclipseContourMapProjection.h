@@ -33,7 +33,7 @@
 
 class RigMainGrid;
 class RigResultAccessor;
-class RimContourMapView;
+class RimEclipseContourMapView;
 class RimEclipseResultCase;
 class RimEclipseResultDefinition;
 
@@ -180,7 +180,7 @@ private:
     cvf::Vec2ui                     calculateMapSize() const;
 
     RimEclipseResultCase*           eclipseCase() const;
-    RimContourMapView*              view() const;
+    RimEclipseContourMapView*              view() const;
 
     double                          gridEdgeOffset() const;
 

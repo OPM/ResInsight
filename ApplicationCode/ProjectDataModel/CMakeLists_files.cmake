@@ -118,7 +118,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurveNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.h
-${CMAKE_CURRENT_LIST_DIR}/RimContourMapView.h
+${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimContourMapViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.h
@@ -244,7 +244,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurveNameConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimContourMapView.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimContourMapViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.cpp

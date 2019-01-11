@@ -25,11 +25,11 @@ class RimViewNameConfig;
 class RimScaleLegendConfig;
 class RivContourMapProjectionPartMgr;
 
-class RimContourMapView : public RimEclipseView
+class RimEclipseContourMapView : public RimEclipseView
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimContourMapView();
+    RimEclipseContourMapView();
     RimEclipseContourMapProjection*                     contourMapProjection() const;
 
     QString createAutoName() const override;

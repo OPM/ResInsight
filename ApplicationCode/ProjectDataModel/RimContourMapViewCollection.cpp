@@ -1,6 +1,6 @@
 #include "RimContourMapViewCollection.h"
 
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimCase.h"
 
 CAF_PDM_SOURCE_INIT(RimContourMapViewCollection, "Eclipse2dViewCollection");
@@ -27,7 +27,7 @@ RimContourMapViewCollection::~RimContourMapViewCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimContourMapView*> RimContourMapViewCollection::views()
+std::vector<RimEclipseContourMapView*> RimContourMapViewCollection::views()
 {
     return m_contourMapViews.childObjects();
 }
@@ -35,7 +35,7 @@ std::vector<RimContourMapView*> RimContourMapViewCollection::views()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapViewCollection::push_back(RimContourMapView* contourMap)
+void RimContourMapViewCollection::push_back(RimEclipseContourMapView* contourMap)
 {
     m_contourMapViews.push_back(contourMap);
 }

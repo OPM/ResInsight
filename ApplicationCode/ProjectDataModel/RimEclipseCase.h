@@ -45,7 +45,7 @@ class RigMainGrid;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
-class RimContourMapView;
+class RimEclipseContourMapView;
 class RimContourMapViewCollection;
 class RimEclipseView;
 class RigVirtualPerforationTransmissibilities;

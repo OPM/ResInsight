@@ -21,7 +21,7 @@
 
 #include "RiaApplication.h"
 
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewController.h"
@@ -55,7 +55,7 @@ bool RicSetMasterViewFeature::isCommandEnabled()
         return false;
     }
 
-    if (dynamic_cast<RimContourMapView*>(activeView) != nullptr)
+    if (dynamic_cast<RimEclipseContourMapView*>(activeView) != nullptr)
     {
         return false;
     }
