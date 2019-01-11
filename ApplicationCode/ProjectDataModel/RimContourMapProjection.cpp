@@ -100,6 +100,36 @@ RimContourMapProjection::~RimContourMapProjection() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::generateResultsIfNecessary(int timeStep)
+{
+    updateGridInformation();
+
+    if (gridMappingNeedsUpdating())
+    {
+        generateGridMapping();
+    }
+
+    if (resultsNeedsUpdating(timeStep))
+    {
+        generateResults(timeStep);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::generateGeometryIfNecessary()
+{
+    if (geometryNeedsUpdating())
+    {
+        generateContourPolygons();
+        generateTrianglesWithVertexValues();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimContourMapProjection::generatePickPointPolygon()
 {
     std::vector<cvf::Vec3d> points;
@@ -133,31 +163,10 @@ std::vector<cvf::Vec3d> RimContourMapProjection::generatePickPointPolygon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateResultsIfNecessary(int timeStep)
+void RimContourMapProjection::clearGeometry()
 {
-    updateGridInformation();
-
-    if (gridMappingNeedsUpdating())
-    {
-        generateGridMapping();
-    }
-
-    if (resultsNeedUpdating(timeStep))
-    {
-        generateResults(timeStep);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateGeometryIfNecessary()
-{
-    if (geometryNeedsUpdating())
-    {
-        generateContourPolygons();
-        generateTrianglesWithVertexValues();
-    }
+    m_contourPolygons.clear();
+    m_trianglesWithVertexValues.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -401,124 +410,6 @@ bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::smoothContourPolygons(ContourPolygons*       contourPolygons,
-                                                           const ContourPolygons* clipBy,
-                                                           bool                   favourExpansion)
-{
-    CVF_ASSERT(contourPolygons);
-    for (size_t i = 0; i < contourPolygons->size(); ++i)
-    {
-        ContourPolygon& polygon = contourPolygons->at(i);
-
-        for (size_t n = 0; n < 20; ++n)
-        {
-            std::vector<cvf::Vec3d> newVertices;
-            newVertices.resize(polygon.vertices.size());
-            double maxChange = 0.0;
-            for (size_t j = 0; j < polygon.vertices.size(); ++j)
-            {
-                cvf::Vec3d vm1 = polygon.vertices.back();
-                cvf::Vec3d v   = polygon.vertices[j];
-                cvf::Vec3d vp1 = polygon.vertices.front();
-                if (j > 0u)
-                {
-                    vm1 = polygon.vertices[j - 1];
-                }
-                if (j < polygon.vertices.size() - 1)
-                {
-                    vp1 = polygon.vertices[j + 1];
-                }
-                // Only expand.
-                cvf::Vec3d modifiedVertex = 0.5 * (v + 0.5 * (vm1 + vp1));
-                cvf::Vec3d delta          = (modifiedVertex - v).getNormalized();
-                cvf::Vec3d tangent3d      = vp1 - vm1;
-                cvf::Vec2d tangent2d(tangent3d.x(), tangent3d.y());
-                cvf::Vec3d norm3d(tangent2d.getNormalized().perpendicularVector());
-                if (delta * norm3d > 0 && favourExpansion)
-                {
-                    // Normal is always inwards facing so a positive dot product means inward movement
-                    // Favour expansion rather than contraction by only contracting by half the amount
-                    modifiedVertex = v + 0.5 * delta;
-                }
-                newVertices[j] = modifiedVertex;
-                maxChange      = std::max(maxChange, (modifiedVertex - v).length());
-            }
-            polygon.vertices.swap(newVertices);
-            if (maxChange < m_sampleSpacing * 1.0e-2) break;
-        }
-        if (clipBy)
-        {
-            for (size_t j = 0; j < clipBy->size(); ++j)
-            {
-                std::vector<std::vector<cvf::Vec3d>> intersections =
-                    RigCellGeometryTools::intersectPolygons(polygon.vertices, clipBy->at(j).vertices);
-                if (!intersections.empty())
-                {
-                    polygon.vertices = intersections.front();
-                }
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::interpolateValue(const cvf::Vec2d& gridPos2d) const
-{
-    cvf::Vec2ui cellContainingPoint = ijFromLocalPos(gridPos2d);
-    cvf::Vec2d  cellCenter          = cellCenterPosition(cellContainingPoint.x(), cellContainingPoint.y());
-
-    std::array<cvf::Vec3d, 4> x;
-    x[0] = cvf::Vec3d(cellCenter + cvf::Vec2d(-m_sampleSpacing * 0.5, -m_sampleSpacing * 0.5), 0.0);
-    x[1] = cvf::Vec3d(cellCenter + cvf::Vec2d(m_sampleSpacing * 0.5, -m_sampleSpacing * 0.5), 0.0);
-    x[2] = cvf::Vec3d(cellCenter + cvf::Vec2d(m_sampleSpacing * 0.5, m_sampleSpacing * 0.5), 0.0);
-    x[3] = cvf::Vec3d(cellCenter + cvf::Vec2d(-m_sampleSpacing * 0.5, m_sampleSpacing * 0.5), 0.0);
-
-    cvf::Vec4d baryCentricCoords = cvf::GeometryTools::barycentricCoords(x[0], x[1], x[2], x[3], cvf::Vec3d(gridPos2d, 0.0));
-
-    std::array<cvf::Vec2ui, 4> v;
-    v[0] = cellContainingPoint;
-    v[1] = cvf::Vec2ui(cellContainingPoint.x() + 1u, cellContainingPoint.y());
-    v[2] = cvf::Vec2ui(cellContainingPoint.x() + 1u, cellContainingPoint.y() + 1u);
-    v[3] = cvf::Vec2ui(cellContainingPoint.x(), cellContainingPoint.y() + 1u);
-
-    std::array<double, 4> vertexValues;
-    double                validBarycentricCoordsSum = 0.0;
-    for (int i = 0; i < 4; ++i)
-    {
-        double vertexValue = valueAtVertex(v[i].x(), v[i].y());
-        if (vertexValue == std::numeric_limits<double>::infinity())
-        {
-            baryCentricCoords[i] = 0.0;
-            vertexValues[i]      = 0.0;
-            return std::numeric_limits<double>::infinity();
-        }
-        else
-        {
-            vertexValues[i] = vertexValue;
-            validBarycentricCoordsSum += baryCentricCoords[i];
-        }
-    }
-
-    if (validBarycentricCoordsSum < 1.0e-8)
-    {
-        return std::numeric_limits<double>::infinity();
-    }
-
-    // Calculate final value
-    double value = 0.0;
-    for (int i = 0; i < 4; ++i)
-    {
-        value += baryCentricCoords[i] / validBarycentricCoordsSum * vertexValues[i];
-    }
-
-    return value;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::setPickPoint(cvf::Vec2d globalPickPoint)
 {
     m_pickPoint = globalPickPoint - origin2d();
@@ -535,89 +426,67 @@ cvf::Vec3d RimContourMapProjection::origin3d() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                               const QVariant&            oldValue,
-                                               const QVariant&            newValue)
+bool RimContourMapProjection::gridMappingNeedsUpdating() const
 {
-    legendConfig()->disableAllTimeStepsRange(!getLegendRangeFrom3dGrid());
-
-    if (changedField == &m_resultAggregation)
+    if (m_projected3dGridIndices.size() != numberOfCells())
     {
-        ResultAggregation previousAggregation = static_cast<ResultAggregationEnum>(oldValue.toInt());
-        if (isStraightSummationResult(previousAggregation) != isStraightSummationResult())
-        {
-            clearGridMapping();
-        }
-        else
-        {
-            clearResults();
-        }
+        return true;
     }
-    else if (changedField == &m_smoothContourLines)
-    {
-        clearGeometry();
-    }
-    else if (changedField == &m_relativeSampleSpacing)
-    {
-        clearResults();
-    }
-
-    baseView()->updateConnectedEditors();
-
-    RimProject* proj;
-    firstAncestorOrThisOfTypeAsserted(proj);
-    proj->scheduleCreateDisplayModelAndRedrawAllViews();
+    return gridMappingImplNeedsUpdating();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                                           QString                    uiConfigName,
-                                                           caf::PdmUiEditorAttribute* attribute)
+bool RimContourMapProjection::resultsNeedsUpdating(int timeStep) const
 {
-    if (&m_relativeSampleSpacing == field)
+    if (m_aggregatedResults.size() != numberOfCells())
     {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
-        if (myAttr)
-        {
-            myAttr->m_minimum = 0.25;
-            myAttr->m_maximum = 2.0;
-        }
+        return true;
     }
+
+    if (m_aggregatedVertexResults.size() != numberOfVertices())
+    {
+        return true;
+    }
+
+    if (timeStep != m_currentResultTimestep)
+    {
+        return true;
+    }
+    return resultsImplNeedsUpdating();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+bool RimContourMapProjection::geometryNeedsUpdating() const
 {
-    caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup("Projection Settings");
-    mainGroup->add(&m_relativeSampleSpacing);
-    mainGroup->add(&m_showContourLines);
-    mainGroup->add(&m_showContourLabels);
-    m_showContourLabels.uiCapability()->setUiReadOnly(!m_showContourLines());
-    mainGroup->add(&m_smoothContourLines);
-    m_smoothContourLines.uiCapability()->setUiReadOnly(!m_showContourLines());
-    mainGroup->add(&m_resultAggregation);
-
-    uiOrdering.skipRemainingFields(true);
+    return m_contourPolygons.empty() || m_trianglesWithVertexValues.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimContourMapProjection::clearGridMapping()
 {
-    uiTreeOrdering.skipRemainingChildren(true);
+    clearResults();
+
+    m_projected3dGridIndices.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::initAfterRead()
+void RimContourMapProjection::clearResults()
 {
-    legendConfig()->disableAllTimeStepsRange(!getLegendRangeFrom3dGrid());
+    clearGeometry();
+
+    m_aggregatedResults.clear();
+    m_aggregatedVertexResults.clear();
+    m_currentResultTimestep = -1;
+
+    clearImplSpecificResultData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -900,72 +769,153 @@ void RimContourMapProjection::generateContourPolygons()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::gridMappingNeedsUpdating() const
+void RimContourMapProjection::smoothContourPolygons(ContourPolygons*       contourPolygons,
+                                                    const ContourPolygons* clipBy,
+                                                    bool                   favourExpansion)
 {
-    if (m_projected3dGridIndices.size() != numberOfCells())
+    CVF_ASSERT(contourPolygons);
+    for (size_t i = 0; i < contourPolygons->size(); ++i)
     {
-        return true;
+        ContourPolygon& polygon = contourPolygons->at(i);
+
+        for (size_t n = 0; n < 20; ++n)
+        {
+            std::vector<cvf::Vec3d> newVertices;
+            newVertices.resize(polygon.vertices.size());
+            double maxChange = 0.0;
+            for (size_t j = 0; j < polygon.vertices.size(); ++j)
+            {
+                cvf::Vec3d vm1 = polygon.vertices.back();
+                cvf::Vec3d v   = polygon.vertices[j];
+                cvf::Vec3d vp1 = polygon.vertices.front();
+                if (j > 0u)
+                {
+                    vm1 = polygon.vertices[j - 1];
+                }
+                if (j < polygon.vertices.size() - 1)
+                {
+                    vp1 = polygon.vertices[j + 1];
+                }
+                // Only expand.
+                cvf::Vec3d modifiedVertex = 0.5 * (v + 0.5 * (vm1 + vp1));
+                cvf::Vec3d delta          = (modifiedVertex - v).getNormalized();
+                cvf::Vec3d tangent3d      = vp1 - vm1;
+                cvf::Vec2d tangent2d(tangent3d.x(), tangent3d.y());
+                cvf::Vec3d norm3d(tangent2d.getNormalized().perpendicularVector());
+                if (delta * norm3d > 0 && favourExpansion)
+                {
+                    // Normal is always inwards facing so a positive dot product means inward movement
+                    // Favour expansion rather than contraction by only contracting by half the amount
+                    modifiedVertex = v + 0.5 * delta;
+                }
+                newVertices[j] = modifiedVertex;
+                maxChange      = std::max(maxChange, (modifiedVertex - v).length());
+            }
+            polygon.vertices.swap(newVertices);
+            if (maxChange < m_sampleSpacing * 1.0e-2) break;
+        }
+        if (clipBy)
+        {
+            for (size_t j = 0; j < clipBy->size(); ++j)
+            {
+                std::vector<std::vector<cvf::Vec3d>> intersections =
+                    RigCellGeometryTools::intersectPolygons(polygon.vertices, clipBy->at(j).vertices);
+                if (!intersections.empty())
+                {
+                    polygon.vertices = intersections.front();
+                }
+            }
+        }
     }
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::resultsNeedUpdating(int timeStep) const
+bool RimContourMapProjection::isMeanResult() const
 {
-    if (m_aggregatedResults.size() != numberOfCells())
+    return m_resultAggregation() == RESULTS_MEAN_VALUE || m_resultAggregation() == RESULTS_HARM_VALUE ||
+           m_resultAggregation() == RESULTS_GEOM_VALUE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::isSummationResult() const
+{
+    return isStraightSummationResult() || m_resultAggregation() == RESULTS_VOLUME_SUM;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::isStraightSummationResult() const
+{
+    return isStraightSummationResult(m_resultAggregation());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::isStraightSummationResult(ResultAggregationEnum aggregationType)
+{
+    return aggregationType == RESULTS_OIL_COLUMN || aggregationType == RESULTS_GAS_COLUMN ||
+           aggregationType == RESULTS_HC_COLUMN || aggregationType == RESULTS_SUM;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimContourMapProjection::interpolateValue(const cvf::Vec2d& gridPos2d) const
+{
+    cvf::Vec2ui cellContainingPoint = ijFromLocalPos(gridPos2d);
+    cvf::Vec2d  cellCenter          = cellCenterPosition(cellContainingPoint.x(), cellContainingPoint.y());
+
+    std::array<cvf::Vec3d, 4> x;
+    x[0] = cvf::Vec3d(cellCenter + cvf::Vec2d(-m_sampleSpacing * 0.5, -m_sampleSpacing * 0.5), 0.0);
+    x[1] = cvf::Vec3d(cellCenter + cvf::Vec2d(m_sampleSpacing * 0.5, -m_sampleSpacing * 0.5), 0.0);
+    x[2] = cvf::Vec3d(cellCenter + cvf::Vec2d(m_sampleSpacing * 0.5, m_sampleSpacing * 0.5), 0.0);
+    x[3] = cvf::Vec3d(cellCenter + cvf::Vec2d(-m_sampleSpacing * 0.5, m_sampleSpacing * 0.5), 0.0);
+
+    cvf::Vec4d baryCentricCoords = cvf::GeometryTools::barycentricCoords(x[0], x[1], x[2], x[3], cvf::Vec3d(gridPos2d, 0.0));
+
+    std::array<cvf::Vec2ui, 4> v;
+    v[0] = cellContainingPoint;
+    v[1] = cvf::Vec2ui(cellContainingPoint.x() + 1u, cellContainingPoint.y());
+    v[2] = cvf::Vec2ui(cellContainingPoint.x() + 1u, cellContainingPoint.y() + 1u);
+    v[3] = cvf::Vec2ui(cellContainingPoint.x(), cellContainingPoint.y() + 1u);
+
+    std::array<double, 4> vertexValues;
+    double                validBarycentricCoordsSum = 0.0;
+    for (int i = 0; i < 4; ++i)
     {
-        return true;
+        double vertexValue = valueAtVertex(v[i].x(), v[i].y());
+        if (vertexValue == std::numeric_limits<double>::infinity())
+        {
+            baryCentricCoords[i] = 0.0;
+            vertexValues[i]      = 0.0;
+            return std::numeric_limits<double>::infinity();
+        }
+        else
+        {
+            vertexValues[i] = vertexValue;
+            validBarycentricCoordsSum += baryCentricCoords[i];
+        }
     }
 
-    if (m_aggregatedVertexResults.size() != numberOfVertices())
+    if (validBarycentricCoordsSum < 1.0e-8)
     {
-        return true;
+        return std::numeric_limits<double>::infinity();
     }
 
-    if (timeStep != m_currentResultTimestep)
+    // Calculate final value
+    double value = 0.0;
+    for (int i = 0; i < 4; ++i)
     {
-        return true;
+        value += baryCentricCoords[i] / validBarycentricCoordsSum * vertexValues[i];
     }
-    return false;
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::geometryNeedsUpdating() const
-{
-    return m_contourPolygons.empty() || m_trianglesWithVertexValues.empty();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::clearGridMapping()
-{
-    m_projected3dGridIndices.clear();
-    clearResults();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::clearResults()
-{
-    m_aggregatedResults.clear();
-    m_aggregatedVertexResults.clear();
-    m_currentResultTimestep = -1;
-    clearGeometry();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::clearGeometry()
-{
-    m_contourPolygons.clear();
-    m_trianglesWithVertexValues.clear();
+    return value;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1031,40 +981,6 @@ std::vector<std::pair<size_t, double>> RimContourMapProjection::cellsAtIJ(uint i
         return m_projected3dGridIndices[cellIndex];
     }
     return std::vector<std::pair<size_t, double>>();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::isMeanResult() const
-{
-    return m_resultAggregation() == RESULTS_MEAN_VALUE || m_resultAggregation() == RESULTS_HARM_VALUE ||
-           m_resultAggregation() == RESULTS_GEOM_VALUE;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::isSummationResult() const
-{
-    return isStraightSummationResult() || m_resultAggregation() == RESULTS_VOLUME_SUM;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::isStraightSummationResult() const
-{
-    return isStraightSummationResult(m_resultAggregation());
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::isStraightSummationResult(ResultAggregationEnum aggregationType)
-{
-    return aggregationType == RESULTS_OIL_COLUMN || aggregationType == RESULTS_GAS_COLUMN ||
-           aggregationType == RESULTS_HC_COLUMN || aggregationType == RESULTS_SUM;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1180,17 +1096,17 @@ std::vector<double> RimContourMapProjection::yVertexPositions() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::getLegendRangeFrom3dGrid() const
+bool RimContourMapProjection::use2dMapLegendRange() const
 {
-    if (isMeanResult())
-    {
-        return true;
-    }
-    else if (m_resultAggregation == RESULTS_TOP_VALUE)
-    {
-        return true;
-    }
-    return false;
+    return !use3dGridLegendRange();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::use3dGridLegendRange() const
+{
+    return (isMeanResult() || m_resultAggregation == RESULTS_TOP_VALUE);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1214,4 +1130,90 @@ double RimContourMapProjection::gridEdgeOffset() const
     return m_sampleSpacing * 2.0;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                               const QVariant&            oldValue,
+                                               const QVariant&            newValue)
+{
+    legendConfig()->disableAllTimeStepsRange(use2dMapLegendRange());
 
+    if (changedField == &m_resultAggregation)
+    {
+        ResultAggregation previousAggregation = static_cast<ResultAggregationEnum>(oldValue.toInt());
+        if (isStraightSummationResult(previousAggregation) != isStraightSummationResult())
+        {
+            clearGridMapping();
+        }
+        else
+        {
+            clearResults();
+        }
+    }
+    else if (changedField == &m_smoothContourLines)
+    {
+        clearGeometry();
+    }
+    else if (changedField == &m_relativeSampleSpacing)
+    {
+        clearResults();
+    }
+
+    baseView()->updateConnectedEditors();
+
+    RimProject* proj;
+    firstAncestorOrThisOfTypeAsserted(proj);
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                    QString                    uiConfigName,
+                                                    caf::PdmUiEditorAttribute* attribute)
+{
+    if (&m_relativeSampleSpacing == field)
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_minimum = 0.25;
+            myAttr->m_maximum = 2.0;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup("Projection Settings");
+    mainGroup->add(&m_relativeSampleSpacing);
+    mainGroup->add(&m_showContourLines);
+    mainGroup->add(&m_showContourLabels);
+    m_showContourLabels.uiCapability()->setUiReadOnly(!m_showContourLines());
+    mainGroup->add(&m_smoothContourLines);
+    m_smoothContourLines.uiCapability()->setUiReadOnly(!m_showContourLines());
+    mainGroup->add(&m_resultAggregation);
+
+    uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.skipRemainingChildren(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::initAfterRead()
+{
+    legendConfig()->disableAllTimeStepsRange(use2dMapLegendRange());
+}

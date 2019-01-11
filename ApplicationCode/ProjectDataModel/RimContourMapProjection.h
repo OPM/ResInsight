@@ -42,6 +42,8 @@ class RimContourMapProjection : public RimCheckableNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    typedef std::pair<size_t, double> CellIndexAndResult;
+
     struct ContourPolygon
     {
         std::vector<cvf::Vec3d> vertices;
@@ -85,7 +87,6 @@ public:
     bool              showContourLabels() const;
 
     QString resultAggregationText() const;
-    virtual QString resultDescriptionText() const = 0;
 
     double maxValue() const;
     double minValue() const;
@@ -100,9 +101,6 @@ public:
     double valueAtVertex(uint i, uint j) const;
     bool   hasResultAtVertex(uint i, uint j) const;
 
-    virtual RimRegularLegendConfig* legendConfig() const = 0;
-    virtual void                    updateLegend() = 0;
-
     uint   numberOfCells() const;
     uint   numberOfValidCells() const;
     size_t numberOfVertices() const;
@@ -111,68 +109,72 @@ public:
     void       setPickPoint(cvf::Vec2d globalPickPoint);
     cvf::Vec3d origin3d() const;
 
-protected:
-    typedef std::pair<size_t, double> CellIndexAndResult;
+    // Pure-virtual public methods which should be overridden by Eclipse and Geo-mechanical contour map implementations
+    virtual QString                 resultDescriptionText() const = 0;
+    virtual RimRegularLegendConfig* legendConfig() const          = 0;
+    virtual void                    updateLegend()                = 0;
 
 protected:
-    void   smoothContourPolygons(ContourPolygons* contourPolygons, const ContourPolygons* clipBy, bool favourExpansion);
+    // Protected virtual methods to be overridden by Eclipse and Geo-mechanical contour map implementations
+    virtual void          updateGridInformation()              = 0;
+    virtual void          generateGridMapping()                = 0;
+    virtual void          generateResults(int timeStep)        = 0;
+    virtual bool          gridMappingImplNeedsUpdating() const = 0;
+    virtual bool          resultsImplNeedsUpdating() const     = 0;
+    virtual void          clearImplSpecificResultData()        = 0;
+    virtual RimGridView*  baseView() const                     = 0;
+
+protected:
+    // Keep track of whether cached data needs updating
+    bool gridMappingNeedsUpdating() const;
+    bool resultsNeedsUpdating(int timeStep) const;
+    bool geometryNeedsUpdating() const;
+    void clearGridMapping();
+    void clearResults();
+
+    void                    generateTrianglesWithVertexValues();
+    std::vector<cvf::Vec3d> generateVertices() const;
+    void                    generateContourPolygons();
+    void                    smoothContourPolygons(ContourPolygons* contourPolygons, const ContourPolygons* clipBy, bool favourExpansion);
+    
+    bool        isMeanResult() const;
+    bool        isSummationResult() const;
+    bool        isStraightSummationResult() const;
+    static bool isStraightSummationResult(ResultAggregationEnum aggregationType);
+
     double interpolateValue(const cvf::Vec2d& gridPosition2d) const;
+    double valueInCell(uint i, uint j) const;
+    bool   hasResultInCell(uint i, uint j) const;
+    double calculateValueAtVertex(uint i, uint j) const;
 
+    // Cell index and position conversion
+    std::vector<CellIndexAndResult> cellsAtIJ(uint i, uint j) const;
+    size_t                          cellIndexFromIJ(uint i, uint j) const;
+    size_t                          vertexIndexFromIJ(uint i, uint j) const;
+    cvf::Vec2ui                     ijFromVertexIndex(size_t gridIndex) const;
+    cvf::Vec2ui                     ijFromCellIndex(size_t mapIndex) const;
+    cvf::Vec2ui                     ijFromLocalPos(const cvf::Vec2d& localPos2d) const;
+    cvf::Vec2d                      cellCenterPosition(uint i, uint j) const;
+    cvf::Vec2d                      origin2d() const;
+
+    std::vector<double> xVertexPositions() const;
+    std::vector<double> yVertexPositions() const;
+
+    bool                use2dMapLegendRange() const;
+    bool                use3dGridLegendRange() const;
+    cvf::Vec2ui         calculateMapSize() const;
+    double              gridEdgeOffset() const;
+    
+ protected:
+     // Framework overrides
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void defineEditorAttribute(const caf::PdmFieldHandle* field,
                                QString                    uiConfigName,
                                caf::PdmUiEditorAttribute* attribute) override;
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-
     void initAfterRead() override;
-
-    virtual void            generateGridMapping() = 0;
-    virtual void            generateResults(int timeStep) = 0;    
-    
-    void                    generateTrianglesWithVertexValues();
-    std::vector<cvf::Vec3d> generateVertices() const;
-    void                    generateContourPolygons();
-
-    virtual bool gridMappingNeedsUpdating() const;
-    virtual bool resultsNeedUpdating(int timeStep) const;
-    
-    bool geometryNeedsUpdating() const;
-    void clearGridMapping();
-    virtual void clearResults();
-
-    double valueInCell(uint i, uint j) const;
-    bool   hasResultInCell(uint i, uint j) const;
-
-    double calculateValueAtVertex(uint i, uint j) const;
-
-    std::vector<CellIndexAndResult> cellsAtIJ(uint i, uint j) const;
-
-    bool        isMeanResult() const;
-    bool        isSummationResult() const;
-    bool        isStraightSummationResult() const;
-    static bool isStraightSummationResult(ResultAggregationEnum aggregationType);
-
-    size_t cellIndexFromIJ(uint i, uint j) const;
-    size_t vertexIndexFromIJ(uint i, uint j) const;
-
-    cvf::Vec2ui ijFromVertexIndex(size_t gridIndex) const;
-    cvf::Vec2ui ijFromCellIndex(size_t mapIndex) const;
-    cvf::Vec2ui ijFromLocalPos(const cvf::Vec2d& localPos2d) const;
-    cvf::Vec2d  cellCenterPosition(uint i, uint j) const;
-    cvf::Vec2d  origin2d() const;
-
-    std::vector<double> xVertexPositions() const;
-    std::vector<double> yVertexPositions() const;
-
-    bool         getLegendRangeFrom3dGrid() const;
-    virtual void updateGridInformation() = 0;
-    cvf::Vec2ui  calculateMapSize() const;
-
-    double gridEdgeOffset() const;
-    
-    virtual RimGridView*    baseView() const = 0;
-
+       
 protected:
     caf::PdmField<double>                           m_relativeSampleSpacing;
     caf::PdmField<ResultAggregation>                m_resultAggregation;
@@ -180,13 +182,11 @@ protected:
     caf::PdmField<bool>                             m_showContourLabels;
     caf::PdmField<bool>                             m_smoothContourLines;
 
-    std::vector<double> m_aggregatedResults;
-    std::vector<double> m_aggregatedVertexResults;
-
+    std::vector<double>                                 m_aggregatedResults;
+    std::vector<double>                                 m_aggregatedVertexResults;
     std::vector<std::vector<std::pair<size_t, double>>> m_projected3dGridIndices;
 
-    cvf::Vec2d m_pickPoint;
-
+    cvf::Vec2d                            m_pickPoint;
     cvf::Vec2ui                           m_mapSize;
     cvf::BoundingBox                      m_expandedBoundingBox;
     cvf::BoundingBox                      m_gridBoundingBox;

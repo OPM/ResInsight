@@ -128,12 +128,14 @@ void RimEclipseContourMapProjection::updateLegend()
 {    
     RimEclipseCellColors* cellColors = view()->cellResult();
 
-    if (getLegendRangeFrom3dGrid())
+    if (use3dGridLegendRange())
     {
         cellColors->updateLegendData(view()->currentTimeStep(), legendConfig());
     }
     else
     {
+        CVF_ASSERT(use2dMapLegendRange());
+
         double minVal = minValue();
         double maxVal = maxValue();
 
@@ -334,7 +336,7 @@ void RimEclipseContourMapProjection::generateResults(int timeStep)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseContourMapProjection::gridMappingNeedsUpdating() const
+bool RimEclipseContourMapProjection::gridMappingImplNeedsUpdating() const
 {
     if (m_cellGridIdxVisibility.isNull())
     {
@@ -346,14 +348,13 @@ bool RimEclipseContourMapProjection::gridMappingNeedsUpdating() const
     {
         if ((*currentVisibility)[i] != (*m_cellGridIdxVisibility)[i]) return true;
     }
-
-    return RimContourMapProjection::gridMappingNeedsUpdating();
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseContourMapProjection::resultsNeedUpdating(int timeStep) const
+bool RimEclipseContourMapProjection::resultsImplNeedsUpdating() const
 {   
     if (!m_currentResultName.isEmpty())
     {
@@ -363,16 +364,14 @@ bool RimEclipseContourMapProjection::resultsNeedUpdating(int timeStep) const
             return true;
         }
     }
-
-    return RimContourMapProjection::resultsNeedUpdating(timeStep);
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapProjection::clearResults()
+void RimEclipseContourMapProjection::clearImplSpecificResultData()
 {
-    RimContourMapProjection::clearResults();
     m_currentResultName = "";
 }
 
@@ -495,7 +494,7 @@ double RimEclipseContourMapProjection::calculateValueInCell(uint i, uint j) cons
                 for (auto cellIdxAndWeight : matchingCells)
                 {
                     size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = findColumnResult(m_resultAggregation(), cellIdx);
+                    double cellValue = calculateColumnResult(m_resultAggregation(), cellIdx);
                     sum += cellValue * cellIdxAndWeight.second;
                 }
                 return sum;
@@ -505,6 +504,62 @@ double RimEclipseContourMapProjection::calculateValueInCell(uint i, uint j) cons
         }
     }
     return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimEclipseContourMapProjection::calculateColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const
+{
+    const RigCaseCellResultsData* resultData      = eclipseCase()->results(RiaDefines::MATRIX_MODEL);
+    size_t                        poroResultIndex = resultData->findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PORO");
+    size_t                        ntgResultIndex  = resultData->findScalarResultIndex(RiaDefines::STATIC_NATIVE, "NTG");
+    size_t                        dzResultIndex   = resultData->findScalarResultIndex(RiaDefines::STATIC_NATIVE, "DZ");
+
+    if (poroResultIndex == cvf::UNDEFINED_SIZE_T || ntgResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    const std::vector<double>& poroResults = resultData->cellScalarResults(poroResultIndex)[0];
+    const std::vector<double>& ntgResults  = resultData->cellScalarResults(ntgResultIndex)[0];
+    const std::vector<double>& dzResults   = resultData->cellScalarResults(dzResultIndex)[0];
+
+    const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    size_t                   cellResultIdx  = activeCellInfo->cellResultIndex(cellGlobalIdx);
+
+    if (cellResultIdx >= poroResults.size() || cellResultIdx >= ntgResults.size())
+    {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    double poro = poroResults.at(cellResultIdx);
+    double ntg  = ntgResults.at(cellResultIdx);
+    double dz   = dzResults.at(cellResultIdx);
+
+    int timeStep = view()->currentTimeStep();
+
+    double resultValue = 0.0;
+    if (resultAggregation == RESULTS_OIL_COLUMN || resultAggregation == RESULTS_HC_COLUMN)
+    {
+        size_t                     soilResultIndex = resultData->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+        const std::vector<double>& soilResults     = resultData->cellScalarResults(soilResultIndex)[timeStep];
+        if (cellResultIdx < soilResults.size())
+        {
+            resultValue = soilResults.at(cellResultIdx);
+        }
+    }
+    if (resultAggregation == RESULTS_GAS_COLUMN || resultAggregation == RESULTS_HC_COLUMN)
+    {
+        size_t                     sgasResultIndex = resultData->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+        const std::vector<double>& sgasResults     = resultData->cellScalarResults(sgasResultIndex)[timeStep];
+        if (cellResultIdx < sgasResults.size())
+        {
+            resultValue += sgasResults.at(cellResultIdx);
+        }
+    }
+
+    return resultValue * poro * ntg * dz;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -661,62 +716,6 @@ std::vector<std::pair<size_t, double>> RimEclipseContourMapProjection::visibleCe
     }
 
     return matchingVisibleCellsAndWeight;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimEclipseContourMapProjection::findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const
-{
-    const RigCaseCellResultsData* resultData      = eclipseCase()->results(RiaDefines::MATRIX_MODEL);
-    size_t                        poroResultIndex = resultData->findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PORO");
-    size_t                        ntgResultIndex  = resultData->findScalarResultIndex(RiaDefines::STATIC_NATIVE, "NTG");
-    size_t                        dzResultIndex   = resultData->findScalarResultIndex(RiaDefines::STATIC_NATIVE, "DZ");
-
-    if (poroResultIndex == cvf::UNDEFINED_SIZE_T || ntgResultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        return std::numeric_limits<double>::infinity();
-    }
-
-    const std::vector<double>& poroResults = resultData->cellScalarResults(poroResultIndex)[0];
-    const std::vector<double>& ntgResults  = resultData->cellScalarResults(ntgResultIndex)[0];
-    const std::vector<double>& dzResults   = resultData->cellScalarResults(dzResultIndex)[0];
-
-    const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
-    size_t                   cellResultIdx  = activeCellInfo->cellResultIndex(cellGlobalIdx);
-
-    if (cellResultIdx >= poroResults.size() || cellResultIdx >= ntgResults.size())
-    {
-        return std::numeric_limits<double>::infinity();
-    }
-
-    double poro = poroResults.at(cellResultIdx);
-    double ntg  = ntgResults.at(cellResultIdx);
-    double dz   = dzResults.at(cellResultIdx);
-
-    int timeStep = view()->currentTimeStep();
-
-    double resultValue = 0.0;
-    if (resultAggregation == RESULTS_OIL_COLUMN || resultAggregation == RESULTS_HC_COLUMN)
-    {
-        size_t                     soilResultIndex = resultData->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-        const std::vector<double>& soilResults     = resultData->cellScalarResults(soilResultIndex)[timeStep];
-        if (cellResultIdx < soilResults.size())
-        {
-            resultValue = soilResults.at(cellResultIdx);
-        }
-    }
-    if (resultAggregation == RESULTS_GAS_COLUMN || resultAggregation == RESULTS_HC_COLUMN)
-    {
-        size_t                     sgasResultIndex = resultData->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SGAS");
-        const std::vector<double>& sgasResults     = resultData->cellScalarResults(sgasResultIndex)[timeStep];
-        if (cellResultIdx < sgasResults.size())
-        {
-            resultValue += sgasResults.at(cellResultIdx);
-        }
-    }
-
-    return resultValue * poro * ntg * dz;
 }
 
 //--------------------------------------------------------------------------------------------------

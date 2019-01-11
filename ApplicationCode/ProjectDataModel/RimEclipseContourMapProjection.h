@@ -50,40 +50,38 @@ public:
     RimEclipseContourMapProjection();
     ~RimEclipseContourMapProjection() override;
 
-    QString                      resultDescriptionText() const override;
-    QString                      weightingParameter() const;
+    QString                 weightingParameter() const;
+    void                    updatedWeightingResult();
 
-    void                         updatedWeightingResult();
-
+    // Eclipse case overrides for contour map methods
+    QString                 resultDescriptionText() const override;
     RimRegularLegendConfig* legendConfig() const override;
     void                    updateLegend() override;
 
 protected:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void initAfterRead() override;
-
-private:
     typedef RimContourMapProjection::CellIndexAndResult CellIndexAndResult;
 
+    void                            updateGridInformation() override;
     void                            generateGridMapping() override;
     void                            generateResults(int timeStep) override;
+    bool                            gridMappingImplNeedsUpdating() const override;
+    bool                            resultsImplNeedsUpdating() const override;
+    void                            clearImplSpecificResultData() override;
+    RimGridView*                    baseView() const override;
 
-    bool                            gridMappingNeedsUpdating() const override;
-    bool                            resultsNeedUpdating(int timeStep) const override;
-
-    void                            clearResults() override;
-
+    // Eclipse implementation specific data generation methods
     double                          calculateValueInCell(uint i, uint j) const;
-
+    double                          calculateColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const;
     std::vector<CellIndexAndResult> visibleCellsAndOverlapVolumeFrom2dPoint(const cvf::Vec2d& globalPos2d, const std::vector<double>* weightingResultValues = nullptr) const;
     std::vector<CellIndexAndResult> visibleCellsAndLengthInCellFrom2dPoint(const cvf::Vec2d& globalPos2d, const std::vector<double>* weightingResultValues = nullptr) const;
-    double                          findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const;
-
-    void                            updateGridInformation() override;
 
     RimEclipseResultCase*           eclipseCase() const;
-    RimGridView*                    baseView() const override;
     RimEclipseContourMapView*       view() const;
+
+protected:
+    // Framework overrides
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void initAfterRead() override;
 
 protected:
     caf::PdmField<bool>                                 m_weightByParameter;
