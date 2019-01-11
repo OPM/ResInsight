@@ -682,6 +682,12 @@ void RiuPlotMainWindow::slotBuildWindowActions()
 {
     m_windowMenu->clear();
 
+    {
+        caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+        m_windowMenu->addAction(cmdFeatureMgr->action("RicShowMainWindowFeature"));
+        m_windowMenu->addSeparator();
+    }
+
     QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
     for (QDockWidget* dock : dockWidgets)
     {

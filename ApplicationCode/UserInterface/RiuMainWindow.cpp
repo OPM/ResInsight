@@ -1387,8 +1387,12 @@ void appendToggleActionForDockingWidget(QMenu* menu, QWidget* parent, const QStr
 void RiuMainWindow::slotBuildWindowActions()
 {
     m_windowMenu->clear();
-    m_windowMenu->addAction(m_newPropertyView);
-    m_windowMenu->addSeparator();
+
+    {
+        caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+        m_windowMenu->addAction(cmdFeatureMgr->action("RicShowPlotWindowFeature"));
+        m_windowMenu->addSeparator();
+    }
 
     auto dwt = RiuDockWidgetTools::instance();
 
@@ -1415,6 +1419,9 @@ void RiuMainWindow::slotBuildWindowActions()
     m_windowMenu->addAction(caf::CmdFeatureManager::instance()->action("RicTileWindowsFeature"));
     m_windowMenu->addAction(cascadeWindowsAction);
     m_windowMenu->addAction(closeAllSubWindowsAction);
+
+    m_windowMenu->addSeparator();
+    m_windowMenu->addAction(m_newPropertyView);
 }
 
 //--------------------------------------------------------------------------------------------------
