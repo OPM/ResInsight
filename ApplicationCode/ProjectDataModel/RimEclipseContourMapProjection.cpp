@@ -767,3 +767,17 @@ RimEclipseContourMapView* RimEclipseContourMapProjection::view() const
     firstAncestorOrThisOfTypeAsserted(view);
     return view;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                      const QVariant&            oldValue,
+                                                      const QVariant&            newValue)
+{
+    RimContourMapProjection::fieldChangedByUi(changedField, oldValue, newValue);
+    if (changedField == &m_weightByParameter || changedField == &m_weightingResult)
+    {
+        clearGridMapping();
+    }
+}
