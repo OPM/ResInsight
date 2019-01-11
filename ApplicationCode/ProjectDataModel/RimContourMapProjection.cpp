@@ -463,6 +463,7 @@ size_t RimContourMapProjection::numberOfVertices() const
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::updatedWeightingResult()
 {
+    this->clearGridMapping();
     this->updateConnectedEditors();
     this->generateResultsIfNecessary(view()->currentTimeStep());
     this->updateLegend();
@@ -815,6 +816,7 @@ void RimContourMapProjection::generateResults(int timeStep)
 
             if (isColumnResult())
             {
+                m_currentResultName = "";
                 resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
                 resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
                 resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
@@ -829,6 +831,7 @@ void RimContourMapProjection::generateResults(int timeStep)
             }
             else
             {
+                m_currentResultName = cellColors->resultVariable();
                 m_resultAccessor =
                     RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(), 0, timeStep, cellColors);
 
@@ -1087,6 +1090,16 @@ void RimContourMapProjection::generateContourPolygons()
             int nContourLevels = static_cast<int>(contourLevels.size());
             if (nContourLevels > 2)
             {
+                if (legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_DISCRETE ||
+                    legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_CONTINUOUS)
+                {
+                    contourLevels.front() -= 0.01 * (contourLevels.back() - contourLevels.front());
+                }
+                else
+                {
+                    contourLevels.front() *= 0.5;
+                }
+
                 std::vector<caf::ContourLines::ClosedPolygons> closedContourLines = caf::ContourLines::create(
                     m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels, areaTreshold);
 
@@ -1163,6 +1176,15 @@ bool RimContourMapProjection::resultsNeedUpdating(int timeStep) const
     if (timeStep != m_currentResultTimestep)
     {
         return true;
+    }
+
+    if (!m_currentResultName.isEmpty())
+    {
+        RimEclipseCellColors* cellColors = view()->cellResult();
+        if (cellColors->resultVariable() != m_currentResultName)
+        {
+            return true;
+        }
     }
 
     return false;

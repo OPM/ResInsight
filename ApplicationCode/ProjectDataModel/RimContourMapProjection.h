@@ -213,5 +213,6 @@ protected:
     double                                              m_sampleSpacing;
     std::vector<ContourPolygons>                        m_contourPolygons;
     std::vector<cvf::Vec4d>                             m_trianglesWithVertexValues;
+    QString                                             m_currentResultName;
     int                                                 m_currentResultTimestep;
 };
