@@ -351,6 +351,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                         "RicEclipseHideFaultFeature", QString("Hide ") + faultName, hideFaultList);
                 }
             }
+            
+            menuBuilder << "RicToggleMeasurementModeFeature";
         }
     }
 

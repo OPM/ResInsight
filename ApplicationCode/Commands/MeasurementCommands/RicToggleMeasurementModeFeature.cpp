@@ -67,13 +67,15 @@ void RicToggleMeasurementModeFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setText("Measurement Mode");
     actionToSetup->setIcon(QIcon(":/Ruler16x16.png"));
 
-/*
     auto* meas = measurement();
     if (meas && meas->isInMeasurementMode())
-        actionToSetup->setIcon(QIcon(":/NoRuler16x16.png"));
+    {
+        actionToSetup->setShortcut(QKeySequence(Qt::Key_Escape));
+    }
     else
-        actionToSetup->setIcon(QIcon(":/Ruler16x16.png"));
-*/
+    {
+        actionToSetup->setShortcut(QKeySequence());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
