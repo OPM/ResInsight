@@ -18,10 +18,13 @@
 
 #include "RicHoloLensTerminateSessionFeature.h"
 
+#include "RicHoloLensAutoExportToSharingServerFeature.h"
 #include "RicHoloLensSessionManager.h"
 
 #include "RiaLogging.h"
 #include "RiaQIconTools.h"
+
+#include "cafCmdFeatureManager.h"
 
 #include <QAction>
 
@@ -40,6 +43,13 @@ bool RicHoloLensTerminateSessionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensTerminateSessionFeature::onActionTriggered(bool isChecked)
 {
+    auto* cmdFeature = dynamic_cast<RicHoloLensAutoExportToSharingServerFeature*>(
+        caf::CmdFeatureManager::instance()->getCommandFeature("RicHoloLensAutoExportToSharingServerFeature"));
+    if (cmdFeature)
+    {
+        cmdFeature->setActive(false);
+    }
+
     RicHoloLensSessionManager::instance()->terminateSession();
 
     RicHoloLensSessionManager::refreshToolbarState();

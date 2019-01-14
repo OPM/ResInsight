@@ -595,6 +595,7 @@ void RiuMainWindow::createToolBars()
 
         m_holoLensToolBar->addAction(cmdFeatureMgr->action("RicHoloLensCreateSessionFeature"));
         m_holoLensToolBar->addAction(cmdFeatureMgr->action("RicHoloLensTerminateSessionFeature"));
+        m_holoLensToolBar->addAction(cmdFeatureMgr->action("RicHoloLensAutoExportToSharingServerFeature"));
         m_holoLensToolBar->addAction(cmdFeatureMgr->action("RicHoloLensExportToSharingServerFeature"));
     }
 

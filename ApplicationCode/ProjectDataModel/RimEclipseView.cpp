@@ -25,6 +25,8 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 
+#include "HoloLensCommands/RicExportToSharingServerScheduler.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -568,6 +570,8 @@ void RimEclipseView::createDisplayModel()
             plot->viewGeometryUpdated();
         }
     }
+
+    RicExportToSharingServerScheduler::instance()->scheduleUpdateSession();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -588,6 +592,8 @@ void RimEclipseView::updateCurrentTimeStep()
     // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
     // Visibility of wells differ betweeen time steps, so trigger a rebuild of tree state items
     wellCollection()->updateConnectedEditors();
+
+    RicExportToSharingServerScheduler::instance()->scheduleUpdateSession();
 }
 
 //--------------------------------------------------------------------------------------------------
