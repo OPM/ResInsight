@@ -90,9 +90,9 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
         if (sumCaseColl)
         {
             std::vector<RimSummaryCase*> newSumCases = sumCaseColl->createSummaryCasesFromFileInfos(summaryFileInfos);
-
             for (RimSummaryCase* newSumCase : newSumCases)
             {
+
                 RimSummaryCaseCollection* existingCollection = nullptr;
                 QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(newSumCase->summaryHeaderFilename());
                 RimEclipseCase* gridCase = project->eclipseCaseFromGridFileName(gridCaseFile);
@@ -149,6 +149,11 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
                     sumCaseColl->addCase(newSumCase);
                 }
                 sumCaseColl->updateAllRequiredEditors();
+            }
+
+            if (!newSumCases.empty())
+            {
+                RiuPlotMainWindowTools::setExpanded(newSumCases.back());
             }
         }
     }
