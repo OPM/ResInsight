@@ -1191,49 +1191,54 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
 {
     if (uiConfigName == "PlotWindow")
     {
-        RimOilField* oilField = activeOilField();
-        if (oilField)
         {
-            if (oilField->summaryCaseMainCollection())
+            auto itemCollection = uiTreeOrdering.add("Input case data", ":/Folder.png");
+
+            RimOilField* oilField = activeOilField();
+            if (oilField)
             {
-                uiTreeOrdering.add( oilField->summaryCaseMainCollection() );
-            }
-            if (oilField->observedDataCollection())
-            {
-                uiTreeOrdering.add( oilField->observedDataCollection() );
+                if (oilField->summaryCaseMainCollection())
+                {
+                    itemCollection->add(oilField->summaryCaseMainCollection());
+                }
+                if (oilField->observedDataCollection())
+                {
+                    itemCollection->add(oilField->observedDataCollection());
+                }
             }
         }
 
         if (mainPlotCollection)
         {
-           if (mainPlotCollection->summaryPlotCollection())
+            auto itemCollection = uiTreeOrdering.add("Plot definitions", ":/Folder.png");
+            if (mainPlotCollection->summaryPlotCollection())
             {
-                uiTreeOrdering.add(mainPlotCollection->summaryPlotCollection());
+                itemCollection->add(mainPlotCollection->summaryPlotCollection());
             }
 
-           if (mainPlotCollection->summaryCrossPlotCollection())
-           {
-               uiTreeOrdering.add(mainPlotCollection->summaryCrossPlotCollection());
-           }
-
-           if (mainPlotCollection->wellLogPlotCollection())
+            if (mainPlotCollection->summaryCrossPlotCollection())
             {
-                uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
+                itemCollection->add(mainPlotCollection->summaryCrossPlotCollection());
             }
 
-           if (mainPlotCollection->rftPlotCollection())
-           {
-               uiTreeOrdering.add(mainPlotCollection->rftPlotCollection());
-           }
-           
-           if (mainPlotCollection->pltPlotCollection())
-           {
-               uiTreeOrdering.add(mainPlotCollection->pltPlotCollection());
-           }
-
-           if (mainPlotCollection->flowPlotCollection())
+            if (mainPlotCollection->wellLogPlotCollection())
             {
-                uiTreeOrdering.add(mainPlotCollection->flowPlotCollection());
+                itemCollection->add(mainPlotCollection->wellLogPlotCollection());
+            }
+
+            if (mainPlotCollection->rftPlotCollection())
+            {
+                itemCollection->add(mainPlotCollection->rftPlotCollection());
+            }
+
+            if (mainPlotCollection->pltPlotCollection())
+            {
+                itemCollection->add(mainPlotCollection->pltPlotCollection());
+            }
+
+            if (mainPlotCollection->flowPlotCollection())
+            {
+                itemCollection->add(mainPlotCollection->flowPlotCollection());
             }
         }
     }
