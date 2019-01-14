@@ -18,6 +18,8 @@
 
 #include "RicImportSummaryCasesFeature.h"
 
+#include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
+
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -187,6 +189,12 @@ void RicImportSummaryCasesFeature::addSummaryCases(const std::vector<RimSummaryC
     RimProject* proj = app->project();
     RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     sumCaseColl->addCases(cases);
+
+    if (!cases.empty())
+    {
+        RicNewSummaryCurveFeature::createNewPlot(proj->mainPlotCollection->summaryPlotCollection(), cases.front());
+    }
+
     sumCaseColl->updateAllRequiredEditors();
 }
 

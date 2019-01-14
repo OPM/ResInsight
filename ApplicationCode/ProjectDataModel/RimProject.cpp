@@ -1067,7 +1067,7 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
     if (uiConfigName == "PlotWindow")
     {
         {
-            auto itemCollection = uiTreeOrdering.add("Input case data", ":/Folder.png");
+            auto itemCollection = uiTreeOrdering.add("Cases", ":/Folder.png");
 
             RimOilField* oilField = activeOilField();
             if (oilField)
@@ -1085,7 +1085,7 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
 
         if (mainPlotCollection)
         {
-            auto itemCollection = uiTreeOrdering.add("Plot definitions", ":/Folder.png");
+            auto itemCollection = uiTreeOrdering.add("Plots", ":/Folder.png");
             if (mainPlotCollection->summaryPlotCollection())
             {
                 itemCollection->add(mainPlotCollection->summaryPlotCollection());
