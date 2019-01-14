@@ -2019,8 +2019,6 @@ bool RiaApplication::openFile(const QString& fileName)
         if (loadingSucceded)
         {
             getOrCreateAndShowMainPlotWindow();
-
-            m_project->updateConnectedEditors();
         }
     }
 

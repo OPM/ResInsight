@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,10 +21,10 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 
+#include "RiaSummaryTools.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RiaSummaryTools.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
@@ -37,12 +37,75 @@
 #include "cvfAssert.h"
 
 #include <QAction>
-
+#include "RiuPlotMainWindowTools.h"
 
 CAF_CMD_SOURCE_INIT(RicNewSummaryCurveFeature, "RicNewSummaryCurveFeature");
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RicNewSummaryCurveFeature::addCurveToPlot(RimSummaryPlot* plot, RimSummaryCase* summaryCase)
+{
+    if (plot)
+    {
+        RimSummaryCurve* newCurve = new RimSummaryCurve();
+
+        // Use same counting as RicNewSummaryEnsembleCurveSetFeature::onActionTriggered
+        cvf::Color3f curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(plot->singleColorCurveCount());
+        newCurve->setColor(curveColor);
+
+        plot->addCurveAndUpdate(newCurve);
+
+        if (summaryCase)
+        {
+            newCurve->setSummaryCaseY(summaryCase);
+        }
+
+        newCurve->setSummaryAddressY(RifEclipseSummaryAddress::fieldAddress("FOPT"));
+
+        newCurve->loadDataAndUpdate(true);
+
+        return newCurve;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
+//--------------------------------------------------------------------------------------------------
+void RicNewSummaryCurveFeature::ensureAtLeastOnePlot(RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase)
+{
+    if (summaryPlotCollection && summaryCase)
+    {
+        if (summaryPlotCollection->summaryPlots.empty())
+        {
+            createNewPlot(summaryPlotCollection, summaryCase);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewSummaryCurveFeature::createNewPlot(RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase)
+{
+    if (summaryPlotCollection && summaryCase)
+    {
+        auto plot = summaryPlotCollection->createSummaryPlotWithAutoTitle();
+
+        auto curve = RicNewSummaryCurveFeature::addCurveToPlot(plot, summaryCase);
+        plot->loadDataAndUpdate();
+
+        summaryPlotCollection->updateConnectedEditors();
+
+        RiuPlotMainWindowTools::setExpanded(curve);
+        RiuPlotMainWindowTools::selectAsCurrentItem(curve);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryCurveFeature::isCommandEnabled()
 {
@@ -50,7 +113,7 @@ bool RicNewSummaryCurveFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
 {
@@ -60,25 +123,14 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
     RimSummaryPlot* plot = selectedSummaryPlot();
     if (plot)
     {
-        RimSummaryCurve* newCurve = new RimSummaryCurve();
-        
-        // Use same counting as RicNewSummaryEnsembleCurveSetFeature::onActionTriggered
-        cvf::Color3f curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(plot->singleColorCurveCount());
-        newCurve->setColor(curveColor);
-
-        plot->addCurveAndUpdate(newCurve);
-
-        RimSummaryCase* defaultCase = nullptr; 
+        RimSummaryCase* defaultCase = nullptr;
         if (project->activeOilField()->summaryCaseMainCollection()->summaryCaseCount() > 0)
         {
             defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase(0);
-            newCurve->setSummaryCaseY(defaultCase);
-
-            newCurve->setSummaryAddressY(RifEclipseSummaryAddress::fieldAddress("FOPT"));
-
-            newCurve->loadDataAndUpdate(true);
         }
-        
+
+        RimSummaryCurve* newCurve = addCurveToPlot(plot, defaultCase);
+
         plot->updateConnectedEditors();
 
         RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
@@ -89,7 +141,7 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -98,13 +150,13 @@ void RicNewSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewSummaryCurveFeature::selectedSummaryPlot() const
 {
     RimSummaryPlot* sumPlot = nullptr;
 
-    caf::PdmObject* selObj =  dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
     if (selObj)
     {
         sumPlot = RiaSummaryTools::parentSummaryPlot(selObj);
