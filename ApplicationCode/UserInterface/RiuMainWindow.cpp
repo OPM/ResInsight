@@ -550,6 +550,8 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
         toolbar->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
         toolbar->addAction(m_snapshotAllViewsToFile);
+
+        toolbar->hide();
     }
 
 
