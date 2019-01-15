@@ -18,6 +18,9 @@
 
 #include "RicHoloLensRestClient.h"
 
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
 #include "cvfBase.h"
 #include "cvfTrace.h"
 
@@ -76,6 +79,7 @@ void RicHoloLensRestClient::createSession(const QByteArray& sessionPinCode)
     request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/x-www-form-urlencoded"));
     request.setRawHeader("PinCode", sessionPinCode);
 
+
 #ifdef EXPERIMENTAL_SSL_SUPPORT
     // NOTE !!!
     // Apparently something like this is currently needed in order to get SSL/HTTPS going
@@ -86,8 +90,11 @@ void RicHoloLensRestClient::createSession(const QByteArray& sessionPinCode)
     // Needed this one to be able to connect to sharing server 
     sslConf.setProtocol(QSsl::AnyProtocol);
 
-    // !!MUST!! remove this code in production
-    sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
+    bool disableCertificateVerification = RiaApplication::instance()->preferences()->holoLensDisableCertificateVerification();
+    if (disableCertificateVerification)
+    {
+        sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
+    }
 
     request.setSslConfiguration(sslConf);
 #endif

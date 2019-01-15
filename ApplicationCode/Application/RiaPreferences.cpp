@@ -109,6 +109,9 @@ RiaPreferences::RiaPreferences(void)
     m_holoLensExportFolder.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_holoLensExportFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
+    CAF_PDM_InitField(&holoLensDisableCertificateVerification, "holoLensDisableCertificateVerification", false, "Disable SSL Certificate Verification (HoloLens)", "", "", "");
+    holoLensDisableCertificateVerification.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
 
@@ -154,7 +157,8 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &m_appendFieldKeywordToToolTipText ||
             field == &m_showTestToolbar ||
             field == &m_includeFractureDebugInfoFile ||
-            field == &showLasCurveWithoutTvdWarning)
+            field == &showLasCurveWithoutTvdWarning ||
+            field == &holoLensDisableCertificateVerification)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
@@ -194,10 +198,10 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         viewsGroup->add(&useShaders);
         viewsGroup->add(&showHud);
 
-
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup("Other");
         otherGroup->add(&ssihubAddress);
         otherGroup->add(&showLasCurveWithoutTvdWarning);
+        otherGroup->add(&holoLensDisableCertificateVerification);
 
     }
     else if (uiConfigName == m_tabNames[1])

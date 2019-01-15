@@ -87,6 +87,8 @@ public: // Pdm Fields
     caf::PdmField<SummaryRestartFilesImportModeType>    summaryImportMode;
     caf::PdmField<SummaryRestartFilesImportModeType>    gridImportMode;
 
+    caf::PdmField<bool>     holoLensDisableCertificateVerification;
+
 protected:
     void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
