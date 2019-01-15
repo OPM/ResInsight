@@ -56,6 +56,8 @@ public:
 
     void    clearResponseHandler();
 
+    void    dbgDisableCertificateVerification();
+
     void    createSession(const QByteArray& sessionPinCode);
     void    deleteSession();
     void    sendMetaData(int metaDataSequenceNumber, const QString& jsonMetaDataString);
@@ -81,6 +83,8 @@ private:
     QString                             m_serverUrl;
     QString                             m_sessionName;
     RicHoloLensRestResponseHandler*     m_responseHandler;
+
+    bool                                m_dbgDisableCertificateVerification;    // Debug option to disable certificate verification. Needed in order to work with self-signed certifiactes
 
     QByteArray                          m_bearerToken;
 };

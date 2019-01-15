@@ -18,9 +18,6 @@
 
 #include "RicHoloLensRestClient.h"
 
-#include "RiaApplication.h"
-#include "RiaPreferences.h"
-
 #include "cvfBase.h"
 #include "cvfTrace.h"
 
@@ -54,7 +51,8 @@
 RicHoloLensRestClient::RicHoloLensRestClient(QString serverUrl, QString sessionName, RicHoloLensRestResponseHandler* responseHandler)
 :   m_serverUrl(serverUrl),
     m_sessionName(sessionName),
-    m_responseHandler(responseHandler)
+    m_responseHandler(responseHandler),
+    m_dbgDisableCertificateVerification(false)
 {
 }
 
@@ -64,6 +62,14 @@ RicHoloLensRestClient::RicHoloLensRestClient(QString serverUrl, QString sessionN
 void RicHoloLensRestClient::clearResponseHandler()
 {
     m_responseHandler = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHoloLensRestClient::dbgDisableCertificateVerification()
+{
+    m_dbgDisableCertificateVerification = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,14 +90,13 @@ void RicHoloLensRestClient::createSession(const QByteArray& sessionPinCode)
     // NOTE !!!
     // Apparently something like this is currently needed in order to get SSL/HTTPS going
     // Still, can't quite figure it out since it appears to be sufficient to do this on the first request
-    // This will have to be investigated further, SP 20181924
+    // This will have to be investigated further, SP 20180924
     QSslConfiguration sslConf = request.sslConfiguration();
 
     // Needed this one to be able to connect to sharing server 
     sslConf.setProtocol(QSsl::AnyProtocol);
 
-    bool disableCertificateVerification = RiaApplication::instance()->preferences()->holoLensDisableCertificateVerification();
-    if (disableCertificateVerification)
+    if (m_dbgDisableCertificateVerification)
     {
         sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
     }

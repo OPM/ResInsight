@@ -73,5 +73,5 @@ private:
 
     RicHoloLensSessionObserver*     m_sessionObserver;
 
-    bool                            m_dbgEnableFileExport;
+    QString                         m_dbgFileExportDestinationFolder;
 };

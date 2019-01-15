@@ -47,8 +47,7 @@
 RicHoloLensSession::RicHoloLensSession()
 :   m_isSessionValid(false),
     m_lastExtractionMetaDataSequenceNumber(-1),
-    m_sessionObserver(nullptr),
-    m_dbgEnableFileExport(false)
+    m_sessionObserver(nullptr)
 {
 }
 
@@ -68,13 +67,23 @@ RicHoloLensSession* RicHoloLensSession::createSession(const QString& serverUrl, 
     RicHoloLensSession* newSession = new RicHoloLensSession;
 
     newSession->m_restClient = new RicHoloLensRestClient(serverUrl, sessionName, newSession);
+    
+    if (RiaApplication::instance()->preferences()->holoLensDisableCertificateVerification())
+    {
+        RiaLogging::warning("HoloLens: Disabling certificate verification for HTTPS connections");
+        newSession->m_restClient->dbgDisableCertificateVerification();
+    }
+    
     newSession->m_restClient->createSession(sessionPinCode);
 
     newSession->m_sessionObserver = sessionObserver;
 
-    // For now, leave this on!!!
-    // We probably want to export this as a preference parameter
-    newSession->m_dbgEnableFileExport = true;
+    const QString dbgExportFolder = RiaApplication::instance()->preferences()->holoLensExportFolder();
+    if (!dbgExportFolder.isEmpty())
+    {
+        newSession->m_dbgFileExportDestinationFolder = dbgExportFolder;
+        RiaLogging::info(QString("HoloLens: Debug file export will be written to folder: %1").arg(dbgExportFolder));
+    }
 
     return newSession;
 }
@@ -88,7 +97,7 @@ RicHoloLensSession* RicHoloLensSession::createDummyFileBackedSession()
 
     newSession->m_isSessionValid = true;
 
-    newSession->m_dbgEnableFileExport = true;
+    newSession->m_dbgFileExportDestinationFolder = RiaApplication::instance()->preferences()->holoLensExportFolder();
 
     return newSession;
 }
@@ -161,16 +170,9 @@ void RicHoloLensSession::updateSessionDataFromView(const RimGridView& activeView
 
 
     // Debug export to file
-    if (m_dbgEnableFileExport)
+    if (!m_dbgFileExportDestinationFolder.isEmpty())
     {
-        const QString folderName = RiaApplication::instance()->preferences()->holoLensExportFolder();
-        if (folderName.isEmpty())
-        {
-            RiaLogging::warning("HoloLens: Debug export to file enabled, but no export folder has been set");
-            return;
-        }
-
-        const QDir outputDir(folderName);
+        const QDir outputDir(m_dbgFileExportDestinationFolder);
         const QString absOutputFolder = outputDir.absolutePath();
 
         if (!outputDir.mkpath("."))
