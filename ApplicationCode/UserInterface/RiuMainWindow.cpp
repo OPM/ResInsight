@@ -605,7 +605,6 @@ void RiuMainWindow::createToolBars()
         QToolBar* toolbar = addToolBar(tr("Measurement"));
         toolbar->setObjectName(toolbar->windowTitle());
         auto action = cmdFeatureMgr->action("RicToggleMeasurementModeFeature");
-        action->setCheckable(true);
         toolbar->addAction(action);
     }
 
