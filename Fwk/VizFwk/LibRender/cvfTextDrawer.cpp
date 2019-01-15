@@ -698,8 +698,7 @@ short TextDrawer::calculateVerticalAlignmentOffset(Font& font, Alignment alignme
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3f, 4>
-    TextDrawer::textCorners(const Glyph& glyph, const Vec2f& textStart, const Vec2f& textExtent, short verticalAlignment, const Vec3f& textDirection, float marginX, float marginY)
+std::array<cvf::Vec3f, 4> TextDrawer::textCorners(const Glyph& glyph, const Vec2f& textStart, const Vec2f& textExtent, short verticalAlignment, const Vec3f& textDirection, float marginX, float marginY)
 {
     Vec3f tangent = textDirection;
     if (tangent.x() < 0.0f) tangent *= -1.0f;
@@ -721,7 +720,9 @@ std::array<cvf::Vec3f, 4>
     // Upper left corner
     Vec3f c4 = tangent * x1 + normal * y2;
 
-    return { c1, c2, c3, c4 };
+
+    std::array<cvf::Vec3f, 4> retArr = { c1, c2, c3, c4 };
+    return retArr;
 }
 
 }  // namespace cvf

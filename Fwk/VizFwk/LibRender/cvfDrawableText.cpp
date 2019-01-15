@@ -281,8 +281,7 @@ BoundingBox DrawableText::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox
-    DrawableText::textBoundingBox(const String& text, const Vec3f& position, const Vec3f& direction /*= Vec3f::X_AXIS*/)
+cvf::BoundingBox DrawableText::textBoundingBox(const String& text, const Vec3f& position, const Vec3f& direction /*= Vec3f::X_AXIS*/)
 {
     ref<Glyph> glyph = m_font->getGlyph(L'A');
     Vec2f      textExtent(m_font->textExtent(text));
@@ -291,10 +290,10 @@ cvf::BoundingBox
     float      glyphMarginY      = 0.25f * static_cast<float>(glyph->height());
 
     BoundingBox textBox;
-    std::array<Vec3f, 4> corners =
-        TextDrawer::textCorners(*glyph, cvf::Vec2f::ZERO, textExtent, verticalAlignment, direction, glyphMarginX, glyphMarginY);
-    for (const Vec3f& corner : corners)
+    std::array<Vec3f, 4> corners = TextDrawer::textCorners(*glyph, cvf::Vec2f::ZERO, textExtent, verticalAlignment, direction, glyphMarginX, glyphMarginY);
+    for (size_t i = 0; i < corners.size(); i++)
     {
+        const Vec3f& corner = corners[i];
         textBox.add(position + corner);
     }
     return textBox;
