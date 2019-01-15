@@ -40,6 +40,7 @@ class RicHoloLensExportImpl
 {
 public:
     static std::vector<VdeExportPart> partsForExport(const RimGridView& view);
+    static std::vector<std::pair<cvf::Vec3f, cvf::String>> labelsForExport(const RimGridView& view);
 
 private:
     static void    appendTextureImage(VdeExportPart& exportPart, cvf::Part* part);

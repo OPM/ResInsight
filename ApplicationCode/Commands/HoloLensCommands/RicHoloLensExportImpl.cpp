@@ -38,15 +38,16 @@
 #include "RivMeshLinesSourceInfo.h"
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivSourceInfo.h"
+#include "RivTextLabelSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
 
 #include "cafEffectGenerator.h"
 
 #include "cvfPart.h"
 #include "cvfRenderState.h"
-#include "cvfRenderState_FF.h"
 #include "cvfRenderStateCullFace.h"
 #include "cvfRenderStateTextureBindings.h"
+#include "cvfRenderState_FF.h"
 #include "cvfTexture.h"
 #include "cvfTexture2D_FF.h"
 
@@ -211,6 +212,27 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
     }
 
     return exportParts;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<cvf::Vec3f, cvf::String>> RicHoloLensExportImpl::labelsForExport(const RimGridView& view)
+{
+    std::vector<std::pair<cvf::Vec3f, cvf::String>> labelAndPositions;
+
+    auto visibleParts = view.viewer()->visibleParts();
+
+    for (auto& visiblePart : visibleParts)
+    {
+        const RivTextLabelSourceInfo* textLabel = dynamic_cast<const RivTextLabelSourceInfo*>(visiblePart->sourceInfo());
+        if (textLabel)
+        {
+            labelAndPositions.push_back(std::make_pair(textLabel->textPositionDisplayCoord(), textLabel->text()));
+        }
+    }
+
+    return labelAndPositions;
 }
 
 //--------------------------------------------------------------------------------------------------

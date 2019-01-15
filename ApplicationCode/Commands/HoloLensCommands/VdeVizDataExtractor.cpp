@@ -63,6 +63,9 @@ void VdeVizDataExtractor::extractViewContents(QString* modelMetaJsonStr, std::ve
     // First extract the parts (cvfPart + info) to be exported from from the ResInsight view
     const std::vector<VdeExportPart> exportPartsArr = RicHoloLensExportImpl::partsForExport(m_view);
 
+    // TODO: Convert this into JSON data
+    const std::vector<std::pair<cvf::Vec3f, cvf::String>> labelAndPositions = RicHoloLensExportImpl::labelsForExport(m_view);
+
     // Convert this to an array of export ready meshes
     const std::vector<std::unique_ptr<VdeMesh> > meshArr = buildMeshArray(exportPartsArr);
     const int buildMeshes_ms = static_cast<int>(tim.lapTime()*1000);
