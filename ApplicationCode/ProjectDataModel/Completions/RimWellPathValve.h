@@ -50,6 +50,7 @@ public:
     std::vector<double>        valveLocations() const;
     double                     orificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double                     flowCoefficient() const;
+    RimValveTemplate*          valveTemplate() const;
     void                       setValveTemplate(RimValveTemplate* valveTemplate);
     void                       applyValveLabelAndIcon();
     const RimWellPathAicdParameters* aicdParameters() const;
@@ -82,7 +83,7 @@ private:
     caf::PdmPtrField<RimValveTemplate*>            m_valveTemplate;
     caf::PdmField<double>                          m_measuredDepth;
     caf::PdmChildField<RimMultipleValveLocations*> m_multipleValveLocations;
-
+    caf::PdmField<bool>                            m_createOrEditValveTemplate;
 
 };
 

@@ -47,7 +47,6 @@ public:
     QString                             typeLabel() const;
     QString                             fullLabel() const;
     void                                setUserLabel(const QString& userLabel);
-
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
@@ -68,6 +67,5 @@ private:
     caf::PdmField<double>                              m_flowCoefficient;
     // AICDs
     caf::PdmChildField<RimWellPathAicdParameters*>     m_aicdParameters;
-
 };
 

@@ -40,6 +40,7 @@ public:
 
     std::vector<RimValveTemplate*>           valveTemplates() const;
     void                                     addValveTemplate(RimValveTemplate* valveTemplate);
+    void                                     removeAndDeleteValveTemplate(RimValveTemplate* valveTemplate);
 
     RiaEclipseUnitTools::UnitSystemType      defaultUnitSystemType() const;
     void                                     setDefaultUnitSystemBasedOnLoadedCases();

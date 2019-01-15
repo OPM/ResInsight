@@ -69,6 +69,15 @@ void RimValveTemplateCollection::addValveTemplate(RimValveTemplate* valveTemplat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimValveTemplateCollection::removeAndDeleteValveTemplate(RimValveTemplate* valveTemplate)
+{
+    m_valveDefinitions.removeChildObject(valveTemplate);
+    delete valveTemplate;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaEclipseUnitTools::UnitSystemType RimValveTemplateCollection::defaultUnitSystemType() const
 {
     return m_defaultUnitsForValveTemplates;

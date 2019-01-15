@@ -22,6 +22,8 @@
 #include "RiaColorTables.h"
 #include "RiaEclipseUnitTools.h"
 
+#include "Riu3DMainWindowTools.h"
+
 #include "RigWellPath.h"
 
 #include "RimMultipleValveLocations.h"
@@ -30,7 +32,10 @@
 #include "RimValveTemplate.h"
 #include "RimWellPath.h"
 
+#include "CompletionCommands/RicNewValveTemplateFeature.h"
+
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiToolButtonEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimWellPathValve, "WellPathValve");
 
@@ -42,14 +47,15 @@ RimWellPathValve::RimWellPathValve()
     CAF_PDM_InitObject("WellPathValve", ":/ICDValve16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_valveTemplate, "ValveTemplate", "Valve Template", "", "", "");
-
-    CAF_PDM_InitField(&m_measuredDepth, "StartMeasuredDepth", 0.0, "Start MD", "", "", "");
-    m_measuredDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
-
+    CAF_PDM_InitField(&m_measuredDepth, "StartMeasuredDepth", 0.0, "Start MD", "", "", "");    
     CAF_PDM_InitFieldNoDefault(&m_multipleValveLocations, "ValveLocations", "Valve Locations", "", "", "");
+    CAF_PDM_InitField(&m_createOrEditValveTemplate, "CreateTemplate", false, "Create new", "", "", "");
+    
+    m_measuredDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     m_multipleValveLocations = new RimMultipleValveLocations;
     m_multipleValveLocations.uiCapability()->setUiTreeHidden(true);
     m_multipleValveLocations.uiCapability()->setUiTreeChildrenHidden(true);
+    m_createOrEditValveTemplate.uiCapability()->setUiEditorTypeName(caf::PdmUiToolButtonEditor::uiEditorTypeName());
     nameField()->uiCapability()->setUiReadOnly(true);
 
 }
@@ -148,6 +154,14 @@ double RimWellPathValve::flowCoefficient() const
         return templateCoefficient;
     }
     return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimValveTemplate* RimWellPathValve::valveTemplate() const
+{
+    return m_valveTemplate;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -407,6 +421,18 @@ void RimWellPathValve::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
         applyValveLabelAndIcon();
         this->updateConnectedEditors();
     }
+    else if (changedField == &m_createOrEditValveTemplate)
+    {
+        m_createOrEditValveTemplate = false;
+        if (m_valveTemplate == nullptr)
+        {
+            RicNewValveTemplateFeature::createNewValveTemplateForValveAndUpdate(this);
+        }
+        else
+        {
+            Riu3DMainWindowTools::selectAsCurrentItem(m_valveTemplate());
+        }
+    }
 
     RimPerforationInterval* perfInterval;
     this->firstAncestorOrThisOfTypeAsserted(perfInterval);
@@ -426,7 +452,23 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 
     uiOrdering.add(&m_valveTemplate);
 
-    if (componentType() == RiaDefines::UNDEFINED_COMPONENT) return;
+    {
+        uiOrdering.add(&m_createOrEditValveTemplate, false);
+        if (m_valveTemplate() == nullptr)
+        {
+            m_createOrEditValveTemplate.uiCapability()->setUiName("New");
+        }
+        else
+        {
+            m_createOrEditValveTemplate.uiCapability()->setUiName("Edit");
+        }
+    }
+
+    if (m_valveTemplate())
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Parameters from Template");
+        m_valveTemplate->uiOrdering("InsideValve", *group);
+    }
 
     if (componentType() == RiaDefines::ICV || componentType() == RiaDefines::ICD)
     {        
@@ -454,13 +496,8 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Multiple Valve Locations");
         m_multipleValveLocations->uiOrdering(uiConfigName, *group);
     }
-
-    if (m_valveTemplate)
-    {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Parameters from Template");
-        m_valveTemplate->uiOrdering("InsideValve", *group);
-    }
-
+  
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

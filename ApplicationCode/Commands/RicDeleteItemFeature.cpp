@@ -60,7 +60,6 @@
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimStimPlanFractureTemplate.h"
-#include "RimValveTemplate.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
@@ -123,7 +122,6 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimWellPathFracture*>(uiItem))             return true;
     if (dynamic_cast<RimEllipseFractureTemplate*>(uiItem))      return true;
     if (dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))     return true;
-    if (dynamic_cast<RimValveTemplate*>(uiItem))                return true;
     if (dynamic_cast<RimSimWellFractureCollection*>(uiItem))    return true;
     if (dynamic_cast<RimSimWellFracture*>(uiItem))              return true;
     if (dynamic_cast<RimEnsembleCurveSet*>(uiItem))             return true;

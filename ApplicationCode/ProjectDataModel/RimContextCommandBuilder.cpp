@@ -664,6 +664,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewValveTemplateFeature";
         }
+        else if (dynamic_cast<RimValveTemplate*>(uiItem))
+        {
+           menuBuilder << "RicDeleteValveTemplateFeature";
+        }
         else if (dynamic_cast<RimFractureTemplateCollection*>(uiItem))
         {
             menuBuilder << "RicPasteEllipseFractureFeature";

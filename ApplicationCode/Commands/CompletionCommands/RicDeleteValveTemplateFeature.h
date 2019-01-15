@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,25 +20,16 @@
 
 #include "cafCmdFeature.h"
 
-#include <vector>
-
-class RimValveTemplate;
-class RimValveTemplateCollection;
-class RimWellPathValve;
-
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewValveTemplateFeature : public caf::CmdFeature
+class RicDeleteValveTemplateFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static void selectValveTemplateAndUpdate(RimValveTemplate*           valveTemplate);
-    static void createNewValveTemplateForValveAndUpdate(RimWellPathValve* valve);
 protected:
-    static RimValveTemplate* createNewValveTemplate();
+    // Overrides
+    bool isCommandEnabled() override;
     void onActionTriggered(bool isChecked) override;
     void setupActionLook(QAction* actionToSetup) override;
-    bool isCommandEnabled() override;
 };

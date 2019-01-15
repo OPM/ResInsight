@@ -51,8 +51,6 @@
 #include "RiuPlotMainWindow.h"
 
 #include "RimFractureTemplateCollection.h"
-#include "RimValveTemplateCollection.h"
-
 
 #include "cafNotificationCenter.h"
 #include "cafPdmChildArrayField.h"
@@ -156,11 +154,9 @@ void RicDeleteItemExec::redo()
         }
 
 
-        RimValveTemplateCollection* valveTemplateColl;
         RimFractureTemplateCollection* fracTemplateColl;
         parentObj->firstAncestorOrThisOfType(fracTemplateColl);
-        parentObj->firstAncestorOrThisOfType(valveTemplateColl);
-        if (fracTemplateColl || valveTemplateColl)
+        if (fracTemplateColl)
         {
             RimProject* proj = nullptr;
             parentObj->firstAncestorOrThisOfType(proj);
