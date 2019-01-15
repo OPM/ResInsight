@@ -92,20 +92,21 @@ bool RicHoloLensAutoExportToSharingServerFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensAutoExportToSharingServerFeature::onActionTriggered(bool isChecked)
 {
+    m_isActive = !m_isActive;
+    
     if (!isSessionValid())
     {
         RiaLogging::error("No valid HoloLens session present");
-        return;
+        m_isActive = false;
     }
 
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView)
     {
         RiaLogging::error("No active view");
-        return;
+        m_isActive = false;
     }
 
-    m_isActive = isChecked;
     if (m_isActive)
     {
         triggerUpdateSession();
@@ -124,6 +125,7 @@ void RicHoloLensAutoExportToSharingServerFeature::setupActionLook(QAction* actio
     actionToSetup->setIcon(QIcon(combinedPixmap));
 
     actionToSetup->setText("Automatically Export to Sharing Server");
+    actionToSetup->setCheckable(true);
 }
 
 //--------------------------------------------------------------------------------------------------

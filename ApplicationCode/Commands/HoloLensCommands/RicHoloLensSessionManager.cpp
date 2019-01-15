@@ -123,9 +123,10 @@ void RicHoloLensSessionManager::refreshToolbarState()
 
     commandIds << "RicHoloLensCreateSessionFeature";
     commandIds << "RicHoloLensExportToSharingServerFeature";
+    commandIds << "RicHoloLensAutoExportToSharingServerFeature";
     commandIds << "RicHoloLensTerminateSessionFeature";
 
-    caf::CmdFeatureManager::instance()->refreshEnabledState(commandIds);
+    caf::CmdFeatureManager::instance()->refreshStates(commandIds);
 }
 
 //--------------------------------------------------------------------------------------------------
