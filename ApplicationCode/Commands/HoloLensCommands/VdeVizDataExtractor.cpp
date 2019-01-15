@@ -303,6 +303,13 @@ std::unique_ptr<VdeMesh> VdeVizDataExtractor::createMeshFromExportPart(const Vde
     mesh->color = exportPart.color();
     mesh->opacity = exportPart.opacity();
 
+    if (exportPart.cullFace() != VdeExportPart::CF_NONE)
+    {
+        if      (exportPart.cullFace() == VdeExportPart::CF_FRONT)  mesh->cullFaceModeStr = "front";
+        else if (exportPart.cullFace() == VdeExportPart::CF_BACK)   mesh->cullFaceModeStr = "back";
+        else                                                        mesh->cullFaceModeStr = "none";
+    }
+
     //cvf::Trace::show("createMeshFromExportPart(): numFaces=%d, time=%dms", faceCount, static_cast<int>(tim.time()*1000));
 
     return mesh;
@@ -344,6 +351,11 @@ QString VdeVizDataExtractor::createModelMetaJsonString(const std::vector<std::un
         }
 
         jsonMeshMeta["opacity"] = mesh->opacity;
+
+        if (!mesh->cullFaceModeStr.isEmpty())
+        {
+            jsonMeshMeta["cullFaceMode"] = mesh->cullFaceModeStr;
+        }
 
         jsonMeshMetaList.push_back(jsonMeshMeta);
     }

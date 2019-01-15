@@ -48,6 +48,7 @@ struct VdeMesh
 
     cvf::Color3f                    color;
     float                           opacity;
+    QString                         cullFaceModeStr;   // front, back or none (or empty)
 
     int                             verticesPerPrimitive;
     cvf::cref<cvf::Vec3fArray>      vertexArr;
