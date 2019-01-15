@@ -24,6 +24,8 @@
 #include "RicHoloLensServerSettings.h"
 #include "RicHoloLensSessionManager.h"
 
+#include "RiuMainWindow.h"
+
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
 
@@ -47,7 +49,7 @@ void RicHoloLensCreateSessionFeature::onActionTriggered(bool isChecked)
 {
     RicHoloLensCreateSessionUi createSessionUi;
 
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &createSessionUi, "HoloLens - Create Session", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &createSessionUi, "HoloLens - Create Session", "");
     propertyDialog.resize(QSize(400, 330));
 
     {
