@@ -133,7 +133,7 @@ DEFUN_DLD (riGetDynamicNNCValues, args, nargout,
     argIndices.push_back(2);
 
     // Check if we have a CaseId:
-    if (!args(argIndices[0]).is_numeric_type())
+    if (!riOctavePlugin::isOctaveValueNumeric(args(argIndices[0])))
     {
         argIndices[0] = -1;
         for (size_t aIdx = 1; aIdx < argIndices.size(); ++aIdx)

@@ -139,7 +139,7 @@ DEFUN_DLD (riGetGridPropertyForSelectedCells, args, nargout,
     argIndices.push_back(3);
 
     // Check if we have a CaseId:
-    if (!args(argIndices[0]).is_numeric_type())
+    if (!riOctavePlugin::isOctaveValueNumeric(args(argIndices[0])))
     {
         argIndices[0] = -1;
         for (size_t aIdx = 1; aIdx < argIndices.size(); ++aIdx)
@@ -148,7 +148,7 @@ DEFUN_DLD (riGetGridPropertyForSelectedCells, args, nargout,
 
     // Check if we have a Requested TimeSteps
     
-    if (!(nargin > argIndices[2] && (args(argIndices[2]).is_matrix_type() || args(argIndices[2]).is_numeric_type()) && !args(argIndices[2]).is_string()))
+    if (!(nargin > argIndices[2] && (args(argIndices[2]).is_matrix_type() || riOctavePlugin::isOctaveValueNumeric(args(argIndices[2]))) && !args(argIndices[2]).is_string()))
     {
         argIndices[2] = -1;
         for (size_t aIdx = 3; aIdx < argIndices.size(); ++aIdx)

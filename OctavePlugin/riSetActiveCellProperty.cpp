@@ -160,7 +160,7 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
     argIndices.push_back(4);
 
     // Check if we have a CaseId:
-    if (!args(argIndices[1]).is_numeric_type())
+    if (!riOctavePlugin::isOctaveValueNumeric(args(argIndices[1])))
     {
         argIndices[1] = -1;
         for (size_t aIdx = 2; aIdx < argIndices.size(); ++aIdx)
