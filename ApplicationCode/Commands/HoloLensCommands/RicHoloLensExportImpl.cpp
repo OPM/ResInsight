@@ -44,8 +44,9 @@
 
 #include "cvfPart.h"
 #include "cvfRenderState.h"
-#include "cvfRenderStateTextureBindings.h"
 #include "cvfRenderState_FF.h"
+#include "cvfRenderStateCullFace.h"
+#include "cvfRenderStateTextureBindings.h"
 #include "cvfTexture.h"
 #include "cvfTexture2D_FF.h"
 
@@ -128,6 +129,23 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
                     if (femPartPickInfo)
                     {
                         exportPart.setColor(RivGeoMechVizLogic::staticCellColor());
+                    }
+                }
+
+                if (visiblePart->effect())
+                {
+                    const cvf::RenderStateCullFace* renderStateCullFace = dynamic_cast<const cvf::RenderStateCullFace*>(
+                        visiblePart->effect()->renderStateOfType(cvf::RenderState::CULL_FACE));
+                    if (renderStateCullFace)
+                    {
+                        if (renderStateCullFace->mode() == cvf::RenderStateCullFace::BACK)
+                        {
+                            exportPart.setCullFace(VdeExportPart::CF_BACK);
+                        }
+                        else if (renderStateCullFace->mode() == cvf::RenderStateCullFace::FRONT)
+                        {
+                            exportPart.setCullFace(VdeExportPart::CF_FRONT);
+                        }
                     }
                 }
 
