@@ -79,7 +79,7 @@ void RimWellPathValve::perforationIntervalUpdated()
         this->firstAncestorOrThisOfType(perfInterval);
         double startMD = perfInterval->startMD();
         double endMD   = perfInterval->endMD();
-        m_measuredDepth = cvf::Math::clamp(m_measuredDepth(), startMD, endMD);
+        m_measuredDepth = cvf::Math::clamp(m_measuredDepth(), std::min(startMD, endMD), std::max(startMD, endMD));
     }
     else if (componentType() == RiaDefines::ICD || componentType() == RiaDefines::AICD)
     {
@@ -464,12 +464,6 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
         }
     }
 
-    if (m_valveTemplate())
-    {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Parameters from Template");
-        m_valveTemplate->uiOrdering("InsideValve", *group);
-    }
-
     if (componentType() == RiaDefines::ICV || componentType() == RiaDefines::ICD)
     {        
         if (componentType() == RiaDefines::ICV)
@@ -487,7 +481,7 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
                     m_measuredDepth.uiCapability()->setUiName("Measured Depth [ft]");
                 }
             }
-            uiOrdering.add(&m_measuredDepth);
+            uiOrdering.add(&m_measuredDepth, { true, 3, 1 });
         }
     }
 
@@ -496,7 +490,13 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Multiple Valve Locations");
         m_multipleValveLocations->uiOrdering(uiConfigName, *group);
     }
-  
+
+    if (m_valveTemplate())
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Parameters from Template");
+        m_valveTemplate->uiOrdering("InsideValve", *group);
+    }
+
     uiOrdering.skipRemainingFields(true);
 }
 
