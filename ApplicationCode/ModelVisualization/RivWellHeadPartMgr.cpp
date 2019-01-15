@@ -35,11 +35,14 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimSimWellInView.h"
 
-#include "RivPipeGeometryGenerator.h"
 #include "RivPartPriority.h"
+#include "RivPipeGeometryGenerator.h"
+#include "RivSectionFlattner.h"
 #include "RivSimWellPipeSourceInfo.h"
+#include "RivTextLabelSourceInfo.h"
 
 #include "cafEffectGenerator.h"
+#include "cafDisplayCoordTransform.h"
 
 #include "cvfArrowGenerator.h"
 #include "cvfDrawableGeo.h"
@@ -49,8 +52,6 @@
 #include "cvfPart.h"
 #include "cvfTransform.h"
 #include "cvfqtUtils.h"
-#include "cafDisplayCoordTransform.h"
-#include "RivSectionFlattner.h"
 
 
 
@@ -319,7 +320,8 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
 
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::PartType::Text);
-        part->setSourceInfo(sourceInfo.p());
+
+        part->setSourceInfo(new RivTextLabelSourceInfo(m_rimWell, cvfString, textCoord));
 
         m_wellHeadLabelPart = part;
     }

@@ -35,6 +35,7 @@
 #include "RimTernaryLegendConfig.h"
 
 #include "RivFaultGeometryGenerator.h"
+#include "RivMeshLinesSourceInfo.h"
 #include "RivNNCGeometryGenerator.h"
 #include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
@@ -42,9 +43,9 @@
 #include "RivSourceInfo.h"
 #include "RivTernaryScalarMapper.h"
 #include "RivTernaryTextureCoordsCreator.h"
+#include "RivTextLabelSourceInfo.h"
 #include "RivTextureCoordsCreator.h"
 
-#include "RivMeshLinesSourceInfo.h"
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
 #include "cvfModelBasicList.h"
@@ -519,6 +520,8 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
 
         labelPart->setEffect(eff.p());
         labelPart->setPriority(RivPartPriority::PartType::Text);
+
+        labelPart->setSourceInfo(new RivTextLabelSourceInfo(m_rimFault, cvfString, textCoord));
 
         m_faultLabelPart = labelPart;
     }

@@ -34,18 +34,20 @@
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
 
-#include "RivPolylineGenerator.h"
+#include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
+#include "RivPolylineGenerator.h"
 #include "RivTextAnnotationSourceInfo.h"
+#include "RivTextLabelSourceInfo.h"
 
 #include "cafEffectGenerator.h"
+#include "cafDisplayCoordTransform.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfqtUtils.h"
-#include "cafDisplayCoordTransform.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -83,8 +85,6 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
 {
     clearAllGeometry();
 
-    cvf::ref<RivTextAnnotationSourceInfo> sourceInfo = new RivTextAnnotationSourceInfo(rimAnnotation());
-
     auto collection = annotationCollection();
     if (!collection) return;
 
@@ -114,7 +114,7 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
 
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::PartType::MeshLines);
-        part->setSourceInfo(sourceInfo.p());
+        part->setSourceInfo(new RivObjectSourceInfo(rimAnnotation()));
 
         m_linePart = part;
     }
@@ -145,7 +145,8 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
         cvf::ref<cvf::Effect> eff = new cvf::Effect();
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::PartType::MeshLines);
-        part->setSourceInfo(sourceInfo.p());
+
+        part->setSourceInfo(new RivTextLabelSourceInfo(rimAnnotation(), cvfString, textCoord));
 
         m_labelPart = part;
     }

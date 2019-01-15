@@ -56,6 +56,7 @@
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathPartMgr.h"
 #include "RivWellPathSourceInfo.h"
+#include "RivTextLabelSourceInfo.h"
 
 #include "RiuViewer.h"
 
@@ -634,6 +635,8 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
 
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::Text);
+
+        part->setSourceInfo(new RivTextLabelSourceInfo(m_rimWellPath, cvfString, textCoord));
 
         m_wellLabelPart = part;
     }

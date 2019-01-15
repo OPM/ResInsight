@@ -3,22 +3,20 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
-
 
 #include "RivMeasurementPartMgr.h"
 
@@ -30,44 +28,43 @@
 
 #include "Rim3dView.h"
 #include "RimAnnotationInViewCollection.h"
-#include "RimProject.h"
 #include "RimMeasurement.h"
-#include "RimUserDefinedPolylinesAnnotationInView.h"
 #include "RimPolylinesFromFileAnnotationInView.h"
+#include "RimProject.h"
+#include "RimUserDefinedPolylinesAnnotationInView.h"
 
-#include "RivTextAnnotationPartMgr.h"
-#include "RivReachCircleAnnotationPartMgr.h"
+#include "RivPartPriority.h"
 #include "RivPolylineAnnotationPartMgr.h"
 #include "RivPolylineGenerator.h"
-#include "RivPartPriority.h"
+#include "RivReachCircleAnnotationPartMgr.h"
+#include "RivTextAnnotationPartMgr.h"
+#include "RivTextLabelSourceInfo.h"
 
-#include <cvfModelBasicList.h>
-#include <cvfPart.h>
-#include <cvfDrawableGeo.h>
-#include <cvfDrawableText.h>
+#include "cvfBoundingBox.h"
+#include "cvfDrawableGeo.h"
+#include "cvfDrawableText.h"
+#include "cvfModelBasicList.h"
+#include "cvfPart.h"
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStatePoint.h"
-#include "cvfBoundingBox.h"
 #include "cvfqtUtils.h"
 
-#include "cafEffectGenerator.h"
 #include "cafDisplayCoordTransform.h"
+#include "cafEffectGenerator.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RivMeasurementPartMgr::RivMeasurementPartMgr(Rim3dView* view)
-: m_rimView(view), m_measurement(nullptr)
+    : m_rimView(view)
+    , m_measurement(nullptr)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivMeasurementPartMgr::~RivMeasurementPartMgr()
-{
-
-}
+RivMeasurementPartMgr::~RivMeasurementPartMgr() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -106,11 +103,11 @@ void RivMeasurementPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList*     
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivMeasurementPartMgr::clearGeometryCache()
 {
-    m_linePart = nullptr;
+    m_linePart  = nullptr;
     m_pointPart = nullptr;
     m_labelPart = nullptr;
 }
@@ -177,15 +174,15 @@ void RivMeasurementPartMgr::buildPolyLineParts(const caf::DisplayCoordTransform*
     }
 
     // Text label
-    if(pointsInDisplay.size() > 1)
+    if (pointsInDisplay.size() > 1)
     {
-        auto fontSize = RiaFontCache::FONT_SIZE_8;
-        auto backgroundColor = RiaApplication::instance()->preferences()->defaultViewerBackgroundColor;
-        auto fontColor = cvf::Color3f::BLACK;
-        QString text = m_measurement->label();
-        auto labelPosition = pointsInDisplay.back();
+        auto    fontSize        = RiaFontCache::FONT_SIZE_8;
+        auto    backgroundColor = RiaApplication::instance()->preferences()->defaultViewerBackgroundColor;
+        auto    fontColor       = cvf::Color3f::BLACK;
+        QString text            = m_measurement->label();
+        auto    labelPosition   = pointsInDisplay.back();
 
-        auto font = RiaFontCache::getFont(fontSize);
+        auto                        font         = RiaFontCache::getFont(fontSize);
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
         drawableText->setFont(font.p());
         drawableText->setCheckPosVisible(false);
@@ -208,6 +205,8 @@ void RivMeasurementPartMgr::buildPolyLineParts(const caf::DisplayCoordTransform*
         cvf::ref<cvf::Effect> eff = new cvf::Effect();
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::PartType::Text);
+
+        part->setSourceInfo(new RivTextLabelSourceInfo(m_measurement, cvfString, textCoord));
 
         m_labelPart = part;
     }

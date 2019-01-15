@@ -55,6 +55,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivReachCircleAnnotationSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RivPolylinesAnnotationSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RivPolylineGenerator.h
 ${CMAKE_CURRENT_LIST_DIR}/RivMeasurementPartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/RivTextLabelSourceInfo.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -108,6 +109,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivReachCircleAnnotationSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivPolylinesAnnotationSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivPolylineGenerator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivMeasurementPartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivTextLabelSourceInfo.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
