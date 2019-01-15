@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2016-2018 Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -25,6 +26,7 @@
 #include "RimFractureTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimWellPathFracture.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -39,11 +41,22 @@ CAF_CMD_SOURCE_INIT(RicNewEllipseFractureTemplateFeature, "RicNewEllipseFracture
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFractureTemplateCollection* templateCollection,
-                                                                           RimFractureTemplate*           fractureTemplate)
+void RicNewEllipseFractureTemplateFeature::createNewTemplateForFractureAndUpdate(RimFracture* fracture)
+{
+    RimEllipseFractureTemplate* fractureTemplate = createNewTemplate();
+    fracture->setFractureTemplate(fractureTemplate);
+    selectFractureTemplateAndUpdate(fractureTemplate);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFractureTemplate* fractureTemplate)
 {
     fractureTemplate->loadDataAndUpdate();
 
+    RimFractureTemplateCollection* templateCollection = nullptr;
+    fractureTemplate->firstAncestorOrThisOfTypeAsserted(templateCollection);
     templateCollection->updateConnectedEditors();
 
     RimProject* project = RiaApplication::instance()->project();
@@ -65,13 +78,13 @@ void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
+RimEllipseFractureTemplate* RicNewEllipseFractureTemplateFeature::createNewTemplate()
 {
-    RimProject* project = RiaApplication::instance()->project();
+ RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
     RimOilField* oilfield = project->activeOilField();
-    if (oilfield == nullptr) return;
+    if (oilfield == nullptr) return nullptr;
 
     RimFractureTemplateCollection* fracDefColl = oilfield->fractureDefinitionCollection();
 
@@ -84,8 +97,18 @@ void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
         ellipseFractureTemplate->setUnitSystem(fracDefColl->defaultUnitSystemType());
         ellipseFractureTemplate->setDefaultValuesFromUnit();
 
-        selectFractureTemplateAndUpdate(fracDefColl, ellipseFractureTemplate);
+        return ellipseFractureTemplate;
     }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
+{
+    RimEllipseFractureTemplate* ellipseFractureTemplate = createNewTemplate();
+    selectFractureTemplateAndUpdate(ellipseFractureTemplate);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -78,7 +78,7 @@ void RicPasteEllipseFractureFeature::onActionTriggered(bool isChecked)
 
         fractureTemplateColl->addFractureTemplate(templ);
 
-        RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(fractureTemplateColl, templ);
+        RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(templ);
     }
 
     return;
