@@ -139,13 +139,16 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
                         visiblePart->effect()->renderStateOfType(cvf::RenderState::CULL_FACE));
                     if (renderStateCullFace)
                     {
+                        // The logic below that inverts the culling mode simply does not make sense. We should be able to just utilize the cull mode set
+                        // in the render state. The proper solution is probably to put more effort into correctly determining the winding in further up 
+                        // in this function, but currently there is no clear way to accomplish this.
                         if (renderStateCullFace->mode() == cvf::RenderStateCullFace::BACK)
                         {
-                            exportPart.setCullFace(VdeExportPart::CF_BACK);
+                            exportPart.setCullFace(VdeExportPart::CF_FRONT);
                         }
                         else if (renderStateCullFace->mode() == cvf::RenderStateCullFace::FRONT)
                         {
-                            exportPart.setCullFace(VdeExportPart::CF_FRONT);
+                            exportPart.setCullFace(VdeExportPart::CF_BACK);
                         }
                     }
                 }
