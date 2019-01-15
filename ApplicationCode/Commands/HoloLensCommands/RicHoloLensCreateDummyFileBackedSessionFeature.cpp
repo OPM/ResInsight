@@ -49,11 +49,7 @@ void RicHoloLensCreateDummyFiledBackedSessionFeature::onActionTriggered(bool isC
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensCreateDummyFiledBackedSessionFeature::setupActionLook(QAction* actionToSetup)
 {
-    QPixmap pixmap(":/hololens.png");
-    QPixmap overlayPixmap(":/plus-sign-green.png");
+    actionToSetup->setIcon(QIcon(":/HoloLensConnect24x24.png"));
 
-    QPixmap combinedPixmap = RiaQIconTools::appendPixmapUpperLeft(pixmap, overlayPixmap);
-    actionToSetup->setIcon(QIcon(combinedPixmap));
-
-    actionToSetup->setText("Create Dummy File Backed Session");
+    actionToSetup->setText("Create File-Backed Dummy-Session");
 }

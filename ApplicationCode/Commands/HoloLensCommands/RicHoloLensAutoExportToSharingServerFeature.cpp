@@ -118,13 +118,9 @@ void RicHoloLensAutoExportToSharingServerFeature::onActionTriggered(bool isCheck
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensAutoExportToSharingServerFeature::setupActionLook(QAction* actionToSetup)
 {
-    QPixmap pixmap(":/hololens.png");
-    QPixmap overlayPixmap(":/arrow-right-green.png");
+    actionToSetup->setIcon(QIcon(":/HoloLensSendContinously24x24.png"));
 
-    QPixmap combinedPixmap = RiaQIconTools::appendPixmapUpperLeft(pixmap, overlayPixmap);
-    actionToSetup->setIcon(QIcon(combinedPixmap));
-
-    actionToSetup->setText("Automatically Export to Sharing Server");
+    actionToSetup->setText("Export to HoloLens Server Continuously");
     actionToSetup->setCheckable(true);
 }
 

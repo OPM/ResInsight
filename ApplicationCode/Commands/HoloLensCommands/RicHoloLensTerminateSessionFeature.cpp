@@ -60,11 +60,7 @@ void RicHoloLensTerminateSessionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensTerminateSessionFeature::setupActionLook(QAction* actionToSetup)
 {
-    QPixmap pixmap(":/hololens.png");
-    QPixmap overlayPixmap(":/minus-sign-red.png");
+    actionToSetup->setIcon(QIcon(":/HoloLensDisconnect24x24.png"));
 
-    QPixmap combinedPixmap = RiaQIconTools::appendPixmapUpperLeft(pixmap, overlayPixmap);
-    actionToSetup->setIcon(QIcon(combinedPixmap));
-
-    actionToSetup->setText("Terminate Session");
+    actionToSetup->setText("Disconnect from HoloLens server");
 }

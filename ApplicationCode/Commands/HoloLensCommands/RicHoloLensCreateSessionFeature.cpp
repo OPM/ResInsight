@@ -75,11 +75,7 @@ void RicHoloLensCreateSessionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensCreateSessionFeature::setupActionLook(QAction* actionToSetup)
 {
-    QPixmap pixmap(":/hololens.png");
-    QPixmap overlayPixmap(":/plus-sign-green.png");
+    actionToSetup->setIcon(QIcon(":/HoloLensConnect24x24.png"));
 
-    QPixmap combinedPixmap = RiaQIconTools::appendPixmapUpperLeft(pixmap, overlayPixmap);
-    actionToSetup->setIcon(QIcon(combinedPixmap));
-
-    actionToSetup->setText("Create Session");
+    actionToSetup->setText("Connect to HoloLens Server");
 }
