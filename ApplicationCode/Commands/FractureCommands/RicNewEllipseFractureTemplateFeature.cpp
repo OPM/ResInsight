@@ -60,17 +60,8 @@ void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFr
     templateCollection->updateConnectedEditors();
 
     RimProject* project = RiaApplication::instance()->project();
-
-    std::vector<Rim3dView*> views;
-    project->allVisibleViews(views);
-
-    for (Rim3dView* view : views)
-    {
-        if (dynamic_cast<RimEclipseView*>(view))
-        {
-            view->updateConnectedEditors();
-        }
-    }
+    
+    project->scheduleCreateDisplayModelAndRedrawAllViews();
 
     Riu3DMainWindowTools::selectAsCurrentItem(fractureTemplate);
 }
