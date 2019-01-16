@@ -78,7 +78,7 @@ void RicPasteStimPlanFractureFeature::onActionTriggered(bool isChecked)
 
         fractureTemplateColl->addFractureTemplate(copyOfStimPlanTemplate);
 
-        RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(fractureTemplateColl, copyOfStimPlanTemplate);
+        RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(copyOfStimPlanTemplate);
     }
 
     return;

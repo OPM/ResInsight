@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2017-2018 Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -25,6 +26,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimWellPathFracture.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -39,26 +41,60 @@
 CAF_CMD_SOURCE_INIT(RicNewStimPlanFractureTemplateFeature, "RicNewStimPlanFractureTemplateFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
+void RicNewStimPlanFractureTemplateFeature::createNewTemplateForFractureAndUpdate(RimFracture* fracture)
 {
-    RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QStringList fileNames = QFileDialog::getOpenFileNames(nullptr, "Open StimPlan XML File", defaultDir, "StimPlan XML File (*.xml);;All files(*.*)");
+    std::vector<RimStimPlanFractureTemplate*> newTemplates = createNewTemplates();
+    if (!newTemplates.empty())
+    {
+        RimStimPlanFractureTemplate* lastTemplateCreated = newTemplates.back();
+        fracture->setFractureTemplate(lastTemplateCreated);
+        
+        selectFractureTemplateAndUpdate(lastTemplateCreated);
+    }
+}
 
-    if (fileNames.isEmpty()) return;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewStimPlanFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFractureTemplate* fractureTemplate)
+{
+    fractureTemplate->loadDataAndUpdate();
+
+    RimFractureTemplateCollection* templateCollection = nullptr;
+    fractureTemplate->firstAncestorOrThisOfTypeAsserted(templateCollection);
+    templateCollection->updateConnectedEditors();
+
+    RimProject* project = RiaApplication::instance()->project();
+
+    project->scheduleCreateDisplayModelAndRedrawAllViews();
+    Riu3DMainWindowTools::selectAsCurrentItem(fractureTemplate);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimStimPlanFractureTemplate*> RicNewStimPlanFractureTemplateFeature::createNewTemplates()
+{
+    RiaApplication* app        = RiaApplication::instance();
+    QString         defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
+    QStringList     fileNames =
+        QFileDialog::getOpenFileNames(nullptr, "Open StimPlan XML File", defaultDir, "StimPlan XML File (*.xml);;All files(*.*)");
+
+    if (fileNames.isEmpty()) return std::vector<RimStimPlanFractureTemplate*>();
 
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
     RimOilField* oilfield = project->activeOilField();
-    if (oilfield == nullptr) return;
+    if (oilfield == nullptr) return std::vector<RimStimPlanFractureTemplate*>();
 
     RimFractureTemplateCollection* fracDefColl = oilfield->fractureDefinitionCollection();
-    if (!fracDefColl) return;
+    if (!fracDefColl) return std::vector<RimStimPlanFractureTemplate*>();
 
-    for(auto fileName : fileNames)
+    std::vector<RimStimPlanFractureTemplate*> newFractures;
+    for (auto fileName : fileNames)
     {
         if (fileName.isEmpty()) continue;
 
@@ -66,7 +102,7 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
         fracDefColl->addFractureTemplate(fractureDef);
 
         QFileInfo stimplanfileFileInfo(fileName);
-        QString name = stimplanfileFileInfo.baseName();
+        QString   name = stimplanfileFileInfo.baseName();
         if (name.isEmpty())
         {
             name = "StimPlan Fracture Template";
@@ -79,22 +115,18 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
         fractureDef->setDefaultsBasedOnXMLfile();
         fractureDef->setDefaultWellDiameterFromUnit();
         fractureDef->updateFractureGrid();
-
-        fracDefColl->updateConnectedEditors();
-
-        std::vector<Rim3dView*> views;
-        project->allVisibleViews(views);
-
-        for (Rim3dView* view : views)
-        {
-            if (dynamic_cast<RimEclipseView*>(view))
-            {
-                view->updateConnectedEditors();
-            }
-        }
-
-        Riu3DMainWindowTools::selectAsCurrentItem(fractureDef);
+        newFractures.push_back(fractureDef);
     }
+    return newFractures;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
+{
+    std::vector<RimStimPlanFractureTemplate*> newFractures = createNewTemplates();
+    selectFractureTemplateAndUpdate(newFractures.back());
 }
 
 //--------------------------------------------------------------------------------------------------

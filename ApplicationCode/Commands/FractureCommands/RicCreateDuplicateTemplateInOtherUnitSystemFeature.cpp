@@ -88,7 +88,7 @@ void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered(bool 
     copyOfTemplate->loadDataAndUpdate();
     copyOfTemplate->updateConnectedEditors();
 
-    RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(fractureTemplateCollection, copyOfTemplate);
+    RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(copyOfTemplate);
 }
 
 //--------------------------------------------------------------------------------------------------

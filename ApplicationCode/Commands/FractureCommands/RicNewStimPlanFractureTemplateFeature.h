@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2017-2018 Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,6 +23,9 @@
 
 #include <vector>
 
+class RimFracture;
+class RimFractureTemplate;
+class RimStimPlanFractureTemplate;
 
 //==================================================================================================
 /// 
@@ -29,8 +33,11 @@
 class RicNewStimPlanFractureTemplateFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-protected:
+    static void createNewTemplateForFractureAndUpdate(RimFracture* fracture);
+    static void selectFractureTemplateAndUpdate(RimFractureTemplate* fractureTemplate);
 
+protected:
+    static std::vector<RimStimPlanFractureTemplate*> createNewTemplates();
     void onActionTriggered(bool isChecked) override;
     void setupActionLook(QAction* actionToSetup) override;
     bool isCommandEnabled() override;
