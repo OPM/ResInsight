@@ -120,7 +120,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.h
 ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.h
-${CMAKE_CURRENT_LIST_DIR}/RimContourMapViewCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapProjection.h
+${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapView.h
+${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.h
 )
@@ -247,7 +250,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimContourMapViewCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapProjection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapView.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.cpp
 )

@@ -34,6 +34,8 @@
 class RimGeoMechView;
 class RigGeoMechCaseData;
 class RifGeoMechReaderInterface;
+class RimGeoMechContourMapView;
+class RimGeoMechContourMapViewCollection;
 
 //==================================================================================================
 ///  
@@ -59,6 +61,8 @@ public:
 
     RigGeoMechCaseData*                     geoMechData();
     const RigGeoMechCaseData*               geoMechData() const;
+
+    RimGeoMechContourMapViewCollection*     contourMapCollection();
 
     void                                    reloadDataAndUpdate();
 
@@ -115,5 +119,8 @@ private:
     caf::PdmField<std::vector<int> >          m_elementPropertyFileNameIndexUiSelection;
     caf::PdmField<bool>                       m_closeElementPropertyFileCommand;
     caf::PdmField<bool>                       m_reloadElementPropertyFileCommand;
+    
+    caf::PdmChildField<RimGeoMechContourMapViewCollection*> m_contourMapCollection;
+
     bool                                      m_applyTimeFilter;
 };

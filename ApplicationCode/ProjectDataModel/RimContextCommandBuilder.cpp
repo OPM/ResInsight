@@ -33,7 +33,7 @@
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimContourMapViewCollection.h"
+#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -53,6 +53,7 @@
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
+#include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
@@ -153,6 +154,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
 
             menuBuilder << "RicNewViewFeature";
+            menuBuilder << "RicNewContourMapViewFeature";
+
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
         }
@@ -166,7 +169,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
         }
-        else if (dynamic_cast<RimContourMapViewCollection*>(uiItem))
+        else if (dynamic_cast<RimEclipseContourMapViewCollection*>(uiItem))
+        {
+            menuBuilder << "RicNewContourMapViewFeature";
+        }
+        else if (dynamic_cast<RimGeoMechContourMapViewCollection*>(uiItem))
         {
             menuBuilder << "RicNewContourMapViewFeature";
         }
@@ -206,6 +213,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteGeoMechViewsFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewViewFeature";
+            menuBuilder << "RicNewContourMapViewFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicImportElementPropertyFeature";
             menuBuilder << "Separator";

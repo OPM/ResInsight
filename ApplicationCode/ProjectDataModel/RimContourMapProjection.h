@@ -26,6 +26,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "cvfArray.h"
 #include "cvfBoundingBox.h"
 #include "cvfGeometryBuilderFaceList.h"
 #include "cvfString.h"
@@ -116,13 +117,19 @@ public:
 
 protected:
     // Protected virtual methods to be overridden by Eclipse and Geo-mechanical contour map implementations
-    virtual void          updateGridInformation()              = 0;
-    virtual void          generateGridMapping()                = 0;
-    virtual void          generateResults(int timeStep)        = 0;
-    virtual bool          gridMappingImplNeedsUpdating() const = 0;
-    virtual bool          resultsImplNeedsUpdating() const     = 0;
-    virtual void          clearImplSpecificResultData()        = 0;
-    virtual RimGridView*  baseView() const                     = 0;
+    virtual void                updateGridInformation()              = 0;
+    virtual std::vector<double> retrieveParameterWeights()           = 0;
+    virtual void                generateResults(int timeStep)        = 0;
+    virtual bool                resultVariableChanged() const        = 0;
+    virtual void                clearResultVariable()                = 0;
+    virtual RimGridView*        baseView() const                     = 0;
+    virtual std::vector<size_t> findIntersectingCells(const cvf::BoundingBox& bbox) const = 0;
+    virtual double              calculateOverlapVolume(size_t globalCellIdx, const cvf::BoundingBox& bbox, size_t* cellKLayerOut) const = 0;
+    virtual double              calculateRayLengthInCell(size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint, size_t* cellKLayerOut) const = 0;
+    virtual double              getParameterWeightForCell(size_t globalCellIdx, const std::vector<double>& parameterWeights) const = 0;
+    virtual double              gridCellValue(size_t globalCellIdx) const = 0;
+    
+    virtual double calculateValueInMapCell(uint i, uint j) const;
 
 protected:
     // Keep track of whether cached data needs updating
@@ -132,11 +139,19 @@ protected:
     void clearGridMapping();
     void clearResults();
 
+    virtual cvf::ref<cvf::UByteArray> getCellVisibility() const;
+    void                    generateGridMapping();
+    void                    generateVertexResults();
     void                    generateTrianglesWithVertexValues();
     std::vector<cvf::Vec3d> generateVertices() const;
     void                    generateContourPolygons();
     void                    smoothContourPolygons(ContourPolygons* contourPolygons, const ContourPolygons* clipBy, bool favourExpansion);
-    
+
+    std::vector<CellIndexAndResult> cellOverlapVolumesAndResults(const cvf::Vec2d&          globalPos2d,
+                                                                 const std::vector<double>& weightingResultValues) const;
+    std::vector<CellIndexAndResult> cellRayIntersectionAndResults(const cvf::Vec2d&          globalPos2d,
+                                                                  const std::vector<double>& weightingResultValues) const;
+
     bool        isMeanResult() const;
     bool        isSummationResult() const;
     bool        isStraightSummationResult() const;
@@ -182,6 +197,7 @@ protected:
     caf::PdmField<bool>                             m_showContourLabels;
     caf::PdmField<bool>                             m_smoothContourLines;
 
+    cvf::ref<cvf::UByteArray>                           m_cellGridIdxVisibility;
     std::vector<double>                                 m_aggregatedResults;
     std::vector<double>                                 m_aggregatedVertexResults;
     std::vector<std::vector<std::pair<size_t, double>>> m_projected3dGridIndices;

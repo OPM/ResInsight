@@ -1499,6 +1499,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
     RigFemScalarResultFrames* compactionFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
     const RigFemPart* part = m_femParts->part(partIndex);
+    part->ensureIntersectionSearchTreeIsBuilt();
+
     for (int t = 0; t < u3Frames->frameCount(); t++)
     {
         std::vector<float>& compactionFrame = compactionFrames->frameData(t);

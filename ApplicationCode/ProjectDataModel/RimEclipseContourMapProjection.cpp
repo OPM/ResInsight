@@ -179,96 +179,6 @@ void RimEclipseContourMapProjection::updatedWeightingResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{
-    RimContourMapProjection::defineUiOrdering(uiConfigName, uiOrdering);
-
-    caf::PdmUiGroup* weightingGroup = uiOrdering.addNewGroup("Mean Weighting Options");
-    weightingGroup->add(&m_weightByParameter);
-    weightingGroup->setCollapsedByDefault(true);
-
-    m_weightByParameter.uiCapability()->setUiReadOnly(!isMeanResult());
-    if (!isMeanResult())
-    {
-        m_weightByParameter = false;
-    }
-
-    if (m_weightByParameter())
-    {
-        m_weightingResult->uiOrdering(uiConfigName, *weightingGroup);
-    }
-
-    uiOrdering.skipRemainingFields(true);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapProjection::initAfterRead()
-{
-    RimContourMapProjection::initAfterRead();
-    if (eclipseCase())
-    {
-        m_weightingResult->setEclipseCase(eclipseCase());
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapProjection::generateGridMapping()
-{
-    clearResults();
-
-    m_cellGridIdxVisibility = view()->currentTotalCellVisibility();
-
-    int nCells = numberOfCells();
-    m_projected3dGridIndices.resize(nCells);
-
-    const std::vector<double>* weightingResultValues = nullptr;
-    if (m_weightByParameter())
-    {
-        size_t gridScalarResultIdx = m_weightingResult->scalarResultIndex();
-        if (gridScalarResultIdx != cvf::UNDEFINED_SIZE_T)
-        {
-            m_weightingResult->loadResult();
-            int timeStep = 0;
-            if (m_weightingResult->hasDynamicResult())
-            {
-                timeStep = view()->currentTimeStep();
-            }
-            weightingResultValues =
-                &(m_weightingResult->currentGridCellResults()->cellScalarResults(gridScalarResultIdx)[timeStep]);
-        }
-    }
-
-    if (isStraightSummationResult())
-    {
-#pragma omp parallel for
-        for (int index = 0; index < nCells; ++index)
-        {
-            cvf::Vec2ui ij = ijFromCellIndex(index);
-
-            cvf::Vec2d globalPos = cellCenterPosition(ij.x(), ij.y()) + origin2d();
-            m_projected3dGridIndices[index] = visibleCellsAndLengthInCellFrom2dPoint(globalPos, weightingResultValues);
-        }
-    }
-    else
-    {
-#pragma omp parallel for
-        for (int index = 0; index < nCells; ++index)
-        {
-            cvf::Vec2ui ij = ijFromCellIndex(index);
-
-            cvf::Vec2d globalPos = cellCenterPosition(ij.x(), ij.y()) + origin2d();
-            m_projected3dGridIndices[index] = visibleCellsAndOverlapVolumeFrom2dPoint(globalPos, weightingResultValues);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapProjection::generateResults(int timeStep)
 {
     clearGeometry();
@@ -276,12 +186,10 @@ void RimEclipseContourMapProjection::generateResults(int timeStep)
     m_weightingResult->loadResult();
 
     size_t nCells    = numberOfCells();
-    size_t nVertices = numberOfVertices();
 
     m_aggregatedResults              = std::vector<double>(nCells, std::numeric_limits<double>::infinity());
-    m_aggregatedVertexResults        = std::vector<double>(nVertices, std::numeric_limits<double>::infinity());
-    RimEclipseCellColors* cellColors = view()->cellResult();
 
+    RimEclipseCellColors* cellColors = view()->cellResult();
     RimEclipseResultCase* eclipseCase = this->eclipseCase();
     {
         if (!cellColors->isTernarySaturationSelected())
@@ -319,14 +227,7 @@ void RimEclipseContourMapProjection::generateResults(int timeStep)
             for (int index = 0; index < static_cast<int>(nCells); ++index)
             {
                 cvf::Vec2ui ij             = ijFromCellIndex(index);
-                m_aggregatedResults[index] = calculateValueInCell(ij.x(), ij.y());
-            }
-
-#pragma omp parallel for
-            for (int index = 0; index < static_cast<int>(nVertices); ++index)
-            {
-                cvf::Vec2ui ij                   = ijFromVertexIndex(index);
-                m_aggregatedVertexResults[index] = calculateValueAtVertex(ij.x(), ij.y());
+                m_aggregatedResults[index] = calculateValueInMapCell(ij.x(), ij.y());
             }
         }
     }
@@ -336,25 +237,7 @@ void RimEclipseContourMapProjection::generateResults(int timeStep)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseContourMapProjection::gridMappingImplNeedsUpdating() const
-{
-    if (m_cellGridIdxVisibility.isNull())
-    {
-        return true;
-    }
-    cvf::ref<cvf::UByteArray> currentVisibility = view()->currentTotalCellVisibility();
-    CVF_ASSERT(currentVisibility->size() == m_cellGridIdxVisibility->size());
-    for (size_t i = 0; i < currentVisibility->size(); ++i)
-    {
-        if ((*currentVisibility)[i] != (*m_cellGridIdxVisibility)[i]) return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimEclipseContourMapProjection::resultsImplNeedsUpdating() const
+bool RimEclipseContourMapProjection::resultVariableChanged() const
 {   
     if (!m_currentResultName.isEmpty())
     {
@@ -370,7 +253,7 @@ bool RimEclipseContourMapProjection::resultsImplNeedsUpdating() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapProjection::clearImplSpecificResultData()
+void RimEclipseContourMapProjection::clearResultVariable()
 {
     m_currentResultName = "";
 }
@@ -378,130 +261,41 @@ void RimEclipseContourMapProjection::clearImplSpecificResultData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimEclipseContourMapProjection::calculateValueInCell(uint i, uint j) const
+double RimEclipseContourMapProjection::calculateValueInMapCell(uint i, uint j) const
 {
-    if (!isColumnResult())        
+    if (isColumnResult())
+    {
+        const std::vector<std::pair<size_t, double>>& matchingCells = cellsAtIJ(i, j);
+        if (!matchingCells.empty())
+        {
+            switch (m_resultAggregation())
+            {
+                case RESULTS_OIL_COLUMN:
+                case RESULTS_GAS_COLUMN:
+                case RESULTS_HC_COLUMN:
+                {
+                    double sum = 0.0;
+                    for (auto cellIdxAndWeight : matchingCells)
+                    {
+                        size_t cellIdx = cellIdxAndWeight.first;
+                        double cellValue = calculateColumnResult(m_resultAggregation(), cellIdx);
+                        sum += cellValue * cellIdxAndWeight.second;
+                    }
+                    return sum;
+                }
+                default:
+                    CVF_TIGHT_ASSERT(false);
+            }
+        }
+    }
+    else
     {
         if (!view()->cellResult()->isFlowDiagOrInjectionFlooding() &&
             view()->cellResult()->scalarResultIndex() == cvf::UNDEFINED_SIZE_T)
         {
             return 0.0; // Special case of NONE-result. Show 0 all over to ensure we see something.
         }
-    }
-    const std::vector<std::pair<size_t, double>>& matchingCells = cellsAtIJ(i, j);
-    if (!matchingCells.empty())
-    {
-        switch (m_resultAggregation())
-        {
-            case RESULTS_TOP_VALUE:
-            {
-                size_t cellIdx   = matchingCells.front().first;
-                double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
-                return cellValue;
-            }
-            case RESULTS_MEAN_VALUE:
-            {
-                RiaWeightedMeanCalculator<double> calculator;
-                for (auto cellIdxAndWeight : matchingCells)
-                {
-                    size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
-                    calculator.addValueAndWeight(cellValue, cellIdxAndWeight.second);
-                }
-                if (calculator.validAggregatedWeight())
-                {
-                    return calculator.weightedMean();
-                }
-                return std::numeric_limits<double>::infinity();
-            }
-            case RESULTS_GEOM_VALUE:
-            {
-                RiaWeightedGeometricMeanCalculator calculator;
-                for (auto cellIdxAndWeight : matchingCells)
-                {
-                    size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
-                    if (cellValue < 1.0e-8)
-                    {
-                        return 0.0;
-                    }
-                    calculator.addValueAndWeight(cellValue, cellIdxAndWeight.second);
-                }
-                if (calculator.validAggregatedWeight())
-                {
-                    return calculator.weightedMean();
-                }
-                return std::numeric_limits<double>::infinity();
-            }
-            case RESULTS_HARM_VALUE:
-            {
-                RiaWeightedHarmonicMeanCalculator calculator;
-                for (auto cellIdxAndWeight : matchingCells)
-                {
-                    size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
-                    if (std::fabs(cellValue) < 1.0e-8)
-                    {
-                        return 0.0;
-                    }
-                    calculator.addValueAndWeight(cellValue, cellIdxAndWeight.second);
-                }
-                if (calculator.validAggregatedWeight())
-                {
-                    return calculator.weightedMean();
-                }
-                return std::numeric_limits<double>::infinity();
-            }
-            case RESULTS_MAX_VALUE:
-            {
-                double maxValue = -std::numeric_limits<double>::infinity();
-                for (auto cellIdxAndWeight : matchingCells)
-                {
-                    size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
-                    maxValue         = std::max(maxValue, cellValue);
-                }
-                return maxValue;
-            }
-            case RESULTS_MIN_VALUE:
-            {
-                double minValue = std::numeric_limits<double>::infinity();
-                for (auto cellIdxAndWeight : matchingCells)
-                {
-                    size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
-                    minValue         = std::min(minValue, cellValue);
-                }
-                return minValue;
-            }
-            case RESULTS_VOLUME_SUM:
-            case RESULTS_SUM:
-            {
-                double sum = 0.0;
-                for (auto cellIdxAndWeight : matchingCells)
-                {
-                    size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
-                    sum += cellValue * cellIdxAndWeight.second;
-                }
-                return sum;
-            }
-            case RESULTS_OIL_COLUMN:
-            case RESULTS_GAS_COLUMN:
-            case RESULTS_HC_COLUMN:
-            {
-                double sum = 0.0;
-                for (auto cellIdxAndWeight : matchingCells)
-                {
-                    size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = calculateColumnResult(m_resultAggregation(), cellIdx);
-                    sum += cellValue * cellIdxAndWeight.second;
-                }
-                return sum;
-            }
-            default:
-                CVF_TIGHT_ASSERT(false);
-        }
+        return RimContourMapProjection::calculateValueInMapCell(i, j);
     }
     return std::numeric_limits<double>::infinity();
 }
@@ -565,162 +359,6 @@ double RimEclipseContourMapProjection::calculateColumnResult(ResultAggregation r
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<size_t, double>>
-    RimEclipseContourMapProjection::visibleCellsAndOverlapVolumeFrom2dPoint(const cvf::Vec2d&          globalPos2d,
-                                                                     const std::vector<double>* weightingResultValues) const
-{
-    cvf::Vec3d top2dElementCentroid(globalPos2d, m_expandedBoundingBox.max().z());
-    cvf::Vec3d bottom2dElementCentroid(globalPos2d, m_expandedBoundingBox.min().z());
-    cvf::Vec3d planarDiagonalVector(0.5 * m_sampleSpacing, 0.5 * m_sampleSpacing, 0.0);
-    cvf::Vec3d topNECorner    = top2dElementCentroid + planarDiagonalVector;
-    cvf::Vec3d bottomSWCorner = bottom2dElementCentroid - planarDiagonalVector;
-
-    cvf::BoundingBox bbox2dElement(bottomSWCorner, topNECorner);
-
-    std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
-
-    // Bounding box has been expanded, so 2d element may be outside actual 3d grid
-    if (!bbox2dElement.intersects(m_gridBoundingBox))
-    {
-        return matchingVisibleCellsAndWeight;
-    }
-
-    std::vector<size_t> allCellIndices;
-    m_mainGrid->findIntersectingCells(bbox2dElement, &allCellIndices);
-
-    typedef std::map<size_t, std::vector<std::pair<size_t, double>>> KLayerCellWeightMap;
-    KLayerCellWeightMap                                              matchingVisibleCellsWeightPerKLayer;
-
-    std::array<cvf::Vec3d, 8> hexCorners;
-    for (size_t globalCellIdx : allCellIndices)
-    {
-        if ((*m_cellGridIdxVisibility)[globalCellIdx])
-        {
-            RigCell cell = m_mainGrid->globalCellArray()[globalCellIdx];
-
-            size_t mainGridCellIdx = cell.mainGridCellIndex();
-            size_t i, j, k;
-            m_mainGrid->ijkFromCellIndex(mainGridCellIdx, &i, &j, &k);
-
-            size_t       localCellIdx = cell.gridLocalCellIndex();
-            RigGridBase* localGrid    = cell.hostGrid();
-
-            localGrid->cellCornerVertices(localCellIdx, hexCorners.data());
-
-            cvf::BoundingBox          overlapBBox;
-            std::array<cvf::Vec3d, 8> overlapCorners =
-                RigCellGeometryTools::estimateHexOverlapWithBoundingBox(hexCorners, bbox2dElement, &overlapBBox);
-
-            double overlapVolume = RigCellGeometryTools::calculateCellVolume(overlapCorners);
-
-            if (overlapVolume > 0.0)
-            {
-                double weight = overlapVolume;
-                if (weightingResultValues)
-                {
-                    const RigActiveCellInfo* activeCellInfo =
-                        eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
-                    size_t cellResultIdx = activeCellInfo->cellResultIndex(globalCellIdx);
-                    double result        = std::max((*weightingResultValues)[cellResultIdx], 0.0);
-                    if (result < 1.0e-6)
-                    {
-                        result = 0.0;
-                    }
-                    weight *= result;
-                }
-                if (weight > 0.0)
-                {
-                    matchingVisibleCellsWeightPerKLayer[k].push_back(std::make_pair(globalCellIdx, weight));
-                }
-            }
-        }
-    }
-
-    for (auto kLayerCellWeight : matchingVisibleCellsWeightPerKLayer)
-    {
-        for (auto cellWeight : kLayerCellWeight.second)
-        {
-            matchingVisibleCellsAndWeight.push_back(std::make_pair(cellWeight.first, cellWeight.second));
-        }
-    }
-
-    return matchingVisibleCellsAndWeight;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::pair<size_t, double>> RimEclipseContourMapProjection::visibleCellsAndLengthInCellFrom2dPoint(
-    const cvf::Vec2d&          globalPos2d,
-    const std::vector<double>* weightingResultValues /*= nullptr*/) const
-{
-    std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
-
-    cvf::Vec3d highestPoint(globalPos2d, m_expandedBoundingBox.max().z());
-    cvf::Vec3d lowestPoint(globalPos2d, m_expandedBoundingBox.min().z());
-
-    // Bounding box has been expanded, so ray may be outside actual grid
-    if (!m_gridBoundingBox.contains(highestPoint))
-    {
-        return matchingVisibleCellsAndWeight;
-    }
-
-    cvf::BoundingBox rayBBox;
-    rayBBox.add(highestPoint);
-    rayBBox.add(lowestPoint);
-
-    std::vector<size_t> allCellIndices;
-    m_mainGrid->findIntersectingCells(rayBBox, &allCellIndices);
-
-    std::map<size_t, std::vector<std::pair<size_t, double>>> matchingVisibleCellsAndWeightPerKLayer;
-
-    cvf::Vec3d hexCorners[8];
-    for (size_t globalCellIdx : allCellIndices)
-    {
-        if ((*m_cellGridIdxVisibility)[globalCellIdx])
-        {
-            RigCell cell = m_mainGrid->globalCellArray()[globalCellIdx];
-
-            size_t mainGridCellIdx = cell.mainGridCellIndex();
-            size_t i, j, k;
-            m_mainGrid->ijkFromCellIndex(mainGridCellIdx, &i, &j, &k);
-
-            size_t       localCellIdx = cell.gridLocalCellIndex();
-            RigGridBase* localGrid    = cell.hostGrid();
-
-            localGrid->cellCornerVertices(localCellIdx, hexCorners);
-            std::vector<HexIntersectionInfo> intersections;
-
-            if (RigHexIntersectionTools::lineHexCellIntersection(highestPoint, lowestPoint, hexCorners, 0, &intersections))
-            {
-                double lengthInCell =
-                    (intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint).length();
-                matchingVisibleCellsAndWeightPerKLayer[k].push_back(std::make_pair(globalCellIdx, lengthInCell));
-            }
-        }
-    }
-
-    for (auto kLayerCellWeight : matchingVisibleCellsAndWeightPerKLayer)
-    {
-        // Make sure the sum of all weights in the same K-layer is 1.
-        double weightSumThisKLayer = 0.0;
-        for (auto cellWeight : kLayerCellWeight.second)
-        {
-            weightSumThisKLayer += cellWeight.second;
-        }
-
-        for (auto cellWeight : kLayerCellWeight.second)
-        {
-            matchingVisibleCellsAndWeight.push_back(std::make_pair(cellWeight.first, cellWeight.second / weightSumThisKLayer));
-        }
-    }
-
-    return matchingVisibleCellsAndWeight;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapProjection::updateGridInformation()
 {
     m_mainGrid        = eclipseCase()->eclipseCaseData()->mainGrid();
@@ -738,6 +376,29 @@ void RimEclipseContourMapProjection::updateGridInformation()
     maxPoint.x() = minPoint.x() + m_mapSize.x() * m_sampleSpacing;
     maxPoint.y() = minPoint.y() + m_mapSize.y() * m_sampleSpacing;
     m_expandedBoundingBox = cvf::BoundingBox(minPoint, maxPoint);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimEclipseContourMapProjection::retrieveParameterWeights()
+{
+    std::vector<double> weights;
+    if (m_weightByParameter())
+    {
+        size_t gridScalarResultIdx = m_weightingResult->scalarResultIndex();
+        if (gridScalarResultIdx != cvf::UNDEFINED_SIZE_T)
+        {
+            m_weightingResult->loadResult();
+            int timeStep = 0;
+            if (m_weightingResult->hasDynamicResult())
+            {
+                timeStep = view()->currentTimeStep();
+            }
+            weights = m_weightingResult->currentGridCellResults()->cellScalarResults(gridScalarResultIdx)[timeStep];
+        }
+    }
+    return weights;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -761,6 +422,105 @@ RimGridView* RimEclipseContourMapProjection::baseView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimEclipseContourMapProjection::findIntersectingCells(const cvf::BoundingBox& bbox) const
+{
+    std::vector<size_t> allCellIndices;
+    m_mainGrid->findIntersectingCells(bbox, &allCellIndices);
+    return allCellIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimEclipseContourMapProjection::calculateOverlapVolume(size_t globalCellIdx, const cvf::BoundingBox& bbox, size_t* cellKLayerOut) const
+{
+    CVF_ASSERT(cellKLayerOut != nullptr);
+
+    std::array<cvf::Vec3d, 8> hexCorners;
+
+    RigCell cell = m_mainGrid->globalCellArray()[globalCellIdx];
+
+    size_t mainGridCellIdx = cell.mainGridCellIndex();
+    size_t i, j, k;
+    m_mainGrid->ijkFromCellIndex(mainGridCellIdx, &i, &j, &k);
+
+    size_t       localCellIdx = cell.gridLocalCellIndex();
+    RigGridBase* localGrid    = cell.hostGrid();
+
+    localGrid->cellCornerVertices(localCellIdx, hexCorners.data());
+
+    cvf::BoundingBox          overlapBBox;
+    std::array<cvf::Vec3d, 8> overlapCorners =
+        RigCellGeometryTools::estimateHexOverlapWithBoundingBox(hexCorners, bbox, &overlapBBox);
+
+    double overlapVolume = RigCellGeometryTools::calculateCellVolume(overlapCorners);
+
+    *cellKLayerOut = k;
+
+    return overlapVolume;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimEclipseContourMapProjection::calculateRayLengthInCell(size_t            globalCellIdx,
+                                                                const cvf::Vec3d& highestPoint,
+                                                                const cvf::Vec3d& lowestPoint,
+                                                                size_t*           cellKLayerOut) const
+{
+    CVF_ASSERT(cellKLayerOut);
+
+    std::array<cvf::Vec3d, 8> hexCorners;
+
+    RigCell cell = m_mainGrid->globalCellArray()[globalCellIdx];
+
+    size_t mainGridCellIdx = cell.mainGridCellIndex();
+    size_t i, j, k;
+    m_mainGrid->ijkFromCellIndex(mainGridCellIdx, &i, &j, &k);
+
+    size_t       localCellIdx = cell.gridLocalCellIndex();
+    RigGridBase* localGrid    = cell.hostGrid();
+
+    localGrid->cellCornerVertices(localCellIdx, hexCorners.data());
+    std::vector<HexIntersectionInfo> intersections;
+
+    if (RigHexIntersectionTools::lineHexCellIntersection(highestPoint, lowestPoint, hexCorners.data(), 0, &intersections))
+    {
+        double lengthInCell = (intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint).length();
+        *cellKLayerOut = k;
+        return lengthInCell;
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimEclipseContourMapProjection::getParameterWeightForCell(size_t globalCellIdx, const std::vector<double>& cellWeights) const
+{
+    if (cellWeights.empty()) return 1.0;
+
+    const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    size_t                   cellResultIdx  = activeCellInfo->cellResultIndex(globalCellIdx);
+    double                   result         = std::max(cellWeights[cellResultIdx], 0.0);
+    if (result < 1.0e-6)
+    {
+        result = 0.0;
+    }
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimEclipseContourMapProjection::gridCellValue(size_t globalCellIdx) const
+{
+    return m_resultAccessor->cellScalarGlobIdx(globalCellIdx);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEclipseContourMapView* RimEclipseContourMapProjection::view() const
 {
     RimEclipseContourMapView* view = nullptr;
@@ -779,5 +539,42 @@ void RimEclipseContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle*
     if (changedField == &m_weightByParameter || changedField == &m_weightingResult)
     {
         clearGridMapping();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimContourMapProjection::defineUiOrdering(uiConfigName, uiOrdering);
+
+    caf::PdmUiGroup* weightingGroup = uiOrdering.addNewGroup("Mean Weighting Options");
+    weightingGroup->add(&m_weightByParameter);
+    weightingGroup->setCollapsedByDefault(true);
+
+    m_weightByParameter.uiCapability()->setUiReadOnly(!isMeanResult());
+    if (!isMeanResult())
+    {
+        m_weightByParameter = false;
+    }
+
+    if (m_weightByParameter())
+    {
+        m_weightingResult->uiOrdering(uiConfigName, *weightingGroup);
+    }
+
+    uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapProjection::initAfterRead()
+{
+    RimContourMapProjection::initAfterRead();
+    if (eclipseCase())
+    {
+        m_weightingResult->setEclipseCase(eclipseCase());
     }
 }

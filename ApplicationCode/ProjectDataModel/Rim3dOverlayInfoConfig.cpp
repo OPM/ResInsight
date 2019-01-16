@@ -37,7 +37,9 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 
+#include "RimGeoMechContourMapView.h"
 #include "RimEclipseContourMapView.h"
+#include "RimGeoMechContourMapProjection.h"
 #include "RimEclipseContourMapProjection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
@@ -176,9 +178,11 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData()
 {
     auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     auto geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
-    auto contourMap = dynamic_cast<RimEclipseContourMapView*>(eclipseView);
+    auto eclipseContourMap = dynamic_cast<RimEclipseContourMapView*>(eclipseView);
+    auto geoMechContourMap = dynamic_cast<RimGeoMechContourMapView*>(geoMechView);
     
-    if (contourMap) return histogramData(contourMap);
+    if (eclipseContourMap) return histogramData(eclipseContourMap);
+    else if (geoMechContourMap) return histogramData(geoMechContourMap);
     else if (eclipseView) return histogramData(eclipseView);
     else if (geoMechView) return histogramData(geoMechView);
     return HistogramData();
@@ -292,6 +296,28 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimE
             histData.max = contourMap->contourMapProjection()->maxValue();
             histData.mean = contourMap->contourMapProjection()->meanValue();
             histData.sum = contourMap->contourMapProjection()->sumAllValues();
+        }
+    }
+    return histData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimGeoMechContourMapView* contourMap)
+{
+    HistogramData histData;
+
+    if (contourMap)
+    {
+        bool isResultsInfoRelevant = contourMap->contourMapProjection()->numberOfValidCells() > 0u;
+
+        if (isResultsInfoRelevant)
+        {
+            histData.min  = contourMap->contourMapProjection()->minValue();
+            histData.max  = contourMap->contourMapProjection()->maxValue();
+            histData.mean = contourMap->contourMapProjection()->meanValue();
+            histData.sum  = contourMap->contourMapProjection()->sumAllValues();
         }
     }
     return histData;
@@ -553,19 +579,39 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimGeoMechView* geoMechView)
 
     if (geoMechView)
     {
-        RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
-        RigGeoMechCaseData* caseData = geoMechCase ? geoMechCase->geoMechData() : nullptr;
+        RimGeoMechCase*       geoMechCase = geoMechView->geoMechCase();
+        RigGeoMechCaseData*   caseData = geoMechCase ? geoMechCase->geoMechData() : nullptr;
         RigFemPartCollection* femParts = caseData ? caseData->femParts() : nullptr;
 
         if (femParts)
         {
             QString caseName = geoMechCase->caseUserDescription();
-            QString cellCount = QString("%1").arg(femParts->totalElementCount());
-            QString zScale = QString::number(geoMechView->scaleZ());
+            RimGeoMechContourMapView* contourMap = dynamic_cast<RimGeoMechContourMapView*>(geoMechView);
 
-            infoText = QString(
-                "<p><b>-- %1 --</b><p>"
-                "<b>Cell count:</b> %2 <b>Z-Scale:</b> %3<br>").arg(caseName, cellCount, zScale);
+            if (contourMap && contourMap->contourMapProjection())
+            {
+                QString   totCellCount = QString::number(contourMap->contourMapProjection()->numberOfCells());
+                cvf::uint validCellCount = contourMap->contourMapProjection()->numberOfValidCells();
+                QString   activeCellCountText = QString::number(validCellCount);
+                QString   iSize = QString::number(contourMap->contourMapProjection()->numberOfElementsIJ().x());
+                QString   jSize = QString::number(contourMap->contourMapProjection()->numberOfElementsIJ().y());
+                QString   aggregationType = contourMap->contourMapProjection()->resultAggregationText();
+
+                infoText += QString("<p><b>-- Contour Map: %1 --</b><p>  "
+                    "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>"
+                    "<b>Projection Type:</b> %4<br>")
+                    .arg(caseName, totCellCount, activeCellCountText, aggregationType);
+            }
+            else
+            {
+
+                QString cellCount = QString("%1").arg(femParts->totalElementCount());
+                QString zScale = QString::number(geoMechView->scaleZ());
+
+                infoText = QString(
+                    "<p><b>-- %1 --</b><p>"
+                    "<b>Cell count:</b> %2 <b>Z-Scale:</b> %3<br>").arg(caseName, cellCount, zScale);
+            }
         }
     }
     return infoText;

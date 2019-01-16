@@ -30,6 +30,7 @@
 #include <cmath>
 #include <memory>
 
+class RimGeoMechContourMapView;
 class RimEclipseContourMapView;
 class RimEclipseView;
 class RimGeoMechView;
@@ -114,6 +115,7 @@ private:
     QString                                     timeStepText(RimEclipseView* eclipseView);
     QString                                     timeStepText(RimGeoMechView* geoMechView);
     HistogramData                               histogramData(RimEclipseContourMapView* contourMap);
+    HistogramData                               histogramData(RimGeoMechContourMapView* contourMap);
     HistogramData                               histogramData(RimEclipseView* eclipseView);
     HistogramData                               histogramData(RimGeoMechView* geoMechView);
     QString                                     caseInfoText(RimEclipseView* eclipseView);

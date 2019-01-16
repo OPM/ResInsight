@@ -36,7 +36,7 @@
 #include "RigVirtualPerforationTransmissibilities.h"
 
 #include "RimEclipseContourMapView.h"
-#include "RimContourMapViewCollection.h"
+#include "RimEclipseContourMapViewCollection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
@@ -102,7 +102,7 @@ RimEclipseCase::RimEclipseCase()
     m_filesContainingFaultsSemColSeparated.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "");
-    m_contourMapCollection = new RimContourMapViewCollection;
+    m_contourMapCollection = new RimEclipseContourMapViewCollection;
     m_contourMapCollection.uiCapability()->setUiTreeHidden(true);
 
     // Obsolete fields
@@ -517,10 +517,12 @@ void RimEclipseCase::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     {
         uiTreeOrdering.add(&m_2dIntersectionViewCollection);
     }
+
     if (!m_contourMapCollection->views().empty())
     {
         uiTreeOrdering.add(&m_contourMapCollection);
     }
+
     uiTreeOrdering.skipRemainingChildren(true);
 }
 
@@ -572,7 +574,7 @@ RimCaseCollection* RimEclipseCase::parentCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapViewCollection* RimEclipseCase::contourMapCollection()
+RimEclipseContourMapViewCollection* RimEclipseCase::contourMapCollection()
 {
     return m_contourMapCollection;
 }

@@ -1,39 +1,34 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
-#include "RimEclipseContourMapView.h"
-
+#include "RimGeoMechContourMapView.h"
 #include "RivContourMapProjectionPartMgr.h"
 #include "RiuViewer.h"
 
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimViewNameConfig.h"
-#include "RimEclipseContourMapProjection.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseFaultColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimFaultInViewCollection.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechContourMapProjection.h"
+#include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
-#include "RimSimWellInViewCollection.h"
 #include "RimScaleLegendConfig.h"
+#include "RimSimWellInViewCollection.h"
+#include "RimViewNameConfig.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfCamera.h"
@@ -41,26 +36,28 @@
 #include "cvfPart.h"
 #include "cvfScene.h"
 
-CAF_PDM_SOURCE_INIT(RimEclipseContourMapView, "RimContourMapView");
+CAF_PDM_SOURCE_INIT(RimGeoMechContourMapView, "RimGeoMechContourMapView");
 
 const cvf::Mat4d defaultViewMatrix(1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, 1000,
     0, 0, 0, 1);
 
-RimEclipseContourMapView::RimEclipseContourMapView()
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGeoMechContourMapView::RimGeoMechContourMapView()
     : m_cameraPositionLastUpdate(cvf::Vec3d::UNDEFINED)
 {
-    CAF_PDM_InitObject("Contour Map View", ":/2DMap16x16.png", "", "");
+    CAF_PDM_InitObject("GeoMech Contour Map View", ":/2DMap16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_contourMapProjection, "ContourMapProjection", "Contour Map Projection", "", "", "");
-    m_contourMapProjection = new RimEclipseContourMapProjection();
+    m_contourMapProjection = new RimGeoMechContourMapProjection();
 
-    CAF_PDM_InitField(&m_showAxisLines,   "ShowAxisLines", true, "Show Axis Lines", "", "", "");
+    CAF_PDM_InitField(&m_showAxisLines, "ShowAxisLines", true, "Show Axis Lines", "", "", "");
     CAF_PDM_InitField(&m_showScaleLegend, "ShowScaleLegend", true, "Show Scale Legend", "", "", "");
 
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
-    setFaultVisParameters();
 
     setDefaultCustomName();
 
@@ -72,7 +69,7 @@ RimEclipseContourMapView::RimEclipseContourMapView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseContourMapProjection* RimEclipseContourMapView::contourMapProjection() const
+RimGeoMechContourMapProjection* RimGeoMechContourMapView::contourMapProjection() const
 {
     return m_contourMapProjection().p();
 }
@@ -80,7 +77,7 @@ RimEclipseContourMapProjection* RimEclipseContourMapView::contourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimEclipseContourMapView::createAutoName() const
+QString RimGeoMechContourMapView::createAutoName() const
 {
     QStringList autoName;
 
@@ -106,7 +103,7 @@ QString RimEclipseContourMapView::createAutoName() const
 
     if (nameConfig()->addProperty() && !contourMapProjection()->isColumnResult())
     {
-        generatedAutoTags.push_back(cellResult()->resultVariable());
+        generatedAutoTags.push_back(cellResult()->resultFieldUiName());
     }
 
     if (nameConfig()->addSampleSpacing())
@@ -124,7 +121,7 @@ QString RimEclipseContourMapView::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::setDefaultCustomName()
+void RimGeoMechContourMapView::setDefaultCustomName()
 {
     nameConfig()->setCustomName("Contour Map");
     nameConfig()->hideCaseNameField(false);
@@ -136,7 +133,7 @@ void RimEclipseContourMapView::setDefaultCustomName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updatePickPointAndRedraw()
+void RimGeoMechContourMapView::updatePickPointAndRedraw()
 {
     appendPickPointVisToModel();
     if (m_viewer)
@@ -148,33 +145,40 @@ void RimEclipseContourMapView::updatePickPointAndRedraw()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updateCurrentTimeStepAndRedraw()
+void RimGeoMechContourMapView::updateCurrentTimeStepAndRedraw()
 {
     m_contourMapProjection->clearGeometry();
-    RimEclipseView::updateCurrentTimeStepAndRedraw();
+    RimGeoMechView::updateCurrentTimeStepAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::initAfterRead()
+bool RimGeoMechContourMapView::isGridVisualizationMode() const
+{
+    return m_contourMapProjection->isChecked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechContourMapView::initAfterRead()
 {
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
     disablePerspectiveProjectionField();
     setShowGridBox(false);
     meshMode.setValue(NO_MESH);
     surfaceMode.setValue(FAULTS);
-    setFaultVisParameters();
     scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::createDisplayModel()
+void RimGeoMechContourMapView::createDisplayModel()
 {
-    RimEclipseView::createDisplayModel();
-    
+    RimGeoMechView::createDisplayModel();
+
     if (!this->isTimeStepDependentDataVisible())
     {
         // Need to add geometry even if it hasn't happened during dynamic time step update.
@@ -190,7 +194,7 @@ void RimEclipseContourMapView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimGeoMechContourMapView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
     viewGroup->add(this->userDescriptionField());
@@ -207,15 +211,12 @@ void RimEclipseContourMapView::defineUiOrdering(QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimGeoMechContourMapView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.add(m_overlayInfoConfig());
     uiTreeOrdering.add(m_contourMapProjection);
     uiTreeOrdering.add(cellResult());
     cellResult()->uiCapability()->setUiReadOnly(m_contourMapProjection->isColumnResult());
-    uiTreeOrdering.add(wellCollection());
-    uiTreeOrdering.add(faultCollection());
-    uiTreeOrdering.add(annotationCollection());
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(nativePropertyFilterCollection());
 
@@ -225,27 +226,21 @@ void RimEclipseContourMapView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updateCurrentTimeStep()
+void RimGeoMechContourMapView::updateCurrentTimeStep()
 {
-    static_cast<RimEclipsePropertyFilterCollection*>(nativePropertyFilterCollection())->updateFromCurrentTimeStep();
     updateGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updateGeometry()
+void RimGeoMechContourMapView::updateGeometry()
 {
-    this->updateVisibleGeometriesAndCellColors();
-
     if (m_contourMapProjection->isChecked())
     {
         m_contourMapProjection->generateResultsIfNecessary(m_currentTimeStep());
-    }
-
-    updateLegends(); // To make sure the scalar mappers are set up correctly
-
-    appendWellsAndFracturesToModel();
+   }
+    updateLegends();
 
     createContourMapGeometry();
     appendContourMapProjectionToModel();
@@ -253,25 +248,13 @@ void RimEclipseContourMapView::updateGeometry()
 
     appendPickPointVisToModel();
 
-    m_overlayInfoConfig()->update3DInfo();
+    m_overlayInfoConfig->update3DInfo();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::setFaultVisParameters()
-{
-    faultCollection()->setShowFaultsOutsideFilter(false);
-    faultCollection()->showOppositeFaultFaces = true;
-    faultCollection()->faultResult            = RimFaultInViewCollection::FAULT_NO_FACE_CULLING;
-    faultResultSettings()->showCustomFaultResult = true;
-    faultResultSettings()->customFaultResult()->setResultVariable("None");
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::createContourMapGeometry()
+void RimGeoMechContourMapView::createContourMapGeometry()
 {
     if (m_viewer && m_contourMapProjection->isChecked())
     {
@@ -282,7 +265,7 @@ void RimEclipseContourMapView::createContourMapGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::appendContourMapProjectionToModel()
+void RimGeoMechContourMapView::appendContourMapProjectionToModel()
 {
     if (m_viewer && m_contourMapProjection->isChecked())
     {
@@ -307,7 +290,7 @@ void RimEclipseContourMapView::appendContourMapProjectionToModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::appendContourLinesToModel()
+void RimGeoMechContourMapView::appendContourLinesToModel()
 {
     if (m_viewer && m_contourMapProjection->isChecked())
     {
@@ -322,7 +305,8 @@ void RimEclipseContourMapView::appendContourLinesToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendContourLinesToModel(viewer()->mainCamera(), contourMapLabelModelBasicList.p(), transForm.p());
+            m_contourMapProjectionPartMgr->appendContourLinesToModel(
+                viewer()->mainCamera(), contourMapLabelModelBasicList.p(), transForm.p());
             contourMapLabelModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel(contourMapLabelModelBasicList.p());
         }
@@ -332,7 +316,7 @@ void RimEclipseContourMapView::appendContourLinesToModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::appendPickPointVisToModel()
+void RimGeoMechContourMapView::appendPickPointVisToModel()
 {
     if (m_viewer && m_contourMapProjection->isChecked())
     {
@@ -357,7 +341,7 @@ void RimEclipseContourMapView::appendPickPointVisToModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updateLegends()
+void RimGeoMechContourMapView::updateLegends()
 {
     if (m_viewer)
     {
@@ -383,7 +367,7 @@ void RimEclipseContourMapView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updateViewWidgetAfterCreation()
+void RimGeoMechContourMapView::updateViewWidgetAfterCreation()
 {
     if (m_viewer)
     {
@@ -398,7 +382,7 @@ void RimEclipseContourMapView::updateViewWidgetAfterCreation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updateViewFollowingRangeFilterUpdates()
+void RimGeoMechContourMapView::updateViewFollowingRangeFilterUpdates()
 {
     m_contourMapProjection->setCheckState(true);
     scheduleCreateDisplayModelAndRedraw();
@@ -407,9 +391,9 @@ void RimEclipseContourMapView::updateViewFollowingRangeFilterUpdates()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::onLoadDataAndUpdate()
+void RimGeoMechContourMapView::onLoadDataAndUpdate()
 {
-    RimEclipseView::onLoadDataAndUpdate();
+    RimGeoMechView::onLoadDataAndUpdate();
     if (m_viewer)
     {
         m_viewer->setView(cvf::Vec3d(0, 0, -1), cvf::Vec3d(0, 1, 0));
@@ -419,9 +403,11 @@ void RimEclipseContourMapView::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimGeoMechContourMapView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                const QVariant&            oldValue,
+                                                const QVariant&            newValue)
 {
-    RimEclipseView::fieldChangedByUi(changedField, oldValue, newValue);
+    RimGeoMechView::fieldChangedByUi(changedField, oldValue, newValue);
 
     if (changedField == &m_showAxisLines)
     {
@@ -442,7 +428,7 @@ void RimEclipseContourMapView::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimEclipseContourMapView::userDescriptionField()
+caf::PdmFieldHandle* RimGeoMechContourMapView::userDescriptionField()
 {
     return nameConfig()->nameField();
 }
@@ -450,21 +436,7 @@ caf::PdmFieldHandle* RimEclipseContourMapView::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RivCellSetEnum> RimEclipseContourMapView::allVisibleFaultGeometryTypes() const
-{
-    std::set<RivCellSetEnum> faultGeoTypes;
-    // Normal eclipse views always shows faults for active and visible eclipse cells.
-    if (faultCollection()->showFaultCollection())
-    {
-        faultGeoTypes = RimEclipseView::allVisibleFaultGeometryTypes();
-    }
-    return faultGeoTypes;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RimEclipseContourMapView::createViewWidget(QWidget* mainWindowParent)
+QWidget* RimGeoMechContourMapView::createViewWidget(QWidget* mainWindowParent)
 {
     auto widget = Rim3dView::createViewWidget(mainWindowParent);
 
@@ -479,7 +451,7 @@ QWidget* RimEclipseContourMapView::createViewWidget(QWidget* mainWindowParent)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::onViewNavigationChanged()
+void RimGeoMechContourMapView::onViewNavigationChanged()
 {
     cvf::Vec3d currentCameraPosition = viewer()->mainCamera()->position();
     if (m_cameraPositionLastUpdate.isUndefined() || zoomChangeAboveTreshold(currentCameraPosition))
@@ -492,9 +464,11 @@ void RimEclipseContourMapView::onViewNavigationChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseContourMapView::zoomChangeAboveTreshold(const cvf::Vec3d& currentCameraPosition) const
+bool RimGeoMechContourMapView::zoomChangeAboveTreshold(const cvf::Vec3d& currentCameraPosition) const
 {
-    double distance = std::max(std::fabs(m_cameraPositionLastUpdate.z()), std::fabs(currentCameraPosition.z()));
+    double       distance  = std::max(std::fabs(m_cameraPositionLastUpdate.z()), std::fabs(currentCameraPosition.z()));
     const double threshold = 0.05 * distance;
     return std::fabs(m_cameraPositionLastUpdate.z() - currentCameraPosition.z()) > threshold;
 }
+
+

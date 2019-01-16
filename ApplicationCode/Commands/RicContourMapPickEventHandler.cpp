@@ -17,9 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicContourMapPickEventHandler.h"
-#include "RimEclipseContourMapProjection.h"
+#include "RimContourMapProjection.h"
+#include "RimGeoMechContourMapView.h"
 #include "RimEclipseContourMapView.h"
-#include "RimEclipseCellColors.h"
 #include "Rim3dView.h"
 
 #include "RiuMainWindow.h"
@@ -53,12 +53,12 @@ bool RicContourMapPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventO
     const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(firstPickedPart->sourceInfo());
     if (sourceInfo)
     {
-        RimEclipseContourMapProjection* contourMap = dynamic_cast<RimEclipseContourMapProjection*>(sourceInfo->object());
+        RimContourMapProjection* contourMap = dynamic_cast<RimContourMapProjection*>(sourceInfo->object());
         if (contourMap)
         {
             RiuMainWindow::instance()->selectAsCurrentItem(contourMap);
 
-            RimEclipseContourMapView* view = nullptr;
+            RimGridView* view = nullptr;
             contourMap->firstAncestorOrThisOfTypeAsserted(view);
 
             cvf::Vec2d pickedPoint;
@@ -74,7 +74,17 @@ bool RicContourMapPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventO
                 RiuMainWindow::instance()->setResultInfo(curveText);
 
                 contourMap->setPickPoint(pickedPoint);
-                view->updatePickPointAndRedraw();
+
+                RimGeoMechContourMapView* geoMechContourView = dynamic_cast<RimGeoMechContourMapView*>(view);
+                RimEclipseContourMapView* eclipseContourView = dynamic_cast<RimEclipseContourMapView*>(view);
+                if (geoMechContourView)
+                {
+                    geoMechContourView->updatePickPointAndRedraw();
+                }
+                else
+                {
+                    eclipseContourView->updatePickPointAndRedraw();
+                }
                 return true;
             }
             contourMap->setPickPoint(cvf::Vec2d::UNDEFINED);

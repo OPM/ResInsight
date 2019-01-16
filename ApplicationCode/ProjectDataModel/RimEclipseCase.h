@@ -46,7 +46,7 @@ class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
 class RimEclipseContourMapView;
-class RimContourMapViewCollection;
+class RimEclipseContourMapViewCollection;
 class RimEclipseView;
 class RigVirtualPerforationTransmissibilities;
 
@@ -95,7 +95,7 @@ public:
 
 
     RimCaseCollection*                          parentCaseCollection();
-    RimContourMapViewCollection*                 contourMapCollection();
+    RimEclipseContourMapViewCollection*         contourMapCollection();
 
     QStringList                         timeStepStrings() const override;
     QString                             timeStepName(int frameIdx) const override;
@@ -140,7 +140,7 @@ private:
     caf::PdmField<QString>                      m_filesContainingFaultsSemColSeparated;
     caf::PdmField<bool>                         m_releaseResultMemory;
 
-    caf::PdmChildField<RimContourMapViewCollection*> m_contourMapCollection;
+    caf::PdmChildField<RimEclipseContourMapViewCollection*> m_contourMapCollection;
 
     cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
     QString                                     m_timeStepFormatString;
