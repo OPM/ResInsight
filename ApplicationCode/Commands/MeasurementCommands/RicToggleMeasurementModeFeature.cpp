@@ -65,7 +65,7 @@ void RicToggleMeasurementModeFeature::onActionTriggered(bool isChecked)
 void RicToggleMeasurementModeFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Measurement Mode");
-    actionToSetup->setIcon(QIcon(":/Ruler16x16.png"));
+    actionToSetup->setIcon(QIcon(":/Ruler24x24.png"));
     actionToSetup->setCheckable(true);
 
     auto* meas = measurement();
