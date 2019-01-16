@@ -557,12 +557,16 @@ void RiuSummaryCurveDefSelection::fieldChangedByUi(const caf::PdmFieldHandle* ch
     size_t curveCount = allCurveDefinitionsFromSelection().size();
     size_t curveSetCount = allCurveSetDefinitionsFromSelections().size();
 
-    if (m_toggleChangedHandler != nullptr && (curveCount != m_prevCurveCount || curveSetCount != m_prevCurveSetCount))
+    if (m_toggleChangedHandler != nullptr)
     {
-        m_toggleChangedHandler();
+        // Do nothing if the curve count and curve set count is identical
+        if ((curveCount != m_prevCurveCount || curveSetCount != m_prevCurveSetCount))
+        {
+            m_toggleChangedHandler();
 
-        m_prevCurveCount = curveCount;
-        m_prevCurveSetCount = curveSetCount;
+            m_prevCurveCount = curveCount;
+            m_prevCurveSetCount = curveSetCount;
+        }
     }
 }
 
@@ -1204,6 +1208,9 @@ void RiuSummaryCurveDefSelection::resetAllFields()
             a->pdmField()->v().clear();
         }
     }
+
+    m_prevCurveCount = 0;
+    m_prevCurveSetCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
