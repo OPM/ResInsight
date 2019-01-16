@@ -27,7 +27,7 @@ void caf::AppEnum<RiaEclipseFileNameTools::EclipseFileType>::setUp()
 {
     addItem(RiaEclipseFileNameTools::ECLIPSE_DATA, "DATA", "Data Deck");
     addItem(RiaEclipseFileNameTools::ECLIPSE_GRID, "GRID", "Grid");
-    addItem(RiaEclipseFileNameTools::ECLIPSE_EGRID, "EGRIRD", "Grid");
+    addItem(RiaEclipseFileNameTools::ECLIPSE_EGRID, "EGRID", "Grid");
     addItem(RiaEclipseFileNameTools::ECLIPSE_UNRST, "UNRST", "Unified Restart");
     addItem(RiaEclipseFileNameTools::ECLIPSE_SMSPEC, "SMSPEC", "Summary Specification");
     addItem(RiaEclipseFileNameTools::ECLIPSE_UNSMRY, "UNSMR", "Summary Vectors");
@@ -140,7 +140,7 @@ bool RiaEclipseFileNameTools::hasMatchingSuffix(const QString& fileName, Eclipse
 
     QString suffix = fi.completeSuffix();
 
-    if (suffix.compare(caf::AppEnum<EclipseFileType>::text(fileType), Qt::CaseInsensitive))
+    if (suffix.compare(caf::AppEnum<EclipseFileType>::text(fileType), Qt::CaseInsensitive) == 0)
     {
         return true;
     }

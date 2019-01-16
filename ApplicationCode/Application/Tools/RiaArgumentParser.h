@@ -32,5 +32,6 @@ public:
 
 private:
     static void executeCommandFile(const QString& commandFile);
+    static bool openCaseFromCommandLineParameter(const QString& parameter);
 };
 

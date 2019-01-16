@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
+#include "RiaEclipseFileNameTools.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
@@ -36,6 +37,7 @@
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
+#include "RicImportSummaryCasesFeature.h"
 
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
@@ -292,29 +294,9 @@ bool RiaArgumentParser::parseArguments()
     if (cvf::Option o = progOpt.option("case"))
     {
         QStringList caseNames = cvfqt::Utils::toQStringList(o.values());
-        foreach (QString caseName, caseNames)
+        for (const QString& caseName : caseNames)
         {
-            QString fileExtension = caf::Utils::fileExtension(caseName);
-            if (caf::Utils::fileExists(caseName) && (fileExtension == "EGRID" || fileExtension == "GRID"))
-            {
-                RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({caseName}), nullptr, true);
-            }
-            else
-            {
-                QString caseFileNameWithExt = caseName + ".EGRID";
-                if (caf::Utils::fileExists(caseFileNameWithExt))
-                {
-                    RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({caseFileNameWithExt}), nullptr, true);
-                }
-                else
-                {
-                    caseFileNameWithExt = caseName + ".GRID";
-                    if (caf::Utils::fileExists(caseFileNameWithExt))
-                    {
-                        RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({caseFileNameWithExt}), nullptr, true);
-                    }
-                }
-            }
+            openCaseFromCommandLineParameter(caseName);
         }
     }
 
@@ -482,4 +464,65 @@ void RiaArgumentParser::executeCommandFile(const QString& commandFile)
 
     QTextStream in(&file);
     RicfCommandFileExecutor::instance()->executeCommands(in);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaArgumentParser::openCaseFromCommandLineParameter(const QString& parameter)
+{
+    if (RiaEclipseFileNameTools::isProjectFile(parameter))
+    {
+        return RiaApplication::instance()->loadProject(parameter);
+    }
+
+    QStringList gridFileNames;
+    QStringList summarySpecFileNames;
+
+    if (RiaEclipseFileNameTools::isGridFile(parameter))
+    {
+        QFileInfo fi(parameter);
+
+        gridFileNames.push_back(fi.absoluteFilePath());
+    }
+    else if (RiaEclipseFileNameTools::isSummarySpecFile(parameter))
+    {
+        QFileInfo fi(parameter);
+
+        summarySpecFileNames.push_back(fi.absoluteFilePath());
+    }
+    else
+    {
+        RiaEclipseFileNameTools fileNameTools(parameter);
+
+        {
+            QString gridFileName = fileNameTools.findRelatedGridFile();
+            if (!gridFileName.isEmpty())
+            {
+                gridFileNames.push_back(gridFileName);
+            }
+        }
+
+        QString summarySpecFileName = fileNameTools.findRelatedSummarySpecFile();
+        if (!summarySpecFileName.isEmpty())
+        {
+            summarySpecFileNames.push_back(summarySpecFileName);
+        }
+    }
+
+    bool openCaseResult = true;
+
+    // Open summary cases first. Then, the open of grid file will not open an already open summary case file
+    if (!summarySpecFileNames.empty())
+    {
+        openCaseResult &= RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(summarySpecFileNames);
+        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    }
+
+    for (const auto& f : gridFileNames)
+    {
+        openCaseResult &= RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({f}), nullptr, true);
+    }
+
+    return openCaseResult;
 }
