@@ -382,42 +382,68 @@ std::vector<cvf::ref<cvf::Drawable>>
             cvf::String labelText(m_contourLinePolygons[i][j].value);
 
             size_t nVertices = m_contourLinePolygons[i][j].vertices.size();
-            size_t nLabels = m_contourMapProjection->showContourLabels() ? std::max((size_t)1, (size_t) (nVertices / 50u * m_contourMapProjection->sampleSpacingFactor())) : 0u;
+            size_t nLabels = nVertices;
+            double distanceSinceLastLabel = std::numeric_limits<double>::infinity();
             for (size_t l = 0; l < nLabels; ++l)
             {
                 size_t     nVertex = (nVertices * l) / nLabels;
+                size_t     nextVertex = (nVertex + 1) % nVertices;
                 cvf::Vec3d globalVertex1 = m_contourLinePolygons[i][j].vertices[nVertex] + m_contourMapProjection->origin3d();
                 cvf::Vec3d globalVertex2 =
-                    m_contourLinePolygons[i][j].vertices[nVertex + 1 % nVertices] + m_contourMapProjection->origin3d();
+                    m_contourLinePolygons[i][j].vertices[nextVertex] + m_contourMapProjection->origin3d();
                 cvf::Vec3d globalVertex = 0.5 * (globalVertex1 + globalVertex2);
 
-                cvf::Vec3f segment = cvf::Vec3f(globalVertex2 - globalVertex1).getNormalized();
+                cvf::Vec3d segment = globalVertex2 - globalVertex1;
                 cvf::Vec3d displayVertex = displayCoordTransform->transformToDisplayCoord(globalVertex);
                 cvf::Vec3d windowVertex;
                 camera->project(displayVertex, &windowVertex);
+                CVF_ASSERT(!windowVertex.isUndefined());
                 displayVertex.z() += 10.0f;
-                cvf::BoundingBox windowBBox = label->textBoundingBox(labelText, cvf::Vec3f::ZERO, segment);
-                cvf::Vec3d displayBBoxMin, displayBoxMax;
+                cvf::BoundingBox windowBBox = label->textBoundingBox(labelText, cvf::Vec3f::ZERO, cvf::Vec3f(segment.getNormalized()));
+                cvf::Vec3d displayBBoxMin, displayBBoxMax;
                 camera->unproject(windowBBox.min() + windowVertex, &displayBBoxMin);
-                camera->unproject(windowBBox.max() + windowVertex, &displayBoxMax);
-                cvf::BoundingBox displayBBox(displayBBoxMin - cvf::Vec3d::Z_AXIS * 20.0, displayBoxMax + cvf::Vec3d::Z_AXIS * 20.0);
+                camera->unproject(windowBBox.max() + windowVertex, &displayBBoxMax);
+
+                CVF_ASSERT(!displayBBoxMin.isUndefined());
+                CVF_ASSERT(!displayBBoxMax.isUndefined());
+
+                cvf::BoundingBox displayBBox(displayBBoxMin - cvf::Vec3d::Z_AXIS * 20.0, displayBBoxMax + cvf::Vec3d::Z_AXIS * 20.0);
+
+                cvf::Vec3d currentExtent = displayBBoxMax - displayBBoxMin;
 
                 bool overlaps = false;
-                for (auto boxVector : *labelBBoxes)
+                if (distanceSinceLastLabel < currentExtent.length() * 10.0)
+                {                    
+                    overlaps = true;
+                }
+
+                if (!overlaps)
                 {
-                    for (const cvf::BoundingBox& existingBBox : boxVector)
+                    for (auto boxVector : *labelBBoxes)
                     {
-                        if (existingBBox.intersects(displayBBox))
+                        for (const cvf::BoundingBox& existingBBox : boxVector)
                         {
-                            overlaps = true;
-                            break;
+                            double dist = (displayBBox.center() - existingBBox.center()).length();
+                            if (dist < segment.length() || existingBBox.intersects(displayBBox))
+                            {
+                                overlaps = true;
+                                break;
+                            }
                         }
                     }
                 }
+
                 if (!overlaps)
                 {
-                    label->addText(labelText, cvf::Vec3f(displayVertex), segment);
+                    cvf::Vec3f displayVertexV(displayVertex);
+                    CVF_ASSERT(!displayVertex.isUndefined());
+                    label->addText(labelText, displayVertexV, cvf::Vec3f(segment.getNormalized()));
                     labelBBoxes->at(i).push_back(displayBBox);
+                    distanceSinceLastLabel = 0.0;
+                }
+                else
+                {
+                    distanceSinceLastLabel += segment.length();
                 }
             }
         }
