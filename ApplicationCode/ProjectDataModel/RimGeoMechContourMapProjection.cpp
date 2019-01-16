@@ -139,9 +139,9 @@ void RimGeoMechContourMapProjection::ensureOnlyValidPorBarVisible(cvf::UByteArra
     RigFemPartResultsCollection* resultCollection = caseData->femPartResults();
 
     const std::vector<float>& resultValues = resultCollection->resultValues(porBarAddr, 0, timeStep);
-    for (size_t i = 0; i < visibility->size(); ++i)
+    for (int i = 0; i < static_cast<int>(visibility->size()); ++i)
     {
-        int resValueIdx = m_femPart->elementNodeResultIdx(i, 0);
+        size_t resValueIdx = m_femPart->elementNodeResultIdx(i, 0);
         double scalarValue = resultValues[resValueIdx];
         (*visibility)[i] &= scalarValue != std::numeric_limits<double>::infinity();
     }
