@@ -53,10 +53,12 @@
 
 CAF_PDM_SOURCE_INIT(Rim2dIntersectionView, "Intersection2dView"); 
 
-const cvf::Mat4d defaultViewMatrix(1, 0, 0, 0,
-                                               0, 0, 1, 0,
-                                               0, -1, 0, 1000,
-                                               0, 0, 0, 1);
+
+const cvf::Mat4d Rim2dIntersectionView::sm_defaultViewMatrix = cvf::Mat4d(1, 0, 0, 0,
+                                                                          0, 0, 1, 0,
+                                                                          0, -1, 0, 1000,
+                                                                          0, 0, 0, 1);
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -94,7 +96,7 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
 
     hasUserRequestedAnimation = true;
     
-    ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultViewMatrix );
+    ((RiuViewerToViewInterface*)this)->setCameraPosition(sm_defaultViewMatrix );
 
     disableGridBoxField();
     disablePerspectiveProjectionField();
@@ -550,7 +552,7 @@ void Rim2dIntersectionView::createDisplayModel()
         updateCurrentTimeStep();
     }
 
-    if ( this->viewer()->mainCamera()->viewMatrix() == defaultViewMatrix )
+    if ( this->viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
     {
         this->zoomAll();
     }

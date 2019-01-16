@@ -121,4 +121,6 @@ private:
     caf::PdmField<bool>                m_showAxisLines;
 
     caf::PdmPointer<caf::PdmObject>    m_legendObjectToSelect;
+
+    const static cvf::Mat4d            sm_defaultViewMatrix;
 };

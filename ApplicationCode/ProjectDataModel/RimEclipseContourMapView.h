@@ -71,5 +71,7 @@ private:
     caf::PdmField<bool>                          m_showAxisLines;
     caf::PdmField<bool>                          m_showScaleLegend;
     cvf::Vec3d                                   m_cameraPositionLastUpdate;  
+
+    const static cvf::Mat4d                      sm_defaultViewMatrix;
 };
 

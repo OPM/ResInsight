@@ -43,10 +43,11 @@
 
 CAF_PDM_SOURCE_INIT(RimEclipseContourMapView, "RimContourMapView");
 
-const cvf::Mat4d defaultViewMatrix(1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 1000,
-    0, 0, 0, 1);
+const cvf::Mat4d RimEclipseContourMapView::sm_defaultViewMatrix = cvf::Mat4d(1, 0, 0, 0,
+                                                                             0, 1, 0, 0,
+                                                                             0, 0, 1, 1000,
+                                                                             0, 0, 0, 1);
+
 
 RimEclipseContourMapView::RimEclipseContourMapView()
     : m_cameraPositionLastUpdate(cvf::Vec3d::UNDEFINED)
@@ -66,7 +67,7 @@ RimEclipseContourMapView::RimEclipseContourMapView()
 
     m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr(contourMapProjection(), this);
 
-    ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultViewMatrix);
+    ((RiuViewerToViewInterface*)this)->setCameraPosition(sm_defaultViewMatrix);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,7 +182,7 @@ void RimEclipseContourMapView::createDisplayModel()
         updateGeometry();
     }
 
-    if (this->viewer()->mainCamera()->viewMatrix() == defaultViewMatrix)
+    if (this->viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix)
     {
         this->zoomAll();
     }

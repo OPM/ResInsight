@@ -38,10 +38,11 @@
 
 CAF_PDM_SOURCE_INIT(RimGeoMechContourMapView, "RimGeoMechContourMapView");
 
-const cvf::Mat4d defaultViewMatrix(1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 1000,
-    0, 0, 0, 1);
+
+const cvf::Mat4d RimGeoMechContourMapView::sm_defaultViewMatrix = cvf::Mat4d(1, 0, 0, 0,
+                                   0, 1, 0, 0,
+                                   0, 0, 1, 1000,
+                                   0, 0, 0, 1);
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -63,7 +64,7 @@ RimGeoMechContourMapView::RimGeoMechContourMapView()
 
     m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr(contourMapProjection(), this);
 
-    ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultViewMatrix);
+    ((RiuViewerToViewInterface*)this)->setCameraPosition(sm_defaultViewMatrix);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,7 +186,7 @@ void RimGeoMechContourMapView::createDisplayModel()
         updateGeometry();
     }
 
-    if (this->viewer()->mainCamera()->viewMatrix() == defaultViewMatrix)
+    if (this->viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix)
     {
         this->zoomAll();
     }
