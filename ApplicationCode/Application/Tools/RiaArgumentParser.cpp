@@ -123,7 +123,7 @@ bool RiaArgumentParser::parseArguments()
 
     // If positional parameter functionality is to be supported, the test for existence of positionalParameters must be removed
     // This is based on a pull request by @andlaus https://github.com/OPM/ResInsight/pull/162
-    if (!parseOk || progOpt.hasOption("help") || progOpt.hasOption("?") || progOpt.positionalParameters().size() > 0)
+    if (!parseOk || progOpt.hasOption("help") || progOpt.hasOption("?") || !progOpt.positionalParameters().empty())
     {
 #if defined(_MSC_VER) && defined(_WIN32)
         RiaApplication::instance()->showFormattedTextInMessageBox(helpText);
@@ -253,7 +253,7 @@ bool RiaArgumentParser::parseArguments()
                     std::vector<QString> gridFileNames =
                         RiaApplication::readFileListFromTextFile(cvfqt::Utils::toQString(o.safeValue(optionIdx++)));
 
-                    if (groupId != -1 && gridFileNames.size() > 0)
+                    if (groupId != -1 && !gridFileNames.empty())
                     {
                         projectModifier->setReplaceSourceCasesById(groupId, gridFileNames);
                     }
@@ -306,13 +306,13 @@ bool RiaArgumentParser::parseArguments()
         bool snapshotPlots = false;
 
         QStringList snapshotItemTexts = cvfqt::Utils::toQStringList(o.values());
-        if (snapshotItemTexts.size() == 0)
+        if (snapshotItemTexts.empty())
         {
             // No options will keep backwards compatibility before we introduced snapshot of plots
             snapshotViews = true;
         }
 
-        for (QString s : snapshotItemTexts)
+        for (const QString& s : snapshotItemTexts)
         {
             if (s.toLower() == "all")
             {
