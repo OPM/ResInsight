@@ -60,12 +60,14 @@ void RicNewWellPathAttributeFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimWellPathAttribute*> attributes;
     caf::SelectionManager::instance()->objectsByType(&attributes, caf::SelectionManager::FIRST_LEVEL);
+
+    RimWellPathAttribute* attribute = nullptr;
     if (attributes.size() == 1u)
     {
         RimWellPathAttributeCollection* attributeCollection = nullptr;
         attributes[0]->firstAncestorOrThisOfTypeAsserted(attributeCollection);
 
-        RimWellPathAttribute* attribute = new RimWellPathAttribute;
+        attribute = new RimWellPathAttribute;
         RimWellPath* wellPath = nullptr;
         attributeCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
 
@@ -73,26 +75,33 @@ void RicNewWellPathAttributeFeature::onActionTriggered(bool isChecked)
         attributeCollection->insertAttribute(attributes[0], attribute);
 
         attributeCollection->updateAllRequiredEditors();
-        return;
+    }
+    else
+    {
+        RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
+        if (wellPath)
+        {
+            std::vector<RimWellPathAttributeCollection*> attributeCollections;
+            wellPath->descendantsIncludingThisOfType(attributeCollections);
+            if (!attributeCollections.empty())
+            {
+                attribute = new RimWellPathAttribute;
+                attribute->setDepthsFromWellPath(wellPath);
+
+                attributeCollections[0]->insertAttribute(nullptr, attribute);
+                attributeCollections[0]->updateAllRequiredEditors();
+
+                wellPath->updateConnectedEditors();
+                Riu3DMainWindowTools::selectAsCurrentItem(attributeCollections[0]);
+            }
+        }
     }
 
-    RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
-    if (wellPath)
+    if (attribute)
     {
-        std::vector<RimWellPathAttributeCollection*> attributeCollections;
-        wellPath->descendantsIncludingThisOfType(attributeCollections);
-        if (!attributeCollections.empty())
-        {
-            RimWellPathAttribute* attribute = new RimWellPathAttribute;
-            attribute->setDepthsFromWellPath(wellPath);
-
-            attributeCollections[0]->insertAttribute(nullptr, attribute);
-            attributeCollections[0]->updateAllRequiredEditors();
-
-            wellPath->updateConnectedEditors();
-            Riu3DMainWindowTools::selectAsCurrentItem(attributeCollections[0]);
-
-        }
+        RimProject* project = nullptr;
+        attribute->firstAncestorOrThisOfTypeAsserted(project);
+        project->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 
