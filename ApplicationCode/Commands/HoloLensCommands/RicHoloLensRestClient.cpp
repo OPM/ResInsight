@@ -502,9 +502,9 @@ qint64 RicHoloLensRestClient::getCurrentTimeStamp_ms()
     {
         return static_cast<qint64>(ts.tv_sec*1000 + ts.tv_nsec/1000000);
     }
-#endif
-
+#else
     return 0;
+#endif
 }
 
 
