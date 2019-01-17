@@ -710,6 +710,9 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
         }
     }
 
+    const double cellArea = m_sampleSpacing * m_sampleSpacing;
+    const double areaThreshold = 1.0e-5 * 0.5 * cellArea;
+
     std::vector<std::vector<std::vector<cvf::Vec3d>>> subtractPolygons;
     if (!m_contourPolygons.empty())
     {
@@ -722,12 +725,12 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
             }
         }
     }
-    std::vector<std::vector<cvf::Vec4d>> threadTriangles(omp_get_max_threads());
+    std::vector<std::vector<std::vector<cvf::Vec4d>>> threadTriangles(omp_get_max_threads());
 
 #pragma omp parallel
     {
         int myThread = omp_get_thread_num();
-        threadTriangles[myThread].reserve(faceList->size() / omp_get_num_threads());
+        threadTriangles[myThread].resize(std::max((size_t) 1, m_contourPolygons.size()));
 
         std::set<int64_t> excludedFaceIndices;
 
@@ -747,8 +750,8 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
 
             if (m_contourPolygons.empty())
             {
-                threadTriangles[myThread].insert(
-                    threadTriangles[myThread].end(), triangleWithValues.begin(), triangleWithValues.end());
+                threadTriangles[myThread][0].insert(
+                    threadTriangles[myThread][0].end(), triangleWithValues.begin(), triangleWithValues.end());
                 continue;
             }
 
@@ -778,7 +781,7 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
                     excludedFaceIndices.insert(i);
                     continue;
                 }
-
+                
                 std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
 
                 if (!subtractPolygons[c].empty())
@@ -794,6 +797,7 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
                 {
                     clippedPolygons.swap(intersectPolygons);
                 }
+
                 {
                     std::vector<cvf::Vec4d> clippedTriangles;
                     for (std::vector<cvf::Vec3d>& clippedPolygon : clippedPolygons)
@@ -828,6 +832,10 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
                         }
                         for (const std::vector<cvf::Vec3d>& polygonTriangle : polygonTriangles)
                         {
+                            // Check triangle area
+                            double area = 0.5 * ((polygonTriangle[1] - polygonTriangle[0]) ^ (polygonTriangle[2] - polygonTriangle[0])).length();
+                            if (area < areaThreshold)
+                                continue;
                             for (const cvf::Vec3d& localVertex : polygonTriangle)
                             {
                                 double value = std::numeric_limits<double>::infinity();
@@ -862,16 +870,37 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
                             }
                         }
                     }
-                    threadTriangles[myThread].insert(
-                        threadTriangles[myThread].end(), clippedTriangles.begin(), clippedTriangles.end());
+                    threadTriangles[myThread][c].insert(
+                        threadTriangles[myThread][c].end(), clippedTriangles.begin(), clippedTriangles.end());
                 }
             }
         }
     }
-    std::vector<cvf::Vec4d> finalTriangles;
-    for (size_t i = 0; i < threadTriangles.size(); ++i)
+
+    std::vector<std::vector<cvf::Vec4d>> trianglesPerLevel(std::max((size_t)1, contourLevels.size()));
+    for (size_t c = 0; c < trianglesPerLevel.size(); ++c)
     {
-        finalTriangles.insert(finalTriangles.end(), threadTriangles[i].begin(), threadTriangles[i].end());
+        std::vector<cvf::Vec4d> allTrianglesThisLevel;
+        for (size_t i = 0; i < threadTriangles.size(); ++i)
+        {
+            allTrianglesThisLevel.insert(allTrianglesThisLevel.end(), threadTriangles[i][c].begin(), threadTriangles[i][c].end());
+        }
+
+        double triangleAreasThisLevel = sumTriangleAreas(allTrianglesThisLevel);
+        if (triangleAreasThisLevel > 1.0e-3 * m_contourLevelCumulativeAreas[c])
+        {
+            trianglesPerLevel[c] = allTrianglesThisLevel;
+        }
+        else
+        {
+            m_contourPolygons[c].clear();
+        }
+    }
+
+    std::vector<cvf::Vec4d> finalTriangles;
+    for (size_t i = 0; i < trianglesPerLevel.size(); ++i)
+    {
+        finalTriangles.insert(finalTriangles.end(), trianglesPerLevel[i].begin(), trianglesPerLevel[i].end());
     }
 
     m_trianglesWithVertexValues = finalTriangles;
@@ -929,26 +958,38 @@ void RimContourMapProjection::generateContourPolygons()
                     contourLevels.front() *= 0.5;
                 }
 
-                std::vector<caf::ContourLines::ClosedPolygons> closedContourLines = caf::ContourLines::create(
-                    m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels, areaTreshold);
+                std::vector<caf::ContourLines::ListOfLineSegments> unorderedLineSegmentsPerLevel = caf::ContourLines::create(
+                    m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels);
 
-                contourPolygons.resize(closedContourLines.size());
-
-                for (size_t i = 0; i < closedContourLines.size(); ++i)
+                std::vector<ContourPolygons>(unorderedLineSegmentsPerLevel.size()).swap(contourPolygons);
+                
+                for (size_t i = 0; i < unorderedLineSegmentsPerLevel.size(); ++i)
                 {
-                    for (size_t j = 0; j < closedContourLines[i].size(); ++j)
+                    std::vector<std::vector<cvf::Vec3d>> polygonsForThisLevel;
+                    RigCellGeometryTools::createPolygonFromLineSegments(unorderedLineSegmentsPerLevel[i], polygonsForThisLevel, 1.0e-8);
+                    for (size_t j = 0; j < polygonsForThisLevel.size(); ++j)
                     {
+                        double signedArea = cvf::GeometryTools::signedAreaPlanarPolygon(cvf::Vec3d::Z_AXIS, polygonsForThisLevel[j]);
                         ContourPolygon contourPolygon;
                         contourPolygon.value = contourLevels[i];
-                        contourPolygon.vertices.reserve(closedContourLines[i][j].size() / 2);
-
-                        for (size_t k = 0; k < closedContourLines[i][j].size(); k += 2)
+                        if (signedArea < 0.0)
                         {
-                            cvf::Vec3d contourPoint3d = cvf::Vec3d(closedContourLines[i][j][k], 0.0);
-                            contourPolygon.vertices.push_back(contourPoint3d);
-                            contourPolygon.bbox.add(contourPoint3d);
+                            contourPolygon.vertices.insert(contourPolygon.vertices.end(), polygonsForThisLevel[j].rbegin(), polygonsForThisLevel[j].rend());
                         }
-                        contourPolygons[i].push_back(contourPolygon);
+                        else
+                        {
+                            contourPolygon.vertices = polygonsForThisLevel[j];
+                        }
+
+                        contourPolygon.area = cvf::GeometryTools::signedAreaPlanarPolygon(cvf::Vec3d::Z_AXIS, contourPolygon.vertices);
+                        if (contourPolygon.area > areaTreshold)
+                        {
+                            for (const cvf::Vec3d& vertex : contourPolygon.vertices)
+                            {
+                                contourPolygon.bbox.add(vertex);
+                            }
+                            contourPolygons[i].push_back(contourPolygon);
+                        }
                     }
                 }
                 for (size_t i = 0; i < contourPolygons.size(); ++i)
@@ -958,6 +999,13 @@ void RimContourMapProjection::generateContourPolygons()
                         const ContourPolygons* clipBy = i > 0 ? &contourPolygons[i - 1] : nullptr;
                         smoothContourPolygons(&contourPolygons[i], clipBy, true);
                     }
+                }
+
+                m_contourLevelCumulativeAreas.resize(contourPolygons.size(), 0.0);
+                for (int64_t i = (int64_t) contourPolygons.size() - 1; i >= 0; --i)
+                {
+                    double levelOuterArea = sumPolygonArea(contourPolygons[i]);
+                    m_contourLevelCumulativeAreas[i] = levelOuterArea;
                 }
             }
         }
@@ -1022,10 +1070,41 @@ void RimContourMapProjection::smoothContourPolygons(ContourPolygons*       conto
                 if (!intersections.empty())
                 {
                     polygon.vertices = intersections.front();
+                    polygon.area     = std::abs(cvf::GeometryTools::signedAreaPlanarPolygon(cvf::Vec3d::Z_AXIS, polygon.vertices));
                 }
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimContourMapProjection::sumPolygonArea(const ContourPolygons& contourPolygons)
+{
+    double sumArea = 0.0;
+    for (const ContourPolygon& polygon : contourPolygons)
+    {
+        sumArea += polygon.area;
+    }
+    return sumArea;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimContourMapProjection::sumTriangleAreas(const std::vector<cvf::Vec4d>& triangles)
+{
+    double sumArea = 0.0;
+    for (size_t i = 0; i < triangles.size(); i += 3)
+    {
+        cvf::Vec3d v1(triangles[i].x(), triangles[i].y(), triangles[i].z());
+        cvf::Vec3d v2(triangles[i + 1].x(), triangles[i + 1].y(), triangles[i + 1].z());
+        cvf::Vec3d v3(triangles[i + 2].x(), triangles[i + 2].y(), triangles[i + 2].z());
+        double area = 0.5 * ((v3 - v1) ^ (v2 - v1)).length();
+        sumArea += area;
+    }
+    return sumArea;
 }
 
 //--------------------------------------------------------------------------------------------------

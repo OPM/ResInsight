@@ -25,9 +25,11 @@
 
 #include "cvfBase.h"
 #include "cvfVector2.h"
+#include "cvfVector3.h"
 
 #include <deque>
 #include <limits>
+#include <list>
 #include <vector>
 
 namespace caf
@@ -35,14 +37,13 @@ namespace caf
 class ContourLines
 {
 public:
-    typedef std::vector<cvf::Vec2d> ClosedPolygon;
-    typedef std::vector<ClosedPolygon> ClosedPolygons;
+    typedef std::pair<cvf::Vec3d, cvf::Vec3d> LineSegment;
+    typedef std::list<LineSegment> ListOfLineSegments;
 
-    static std::vector<ClosedPolygons> create(const std::vector<double>&            dataXY,
-                                              const std::vector<double>&            xPositions,
-                                              const std::vector<double>&            yPositions,
-                                              const std::vector<double>&            contourLevels,
-                                              double                                areaTreshold = std::numeric_limits<double>::infinity());
+    static std::vector<ListOfLineSegments> create(const std::vector<double>&            dataXY,
+                                                  const std::vector<double>&            xPositions,
+                                                  const std::vector<double>&            yPositions,
+                                                  const std::vector<double>&            contourLevels);
     
 private:
     static void create(const std::vector<double>& dataXY,

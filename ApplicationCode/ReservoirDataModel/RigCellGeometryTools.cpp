@@ -124,7 +124,9 @@ std::array<cvf::Vec3d, 8> RigCellGeometryTools::estimateHexOverlapWithBoundingBo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> &intersectionLineSegments, std::vector<std::vector<cvf::Vec3d>> &polygons)
+void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments,
+                                                         std::vector<std::vector<cvf::Vec3d>>&         polygons,
+                                                         double                                        tolerance)
 {
     bool startNewPolygon = true;
     while (!intersectionLineSegments.empty())
@@ -146,7 +148,6 @@ void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf
         //Search remaining list for next point...
 
         bool isFound = false;
-        float tolerance = 0.0001f;
 
         for (std::list<std::pair<cvf::Vec3d, cvf::Vec3d > >::iterator lIt = intersectionLineSegments.begin(); lIt != intersectionLineSegments.end(); lIt++)
         {
@@ -191,9 +192,6 @@ void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf
             startNewPolygon = true;
         }
     }
-
-
-
 }
 
 //==================================================================================================

@@ -37,7 +37,8 @@ public:
                                                                        cvf::BoundingBox*                overlapBoundingBox);
 
     static void createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments,
-                                              std::vector<std::vector<cvf::Vec3d>>&         polygons);
+                                              std::vector<std::vector<cvf::Vec3d>>&         polygons,
+                                              double                                        tolerance = 1.0e-4);
 
     static void findCellLocalXYZ(const std::array<cvf::Vec3d, 8>& hexCorners,
                                  cvf::Vec3d&                      localXdirection,

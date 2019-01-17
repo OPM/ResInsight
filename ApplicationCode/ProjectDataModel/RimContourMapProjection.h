@@ -49,6 +49,7 @@ public:
     {
         std::vector<cvf::Vec3d> vertices;
         double                  value;
+        double                  area;
         cvf::BoundingBox        bbox;
     };
 
@@ -146,6 +147,8 @@ protected:
     std::vector<cvf::Vec3d> generateVertices() const;
     void                    generateContourPolygons();
     void                    smoothContourPolygons(ContourPolygons* contourPolygons, const ContourPolygons* clipBy, bool favourExpansion);
+    static double           sumPolygonArea(const ContourPolygons& contourPolygons);
+    static double           sumTriangleAreas(const std::vector<cvf::Vec4d>& triangles);
 
     std::vector<CellIndexAndResult> cellOverlapVolumesAndResults(const cvf::Vec2d&          globalPos2d,
                                                                  const std::vector<double>& weightingResultValues) const;
@@ -208,6 +211,7 @@ protected:
     cvf::BoundingBox                      m_gridBoundingBox;
     double                                m_sampleSpacing;
     std::vector<ContourPolygons>          m_contourPolygons;
+    std::vector<double>                   m_contourLevelCumulativeAreas;
     std::vector<cvf::Vec4d>               m_trianglesWithVertexValues;
     int                                   m_currentResultTimestep;
 

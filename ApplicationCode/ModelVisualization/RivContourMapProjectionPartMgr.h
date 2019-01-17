@@ -58,6 +58,9 @@ private:
     std::vector<std::vector<cvf::ref<cvf::Drawable>>>    createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform, const std::vector<std::vector<cvf::BoundingBox>>& labelBBoxes) const;
     std::vector<cvf::ref<cvf::Drawable>>                 createContourLabels(const cvf::Camera* camera, const caf::DisplayCoordTransform* displayCoordTransform, std::vector<std::vector<cvf::BoundingBox>>* labelBBoxes) const;
     cvf::ref<cvf::DrawableGeo>                           createPickPointVisDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
+    bool lineOverlapsWithPreviousContourLevel(const cvf::Vec3d& lineCenter,
+                                                                                              const RimContourMapProjection::ContourPolygons* previousLevel) const;
+
 private:
     caf::PdmPointer<RimContourMapProjection>  m_contourMapProjection;
     caf::PdmPointer<RimGridView>              m_parentContourMap;

@@ -16,6 +16,7 @@
 #include "cvfCamera.h"
 #include "cvfDrawableText.h"
 #include "cvfGeometryBuilderFaceList.h"
+#include "cvfGeometryTools.h"
 #include "cvfGeometryUtils.h"
 #include "cvfMeshEdgeExtractor.h"
 #include "cvfPart.h"
@@ -25,6 +26,7 @@
 
 #include <cmath>
 
+#include <QDebug>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -369,6 +371,7 @@ std::vector<cvf::ref<cvf::Drawable>>
     std::vector<cvf::ref<cvf::Drawable>>              labelDrawables;
     labelBBoxes->clear();
     labelBBoxes->resize(m_contourLinePolygons.size());
+    const RimContourMapProjection::ContourPolygons* previousLevel = nullptr;
     for (int64_t i = (int64_t)m_contourLinePolygons.size() - 1; i > 0; --i)
     {
         cvf::Color3f                backgroundColor(mapper->mapToColor(tickValues[i]));
@@ -388,9 +391,19 @@ std::vector<cvf::ref<cvf::Drawable>>
             {
                 size_t     nVertex = (nVertices * l) / nLabels;
                 size_t     nextVertex = (nVertex + 1) % nVertices;
-                cvf::Vec3d globalVertex1 = m_contourLinePolygons[i][j].vertices[nVertex] + m_contourMapProjection->origin3d();
-                cvf::Vec3d globalVertex2 =
-                    m_contourLinePolygons[i][j].vertices[nextVertex] + m_contourMapProjection->origin3d();
+
+                const cvf::Vec3d& localVertex1 = m_contourLinePolygons[i][j].vertices[nVertex];
+                const cvf::Vec3d& localVertex2 = m_contourLinePolygons[i][j].vertices[nextVertex];
+
+                cvf::Vec3d lineCenter = (localVertex1 + localVertex2) * 0.5;
+                if (false && previousLevel && lineOverlapsWithPreviousContourLevel(lineCenter, previousLevel))
+                {
+                    continue;
+                }
+
+                cvf::Vec3d globalVertex1 = localVertex1 + m_contourMapProjection->origin3d();
+                cvf::Vec3d globalVertex2 = localVertex2 + m_contourMapProjection->origin3d();
+
                 cvf::Vec3d globalVertex = 0.5 * (globalVertex1 + globalVertex2);
 
                 cvf::Vec3d segment = globalVertex2 - globalVertex1;
@@ -451,6 +464,8 @@ std::vector<cvf::ref<cvf::Drawable>>
         {
             labelDrawables.push_back(label);
         }
+
+        previousLevel = &m_contourLinePolygons[i];
     }
     return labelDrawables;
 }
@@ -496,4 +511,45 @@ cvf::ref<cvf::DrawableGeo>
         geo->setVertexArray(vertexArray.p());
     }
     return geo;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RivContourMapProjectionPartMgr::lineOverlapsWithPreviousContourLevel(
+    const cvf::Vec3d& lineCenter,
+    const RimContourMapProjection::ContourPolygons* previousLevel) const
+{
+    const int64_t jump = 50;
+    CVF_ASSERT(previousLevel);
+    double tolerance = 1.0e-3 * m_contourMapProjection->sampleSpacing();
+    for (const RimContourMapProjection::ContourPolygon& edgePolygon : *previousLevel)
+    {
+        std::pair<int64_t, double> closestIndex(0, std::numeric_limits<double>::infinity());
+        for (int64_t i = 0; i < (int64_t) edgePolygon.vertices.size(); i += jump)
+        {
+            const cvf::Vec3d& edgeVertex1 = edgePolygon.vertices[i];
+            const cvf::Vec3d& edgeVertex2 = edgePolygon.vertices[(i + 1) % edgePolygon.vertices.size()];
+            double dist1 = cvf::GeometryTools::linePointSquareDist(edgeVertex1, edgeVertex2, lineCenter);
+            if (dist1 < tolerance)
+            {
+                return true;
+            }
+            if (dist1 < closestIndex.second)
+            {
+                closestIndex = std::make_pair(i, dist1);
+            }
+        }
+        for (int64_t i = std::max((int64_t)1, closestIndex.first - jump + 1); i < std::min((int64_t)edgePolygon.vertices.size(), closestIndex.first + jump); ++i)
+        {
+            const cvf::Vec3d& edgeVertex1 = edgePolygon.vertices[i];
+            const cvf::Vec3d& edgeVertex2 = edgePolygon.vertices[(i + 1) % edgePolygon.vertices.size()];
+            double            dist1       = cvf::GeometryTools::linePointSquareDist(edgeVertex1, edgeVertex2, lineCenter);
+            if (dist1 < tolerance)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
