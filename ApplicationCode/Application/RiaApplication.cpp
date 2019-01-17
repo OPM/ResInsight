@@ -687,56 +687,59 @@ void RiaApplication::loadAndUpdatePlotData()
     plotCount += rftColl ? rftColl->rftPlots().size() : 0;
     plotCount += pltColl ? pltColl->pltPlots().size() : 0;
 
-    caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
-    if (wlpColl)
+    if (plotCount > 0)
     {
-        for (size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx)
+        caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
+        if (wlpColl)
         {
-            wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
+            for (size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx)
+            {
+                wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if (spColl)
+        {
+            for (size_t wlpIdx = 0; wlpIdx < spColl->summaryPlots().size(); ++wlpIdx)
+            {
+                spColl->summaryPlots[wlpIdx]->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if (scpColl)
+        {
+            for (auto plot : scpColl->summaryPlots())
+            {
+                plot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if (flowColl)
+        {
+            plotProgress.setNextProgressIncrement(flowColl->plotCount());
+            flowColl->loadDataAndUpdate();
             plotProgress.incrementProgress();
         }
-    }
 
-    if (spColl)
-    {
-        for (size_t wlpIdx = 0; wlpIdx < spColl->summaryPlots().size(); ++wlpIdx)
+        if (rftColl)
         {
-            spColl->summaryPlots[wlpIdx]->loadDataAndUpdate();
-            plotProgress.incrementProgress();
+            for (const auto& rftPlot : rftColl->rftPlots())
+            {
+                rftPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
         }
-    }
 
-    if (scpColl)
-    {
-        for (auto plot : scpColl->summaryPlots())
+        if (pltColl)
         {
-            plot->loadDataAndUpdate();
-            plotProgress.incrementProgress();
-        }
-    }
-
-    if (flowColl)
-    {
-        plotProgress.setNextProgressIncrement(flowColl->plotCount());
-        flowColl->loadDataAndUpdate();
-        plotProgress.incrementProgress();
-    }
-
-    if (rftColl)
-    {
-        for (const auto& rftPlot : rftColl->rftPlots())
-        {
-            rftPlot->loadDataAndUpdate();
-            plotProgress.incrementProgress();
-        }
-    }
-
-    if (pltColl)
-    {
-        for (const auto& pltPlot : pltColl->pltPlots())
-        {
-            pltPlot->loadDataAndUpdate();
-            plotProgress.incrementProgress();
+            for (const auto& pltPlot : pltColl->pltPlots())
+            {
+                pltPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
         }
     }
 }
