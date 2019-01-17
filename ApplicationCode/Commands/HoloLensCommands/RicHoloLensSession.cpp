@@ -295,7 +295,7 @@ void RicHoloLensSession::handleSuccessfulSendMetaData(int metaDataSequenceNumber
 
             RiaLogging::info(QString("HoloLens:     sending array id: %1, %2KB (%3 bytes)").arg(arrayId).arg(packetByteArr.size()/1024.0, 0, 'f', 2).arg(packetByteArr.size()));
 
-            m_restClient->sendBinaryData(packetByteArr);
+            m_restClient->sendBinaryData(packetByteArr, "arrId" + QByteArray::number(arrayId));
 
             totalNumArraysSent++;
             totalBytesSent += packetByteArr.size();
@@ -316,7 +316,7 @@ void RicHoloLensSession::handleSuccessfulSendMetaData(int metaDataSequenceNumber
 
         RiaLogging::info(QString("HoloLens: Sending data to server (%1 arrays combined), %2KB (%3 bytes)").arg(totalNumArraysSent).arg(totalBytesSent/1024.0, 0, 'f', 2).arg(totalBytesSent));
 
-        m_restClient->sendBinaryData(combinedPacketArr);
+        m_restClient->sendBinaryData(combinedPacketArr, "metaSeqNum" + QByteArray::number(metaDataSequenceNumber));
     }
 
     const double totalMb = totalBytesSent/(1024.0*1024.0);

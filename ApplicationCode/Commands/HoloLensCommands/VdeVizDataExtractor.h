@@ -21,6 +21,8 @@
 #include "cvfBase.h"
 #include "cvfColor3.h"
 #include "cvfArray.h"
+#include "cvfVector3.h"
+#include "cvfString.h"
 #include "cvfTextureImage.h"
 
 #include <QString>
@@ -100,7 +102,7 @@ public:
 private:
     static std::vector<std::unique_ptr<VdeMesh> >   buildMeshArray(const std::vector<VdeExportPart>& exportPartsArr);
     static std::unique_ptr<VdeMesh>                 createMeshFromExportPart(const VdeExportPart& exportPart);
-    static QString                                  createModelMetaJsonString(const std::vector<std::unique_ptr<VdeMesh> >& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr);
+    static QString                                  createModelMetaJsonString(const std::vector<std::unique_ptr<VdeMesh> >& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr, const std::vector<std::pair<cvf::Vec3f, cvf::String> >& labelAndPositionsArr);
     static void                                     debugComparePackets(const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB);
 
 private:

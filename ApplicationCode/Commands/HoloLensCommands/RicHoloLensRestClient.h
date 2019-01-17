@@ -61,7 +61,7 @@ public:
     void    createSession(const QByteArray& sessionPinCode);
     void    deleteSession();
     void    sendMetaData(int metaDataSequenceNumber, const QString& jsonMetaDataString);
-    void    sendBinaryData(const QByteArray& binaryDataArr);
+    void    sendBinaryData(const QByteArray& binaryDataArr, QByteArray dbgTagString);
 
 private:
     void            addBearerAuthenticationHeaderToRequest(QNetworkRequest* request) const;

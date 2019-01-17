@@ -63,9 +63,6 @@ void VdeVizDataExtractor::extractViewContents(QString* modelMetaJsonStr, std::ve
     // First extract the parts (cvfPart + info) to be exported from from the ResInsight view
     const std::vector<VdeExportPart> exportPartsArr = RicHoloLensExportImpl::partsForExport(m_view);
 
-    // TODO: Convert this into JSON data
-    const std::vector<std::pair<cvf::Vec3f, cvf::String>> labelAndPositions = RicHoloLensExportImpl::labelsForExport(m_view);
-
     // Convert this to an array of export ready meshes
     const std::vector<std::unique_ptr<VdeMesh> > meshArr = buildMeshArray(exportPartsArr);
     const int buildMeshes_ms = static_cast<int>(tim.lapTime()*1000);
@@ -160,7 +157,11 @@ void VdeVizDataExtractor::extractViewContents(QString* modelMetaJsonStr, std::ve
     const int fillPacketDir_ms = static_cast<int>(tim.lapTime()*1000);
 
 
-    *modelMetaJsonStr = createModelMetaJsonString(meshArr, allMeshesArrayIdsArr);
+    // Extract any exportable labels present in the view
+    const std::vector<std::pair<cvf::Vec3f, cvf::String>> labelAndPositionsArr = RicHoloLensExportImpl::labelsForExport(m_view);
+
+    // Actually create the JSON containing model meta data
+    *modelMetaJsonStr = createModelMetaJsonString(meshArr, allMeshesArrayIdsArr, labelAndPositionsArr);
 
     // Find all unique packet array IDs referenced 
     std::set<int> referencedIdsSet;
@@ -318,10 +319,9 @@ std::unique_ptr<VdeMesh> VdeVizDataExtractor::createMeshFromExportPart(const Vde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString VdeVizDataExtractor::createModelMetaJsonString(const std::vector<std::unique_ptr<VdeMesh> >& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr)
+QString VdeVizDataExtractor::createModelMetaJsonString(const std::vector<std::unique_ptr<VdeMesh> >& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr, const std::vector<std::pair<cvf::Vec3f, cvf::String> >& labelAndPositionsArr)
 {
     QVariantList jsonMeshMetaList;
-
     for (size_t i = 0; i < meshArr.size(); i++)
     {
         const VdeMesh* mesh = meshArr[i].get();
@@ -360,9 +360,30 @@ QString VdeVizDataExtractor::createModelMetaJsonString(const std::vector<std::un
         jsonMeshMetaList.push_back(jsonMeshMeta);
     }
 
+
+    QVariantList jsonLabelList;
+    for (size_t i = 0; i < labelAndPositionsArr.size(); i++)
+    {
+        const cvf::Vec3f& pos = labelAndPositionsArr[i].first;
+        const cvf::String& txt = labelAndPositionsArr[i].second;
+
+        QMap<QString, QVariant> jsonPos;
+        jsonPos["x"] = pos.x();
+        jsonPos["y"] = pos.y();
+        jsonPos["z"] = pos.z();
+
+        QMap<QString, QVariant> jsonLabelEntry;
+        jsonLabelEntry["position"] = jsonPos;
+        jsonLabelEntry["text"] = txt.toAscii().ptr();
+
+        jsonLabelList.push_back(jsonLabelEntry);
+    }
+
+
     QMap<QString, QVariant> jsonModelMeta;
     jsonModelMeta["modelName"] = "ResInsightExport";
     jsonModelMeta["meshArr"] = jsonMeshMetaList;
+    jsonModelMeta["labelsArr"] = jsonLabelList;
 
     ResInsightInternalJson::Json jsonCodec;
     const bool prettifyJson = true;

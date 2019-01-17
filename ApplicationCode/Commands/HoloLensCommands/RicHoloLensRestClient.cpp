@@ -272,10 +272,10 @@ void RicHoloLensRestClient::slotSendMetaDataFinished()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensRestClient::sendBinaryData(const QByteArray& binaryDataArr)
+void RicHoloLensRestClient::sendBinaryData(const QByteArray& binaryDataArr, QByteArray dbgTagString)
 {
     const QString url = m_serverUrl + "/sessions/" + m_sessionName + "/data";
-    cvf::Trace::show("sendBinaryData: POST on url: %s", url.toLatin1().constData());
+    cvf::Trace::show("sendBinaryData(%s): POST on url: %s", dbgTagString.constData(), url.toLatin1().constData());
 
     const qint64 sendStartTimeStamp_ms = getCurrentTimeStamp_ms();
 
@@ -285,6 +285,7 @@ void RicHoloLensRestClient::sendBinaryData(const QByteArray& binaryDataArr)
 
     QNetworkReply* reply = m_accessManager.post(request, binaryDataArr);
     reply->setProperty("holo_sendStartTimeStamp_ms", QVariant(sendStartTimeStamp_ms));
+    reply->setProperty("holo_dbgTagString", QVariant(dbgTagString));
 
     connect(reply, SIGNAL(finished()), SLOT(slotSendBinaryDataFinished()));
 
@@ -323,9 +324,18 @@ void RicHoloLensRestClient::slotSendBinaryDataFinished()
         }
     }
 
+    QByteArray dbgTagString;
+    {
+        QVariant var = reply->property("holo_dbgTagString");
+        if (var.type() == QVariant::ByteArray)
+        {
+            dbgTagString = var.toByteArray();
+        }
+    }
+
     reply->deleteLater();
 
-    cvf::Trace::show("sendBinaryData OK, elapsedTime=%.2fs", elapsedTime_s);
+    cvf::Trace::show("sendBinaryData(%s) OK, elapsedTime=%.2fs", dbgTagString.constData(), elapsedTime_s);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,18 +353,28 @@ void RicHoloLensRestClient::slotDbgUploadProgress(qint64 bytesSent, qint64 bytes
     if (pct % 10 == 0 && pct != sl_lastPct)
     {
         double elapsedTime_s = -1;
+        QByteArray dbgTagString;
         QNetworkReply* reply = dynamic_cast<QNetworkReply*>(sender());
         if (reply)
         {
-            QVariant var = reply->property("holo_sendStartTimeStamp_ms");
-            if (var.type() == QVariant::LongLong)
             {
-                const qint64 startTimeStamp_ms = var.toLongLong();
-                elapsedTime_s = (getCurrentTimeStamp_ms() - startTimeStamp_ms)/1000.0;
+                QVariant var = reply->property("holo_sendStartTimeStamp_ms");
+                if (var.type() == QVariant::LongLong)
+                {
+                    const qint64 startTimeStamp_ms = var.toLongLong();
+                    elapsedTime_s = (getCurrentTimeStamp_ms() - startTimeStamp_ms)/1000.0;
+                }
+            }
+            {
+                QVariant var = reply->property("holo_dbgTagString");
+                if (var.type() == QVariant::ByteArray)
+                {
+                    dbgTagString = var.toByteArray();
+                }
             }
         }
 
-        cvf::Trace::show("Sending progress: %3d%%, %.2f/%.2fMB (elapsedTime=%.2fs)", pct, bytesSent/(1024.0*1024.0), bytesTotal/(1024.0*1024.0), elapsedTime_s);
+        cvf::Trace::show("Progress sendBinaryData(%s): %3d%%, %.2f/%.2fMB (elapsedTime=%.2fs)", dbgTagString.constData(), pct, bytesSent/(1024.0*1024.0), bytesTotal/(1024.0*1024.0), elapsedTime_s);
         sl_lastPct = pct;
     }
 }
