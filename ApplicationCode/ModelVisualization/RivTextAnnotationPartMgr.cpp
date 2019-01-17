@@ -37,8 +37,6 @@
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPolylineGenerator.h"
-#include "RivTextAnnotationSourceInfo.h"
-#include "RivTextLabelSourceInfo.h"
 
 #include "cafEffectGenerator.h"
 #include "cafDisplayCoordTransform.h"
@@ -145,8 +143,6 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
         cvf::ref<cvf::Effect> eff = new cvf::Effect();
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::PartType::MeshLines);
-
-        part->setSourceInfo(new RivTextLabelSourceInfo(rimAnnotation(), cvfString, textCoord));
 
         m_labelPart = part;
     }

@@ -38,7 +38,6 @@
 #include "RivPolylineGenerator.h"
 #include "RivReachCircleAnnotationPartMgr.h"
 #include "RivTextAnnotationPartMgr.h"
-#include "RivTextLabelSourceInfo.h"
 
 #include "cvfBoundingBox.h"
 #include "cvfDrawableGeo.h"
@@ -205,8 +204,6 @@ void RivMeasurementPartMgr::buildPolyLineParts(const caf::DisplayCoordTransform*
         cvf::ref<cvf::Effect> eff = new cvf::Effect();
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::PartType::Text);
-
-        part->setSourceInfo(new RivTextLabelSourceInfo(m_measurement, cvfString, textCoord));
 
         m_labelPart = part;
     }
