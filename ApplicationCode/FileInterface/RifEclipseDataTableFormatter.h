@@ -119,6 +119,9 @@ public:
     void setTableRowLineAppendText(const QString& text);
     QString commentPrefix() const;
     void setCommentPrefix(const QString& commentPrefix);
+    void setUnlimitedDataRowWidth();
+    void setMaxDataRowWidth(int maxWidth);
+    int  maxDataRowWidth() const;
 
     RifEclipseDataTableFormatter& keyword(const QString& keyword);
     RifEclipseDataTableFormatter& header(std::vector<RifEclipseOutputTableColumn> tableHeader);
@@ -138,7 +141,6 @@ public:
     static void                   addValueTable(QTextStream& stream, const QString& keyword, size_t columns, const std::vector<double>& values);
 
     int tableWidth() const;
-    static int maxEclipseRowWidth();
 
 private:
     int measure(const QString str);
@@ -166,4 +168,5 @@ private:
     QString                                  m_tableRowPrependText;
     QString                                  m_tableRowAppendText;
     QString                                  m_commentPrefix;
+    int                                      m_maxDataRowWidth;
 };

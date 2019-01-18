@@ -20,6 +20,8 @@
 
 #include "cvfAssert.h"
 
+#define MAX_ECLIPSE_DATA_ROW_WIDTH 132  // Maximum eclipse data row width
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -29,6 +31,7 @@ RifEclipseDataTableFormatter::RifEclipseDataTableFormatter(QTextStream& out)
     , m_tableRowPrependText("   ")
     , m_tableRowAppendText(" /")
     , m_commentPrefix("--")
+    , m_maxDataRowWidth(MAX_ECLIPSE_DATA_ROW_WIDTH)
 {
 }
 
@@ -120,6 +123,30 @@ void RifEclipseDataTableFormatter::setCommentPrefix(const QString& commentPrefix
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifEclipseDataTableFormatter::setUnlimitedDataRowWidth()
+{
+    m_maxDataRowWidth = std::numeric_limits<int>::max();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseDataTableFormatter::setMaxDataRowWidth(int maxWidth)
+{
+    m_maxDataRowWidth = maxWidth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifEclipseDataTableFormatter::maxDataRowWidth() const
+{
+    return m_maxDataRowWidth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifEclipseDataTableFormatter::outputBuffer()
 {
     if (!m_columns.empty() && !isAllHeadersEmpty(m_columns))
@@ -145,6 +172,7 @@ void RifEclipseDataTableFormatter::outputBuffer()
         else if (line.lineType == CONTENTS)
         {
             QString lineText = m_tableRowPrependText;
+            bool isComment = m_tableRowPrependText.startsWith(m_commentPrefix);
             QString appendText = (line.appendTextSet ? line.appendText : m_tableRowAppendText);
 
             for (size_t i = 0; i < line.data.size(); ++i)
@@ -155,7 +183,7 @@ void RifEclipseDataTableFormatter::outputBuffer()
                 {
                     newLineText += appendText;
                 }
-                if (newLineText.length() > maxEclipseRowWidth())
+                if (!isComment && newLineText.length() > maxDataRowWidth())
                 {
                     m_out << lineText << "\n";
                     lineText = m_tableRowPrependText;
@@ -481,14 +509,6 @@ int RifEclipseDataTableFormatter::tableWidth() const
     characterCount += m_tableRowAppendText.length();
 
     return characterCount;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RifEclipseDataTableFormatter::maxEclipseRowWidth()
-{
-    return 132;
 }
 
 //--------------------------------------------------------------------------------------------------

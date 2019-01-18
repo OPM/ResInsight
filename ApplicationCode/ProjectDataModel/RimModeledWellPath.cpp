@@ -127,6 +127,7 @@ QString RimModeledWellPath::wellPlanText()
     QTextStream qtxtStream(&planText);
 
     RifEclipseDataTableFormatter formatter(qtxtStream);
+    formatter.setUnlimitedDataRowWidth();
     formatter.setTableRowPrependText("");
     formatter.setTableRowLineAppendText("");
 

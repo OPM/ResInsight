@@ -106,7 +106,7 @@ TEST(RifEclipseDataTableFormatter, LongLine)
         50 + 8 * 10 + formatter.tableRowAppendText().length();
     int tableWidth = formatter.tableWidth();
     EXPECT_EQ(tableWidth, fullLineLength);
-    EXPECT_GT(tableWidth, RifEclipseDataTableFormatter::maxEclipseRowWidth());
+    EXPECT_GT(tableWidth, formatter.maxDataRowWidth());
     
     formatter.rowCompleted();
     formatter.tableCompleted();
@@ -117,7 +117,7 @@ TEST(RifEclipseDataTableFormatter, LongLine)
         std::cout << QString("Line: \"%1\"").arg(line).toStdString() << std::endl;
         if (!line.startsWith(formatter.commentPrefix()))
         {
-            EXPECT_LE(line.length(), RifEclipseDataTableFormatter::maxEclipseRowWidth());
+            EXPECT_LE(line.length(), formatter.maxDataRowWidth());
         }
     }
 }
@@ -153,7 +153,7 @@ TEST(RifEclipseDataTableFormatter, LongLine132)
                          formatter.tableRowAppendText().length();
     int tableWidth = formatter.tableWidth();
     EXPECT_GE(tableWidth, fullLineLength);
-    EXPECT_EQ(RifEclipseDataTableFormatter::maxEclipseRowWidth(), fullLineLength);
+    EXPECT_EQ(formatter.maxDataRowWidth(), fullLineLength);
 
     formatter.rowCompleted();
     formatter.tableCompleted();
@@ -164,7 +164,7 @@ TEST(RifEclipseDataTableFormatter, LongLine132)
         std::cout << QString("Line: \"%1\"").arg(line).toStdString() << std::endl;
         if (line.startsWith("0"))
         {
-            EXPECT_EQ(line.length(), RifEclipseDataTableFormatter::maxEclipseRowWidth());            
+            EXPECT_EQ(line.length(), formatter.maxDataRowWidth());
         }
     }
 }
@@ -200,7 +200,7 @@ TEST(RifEclipseDataTableFormatter, LongLine133)
                          formatter.tableRowAppendText().length();
     int tableWidth = formatter.tableWidth();
     EXPECT_GE(tableWidth, fullLineLength);
-    EXPECT_LT(RifEclipseDataTableFormatter::maxEclipseRowWidth(), fullLineLength);
+    EXPECT_LT(formatter.maxDataRowWidth(), fullLineLength);
 
     formatter.rowCompleted();
     formatter.tableCompleted();
@@ -211,7 +211,7 @@ TEST(RifEclipseDataTableFormatter, LongLine133)
         std::cout << QString("Line: \"%1\"").arg(line).toStdString() << std::endl;
         if (line.startsWith("0"))
         {
-            EXPECT_LE(line.length(), RifEclipseDataTableFormatter::maxEclipseRowWidth());
+            EXPECT_LE(line.length(), formatter.maxDataRowWidth());
         }
     }
 }
