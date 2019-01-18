@@ -677,22 +677,20 @@ double RimContourMapProjection::minValue(const std::vector<double>& aggregatedRe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimContourMapProjection::minmaxValuesAllTimeSteps()
+std::pair<double, double> RimContourMapProjection::minmaxValuesAllTimeSteps(int skipSteps /*= 1*/)
 {
     if (timestepRangeNeedsUpdating())
     {
         clearTimeStepRange();
 
-        for (int i = 0; i < (int)baseView()->ownerCase()->timeStepStrings().size(); ++i)
+        m_minResultAllTimeSteps = std::min(m_minResultAllTimeSteps, minValue(m_aggregatedResults));
+        m_maxResultAllTimeSteps = std::max(m_maxResultAllTimeSteps, maxValue(m_aggregatedResults));
+
+        for (int i = 0; i < (int)baseView()->ownerCase()->timeStepStrings().size() - 1; i += skipSteps)
         {
-            if (i == m_currentResultTimestep)
+                std::vector<double> aggregatedResults = generateResults(i);
             {
-                m_minResultAllTimeSteps = std::min(m_minResultAllTimeSteps, minValue(m_aggregatedResults));
-                m_maxResultAllTimeSteps = std::max(m_maxResultAllTimeSteps, maxValue(m_aggregatedResults));
-            }
-            else
-            {
-                std::vector<double> aggregatedResults = generateResults(i, 10);
+                std::vector<double> aggregatedResults = generateResults(i, true);
                 m_minResultAllTimeSteps = std::min(m_minResultAllTimeSteps, minValue(aggregatedResults));
                 m_maxResultAllTimeSteps = std::max(m_maxResultAllTimeSteps, maxValue(aggregatedResults));
             }
@@ -965,7 +963,7 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
         }
     }
 
-    std::vector<std::vector<cvf::Vec4d>> trianglesPerLevel(std::max((size_t)1, contourLevels.size()));
+    std::vector<std::vector<cvf::Vec4d>> trianglesPerLevel(std::max((size_t)1, m_contourPolygons.size()));
     for (size_t c = 0; c < trianglesPerLevel.size(); ++c)
     {
         std::vector<cvf::Vec4d> allTrianglesThisLevel;
@@ -978,10 +976,6 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
         if (triangleAreasThisLevel > 1.0e-3 * m_contourLevelCumulativeAreas[c])
         {
             trianglesPerLevel[c] = allTrianglesThisLevel;
-        }
-        else
-        {
-            m_contourPolygons[c].clear();
         }
     }
 
@@ -1026,14 +1020,15 @@ void RimContourMapProjection::generateContourPolygons()
 
     const double areaTreshold = (m_sampleSpacing * m_sampleSpacing) / (sampleSpacingFactor() * sampleSpacingFactor());
 
-    if (minValue() != std::numeric_limits<double>::infinity() && maxValue() != -std::numeric_limits<double>::infinity() &&
-        std::fabs(maxValue() - minValue()) > 1.0e-8)
+    std::vector<double> contourLevels;
+    if (legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER)
     {
-        std::vector<double> contourLevels;
-        if (legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER)
+        legendConfig()->scalarMapper()->majorTickValues(&contourLevels);
+        int nContourLevels = static_cast<int>(contourLevels.size());
+
+        if (minValue() != std::numeric_limits<double>::infinity() && maxValue() != -std::numeric_limits<double>::infinity() &&
+            std::fabs(maxValue() - minValue()) > 1.0e-8)
         {
-            legendConfig()->scalarMapper()->majorTickValues(&contourLevels);
-            int nContourLevels = static_cast<int>(contourLevels.size());
             if (nContourLevels > 2)
             {
                 if (legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_DISCRETE ||
@@ -1046,30 +1041,34 @@ void RimContourMapProjection::generateContourPolygons()
                     contourLevels.front() *= 0.5;
                 }
 
-                std::vector<caf::ContourLines::ListOfLineSegments> unorderedLineSegmentsPerLevel = caf::ContourLines::create(
-                    m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels);
+                std::vector<caf::ContourLines::ListOfLineSegments> unorderedLineSegmentsPerLevel =
+                    caf::ContourLines::create(m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels);
 
                 std::vector<ContourPolygons>(unorderedLineSegmentsPerLevel.size()).swap(contourPolygons);
-                
+
                 for (size_t i = 0; i < unorderedLineSegmentsPerLevel.size(); ++i)
                 {
                     std::vector<std::vector<cvf::Vec3d>> polygonsForThisLevel;
-                    RigCellGeometryTools::createPolygonFromLineSegments(unorderedLineSegmentsPerLevel[i], polygonsForThisLevel, 1.0e-8);
+                    RigCellGeometryTools::createPolygonFromLineSegments(
+                        unorderedLineSegmentsPerLevel[i], polygonsForThisLevel, 1.0e-8);
                     for (size_t j = 0; j < polygonsForThisLevel.size(); ++j)
                     {
-                        double signedArea = cvf::GeometryTools::signedAreaPlanarPolygon(cvf::Vec3d::Z_AXIS, polygonsForThisLevel[j]);
+                        double signedArea =
+                            cvf::GeometryTools::signedAreaPlanarPolygon(cvf::Vec3d::Z_AXIS, polygonsForThisLevel[j]);
                         ContourPolygon contourPolygon;
                         contourPolygon.value = contourLevels[i];
                         if (signedArea < 0.0)
                         {
-                            contourPolygon.vertices.insert(contourPolygon.vertices.end(), polygonsForThisLevel[j].rbegin(), polygonsForThisLevel[j].rend());
+                            contourPolygon.vertices.insert(
+                                contourPolygon.vertices.end(), polygonsForThisLevel[j].rbegin(), polygonsForThisLevel[j].rend());
                         }
                         else
                         {
                             contourPolygon.vertices = polygonsForThisLevel[j];
                         }
 
-                        contourPolygon.area = cvf::GeometryTools::signedAreaPlanarPolygon(cvf::Vec3d::Z_AXIS, contourPolygon.vertices);
+                        contourPolygon.area =
+                            cvf::GeometryTools::signedAreaPlanarPolygon(cvf::Vec3d::Z_AXIS, contourPolygon.vertices);
                         if (contourPolygon.area > areaTreshold)
                         {
                             for (const cvf::Vec3d& vertex : contourPolygon.vertices)
@@ -1098,9 +1097,9 @@ void RimContourMapProjection::generateContourPolygons()
                     }
                 }
                 m_contourLevelCumulativeAreas.resize(contourPolygons.size(), 0.0);
-                for (int64_t i = (int64_t) contourPolygons.size() - 1; i >= 0; --i)
+                for (int64_t i = (int64_t)contourPolygons.size() - 1; i >= 0; --i)
                 {
-                    double levelOuterArea = sumPolygonArea(contourPolygons[i]);
+                    double levelOuterArea            = sumPolygonArea(contourPolygons[i]);
                     m_contourLevelCumulativeAreas[i] = levelOuterArea;
                 }
             }

@@ -67,7 +67,7 @@ public:
     std::vector<std::string>                         filteredStepNames() const;
     bool                                             assertResultsLoaded(const RigFemResultAddress& resVarAddr);
     void                                             deleteResult(const RigFemResultAddress& resVarAddr);
-
+    void                                             deleteResultFrame(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex);
     std::vector<RigFemResultAddress>                 loadedResults() const;
 
     const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex);

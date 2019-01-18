@@ -57,7 +57,8 @@ CAF_PDM_SOURCE_INIT(RimGeoMechContourMapProjection, "RimGeoMechContourMapProject
 RimGeoMechContourMapProjection::RimGeoMechContourMapProjection()
 {
     CAF_PDM_InitObject("RimContourMapProjection", ":/2DMapProjection16x16.png", "", "");
-
+    CAF_PDM_InitField(&m_limitToPorePressureRegions, "LimitToPorRegion", true, "Limit to Pore Pressure regions", "", "", "");
+    CAF_PDM_InitField(&m_includePaddingAroundPorePressureRegion, "PaddingAroundPorRegion", true, "Include Padding around Pore Pressure regions", "", "", "");
     setName("Map Projection");
     nameField()->uiCapability()->setUiReadOnly(true);
 }
@@ -94,12 +95,16 @@ void RimGeoMechContourMapProjection::updateLegend()
     double minVal = minValue(m_aggregatedResults);
     double maxVal = maxValue(m_aggregatedResults);
 
-    std::pair<double, double> minmaxValAllTimeSteps = minmaxValuesAllTimeSteps();
+    std::pair<double, double> minmaxValAllTimeSteps = minmaxValuesAllTimeSteps(2);
 
     legendConfig()->setAutomaticRanges(minmaxValAllTimeSteps.first, minmaxValAllTimeSteps.second, minVal, maxVal);
 
     QString projectionLegendText = QString("Map Projection\n%1").arg(m_resultAggregation().uiText());
     projectionLegendText += QString("\nResult: %1").arg(cellColors->resultFieldUiName());
+    if (!cellColors->resultComponentUiName().isEmpty())
+    {
+        projectionLegendText += QString(", %1").arg(cellColors->resultComponentUiName());
+    }
 
     legendConfig()->setTitle(projectionLegendText);
 }
@@ -117,7 +122,10 @@ cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() co
     RivFemElmVisibilityCalculator::computeRangeVisibility(cellGridIdxVisibility.p(), m_femPart.p(), cellRangeFilter);
     RivFemElmVisibilityCalculator::computePropertyVisibility(cellGridIdxVisibility.p(), m_femPart.p(), view()->currentTimeStep(), cellGridIdxVisibility.p(), view()->geoMechPropertyFilterCollection());
 
-    ensureOnlyValidPorBarVisible(cellGridIdxVisibility.p(), view()->currentTimeStep());
+    if (m_limitToPorePressureRegions)
+    {
+        ensureOnlyValidPorBarVisible(cellGridIdxVisibility.p(), view()->currentTimeStep());
+    }
     return cellGridIdxVisibility;
 }
 
@@ -136,6 +144,7 @@ void RimGeoMechContourMapProjection::ensureOnlyValidPorBarVisible(cvf::UByteArra
     for (int i = 0; i < static_cast<int>(visibility->size()); ++i)
     {
         size_t resValueIdx = m_femPart->elementNodeResultIdx((int) i, 0);
+        CVF_ASSERT(resValueIdx < resultValues.size());
         double scalarValue = resultValues[resValueIdx];
         (*visibility)[i] &= scalarValue != std::numeric_limits<double>::infinity();
     }
@@ -178,7 +187,7 @@ std::vector<double> RimGeoMechContourMapProjection::retrieveParameterWeights()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimGeoMechContourMapProjection::generateResults(int timeStep, int everyNCells)
+std::vector<double> RimGeoMechContourMapProjection::generateResults(int timeStep)
 {
     RigGeoMechCaseData*          caseData         = geoMechCase()->geoMechData();
     RigFemPartResultsCollection* resultCollection = caseData->femPartResults();
@@ -198,14 +207,22 @@ std::vector<double> RimGeoMechContourMapProjection::generateResults(int timeStep
 
     m_resultValues                                = resultCollection->resultValues(resAddr, 0, timeStep);
 
+    int everyNCells = temporaryResult ? 10 : 1;
+
 #pragma omp parallel for
-    for (int index = 0; index < static_cast<int>(nCells); index += everyNCells)
+    for (int index = 0; index < static_cast<int>(nCells); ++index)
     {
         cvf::Vec2ui ij             = ijFromCellIndex(index);
         aggregatedResults[index] = calculateValueInMapCell(ij.x(), ij.y());
     }
 
     m_currentResultAddr = resAddr;
+
+    if (temporaryResult)
+    {
+        resultCollection->deleteResultFrame(resAddr, 0, timeStep);
+    }
+
 
     return aggregatedResults;
 }
@@ -421,6 +438,10 @@ void RimGeoMechContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle*
                                                       const QVariant&            newValue)
 {
     RimContourMapProjection::fieldChangedByUi(changedField, oldValue, newValue);
+    if (changedField == &m_limitToPorePressureRegions)
+    {
+        clearGridMapping();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -448,3 +469,16 @@ QList<caf::PdmOptionItemInfo>
     }
     return options;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimContourMapProjection::defineUiOrdering(uiConfigName, uiOrdering);
+    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Grid Boundaries");
+    group->add(&m_limitToPorePressureRegions);
+}
+
+}
+

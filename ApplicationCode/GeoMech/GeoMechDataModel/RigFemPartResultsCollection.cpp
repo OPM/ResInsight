@@ -2264,6 +2264,19 @@ void RigFemPartResultsCollection::deleteResult(const RigFemResultAddress& resVar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::deleteResultFrame(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex)
+{
+    CVF_ASSERT(resVarAddr.isValid());
+    RigFemScalarResultFrames* frames        = m_femPartResults[partIndex]->findScalarResult(resVarAddr);
+    if (frames)
+    {
+        std::vector<float>().swap(frames->frameData(frameIndex));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RigFemResultAddress> RigFemPartResultsCollection::loadedResults() const
 {
     std::vector<RigFemResultAddress> currentResults;

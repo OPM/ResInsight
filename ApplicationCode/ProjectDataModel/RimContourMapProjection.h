@@ -121,7 +121,7 @@ protected:
     // Protected virtual methods to be overridden by Eclipse and Geo-mechanical contour map implementations
     virtual void                updateGridInformation()              = 0;
     virtual std::vector<double> retrieveParameterWeights()           = 0;
-    virtual std::vector<double> generateResults(int timeStep, int everyNCells = 1) = 0;
+    virtual std::vector<double> generateResults(int timeStep)        = 0;
     virtual bool                resultVariableChanged() const        = 0;
     virtual void                clearResultVariable()                = 0;
     virtual RimGridView*        baseView() const                     = 0;
@@ -145,7 +145,7 @@ protected:
 
     double                  maxValue(const std::vector<double>& aggregatedResults) const;
     double                  minValue(const std::vector<double>& aggregatedResults) const;
-    std::pair<double, double> minmaxValuesAllTimeSteps();
+    std::pair<double, double> minmaxValuesAllTimeSteps(int skipSteps = 1);
 
     virtual cvf::ref<cvf::UByteArray> getCellVisibility() const;
     void                    generateGridMapping();

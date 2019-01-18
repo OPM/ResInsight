@@ -172,7 +172,7 @@ void RimEclipseContourMapProjection::updatedWeightingResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimEclipseContourMapProjection::generateResults(int timeStep, int everyNCells)
+std::vector<double> RimEclipseContourMapProjection::generateResults(int timeStep)
 {
     m_weightingResult->loadResult();
 
@@ -214,8 +214,10 @@ std::vector<double> RimEclipseContourMapProjection::generateResults(int timeStep
                 }
             }
 
+            int everyNCells = temporaryResult ? 10 : 1;
+
 #pragma omp parallel for
-            for (int index = 0; index < static_cast<int>(nCells); index += everyNCells)
+            for (int index = 0; index < static_cast<int>(nCells); ++index)
             {
                 cvf::Vec2ui ij           = ijFromCellIndex(index);
                 aggregatedResults[index] = calculateValueInMapCell(ij.x(), ij.y());
