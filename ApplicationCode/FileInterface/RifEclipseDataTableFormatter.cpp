@@ -20,6 +20,8 @@
 
 #include "cvfAssert.h"
 
+#include <limits>
+
 #define MAX_ECLIPSE_DATA_ROW_WIDTH 132  // Maximum eclipse data row width
 
 //--------------------------------------------------------------------------------------------------
