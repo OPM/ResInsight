@@ -396,7 +396,7 @@ std::vector<cvf::ref<cvf::Drawable>>
                 const cvf::Vec3d& localVertex2 = m_contourLinePolygons[i][j].vertices[nextVertex];
 
                 cvf::Vec3d lineCenter = (localVertex1 + localVertex2) * 0.5;
-                if (false && previousLevel && lineOverlapsWithPreviousContourLevel(lineCenter, previousLevel))
+                if (previousLevel && lineOverlapsWithPreviousContourLevel(lineCenter, previousLevel))
                 {
                     continue;
                 }
@@ -522,7 +522,7 @@ bool RivContourMapProjectionPartMgr::lineOverlapsWithPreviousContourLevel(
 {
     const int64_t jump = 50;
     CVF_ASSERT(previousLevel);
-    double tolerance = 1.0e-3 * m_contourMapProjection->sampleSpacing();
+    double tolerance = 1.0e-2 * m_contourMapProjection->sampleSpacing();
     for (const RimContourMapProjection::ContourPolygon& edgePolygon : *previousLevel)
     {
         std::pair<int64_t, double> closestIndex(0, std::numeric_limits<double>::infinity());
