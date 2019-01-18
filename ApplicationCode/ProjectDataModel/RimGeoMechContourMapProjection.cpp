@@ -91,18 +91,12 @@ void RimGeoMechContourMapProjection::updateLegend()
 {
     RimGeoMechCellColors* cellColors = view()->cellResult();
 
-    if (use3dGridLegendRange())
-    {
-        view()->updateLegendTextAndRanges(cellColors->legendConfig(), view()->currentTimeStep());
-    }
-    else
-    {
-        CVF_ASSERT(use2dMapLegendRange());
+    double minVal = minValue(m_aggregatedResults);
+    double maxVal = maxValue(m_aggregatedResults);
 
-        double minVal = minValue();
-        double maxVal = maxValue();
-        legendConfig()->setAutomaticRanges(minVal, maxVal, minVal, maxVal);
-    }
+    std::pair<double, double> minmaxValAllTimeSteps = minmaxValuesAllTimeSteps();
+
+    legendConfig()->setAutomaticRanges(minmaxValAllTimeSteps.first, minmaxValAllTimeSteps.second, minVal, maxVal);
 
     QString projectionLegendText = QString("Map Projection\n%1").arg(m_resultAggregation().uiText());
     projectionLegendText += QString("\nResult: %1").arg(cellColors->resultFieldUiName());
@@ -184,16 +178,17 @@ std::vector<double> RimGeoMechContourMapProjection::retrieveParameterWeights()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapProjection::generateResults(int timeStep)
+std::vector<double> RimGeoMechContourMapProjection::generateResults(int timeStep, int everyNCells)
 {
-    clearGeometry();
-
     RigGeoMechCaseData*          caseData         = geoMechCase()->geoMechData();
     RigFemPartResultsCollection* resultCollection = caseData->femPartResults();
     RimGeoMechCellColors*        cellColors       = view()->cellResult();
     RigFemResultAddress          resAddr          = cellColors->resultAddress();
+    size_t                       nCells           = numberOfCells();
+    std::vector<double>          aggregatedResults = std::vector<double>(nCells, std::numeric_limits<double>::infinity());
+
     if (!resAddr.isValid())
-        return;
+        return aggregatedResults;
 
     if (resAddr.fieldName == "PP")
     {
@@ -203,17 +198,16 @@ void RimGeoMechContourMapProjection::generateResults(int timeStep)
 
     m_resultValues                                = resultCollection->resultValues(resAddr, 0, timeStep);
 
-    size_t nCells = numberOfCells();
-    m_aggregatedResults              = std::vector<double>(nCells, std::numeric_limits<double>::infinity());
-
 #pragma omp parallel for
-    for (int index = 0; index < static_cast<int>(nCells); ++index)
+    for (int index = 0; index < static_cast<int>(nCells); index += everyNCells)
     {
         cvf::Vec2ui ij             = ijFromCellIndex(index);
-        m_aggregatedResults[index] = calculateValueInMapCell(ij.x(), ij.y());
+        aggregatedResults[index] = calculateValueInMapCell(ij.x(), ij.y());
     }
 
     m_currentResultAddr = resAddr;
+
+    return aggregatedResults;
 }
 
 //--------------------------------------------------------------------------------------------------

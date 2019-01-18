@@ -62,8 +62,8 @@ protected:
     cvf::ref<cvf::UByteArray>       getCellVisibility() const override;
     void                            ensureOnlyValidPorBarVisible(cvf::UByteArray* visibility, int timeStep) const;
     void                            updateGridInformation() override;
-    virtual std::vector<double>     retrieveParameterWeights() override;
-    void                            generateResults(int timeStep) override;
+    std::vector<double>             retrieveParameterWeights() override;
+    std::vector<double>             generateResults(int timeStep, int everyNCells = 1) override;
     bool                            resultVariableChanged() const override;
     void                            clearResultVariable() override;
     RimGridView*                    baseView() const override;

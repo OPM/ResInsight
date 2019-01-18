@@ -25,6 +25,7 @@
 #include "RigCellGeometryTools.h"
 #include "RigHexIntersectionTools.h"
 
+#include "RimCase.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
@@ -78,6 +79,8 @@ RimContourMapProjection::RimContourMapProjection()
     , m_mapSize(cvf::Vec2ui(0u, 0u))
     , m_sampleSpacing(-1.0)
     , m_currentResultTimestep(-1)
+    , m_minResultAllTimeSteps(std::numeric_limits<double>::infinity())
+    , m_maxResultAllTimeSteps(-std::numeric_limits<double>::infinity())
 {
     CAF_PDM_InitObject("RimContourMapProjection", ":/2DMapProjection16x16.png", "", "");
 
@@ -111,11 +114,19 @@ void RimContourMapProjection::generateResultsIfNecessary(int timeStep)
         generateGridMapping();
     }
 
+    if (resultVariableChanged())
+    {
+        clearResults();
+        clearTimeStepRange();
+    }
+
     if (resultsNeedsUpdating(timeStep))
     {
-        generateResults(timeStep);
+        clearGeometry();
+        m_aggregatedResults = generateResults(timeStep);
         generateVertexResults();
     }
+    m_currentResultTimestep = timeStep;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,33 +252,16 @@ QString RimContourMapProjection::resultAggregationText() const
 //--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::maxValue() const
 {
-    double maxV = -std::numeric_limits<double>::infinity();
-
-    for (size_t index = 0; index < m_aggregatedResults.size(); ++index)
-    {
-        if (m_aggregatedResults[index] != std::numeric_limits<double>::infinity())
-        {
-            maxV = std::max(maxV, m_aggregatedResults[index]);
-        }
-    }
-    return maxV;
+    return maxValue(m_aggregatedResults);
 }
+
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::minValue() const
 {
-    double minV = std::numeric_limits<double>::infinity();
-
-    for (size_t index = 0; index < m_aggregatedResults.size(); ++index)
-    {
-        if (m_aggregatedResults[index] != std::numeric_limits<double>::infinity())
-        {
-            minV = std::min(minV, m_aggregatedResults[index]);
-        }
-    }
-    return minV;
+    return minValue(m_aggregatedResults);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -589,7 +583,7 @@ bool RimContourMapProjection::resultsNeedsUpdating(int timeStep) const
     {
         return true;
     }
-    return resultVariableChanged();
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -603,10 +597,23 @@ bool RimContourMapProjection::geometryNeedsUpdating() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::timestepRangeNeedsUpdating() const
+{
+    if (m_minResultAllTimeSteps == std::numeric_limits<double>::infinity() ||
+        m_maxResultAllTimeSteps == -std::numeric_limits<double>::infinity())
+    {
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::clearGridMapping()
 {
     clearResults();
-
+    clearTimeStepRange();
     m_projected3dGridIndices.clear();
 }
 
@@ -622,6 +629,76 @@ void RimContourMapProjection::clearResults()
     m_currentResultTimestep = -1;
 
     clearResultVariable();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::clearTimeStepRange()
+{
+    m_minResultAllTimeSteps = std::numeric_limits<double>::infinity();
+    m_maxResultAllTimeSteps = -std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimContourMapProjection::maxValue(const std::vector<double>& aggregatedResults) const
+{
+    double maxV = -std::numeric_limits<double>::infinity();
+
+    for (size_t index = 0; index < aggregatedResults.size(); ++index)
+    {
+        if (aggregatedResults[index] != std::numeric_limits<double>::infinity())
+        {
+            maxV = std::max(maxV, aggregatedResults[index]);
+        }
+    }
+    return maxV;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimContourMapProjection::minValue(const std::vector<double>& aggregatedResults) const
+{
+    double minV = std::numeric_limits<double>::infinity();
+
+    for (size_t index = 0; index < aggregatedResults.size(); ++index)
+    {
+        if (aggregatedResults[index] != std::numeric_limits<double>::infinity())
+        {
+            minV = std::min(minV, aggregatedResults[index]);
+        }
+    }
+    return minV;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimContourMapProjection::minmaxValuesAllTimeSteps()
+{
+    if (timestepRangeNeedsUpdating())
+    {
+        clearTimeStepRange();
+
+        for (int i = 0; i < (int)baseView()->ownerCase()->timeStepStrings().size(); ++i)
+        {
+            if (i == m_currentResultTimestep)
+            {
+                m_minResultAllTimeSteps = std::min(m_minResultAllTimeSteps, minValue(m_aggregatedResults));
+                m_maxResultAllTimeSteps = std::max(m_maxResultAllTimeSteps, maxValue(m_aggregatedResults));
+            }
+            else
+            {
+                std::vector<double> aggregatedResults = generateResults(i, 10);
+                m_minResultAllTimeSteps = std::min(m_minResultAllTimeSteps, minValue(aggregatedResults));
+                m_maxResultAllTimeSteps = std::max(m_maxResultAllTimeSteps, maxValue(aggregatedResults));
+            }
+        }
+    }
+    return std::make_pair(m_minResultAllTimeSteps, m_maxResultAllTimeSteps);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1509,22 +1586,6 @@ std::vector<double> RimContourMapProjection::yVertexPositions() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::use2dMapLegendRange() const
-{
-    return !use3dGridLegendRange();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::use3dGridLegendRange() const
-{
-    return (isMeanResult() || m_resultAggregation == RESULTS_TOP_VALUE);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 cvf::Vec2ui RimContourMapProjection::calculateMapSize() const
 {
     cvf::Vec3d gridExtent = m_expandedBoundingBox.extent();
@@ -1550,8 +1611,6 @@ void RimContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* change
                                                const QVariant&            oldValue,
                                                const QVariant&            newValue)
 {
-    legendConfig()->disableAllTimeStepsRange(use2dMapLegendRange());
-
     if (changedField == &m_resultAggregation)
     {
         ResultAggregation previousAggregation = static_cast<ResultAggregationEnum>(oldValue.toInt());
@@ -1563,6 +1622,7 @@ void RimContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* change
         {
             clearResults();
         }
+        clearTimeStepRange();
     }
     else if (changedField == &m_smoothContourLines)
     {
@@ -1570,7 +1630,9 @@ void RimContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* change
     }
     else if (changedField == &m_relativeSampleSpacing)
     {
+        clearGridMapping();
         clearResults();
+        clearTimeStepRange();
     }
 
     baseView()->updateConnectedEditors();
@@ -1628,5 +1690,4 @@ void RimContourMapProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTre
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::initAfterRead()
 {
-    legendConfig()->disableAllTimeStepsRange(use2dMapLegendRange());
 }

@@ -128,19 +128,12 @@ void RimEclipseContourMapProjection::updateLegend()
 {    
     RimEclipseCellColors* cellColors = view()->cellResult();
 
-    if (use3dGridLegendRange())
-    {
-        cellColors->updateLegendData(view()->currentTimeStep(), legendConfig());
-    }
-    else
-    {
-        CVF_ASSERT(use2dMapLegendRange());
+    double minVal = minValue(m_aggregatedResults);
+    double maxVal = maxValue(m_aggregatedResults);
 
-        double minVal = minValue();
-        double maxVal = maxValue();
+    std::pair<double, double> minmaxValAllTimeSteps = minmaxValuesAllTimeSteps();
 
-        legendConfig()->setAutomaticRanges(minVal, maxVal, minVal, maxVal);
-    }
+    legendConfig()->setAutomaticRanges(minmaxValAllTimeSteps.first, minmaxValAllTimeSteps.second, minVal, maxVal);
 
     if (m_resultAggregation() == RESULTS_OIL_COLUMN ||
         m_resultAggregation() == RESULTS_GAS_COLUMN ||
@@ -179,15 +172,13 @@ void RimEclipseContourMapProjection::updatedWeightingResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapProjection::generateResults(int timeStep)
+std::vector<double> RimEclipseContourMapProjection::generateResults(int timeStep, int everyNCells)
 {
-    clearGeometry();
-
     m_weightingResult->loadResult();
 
     size_t nCells    = numberOfCells();
 
-    m_aggregatedResults              = std::vector<double>(nCells, std::numeric_limits<double>::infinity());
+    std::vector<double> aggregatedResults = std::vector<double>(nCells, std::numeric_limits<double>::infinity());
 
     RimEclipseCellColors* cellColors = view()->cellResult();
     RimEclipseResultCase* eclipseCase = this->eclipseCase();
@@ -224,14 +215,14 @@ void RimEclipseContourMapProjection::generateResults(int timeStep)
             }
 
 #pragma omp parallel for
-            for (int index = 0; index < static_cast<int>(nCells); ++index)
+            for (int index = 0; index < static_cast<int>(nCells); index += everyNCells)
             {
-                cvf::Vec2ui ij             = ijFromCellIndex(index);
-                m_aggregatedResults[index] = calculateValueInMapCell(ij.x(), ij.y());
+                cvf::Vec2ui ij           = ijFromCellIndex(index);
+                aggregatedResults[index] = calculateValueInMapCell(ij.x(), ij.y());
             }
         }
     }
-    m_currentResultTimestep = timeStep;
+    return aggregatedResults;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -92,6 +92,7 @@ public:
 
     double maxValue() const;
     double minValue() const;
+
     double meanValue() const;
     double sumAllValues() const;
 
@@ -120,7 +121,7 @@ protected:
     // Protected virtual methods to be overridden by Eclipse and Geo-mechanical contour map implementations
     virtual void                updateGridInformation()              = 0;
     virtual std::vector<double> retrieveParameterWeights()           = 0;
-    virtual void                generateResults(int timeStep)        = 0;
+    virtual std::vector<double> generateResults(int timeStep, int everyNCells = 1) = 0;
     virtual bool                resultVariableChanged() const        = 0;
     virtual void                clearResultVariable()                = 0;
     virtual RimGridView*        baseView() const                     = 0;
@@ -137,8 +138,14 @@ protected:
     bool gridMappingNeedsUpdating() const;
     bool resultsNeedsUpdating(int timeStep) const;
     bool geometryNeedsUpdating() const;
+    bool timestepRangeNeedsUpdating() const;
     void clearGridMapping();
     void clearResults();
+    void clearTimeStepRange();
+
+    double                  maxValue(const std::vector<double>& aggregatedResults) const;
+    double                  minValue(const std::vector<double>& aggregatedResults) const;
+    std::pair<double, double> minmaxValuesAllTimeSteps();
 
     virtual cvf::ref<cvf::UByteArray> getCellVisibility() const;
     void                    generateGridMapping();
@@ -178,8 +185,6 @@ protected:
     std::vector<double> xVertexPositions() const;
     std::vector<double> yVertexPositions() const;
 
-    bool                use2dMapLegendRange() const;
-    bool                use3dGridLegendRange() const;
     cvf::Vec2ui         calculateMapSize() const;
     double              gridEdgeOffset() const;
     
@@ -215,4 +220,6 @@ protected:
     std::vector<cvf::Vec4d>               m_trianglesWithVertexValues;
     int                                   m_currentResultTimestep;
 
+    double                                m_minResultAllTimeSteps;
+    double                                m_maxResultAllTimeSteps;
 };

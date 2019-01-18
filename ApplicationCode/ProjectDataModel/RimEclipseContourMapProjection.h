@@ -63,7 +63,7 @@ protected:
 
     void                            updateGridInformation() override;
     std::vector<double>             retrieveParameterWeights() override;
-    void                            generateResults(int timeStep) override;
+    std::vector<double>             generateResults(int timeStep, int everyNCells = 1) override;
     bool                            resultVariableChanged() const override;
     void                            clearResultVariable() override;
     RimGridView*                    baseView() const override;
