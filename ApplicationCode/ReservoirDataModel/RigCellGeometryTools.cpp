@@ -194,6 +194,50 @@ void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Ramer-Douglas-Peucker simplification algorithm
+///
+/// https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
+//--------------------------------------------------------------------------------------------------
+void RigCellGeometryTools::simplifyPolygon(std::vector<cvf::Vec3d>* vertices, double epsilon)
+{
+    CVF_ASSERT(vertices);
+    if (vertices->size() < 3) return;
+
+    std::pair<size_t, double> maxDistPoint(0u, 0.0);
+
+    for (size_t i = 1; i < vertices->size() - 1; ++i)
+    {
+        cvf::Vec3d v = vertices->at(i);
+        double     u;
+        cvf::Vec3d v_proj   = cvf::GeometryTools::projectPointOnLine(vertices->front(), vertices->back(), v, &u);
+        double     distance = (v_proj - v).length();
+        if (distance > maxDistPoint.second)
+        {
+            maxDistPoint = std::make_pair(i, distance);
+        }
+    }
+
+    if (maxDistPoint.second > epsilon)
+    {
+        std::vector<cvf::Vec3d> newVertices1(vertices->begin(), vertices->begin() + maxDistPoint.first + 1);
+        std::vector<cvf::Vec3d> newVertices2(vertices->begin() + maxDistPoint.first, vertices->end());
+
+        // Recurse
+        simplifyPolygon(&newVertices1, epsilon);
+        simplifyPolygon(&newVertices2, epsilon);
+
+        std::vector<cvf::Vec3d> newVertices(newVertices1.begin(), newVertices1.end() - 1);
+        newVertices.insert(newVertices.end(), newVertices2.begin(), newVertices2.end());
+        *vertices = newVertices;
+    }
+    else
+    {
+        std::vector<cvf::Vec3d> newVertices = {vertices->front(), vertices->back()};
+        *vertices                           = newVertices;
+    }
+}
+
 //==================================================================================================
 /// 
 //==================================================================================================

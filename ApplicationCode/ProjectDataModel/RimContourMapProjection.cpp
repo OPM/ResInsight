@@ -44,6 +44,8 @@
 #include <algorithm>
 #include <omp.h>
 
+#include <QDebug>
+
 namespace caf
 {
 template<>
@@ -732,13 +734,12 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
         int myThread = omp_get_thread_num();
         threadTriangles[myThread].resize(std::max((size_t) 1, m_contourPolygons.size()));
 
-        std::set<int64_t> excludedFaceIndices;
-
 #pragma omp for schedule(dynamic)
         for (int64_t i = 0; i < (int64_t)faceList->size(); i += 3)
         {
             std::vector<cvf::Vec3d> triangle(3);
             std::vector<cvf::Vec4d> triangleWithValues(3);
+            bool anyValidVertex = false;
             for (size_t n = 0; n < 3; ++n)
             {
                 uint   vn             = (*faceList)[i + n];
@@ -746,6 +747,15 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
                                                                      : std::numeric_limits<double>::infinity();
                 triangle[n]           = vertices[vn];
                 triangleWithValues[n] = cvf::Vec4d(vertices[vn], value);
+                if (value != std::numeric_limits<double>::infinity())
+                {
+                    anyValidVertex = true;
+                }
+            }
+
+            if (!anyValidVertex)
+            {
+                continue;
             }
 
             if (m_contourPolygons.empty())
@@ -755,7 +765,8 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
                 continue;
             }
 
-            for (size_t c = 0; c < m_contourPolygons.size() && excludedFaceIndices.count(i) == 0u; ++c)
+            bool outsideOuterLimit = false;
+            for (size_t c = 0; c < m_contourPolygons.size() && !outsideOuterLimit; ++c)
             {
                 std::vector<std::vector<cvf::Vec3d>> intersectPolygons;
                 for (size_t j = 0; j < m_contourPolygons[c].size(); ++j)
@@ -778,7 +789,7 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
 
                 if (intersectPolygons.empty())
                 {
-                    excludedFaceIndices.insert(i);
+                    outsideOuterLimit = true;
                     continue;
                 }
                 
@@ -1001,6 +1012,14 @@ void RimContourMapProjection::generateContourPolygons()
                     }
                 }
 
+                double simplifyEpsilon = m_smoothContourLines() ? 5.0e-2 * m_sampleSpacing : 1.0e-3 * m_sampleSpacing;
+                for (size_t i = 0; i < contourPolygons.size(); ++i)
+                {
+                    for (ContourPolygon& polygon : contourPolygons[i])
+                    {
+                        RigCellGeometryTools::simplifyPolygon(&polygon.vertices, simplifyEpsilon);
+                    }
+                }
                 m_contourLevelCumulativeAreas.resize(contourPolygons.size(), 0.0);
                 for (int64_t i = (int64_t) contourPolygons.size() - 1; i >= 0; --i)
                 {
@@ -1045,15 +1064,16 @@ void RimContourMapProjection::smoothContourPolygons(ContourPolygons*       conto
                 }
                 // Only expand.
                 cvf::Vec3d modifiedVertex = 0.5 * (v + 0.5 * (vm1 + vp1));
-                cvf::Vec3d delta          = (modifiedVertex - v).getNormalized();
+                cvf::Vec3d delta          = modifiedVertex - v;
                 cvf::Vec3d tangent3d      = vp1 - vm1;
                 cvf::Vec2d tangent2d(tangent3d.x(), tangent3d.y());
                 cvf::Vec3d norm3d(tangent2d.getNormalized().perpendicularVector());
                 if (delta * norm3d > 0 && favourExpansion)
                 {
                     // Normal is always inwards facing so a positive dot product means inward movement
-                    // Favour expansion rather than contraction by only contracting by half the amount
-                    modifiedVertex = v + 0.5 * delta;
+                    // Favour expansion rather than contraction by only contracting by a fraction.
+                    // The fraction is empirically found to give a decent result.
+                    modifiedVertex = v + 0.2 * delta;
                 }
                 newVertices[j] = modifiedVertex;
                 maxChange      = std::max(maxChange, (modifiedVertex - v).length());
@@ -1572,7 +1592,7 @@ void RimContourMapProjection::defineEditorAttribute(const caf::PdmFieldHandle* f
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
         if (myAttr)
         {
-            myAttr->m_minimum = 0.25;
+            myAttr->m_minimum = 0.2;
             myAttr->m_maximum = 2.0;
         }
     }
