@@ -40,6 +40,7 @@ public:
     cvf::Vec3i          findMainIJKFaces(int elementIndex) const;
     
     std::pair<cvf::Vec3st, cvf::Vec3st> reservoirIJKBoundingBox() const;
+    void        cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) const override;
 
  private:
     void                generateStructGridData();
@@ -59,7 +60,6 @@ private: // Unused, Not implemented
 
 
     bool        cellIJKFromCoordinate(const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k) const override;
-    void        cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) const override;
     cvf::Vec3d  cellCentroid(size_t cellIndex) const override;
     void        cellMinMaxCordinates(size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate) const override;
     size_t      gridPointIndexFromIJK(size_t i, size_t j, size_t k) const override;

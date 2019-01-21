@@ -59,22 +59,23 @@ public:
 protected:
     typedef RimContourMapProjection::CellIndexAndResult CellIndexAndResult;
 
+    // GeoMech implementation specific data generation methods
     cvf::ref<cvf::UByteArray>       getCellVisibility() const override;
-    void                            ensureOnlyValidPorBarVisible(cvf::UByteArray* visibility, int timeStep) const;
+    cvf::BoundingBox                calculateExpandedPorBarBBox(int timeStep) const;
     void                            updateGridInformation() override;
+    std::vector<bool>               getMapCellVisibility() override;
     std::vector<double>             retrieveParameterWeights() override;
     std::vector<double>             generateResults(int timeStep) override;
+    std::vector<double>             generateResultsFromAddress(RigFemResultAddress resultAddress, const std::vector<bool>& mapCellVisibility, int timeStep);
     bool                            resultVariableChanged() const override;
     void                            clearResultVariable() override;
     RimGridView*                    baseView() const override;
     std::vector<size_t>             findIntersectingCells(const cvf::BoundingBox& bbox) const override;
-    double                          calculateOverlapVolume(size_t globalCellIdx, const cvf::BoundingBox& bbox, size_t* cellKLayerOut) const override;
-    double                          calculateRayLengthInCell(size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint, size_t* cellKLayerOut) const override;
+    size_t                          kLayer(size_t globalCellIdx) const override;
+    double                          calculateOverlapVolume(size_t globalCellIdx, const cvf::BoundingBox& bbox) const override;
+    double                          calculateRayLengthInCell(size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint) const override;
     double                          getParameterWeightForCell(size_t globalCellIdx, const std::vector<double>& parameterWeights) const override;
-
-    // GeoMech implementation specific data generation methods
-    double                          gridCellValue(size_t globalCellIdx) const override;
-
+    std::vector<double>             gridCellValues(RigFemResultAddress resAddr, std::vector<float>& resultValues) const;
     RimGeoMechCase*                 geoMechCase() const;
     RimGeoMechContourMapView*       view() const;
 
@@ -84,15 +85,16 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
     void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                          defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                        QString                    uiConfigName,
+                                                        caf::PdmUiEditorAttribute* attribute) override;
 
 protected:
     caf::PdmField<bool>                           m_limitToPorePressureRegions;
-    caf::PdmField<bool>                           m_includePaddingAroundPorePressureRegion;
+    caf::PdmField<double>                         m_paddingAroundPorePressureRegion;
     cvf::ref<RigFemPart>                          m_femPart;
     cvf::cref<RigFemPartGrid>                     m_femPartGrid;
     RigFemResultAddress                           m_currentResultAddr;
-
-    std::vector<float>                            m_resultValues;
 };
 
 

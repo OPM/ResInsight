@@ -109,9 +109,11 @@ void RimContourMapProjection::generateResultsIfNecessary(int timeStep)
 {
     updateGridInformation();
 
-    if (gridMappingNeedsUpdating())
+    if (gridMappingNeedsUpdating() || mapCellVisibilityNeedsUpdating())
     {
-        generateGridMapping();
+        clearResults();
+        m_projected3dGridIndices = generateGridMapping();
+        m_mapCellVisibility      = getMapCellVisibility();
     }
 
     if (resultVariableChanged())
@@ -417,7 +419,15 @@ cvf::Vec3d RimContourMapProjection::origin3d() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimContourMapProjection::calculateValueInMapCell(uint i, uint j) const
+size_t RimContourMapProjection::gridResultIndex(size_t globalCellIdx) const
+{
+    return globalCellIdx;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimContourMapProjection::calculateValueInMapCell(uint i, uint j, const std::vector<double>& gridCellValues) const
 {
     const std::vector<std::pair<size_t, double>>& matchingCells = cellsAtIJ(i, j);
     if (!matchingCells.empty())
@@ -426,9 +436,16 @@ double RimContourMapProjection::calculateValueInMapCell(uint i, uint j) const
         {
             case RESULTS_TOP_VALUE:
             {
-                size_t cellIdx   = matchingCells.front().first;
-                double cellValue = gridCellValue(cellIdx);
-                return cellValue;
+                for (auto cellIdxAndWeight : matchingCells)
+                {
+                    size_t cellIdx   = cellIdxAndWeight.first;
+                    double cellValue = gridCellValues[cellIdx];
+                    if (cellValue != std::numeric_limits<double>::infinity())
+                    {
+                        return cellValue;
+                    }
+                }
+                return std::numeric_limits<double>::infinity();
             }
             case RESULTS_MEAN_VALUE:
             {
@@ -436,7 +453,7 @@ double RimContourMapProjection::calculateValueInMapCell(uint i, uint j) const
                 for (auto cellIdxAndWeight : matchingCells)
                 {
                     size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = gridCellValue(cellIdx);
+                    double cellValue = gridCellValues[cellIdx];
                     if (cellValue != std::numeric_limits<double>::infinity())
                     {
                         calculator.addValueAndWeight(cellValue, cellIdxAndWeight.second);
@@ -454,7 +471,7 @@ double RimContourMapProjection::calculateValueInMapCell(uint i, uint j) const
                 for (auto cellIdxAndWeight : matchingCells)
                 {
                     size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = gridCellValue(cellIdx);
+                    double cellValue = gridCellValues[cellIdx];
                     if (cellValue < 1.0e-8)
                     {
                         return 0.0;
@@ -476,7 +493,7 @@ double RimContourMapProjection::calculateValueInMapCell(uint i, uint j) const
                 for (auto cellIdxAndWeight : matchingCells)
                 {
                     size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = gridCellValue(cellIdx);
+                    double cellValue = gridCellValues[cellIdx];
                     if (std::fabs(cellValue) < 1.0e-8)
                     {
                         return 0.0;
@@ -498,7 +515,7 @@ double RimContourMapProjection::calculateValueInMapCell(uint i, uint j) const
                 for (auto cellIdxAndWeight : matchingCells)
                 {
                     size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = gridCellValue(cellIdx);
+                    double cellValue = gridCellValues[cellIdx];
                     if (cellValue != std::numeric_limits<double>::infinity())
                     {
                         maxValue = std::max(maxValue, cellValue);
@@ -512,19 +529,22 @@ double RimContourMapProjection::calculateValueInMapCell(uint i, uint j) const
                 for (auto cellIdxAndWeight : matchingCells)
                 {
                     size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = gridCellValue(cellIdx);
+                    double cellValue = gridCellValues[cellIdx];
                     minValue         = std::min(minValue, cellValue);
                 }
                 return minValue;
             }
             case RESULTS_VOLUME_SUM:
             case RESULTS_SUM:
+            case RESULTS_OIL_COLUMN:
+            case RESULTS_GAS_COLUMN:
+            case RESULTS_HC_COLUMN:
             {
                 double sum = 0.0;
                 for (auto cellIdxAndWeight : matchingCells)
                 {
                     size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = gridCellValue(cellIdx);
+                    double cellValue = gridCellValues[cellIdx];
                     if (cellValue != std::numeric_limits<double>::infinity())
                     {
                         sum += cellValue * cellIdxAndWeight.second;
@@ -532,7 +552,6 @@ double RimContourMapProjection::calculateValueInMapCell(uint i, uint j) const
                 }
                 return sum;
             }
-         
             default:
                 CVF_TIGHT_ASSERT(false);
         }
@@ -561,6 +580,7 @@ bool RimContourMapProjection::gridMappingNeedsUpdating() const
     {
         if ((*currentVisibility)[i] != (*m_cellGridIdxVisibility)[i]) return true;
     }
+
     return false;
 }
 
@@ -615,6 +635,7 @@ void RimContourMapProjection::clearGridMapping()
     clearResults();
     clearTimeStepRange();
     m_projected3dGridIndices.clear();
+    m_mapCellVisibility.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -677,20 +698,22 @@ double RimContourMapProjection::minValue(const std::vector<double>& aggregatedRe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimContourMapProjection::minmaxValuesAllTimeSteps(int skipSteps /*= 1*/)
+std::pair<double, double> RimContourMapProjection::minmaxValuesAllTimeSteps()
 {
     if (timestepRangeNeedsUpdating())
     {
         clearTimeStepRange();
 
-        m_minResultAllTimeSteps = std::min(m_minResultAllTimeSteps, minValue(m_aggregatedResults));
-        m_maxResultAllTimeSteps = std::max(m_maxResultAllTimeSteps, maxValue(m_aggregatedResults));
-
-        for (int i = 0; i < (int)baseView()->ownerCase()->timeStepStrings().size() - 1; i += skipSteps)
+        for (int i = 0; i < (int)baseView()->ownerCase()->timeStepStrings().size() - 1; ++i)
         {
-                std::vector<double> aggregatedResults = generateResults(i);
+            if (i == m_currentResultTimestep)
             {
-                std::vector<double> aggregatedResults = generateResults(i, true);
+                m_minResultAllTimeSteps = std::min(m_minResultAllTimeSteps, minValue(m_aggregatedResults));
+                m_maxResultAllTimeSteps = std::max(m_maxResultAllTimeSteps, maxValue(m_aggregatedResults));
+            }
+            else
+            {
+                std::vector<double> aggregatedResults = generateResults(i);
                 m_minResultAllTimeSteps = std::min(m_minResultAllTimeSteps, minValue(aggregatedResults));
                 m_maxResultAllTimeSteps = std::max(m_maxResultAllTimeSteps, maxValue(aggregatedResults));
             }
@@ -708,16 +731,31 @@ cvf::ref<cvf::UByteArray> RimContourMapProjection::getCellVisibility() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Empty default implementation
+//--------------------------------------------------------------------------------------------------
+std::vector<bool> RimContourMapProjection::getMapCellVisibility()
+{
+    return std::vector<bool>(numberOfCells(), true);
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateGridMapping()
+bool RimContourMapProjection::mapCellVisibilityNeedsUpdating()
 {
-    clearResults();
+    std::vector<bool> mapCellVisiblity = getMapCellVisibility();
+    return !(mapCellVisiblity == m_mapCellVisibility);
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<std::pair<size_t, double>>> RimContourMapProjection::generateGridMapping()
+{
     m_cellGridIdxVisibility = getCellVisibility();
 
     int nCells = numberOfCells();
-    m_projected3dGridIndices.resize(nCells);
+    std::vector<std::vector<std::pair<size_t, double>>> projected3dGridIndices(nCells);
 
     std::vector<double> weightingResultValues = retrieveParameterWeights();
 
@@ -728,8 +766,8 @@ void RimContourMapProjection::generateGridMapping()
         {
             cvf::Vec2ui ij = ijFromCellIndex(index);
 
-            cvf::Vec2d globalPos            = cellCenterPosition(ij.x(), ij.y()) + origin2d();
-            m_projected3dGridIndices[index] = cellRayIntersectionAndResults(globalPos, weightingResultValues);
+            cvf::Vec2d globalPos          = cellCenterPosition(ij.x(), ij.y()) + origin2d();
+            projected3dGridIndices[index] = cellRayIntersectionAndResults(globalPos, weightingResultValues);
         }
     }
     else
@@ -739,10 +777,12 @@ void RimContourMapProjection::generateGridMapping()
         {
             cvf::Vec2ui ij = ijFromCellIndex(index);
 
-            cvf::Vec2d globalPos            = cellCenterPosition(ij.x(), ij.y()) + origin2d();
-            m_projected3dGridIndices[index] = cellOverlapVolumesAndResults(globalPos, weightingResultValues);
+            cvf::Vec2d globalPos          = cellCenterPosition(ij.x(), ij.y()) + origin2d();
+            projected3dGridIndices[index] = cellOverlapVolumesAndResults(globalPos, weightingResultValues);
         }
     }
+
+    return projected3dGridIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -973,7 +1013,7 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
         }
 
         double triangleAreasThisLevel = sumTriangleAreas(allTrianglesThisLevel);
-        if (triangleAreasThisLevel > 1.0e-3 * m_contourLevelCumulativeAreas[c])
+        if (c >= m_contourLevelCumulativeAreas.size() || triangleAreasThisLevel > 1.0e-3 * m_contourLevelCumulativeAreas[c])
         {
             trianglesPerLevel[c] = allTrianglesThisLevel;
         }
@@ -1206,9 +1246,9 @@ double RimContourMapProjection::sumTriangleAreas(const std::vector<cvf::Vec4d>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<size_t, double>>
+std::vector<RimContourMapProjection::CellIndexAndResult>
     RimContourMapProjection::cellOverlapVolumesAndResults(const cvf::Vec2d&          globalPos2d,
-                                                                 const std::vector<double>& weightingResultValues) const
+                                                          const std::vector<double>& weightingResultValues) const
 {
     cvf::Vec3d top2dElementCentroid(globalPos2d, m_expandedBoundingBox.max().z());
     cvf::Vec3d bottom2dElementCentroid(globalPos2d, m_expandedBoundingBox.min().z());
@@ -1228,33 +1268,30 @@ std::vector<std::pair<size_t, double>>
 
     std::vector<size_t> allCellIndices = findIntersectingCells(bbox2dElement);
 
-    typedef std::map<size_t, std::vector<std::pair<size_t, double>>> KLayerCellWeightMap;
-    KLayerCellWeightMap                                              matchingVisibleCellsWeightPerKLayer;
+    std::map<size_t, std::vector<size_t>> kLayerIndexMap;
 
     for (size_t globalCellIdx : allCellIndices)
     {
         if ((*m_cellGridIdxVisibility)[globalCellIdx])
         {
-            size_t cellKLayer = 0u;
-            double overlapVolume = calculateOverlapVolume(globalCellIdx, bbox2dElement, &cellKLayer);
-
-            if (overlapVolume > 0.0)
-            {
-                double weight = overlapVolume * getParameterWeightForCell(globalCellIdx, weightingResultValues);
-
-                if (weight > 0.0)
-                {
-                    matchingVisibleCellsWeightPerKLayer[cellKLayer].push_back(std::make_pair(globalCellIdx, weight));
-                }
-            }
+            kLayerIndexMap[kLayer(globalCellIdx)].push_back(globalCellIdx);
         }
     }
 
-    for (auto kLayerCellWeight : matchingVisibleCellsWeightPerKLayer)
+    for (const auto& kLayerIndexPair : kLayerIndexMap)
     {
-        for (auto cellWeight : kLayerCellWeight.second)
+        for (size_t globalCellIdx : kLayerIndexPair.second)
         {
-            matchingVisibleCellsAndWeight.push_back(std::make_pair(cellWeight.first, cellWeight.second));
+            double overlapVolume = calculateOverlapVolume(globalCellIdx, bbox2dElement);
+            if (overlapVolume > 0.0)
+            {
+                size_t resultIndex = gridResultIndex(globalCellIdx);
+                double weight = overlapVolume * getParameterWeightForCell(resultIndex, weightingResultValues);
+                if (weight > 0.0)
+                {
+                    matchingVisibleCellsAndWeight.push_back(std::make_pair(resultIndex, weight));
+                }
+            }
         }
     }
 
@@ -1264,16 +1301,15 @@ std::vector<std::pair<size_t, double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<size_t, double>>
-    RimContourMapProjection::cellRayIntersectionAndResults(const cvf::Vec2d&          globalPos2d,
-                                                                  const std::vector<double>& weightingResultValues) const
+std::vector<RimContourMapProjection::CellIndexAndResult> RimContourMapProjection::cellRayIntersectionAndResults(const cvf::Vec2d& globalPos2d,
+                                                           const std::vector<double>& weightingResultValues) const
 {
     std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
 
     cvf::Vec3d highestPoint(globalPos2d, m_expandedBoundingBox.max().z());
     cvf::Vec3d lowestPoint(globalPos2d, m_expandedBoundingBox.min().z());
 
-    // Bounding box has been expanded, so ray may be outside actual grid
+    // Bounding box has been expanded, so ray may be outside actual 3d grid
     if (!m_gridBoundingBox.contains(highestPoint))
     {
         return matchingVisibleCellsAndWeight;
@@ -1285,33 +1321,33 @@ std::vector<std::pair<size_t, double>>
 
     std::vector<size_t> allCellIndices = findIntersectingCells(rayBBox);
 
-    std::map<size_t, std::vector<std::pair<size_t, double>>> matchingVisibleCellsAndWeightPerKLayer;
+    std::map<size_t, std::vector<size_t>> kLayerIndexMap;
 
     for (size_t globalCellIdx : allCellIndices)
     {
         if ((*m_cellGridIdxVisibility)[globalCellIdx])
         {
-            size_t cellKLayer = 0u;
-            double lengthInCell = calculateRayLengthInCell(globalCellIdx, highestPoint, lowestPoint, &cellKLayer);
-            if (lengthInCell > 0.0)
-            {
-                matchingVisibleCellsAndWeightPerKLayer[cellKLayer].push_back(std::make_pair(globalCellIdx, lengthInCell));
-            }
+            kLayerIndexMap[kLayer(globalCellIdx)].push_back(globalCellIdx);
         }
     }
 
-    for (auto kLayerCellWeight : matchingVisibleCellsAndWeightPerKLayer)
+    for (const auto& kLayerIndexPair : kLayerIndexMap)
     {
-        // Make sure the sum of all weights in the same K-layer is 1.
         double weightSumThisKLayer = 0.0;
-        for (auto cellWeight : kLayerCellWeight.second)
+        std::vector<std::pair<size_t, double>> cellsAndWeightsThisLayer;
+        for (size_t globalCellIdx : kLayerIndexPair.second)
         {
-            weightSumThisKLayer += cellWeight.second;
+            double lengthInCell = calculateRayLengthInCell(globalCellIdx, highestPoint, lowestPoint);
+            if (lengthInCell > 0.0)
+            {
+                cellsAndWeightsThisLayer.push_back(std::make_pair(gridResultIndex(globalCellIdx), lengthInCell));
+                weightSumThisKLayer += lengthInCell;
+            }
         }
-
-        for (auto cellWeight : kLayerCellWeight.second)
+        for (auto& cellWeightPair : cellsAndWeightsThisLayer)
         {
-            matchingVisibleCellsAndWeight.push_back(std::make_pair(cellWeight.first, cellWeight.second / weightSumThisKLayer));
+            cellWeightPair.second /= weightSumThisKLayer;
+            matchingVisibleCellsAndWeight.push_back(cellWeightPair);
         }
     }
 

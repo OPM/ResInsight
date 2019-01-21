@@ -125,13 +125,15 @@ protected:
     virtual bool                resultVariableChanged() const        = 0;
     virtual void                clearResultVariable()                = 0;
     virtual RimGridView*        baseView() const                     = 0;
+    virtual size_t              kLayer(size_t globalCellIdx) const   = 0;
     virtual std::vector<size_t> findIntersectingCells(const cvf::BoundingBox& bbox) const = 0;
-    virtual double              calculateOverlapVolume(size_t globalCellIdx, const cvf::BoundingBox& bbox, size_t* cellKLayerOut) const = 0;
-    virtual double              calculateRayLengthInCell(size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint, size_t* cellKLayerOut) const = 0;
+    virtual double              calculateOverlapVolume(size_t globalCellIdx, const cvf::BoundingBox& bbox) const = 0;
+    virtual double              calculateRayLengthInCell(size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint) const = 0;
     virtual double              getParameterWeightForCell(size_t globalCellIdx, const std::vector<double>& parameterWeights) const = 0;
-    virtual double              gridCellValue(size_t globalCellIdx) const = 0;
     
-    virtual double calculateValueInMapCell(uint i, uint j) const;
+    virtual size_t              gridResultIndex(size_t globalCellIdx) const;
+
+    double calculateValueInMapCell(uint i, uint j, const std::vector<double>& gridCellValues) const;
 
 protected:
     // Keep track of whether cached data needs updating
@@ -145,10 +147,13 @@ protected:
 
     double                  maxValue(const std::vector<double>& aggregatedResults) const;
     double                  minValue(const std::vector<double>& aggregatedResults) const;
-    std::pair<double, double> minmaxValuesAllTimeSteps(int skipSteps = 1);
+    std::pair<double, double> minmaxValuesAllTimeSteps();
 
-    virtual cvf::ref<cvf::UByteArray> getCellVisibility() const;
-    void                    generateGridMapping();
+    virtual cvf::ref<cvf::UByteArray>                   getCellVisibility() const;
+    virtual std::vector<bool>                           getMapCellVisibility();
+    bool                                                mapCellVisibilityNeedsUpdating();
+    std::vector<std::vector<std::pair<size_t, double>>> generateGridMapping();
+
     void                    generateVertexResults();
     void                    generateTrianglesWithVertexValues();
     std::vector<cvf::Vec3d> generateVertices() const;
@@ -157,9 +162,9 @@ protected:
     static double           sumPolygonArea(const ContourPolygons& contourPolygons);
     static double           sumTriangleAreas(const std::vector<cvf::Vec4d>& triangles);
 
-    std::vector<CellIndexAndResult> cellOverlapVolumesAndResults(const cvf::Vec2d&          globalPos2d,
+    std::vector<CellIndexAndResult> cellOverlapVolumesAndResults(const cvf::Vec2d& globalPos2d,
                                                                  const std::vector<double>& weightingResultValues) const;
-    std::vector<CellIndexAndResult> cellRayIntersectionAndResults(const cvf::Vec2d&          globalPos2d,
+    std::vector<CellIndexAndResult> cellRayIntersectionAndResults(const cvf::Vec2d& globalPos2d,
                                                                   const std::vector<double>& weightingResultValues) const;
 
     bool        isMeanResult() const;
@@ -219,6 +224,7 @@ protected:
     std::vector<double>                   m_contourLevelCumulativeAreas;
     std::vector<cvf::Vec4d>               m_trianglesWithVertexValues;
     int                                   m_currentResultTimestep;
+    std::vector<bool>                     m_mapCellVisibility;
 
     double                                m_minResultAllTimeSteps;
     double                                m_maxResultAllTimeSteps;

@@ -68,14 +68,14 @@ protected:
     void                            clearResultVariable() override;
     RimGridView*                    baseView() const override;
     std::vector<size_t>             findIntersectingCells(const cvf::BoundingBox& bbox) const override;
-    double                          calculateOverlapVolume(size_t globalCellIdx, const cvf::BoundingBox& bbox, size_t* cellKLayerOut) const override;
-    double                          calculateRayLengthInCell(size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint, size_t* cellKLayerOut) const override;
-    double                          getParameterWeightForCell(size_t globalCellIdx, const std::vector<double>& parameterWeights) const override;
-    double                          gridCellValue(size_t globalCellIdx) const override;
+    size_t                          kLayer(size_t globalCellIdx) const override;
+    double                          calculateOverlapVolume(size_t globalCellIdx, const cvf::BoundingBox& bbox) const override;
+    double                          calculateRayLengthInCell(size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint) const override;
+    double                          getParameterWeightForCell(size_t cellResultIdx, const std::vector<double>& parameterWeights) const override;
+    size_t                          gridResultIndex(size_t globalCellIdx) const override;
 
     // Eclipse implementation specific data generation methods
-    double                          calculateValueInMapCell(uint i, uint j) const;
-    double                          calculateColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const;
+    std::vector<double>             calculateColumnResult(ResultAggregation resultAggregation) const;
 
     RimEclipseResultCase*           eclipseCase() const;
     RimEclipseContourMapView*       view() const;
@@ -90,8 +90,6 @@ protected:
 protected:
     caf::PdmField<bool>                                 m_weightByParameter;
     caf::PdmChildField<RimEclipseResultDefinition*>     m_weightingResult;
-
-    cvf::ref<RigResultAccessor>                         m_resultAccessor;
 
     cvf::ref<RigMainGrid>                               m_mainGrid;
     QString                                             m_currentResultName;

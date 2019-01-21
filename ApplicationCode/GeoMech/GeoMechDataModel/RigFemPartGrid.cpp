@@ -462,7 +462,13 @@ bool RigFemPartGrid::cellIJKFromCoordinate(const cvf::Vec3d& coord, size_t* i, s
 //--------------------------------------------------------------------------------------------------
 void RigFemPartGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) const
 {
-    CVF_ASSERT(false);
+    const std::vector<cvf::Vec3f>& nodeCoords    = m_femPart->nodes().coordinates;
+    const int*                     cornerIndices = m_femPart->connectivities(cellIndex);
+
+    for (size_t i = 0; i < 8; ++i)
+    {
+        vertices[i] = cvf::Vec3d(nodeCoords[cornerIndices[i]]);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
