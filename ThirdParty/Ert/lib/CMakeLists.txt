@@ -183,7 +183,14 @@ target_include_directories(ecl
             ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
-if (INSTALL_ERT)
+
+if (NOT INSTALL_ERT)
+  set(GIT_COMMIT 0)
+  set(GIT_COMMIT_SHORT 0)
+endif()
+
+message("GIT_COMMIT_SHORT ${GIT_COMMIT_SHORT}")
+
 target_compile_definitions(ecl PRIVATE
             -DGIT_COMMIT=${GIT_COMMIT}
             -DGIT_COMMIT_SHORT=${GIT_COMMIT_SHORT}
@@ -192,7 +199,6 @@ target_compile_definitions(ecl PRIVATE
             -DECL_VERSION_MICRO=${ECL_VERSION_MICRO}
             $<$<BOOL:${BIG_ENDIAN}>:HOST_BIG_ENDIAN>
 )
-endif()
 
 target_compile_options(ecl PUBLIC ${pthreadarg})
 
