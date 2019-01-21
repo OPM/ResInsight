@@ -185,11 +185,10 @@ target_include_directories(ecl
 
 
 if (NOT INSTALL_ERT)
+  # set git info to zero, to avoid recompile of libecl files at every commit
   set(GIT_COMMIT 0)
   set(GIT_COMMIT_SHORT 0)
 endif()
-
-message("GIT_COMMIT_SHORT ${GIT_COMMIT_SHORT}")
 
 target_compile_definitions(ecl PRIVATE
             -DGIT_COMMIT=${GIT_COMMIT}
