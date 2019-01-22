@@ -564,6 +564,7 @@ void RimGeoMechContourMapProjection::defineEditorAttribute(const caf::PdmFieldHa
             myAttr->m_minimum = 0.0;
             myAttr->m_maximum = 1.0;
             myAttr->m_sliderTickCount = 4;
+            myAttr->m_delaySliderUpdateUntilRelease = true;
         }
     }
 }

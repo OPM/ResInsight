@@ -823,6 +823,12 @@ cvf::Color3ubArray RimRegularLegendConfig::colorArrayFromColorType(ColorRangesTy
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    if (uiConfigName == "NumLevelsOnly")
+    {
+        uiOrdering.add(&m_numLevels);
+        uiOrdering.skipRemainingFields(true);
+    }
+    else
     {
         caf::PdmUiOrdering * formatGr = uiOrdering.addNewGroup("Format");
         formatGr->add(&m_numLevels);
@@ -836,7 +842,6 @@ void RimRegularLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         mappingGr->add(&m_userDefinedMaxValue);
         mappingGr->add(&m_userDefinedMinValue);
     }
-
     updateFieldVisibility();
 }
 

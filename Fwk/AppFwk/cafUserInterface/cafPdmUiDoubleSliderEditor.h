@@ -61,6 +61,7 @@ public:
         m_maximum = 10;
         m_decimals = 6;
         m_sliderTickCount = 2000;
+        m_delaySliderUpdateUntilRelease = false;
     }
 
 public:
@@ -68,6 +69,7 @@ public:
     double  m_maximum;
     int     m_decimals;
     int     m_sliderTickCount;
+    bool    m_delaySliderUpdateUntilRelease;
 };
 
 
@@ -91,6 +93,7 @@ protected:
 protected slots:
     void        slotEditingFinished();
     void        slotSliderValueChanged(int value);
+    void        slotSliderReleased();
 
 private:
     void        updateSliderPosition(double value);
@@ -103,6 +106,7 @@ private:
     QPointer<QLineEdit> m_lineEdit;
     QPointer<QSlider>   m_slider;
     QPointer<QLabel>    m_label;
+    double              m_sliderValue;
 
     PdmUiDoubleSliderEditorAttribute m_attributes;
 };

@@ -84,7 +84,7 @@ RimContourMapProjection::RimContourMapProjection()
 {
     CAF_PDM_InitObject("RimContourMapProjection", ":/2DMapProjection16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_relativeSampleSpacing, "SampleSpacing", 0.75, "Sample Spacing Factor", "", "", "");
+    CAF_PDM_InitField(&m_relativeSampleSpacing, "SampleSpacing", 0.8, "Sample Spacing Factor", "", "", "");
     m_relativeSampleSpacing.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_resultAggregation, "ResultAggregation", "Result Aggregation", "", "", "");
@@ -1691,6 +1691,8 @@ void RimContourMapProjection::defineEditorAttribute(const caf::PdmFieldHandle* f
         {
             myAttr->m_minimum = 0.2;
             myAttr->m_maximum = 2.0;
+            myAttr->m_sliderTickCount = 9;
+            myAttr->m_delaySliderUpdateUntilRelease = true;
         }
     }
 }
@@ -1701,14 +1703,14 @@ void RimContourMapProjection::defineEditorAttribute(const caf::PdmFieldHandle* f
 void RimContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup("Projection Settings");
+    mainGroup->add(&m_resultAggregation);
+    legendConfig()->uiOrdering("NumLevelsOnly", *mainGroup);
     mainGroup->add(&m_relativeSampleSpacing);
     mainGroup->add(&m_showContourLines);
     mainGroup->add(&m_showContourLabels);
     m_showContourLabels.uiCapability()->setUiReadOnly(!m_showContourLines());
     mainGroup->add(&m_smoothContourLines);
     m_smoothContourLines.uiCapability()->setUiReadOnly(!m_showContourLines());
-    mainGroup->add(&m_resultAggregation);
-
     uiOrdering.skipRemainingFields(true);
 }
 
