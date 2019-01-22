@@ -665,8 +665,8 @@ void RimEclipseStatisticsCase::updatePercentileUiVisibility()
 bool RimEclipseStatisticsCase::hasComputedStatistics() const
 {
    if ( eclipseCaseData() 
-       && (    eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->resultCount()
-            || eclipseCaseData()->results(RiaDefines::FRACTURE_MODEL)->resultCount()))
+       && (    eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->existingResults().size()
+            || eclipseCaseData()->results(RiaDefines::FRACTURE_MODEL)->existingResults().size()))
    {
        return true;
    }

@@ -29,6 +29,7 @@
 
 #include <vector>
 #include <cmath>
+#include "RigEclipseResultAddress.h"
 
 
 class RifReaderInterface;
@@ -41,36 +42,6 @@ class RigEclipseCaseData;
 
 class RimEclipseCase;
 
-class RigEclipseResultAddress
-{
-public:
-    RigEclipseResultAddress()
-        : scalarResultIndex(-1)
-        , m_resultCatType(RiaDefines::UNDEFINED)
-    {}
-
-    explicit RigEclipseResultAddress(size_t ascalarResultIndex)
-        : scalarResultIndex(ascalarResultIndex)
-        ,  m_resultCatType(RiaDefines::UNDEFINED)
-    {}
-
-    explicit RigEclipseResultAddress(RiaDefines::ResultCatType type, const QString& resultName)
-        : scalarResultIndex(-1)
-        , m_resultCatType(type)
-        , m_resultName(resultName)
-    {}
-
-    bool isValid() const
-    {
-        return (scalarResultIndex != -1);
-        // Todo
-    }
-
-    size_t scalarResultIndex;
-
-    RiaDefines::ResultCatType m_resultCatType;
-    QString m_resultName;
-};
 
 
 //==================================================================================================
@@ -133,16 +104,15 @@ public:
     void                                               computeCellVolumes();
 
     void                                               clearScalarResult(RiaDefines::ResultCatType type, const QString & resultName);
-    void                                               clearScalarResult(const RigEclipseResultInfo& resultInfo);
+    void                                               clearScalarResult(const RigEclipseResultAddress& resultAddress);
     void                                               clearAllResults();
     void                                               freeAllocatedResultsData();
-    bool                                               isResultLoaded(const RigEclipseResultInfo& resultInfo) const;
+    bool                                               isResultLoaded(const RigEclipseResultAddress& resultAddress) const;
     void                                               eraseAllSourSimData();
 
     bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
     // Index based stuff to rewrite/hide -->
-    size_t                                             resultCount() const; 
 
     size_t                                             findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
     size_t                                             findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
@@ -169,7 +139,6 @@ public:
                                                                                        RiaDefines::PorosityModelType poroModel,
                                                                                        std::vector<RimEclipseCase*> destinationCases);
 
-    const std::vector<RigEclipseResultInfo>&           infoForEachResultIndex();
 
     size_t                                             addStaticScalarResult(RiaDefines::ResultCatType type, 
                                                                              const QString& resultName, 
@@ -180,7 +149,14 @@ public:
 
     // <---
 
+    std::vector<RigEclipseResultAddress>               existingResults() const;
+    const RigEclipseResultInfo*                        resultInfo(const RigEclipseResultAddress& resVarAddr) const;
+
 private:
+
+    const std::vector<RigEclipseResultInfo>&           infoForEachResultIndex();
+    size_t                                             resultCount() const;
+
     bool                                               mustBeCalculated(size_t scalarResultIndex) const;
     void                                               setMustBeCalculated(size_t scalarResultIndex);
 

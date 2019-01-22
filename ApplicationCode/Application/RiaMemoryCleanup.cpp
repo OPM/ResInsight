@@ -81,10 +81,10 @@ void RiaMemoryCleanup::clearSelectedResultsFromMemory()
         RigCaseCellResultsData* caseData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
         if (caseData)
         {
-            std::vector<RigEclipseResultInfo> resultsToDelete = selectedEclipseResults();
-            for (const RigEclipseResultInfo& resultInfo : resultsToDelete)
+            std::vector<RigEclipseResultAddress> resultsToDelete = selectedEclipseResults();
+            for (const RigEclipseResultAddress& resultAddr : resultsToDelete)
             {
-                caseData->clearScalarResult(resultInfo);
+                caseData->clearScalarResult(resultAddr);
             }
         }
     }
@@ -129,9 +129,9 @@ std::vector<RigFemResultAddress> RiaMemoryCleanup::selectedGeoMechResults() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigEclipseResultInfo> RiaMemoryCleanup::selectedEclipseResults() const
+std::vector<RigEclipseResultAddress> RiaMemoryCleanup::selectedEclipseResults() const
 {
-    std::vector<RigEclipseResultInfo> results;
+    std::vector<RigEclipseResultAddress> results;
     if (dynamic_cast<const RimEclipseCase*>(m_case()))
     {
         for (size_t index : m_resultsToDelete())
@@ -170,20 +170,23 @@ std::set<RigFemResultAddress> RiaMemoryCleanup::findGeoMechCaseResultsInUse() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RigEclipseResultInfo> RiaMemoryCleanup::findEclipseResultsInUse() const
+std::set<RigEclipseResultAddress> RiaMemoryCleanup::findEclipseResultsInUse() const
 {
-    std::set<RigEclipseResultInfo> resultsInUse;
+    std::set<RigEclipseResultAddress> resultsInUse;
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
     if (eclipseCase)
     {
+        RigCaseCellResultsData* caseData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
+
         std::vector<RimEclipseResultDefinition*> eclipseResultDefs;
         eclipseCase->descendantsIncludingThisOfType(eclipseResultDefs);
         for (RimEclipseResultDefinition* resultDef : eclipseResultDefs)
         {
-            RigEclipseResultInfo resultInfo(resultDef->resultType(), resultDef->resultVariable());
-            resultsInUse.insert(resultInfo);
+            RigEclipseResultAddress resultAddr(caseData->findScalarResultIndex(resultDef->resultType(), resultDef->resultVariable()));
+            resultsInUse.insert(resultAddr);
         }
     }
+
     return resultsInUse;
 }
 
@@ -237,20 +240,23 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions(const caf:
         RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>(m_case());
         if (eclipseCase)
         {
-            std::set<RigEclipseResultInfo> resultsInUse = findEclipseResultsInUse();
+            std::set<RigEclipseResultAddress> resultsInUse = findEclipseResultsInUse();
             RigCaseCellResultsData* caseData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
             if (caseData)
             {
-                m_eclipseResultAddresses = caseData->infoForEachResultIndex();
+                m_eclipseResultAddresses = caseData->existingResults();
 
                 for (size_t i = 0; i < m_eclipseResultAddresses.size(); ++i)
                 {
-                    const RigEclipseResultInfo& result = m_eclipseResultAddresses[i];
-                    if (caseData->isResultLoaded(result))
+                    const RigEclipseResultAddress& resultAddr = m_eclipseResultAddresses[i];
+                    if (caseData->isResultLoaded(resultAddr))
                     {
-                        bool inUse = resultsInUse.count(result);
-                        QString posText = caf::AppEnum<RiaDefines::ResultCatType>::uiTextFromIndex(result.resultType());
-                        QString resultsText = QString("%1, %2").arg(posText).arg(result.resultName());
+                        bool inUse = resultsInUse.count(resultAddr);
+
+                        const RigEclipseResultInfo* resInfo = caseData->resultInfo(resultAddr);
+
+                        QString posText = caf::AppEnum<RiaDefines::ResultCatType>::uiTextFromIndex(resInfo->resultType());
+                        QString resultsText = QString("%1, %2").arg(posText).arg(resInfo->resultName());
                         if (inUse)
                         {
                             resultsText += QString(" [used in view]");

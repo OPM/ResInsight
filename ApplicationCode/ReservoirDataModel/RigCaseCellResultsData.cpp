@@ -659,7 +659,18 @@ QString RigCaseCellResultsData::makeResultNameUnique(const QString& resultNamePr
 void RigCaseCellResultsData::clearScalarResult(RiaDefines::ResultCatType type, const QString& resultName)
 {
     size_t scalarResultIndex = this->findScalarResultIndex(type, resultName);
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return;
+
+    clearScalarResult(RigEclipseResultAddress(scalarResultIndex));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::clearScalarResult(const RigEclipseResultAddress& resultAddress)
+{
+    if (!resultAddress.isValid()) return;
+
+    size_t scalarResultIndex =  resultAddress.scalarResultIndex;
 
     for (size_t tsIdx = 0; tsIdx < m_cellScalarResults[scalarResultIndex].size(); ++tsIdx)
     {
@@ -668,14 +679,6 @@ void RigCaseCellResultsData::clearScalarResult(RiaDefines::ResultCatType type, c
     }
 
     recalculateStatistics(RigEclipseResultAddress(scalarResultIndex));
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::clearScalarResult(const RigEclipseResultInfo& resultInfo)
-{
-    clearScalarResult(resultInfo.resultType(), resultInfo.resultName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -708,9 +711,10 @@ void RigCaseCellResultsData::freeAllocatedResultsData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCaseCellResultsData::isResultLoaded(const RigEclipseResultInfo& resultInfo) const
+bool RigCaseCellResultsData::isResultLoaded(const RigEclipseResultAddress& resultAddr) const
 {
-    size_t scalarResultIndex = this->findScalarResultIndex(resultInfo.resultType(), resultInfo.resultName());
+    size_t scalarResultIndex = resultAddr.scalarResultIndex;//this->findScalarResultIndex(resultAddr.resultType(), resultAddr.resultName());
+
     CVF_TIGHT_ASSERT(scalarResultIndex != cvf::UNDEFINED_SIZE_T);
     if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
     {
@@ -1012,6 +1016,28 @@ bool RigCaseCellResultsData::findTransmissibilityResults(size_t& tranX, size_t& 
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigEclipseResultAddress> RigCaseCellResultsData::existingResults() const
+{
+    std::vector<RigEclipseResultAddress> addresses;
+    for (const auto & ri: m_resultInfos)
+    {
+        addresses.emplace_back(RigEclipseResultAddress(ri.gridScalarResultIndex()));
+    }
+
+    return addresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigEclipseResultInfo* RigCaseCellResultsData::resultInfo(const RigEclipseResultAddress& resVarAddr) const
+{
+    return &(m_resultInfos[resVarAddr.scalarResultIndex]);
 }
 
 //--------------------------------------------------------------------------------------------------

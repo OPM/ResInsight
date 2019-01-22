@@ -91,19 +91,19 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
 
     if (!m_cellResults) return;
 
-    const std::vector<RigEclipseResultInfo>&  resInfo = m_cellResults->infoForEachResultIndex();
+    const std::vector<RigEclipseResultAddress>&  resAddrs = m_cellResults->existingResults();
 
     bool hasResultsToStore = false;
-    for (size_t rIdx = 0; rIdx < resInfo.size(); ++rIdx) 
+    for (size_t rIdx = 0; rIdx < resAddrs.size(); ++rIdx) 
     {
-        if (resInfo[rIdx].needsToBeStored()) 
+        if ( m_cellResults->resultInfo(resAddrs[rIdx])->needsToBeStored() ) 
         {
             hasResultsToStore = true; 
             break;
         }
     }
 
-    if(resInfo.size() && hasResultsToStore)
+    if(resAddrs.size() && hasResultsToStore)
     {
         QDir::root().mkpath(getCacheDirectoryPath());
 
@@ -122,38 +122,39 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
         stream << (quint32)0xCEECAC4E; // magic number
         stream << (quint32)1; // Version number. Increment if needing to extend the format in ways that can not be handled generically by the reader
 
-        caf::ProgressInfo progInfo(resInfo.size(), "Saving generated and imported properties");
+        caf::ProgressInfo progInfo(resAddrs.size(), "Saving generated and imported properties");
 
-        for (size_t rIdx = 0; rIdx < resInfo.size(); ++rIdx)
+        for (size_t rIdx = 0; rIdx < resAddrs.size(); ++rIdx)
         {
             // If there is no data, we do not store anything for the current result variable
             // (Even not the metadata, of cause)
-            size_t timestepCount = m_cellResults->cellScalarResults(RigEclipseResultAddress(resInfo[rIdx].gridScalarResultIndex())).size();
+            size_t timestepCount = m_cellResults->cellScalarResults(resAddrs[rIdx]).size();
+            const RigEclipseResultInfo* resInfo =  m_cellResults->resultInfo(resAddrs[rIdx]);
 
-            if (timestepCount && resInfo[rIdx].needsToBeStored())
+            if (timestepCount && resInfo->needsToBeStored())
             {
-                progInfo.setProgressDescription(resInfo[rIdx].resultName());
+                progInfo.setProgressDescription(resInfo->resultName());
 
                 // Create and setup the cache information for this result
                 RimReservoirCellResultsStorageEntryInfo*  cacheEntry = new RimReservoirCellResultsStorageEntryInfo;
                 m_resultCacheMetaData.push_back(cacheEntry);
 
-                cacheEntry->m_resultType = resInfo[rIdx].resultType();
-                cacheEntry->m_resultName = resInfo[rIdx].resultName();
-                cacheEntry->m_timeStepDates = resInfo[rIdx].dates();
-                cacheEntry->m_daysSinceSimulationStart = resInfo[rIdx].daysSinceSimulationStarts();
+                cacheEntry->m_resultType = resInfo->resultType();
+                cacheEntry->m_resultName = resInfo->resultName();
+                cacheEntry->m_timeStepDates = resInfo->dates();
+                cacheEntry->m_daysSinceSimulationStart = resInfo->daysSinceSimulationStarts();
 
                 // Take note of the file position for fast lookup later
                 cacheEntry->m_filePosition = cacheFile.pos();
 
                 // Write all the scalar values for each time step to the stream, 
                 // starting with the number of values 
-                for (size_t tsIdx = 0; tsIdx < resInfo[rIdx].dates().size() ; ++tsIdx)
+                for (size_t tsIdx = 0; tsIdx < resInfo->dates().size() ; ++tsIdx)
                 {
                     const std::vector<double>* data = nullptr;
                     if (tsIdx < timestepCount)
                     {
-                        data = &(m_cellResults->cellScalarResults(RigEclipseResultAddress(resInfo[rIdx].gridScalarResultIndex()), tsIdx));
+                        data = &(m_cellResults->cellScalarResults(resAddrs[rIdx], tsIdx));
                     }
 
                     if (data && data->size())
