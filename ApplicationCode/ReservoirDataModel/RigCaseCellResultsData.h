@@ -109,7 +109,7 @@ public:
     // Access meta-information about the results
     size_t                                             resultCount() const;
     size_t                                             timeStepCount(const RigEclipseResultAddress& resVarAddr) const; 
-    size_t                                             maxTimeStepCount(size_t* scalarResultIndex = nullptr) const; 
+    size_t                                             maxTimeStepCount(RigEclipseResultAddress* resultAddressWithMostTimeSteps = nullptr) const; 
     QStringList                                        resultNames(RiaDefines::ResultCatType type) const;
     bool                                               isUsingGlobalActiveIndex(const RigEclipseResultAddress& resVarAddr) const;
     bool                                               hasFlowDiagUsableFluxes() const;

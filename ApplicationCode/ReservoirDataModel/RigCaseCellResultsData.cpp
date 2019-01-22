@@ -539,10 +539,10 @@ std::vector<QDateTime> RigCaseCellResultsData::timeStepDates(const RigEclipseRes
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RigCaseCellResultsData::timeStepDates() const
 {
-    size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
+    RigEclipseResultAddress scalarResWithMostTimeSteps;
     maxTimeStepCount(&scalarResWithMostTimeSteps);
 
-    return timeStepDates(RigEclipseResultAddress(scalarResWithMostTimeSteps));
+    return timeStepDates(scalarResWithMostTimeSteps);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -550,10 +550,10 @@ std::vector<QDateTime> RigCaseCellResultsData::timeStepDates() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart() const
 {
-    size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
+    RigEclipseResultAddress scalarResWithMostTimeSteps;
     maxTimeStepCount(&scalarResWithMostTimeSteps);
 
-    return daysSinceSimulationStart(RigEclipseResultAddress(scalarResWithMostTimeSteps));
+    return daysSinceSimulationStart(scalarResWithMostTimeSteps);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -609,7 +609,7 @@ void RigCaseCellResultsData::setTimeStepInfos(const RigEclipseResultAddress& res
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::maxTimeStepCount(size_t* scalarResultIndexWithMostTimeSteps) const
+size_t RigCaseCellResultsData::maxTimeStepCount(RigEclipseResultAddress* resultAddressWithMostTimeSteps) const
 {
     size_t maxTsCount                      = 0;
     size_t scalarResultIndexWithMaxTsCount = cvf::UNDEFINED_SIZE_T;
@@ -623,9 +623,9 @@ size_t RigCaseCellResultsData::maxTimeStepCount(size_t* scalarResultIndexWithMos
         }
     }
 
-    if (scalarResultIndexWithMostTimeSteps)
+    if (resultAddressWithMostTimeSteps)
     {
-        *scalarResultIndexWithMostTimeSteps = scalarResultIndexWithMaxTsCount;
+        *resultAddressWithMostTimeSteps = RigEclipseResultAddress(scalarResultIndexWithMaxTsCount);
     }
 
     return maxTsCount;

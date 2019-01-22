@@ -419,9 +419,9 @@ public:
             {
                 scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrCreateScalarResultIndex(RiaDefines::GENERATED, propertyName, true);
 
-                size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
-                rimCase->results(m_porosityModelEnum)->maxTimeStepCount(&scalarResWithMostTimeSteps);
-                const std::vector<RigEclipseTimeStepInfo> timeStepInfos = rimCase->results(m_porosityModelEnum)->timeStepInfos(RigEclipseResultAddress(scalarResWithMostTimeSteps));
+                RigEclipseResultAddress addrToMaxTimeStepCountResult;
+                rimCase->results(m_porosityModelEnum)->maxTimeStepCount(&addrToMaxTimeStepCountResult);
+                const std::vector<RigEclipseTimeStepInfo> timeStepInfos = rimCase->results(m_porosityModelEnum)->timeStepInfos(addrToMaxTimeStepCountResult);
                 rimCase->results(m_porosityModelEnum)->setTimeStepInfos(RigEclipseResultAddress(scalarResultIndex), timeStepInfos);
             }
 
