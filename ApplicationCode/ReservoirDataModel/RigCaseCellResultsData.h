@@ -107,7 +107,8 @@ public:
     void                                               mobileVolumeWeightedMean(const RigEclipseResultAddress& resVarAddr, double& meanValue);
     void                                               mobileVolumeWeightedMean(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue);
     // Access meta-information about the results
-    size_t                                             resultCount() const;
+    
+
     size_t                                             timeStepCount(const RigEclipseResultAddress& resVarAddr) const; 
     size_t                                             maxTimeStepCount(RigEclipseResultAddress* resultAddressWithMostTimeSteps = nullptr) const; 
     QStringList                                        resultNames(RiaDefines::ResultCatType type) const;
@@ -124,15 +125,6 @@ public:
     std::vector<RigEclipseTimeStepInfo>                timeStepInfos(const RigEclipseResultAddress& resVarAddr) const;
     void                                               setTimeStepInfos(const RigEclipseResultAddress& resVarAddr, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos);
 
-    size_t                                             findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
-    size_t                                             findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
-    size_t                                             findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
-
-    // Find or create a slot for the results
-
-    size_t                                             findOrCreateScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
-    size_t                                             findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const;
-    size_t                                             findScalarResultIndex(const QString& resultName) const;
 
     QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
 
@@ -145,7 +137,22 @@ public:
     void                                               clearAllResults();
     void                                               freeAllocatedResultsData();
     bool                                               isResultLoaded(const RigEclipseResultInfo& resultInfo) const;
+    void                                               eraseAllSourSimData();
 
+    bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
+
+    // Index based stuff to rewrite/hide -->
+    size_t                                             resultCount() const; 
+
+    size_t                                             findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
+    size_t                                             findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
+    size_t                                             findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
+
+    // Find or create a slot for the results
+
+    size_t                                             findOrCreateScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
+    size_t                                             findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const;
+    size_t                                             findScalarResultIndex(const QString& resultName) const;
 
     // Access the results data
 
@@ -153,8 +160,6 @@ public:
     std::vector< std::vector<double> > &               cellScalarResults(const RigEclipseResultAddress& resVarAddr);
     const std::vector<double>&                         cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex) const;
     std::vector<double>&                               cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex);
-
-    bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
     static const std::vector<double>*                  getResultIndexableStaticResult(RigActiveCellInfo* actCellInfo,
                                                                                       RigCaseCellResultsData* gridCellResults,
@@ -164,24 +169,21 @@ public:
                                                                                        RiaDefines::PorosityModelType poroModel,
                                                                                        std::vector<RimEclipseCase*> destinationCases);
 
-public:
     const std::vector<RigEclipseResultInfo>&           infoForEachResultIndex();
-private:
-    bool                                               mustBeCalculated(size_t scalarResultIndex) const;
-    void                                               setMustBeCalculated(size_t scalarResultIndex);
-public:
-    void                                               eraseAllSourSimData();
 
-    
-public:
     size_t                                             addStaticScalarResult(RiaDefines::ResultCatType type, 
                                                                              const QString& resultName, 
                                                                              bool needsToBeStored,
                                                                              size_t resultValueCount);
 
-    bool
-                                                       findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const;
-private: // from RimReservoirCellResultsStorage
+    bool                                               findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const;
+
+    // <---
+
+private:
+    bool                                               mustBeCalculated(size_t scalarResultIndex) const;
+    void                                               setMustBeCalculated(size_t scalarResultIndex);
+
     void                                               computeSOILForTimeStep(size_t timeStepIndex);
     void                                               testAndComputeSgasForTimeStep(size_t timeStepIndex);
 
@@ -203,13 +205,13 @@ private: // from RimReservoirCellResultsStorage
 
     void                                               assignValuesToTemporaryLgrs(const QString& resultName, std::vector<double>& values);
 
-    cvf::ref<RifReaderInterface>                       m_readerInterface;
+    RigStatisticsDataCache*                            statistics(const RigEclipseResultAddress& resVarAddr);
 
 private:
+    cvf::ref<RifReaderInterface>                       m_readerInterface;
+
     std::vector< std::vector< std::vector<double> > >  m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep 
     cvf::Collection<RigStatisticsDataCache>            m_statisticsDataCache;
-    RigStatisticsDataCache*                            statistics(const RigEclipseResultAddress& resVarAddr);
-private:
     std::vector<RigEclipseResultInfo>                  m_resultInfos;
 
     RigMainGrid*                                       m_ownerMainGrid;
