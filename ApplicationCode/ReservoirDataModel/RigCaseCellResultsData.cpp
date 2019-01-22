@@ -924,8 +924,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 
     // TRANSXYZ
     {
-        size_t tranX, tranY, tranZ;
-        if (findTransmissibilityResults(tranX, tranY, tranZ))
+        if (hasCompleteTransmissibilityResults())
         {
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName(), false, 0);
         }
@@ -950,8 +949,8 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 
     // riMULTXYZ and X, Y, Z
     {
-        size_t tranX, tranY, tranZ;
-        if (findTransmissibilityResults(tranX, tranY, tranZ) &&
+       
+        if (hasCompleteTransmissibilityResults() &&
             findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranXResultName()) != cvf::UNDEFINED_SIZE_T &&
             findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranYResultName()) != cvf::UNDEFINED_SIZE_T &&
             findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranZResultName()) != cvf::UNDEFINED_SIZE_T)
@@ -980,8 +979,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranZResultName(), false, 0);
         }
 
-        size_t tranX, tranY, tranZ;
-        if (findTransmissibilityResults(tranX, tranY, tranZ))
+        if (hasCompleteTransmissibilityResults())
         {
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiAreaNormTranResultName(), false, 0);
         }
@@ -1004,8 +1002,10 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCaseCellResultsData::findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const
+bool RigCaseCellResultsData::hasCompleteTransmissibilityResults() const
 {
+    size_t tranX; size_t tranY; size_t tranZ;
+
     tranX = findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANX");
     tranY = findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANY");
     tranZ = findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANZ");

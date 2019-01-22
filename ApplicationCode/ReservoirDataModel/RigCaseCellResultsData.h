@@ -77,8 +77,8 @@ public:
     void                                               sumCellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& sumValue);
     void                                               mobileVolumeWeightedMean(const RigEclipseResultAddress& resVarAddr, double& meanValue);
     void                                               mobileVolumeWeightedMean(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue);
+
     // Access meta-information about the results
-    
 
     size_t                                             timeStepCount(const RigEclipseResultAddress& resVarAddr) const; 
     size_t                                             maxTimeStepCount(RigEclipseResultAddress* resultAddressWithMostTimeSteps = nullptr) const; 
@@ -124,6 +124,12 @@ public:
     size_t                                             findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const;
     size_t                                             findScalarResultIndex(const QString& resultName) const;
 
+    size_t                                             addStaticScalarResult(RiaDefines::ResultCatType type, 
+                                                                             const QString& resultName, 
+                                                                             bool needsToBeStored,
+                                                                             size_t resultValueCount);
+    // <---
+
     // Access the results data
 
     const std::vector< std::vector<double> > &         cellScalarResults(const RigEclipseResultAddress& resVarAddr) const;
@@ -139,16 +145,6 @@ public:
                                                                                        RiaDefines::PorosityModelType poroModel,
                                                                                        std::vector<RimEclipseCase*> destinationCases);
 
-
-    size_t                                             addStaticScalarResult(RiaDefines::ResultCatType type, 
-                                                                             const QString& resultName, 
-                                                                             bool needsToBeStored,
-                                                                             size_t resultValueCount);
-
-    bool                                               findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const;
-
-    // <---
-
     std::vector<RigEclipseResultAddress>               existingResults() const;
     const RigEclipseResultInfo*                        resultInfo(const RigEclipseResultAddress& resVarAddr) const;
 
@@ -162,6 +158,8 @@ private:
 
     void                                               computeSOILForTimeStep(size_t timeStepIndex);
     void                                               testAndComputeSgasForTimeStep(size_t timeStepIndex);
+
+    bool                                               hasCompleteTransmissibilityResults() const;
 
     void                                               computeRiTransComponent(const QString& riTransComponentResultName);
     void                                               computeNncCombRiTrans();
