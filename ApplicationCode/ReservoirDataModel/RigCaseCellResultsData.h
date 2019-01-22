@@ -39,6 +39,7 @@ class RigEclipseResultInfo;
 class RigStatisticsDataCache;
 class RigEclipseTimeStepInfo;
 class RigEclipseCaseData;
+class RigFormationNames;
 
 class RimEclipseCase;
 
@@ -54,6 +55,8 @@ public:
 
     void                                               setReaderInterface(RifReaderInterface* readerInterface);
     void                                               setHdf5Filename(const QString& hdf5SourSimFilename );
+    void                                               setActiveFormationNames(RigFormationNames* activeFormationNames);
+    RigFormationNames*                                 activeFormationNames();
 
     void                                               setMainGrid(RigMainGrid* ownerGrid);
     void                                               setActiveCellInfo(RigActiveCellInfo* activeCellInfo);
@@ -124,10 +127,6 @@ public:
     size_t                                             findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const;
     size_t                                             findScalarResultIndex(const QString& resultName) const;
 
-    size_t                                             addStaticScalarResult(RiaDefines::ResultCatType type, 
-                                                                             const QString& resultName, 
-                                                                             bool needsToBeStored,
-                                                                             size_t resultValueCount);
     // <---
 
     // Access the results data
@@ -149,6 +148,10 @@ public:
     const RigEclipseResultInfo*                        resultInfo(const RigEclipseResultAddress& resVarAddr) const;
 
 private:
+    size_t                                             addStaticScalarResult(RiaDefines::ResultCatType type, 
+                                                                             const QString& resultName, 
+                                                                             bool needsToBeStored,
+                                                                             size_t resultValueCount);
 
     const std::vector<RigEclipseResultInfo>&           infoForEachResultIndex();
     size_t                                             resultCount() const;
@@ -183,6 +186,7 @@ private:
 
 private:
     cvf::ref<RifReaderInterface>                       m_readerInterface;
+    cvf::ref<RigFormationNames>                        m_activeFormationNamesData;
 
     std::vector< std::vector< std::vector<double> > >  m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep 
     cvf::Collection<RigStatisticsDataCache>            m_statisticsDataCache;

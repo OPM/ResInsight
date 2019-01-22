@@ -44,6 +44,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include "RigFormationNames.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -2611,6 +2612,77 @@ void RigCaseCellResultsData::setHdf5Filename(const QString& hdf5SourSimFilename)
     {
         rifReaderOutput->setHdf5FileName(hdf5SourSimFilename);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::setActiveFormationNames(RigFormationNames* activeFormationNames)
+{
+    m_activeFormationNamesData  = activeFormationNames;
+
+    size_t totalGlobCellCount = m_ownerMainGrid->globalCellArray().size();
+    size_t resIndex = this->addStaticScalarResult(RiaDefines::FORMATION_NAMES, 
+                                                                  RiaDefines::activeFormationNamesResultName(), 
+                                                                  false, 
+                                                                  totalGlobCellCount);
+
+    std::vector<double>& fnData =  this->cellScalarResults(RigEclipseResultAddress(resIndex),0);
+
+    if (m_activeFormationNamesData.isNull())
+    {
+        for ( size_t cIdx = 0; cIdx < totalGlobCellCount; ++cIdx )
+        {
+            fnData[cIdx] = HUGE_VAL;
+        }
+
+        return;
+    }
+
+    size_t localCellCount = m_ownerMainGrid->cellCount();
+    for (size_t cIdx = 0; cIdx < localCellCount; ++cIdx)
+    {
+        size_t i (cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
+
+        if(!m_ownerMainGrid->ijkFromCellIndex(cIdx, &i, &j, &k)) continue;
+
+        int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx(k);
+        if (formNameIdx != -1)
+        {
+            fnData[cIdx] = formNameIdx;
+        }
+        else
+        {
+            fnData[cIdx] = HUGE_VAL;
+        }
+    }
+
+    for (size_t cIdx = localCellCount; cIdx < totalGlobCellCount; ++cIdx)
+    {
+        size_t mgrdCellIdx =  m_ownerMainGrid->globalCellArray()[cIdx].mainGridCellIndex();
+
+        size_t i (cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
+
+        if(!m_ownerMainGrid->ijkFromCellIndex(mgrdCellIdx, &i, &j, &k)) continue;
+
+        int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx(k);
+        if (formNameIdx != -1)
+        {
+            fnData[cIdx] = formNameIdx;
+        }
+        else
+        {
+            fnData[cIdx] = HUGE_VAL;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFormationNames* RigCaseCellResultsData::activeFormationNames()
+{
+    return m_activeFormationNamesData.p();
 }
 
 //--------------------------------------------------------------------------------------------------

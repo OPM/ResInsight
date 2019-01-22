@@ -132,8 +132,6 @@ private:
     cvf::ref<RigCaseCellResultsData>            m_matrixModelResults;
     cvf::ref<RigCaseCellResultsData>            m_fractureModelResults;
 
-    cvf::ref<RigFormationNames>                 m_activeFormationNamesData;
-
     cvf::ref<RigVirtualPerforationTransmissibilities>    m_virtualPerforationTransmissibilities;
 
     cvf::Collection<RigSimWellData>             m_simWellData;     //< A WellResults object for each well in the reservoir
