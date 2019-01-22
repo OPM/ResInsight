@@ -21,6 +21,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaPorosityModel.h"
 
 #include "cvfCollection.h"
 
@@ -29,6 +30,7 @@
 #include <vector>
 #include <cmath>
 
+
 class RifReaderInterface;
 class RigActiveCellInfo;
 class RigMainGrid;
@@ -36,6 +38,8 @@ class RigEclipseResultInfo;
 class RigStatisticsDataCache;
 class RigEclipseTimeStepInfo;
 class RigEclipseCaseData;
+
+class RimEclipseCase;
 
 class RigEclipseResultAddress
 {
@@ -156,12 +160,16 @@ public:
                                                                                       RigCaseCellResultsData* gridCellResults,
                                                                                       QString porvResultName,
                                                                                       std::vector<double> &activeCellsResultsTempContainer);
+    static void                                        copyResultsMetaDataFromMainCase(RigEclipseCaseData* mainCaseResultsData,
+                                                                                       RiaDefines::PorosityModelType poroModel,
+                                                                                       std::vector<RimEclipseCase*> destinationCases);
 
 public:
     const std::vector<RigEclipseResultInfo>&           infoForEachResultIndex();
-
+private:
     bool                                               mustBeCalculated(size_t scalarResultIndex) const;
     void                                               setMustBeCalculated(size_t scalarResultIndex);
+public:
     void                                               eraseAllSourSimData();
 
     

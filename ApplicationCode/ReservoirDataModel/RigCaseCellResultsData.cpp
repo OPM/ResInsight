@@ -2674,3 +2674,54 @@ RigStatisticsDataCache* RigCaseCellResultsData::statistics(const RigEclipseResul
 {
     return m_statisticsDataCache[resVarAddr.scalarResultIndex].p();
 }
+
+
+#include "RimEclipseResultCase.h"
+
+//--------------------------------------------------------------------------------------------------
+/// Copy result meta data from main case to all other cases in grid case group
+/// This code was originally part of RimStatisticsCaseEvaluator, but moved here to be a general solution
+/// for all cases
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::copyResultsMetaDataFromMainCase(RigEclipseCaseData* mainCaseResultsData,
+                                     RiaDefines::PorosityModelType poroModel,
+                                     std::vector<RimEclipseCase*> destinationCases)
+{
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos = mainCaseResultsData->results(poroModel)->timeStepInfos(RigEclipseResultAddress(0));
+
+    const std::vector<RigEclipseResultInfo> resultInfos = mainCaseResultsData->results(poroModel)->infoForEachResultIndex();
+
+    for ( size_t i = 0; i < destinationCases.size(); i++ )
+    {
+        RimEclipseResultCase* rimReservoir = dynamic_cast<RimEclipseResultCase*>(destinationCases[i]);
+
+        if ( !rimReservoir ) continue; // Input reservoir
+        if (mainCaseResultsData == rimReservoir->eclipseCaseData()) continue; // Do not copy ontop of itself
+
+        RigCaseCellResultsData* cellResultsStorage = rimReservoir->results(poroModel);
+
+        for ( size_t resIdx = 0; resIdx < resultInfos.size(); resIdx++ )
+        {
+            RiaDefines::ResultCatType resultType = resultInfos[resIdx].resultType();
+            QString resultName = resultInfos[resIdx].resultName();
+            bool needsToBeStored = resultInfos[resIdx].needsToBeStored();
+            bool mustBeCalculated = resultInfos[resIdx].mustBeCalculated();
+
+            size_t scalarResultIndex = cellResultsStorage->findScalarResultIndex(resultType, resultName);
+            if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
+            {
+                scalarResultIndex = cellResultsStorage->findOrCreateScalarResultIndex(resultType, resultName, needsToBeStored);
+
+                if ( mustBeCalculated ) cellResultsStorage->setMustBeCalculated(scalarResultIndex);
+
+                cellResultsStorage->setTimeStepInfos(RigEclipseResultAddress(scalarResultIndex), timeStepInfos);
+
+                std::vector< std::vector<double> >& dataValues = cellResultsStorage->cellScalarResults(RigEclipseResultAddress(scalarResultIndex));
+                dataValues.resize(timeStepInfos.size());
+            }
+        }
+
+        cellResultsStorage->createPlaceholderResultEntries();
+    }
+}
+

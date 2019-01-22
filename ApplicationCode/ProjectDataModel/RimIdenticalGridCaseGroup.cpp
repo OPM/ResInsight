@@ -230,47 +230,11 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         computeUnionOfActiveCells();
     }
 
-    // Action B : Copy result meta data from main case to all other cases in grid case group
 
-    // This code was originally part of RimStatisticsCaseEvaluator, but moved here to be a general solution
-    // for all cases
+    RigCaseCellResultsData::copyResultsMetaDataFromMainCase(rigCaseData, 
+                                                            poroModel, 
+                                                            caseCollection->reservoirs.childObjects());
 
-    {
-        std::vector<RigEclipseTimeStepInfo> timeStepInfos = rigCaseData->results(poroModel)->timeStepInfos(RigEclipseResultAddress(0));
-
-        const std::vector<RigEclipseResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
-
-        for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
-        {
-            RimEclipseResultCase* rimReservoir = dynamic_cast<RimEclipseResultCase*>(caseCollection()->reservoirs[i]);
-            if (!rimReservoir) continue; // Input reservoir
-
-            RigCaseCellResultsData* cellResultsStorage = rimReservoir->results(poroModel);
-
-            for (size_t resIdx = 0; resIdx < resultInfos.size(); resIdx++)
-            {
-                RiaDefines::ResultCatType resultType = resultInfos[resIdx].resultType();
-                QString resultName = resultInfos[resIdx].resultName();
-                bool needsToBeStored = resultInfos[resIdx].needsToBeStored();
-                bool mustBeCalculated = resultInfos[resIdx].mustBeCalculated();
-
-                size_t scalarResultIndex = cellResultsStorage->findScalarResultIndex(resultType, resultName);
-                if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-                {
-                    scalarResultIndex = cellResultsStorage->findOrCreateScalarResultIndex(resultType, resultName, needsToBeStored);
-                    
-                    if (mustBeCalculated) cellResultsStorage->setMustBeCalculated(scalarResultIndex);
-
-                    cellResultsStorage->setTimeStepInfos(RigEclipseResultAddress(scalarResultIndex), timeStepInfos);
-
-                    std::vector< std::vector<double> >& dataValues = cellResultsStorage->cellScalarResults(RigEclipseResultAddress(scalarResultIndex));
-                    dataValues.resize(timeStepInfos.size());
-                }
-            }
-
-            cellResultsStorage->createPlaceholderResultEntries();
-        }
-    }
 
     // "Load" the statistical cases
 
