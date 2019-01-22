@@ -74,7 +74,7 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEc
         return nullptr;
     }
 
-    std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(scalarResultIndex);
+    std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(RigEclipseResultAddress(scalarResultIndex));
 
     if (timeStepIndex >= scalarSetResults.size())
     {
@@ -87,7 +87,7 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEc
         resultValues = &(scalarSetResults[timeStepIndex]);
     }
 
-    bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(scalarResultIndex);
+    bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(RigEclipseResultAddress(scalarResultIndex));
     if (useGlobalActiveIndex)
     {
         cvf::ref<RigResultModifier> object = new RigActiveCellsResultModifier(grid, eclipseCase->activeCellInfo(porosityModel), resultValues);

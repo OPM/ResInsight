@@ -37,6 +37,38 @@ class RigStatisticsDataCache;
 class RigEclipseTimeStepInfo;
 class RigEclipseCaseData;
 
+class RigEclipseResultAddress
+{
+public:
+    RigEclipseResultAddress()
+        : scalarResultIndex(-1)
+        , m_resultCatType(RiaDefines::UNDEFINED)
+    {}
+
+    explicit RigEclipseResultAddress(size_t ascalarResultIndex)
+        : scalarResultIndex(ascalarResultIndex)
+        ,  m_resultCatType(RiaDefines::UNDEFINED)
+    {}
+
+    explicit RigEclipseResultAddress(RiaDefines::ResultCatType type, const QString& resultName)
+        : scalarResultIndex(-1)
+        , m_resultCatType(type)
+        , m_resultName(resultName)
+    {}
+
+    bool isValid() const
+    {
+        return (scalarResultIndex != -1);
+        // Todo
+    }
+
+    size_t scalarResultIndex;
+
+    RiaDefines::ResultCatType m_resultCatType;
+    QString m_resultName;
+};
+
+
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
 //==================================================================================================
@@ -54,39 +86,39 @@ public:
     const RigActiveCellInfo*                           activeCellInfo() const;
 
     // Max and min values of the results
-    void                                               recalculateStatistics(size_t scalarResultIndex);
-    void                                               minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max);
-    void                                               minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max);
-    void                                               posNegClosestToZero(size_t scalarResultIndex, double& pos, double& neg);
-    void                                               posNegClosestToZero(size_t scalarResultIndex, size_t timeStepIndex, double& pos, double& neg);
-    const std::vector<size_t>&                         cellScalarValuesHistogram(size_t scalarResultIndex);
-    const std::vector<size_t>&                         cellScalarValuesHistogram(size_t scalarResultIndex, size_t timeStepIndex);
-    void                                               p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90);
-    void                                               p10p90CellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& p10, double& p90);
-    void                                               meanCellScalarValues(size_t scalarResultIndex, double& meanValue);
-    void                                               meanCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue);
-    const std::vector<int>&                            uniqueCellScalarValues(size_t scalarResultIndex);
-    void                                               sumCellScalarValues(size_t scalarResultIndex, double& sumValue);
-    void                                               sumCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& sumValue);
-    void                                               mobileVolumeWeightedMean(size_t scalarResultIndex, double& meanValue);
-    void                                               mobileVolumeWeightedMean(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue);
+    void                                               recalculateStatistics(const RigEclipseResultAddress& resVarAddr);
+    void                                               minMaxCellScalarValues(const RigEclipseResultAddress& resVarAddr, double& min, double& max);
+    void                                               minMaxCellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& min, double& max);
+    void                                               posNegClosestToZero(const RigEclipseResultAddress& resVarAddr, double& pos, double& neg);
+    void                                               posNegClosestToZero(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& pos, double& neg);
+    const std::vector<size_t>&                         cellScalarValuesHistogram(const RigEclipseResultAddress& resVarAddr);
+    const std::vector<size_t>&                         cellScalarValuesHistogram(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex);
+    void                                               p10p90CellScalarValues(const RigEclipseResultAddress& resVarAddr, double& p10, double& p90);
+    void                                               p10p90CellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& p10, double& p90);
+    void                                               meanCellScalarValues(const RigEclipseResultAddress& resVarAddr, double& meanValue);
+    void                                               meanCellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue);
+    const std::vector<int>&                            uniqueCellScalarValues(const RigEclipseResultAddress& resVarAddr);
+    void                                               sumCellScalarValues(const RigEclipseResultAddress& resVarAddr, double& sumValue);
+    void                                               sumCellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& sumValue);
+    void                                               mobileVolumeWeightedMean(const RigEclipseResultAddress& resVarAddr, double& meanValue);
+    void                                               mobileVolumeWeightedMean(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue);
     // Access meta-information about the results
     size_t                                             resultCount() const;
-    size_t                                             timeStepCount(size_t scalarResultIndex) const; 
+    size_t                                             timeStepCount(const RigEclipseResultAddress& resVarAddr) const; 
     size_t                                             maxTimeStepCount(size_t* scalarResultIndex = nullptr) const; 
     QStringList                                        resultNames(RiaDefines::ResultCatType type) const;
-    bool                                               isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
+    bool                                               isUsingGlobalActiveIndex(const RigEclipseResultAddress& resVarAddr) const;
     bool                                               hasFlowDiagUsableFluxes() const;
 
     std::vector<QDateTime>                             allTimeStepDatesFromEclipseReader() const;
     std::vector<QDateTime>                             timeStepDates() const;
-    std::vector<QDateTime>                             timeStepDates(size_t scalarResultIndex) const;
+    std::vector<QDateTime>                             timeStepDates(const RigEclipseResultAddress& resVarAddr) const;
     std::vector<double>                                daysSinceSimulationStart() const;
-    std::vector<double>                                daysSinceSimulationStart(size_t scalarResultIndex) const;
-    int                                                reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const;
+    std::vector<double>                                daysSinceSimulationStart(const RigEclipseResultAddress& resVarAddr) const;
+    int                                                reportStepNumber(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex) const;
     
-    std::vector<RigEclipseTimeStepInfo>                timeStepInfos(size_t scalarResultIndex) const;
-    void                                               setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos);
+    std::vector<RigEclipseTimeStepInfo>                timeStepInfos(const RigEclipseResultAddress& resVarAddr) const;
+    void                                               setTimeStepInfos(const RigEclipseResultAddress& resVarAddr, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos);
 
     size_t                                             findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
     size_t                                             findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
@@ -113,9 +145,10 @@ public:
 
     // Access the results data
 
-    const std::vector< std::vector<double> > &         cellScalarResults(size_t scalarResultIndex) const;
-    std::vector< std::vector<double> > &               cellScalarResults(size_t scalarResultIndex);
-    std::vector<double>&                               cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex);
+    const std::vector< std::vector<double> > &         cellScalarResults(const RigEclipseResultAddress& resVarAddr) const;
+    std::vector< std::vector<double> > &               cellScalarResults(const RigEclipseResultAddress& resVarAddr);
+    const std::vector<double>&                         cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex) const;
+    std::vector<double>&                               cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex);
 
     bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
@@ -167,7 +200,7 @@ private: // from RimReservoirCellResultsStorage
 private:
     std::vector< std::vector< std::vector<double> > >  m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep 
     cvf::Collection<RigStatisticsDataCache>            m_statisticsDataCache;
-
+    RigStatisticsDataCache*                            statistics(const RigEclipseResultAddress& resVarAddr);
 private:
     std::vector<RigEclipseResultInfo>                  m_resultInfos;
 

@@ -159,7 +159,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
                 bool showNncs = true;
                 if (faultCollection->hideNncsWhenNoResultIsAvailable())
                 {
-                    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
+                    RigEclipseResultAddress scalarResultIndex;
                     if (faultResultColors->showCustomFaultResult())
                     {
                         scalarResultIndex = faultResultColors->customFaultResult()->scalarResultIndex();
@@ -170,7 +170,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
                     }
 
                     RigMainGrid* mainGrid = m_reservoirView->mainGrid();
-                    if (!(mainGrid && mainGrid->nncData()->hasScalarValues(scalarResultIndex)))
+                    if (!(mainGrid && mainGrid->nncData()->hasScalarValues(scalarResultIndex.scalarResultIndex)))
                     {
                         showNncs = false;
                     }

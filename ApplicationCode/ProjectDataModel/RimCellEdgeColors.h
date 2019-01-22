@@ -27,6 +27,8 @@
 
 #include <array>
 
+#include "RigCaseCellResultsData.h"
+
 class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseCellColors;
@@ -36,7 +38,7 @@ class RimRegularLegendConfig;
 class RimCellEdgeMetaData
 {
 public:
-    size_t  m_resultIndex;
+    RigEclipseResultAddress  m_resultIndex;
     QString m_resultVariable;
     bool    m_isStatic;
 };
@@ -78,7 +80,7 @@ public:
     void                            setActive(bool active);
 
     double                          ignoredScalarValue() { return m_ignoredResultScalar; }
-    void                            gridScalarIndices(size_t resultIndices[6]);
+    void                            gridScalarIndices(RigEclipseResultAddress resultIndices[6]);
     void                            cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaData);
 
     void                            loadResult();
@@ -118,7 +120,7 @@ private:
     caf::PdmField<bool>    useYVariable;
     caf::PdmField<bool>    useZVariable;
 
-    std::array<std::pair<QString, size_t>, 6> m_resultNameToIndexPairs;
+    std::array<std::pair<QString, RigEclipseResultAddress>, 6> m_resultNameToIndexPairs;
     caf::PdmPointer<RimEclipseView>           m_reservoirView;
     double                                    m_ignoredResultScalar;
 

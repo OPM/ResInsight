@@ -109,7 +109,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         const std::vector<double>* flowrateI = nullptr;
         if (scalarResultIndexFlowrateI != cvf::UNDEFINED_SIZE_T)
         {
-            flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateI, 
+            flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(scalarResultIndexFlowrateI), 
                                                                                                 timeStep));
         }
         flowrateIatAllTimeSteps.push_back(flowrateI);
@@ -118,7 +118,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         const std::vector<double>* flowrateJ = nullptr;
         if (scalarResultIndexFlowrateJ != cvf::UNDEFINED_SIZE_T)
         {
-            flowrateJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateJ,
+            flowrateJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(scalarResultIndexFlowrateJ),
                                                                                                 timeStep));
         }
         flowrateJatAllTimeSteps.push_back(flowrateJ);
@@ -127,7 +127,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         const std::vector<double>* flowrateK = nullptr;
         if (scalarResultIndexFlowrateK != cvf::UNDEFINED_SIZE_T)
         {
-            flowrateK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateK,
+            flowrateK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(scalarResultIndexFlowrateK),
                                                                                                 timeStep));
         }
         flowrateKatAllTimeSteps.push_back(flowrateK);
@@ -144,7 +144,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         {
             if (tracerIndex != cvf::UNDEFINED_SIZE_T)
             {
-                const std::vector<double>* tracerResult = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(tracerIndex, timeStep));
+                const std::vector<double>* tracerResult = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(tracerIndex), timeStep));
 
                 for (size_t i = 0; i < summedTracerValues.size(); i++)
                 {

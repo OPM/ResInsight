@@ -418,7 +418,7 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::timeStep
     std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMap;
     if (resultDataInfo.first != cvf::UNDEFINED_SIZE_T)
     {
-        for (const QDateTime& timeStep : eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates(resultDataInfo.first))
+        for (const QDateTime& timeStep : eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates(RigEclipseResultAddress(resultDataInfo.first)))
         {
             if (timeStepsMap.count(timeStep) == 0)
             {

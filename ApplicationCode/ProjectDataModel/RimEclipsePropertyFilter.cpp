@@ -372,8 +372,8 @@ void RimEclipsePropertyFilter::computeResultValueRange()
     }
     else
     {
-        size_t scalarIndex = resultDefinition->scalarResultIndex();
-        if ( scalarIndex != cvf::UNDEFINED_SIZE_T )
+        RigEclipseResultAddress scalarIndex = resultDefinition->scalarResultIndex();
+        if ( scalarIndex.isValid() )
         {
             RigCaseCellResultsData* results = resultDefinition->currentGridCellResults();
             if ( results )

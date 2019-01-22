@@ -77,121 +77,121 @@ void RigCaseCellResultsData::setActiveCellInfo(RigActiveCellInfo* activeCellInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max)
+void RigCaseCellResultsData::minMaxCellScalarValues(const RigEclipseResultAddress& resVarAddr, double& min, double& max)
 {
-    m_statisticsDataCache[scalarResultIndex]->minMaxCellScalarValues(min, max);
+    statistics(resVarAddr)->minMaxCellScalarValues(min, max);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max)
+void RigCaseCellResultsData::minMaxCellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& min, double& max)
 {
-    m_statisticsDataCache[scalarResultIndex]->minMaxCellScalarValues(timeStepIndex, min, max);
+    statistics(resVarAddr)->minMaxCellScalarValues(timeStepIndex, min, max);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, double& pos, double& neg)
+void RigCaseCellResultsData::posNegClosestToZero(const RigEclipseResultAddress& resVarAddr, double& pos, double& neg)
 {
-    m_statisticsDataCache[scalarResultIndex]->posNegClosestToZero(pos, neg);
+    statistics(resVarAddr)->posNegClosestToZero(pos, neg);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, size_t timeStepIndex, double& pos, double& neg)
+void RigCaseCellResultsData::posNegClosestToZero(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& pos, double& neg)
 {
-    m_statisticsDataCache[scalarResultIndex]->posNegClosestToZero(timeStepIndex, pos, neg);
+    statistics(resVarAddr)->posNegClosestToZero(timeStepIndex, pos, neg);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(size_t scalarResultIndex)
+const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(const RigEclipseResultAddress& resVarAddr)
 {
-    return m_statisticsDataCache[scalarResultIndex]->cellScalarValuesHistogram();
+    return statistics(resVarAddr)->cellScalarValuesHistogram();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(size_t scalarResultIndex, size_t timeStepIndex)
+const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex)
 {
-    return m_statisticsDataCache[scalarResultIndex]->cellScalarValuesHistogram(timeStepIndex);
+    return statistics(resVarAddr)->cellScalarValuesHistogram(timeStepIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90)
+void RigCaseCellResultsData::p10p90CellScalarValues(const RigEclipseResultAddress& resVarAddr, double& p10, double& p90)
 {
-    m_statisticsDataCache[scalarResultIndex]->p10p90CellScalarValues(p10, p90);
+    statistics(resVarAddr)->p10p90CellScalarValues(p10, p90);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& p10, double& p90)
+void RigCaseCellResultsData::p10p90CellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& p10, double& p90)
 {
-    m_statisticsDataCache[scalarResultIndex]->p10p90CellScalarValues(timeStepIndex, p10, p90);
+    statistics(resVarAddr)->p10p90CellScalarValues(timeStepIndex, p10, p90);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, double& meanValue)
+void RigCaseCellResultsData::meanCellScalarValues(const RigEclipseResultAddress& resVarAddr, double& meanValue)
 {
-    m_statisticsDataCache[scalarResultIndex]->meanCellScalarValues(meanValue);
+    statistics(resVarAddr)->meanCellScalarValues(meanValue);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue)
+void RigCaseCellResultsData::meanCellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue)
 {
-    m_statisticsDataCache[scalarResultIndex]->meanCellScalarValues(timeStepIndex, meanValue);
+    statistics(resVarAddr)->meanCellScalarValues(timeStepIndex, meanValue);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<int>& RigCaseCellResultsData::uniqueCellScalarValues(size_t scalarResultIndex)
+const std::vector<int>& RigCaseCellResultsData::uniqueCellScalarValues(const RigEclipseResultAddress& resVarAddr)
 {
-    return m_statisticsDataCache[scalarResultIndex]->uniqueCellScalarValues();
+    return statistics(resVarAddr)->uniqueCellScalarValues();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::sumCellScalarValues(size_t scalarResultIndex, double& sumValue)
+void RigCaseCellResultsData::sumCellScalarValues(const RigEclipseResultAddress& resVarAddr, double& sumValue)
 {
-    m_statisticsDataCache[scalarResultIndex]->sumCellScalarValues(sumValue);
+    statistics(resVarAddr)->sumCellScalarValues(sumValue);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::sumCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& sumValue)
+void RigCaseCellResultsData::sumCellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& sumValue)
 {
-    m_statisticsDataCache[scalarResultIndex]->sumCellScalarValues(timeStepIndex, sumValue);
+    statistics(resVarAddr)->sumCellScalarValues(timeStepIndex, sumValue);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::mobileVolumeWeightedMean(size_t scalarResultIndex, double& meanValue)
+void RigCaseCellResultsData::mobileVolumeWeightedMean(const RigEclipseResultAddress& resVarAddr, double& meanValue)
 {
-    m_statisticsDataCache[scalarResultIndex]->mobileVolumeWeightedMean(meanValue);
+    statistics(resVarAddr)->mobileVolumeWeightedMean(meanValue);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::mobileVolumeWeightedMean(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue)
+void RigCaseCellResultsData::mobileVolumeWeightedMean(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue)
 {
-    m_statisticsDataCache[scalarResultIndex]->mobileVolumeWeightedMean(timeStepIndex, meanValue);
+    statistics(resVarAddr)->mobileVolumeWeightedMean(timeStepIndex, meanValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,42 +205,53 @@ size_t RigCaseCellResultsData::resultCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::timeStepCount(size_t scalarResultIndex) const
+size_t RigCaseCellResultsData::timeStepCount(const RigEclipseResultAddress& resVarAddr) const
 {
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
-    return m_cellScalarResults[scalarResultIndex].size();
+    return m_cellScalarResults[resVarAddr.scalarResultIndex].size();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResults(size_t scalarResultIndex) const
+const std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResults(const RigEclipseResultAddress& resVarAddr) const
 {
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
-    return m_cellScalarResults[scalarResultIndex];
+    return m_cellScalarResults[resVarAddr.scalarResultIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResults(size_t scalarResultIndex)
+std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResults(const RigEclipseResultAddress& resVarAddr)
 {
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
-    return m_cellScalarResults[scalarResultIndex];
+    return m_cellScalarResults[resVarAddr.scalarResultIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double>& RigCaseCellResultsData::cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex)
+std::vector<double>& RigCaseCellResultsData::cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex)
 {
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
     CVF_TIGHT_ASSERT(timeStepIndex < m_cellScalarResults[scalarResultIndex].size());
 
-    return m_cellScalarResults[scalarResultIndex][timeStepIndex];
+    return m_cellScalarResults[resVarAddr.scalarResultIndex][timeStepIndex];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigCaseCellResultsData::cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex) const
+{
+    CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
+    CVF_TIGHT_ASSERT(timeStepIndex < m_cellScalarResults[scalarResultIndex].size());
+
+    return m_cellScalarResults[resVarAddr.scalarResultIndex][timeStepIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -460,21 +471,21 @@ const RigActiveCellInfo* RigCaseCellResultsData::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::recalculateStatistics(size_t scalarResultIndex)
+void RigCaseCellResultsData::recalculateStatistics(const RigEclipseResultAddress& resVarAddr)
 {
-    m_statisticsDataCache[scalarResultIndex]->clearAllStatistics();
+    m_statisticsDataCache[resVarAddr.scalarResultIndex]->clearAllStatistics();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Returns whether the result data in question is addressed by Active Cell Index
 //--------------------------------------------------------------------------------------------------
-bool RigCaseCellResultsData::isUsingGlobalActiveIndex(size_t scalarResultIndex) const
+bool RigCaseCellResultsData::isUsingGlobalActiveIndex(const RigEclipseResultAddress& resVarAddr) const
 {
     CVF_TIGHT_ASSERT(scalarResultIndex < m_cellScalarResults.size());
 
-    if (!m_cellScalarResults[scalarResultIndex].size()) return true;
+    if (!m_cellScalarResults[resVarAddr.scalarResultIndex].size()) return true;
 
-    size_t firstTimeStepResultValueCount = m_cellScalarResults[scalarResultIndex][0].size();
+    size_t firstTimeStepResultValueCount = m_cellScalarResults[resVarAddr.scalarResultIndex][0].size();
     if (firstTimeStepResultValueCount == m_ownerMainGrid->globalCellArray().size()) return false;
 
     return true;
@@ -513,11 +524,11 @@ std::vector<QDateTime> RigCaseCellResultsData::allTimeStepDatesFromEclipseReader
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RigCaseCellResultsData::timeStepDates(size_t scalarResultIndex) const
+std::vector<QDateTime> RigCaseCellResultsData::timeStepDates(const RigEclipseResultAddress& resVarAddr) const
 {
-    if (scalarResultIndex < m_resultInfos.size())
+    if (resVarAddr.scalarResultIndex < m_resultInfos.size())
     {
-        return m_resultInfos[scalarResultIndex].dates();
+        return m_resultInfos[resVarAddr.scalarResultIndex].dates();
     }
     else
         return std::vector<QDateTime>();
@@ -531,7 +542,7 @@ std::vector<QDateTime> RigCaseCellResultsData::timeStepDates() const
     size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
     maxTimeStepCount(&scalarResWithMostTimeSteps);
 
-    return timeStepDates(scalarResWithMostTimeSteps);
+    return timeStepDates(RigEclipseResultAddress(scalarResWithMostTimeSteps));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -542,17 +553,17 @@ std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart() const
     size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
     maxTimeStepCount(&scalarResWithMostTimeSteps);
 
-    return daysSinceSimulationStart(scalarResWithMostTimeSteps);
+    return daysSinceSimulationStart(RigEclipseResultAddress(scalarResWithMostTimeSteps));
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart(size_t scalarResultIndex) const
+std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart(const RigEclipseResultAddress& resVarAddr) const
 {
-    if (scalarResultIndex < m_resultInfos.size())
+    if (resVarAddr.scalarResultIndex < m_resultInfos.size())
     {
-        return m_resultInfos[scalarResultIndex].daysSinceSimulationStarts();
+        return m_resultInfos[resVarAddr.scalarResultIndex].daysSinceSimulationStarts();
     }
     else
     {
@@ -563,10 +574,10 @@ std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart(size_t scal
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RigCaseCellResultsData::reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const
+int RigCaseCellResultsData::reportStepNumber(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex) const
 {
-    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].timeStepInfos().size() > timeStepIndex)
-        return m_resultInfos[scalarResultIndex].timeStepInfos()[timeStepIndex].m_reportNumber;
+    if (resVarAddr.scalarResultIndex < m_resultInfos.size() && m_resultInfos[resVarAddr.scalarResultIndex].timeStepInfos().size() > timeStepIndex)
+        return m_resultInfos[resVarAddr.scalarResultIndex].timeStepInfos()[timeStepIndex].m_reportNumber;
     else
         return -1;
 }
@@ -574,10 +585,10 @@ int RigCaseCellResultsData::reportStepNumber(size_t scalarResultIndex, size_t ti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos(size_t scalarResultIndex) const
+std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos(const RigEclipseResultAddress& resVarAddr) const
 {
-    if (scalarResultIndex < m_resultInfos.size())
-        return m_resultInfos[scalarResultIndex].timeStepInfos();
+    if (resVarAddr.scalarResultIndex < m_resultInfos.size())
+        return m_resultInfos[resVarAddr.scalarResultIndex].timeStepInfos();
     else
         return std::vector<RigEclipseTimeStepInfo>();
 }
@@ -585,13 +596,13 @@ std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos(size_t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos)
+void RigCaseCellResultsData::setTimeStepInfos(const RigEclipseResultAddress& resVarAddr, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos)
 {
-    CVF_ASSERT(scalarResultIndex < m_resultInfos.size());
+    CVF_ASSERT(resVarAddr.scalarResultIndex < m_resultInfos.size());
 
-    m_resultInfos[scalarResultIndex].setTimeStepInfos(timeStepInfos);
+    m_resultInfos[resVarAddr.scalarResultIndex].setTimeStepInfos(timeStepInfos);
 
-    std::vector<std::vector<double>>& dataValues = this->cellScalarResults(scalarResultIndex);
+    std::vector<std::vector<double>>& dataValues = this->cellScalarResults(resVarAddr);
     dataValues.resize(timeStepInfos.size());
 }
 
@@ -656,7 +667,7 @@ void RigCaseCellResultsData::clearScalarResult(RiaDefines::ResultCatType type, c
         m_cellScalarResults[scalarResultIndex][tsIdx].swap(empty);
     }
 
-    recalculateStatistics(scalarResultIndex);
+    recalculateStatistics(RigEclipseResultAddress(scalarResultIndex));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -760,9 +771,9 @@ const std::vector<double>*
 
     if (scalarResultIndexPorv == cvf::UNDEFINED_SIZE_T) return nullptr;
 
-    const std::vector<double>* porvResults = &(gridCellResults->cellScalarResults(scalarResultIndexPorv, 0));
+    const std::vector<double>* porvResults = &(gridCellResults->cellScalarResults(RigEclipseResultAddress(scalarResultIndexPorv), 0));
 
-    if (!gridCellResults->isUsingGlobalActiveIndex(scalarResultIndexPorv))
+    if (!gridCellResults->isUsingGlobalActiveIndex(RigEclipseResultAddress(scalarResultIndexPorv)))
     {
         // PORV is given for all cells
 
@@ -1133,10 +1144,10 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
             findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
             findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
 
-            this->cellScalarResults(scalarResultIndex).resize(this->maxTimeStepCount());
+            m_cellScalarResults[scalarResultIndex].resize(this->maxTimeStepCount());
             for (size_t timeStepIdx = 0; timeStepIdx < this->maxTimeStepCount(); timeStepIdx++)
             {
-                std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[timeStepIdx];
+                std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIdx];
                 if (values.size() == 0)
                 {
                     computeSOILForTimeStep(timeStepIdx);
@@ -1149,7 +1160,7 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
     else if (resultName == RiaDefines::completionTypeResultName())
     {
         caf::ProgressInfo progressInfo(this->maxTimeStepCount(), "Calculate Completion Type Results");
-        this->cellScalarResults(scalarResultIndex).resize(this->maxTimeStepCount());
+        m_cellScalarResults[scalarResultIndex].resize(this->maxTimeStepCount());
         for (size_t timeStepIdx = 0; timeStepIdx < this->maxTimeStepCount(); ++timeStepIdx)
         {
             computeCompletionTypeForTimeStep(timeStepIdx);
@@ -1177,12 +1188,12 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
 
         if (type == RiaDefines::DYNAMIC_NATIVE && timeStepCount > 0)
         {
-            this->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+            m_cellScalarResults[scalarResultIndex].resize(timeStepCount);
 
             size_t i;
             for (i = 0; i < timeStepCount; i++)
             {
-                std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[i];
+                std::vector<double>& values = m_cellScalarResults[scalarResultIndex][i];
                 if (!m_readerInterface->dynamicResult(resultName, RiaDefines::MATRIX_MODEL, i, &values))
                 {
                     resultLoadingSucess = false;
@@ -1200,9 +1211,9 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
         }
         else if (type == RiaDefines::STATIC_NATIVE)
         {
-            this->cellScalarResults(scalarResultIndex).resize(1);
+            m_cellScalarResults[scalarResultIndex].resize(1);
 
-            std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[0];
+            std::vector<double>& values = m_cellScalarResults[scalarResultIndex][0];
             if (!m_readerInterface->staticResult(resultName, RiaDefines::MATRIX_MODEL, &values))
             {
                 resultLoadingSucess = false;
@@ -1221,7 +1232,7 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
         if (!resultLoadingSucess)
         {
             // Remove last scalar result because loading of result failed
-            this->cellScalarResults(scalarResultIndex).clear();
+            m_cellScalarResults[scalarResultIndex].clear();
         }
     }
 
@@ -1246,12 +1257,12 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
         {
             size_t timeStepCount = this->infoForEachResultIndex()[scalarResultIndex].timeStepInfos().size();
 
-            this->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+            m_cellScalarResults[scalarResultIndex].resize(timeStepCount);
 
             size_t i;
             for (i = 0; i < timeStepCount; i++)
             {
-                std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[i];
+                std::vector<double>& values = m_cellScalarResults[scalarResultIndex][i];
                 eclReader->sourSimRlResult(resultName, i, &values);
             }
         }
@@ -1275,9 +1286,9 @@ size_t RigCaseCellResultsData::findOrLoadScalarResultForTimeStep(RiaDefines::Res
 
         if (this->mustBeCalculated(soilScalarResultIndex))
         {
-            this->cellScalarResults(soilScalarResultIndex).resize(this->maxTimeStepCount());
+            m_cellScalarResults[soilScalarResultIndex].resize(this->maxTimeStepCount());
 
-            std::vector<double>& values = this->cellScalarResults(soilScalarResultIndex)[timeStepIndex];
+            std::vector<double>& values = m_cellScalarResults[soilScalarResultIndex][timeStepIndex];
             if (values.size() == 0)
             {
                 computeSOILForTimeStep(timeStepIndex);
@@ -1309,9 +1320,9 @@ size_t RigCaseCellResultsData::findOrLoadScalarResultForTimeStep(RiaDefines::Res
 
         if (type == RiaDefines::DYNAMIC_NATIVE && timeStepCount > 0)
         {
-            this->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+            m_cellScalarResults[scalarResultIndex].resize(timeStepCount);
 
-            std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[timeStepIndex];
+            std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
             if (values.size() == 0)
             {
                 if (!m_readerInterface->dynamicResult(resultName, RiaDefines::MATRIX_MODEL, timeStepIndex, &values))
@@ -1322,9 +1333,9 @@ size_t RigCaseCellResultsData::findOrLoadScalarResultForTimeStep(RiaDefines::Res
         }
         else if (type == RiaDefines::STATIC_NATIVE)
         {
-            this->cellScalarResults(scalarResultIndex).resize(1);
+            m_cellScalarResults[scalarResultIndex].resize(1);
 
-            std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[0];
+            std::vector<double>& values = m_cellScalarResults[scalarResultIndex][0];
             if (!m_readerInterface->staticResult(resultName, RiaDefines::MATRIX_MODEL, &values))
             {
                 resultLoadingSucess = false;
@@ -1347,9 +1358,9 @@ size_t RigCaseCellResultsData::findOrLoadScalarResultForTimeStep(RiaDefines::Res
         {
             size_t timeStepCount = this->infoForEachResultIndex()[scalarResultIndex].timeStepInfos().size();
 
-            this->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+            m_cellScalarResults[scalarResultIndex].resize(timeStepCount);
 
-            std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[timeStepIndex];
+            std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
 
             if (values.size() == 0)
             {
@@ -1384,7 +1395,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
     {
-        std::vector<double>& swatForTimeStep = this->cellScalarResults(scalarIndexSWAT, timeStepIndex);
+        std::vector<double>& swatForTimeStep = this->cellScalarResults(RigEclipseResultAddress(scalarIndexSWAT), timeStepIndex);
         if (swatForTimeStep.size() > 0)
         {
             soilResultValueCount = swatForTimeStep.size();
@@ -1394,7 +1405,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T)
     {
-        std::vector<double>& sgasForTimeStep = this->cellScalarResults(scalarIndexSGAS, timeStepIndex);
+        std::vector<double>& sgasForTimeStep = this->cellScalarResults(RigEclipseResultAddress(scalarIndexSGAS), timeStepIndex);
         if (sgasForTimeStep.size() > 0)
         {
             soilResultValueCount = qMax(soilResultValueCount, sgasForTimeStep.size());
@@ -1407,15 +1418,15 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
     // Make sure memory is allocated for the new SOIL results
 
     size_t soilResultScalarIndex = this->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-    this->cellScalarResults(soilResultScalarIndex).resize(soilTimeStepCount);
+    m_cellScalarResults[soilResultScalarIndex].resize(soilTimeStepCount);
 
-    if (this->cellScalarResults(soilResultScalarIndex, timeStepIndex).size() > 0)
+    if (this->cellScalarResults(RigEclipseResultAddress(soilResultScalarIndex), timeStepIndex).size() > 0)
     {
         // Data is computed and allocated, nothing more to do
         return;
     }
 
-    this->cellScalarResults(soilResultScalarIndex, timeStepIndex).resize(soilResultValueCount);
+    m_cellScalarResults[soilResultScalarIndex][timeStepIndex].resize(soilResultValueCount);
 
     std::vector<double>* swatForTimeStep = nullptr;
     std::vector<double>* sgasForTimeStep = nullptr;
@@ -1423,7 +1434,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
     {
-        swatForTimeStep = &(this->cellScalarResults(scalarIndexSWAT, timeStepIndex));
+        swatForTimeStep = &(this->cellScalarResults(RigEclipseResultAddress(scalarIndexSWAT), timeStepIndex));
         if (swatForTimeStep->size() == 0)
         {
             swatForTimeStep = nullptr;
@@ -1432,7 +1443,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T)
     {
-        sgasForTimeStep = &(this->cellScalarResults(scalarIndexSGAS, timeStepIndex));
+        sgasForTimeStep = &(this->cellScalarResults(RigEclipseResultAddress(scalarIndexSGAS), timeStepIndex));
         if (sgasForTimeStep->size() == 0)
         {
             sgasForTimeStep = nullptr;
@@ -1441,14 +1452,14 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     if (scalarIndexSSOL != cvf::UNDEFINED_SIZE_T)
     {
-        ssolForTimeStep = &(this->cellScalarResults(scalarIndexSSOL, timeStepIndex));
+        ssolForTimeStep = &(this->cellScalarResults(RigEclipseResultAddress(scalarIndexSSOL), timeStepIndex));
         if (ssolForTimeStep->size() == 0)
         {
             ssolForTimeStep = nullptr;
         }
     }
 
-    std::vector<double>& soilForTimeStep = this->cellScalarResults(soilResultScalarIndex, timeStepIndex);
+    std::vector<double>& soilForTimeStep = this->cellScalarResults(RigEclipseResultAddress(soilResultScalarIndex), timeStepIndex);
 
 #pragma omp parallel for
     for (int idx = 0; idx < static_cast<int>(soilResultValueCount); idx++)
@@ -1493,9 +1504,9 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep(size_t timeStepIndex)
     // Simulation type is gas and water. No SGAS is present, compute SGAS based on SWAT
 
     size_t scalarIndexSGAS = this->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SGAS", false);
-    if (this->cellScalarResults(scalarIndexSGAS).size() > timeStepIndex)
+    if (m_cellScalarResults[scalarIndexSGAS].size() > timeStepIndex)
     {
-        std::vector<double>& values = this->cellScalarResults(scalarIndexSGAS)[timeStepIndex];
+        std::vector<double>& values = m_cellScalarResults[scalarIndexSGAS][timeStepIndex];
         if (values.size() > 0) return;
     }
 
@@ -1503,7 +1514,7 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep(size_t timeStepIndex)
     size_t swatTimeStepCount    = 0;
 
     {
-        std::vector<double>& swatForTimeStep = this->cellScalarResults(scalarIndexSWAT, timeStepIndex);
+        std::vector<double>& swatForTimeStep = m_cellScalarResults[scalarIndexSWAT][timeStepIndex];
         if (swatForTimeStep.size() > 0)
         {
             swatResultValueCount = swatForTimeStep.size();
@@ -1511,26 +1522,26 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep(size_t timeStepIndex)
         }
     }
 
-    this->cellScalarResults(scalarIndexSGAS).resize(swatTimeStepCount);
+    m_cellScalarResults[scalarIndexSGAS].resize(swatTimeStepCount);
 
-    if (this->cellScalarResults(scalarIndexSGAS, timeStepIndex).size() > 0)
+    if (m_cellScalarResults[scalarIndexSGAS][timeStepIndex].size() > 0)
     {
         return;
     }
 
-    this->cellScalarResults(scalarIndexSGAS, timeStepIndex).resize(swatResultValueCount);
+    m_cellScalarResults[scalarIndexSGAS][timeStepIndex].resize(swatResultValueCount);
 
     std::vector<double>* swatForTimeStep = nullptr;
 
     {
-        swatForTimeStep = &(this->cellScalarResults(scalarIndexSWAT, timeStepIndex));
+        swatForTimeStep = &(m_cellScalarResults[scalarIndexSWAT][timeStepIndex]);
         if (swatForTimeStep->size() == 0)
         {
             swatForTimeStep = nullptr;
         }
     }
 
-    std::vector<double>& sgasForTimeStep = this->cellScalarResults(scalarIndexSGAS, timeStepIndex);
+    std::vector<double>& sgasForTimeStep = m_cellScalarResults[scalarIndexSGAS][timeStepIndex];
 
 #pragma omp parallel for
     for (int idx = 0; idx < static_cast<int>(swatResultValueCount); idx++)
@@ -1604,12 +1615,12 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
         computeBottom     = true;
     }
 
-    std::vector<std::vector<double>>& depth  = this->cellScalarResults(depthResultIndex);
-    std::vector<std::vector<double>>& dx     = this->cellScalarResults(dxResultIndex);
-    std::vector<std::vector<double>>& dy     = this->cellScalarResults(dyResultIndex);
-    std::vector<std::vector<double>>& dz     = this->cellScalarResults(dzResultIndex);
-    std::vector<std::vector<double>>& tops   = this->cellScalarResults(topsResultIndex);
-    std::vector<std::vector<double>>& bottom = this->cellScalarResults(bottomResultIndex);
+    std::vector<std::vector<double>>& depth  = m_cellScalarResults[depthResultIndex];
+    std::vector<std::vector<double>>& dx     = m_cellScalarResults[dxResultIndex];
+    std::vector<std::vector<double>>& dy     = m_cellScalarResults[dyResultIndex];
+    std::vector<std::vector<double>>& dz     = m_cellScalarResults[dzResultIndex];
+    std::vector<std::vector<double>>& tops   = m_cellScalarResults[topsResultIndex];
+    std::vector<std::vector<double>>& bottom = m_cellScalarResults[bottomResultIndex];
 
     // Make sure the size is at least active cells
     {
@@ -1837,22 +1848,22 @@ void RigCaseCellResultsData::computeRiTransComponent(const QString& riTransCompo
 
     // Get the result count, to handle that one of them might be globally defined
 
-    size_t permxResultValueCount = this->cellScalarResults(permResultIdx)[0].size();
+    size_t permxResultValueCount = m_cellScalarResults[permResultIdx][0].size();
     size_t resultValueCount      = permxResultValueCount;
     if (hasNTGResults)
     {
-        size_t ntgResultValueCount = this->cellScalarResults(ntgResultIdx)[0].size();
+        size_t ntgResultValueCount =  m_cellScalarResults[ntgResultIdx][0].size();
         resultValueCount           = CVF_MIN(permxResultValueCount, ntgResultValueCount);
     }
 
     // Get all the actual result values
 
-    std::vector<double>& permResults    = this->cellScalarResults(permResultIdx)[0];
-    std::vector<double>& riTransResults = this->cellScalarResults(riTransResultIdx)[0];
+    std::vector<double>& permResults    = m_cellScalarResults[permResultIdx][0];
+    std::vector<double>& riTransResults =  m_cellScalarResults[riTransResultIdx][0];
     std::vector<double>* ntgResults     = nullptr;
     if (hasNTGResults)
     {
-        ntgResults = &(this->cellScalarResults(ntgResultIdx)[0]);
+        ntgResults = &( m_cellScalarResults[ntgResultIdx][0]);
     }
 
     // Set up output container to correct number of results
@@ -1864,12 +1875,12 @@ void RigCaseCellResultsData::computeRiTransComponent(const QString& riTransCompo
     ResultIndexFunction permIdxFunc   = nullptr;
     ResultIndexFunction ntgIdxFunc    = nullptr;
     {
-        bool isPermUsingResIdx  = this->isUsingGlobalActiveIndex(permResultIdx);
-        bool isTransUsingResIdx = this->isUsingGlobalActiveIndex(riTransResultIdx);
+        bool isPermUsingResIdx  = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(permResultIdx));
+        bool isTransUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(riTransResultIdx));
         bool isNtgUsingResIdx   = false;
         if (hasNTGResults)
         {
-            isNtgUsingResIdx = this->isUsingGlobalActiveIndex(ntgResultIdx);
+            isNtgUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(ntgResultIdx));
         }
 
         // Set up result index function pointers
@@ -1995,9 +2006,9 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
 
     // Get all the actual result values
 
-    std::vector<double>& permXResults = this->cellScalarResults(permXResultIdx)[0];
-    std::vector<double>& permYResults = this->cellScalarResults(permYResultIdx)[0];
-    std::vector<double>& permZResults = this->cellScalarResults(permZResultIdx)[0];
+    std::vector<double>& permXResults = m_cellScalarResults[permXResultIdx][0];
+    std::vector<double>& permYResults = m_cellScalarResults[permYResultIdx][0];
+    std::vector<double>& permZResults = m_cellScalarResults[permZResultIdx][0];
     std::vector<double>& riCombTransResults =
         m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombTrans());
     m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombTrans(), riCombTransScalarResultIndex);
@@ -2005,7 +2016,7 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
     std::vector<double>* ntgResults = nullptr;
     if (hasNTGResults)
     {
-        ntgResults = &(this->cellScalarResults(ntgResultIdx)[0]);
+        ntgResults = &(m_cellScalarResults[ntgResultIdx][0]);
     }
 
     // Prepare how to index the result values:
@@ -2014,13 +2025,13 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
     ResultIndexFunction permZIdxFunc = nullptr;
     ResultIndexFunction ntgIdxFunc   = nullptr;
     {
-        bool isPermXUsingResIdx = this->isUsingGlobalActiveIndex(permXResultIdx);
-        bool isPermYUsingResIdx = this->isUsingGlobalActiveIndex(permYResultIdx);
-        bool isPermZUsingResIdx = this->isUsingGlobalActiveIndex(permZResultIdx);
+        bool isPermXUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(permXResultIdx));
+        bool isPermYUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(permYResultIdx));
+        bool isPermZUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(permZResultIdx));
         bool isNtgUsingResIdx   = false;
         if (hasNTGResults)
         {
-            isNtgUsingResIdx = this->isUsingGlobalActiveIndex(ntgResultIdx);
+            isNtgUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(ntgResultIdx));
         }
 
         // Set up result index function pointers
@@ -2205,16 +2216,15 @@ void RigCaseCellResultsData::computeRiMULTComponent(const QString& riMultCompNam
 
     // Get the result count, to handle that one of them might be globally defined
 
-    CVF_ASSERT(this->cellScalarResults(riTransResultIdx)[0].size() == this->cellScalarResults(transResultIdx)[0].size());
+    CVF_ASSERT(m_cellScalarResults[riTransResultIdx][0].size() == m_cellScalarResults[transResultIdx][0].size());
 
-    size_t resultValueCount = this->cellScalarResults(transResultIdx)[0].size();
+    size_t resultValueCount = m_cellScalarResults[transResultIdx][0].size();
 
     // Get all the actual result values
 
-    std::vector<double>& riTransResults = this->cellScalarResults(riTransResultIdx)[0];
-    std::vector<double>& transResults   = this->cellScalarResults(transResultIdx)[0];
-
-    std::vector<double>& riMultResults = this->cellScalarResults(riMultResultIdx)[0];
+    std::vector<double>& riTransResults = m_cellScalarResults[riTransResultIdx][0];
+    std::vector<double>& transResults   = m_cellScalarResults[transResultIdx][0];
+    std::vector<double>& riMultResults  = m_cellScalarResults[riMultResultIdx][0];
 
     // Set up output container to correct number of results
 
@@ -2295,12 +2305,12 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent(const QString& riTran
 
     // Get the result count, to handle that one of them might be globally defined
 
-    size_t resultValueCount = this->cellScalarResults(tranCompScResIdx)[0].size();
+    size_t resultValueCount = m_cellScalarResults[tranCompScResIdx][0].size();
 
     // Get all the actual result values
 
-    std::vector<double>& transResults         = this->cellScalarResults(tranCompScResIdx)[0];
-    std::vector<double>& riTransByAreaResults = this->cellScalarResults(riTranByAreaScResIdx)[0];
+    std::vector<double>& transResults         = m_cellScalarResults[tranCompScResIdx][0];
+    std::vector<double>& riTransByAreaResults = m_cellScalarResults[riTranByAreaScResIdx][0];
 
     // Set up output container to correct number of results
 
@@ -2308,7 +2318,7 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent(const QString& riTran
 
     // Prepare how to index the result values:
 
-    bool isUsingResIdx = this->isUsingGlobalActiveIndex(tranCompScResIdx);
+    bool isUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(tranCompScResIdx));
 
     // Set up result index function pointers
 
@@ -2400,12 +2410,12 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep(size_t timeStep)
     size_t completionTypeResultIndex =
         this->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
 
-    if (this->cellScalarResults(completionTypeResultIndex).size() < this->maxTimeStepCount())
+    if (m_cellScalarResults[completionTypeResultIndex].size() < this->maxTimeStepCount())
     {
-        this->cellScalarResults(completionTypeResultIndex).resize(this->maxTimeStepCount());
+        m_cellScalarResults[completionTypeResultIndex].resize(this->maxTimeStepCount());
     }
 
-    std::vector<double>& completionTypeResult = this->cellScalarResults(completionTypeResultIndex, timeStep);
+    std::vector<double>& completionTypeResult = m_cellScalarResults[completionTypeResultIndex][timeStep];
 
     size_t resultValues = m_ownerMainGrid->globalCellArray().size();
 
@@ -2439,11 +2449,11 @@ void RigCaseCellResultsData::computeCellVolumes()
 {
     size_t cellVolIdx = this->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riCellVolumeResultName(), false);
 
-    if (this->cellScalarResults(cellVolIdx).empty())
+    if (m_cellScalarResults[cellVolIdx].empty())
     {
-        this->cellScalarResults(cellVolIdx).resize(1);
+    m_cellScalarResults[cellVolIdx].resize(1);
     }
-    std::vector<double>& cellVolumeResults = this->cellScalarResults(cellVolIdx)[0];
+    std::vector<double>& cellVolumeResults = m_cellScalarResults[cellVolIdx][0];
 
     size_t cellResultCount = m_activeCellInfo->reservoirCellResultCount();
     cellVolumeResults.resize(cellResultCount, std::numeric_limits<double>::infinity());
@@ -2472,17 +2482,17 @@ void RigCaseCellResultsData::computeCellVolumes()
 void RigCaseCellResultsData::computeOilVolumes()
 {
     size_t cellVolIdx = this->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riCellVolumeResultName(), false);
-    const std::vector<double>& cellVolumeResults = this->cellScalarResults(cellVolIdx)[0];
+    const std::vector<double>& cellVolumeResults = m_cellScalarResults[cellVolIdx][0];
 
     size_t soilIdx = this->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
     size_t oilVolIdx = this->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::riOilVolumeResultName(), false);
-    this->cellScalarResults(oilVolIdx).resize(this->maxTimeStepCount());
+    m_cellScalarResults[oilVolIdx].resize(this->maxTimeStepCount());
 
     size_t cellResultCount = m_activeCellInfo->reservoirCellResultCount();
     for (size_t timeStepIdx = 0; timeStepIdx < this->maxTimeStepCount(); timeStepIdx++)
     {
-        const std::vector<double>& soilResults = this->cellScalarResults(soilIdx)[timeStepIdx];
-        std::vector<double>& oilVolumeResults = this->cellScalarResults(oilVolIdx)[timeStepIdx];
+        const std::vector<double>& soilResults = m_cellScalarResults[soilIdx][timeStepIdx];
+        std::vector<double>& oilVolumeResults  = m_cellScalarResults[oilVolIdx][timeStepIdx];
         oilVolumeResults.resize(cellResultCount, 0u);
 
 #pragma omp parallel for
@@ -2525,7 +2535,7 @@ void RigCaseCellResultsData::computeMobilePV()
 
     size_t mobPVIdx = this->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName(), false);
 
-    std::vector<double>& mobPVResults = this->cellScalarResults(mobPVIdx)[0];
+    std::vector<double>& mobPVResults = m_cellScalarResults[mobPVIdx][0];
 
     // Set up output container to correct number of results
     mobPVResults.resize(porvResults->size());
@@ -2587,7 +2597,7 @@ bool RigCaseCellResultsData::isDataPresent(size_t scalarResultIndex) const
         return false;
     }
 
-    const std::vector<std::vector<double>>& data = this->cellScalarResults(scalarResultIndex);
+    const std::vector<std::vector<double>>& data = m_cellScalarResults[scalarResultIndex];
 
     for (size_t tsIdx = 0; tsIdx < data.size(); ++tsIdx)
     {
@@ -2655,4 +2665,12 @@ void RigCaseCellResultsData::assignValuesToTemporaryLgrs(const QString&       re
     {
         RiaLogging::warning("Detected invalid/undefined cells when assigning result values to temporary LGRs");
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigStatisticsDataCache* RigCaseCellResultsData::statistics(const RigEclipseResultAddress& resVarAddr)
+{
+    return m_statisticsDataCache[resVarAddr.scalarResultIndex].p();
 }

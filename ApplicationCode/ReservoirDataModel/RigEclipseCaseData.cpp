@@ -683,7 +683,7 @@ void RigEclipseCaseData::setActiveFormationNames(RigFormationNames* activeFormat
                                                                   false, 
                                                                   totalGlobCellCount);
 
-    std::vector<double>& fnData =  m_matrixModelResults->cellScalarResults(resIndex,0);
+    std::vector<double>& fnData =  m_matrixModelResults->cellScalarResults(RigEclipseResultAddress(resIndex),0);
 
     if (m_activeFormationNamesData.isNull())
     {
@@ -790,7 +790,7 @@ const std::vector<double>* RigEclipseCaseData::resultValues(RiaDefines::Porosity
     const std::vector<double>* swatResults = nullptr;
     if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
     {
-        swatResults = &(gridCellResults->cellScalarResults(scalarResultIndex, timeStepIndex));
+        swatResults = &(gridCellResults->cellScalarResults(RigEclipseResultAddress(scalarResultIndex), timeStepIndex));
     }
 
     return swatResults;

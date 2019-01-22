@@ -625,11 +625,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimEclipseResultDefinition::scalarResultIndex() const
+RigEclipseResultAddress RimEclipseResultDefinition::scalarResultIndex() const
 {
     size_t gridScalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
-    if (isFlowDiagOrInjectionFlooding()) return cvf::UNDEFINED_SIZE_T;
+    if (isFlowDiagOrInjectionFlooding()) return RigEclipseResultAddress();
 
     const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults )
@@ -637,7 +637,7 @@ size_t RimEclipseResultDefinition::scalarResultIndex() const
         gridScalarResultIndex = gridCellResults->findScalarResultIndex(m_resultType(), m_resultVariable());
     }
 
-    return gridScalarResultIndex;
+    return RigEclipseResultAddress(gridScalarResultIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -786,7 +786,7 @@ bool RimEclipseResultDefinition::hasStaticResult() const
     if (isFlowDiagOrInjectionFlooding()) return false;
 
     const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
-    size_t gridScalarResultIndex = this->scalarResultIndex();
+    RigEclipseResultAddress gridScalarResultIndex = this->scalarResultIndex();
 
     if (hasResult() && gridCellResults->timeStepCount(gridScalarResultIndex) == 1 )
     {
@@ -845,7 +845,7 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
         if (this->currentGridCellResults())
         {
             const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
-            size_t gridScalarResultIndex = this->scalarResultIndex();
+            RigEclipseResultAddress gridScalarResultIndex = this->scalarResultIndex();
             if (gridCellResults->timeStepCount(gridScalarResultIndex) > 1 )
             {
                 return true;

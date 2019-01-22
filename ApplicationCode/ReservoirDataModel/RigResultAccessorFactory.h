@@ -28,6 +28,7 @@ class RigActiveCellInfo;
 class RigGridBase;
 
 class RimEclipseResultDefinition;
+class RigEclipseResultAddress;
 
 class RigResultAccessorFactory
 {
@@ -58,7 +59,7 @@ public:
                             size_t gridIndex,
                             RiaDefines::PorosityModelType porosityModel,
                             size_t timeStepIndex,
-                            size_t resultIndex);
+                            const RigEclipseResultAddress& resultIndex);
 
 
 

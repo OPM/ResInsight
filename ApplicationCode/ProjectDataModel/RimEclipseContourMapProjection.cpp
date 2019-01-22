@@ -324,8 +324,8 @@ std::vector<double> RimEclipseContourMapProjection::retrieveParameterWeights()
     std::vector<double> weights;
     if (m_weightByParameter())
     {
-        size_t gridScalarResultIdx = m_weightingResult->scalarResultIndex();
-        if (gridScalarResultIdx != cvf::UNDEFINED_SIZE_T)
+        RigEclipseResultAddress gridScalarResultIdx = m_weightingResult->scalarResultIndex();
+        if (gridScalarResultIdx.isValid())
         {
             m_weightingResult->loadResult();
             int timeStep = 0;
@@ -333,7 +333,7 @@ std::vector<double> RimEclipseContourMapProjection::retrieveParameterWeights()
             {
                 timeStep = view()->currentTimeStep();
             }
-            weights = m_weightingResult->currentGridCellResults()->cellScalarResults(gridScalarResultIdx)[timeStep];
+            weights = m_weightingResult->currentGridCellResults()->cellScalarResults(gridScalarResultIdx, timeStep);
         }
     }
     return weights;

@@ -50,12 +50,12 @@ private:
     template <typename StatisticsAccumulator>
     void traverseCells(StatisticsAccumulator& accumulator, size_t timeStepIndex)
     {
-        if (timeStepIndex >= m_resultsData->cellScalarResults(m_scalarResultIndex).size())
+        if (timeStepIndex >= m_resultsData->cellScalarResults(RigEclipseResultAddress(m_scalarResultIndex)).size())
         {
             return;
         }
 
-        std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
+        std::vector<double>& values = m_resultsData->cellScalarResults(RigEclipseResultAddress(m_scalarResultIndex), timeStepIndex);
 
         if (values.empty())
         {
@@ -72,7 +72,7 @@ private:
             if (!actCellInfo->isActive(cIdx)) continue;
 
             size_t cellResultIndex = cIdx;
-            if (m_resultsData->isUsingGlobalActiveIndex(m_scalarResultIndex))
+            if (m_resultsData->isUsingGlobalActiveIndex(RigEclipseResultAddress(m_scalarResultIndex)))
             {
                 cellResultIndex = actCellInfo->cellResultIndex(cIdx);
             }

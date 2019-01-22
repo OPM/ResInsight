@@ -324,7 +324,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     size_t resultIndexWithMaxTimeSteps = cvf::UNDEFINED_SIZE_T;
     m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&resultIndexWithMaxTimeSteps);
 
-    int reportStepNumber =  m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->reportStepNumber(resultIndexWithMaxTimeSteps, timeStepIndex);
+    int reportStepNumber =  m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->reportStepNumber(RigEclipseResultAddress(resultIndexWithMaxTimeSteps), timeStepIndex);
 
     if ( !currentRestartData->selectReportStep(reportStepNumber) )
     {

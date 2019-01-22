@@ -360,6 +360,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
 
             double globalMin, globalMax;
             double globalPosClosestToZero, globalNegClosestToZero;
+
             cellResultsData->minMaxCellScalarValues(this->scalarResultIndex(), globalMin, globalMax);
             cellResultsData->posNegClosestToZero(this->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
 
@@ -448,8 +449,8 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                     double localMin = 0.0;
                     double localMax = 1.0;
 
-                    cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-                    cellResultsData->minMaxCellScalarValues(scalarSetIndex, currentTimeStep, localMin, localMax);
+                    cellResultsData->minMaxCellScalarValues(RigEclipseResultAddress(scalarSetIndex), globalMin, globalMax);
+                    cellResultsData->minMaxCellScalarValues(RigEclipseResultAddress(scalarSetIndex), currentTimeStep, localMin, localMax);
 
                     ternaryLegendConfig->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
                 }
@@ -464,8 +465,8 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                     double localMin = 0.0;
                     double localMax = 1.0;
 
-                    cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-                    cellResultsData->minMaxCellScalarValues(scalarSetIndex, currentTimeStep, localMin, localMax);
+                    cellResultsData->minMaxCellScalarValues(RigEclipseResultAddress(scalarSetIndex), globalMin, globalMax);
+                    cellResultsData->minMaxCellScalarValues(RigEclipseResultAddress(scalarSetIndex), currentTimeStep, localMin, localMax);
 
                     ternaryLegendConfig->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
                 }
@@ -480,8 +481,8 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                     double localMin = 0.0;
                     double localMax = 1.0;
 
-                    cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-                    cellResultsData->minMaxCellScalarValues(scalarSetIndex, currentTimeStep, localMin, localMax);
+                    cellResultsData->minMaxCellScalarValues(RigEclipseResultAddress(scalarSetIndex), globalMin, globalMax);
+                    cellResultsData->minMaxCellScalarValues(RigEclipseResultAddress(scalarSetIndex), currentTimeStep, localMin, localMax);
 
                     ternaryLegendConfig->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
                 }

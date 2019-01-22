@@ -321,7 +321,7 @@ bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type* eclipseKeywordDa
     size_t resultIndex = RifEclipseInputFileTools::findOrCreateResult(resultName, caseData);
     if (resultIndex == cvf::UNDEFINED_SIZE_T) return false;
 
-    std::vector< std::vector<double> >& newPropertyData = caseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(resultIndex);
+    std::vector< std::vector<double> >& newPropertyData = caseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(resultIndex));
     newPropertyData.push_back(std::vector<double>());
     newPropertyData[0].resize(ecl_kw_get_size(eclipseKeywordData), HUGE_VAL);
     ecl_kw_get_data_as_double(eclipseKeywordData, newPropertyData[0].data());

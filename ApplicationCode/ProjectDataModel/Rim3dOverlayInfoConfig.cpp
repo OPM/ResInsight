@@ -337,20 +337,20 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimE
 
         if (isResultsInfoRelevant)
         {
-            size_t scalarIndex = eclipseView->cellResult()->scalarResultIndex();
+            RigEclipseResultAddress eclResAddr = eclipseView->cellResult()->scalarResultIndex();
 
-            if (scalarIndex != cvf::UNDEFINED_SIZE_T)
+            if (eclResAddr.isValid())
             {
                 if (m_statisticsCellRange == ALL_CELLS)
                 {
                     if (m_statisticsTimeRange == ALL_TIMESTEPS)
                     {
-                        eclipseView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, histData.min, histData.max);
-                        eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, histData.p10, histData.p90);
-                        eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, histData.mean);
-                        eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, histData.sum);
-                        eclipseView->currentGridCellResults()->mobileVolumeWeightedMean(scalarIndex, histData.weightedMean);
-                        histData.histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex));
+                        eclipseView->currentGridCellResults()->minMaxCellScalarValues(eclResAddr, histData.min, histData.max);
+                        eclipseView->currentGridCellResults()->p10p90CellScalarValues(eclResAddr, histData.p10, histData.p90);
+                        eclipseView->currentGridCellResults()->meanCellScalarValues(eclResAddr, histData.mean);
+                        eclipseView->currentGridCellResults()->sumCellScalarValues(eclResAddr, histData.sum);
+                        eclipseView->currentGridCellResults()->mobileVolumeWeightedMean(eclResAddr, histData.weightedMean);
+                        histData.histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(eclResAddr));
                     }
                     else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
                     {
@@ -360,13 +360,13 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimE
                             currentTimeStep = 0;
                         }
 
-                        eclipseView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, currentTimeStep, histData.min, histData.max);
-                        eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, currentTimeStep, histData.p10, histData.p90);
-                        eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, currentTimeStep, histData.mean);
-                        eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, currentTimeStep, histData.sum);
-                        eclipseView->currentGridCellResults()->mobileVolumeWeightedMean(scalarIndex, currentTimeStep, histData.weightedMean);
+                        eclipseView->currentGridCellResults()->minMaxCellScalarValues(eclResAddr, currentTimeStep, histData.min, histData.max);
+                        eclipseView->currentGridCellResults()->p10p90CellScalarValues(eclResAddr, currentTimeStep, histData.p10, histData.p90);
+                        eclipseView->currentGridCellResults()->meanCellScalarValues(eclResAddr, currentTimeStep, histData.mean);
+                        eclipseView->currentGridCellResults()->sumCellScalarValues(eclResAddr, currentTimeStep, histData.sum);
+                        eclipseView->currentGridCellResults()->mobileVolumeWeightedMean(eclResAddr, currentTimeStep, histData.weightedMean);
 
-                        histData.histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex, currentTimeStep));
+                        histData.histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(eclResAddr, currentTimeStep));
                     }
                     else
                     {
@@ -1095,10 +1095,10 @@ void Rim3dOverlayInfoConfig::updateVisCellStatsIfNeeded()
             }
             else
             {
-                size_t scalarIndex = eclipseView->cellResult()->scalarResultIndex();
+                RigEclipseResultAddress scalarIndex = eclipseView->cellResult()->scalarResultIndex();
                 calc = new RigEclipseNativeVisibleCellsStatCalc(eclipseView->currentGridCellResults(),
-                    scalarIndex,
-                    eclipseView->currentTotalCellVisibility().p());
+                                                                scalarIndex,
+                                                                eclipseView->currentTotalCellVisibility().p());
             }
         }
 

@@ -236,7 +236,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     // for all cases
 
     {
-        std::vector<RigEclipseTimeStepInfo> timeStepInfos = rigCaseData->results(poroModel)->timeStepInfos(0);
+        std::vector<RigEclipseTimeStepInfo> timeStepInfos = rigCaseData->results(poroModel)->timeStepInfos(RigEclipseResultAddress(0));
 
         const std::vector<RigEclipseResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
 
@@ -261,9 +261,9 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
                     
                     if (mustBeCalculated) cellResultsStorage->setMustBeCalculated(scalarResultIndex);
 
-                    cellResultsStorage->setTimeStepInfos(scalarResultIndex, timeStepInfos);
+                    cellResultsStorage->setTimeStepInfos(RigEclipseResultAddress(scalarResultIndex), timeStepInfos);
 
-                    std::vector< std::vector<double> >& dataValues = cellResultsStorage->cellScalarResults(scalarResultIndex);
+                    std::vector< std::vector<double> >& dataValues = cellResultsStorage->cellScalarResults(RigEclipseResultAddress(scalarResultIndex));
                     dataValues.resize(timeStepInfos.size());
                 }
             }

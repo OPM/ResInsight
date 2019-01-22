@@ -441,7 +441,7 @@ public:
             return true;
         }
 
-        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->timeStepDates(scalarIndexWithMaxTimeStepCount);
+        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->timeStepDates(RigEclipseResultAddress(scalarIndexWithMaxTimeStepCount));
 
         quint64 timeStepCount = timeStepDates.size();
         quint64 byteCount = sizeof(quint64) + 6 * timeStepCount * sizeof(qint32);
@@ -528,7 +528,7 @@ public:
             return true;
         }
 
-        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart(scalarIndexWithMaxTimeStepCount);
+        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart(RigEclipseResultAddress(scalarIndexWithMaxTimeStepCount));
 
         quint64 timeStepCount = daysSinceSimulationStart.size();
         quint64 byteCount = sizeof(quint64) + timeStepCount * sizeof(qint32);

@@ -122,7 +122,7 @@ void RigFlowDiagStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, double&
 
     size_t mobPVResultIndex = caseCellResultsData->findOrLoadScalarResult(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
 
-    const std::vector<double>& weights = caseCellResultsData->cellScalarResults(mobPVResultIndex, 0);
+    const std::vector<double>& weights = caseCellResultsData->cellScalarResults(RigEclipseResultAddress(mobPVResultIndex), 0);
     const std::vector<double>* values = m_resultsData->resultValues(m_resVarAddr, timeStepIndex);
 
     const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo(m_resVarAddr);

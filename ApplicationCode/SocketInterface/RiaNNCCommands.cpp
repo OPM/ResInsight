@@ -434,7 +434,7 @@ public:
         if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
         {
             std::vector< std::vector<double> >* scalarResultFrames = nullptr;
-            scalarResultFrames = &(results->cellScalarResults(scalarResultIndex));
+            scalarResultFrames = &(results->cellScalarResults(RigEclipseResultAddress(scalarResultIndex)));
             size_t timeStepCount = results->maxTimeStepCount();
             scalarResultFrames->resize(timeStepCount);
             return true;
@@ -538,7 +538,7 @@ public:
                     m_currentReservoir->eclipseCaseData() &&
                     m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum) )
                 {
-                    m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentScalarIndex);
+                    m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum)->recalculateStatistics(RigEclipseResultAddress(m_currentScalarIndex));
                 }
 
                 for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)

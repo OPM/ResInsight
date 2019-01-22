@@ -44,13 +44,13 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* d
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
 
-    std::vector<RigEclipseTimeStepInfo> sourceTimeStepInfos = m_sourceCases[0]->results(RiaDefines::MATRIX_MODEL)->timeStepInfos(0);
+    std::vector<RigEclipseTimeStepInfo> sourceTimeStepInfos = m_sourceCases[0]->results(RiaDefines::MATRIX_MODEL)->timeStepInfos(RigEclipseResultAddress(0));
 
     size_t destinationScalarResultIndex = destinationCellResults->findOrCreateScalarResultIndex(resultType, resultName, true);
     CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);
 
-    destinationCellResults->setTimeStepInfos(destinationScalarResultIndex, sourceTimeStepInfos);
-    std::vector< std::vector<double> >& dataValues = destinationCellResults->cellScalarResults(destinationScalarResultIndex);
+    destinationCellResults->setTimeStepInfos(RigEclipseResultAddress(destinationScalarResultIndex), sourceTimeStepInfos);
+    std::vector< std::vector<double> >& dataValues = destinationCellResults->cellScalarResults(RigEclipseResultAddress(destinationScalarResultIndex));
     dataValues.resize(sourceTimeStepInfos.size());
 
 

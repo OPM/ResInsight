@@ -35,6 +35,8 @@
 
 #include <limits>
 
+#include "RigCaseCellResultsData.h"
+
 class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseView;
@@ -92,7 +94,7 @@ public:
     QString                         resultVariableUiShortName() const;
 
     void                            loadResult();
-    size_t                          scalarResultIndex() const;
+    RigEclipseResultAddress         scalarResultIndex() const;
     bool                            hasStaticResult() const;
     bool                            hasDynamicResult() const;
     bool                            hasResult() const;

@@ -310,7 +310,7 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccess
     }
     else
     {
-        size_t resultIndices[6];
+        RigEclipseResultAddress resultIndices[6];
         cellEdgeResultColors->gridScalarIndices(resultIndices);
 
         std::vector<RimCellEdgeMetaData> metaData;

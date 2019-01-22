@@ -262,7 +262,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     const std::vector<double>*              currentMatrixPressures = nullptr;
     if (performPressureDepletionScaling)
     {
-        pressureResultVector = &results->cellScalarResults(pressureResultIndex);
+        pressureResultVector = &results->cellScalarResults(RigEclipseResultAddress(pressureResultIndex));
         CVF_ASSERT(!pressureResultVector->empty());
 
         if (pdParams.pressureScalingTimeStep < static_cast<int>(pressureResultVector->size()))

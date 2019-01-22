@@ -54,7 +54,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclip
     for (size_t i = 0; i < m_reservoirBuilder.resultCount(); i++)
     {
         size_t resIdx = cellResults->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, QString("Dynamic_Result_%1").arg(i), false);
-        cellResults->setTimeStepInfos(resIdx, timeStepInfos);
+        cellResults->setTimeStepInfos(RigEclipseResultAddress(resIdx), timeStepInfos);
     }
 
     if (m_reservoirBuilder.timeStepCount() == 0) return true;
@@ -71,7 +71,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclip
         if (i > 1) resIndex = i;
 
         size_t resIdx = cellResults->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, QString("Static_Result_%1%2").arg(resIndex).arg(varEnd), false);
-        cellResults->setTimeStepInfos(resIdx, staticResultTimeStepInfos);
+        cellResults->setTimeStepInfos(RigEclipseResultAddress(resIdx), staticResultTimeStepInfos);
     }
 
 
@@ -80,9 +80,9 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclip
         size_t resIdx; \
         QString resultName(Name); \
         resIdx = cellResults->findOrCreateScalarResultIndex(RiaDefines::INPUT_PROPERTY, resultName, false); \
-        cellResults->setTimeStepInfos(resIdx, staticResultTimeStepInfos); \
-        cellResults->cellScalarResults(resIdx).resize(1); \
-        std::vector<double>& values = cellResults->cellScalarResults(resIdx)[0]; \
+        cellResults->setTimeStepInfos(RigEclipseResultAddress(resIdx), staticResultTimeStepInfos); \
+        cellResults->cellScalarResults(RigEclipseResultAddress(resIdx)).resize(1); \
+        std::vector<double>& values = cellResults->cellScalarResults(RigEclipseResultAddress(resIdx))[0]; \
         this->inputProperty(resultName, &values); \
     }
 

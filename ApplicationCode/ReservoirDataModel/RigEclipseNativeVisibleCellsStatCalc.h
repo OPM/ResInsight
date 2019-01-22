@@ -36,7 +36,7 @@ class RigEclipseNativeVisibleCellsStatCalc : public RigStatisticsCalculator
 {
 public:
     RigEclipseNativeVisibleCellsStatCalc(RigCaseCellResultsData* cellResultsData, 
-                                         size_t scalarResultIndex, 
+                                         const RigEclipseResultAddress& scalarResultIndex, 
                                          const cvf::UByteArray* cellVisibilities);
 
     void    minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max) override;
@@ -50,13 +50,13 @@ public:
 
 private:
     RigCaseCellResultsData*         m_caseData;
-    size_t                          m_scalarResultIndex;
+    RigEclipseResultAddress         m_resultAddress;
     cvf::cref<cvf::UByteArray>      m_cellVisibilities;
 
     template <typename StatisticsAccumulator>
     void traverseCells(StatisticsAccumulator& accumulator, size_t timeStepIndex)
     {
-        std::vector<double>& values = m_caseData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
+        std::vector<double>& values = m_caseData->cellScalarResults(m_resultAddress, timeStepIndex);
 
         if (values.empty())
         {
@@ -74,7 +74,7 @@ private:
             if (!(*m_cellVisibilities)[cIdx]) continue;
 
             size_t cellResultIndex = cIdx;
-            if (m_caseData->isUsingGlobalActiveIndex(m_scalarResultIndex))
+            if (m_caseData->isUsingGlobalActiveIndex(m_resultAddress))
             {
                 cellResultIndex = actCellInfo->cellResultIndex(cIdx);
             }

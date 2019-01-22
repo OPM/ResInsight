@@ -128,7 +128,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
         {
             // If there is no data, we do not store anything for the current result variable
             // (Even not the metadata, of cause)
-            size_t timestepCount = m_cellResults->cellScalarResults(resInfo[rIdx].gridScalarResultIndex()).size();
+            size_t timestepCount = m_cellResults->cellScalarResults(RigEclipseResultAddress(resInfo[rIdx].gridScalarResultIndex())).size();
 
             if (timestepCount && resInfo[rIdx].needsToBeStored())
             {
@@ -153,7 +153,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
                     const std::vector<double>* data = nullptr;
                     if (tsIdx < timestepCount)
                     {
-                        data = &(m_cellResults->cellScalarResults(resInfo[rIdx].gridScalarResultIndex(), tsIdx));
+                        data = &(m_cellResults->cellScalarResults(RigEclipseResultAddress(resInfo[rIdx].gridScalarResultIndex()), tsIdx));
                     }
 
                     if (data && data->size())
@@ -277,7 +277,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
         reportNumbers.resize(resInfo->m_timeStepDates().size());
         std::vector<RigEclipseTimeStepInfo> timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos(resInfo->m_timeStepDates(), reportNumbers, resInfo->m_daysSinceSimulationStart());
 
-        m_cellResults->setTimeStepInfos(resultIndex, timeStepInfos);
+        m_cellResults->setTimeStepInfos(RigEclipseResultAddress(resultIndex), timeStepInfos);
 
         progress.setProgressDescription(resInfo->m_resultName);
 
@@ -285,7 +285,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
         {
             std::vector<double>* data = nullptr;
 
-            data = &(m_cellResults->cellScalarResults(resultIndex, tsIdx));
+            data = &(m_cellResults->cellScalarResults(RigEclipseResultAddress(resultIndex), tsIdx));
 
             quint64 cellCount = 0;
             stream >> cellCount;

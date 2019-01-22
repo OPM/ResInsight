@@ -50,7 +50,9 @@ class RigFemPartResultsCollection: public cvf::Object
 public:
     static const std::string FIELD_NAME_COMPACTION;
 
-    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, RifElementPropertyReader* elementPropertyReader, const RigFemPartCollection * femPartCollection);
+    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, 
+                                RifElementPropertyReader* elementPropertyReader, 
+                                const RigFemPartCollection * femPartCollection);
     ~RigFemPartResultsCollection() override;
 
     void                                             setActiveFormationNames(RigFormationNames* activeFormationNames);
