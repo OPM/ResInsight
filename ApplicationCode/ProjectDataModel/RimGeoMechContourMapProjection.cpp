@@ -186,15 +186,15 @@ void RimGeoMechContourMapProjection::updateGridInformation()
 
     if (m_limitToPorePressureRegions)
     {
-        m_gridBoundingBox = calculateExpandedPorBarBBox(view()->currentTimeStep());
+        m_expandedBoundingBox = calculateExpandedPorBarBBox(view()->currentTimeStep());
     }
     else
     {
         m_expandedBoundingBox = m_gridBoundingBox;
     }
-    cvf::Vec3d minExpandedPoint = m_gridBoundingBox.min() - cvf::Vec3d(gridEdgeOffset(), gridEdgeOffset(), 0.0);
-    cvf::Vec3d maxExpandedPoint = m_gridBoundingBox.max() + cvf::Vec3d(gridEdgeOffset(), gridEdgeOffset(), 0.0);
-    m_expandedBoundingBox = cvf::BoundingBox(minExpandedPoint, maxExpandedPoint);    
+    cvf::Vec3d minExpandedPoint = m_expandedBoundingBox.min() - cvf::Vec3d(gridEdgeOffset(), gridEdgeOffset(), 0.0);
+    cvf::Vec3d maxExpandedPoint = m_expandedBoundingBox.max() + cvf::Vec3d(gridEdgeOffset(), gridEdgeOffset(), 0.0);
+    m_expandedBoundingBox = cvf::BoundingBox(minExpandedPoint, maxExpandedPoint);
 
     m_mapSize = calculateMapSize();
 
