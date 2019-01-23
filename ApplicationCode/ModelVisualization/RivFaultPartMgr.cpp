@@ -691,7 +691,7 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
 
     if (cellResultColors)
     {
-        RigEclipseResultAddress scalarSetIndex = cellResultColors->scalarResultIndex();
+        RigEclipseResultAddress scalarSetIndex = cellResultColors->eclipseResultAddress();
 
         if (m_grid->mainGrid()->nncData()->hasScalarValues(scalarSetIndex.scalarResultIndex))
         {
@@ -702,7 +702,7 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
 
     if (showNncsWithScalarMappedColor)
     {
-        RigEclipseResultAddress   scalarSetIndex = cellResultColors->scalarResultIndex();
+        RigEclipseResultAddress   scalarSetIndex = cellResultColors->eclipseResultAddress();
         RiaDefines::ResultCatType resultType     = cellResultColors->resultType();
 
         const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();

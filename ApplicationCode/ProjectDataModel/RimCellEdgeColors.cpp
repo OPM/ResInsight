@@ -105,7 +105,7 @@ void RimCellEdgeColors::loadResult()
     {
         m_singleVarEdgeResultColors->loadResult();;
         
-        RigEclipseResultAddress resultindex = m_singleVarEdgeResultColors->scalarResultIndex();
+        RigEclipseResultAddress resultindex = m_singleVarEdgeResultColors->eclipseResultAddress();
         for (int cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
         {
             m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(m_singleVarEdgeResultColors->resultVariable(), resultindex);

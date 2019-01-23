@@ -337,7 +337,7 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimE
 
         if (isResultsInfoRelevant)
         {
-            RigEclipseResultAddress eclResAddr = eclipseView->cellResult()->scalarResultIndex();
+            RigEclipseResultAddress eclResAddr = eclipseView->cellResult()->eclipseResultAddress();
 
             if (eclResAddr.isValid())
             {
@@ -1095,7 +1095,7 @@ void Rim3dOverlayInfoConfig::updateVisCellStatsIfNeeded()
             }
             else
             {
-                RigEclipseResultAddress scalarIndex = eclipseView->cellResult()->scalarResultIndex();
+                RigEclipseResultAddress scalarIndex = eclipseView->cellResult()->eclipseResultAddress();
                 calc = new RigEclipseNativeVisibleCellsStatCalc(eclipseView->currentGridCellResults(),
                                                                 scalarIndex,
                                                                 eclipseView->currentTotalCellVisibility().p());

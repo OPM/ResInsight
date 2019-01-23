@@ -94,7 +94,7 @@ public:
     QString                         resultVariableUiShortName() const;
 
     void                            loadResult();
-    RigEclipseResultAddress         scalarResultIndex() const;
+    RigEclipseResultAddress         eclipseResultAddress() const;
     bool                            hasStaticResult() const;
     bool                            hasDynamicResult() const;
     bool                            hasResult() const;

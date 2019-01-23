@@ -424,19 +424,19 @@ QString RiuResultTextBuilder::nncResultText()
 
                 if (m_reservoirView->currentFaultResultColors())
                 {
-                    RigEclipseResultAddress scalarResultIdx = m_reservoirView->currentFaultResultColors()->scalarResultIndex();
+                    RigEclipseResultAddress eclipseResultAddress = m_reservoirView->currentFaultResultColors()->eclipseResultAddress();
                     RiaDefines::ResultCatType resultType = m_reservoirView->currentFaultResultColors()->resultType();
                     const std::vector<double>* nncValues = nullptr;
                     if (resultType == RiaDefines::STATIC_NATIVE)
                     {
-                        nncValues = nncData->staticConnectionScalarResult(scalarResultIdx.scalarResultIndex);
+                        nncValues = nncData->staticConnectionScalarResult(eclipseResultAddress.scalarResultIndex);
                     }
                     else if (resultType == RiaDefines::DYNAMIC_NATIVE)
                     {
                         if (m_reservoirView.notNull() && m_reservoirView->eclipseCase())
                         {
                             size_t nativeTimeStep = m_reservoirView->eclipseCase()->uiToNativeTimeStepIndex(m_timeStepIndex);
-                            nncValues = nncData->dynamicConnectionScalarResult(scalarResultIdx.scalarResultIndex, nativeTimeStep);
+                            nncValues = nncData->dynamicConnectionScalarResult(eclipseResultAddress.scalarResultIndex, nativeTimeStep);
                         }
                     }
                     if (nncValues && (m_nncIndex < nncValues->size()))

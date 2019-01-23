@@ -324,7 +324,7 @@ std::vector<double> RimEclipseContourMapProjection::retrieveParameterWeights()
     std::vector<double> weights;
     if (m_weightByParameter())
     {
-        RigEclipseResultAddress gridScalarResultIdx = m_weightingResult->scalarResultIndex();
+        RigEclipseResultAddress gridScalarResultIdx = m_weightingResult->eclipseResultAddress();
         if (gridScalarResultIdx.isValid())
         {
             m_weightingResult->loadResult();

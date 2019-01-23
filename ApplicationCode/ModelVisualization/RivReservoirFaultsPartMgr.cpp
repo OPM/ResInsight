@@ -162,11 +162,11 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
                     RigEclipseResultAddress scalarResultIndex;
                     if (faultResultColors->showCustomFaultResult())
                     {
-                        scalarResultIndex = faultResultColors->customFaultResult()->scalarResultIndex();
+                        scalarResultIndex = faultResultColors->customFaultResult()->eclipseResultAddress();
                     }
                     else
                     {
-                        scalarResultIndex = cellResultColors->scalarResultIndex();
+                        scalarResultIndex = cellResultColors->eclipseResultAddress();
                     }
 
                     RigMainGrid* mainGrid = m_reservoirView->mainGrid();

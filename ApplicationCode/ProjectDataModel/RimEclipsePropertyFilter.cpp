@@ -372,7 +372,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
     }
     else
     {
-        RigEclipseResultAddress scalarIndex = resultDefinition->scalarResultIndex();
+        RigEclipseResultAddress scalarIndex = resultDefinition->eclipseResultAddress();
         if ( scalarIndex.isValid() )
         {
             RigCaseCellResultsData* results = resultDefinition->currentGridCellResults();

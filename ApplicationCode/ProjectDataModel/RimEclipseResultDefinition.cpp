@@ -625,7 +625,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigEclipseResultAddress RimEclipseResultDefinition::scalarResultIndex() const
+RigEclipseResultAddress RimEclipseResultDefinition::eclipseResultAddress() const
 {
     size_t gridScalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
@@ -786,7 +786,7 @@ bool RimEclipseResultDefinition::hasStaticResult() const
     if (isFlowDiagOrInjectionFlooding()) return false;
 
     const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
-    RigEclipseResultAddress gridScalarResultIndex = this->scalarResultIndex();
+    RigEclipseResultAddress gridScalarResultIndex = this->eclipseResultAddress();
 
     if (hasResult() && gridCellResults->timeStepCount(gridScalarResultIndex) == 1 )
     {
@@ -845,7 +845,7 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
         if (this->currentGridCellResults())
         {
             const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
-            RigEclipseResultAddress gridScalarResultIndex = this->scalarResultIndex();
+            RigEclipseResultAddress gridScalarResultIndex = this->eclipseResultAddress();
             if (gridCellResults->timeStepCount(gridScalarResultIndex) > 1 )
             {
                 return true;

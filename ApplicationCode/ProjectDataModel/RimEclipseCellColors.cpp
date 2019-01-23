@@ -361,15 +361,15 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
             double globalMin, globalMax;
             double globalPosClosestToZero, globalNegClosestToZero;
 
-            cellResultsData->minMaxCellScalarValues(this->scalarResultIndex(), globalMin, globalMax);
-            cellResultsData->posNegClosestToZero(this->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
+            cellResultsData->minMaxCellScalarValues(this->eclipseResultAddress(), globalMin, globalMax);
+            cellResultsData->posNegClosestToZero(this->eclipseResultAddress(), globalPosClosestToZero, globalNegClosestToZero);
 
             double localMin, localMax;
             double localPosClosestToZero, localNegClosestToZero;
             if ( this->hasDynamicResult() )
             {
-                cellResultsData->minMaxCellScalarValues(this->scalarResultIndex(), currentTimeStep, localMin, localMax);
-                cellResultsData->posNegClosestToZero(this->scalarResultIndex(), currentTimeStep, localPosClosestToZero, localNegClosestToZero);
+                cellResultsData->minMaxCellScalarValues(this->eclipseResultAddress(), currentTimeStep, localMin, localMax);
+                cellResultsData->posNegClosestToZero(this->eclipseResultAddress(), currentTimeStep, localPosClosestToZero, localNegClosestToZero);
             }
             else
             {
@@ -395,7 +395,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                 }
                 else if ( this->resultType() == RiaDefines::DYNAMIC_NATIVE && this->resultVariable() == RiaDefines::completionTypeResultName() )
                 {   
-                    const std::vector<int>& visibleCategories = cellResultsData->uniqueCellScalarValues(this->scalarResultIndex());
+                    const std::vector<int>& visibleCategories = cellResultsData->uniqueCellScalarValues(this->eclipseResultAddress());
 
                     std::vector<RiaDefines::WellPathComponentType> supportedCompletionTypes =
                         { RiaDefines::WELL_PATH, RiaDefines::FISHBONES, RiaDefines::PERFORATION_INTERVAL, RiaDefines::FRACTURE };
@@ -416,7 +416,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                 }
                 else
                 {
-                    legendConfig->setIntegerCategories(cellResultsData->uniqueCellScalarValues(this->scalarResultIndex()));
+                    legendConfig->setIntegerCategories(cellResultsData->uniqueCellScalarValues(this->eclipseResultAddress()));
                 }
             }
         }
