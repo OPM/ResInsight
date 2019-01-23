@@ -46,6 +46,7 @@ RifEclipseDataTableFormatter::RifEclipseDataTableFormatter(const RifEclipseDataT
     , m_tableRowPrependText(rhs.m_tableRowPrependText)
     , m_tableRowAppendText(rhs.m_tableRowAppendText)
     , m_commentPrefix(rhs.m_commentPrefix)
+    , m_maxDataRowWidth(rhs.m_maxDataRowWidth)
 {
 }
 
