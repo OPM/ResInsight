@@ -182,13 +182,15 @@ void RimGeoMechContourMapProjection::updateGridInformation()
     m_sampleSpacing             = m_relativeSampleSpacing * geoMechCase->characteristicCellSize();
     m_femPart->ensureIntersectionSearchTreeIsBuilt();
 
+    m_gridBoundingBox = geoMechCase->activeCellsBoundingBox();
+
     if (m_limitToPorePressureRegions)
     {
         m_gridBoundingBox = calculateExpandedPorBarBBox(view()->currentTimeStep());
     }
     else
     {
-        m_gridBoundingBox = geoMechCase->activeCellsBoundingBox();
+        m_expandedBoundingBox = m_gridBoundingBox;
     }
     cvf::Vec3d minExpandedPoint = m_gridBoundingBox.min() - cvf::Vec3d(gridEdgeOffset(), gridEdgeOffset(), 0.0);
     cvf::Vec3d maxExpandedPoint = m_gridBoundingBox.max() + cvf::Vec3d(gridEdgeOffset(), gridEdgeOffset(), 0.0);
@@ -213,22 +215,27 @@ std::vector<bool> RimGeoMechContourMapProjection::getMapCellVisibility()
     std::vector<std::vector<unsigned int>> distanceImage (nCellsIJ.x(), std::vector<unsigned int>(nCellsIJ.y(), 0u));
 
     std::vector<bool> mapCellVisibility;
-    RigFemResultAddress porBarAddr(RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "");
-    std::vector<double> cellResults = generateResultsFromAddress(porBarAddr, mapCellVisibility, view()->currentTimeStep());
-
-    mapCellVisibility.resize(numberOfCells(), true);
-    CVF_ASSERT(mapCellVisibility.size() == cellResults.size());
+    RigFemResultAddress resAddr = view()->cellResult()->resultAddress();
     
     if (m_limitToPorePressureRegions)
     {
-        cvf::BoundingBox validPorBoundingBox;
+        resAddr = RigFemResultAddress(RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "");
+    }
+    
+    std::vector<double> cellResults = generateResultsFromAddress(resAddr, mapCellVisibility, view()->currentTimeStep());
+
+    mapCellVisibility.resize(numberOfCells(), true);
+    CVF_ASSERT(mapCellVisibility.size() == cellResults.size());
+        
+    {
+        cvf::BoundingBox validResBoundingBox;
         for (size_t cellIndex = 0; cellIndex < cellResults.size(); ++cellIndex)
         {
             cvf::Vec2ui ij = ijFromCellIndex(cellIndex);
-            validPorBoundingBox.add(cvf::Vec3d(cellCenterPosition(ij.x(), ij.y()), 0.0));
             if (cellResults[cellIndex] != std::numeric_limits<double>::infinity())
             {
                 distanceImage[ij.x()][ij.y()] = 1u;
+                validResBoundingBox.add(cvf::Vec3d(cellCenterPosition(ij.x(), ij.y()), 0.0));
             }
             else
             {
@@ -236,11 +243,11 @@ std::vector<bool> RimGeoMechContourMapProjection::getMapCellVisibility()
             }
         }
 
-        if (m_paddingAroundPorePressureRegion > 0.0)
+        if (m_limitToPorePressureRegions && m_paddingAroundPorePressureRegion > 0.0)
         {
             RiaImageTools::distanceTransform2d(distanceImage);
 
-            cvf::Vec3d porExtent = validPorBoundingBox.extent();
+            cvf::Vec3d porExtent = validResBoundingBox.extent();
             double radius = std::max(porExtent.x(), porExtent.y()) * 0.25;
             double expansion = m_paddingAroundPorePressureRegion * radius;
             size_t cellPadding = std::ceil(expansion / m_sampleSpacing);

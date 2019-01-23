@@ -379,21 +379,21 @@ size_t RimContourMapProjection::numberOfVertices() const
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoint3d,
-                                                             cvf::Vec2d*       contourMapPoint,
-                                                             double*           valueAtPoint) const
+                                                      cvf::Vec2d*       contourMapPoint,
+                                                      double*           valueAtPoint) const
 {
     CVF_TIGHT_ASSERT(contourMapPoint);
     CVF_TIGHT_ASSERT(valueAtPoint);
 
-    cvf::Vec3d localPos3d(localPoint3d.x() + gridEdgeOffset(), localPoint3d.y() + gridEdgeOffset(), 0.0);
-    cvf::Vec2d gridPos2d(localPos3d.x(), localPos3d.y());
+    cvf::Vec3d mapPos3d = localPoint3d - m_expandedBoundingBox.min() + m_gridBoundingBox.min();
+    cvf::Vec2d mapPos2d(mapPos3d.x(), mapPos3d.y());
     cvf::Vec2d gridorigin(m_expandedBoundingBox.min().x(), m_expandedBoundingBox.min().y());
 
-    double value = interpolateValue(gridPos2d);
+    double value = interpolateValue(mapPos2d);
     if (value != std::numeric_limits<double>::infinity())
     {
         *valueAtPoint    = value;
-        *contourMapPoint = gridPos2d + gridorigin;
+        *contourMapPoint = mapPos2d + gridorigin;
 
         return true;
     }
@@ -1058,7 +1058,7 @@ void RimContourMapProjection::generateContourPolygons()
 {
     std::vector<ContourPolygons> contourPolygons;
 
-    const double areaTreshold = (m_sampleSpacing * m_sampleSpacing) / (sampleSpacingFactor() * sampleSpacingFactor());
+    const double areaTreshold = 1.5 * (m_sampleSpacing * m_sampleSpacing) / (sampleSpacingFactor() * sampleSpacingFactor());
 
     std::vector<double> contourLevels;
     if (legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER)
