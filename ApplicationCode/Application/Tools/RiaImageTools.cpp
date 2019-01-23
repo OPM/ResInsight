@@ -1,6 +1,9 @@
 #include "RiaImageTools.h"
 
+#include "cvfAssert.h"
+
 #include <algorithm>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 /// Meijster, Roerdink, Hesselink
@@ -21,15 +24,16 @@ void RiaImageTools::distanceTransform2d(std::vector<std::vector<unsigned int>>& 
     const int64_t M = (int64_t)image.size();
     const int64_t N = (int64_t)image.front().size();
 
-    unsigned int uinf = M + N;
+    int64_t infVal = M + N;
+    CVF_ASSERT(infVal <= std::numeric_limits<unsigned int>::max());
 
     // First phase
-    std::vector<std::vector<unsigned int>> g(M);
+    std::vector<std::vector<int64_t>> g(M);
 
 #pragma omp parallel for
     for (int64_t x = 0; x < M; ++x)
     {
-        g[x].resize(N, uinf);
+        g[x].resize(N, infVal);
         if (image[x][0])
         {
             g[x][0] = 0;
@@ -54,11 +58,11 @@ void RiaImageTools::distanceTransform2d(std::vector<std::vector<unsigned int>>& 
         }
     }
 
-    auto f = [](int64_t x, int64_t i, const std::vector<std::vector<unsigned int>>& g, int64_t y) {
+    auto f = [](int64_t x, int64_t i, const std::vector<std::vector<int64_t>>& g, int64_t y) {
         return (x - i) * (x - i) + g[i][y] * g[i][y];
     };
 
-    auto sep = [](int64_t i, int64_t u, const std::vector<std::vector<unsigned int>>& g, int64_t y) {
+    auto sep = [](int64_t i, int64_t u, const std::vector<std::vector<int64_t>>& g, int64_t y) {
         if (i == u) return (int64_t)0;
 
         int64_t numerator = u * u - i * i + g[u][y] * g[u][y] - g[i][y] * g[i][y];
@@ -71,8 +75,8 @@ void RiaImageTools::distanceTransform2d(std::vector<std::vector<unsigned int>>& 
     for (int64_t y = 0; y < N; ++y)
     {
         int64_t           q = 0;
-        std::vector<unsigned int> s(std::max(N, M), 0u);
-        std::vector<unsigned int> t(std::max(N, M), 0u);
+        std::vector<int64_t> s(std::max(N, M), (int64_t) 0);
+        std::vector<int64_t> t(std::max(N, M), (int64_t) 0);
 
         for (int64_t u = 1; u < M - 1; ++u)
         {
@@ -98,7 +102,9 @@ void RiaImageTools::distanceTransform2d(std::vector<std::vector<unsigned int>>& 
         }
         for (int64_t u = M - 1; u > 0; --u)
         {
-            image[u][y] = f(u, s[q], g, y);
+            int64_t fVal = f(u, s[q], g, y);
+            CVF_ASSERT(fVal= < std::numeric_limits<double>::max());
+            image[u][y] = static_cast<unsigned int>(fVal);
             if (u == t[q])
             {
                 q = q - 1;
