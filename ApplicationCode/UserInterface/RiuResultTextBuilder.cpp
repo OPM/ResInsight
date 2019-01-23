@@ -470,9 +470,9 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
         RigCaseCellResultsData* gridCellResults = resultColors->currentGridCellResults();
         if (gridCellResults)
         {
-            size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-            size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
-            size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
+            size_t soilScalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+            size_t sgasScalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+            size_t swatScalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
 
             cvf::ref<RigResultAccessor> dataAccessObjectX = RigResultAccessorFactory::createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(soilScalarSetIndex));
             cvf::ref<RigResultAccessor> dataAccessObjectY = RigResultAccessorFactory::createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(sgasScalarSetIndex));
@@ -749,9 +749,9 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
             RigCaseCellResultsData* gridCellResults = m_reservoirView->cellResult()->currentGridCellResults();
             if (gridCellResults)
             {
-                size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-                size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
-                size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
+                size_t soilScalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+                size_t sgasScalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+                size_t swatScalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
 
                 RiaDefines::PorosityModelType porosityModel = resultColors->porosityModel();
 

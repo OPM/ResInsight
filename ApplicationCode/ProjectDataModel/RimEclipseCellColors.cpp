@@ -441,7 +441,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
         {
             RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
             {
-                size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+                size_t scalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
                 if ( scalarSetIndex != cvf::UNDEFINED_SIZE_T )
                 {
                     double globalMin = 0.0;
@@ -457,7 +457,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
             }
 
             {
-                size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+                size_t scalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
                 if ( scalarSetIndex != cvf::UNDEFINED_SIZE_T )
                 {
                     double globalMin = 0.0;
@@ -473,7 +473,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
             }
 
             {
-                size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
+                size_t scalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
                 if ( scalarSetIndex != cvf::UNDEFINED_SIZE_T )
                 {
                     double globalMin = 0.0;

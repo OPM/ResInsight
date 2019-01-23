@@ -117,9 +117,9 @@ public:
 
     // Index based stuff to rewrite/hide -->
 
-    size_t                                             findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
-    size_t                                             findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
-    size_t                                             findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
+    size_t                                             findOrLoadKnownScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
+    size_t                                             findOrLoadKnownScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
+    size_t                                             findOrLoadKnownScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
 
     // Find or create a slot for the results
 

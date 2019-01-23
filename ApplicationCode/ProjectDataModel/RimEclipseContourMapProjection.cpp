@@ -186,16 +186,16 @@ std::vector<double> RimEclipseContourMapProjection::generateResults(int timeStep
             if (isColumnResult())
             {
                 m_currentResultName = "";
-                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
-                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
-                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
+                resultData->findOrLoadKnownScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
+                resultData->findOrLoadKnownScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
+                resultData->findOrLoadKnownScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
                 if (m_resultAggregation == RESULTS_OIL_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN)
                 {
-                    resultData->findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SOIL", timeStep);
+                    resultData->findOrLoadKnownScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SOIL", timeStep);
                 }
                 if (m_resultAggregation == RESULTS_GAS_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN)
                 {
-                    resultData->findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStep);
+                    resultData->findOrLoadKnownScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStep);
                 }
                 gridResultValues = calculateColumnResult(m_resultAggregation());
             }

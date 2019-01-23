@@ -85,7 +85,7 @@ void RicfExportProperty::execute()
 
     RigCaseCellResultsData* cellResultsData = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
 
-    size_t resultIdx = cellResultsData->findOrLoadScalarResult(m_propertyName);
+    size_t resultIdx = cellResultsData->findOrLoadKnownScalarResult(m_propertyName);
     if (resultIdx == cvf::UNDEFINED_SIZE_T)
     {
         RiaLogging::error(QString("exportProperty: Could not find result property : %1").arg(m_propertyName()));

@@ -71,18 +71,18 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     std::vector<size_t> scalarResultIndexTracers;
     for (QString tracerName : tracerNames)
     {
-        scalarResultIndexTracers.push_back(gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, tracerName));
+        scalarResultIndexTracers.push_back(gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, tracerName));
         progress.incrementProgress();
     }
     std::vector<std::vector<double> > summedTracersAtAllTimesteps;
 
     //TODO: Option for Oil and Gas instead of water
 
-    size_t scalarResultIndexFlowrateI = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+"); 
+    size_t scalarResultIndexFlowrateI = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+"); 
     progress.incrementProgress();
-    size_t scalarResultIndexFlowrateJ = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+"); 
+    size_t scalarResultIndexFlowrateJ = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+"); 
     progress.incrementProgress();
-    size_t scalarResultIndexFlowrateK = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+"); 
+    size_t scalarResultIndexFlowrateK = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+"); 
     progress.incrementProgress();
 
     std::vector<const std::vector<double>* > flowrateIatAllTimeSteps;

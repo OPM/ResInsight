@@ -101,7 +101,7 @@ size_t RigEclipseNativeStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RigEclipseNativeStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, double& mean)
 {
-    size_t mobPVResultIndex = m_resultsData->findOrLoadScalarResult(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
+    size_t mobPVResultIndex = m_resultsData->findOrLoadKnownScalarResult(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
 
     // For statistics result cases, the pore volume is not available, as RigCaseCellResultsData::createPlaceholderResultEntries
     // has not been executed

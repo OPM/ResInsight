@@ -772,7 +772,7 @@ void RimEclipseResultDefinition::loadResult()
     RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
+        gridCellResults->findOrLoadKnownScalarResult(m_resultType(), m_resultVariable);
     }
 
 }

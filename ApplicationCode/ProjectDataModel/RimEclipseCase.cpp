@@ -691,7 +691,7 @@ bool RimEclipseCase::loadStaticResultsByName(const std::vector<QString>& resultN
     {
         for (const auto& resultName : resultNames)
         {
-            size_t resultIdx = cellResultsData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, resultName);
+            size_t resultIdx = cellResultsData->findOrLoadKnownScalarResult(RiaDefines::STATIC_NATIVE, resultName);
             if (resultIdx == cvf::UNDEFINED_SIZE_T)
             {
                 foundDataForAllResults = false;

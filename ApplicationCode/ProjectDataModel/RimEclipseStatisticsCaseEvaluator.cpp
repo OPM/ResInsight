@@ -161,7 +161,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
                     RimEclipseCase* sourceCase = m_sourceCases.at(caseIdx);
 
                     // Trigger loading of dataset
-                    sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
+                    sourceCase->results(poroModel)->findOrLoadKnownScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
 
                     cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromNameAndType(sourceCase->eclipseCaseData(), gridIdx, poroModel, dataAccessTimeStepIndex, resultName, resultType);
                     if (resultAccessor.notNull())

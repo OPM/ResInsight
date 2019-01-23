@@ -350,7 +350,7 @@ public:
                 server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the property named: \"%2\"").arg(propertyName));
                 return true;
             }
-            size_t scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(QString("%1IJK").arg(propertyName));
+            size_t scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadKnownScalarResult(QString("%1IJK").arg(propertyName));
             nncData->setScalarResultIndex(propertyName, scalarResultIndex);
         }
 
@@ -425,7 +425,7 @@ public:
 
     static bool scalarResultExistsOrCreate(RigCaseCellResultsData* results, QString propertyName)
     {
-        size_t scalarResultIndex = results->findOrLoadScalarResult(propertyName);
+        size_t scalarResultIndex = results->findOrLoadKnownScalarResult(propertyName);
         if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
         {
             scalarResultIndex = results->findOrCreateScalarResultIndex(RiaDefines::GENERATED, propertyName, true);

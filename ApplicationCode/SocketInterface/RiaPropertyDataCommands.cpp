@@ -78,7 +78,7 @@ public:
 
         if (rimCase && rimCase->results(porosityModelEnum))
         {
-            scalarResultIndex = rimCase->results(porosityModelEnum)->findOrLoadScalarResult(propertyName);
+            scalarResultIndex = rimCase->results(porosityModelEnum)->findOrLoadKnownScalarResult(propertyName);
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
@@ -257,7 +257,7 @@ public:
             // Find the requested data
             if (rimCase && rimCase->results(porosityModelEnum))
             {
-                scalarResultIndex = rimCase->results(porosityModelEnum)->findOrLoadScalarResult(propertyName);
+                scalarResultIndex = rimCase->results(porosityModelEnum)->findOrLoadKnownScalarResult(propertyName);
             }
         }
 
@@ -413,7 +413,7 @@ public:
 
         if (rimCase && rimCase->results(m_porosityModelEnum))
         {
-            scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(RiaDefines::GENERATED, propertyName);
+            scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadKnownScalarResult(RiaDefines::GENERATED, propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
             {
@@ -807,7 +807,7 @@ public:
 
         if (rimCase && rimCase->results(m_porosityModelEnum))
         {
-            scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(RiaDefines::GENERATED, propertyName);
+            scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadKnownScalarResult(RiaDefines::GENERATED, propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
             {
@@ -1201,7 +1201,7 @@ public:
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
         if (rimCase && rimCase->results(porosityModel))
         {
-            scalarResultIndex = rimCase->results(porosityModel)->findOrLoadScalarResult(propertyName);
+            scalarResultIndex = rimCase->results(porosityModel)->findOrLoadKnownScalarResult(propertyName);
         }
 
         std::vector<size_t> requestedTimesteps;
