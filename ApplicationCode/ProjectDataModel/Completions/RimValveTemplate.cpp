@@ -181,7 +181,7 @@ void RimValveTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 {
     uiOrdering.add(&m_type);
     uiOrdering.add(&m_userLabel);
-
+    uiOrdering.add(&m_valveTemplateUnit);
     if (m_type() == RiaDefines::ICV || m_type() == RiaDefines::ICD)
     {
         if (m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
