@@ -208,9 +208,10 @@ size_t RigCaseCellResultsData::resultCount() const
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::timeStepCount(const RigEclipseResultAddress& resVarAddr) const
 {
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
-    return m_cellScalarResults[resVarAddr.scalarResultIndex].size();
+    return m_cellScalarResults[scalarResultIndex].size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,9 +219,11 @@ size_t RigCaseCellResultsData::timeStepCount(const RigEclipseResultAddress& resV
 //--------------------------------------------------------------------------------------------------
 const std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResults(const RigEclipseResultAddress& resVarAddr) const
 {
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
+
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
-    return m_cellScalarResults[resVarAddr.scalarResultIndex];
+    return m_cellScalarResults[scalarResultIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,9 +231,11 @@ const std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResult
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResults(const RigEclipseResultAddress& resVarAddr)
 {
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
+
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
-    return m_cellScalarResults[resVarAddr.scalarResultIndex];
+    return m_cellScalarResults[scalarResultIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,10 +243,12 @@ std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResults(cons
 //--------------------------------------------------------------------------------------------------
 std::vector<double>& RigCaseCellResultsData::cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex)
 {
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
+
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
     CVF_TIGHT_ASSERT(timeStepIndex < m_cellScalarResults[scalarResultIndex].size());
 
-    return m_cellScalarResults[resVarAddr.scalarResultIndex][timeStepIndex];
+    return m_cellScalarResults[scalarResultIndex][timeStepIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,10 +256,11 @@ std::vector<double>& RigCaseCellResultsData::cellScalarResults(const RigEclipseR
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigCaseCellResultsData::cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex) const
 {
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
     CVF_TIGHT_ASSERT(timeStepIndex < m_cellScalarResults[scalarResultIndex].size());
 
-    return m_cellScalarResults[resVarAddr.scalarResultIndex][timeStepIndex];
+    return m_cellScalarResults[scalarResultIndex][timeStepIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -474,7 +482,7 @@ const RigActiveCellInfo* RigCaseCellResultsData::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::recalculateStatistics(const RigEclipseResultAddress& resVarAddr)
 {
-    m_statisticsDataCache[resVarAddr.scalarResultIndex]->clearAllStatistics();
+    m_statisticsDataCache[findScalarResultIndexFromAddress(resVarAddr)]->clearAllStatistics();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,11 +490,12 @@ void RigCaseCellResultsData::recalculateStatistics(const RigEclipseResultAddress
 //--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::isUsingGlobalActiveIndex(const RigEclipseResultAddress& resVarAddr) const
 {
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
     CVF_TIGHT_ASSERT(scalarResultIndex < m_cellScalarResults.size());
 
-    if (!m_cellScalarResults[resVarAddr.scalarResultIndex].size()) return true;
+    if (!m_cellScalarResults[scalarResultIndex].size()) return true;
 
-    size_t firstTimeStepResultValueCount = m_cellScalarResults[resVarAddr.scalarResultIndex][0].size();
+    size_t firstTimeStepResultValueCount = m_cellScalarResults[scalarResultIndex][0].size();
     if (firstTimeStepResultValueCount == m_ownerMainGrid->globalCellArray().size()) return false;
 
     return true;
@@ -527,9 +536,9 @@ std::vector<QDateTime> RigCaseCellResultsData::allTimeStepDatesFromEclipseReader
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RigCaseCellResultsData::timeStepDates(const RigEclipseResultAddress& resVarAddr) const
 {
-    if (resVarAddr.scalarResultIndex < m_resultInfos.size())
+    if (findScalarResultIndexFromAddress(resVarAddr) < m_resultInfos.size())
     {
-        return m_resultInfos[resVarAddr.scalarResultIndex].dates();
+        return m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)].dates();
     }
     else
         return std::vector<QDateTime>();
@@ -562,9 +571,9 @@ std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart(const RigEclipseResultAddress& resVarAddr) const
 {
-    if (resVarAddr.scalarResultIndex < m_resultInfos.size())
+    if (findScalarResultIndexFromAddress(resVarAddr) < m_resultInfos.size())
     {
-        return m_resultInfos[resVarAddr.scalarResultIndex].daysSinceSimulationStarts();
+        return m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)].daysSinceSimulationStarts();
     }
     else
     {
@@ -577,8 +586,8 @@ std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart(const RigEc
 //--------------------------------------------------------------------------------------------------
 int RigCaseCellResultsData::reportStepNumber(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex) const
 {
-    if (resVarAddr.scalarResultIndex < m_resultInfos.size() && m_resultInfos[resVarAddr.scalarResultIndex].timeStepInfos().size() > timeStepIndex)
-        return m_resultInfos[resVarAddr.scalarResultIndex].timeStepInfos()[timeStepIndex].m_reportNumber;
+    if (findScalarResultIndexFromAddress(resVarAddr) < m_resultInfos.size() && m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)].timeStepInfos().size() > timeStepIndex)
+        return m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)].timeStepInfos()[timeStepIndex].m_reportNumber;
     else
         return -1;
 }
@@ -588,8 +597,8 @@ int RigCaseCellResultsData::reportStepNumber(const RigEclipseResultAddress& resV
 //--------------------------------------------------------------------------------------------------
 std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos(const RigEclipseResultAddress& resVarAddr) const
 {
-    if (resVarAddr.scalarResultIndex < m_resultInfos.size())
-        return m_resultInfos[resVarAddr.scalarResultIndex].timeStepInfos();
+    if (findScalarResultIndexFromAddress(resVarAddr) < m_resultInfos.size())
+        return m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)].timeStepInfos();
     else
         return std::vector<RigEclipseTimeStepInfo>();
 }
@@ -599,9 +608,9 @@ std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos(const 
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::setTimeStepInfos(const RigEclipseResultAddress& resVarAddr, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos)
 {
-    CVF_ASSERT(resVarAddr.scalarResultIndex < m_resultInfos.size());
+    CVF_ASSERT(findScalarResultIndexFromAddress(resVarAddr) < m_resultInfos.size());
 
-    m_resultInfos[resVarAddr.scalarResultIndex].setTimeStepInfos(timeStepInfos);
+    m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)].setTimeStepInfos(timeStepInfos);
 
     std::vector<std::vector<double>>& dataValues = this->cellScalarResults(resVarAddr);
     dataValues.resize(timeStepInfos.size());
@@ -671,7 +680,7 @@ void RigCaseCellResultsData::clearScalarResult(const RigEclipseResultAddress& re
 {
     if (!resultAddress.isValid()) return;
 
-    size_t scalarResultIndex =  resultAddress.scalarResultIndex;
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resultAddress);
 
     for (size_t tsIdx = 0; tsIdx < m_cellScalarResults[scalarResultIndex].size(); ++tsIdx)
     {
@@ -714,7 +723,7 @@ void RigCaseCellResultsData::freeAllocatedResultsData()
 //--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::isResultLoaded(const RigEclipseResultAddress& resultAddr) const
 {
-    size_t scalarResultIndex = resultAddr.scalarResultIndex;//this->findScalarResultIndex(resultAddr.resultType(), resultAddr.resultName());
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resultAddr);
 
     CVF_TIGHT_ASSERT(scalarResultIndex != cvf::UNDEFINED_SIZE_T);
     if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
@@ -1038,7 +1047,7 @@ std::vector<RigEclipseResultAddress> RigCaseCellResultsData::existingResults() c
 //--------------------------------------------------------------------------------------------------
 const RigEclipseResultInfo* RigCaseCellResultsData::resultInfo(const RigEclipseResultAddress& resVarAddr) const
 {
-    return &(m_resultInfos[resVarAddr.scalarResultIndex]);
+    return &(m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)]);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2770,9 +2779,28 @@ void RigCaseCellResultsData::assignValuesToTemporaryLgrs(const QString&       re
 //--------------------------------------------------------------------------------------------------
 RigStatisticsDataCache* RigCaseCellResultsData::statistics(const RigEclipseResultAddress& resVarAddr)
 {
-    return m_statisticsDataCache[resVarAddr.scalarResultIndex].p();
+    return m_statisticsDataCache[findScalarResultIndexFromAddress(resVarAddr)].p();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigCaseCellResultsData::findScalarResultIndexFromAddress(const RigEclipseResultAddress& resVarAddr) const 
+{
+    if(resVarAddr.scalarResultIndex != cvf::UNDEFINED_SIZE_T) 
+    {
+        return resVarAddr.scalarResultIndex;
+    }
+    else if (resVarAddr.m_resultCatType == RiaDefines::UNDEFINED)
+    {
+        return findScalarResultIndex(resVarAddr.m_resultName);   
+    }
+    else
+    {
+        return findScalarResultIndex(resVarAddr.m_resultCatType, resVarAddr.m_resultName);
+    }
+}
 
 #include "RimEclipseResultCase.h"
 

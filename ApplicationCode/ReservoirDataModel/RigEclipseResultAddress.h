@@ -41,13 +41,14 @@ public:
 
     bool isValid() const
     {
-        return (scalarResultIndex != -1);
-        // Todo
+        if (scalarResultIndex != -1) return true;
+        if (!m_resultName.isEmpty()) return true;
+
+        return false;
     }
 
     bool operator< (const RigEclipseResultAddress& other ) const
     {
-        // Todo
         if (scalarResultIndex !=  other.scalarResultIndex)
         {
             return (scalarResultIndex <  other.scalarResultIndex);

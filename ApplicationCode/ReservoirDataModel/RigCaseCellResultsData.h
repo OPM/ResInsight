@@ -183,6 +183,7 @@ private:
     void                                               assignValuesToTemporaryLgrs(const QString& resultName, std::vector<double>& values);
 
     RigStatisticsDataCache*                            statistics(const RigEclipseResultAddress& resVarAddr);
+    size_t                                             findScalarResultIndexFromAddress(const RigEclipseResultAddress& resVarAddr ) const;
 
 private:
     cvf::ref<RifReaderInterface>                       m_readerInterface;
