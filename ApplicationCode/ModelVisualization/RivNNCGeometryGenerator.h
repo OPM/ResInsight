@@ -33,6 +33,7 @@ namespace cvf
 
 class RigNNCData;
 class RigGridBase;
+class RigEclipseResultAddress;
 
 //==================================================================================================
 ///
@@ -50,7 +51,7 @@ public:
     void textureCoordinates(cvf::Vec2fArray* textureCoords,  
                             const cvf::ScalarMapper* mapper,
                             RiaDefines::ResultCatType resultType,
-                            size_t scalarResultIndex,
+                            const RigEclipseResultAddress& resVarAddr,
                             size_t nativeTimeStepIndex) const;
 
     // Mapping between cells and geometry

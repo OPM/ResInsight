@@ -351,7 +351,7 @@ public:
                 return true;
             }
             size_t scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadKnownScalarResult(QString("%1IJK").arg(propertyName));
-            nncData->setScalarResultIndex(propertyName, scalarResultIndex);
+            nncData->setScalarResultIndex(propertyName, RigEclipseResultAddress(scalarResultIndex));
         }
 
         // Create a list of all the requested time steps

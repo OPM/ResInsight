@@ -148,7 +148,7 @@ void RivNNCGeometryGenerator::computeArrays()
 void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
                                                  const cvf::ScalarMapper* mapper,
                                                  RiaDefines::ResultCatType resultType,
-                                                 size_t scalarResultIndex,
+                                                 const RigEclipseResultAddress& resVarAddr,
                                                  size_t nativeTimeStepIndex) const
 {
     size_t numVertices = m_vertices->size();
@@ -158,15 +158,15 @@ void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
     const std::vector<double>* nncResultVals = nullptr;
     if (resultType == RiaDefines::STATIC_NATIVE)
     {
-        nncResultVals = m_nncData->staticConnectionScalarResult(scalarResultIndex);
+        nncResultVals = m_nncData->staticConnectionScalarResult(resVarAddr);
     }
     else if (resultType == RiaDefines::DYNAMIC_NATIVE)
     {
-        nncResultVals = m_nncData->dynamicConnectionScalarResult(scalarResultIndex, nativeTimeStepIndex);
+        nncResultVals = m_nncData->dynamicConnectionScalarResult(resVarAddr, nativeTimeStepIndex);
     }
     else if (resultType == RiaDefines::GENERATED)
     {
-        nncResultVals = m_nncData->generatedConnectionScalarResult(scalarResultIndex, nativeTimeStepIndex);
+        nncResultVals = m_nncData->generatedConnectionScalarResult(resVarAddr, nativeTimeStepIndex);
     }
 
     if (!nncResultVals || nncResultVals->size() == 0)

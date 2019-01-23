@@ -31,7 +31,7 @@
 
 class RigMainGrid;
 class RigCell;
-
+class RigEclipseResultAddress;
 
 class RigConnection
 {
@@ -88,20 +88,20 @@ public:
     const std::vector<RigConnection>&   connections() const  { return m_connections; }
 
     std::vector<double>&                      makeStaticConnectionScalarResult(QString nncDataType);
-    const std::vector<double>*                staticConnectionScalarResult(size_t scalarResultIndex) const;
+    const std::vector<double>*                staticConnectionScalarResult(const RigEclipseResultAddress& resVarAddr) const;
     const std::vector<double>*                staticConnectionScalarResultByName(const QString& nncDataType) const;
 
     std::vector< std::vector<double> >&       makeDynamicConnectionScalarResult(QString nncDataType, size_t timeStepCount);
-    const std::vector< std::vector<double> >* dynamicConnectionScalarResult(size_t scalarResultIndex) const;
-    const std::vector<double>*                dynamicConnectionScalarResult(size_t scalarResultIndex, size_t timeStep) const;
+    const std::vector< std::vector<double> >* dynamicConnectionScalarResult(const RigEclipseResultAddress& resVarAddr) const;
+    const std::vector<double>*                dynamicConnectionScalarResult(const RigEclipseResultAddress& resVarAddr, size_t timeStep) const;
     const std::vector< std::vector<double> >* dynamicConnectionScalarResultByName(const QString& nncDataType) const;
     const std::vector<double>*                dynamicConnectionScalarResultByName(const QString& nncDataType, size_t timeStep) const;
 
     std::vector< std::vector<double> >&       makeGeneratedConnectionScalarResult(QString nncDataType, size_t timeStepCount);
-    const std::vector< std::vector<double> >* generatedConnectionScalarResult(size_t scalarResultIndex) const;
-    const std::vector<double>*                generatedConnectionScalarResult(size_t scalarResultIndex, size_t timeStep) const;
-    std::vector< std::vector<double> >*       generatedConnectionScalarResult(size_t scalarResultIndex);
-    std::vector<double>*                      generatedConnectionScalarResult(size_t scalarResultIndex, size_t timeStep);
+    const std::vector< std::vector<double> >* generatedConnectionScalarResult(const RigEclipseResultAddress& resVarAddr) const;
+    const std::vector<double>*                generatedConnectionScalarResult(const RigEclipseResultAddress& resVarAddr, size_t timeStep) const;
+    std::vector< std::vector<double> >*       generatedConnectionScalarResult(const RigEclipseResultAddress& resVarAddr);
+    std::vector<double>*                      generatedConnectionScalarResult(const RigEclipseResultAddress& resVarAddr, size_t timeStep);
     const std::vector< std::vector<double> >* generatedConnectionScalarResultByName(const QString& nncDataType) const;
     const std::vector<double>*                generatedConnectionScalarResultByName(const QString& nncDataType, size_t timeStep) const;
     std::vector< std::vector<double> >*       generatedConnectionScalarResultByName(const QString& nncDataType);
@@ -109,12 +109,12 @@ public:
 
     std::vector<QString>                      availableProperties(NNCResultType resultType) const;
 
-    void setScalarResultIndex(const QString& nncDataType, size_t scalarResultIndex);
+    void setScalarResultIndex(const QString& nncDataType, const RigEclipseResultAddress& resVarAddr);
 
-    bool hasScalarValues(size_t scalarResultIndex);
+    bool hasScalarValues(const RigEclipseResultAddress& resVarAddr);
 
 private:
-    const QString getNNCDataTypeFromScalarResultIndex(size_t scalarResultIndex) const;
+    const QString getNNCDataTypeFromScalarResultIndex(const RigEclipseResultAddress& resVarAddr) const;
     bool          isNative(QString nncDataType) const;
 
 private:

@@ -2024,9 +2024,9 @@ void RigCaseCellResultsData::computeRiTransComponent(const QString& riTransCompo
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeNncCombRiTrans()
 {
-    size_t riCombTransScalarResultIndex =
-        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiTranResultName());
-    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransScalarResultIndex)) return;
+    RigEclipseResultAddress  riCombTransEclResAddr = RigEclipseResultAddress(
+        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiTranResultName()));
+    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult( riCombTransEclResAddr )) return;
 
     double cdarchy = darchysValue();
 
@@ -2047,7 +2047,7 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
     std::vector<double>& permZResults = m_cellScalarResults[permZResultIdx][0];
     std::vector<double>& riCombTransResults =
         m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombTrans());
-    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombTrans(), riCombTransScalarResultIndex);
+    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombTrans(), riCombTransEclResAddr);
 
     std::vector<double>* ntgResults = nullptr;
     if (hasNTGResults)
@@ -2277,22 +2277,22 @@ void RigCaseCellResultsData::computeRiMULTComponent(const QString& riMultCompNam
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeNncCombRiMULT()
 {
-    size_t riCombMultScalarResultIndex =
-        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiMultResultName());
-    size_t riCombTransScalarResultIndex =
-        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiTranResultName());
-    size_t combTransScalarResultIndex =
-        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
+    auto riCombMultEclResAddr =
+         RigEclipseResultAddress(this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiMultResultName()));
+    auto riCombTransEclResAddr =
+        RigEclipseResultAddress(this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiTranResultName()));
+    auto combTransEclResAddr =
+        RigEclipseResultAddress(this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName()));
 
-    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombMultScalarResultIndex)) return;
+    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombMultEclResAddr)) return;
 
     std::vector<double>& riMultResults =
         m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombMult());
     const std::vector<double>* riTransResults =
-        m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransScalarResultIndex);
+        m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransEclResAddr);
     const std::vector<double>* transResults =
-        m_ownerMainGrid->nncData()->staticConnectionScalarResult(combTransScalarResultIndex);
-    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombMult(), riCombMultScalarResultIndex);
+        m_ownerMainGrid->nncData()->staticConnectionScalarResult(combTransEclResAddr);
+    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombMult(), riCombMultEclResAddr);
 
     for (size_t nncConIdx = 0; nncConIdx < riMultResults.size(); ++nncConIdx)
     {
@@ -2413,18 +2413,18 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent(const QString& riTran
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
 {
-    size_t riCombTransByAreaScResIdx =
-        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiAreaNormTranResultName());
-    size_t combTransScalarResultIndex =
-        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
+    auto riCombTransByAreaEclResAddr =
+        RigEclipseResultAddress(this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiAreaNormTranResultName()));
+    auto combTransEclResAddr =
+        RigEclipseResultAddress(this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName()));
 
-    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransByAreaScResIdx)) return;
+    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransByAreaEclResAddr)) return;
 
     std::vector<double>& riAreaNormTransResults =
         m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombTransByArea());
-    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombTransByArea(), riCombTransByAreaScResIdx);
+    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombTransByArea(), riCombTransByAreaEclResAddr);
     const std::vector<double>* transResults =
-        m_ownerMainGrid->nncData()->staticConnectionScalarResult(combTransScalarResultIndex);
+        m_ownerMainGrid->nncData()->staticConnectionScalarResult(combTransEclResAddr);
 
     const std::vector<RigConnection>& connections = m_ownerMainGrid->nncData()->connections();
 

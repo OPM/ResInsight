@@ -691,9 +691,9 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
 
     if (cellResultColors)
     {
-        RigEclipseResultAddress scalarSetIndex = cellResultColors->eclipseResultAddress();
+        RigEclipseResultAddress eclResAddr = cellResultColors->eclipseResultAddress();
 
-        if (m_grid->mainGrid()->nncData()->hasScalarValues(scalarSetIndex.scalarResultIndex))
+        if (m_grid->mainGrid()->nncData()->hasScalarValues(eclResAddr))
         {
             showNncsWithScalarMappedColor = true;
         }
@@ -702,8 +702,8 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
 
     if (showNncsWithScalarMappedColor)
     {
-        RigEclipseResultAddress   scalarSetIndex = cellResultColors->eclipseResultAddress();
-        RiaDefines::ResultCatType resultType     = cellResultColors->resultType();
+        RigEclipseResultAddress   eclResAddr = cellResultColors->eclipseResultAddress();
+        RiaDefines::ResultCatType resultType = cellResultColors->resultType();
 
         const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
@@ -714,7 +714,7 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
             {
                 size_t nativeTimeStepIndex = eclipseCase->uiToNativeTimeStepIndex(timeStepIndex);
                 m_NNCGenerator->textureCoordinates(
-                    m_NNCTextureCoords.p(), mapper, resultType, scalarSetIndex.scalarResultIndex, nativeTimeStepIndex);
+                    m_NNCTextureCoords.p(), mapper, resultType, eclResAddr, nativeTimeStepIndex);
             }
         }
 
