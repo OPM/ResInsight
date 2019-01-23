@@ -371,7 +371,7 @@ void RimCellEdgeColors::cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaD
     for (size_t i = 0; i < 6; i++)
     {
         RimCellEdgeMetaData metaData;
-        metaData.m_resultIndex = resultIndices[i];
+        metaData.m_eclipseResultAddress = resultIndices[i];
         metaData.m_resultVariable = resultNames[i];
         metaData.m_isStatic = isStatic;
 

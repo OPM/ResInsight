@@ -38,7 +38,7 @@ class RimRegularLegendConfig;
 class RimCellEdgeMetaData
 {
 public:
-    RigEclipseResultAddress  m_resultIndex;
+    RigEclipseResultAddress  m_eclipseResultAddress;
     QString m_resultVariable;
     bool    m_isStatic;
 };

@@ -62,7 +62,7 @@ public:
         return (m_resultName <  other.m_resultName);
     }
 
-    size_t scalarResultIndex;
+    size_t scalarResultIndex; // Temporary. Must be removed 
 
     RiaDefines::ResultCatType m_resultCatType;
     QString m_resultName;

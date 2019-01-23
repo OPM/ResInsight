@@ -612,14 +612,14 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
             std::vector<RimCellEdgeMetaData> metaData;
             m_reservoirView->cellEdgeResult()->cellEdgeMetaData(&metaData);
 
-            std::set<size_t> uniqueResultIndices;
+            std::set<RigEclipseResultAddress> uniqueResultIndices;
 
             for (int idx = 0; idx < 6; idx++)
             {
-                size_t resultIndex = metaData[idx].m_resultIndex.scalarResultIndex;
-                if (resultIndex == cvf::UNDEFINED_SIZE_T) continue;
+                RigEclipseResultAddress resultAddr = metaData[idx].m_eclipseResultAddress;
+                if ( !resultAddr.isValid()) continue;
             
-                if (uniqueResultIndices.find(resultIndex) != uniqueResultIndices.end()) continue;
+                if (uniqueResultIndices.find(resultAddr) != uniqueResultIndices.end()) continue;
 
                 size_t adjustedTimeStep = m_timeStepIndex;
                 if (metaData[idx].m_isStatic)
@@ -628,13 +628,17 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
                 }
 
                 RiaDefines::PorosityModelType porosityModel = m_reservoirView->cellResult()->porosityModel();
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultIdx(m_reservoirView->eclipseCase()->eclipseCaseData(), m_gridIndex, porosityModel, adjustedTimeStep, RigEclipseResultAddress(resultIndex));
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultIdx(m_reservoirView->eclipseCase()->eclipseCaseData(), 
+                                                                                                           m_gridIndex, 
+                                                                                                           porosityModel, 
+                                                                                                           adjustedTimeStep, 
+                                                                                                           resultAddr);
                 if (resultAccessor.notNull())
                 {
                     double scalarValue = resultAccessor->cellScalar(m_cellIndex);
                     text.append(QString("%1 : %2\n").arg(metaData[idx].m_resultVariable).arg(scalarValue));
 
-                    uniqueResultIndices.insert(resultIndex);
+                    uniqueResultIndices.insert(resultAddr);
                 }
             }
         }
