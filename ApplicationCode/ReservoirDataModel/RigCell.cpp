@@ -125,6 +125,8 @@ bool RigCell::isLongPyramidCell(double maxHeightFactor, double nodeNearTolerance
         if (zeroLengthEdgeCount == 3)
         {
             return true;
+
+            #if 0 // More advanced checks turned off since the start. Why did I do that ?
             // Collapse of a complete face is detected. This is possibly the top of a pyramid
 
             // "face" has the index to the collapsed face. We need the size of the opposite face
@@ -193,6 +195,7 @@ bool RigCell::isLongPyramidCell(double maxHeightFactor, double nodeNearTolerance
                     return true;
                 }
             }
+            #endif
         }
 
         // Check the ratio of the length of opposite edges.
