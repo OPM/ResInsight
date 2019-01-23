@@ -448,7 +448,7 @@ double RimGeoMechContourMapProjection::getParameterWeightForCell(size_t         
 std::vector<double> RimGeoMechContourMapProjection::gridCellValues(RigFemResultAddress resAddr, std::vector<float>& resultValues) const
 {
     std::vector<double> gridCellValues(m_femPart->elementCount(), std::numeric_limits<double>::infinity());
-    for (size_t globalCellIdx = 0; globalCellIdx < m_femPart->elementCount(); ++globalCellIdx)
+    for (size_t globalCellIdx = 0; globalCellIdx < static_cast<size_t>(m_femPart->elementCount()); ++globalCellIdx)
     {
         RigElementType elmType = m_femPart->elementType(globalCellIdx);
         if (!(elmType == HEX8 || elmType == HEX8P)) continue;
