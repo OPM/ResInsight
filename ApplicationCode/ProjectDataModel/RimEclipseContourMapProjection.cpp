@@ -203,7 +203,7 @@ std::vector<double> RimEclipseContourMapProjection::generateResults(int timeStep
             {
                 m_currentResultName = cellColors->resultVariable();
                 size_t resultIndex = resultData->findScalarResultIndex(cellColors->resultType(), cellColors->resultVariable());
-                gridResultValues = resultData->cellScalarResults(resultIndex)[timeStep];                
+                gridResultValues = resultData->cellScalarResults(RigEclipseResultAddress( resultIndex), timeStep);                
             }
 
             if (!gridResultValues.empty())
@@ -259,9 +259,9 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult(Result
         return std::vector<double>();
     }
 
-    const std::vector<double>& poroResults = resultData->cellScalarResults(poroResultIndex)[0];
-    const std::vector<double>& ntgResults  = resultData->cellScalarResults(ntgResultIndex)[0];
-    const std::vector<double>& dzResults   = resultData->cellScalarResults(dzResultIndex)[0];
+    const std::vector<double>& poroResults = resultData->cellScalarResults(RigEclipseResultAddress(poroResultIndex), 0);
+    const std::vector<double>& ntgResults  = resultData->cellScalarResults(RigEclipseResultAddress(ntgResultIndex), 0);
+    const std::vector<double>& dzResults   = resultData->cellScalarResults(RigEclipseResultAddress(dzResultIndex), 0);
     CVF_ASSERT(poroResults.size() == ntgResults.size() && ntgResults.size() == dzResults.size());
     int timeStep = view()->currentTimeStep();
 
@@ -270,7 +270,7 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult(Result
     if (resultAggregation == RESULTS_OIL_COLUMN || resultAggregation == RESULTS_HC_COLUMN)
     {
         size_t                     soilResultIndex = resultData->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-        const std::vector<double>& soilResults     = resultData->cellScalarResults(soilResultIndex)[timeStep];
+        const std::vector<double>& soilResults     = resultData->cellScalarResults(RigEclipseResultAddress(soilResultIndex), timeStep);
         for (size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx)
         {
             resultValues[cellResultIdx] = soilResults[cellResultIdx];
@@ -279,7 +279,7 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult(Result
     if (resultAggregation == RESULTS_GAS_COLUMN || resultAggregation == RESULTS_HC_COLUMN)
     {
         size_t                     sgasResultIndex = resultData->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SGAS");
-        const std::vector<double>& sgasResults     = resultData->cellScalarResults(sgasResultIndex)[timeStep];
+        const std::vector<double>& sgasResults     = resultData->cellScalarResults(RigEclipseResultAddress(sgasResultIndex), timeStep);
         for (size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx)
         {
             resultValues[cellResultIdx] += sgasResults[cellResultIdx];
