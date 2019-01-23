@@ -103,7 +103,7 @@ void RiaImageTools::distanceTransform2d(std::vector<std::vector<unsigned int>>& 
         for (int64_t u = M - 1; u > 0; --u)
         {
             int64_t fVal = f(u, s[q], g, y);
-            CVF_ASSERT(fVal= < std::numeric_limits<double>::max());
+            CVF_ASSERT(fVal <= std::numeric_limits<double>::max());
             image[u][y] = static_cast<unsigned int>(fVal);
             if (u == t[q])
             {
