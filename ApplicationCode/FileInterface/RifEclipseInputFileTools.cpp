@@ -318,12 +318,17 @@ bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type* eclipseKeywordDa
 
     if (!mathingItemCount) return false;
 
-    size_t resultIndex = RifEclipseInputFileTools::findOrCreateResult(resultName, caseData);
-    if (resultIndex == cvf::UNDEFINED_SIZE_T) return false;
+    size_t resultIndex = caseData->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(resultName); // Todo : Is it neccessary to search without type first ?
+    if (resultIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        caseData->results(RiaDefines::MATRIX_MODEL)->findOrCreateScalarResultIndex(RiaDefines::INPUT_PROPERTY, resultName, false);
+    }
 
-    std::vector< std::vector<double> >& newPropertyData = caseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(resultIndex));
+    std::vector< std::vector<double> >& newPropertyData = caseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(resultName));
+
     newPropertyData.push_back(std::vector<double>());
     newPropertyData[0].resize(ecl_kw_get_size(eclipseKeywordData), HUGE_VAL);
+
     ecl_kw_get_data_as_double(eclipseKeywordData, newPropertyData[0].data());
 
     return true;
@@ -628,20 +633,6 @@ qint64 RifEclipseInputFileTools::findKeyword(const QString& keyword, QFile& file
 
 
     return -1;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RifEclipseInputFileTools::findOrCreateResult(const QString& newResultName, RigEclipseCaseData* reservoir)
-{
-    size_t resultIndex = reservoir->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(newResultName);
-    if (resultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        resultIndex = reservoir->results(RiaDefines::MATRIX_MODEL)->findOrCreateScalarResultIndex(RiaDefines::INPUT_PROPERTY, newResultName, false);
-    }
-
-    return resultIndex;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -272,13 +272,13 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
     for (size_t rIdx = 0; rIdx < m_resultCacheMetaData.size(); ++rIdx)
     {
         RimReservoirCellResultsStorageEntryInfo* resInfo = m_resultCacheMetaData[rIdx];
-        size_t resultIndex = m_cellResults->findOrCreateScalarResultIndex(resInfo->m_resultType(), resInfo->m_resultName, true);
+        m_cellResults->findOrCreateScalarResultIndex(resInfo->m_resultType(), resInfo->m_resultName, true);
 
         std::vector<int> reportNumbers; // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
         reportNumbers.resize(resInfo->m_timeStepDates().size());
         std::vector<RigEclipseTimeStepInfo> timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos(resInfo->m_timeStepDates(), reportNumbers, resInfo->m_daysSinceSimulationStart());
 
-        m_cellResults->setTimeStepInfos(RigEclipseResultAddress(resultIndex), timeStepInfos);
+        m_cellResults->setTimeStepInfos(RigEclipseResultAddress(resInfo->m_resultType(), resInfo->m_resultName), timeStepInfos);
 
         progress.setProgressDescription(resInfo->m_resultName);
 
@@ -286,7 +286,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
         {
             std::vector<double>* data = nullptr;
 
-            data = &(m_cellResults->cellScalarResults(RigEclipseResultAddress(resultIndex), tsIdx));
+            data = &(m_cellResults->cellScalarResults(RigEclipseResultAddress(resInfo->m_resultType(), resInfo->m_resultName), tsIdx));
 
             quint64 cellCount = 0;
             stream >> cellCount;

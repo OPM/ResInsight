@@ -91,7 +91,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(cons
         adjustedTimeStepIndex = 0;
     }
 
-    return createFromResultIdx(eclipseCase, gridIndex, porosityModel, adjustedTimeStepIndex, RigEclipseResultAddress(scalarSetIndex));
+    return createFromResultIdx(eclipseCase, gridIndex, porosityModel, adjustedTimeStepIndex, RigEclipseResultAddress(resultType, uiResultName));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultNa
         return nullptr;
     }
 
-    return createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(scalarSetIndex));
+    return createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(uiResultName));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,9 +306,9 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(const 
                                                                           size_t gridIndex,
                                                                           RiaDefines::PorosityModelType porosityModel,
                                                                           size_t timeStepIndex,
-                                                                          const RigEclipseResultAddress& resultIndex)
+                                                                          const RigEclipseResultAddress& resultAddress)
 {
-    if ( !resultIndex.isValid() )
+    if ( !resultAddress.isValid() )
     {
         return new RigHugeValResultAccessor;
     }
@@ -318,7 +318,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(const 
     const RigGridBase* grid = eclipseCase->grid(gridIndex);
     if (!grid) return nullptr;
 
-    const std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(RigEclipseResultAddress(resultIndex));
+    const std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(resultAddress);
 
     if (timeStepIndex >= scalarSetResults.size())
     {
@@ -336,7 +336,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(const 
         return new RigHugeValResultAccessor;
     }
 
-    bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(RigEclipseResultAddress(resultIndex));
+    bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(resultAddress);
     if (useGlobalActiveIndex)
     {
         cvf::ref<RigResultAccessor> object = new RigActiveCellsResultAccessor(grid, resultValues, eclipseCase->activeCellInfo(porosityModel));

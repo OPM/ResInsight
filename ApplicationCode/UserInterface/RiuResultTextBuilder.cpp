@@ -470,13 +470,13 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
         RigCaseCellResultsData* gridCellResults = resultColors->currentGridCellResults();
         if (gridCellResults)
         {
-            size_t soilScalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-            size_t sgasScalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
-            size_t swatScalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
+            gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+            gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+            gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
 
-            cvf::ref<RigResultAccessor> dataAccessObjectX = RigResultAccessorFactory::createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(soilScalarSetIndex));
-            cvf::ref<RigResultAccessor> dataAccessObjectY = RigResultAccessorFactory::createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(sgasScalarSetIndex));
-            cvf::ref<RigResultAccessor> dataAccessObjectZ = RigResultAccessorFactory::createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(swatScalarSetIndex));
+            cvf::ref<RigResultAccessor> dataAccessObjectX = RigResultAccessorFactory::createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SOIL"));
+            cvf::ref<RigResultAccessor> dataAccessObjectY = RigResultAccessorFactory::createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SGAS"));
+            cvf::ref<RigResultAccessor> dataAccessObjectZ = RigResultAccessorFactory::createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SWAT"));
 
             double scalarValue = 0.0;
 
@@ -753,15 +753,15 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
             RigCaseCellResultsData* gridCellResults = m_reservoirView->cellResult()->currentGridCellResults();
             if (gridCellResults)
             {
-                size_t soilScalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-                size_t sgasScalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
-                size_t swatScalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
+                gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+                gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+                gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
 
                 RiaDefines::PorosityModelType porosityModel = resultColors->porosityModel();
 
-                cvf::ref<RigResultAccessor> dataAccessObjectX = RigResultAccessorFactory::createFromResultIdx(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, RigEclipseResultAddress(soilScalarSetIndex));
-                cvf::ref<RigResultAccessor> dataAccessObjectY = RigResultAccessorFactory::createFromResultIdx(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, RigEclipseResultAddress(sgasScalarSetIndex));
-                cvf::ref<RigResultAccessor> dataAccessObjectZ = RigResultAccessorFactory::createFromResultIdx(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, RigEclipseResultAddress(swatScalarSetIndex));
+                cvf::ref<RigResultAccessor> dataAccessObjectX = RigResultAccessorFactory::createFromResultIdx(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SOIL"));
+                cvf::ref<RigResultAccessor> dataAccessObjectY = RigResultAccessorFactory::createFromResultIdx(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SGAS"));
+                cvf::ref<RigResultAccessor> dataAccessObjectZ = RigResultAccessorFactory::createFromResultIdx(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SWAT"));
 
                 double scalarValue = 0.0;
 

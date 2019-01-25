@@ -105,7 +105,7 @@ bool RimWellPlotTools::hasPressureData(RimWellPath* wellPath)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<size_t, QString> RimWellPlotTools::pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData)
+std::pair<RigEclipseResultAddress, QString> RimWellPlotTools::pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData)
 {
     if (eclipseCaseData != nullptr)
     {
@@ -115,11 +115,11 @@ std::pair<size_t, QString> RimWellPlotTools::pressureResultDataInfo(const RigEcl
                                ->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, pressureDataName);
             if (index != cvf::UNDEFINED_SIZE_T)
             {
-                return std::make_pair(index, pressureDataName);
+                return std::make_pair(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, pressureDataName), pressureDataName);
             }
         }
     }
-    return std::make_pair(cvf::UNDEFINED_SIZE_T, "");
+    return std::make_pair(RigEclipseResultAddress(), "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ bool RimWellPlotTools::isPressureChannel(RimWellLogFileChannel* channel)
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::hasPressureData(RimEclipseResultCase* gridCase)
 {
-    return pressureResultDataInfo(gridCase->eclipseCaseData()).first != cvf::UNDEFINED_SIZE_T;
+    return pressureResultDataInfo(gridCase->eclipseCaseData()).first.isValid();
 }
 //--------------------------------------------------------------------------------------------------
 ///
@@ -413,12 +413,12 @@ std::vector<RimEclipseResultCase*> RimWellPlotTools::rftCasesForWell(const QStri
 std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::timeStepsMapFromGridCase(RimEclipseCase* gridCase)
 {
     const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
-    std::pair<size_t, QString>      resultDataInfo  = pressureResultDataInfo(eclipseCaseData);
+    std::pair<RigEclipseResultAddress, QString> resultDataInfo  = pressureResultDataInfo(eclipseCaseData);
 
     std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMap;
-    if (resultDataInfo.first != cvf::UNDEFINED_SIZE_T)
+    if (resultDataInfo.first.isValid())
     {
-        for (const QDateTime& timeStep : eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates(RigEclipseResultAddress(resultDataInfo.first)))
+        for (const QDateTime& timeStep : eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates(resultDataInfo.first))
         {
             if (timeStepsMap.count(timeStep) == 0)
             {

@@ -120,7 +120,7 @@ void RimCellEdgeColors::loadResult()
         int i;
         for (i = 0; i < vars.size(); ++i)
         {
-             size_t resultindex = m_reservoirView->currentGridCellResults()->findOrLoadKnownScalarResult(RiaDefines::STATIC_NATIVE, vars[i]);
+             m_reservoirView->currentGridCellResults()->findOrLoadKnownScalarResult(RiaDefines::STATIC_NATIVE, vars[i]);
              int cubeFaceIdx;
              for (cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
              {
@@ -132,7 +132,7 @@ void RimCellEdgeColors::loadResult()
 
                      if (vars[i].endsWith(varEnd))
                      {
-                         m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(vars[i], RigEclipseResultAddress(resultindex));
+                         m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(vars[i], RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, vars[i]));
                      }
                  }
              }
@@ -387,7 +387,7 @@ void RimCellEdgeColors::resetResultIndices()
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
     {
-        m_resultNameToIndexPairs[cubeFaceIndex].second = RigEclipseResultAddress(cvf::UNDEFINED_SIZE_T);
+        m_resultNameToIndexPairs[cubeFaceIndex].second = RigEclipseResultAddress();
     }
 }
 

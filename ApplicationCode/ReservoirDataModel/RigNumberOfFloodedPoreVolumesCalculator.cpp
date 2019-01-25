@@ -68,10 +68,13 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     swcrResults = RigCaseCellResultsData::getResultIndexableStaticResult(actCellInfo, gridCellResults, "SWCR", porvActiveCellsResultStorage);
     progress.incrementProgress();
 
-    std::vector<size_t> scalarResultIndexTracers;
+    std::vector<RigEclipseResultAddress> tracerResAddrs;
     for (QString tracerName : tracerNames)
     {
-        scalarResultIndexTracers.push_back(gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, tracerName));
+        if (gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, tracerName) != cvf::UNDEFINED_SIZE_T)
+        {
+            tracerResAddrs.push_back(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, tracerName));
+        }
         progress.incrementProgress();
     }
     std::vector<std::vector<double> > summedTracersAtAllTimesteps;
@@ -109,7 +112,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         const std::vector<double>* flowrateI = nullptr;
         if (scalarResultIndexFlowrateI != cvf::UNDEFINED_SIZE_T)
         {
-            flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(scalarResultIndexFlowrateI), 
+            flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+"), 
                                                                                                 timeStep));
         }
         flowrateIatAllTimeSteps.push_back(flowrateI);
@@ -118,7 +121,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         const std::vector<double>* flowrateJ = nullptr;
         if (scalarResultIndexFlowrateJ != cvf::UNDEFINED_SIZE_T)
         {
-            flowrateJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(scalarResultIndexFlowrateJ),
+            flowrateJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+"),
                                                                                                 timeStep));
         }
         flowrateJatAllTimeSteps.push_back(flowrateJ);
@@ -127,7 +130,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         const std::vector<double>* flowrateK = nullptr;
         if (scalarResultIndexFlowrateK != cvf::UNDEFINED_SIZE_T)
         {
-            flowrateK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(scalarResultIndexFlowrateK),
+            flowrateK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+"),
                                                                                                 timeStep));
         }
         flowrateKatAllTimeSteps.push_back(flowrateK);
@@ -140,16 +143,13 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 
         //sum all tracers at current timestep
         std::vector<double> summedTracerValues(resultCellCount);
-        for (size_t tracerIndex : scalarResultIndexTracers)
+        for (const RigEclipseResultAddress& tracerResAddr : tracerResAddrs)
         {
-            if (tracerIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                const std::vector<double>* tracerResult = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(tracerIndex), timeStep));
+            const std::vector<double>* tracerResult = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(tracerResAddr, timeStep));
 
-                for (size_t i = 0; i < summedTracerValues.size(); i++)
-                {
-                    summedTracerValues[i] += tracerResult->at(i);
-                }
+            for ( size_t i = 0; i < summedTracerValues.size(); i++ )
+            {
+                summedTracerValues[i] += tracerResult->at(i);
             }
         }
         summedTracersAtAllTimesteps.push_back(summedTracerValues);

@@ -627,17 +627,17 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 RigEclipseResultAddress RimEclipseResultDefinition::eclipseResultAddress() const
 {
-    size_t gridScalarResultIndex = cvf::UNDEFINED_SIZE_T;
-
     if (isFlowDiagOrInjectionFlooding()) return RigEclipseResultAddress();
 
     const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults )
     {
-        gridScalarResultIndex = gridCellResults->findScalarResultIndex(m_resultType(), m_resultVariable());
+        return RigEclipseResultAddress(m_resultType(), m_resultVariable());
     }
-
-    return RigEclipseResultAddress(gridScalarResultIndex);
+    else
+    {
+        return RigEclipseResultAddress();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -33,7 +33,7 @@ class RigHistogramCalculator;
 class RigEclipseNativeStatCalc : public RigStatisticsCalculator
 {
 public:
-    RigEclipseNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex);
+    RigEclipseNativeStatCalc(RigCaseCellResultsData* cellResultsData, const RigEclipseResultAddress& eclipseResultAddress);
 
     void    minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max) override;
     void    posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg) override;
@@ -45,17 +45,17 @@ public:
 
 private:
     RigCaseCellResultsData* m_resultsData;
-    size_t                  m_scalarResultIndex;
+    RigEclipseResultAddress m_eclipseResultAddress;
 
     template <typename StatisticsAccumulator>
     void traverseCells(StatisticsAccumulator& accumulator, size_t timeStepIndex)
     {
-        if (timeStepIndex >= m_resultsData->cellScalarResults(RigEclipseResultAddress(m_scalarResultIndex)).size())
+        if (timeStepIndex >= m_resultsData->cellScalarResults(m_eclipseResultAddress).size())
         {
             return;
         }
 
-        std::vector<double>& values = m_resultsData->cellScalarResults(RigEclipseResultAddress(m_scalarResultIndex), timeStepIndex);
+        std::vector<double>& values = m_resultsData->cellScalarResults(m_eclipseResultAddress, timeStepIndex);
 
         if (values.empty())
         {
@@ -66,13 +66,14 @@ private:
         const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo();
         size_t cellCount = actCellInfo->reservoirCellCount();
 
+        bool isUsingGlobalActiveIndex = m_resultsData->isUsingGlobalActiveIndex(m_eclipseResultAddress);
         for (size_t cIdx = 0; cIdx < cellCount; ++cIdx)
         {
             // Filter out inactive cells
             if (!actCellInfo->isActive(cIdx)) continue;
 
             size_t cellResultIndex = cIdx;
-            if (m_resultsData->isUsingGlobalActiveIndex(RigEclipseResultAddress(m_scalarResultIndex)))
+            if (isUsingGlobalActiveIndex)
             {
                 cellResultIndex = actCellInfo->cellResultIndex(cIdx);
             }

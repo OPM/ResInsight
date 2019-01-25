@@ -39,18 +39,21 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* destinationCellResults, RiaDefines::ResultCatType resultType, const QString& resultName, size_t activeUnionCellCount)
+void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* destinationCellResults, 
+                                                       RiaDefines::ResultCatType resultType, 
+                                                       const QString& resultName, 
+                                                       size_t activeUnionCellCount)
 {
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
 
-    std::vector<RigEclipseTimeStepInfo> sourceTimeStepInfos = m_sourceCases[0]->results(RiaDefines::MATRIX_MODEL)->timeStepInfos(RigEclipseResultAddress(0));
+    std::vector<RigEclipseResultAddress> resAddresses = m_sourceCases[0]->results(RiaDefines::MATRIX_MODEL)->existingResults();
+    std::vector<RigEclipseTimeStepInfo> sourceTimeStepInfos = m_sourceCases[0]->results(RiaDefines::MATRIX_MODEL)->timeStepInfos(resAddresses[0]);
 
-    size_t destinationScalarResultIndex = destinationCellResults->findOrCreateScalarResultIndex(resultType, resultName, true);
-    CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);
+    destinationCellResults->findOrCreateScalarResultIndex(resultType, resultName, true);
 
-    destinationCellResults->setTimeStepInfos(RigEclipseResultAddress(destinationScalarResultIndex), sourceTimeStepInfos);
-    std::vector< std::vector<double> >& dataValues = destinationCellResults->cellScalarResults(RigEclipseResultAddress(destinationScalarResultIndex));
+    destinationCellResults->setTimeStepInfos(RigEclipseResultAddress(resultType, resultName), sourceTimeStepInfos);
+    std::vector< std::vector<double> >& dataValues = destinationCellResults->cellScalarResults(RigEclipseResultAddress(resultType, resultName));
     dataValues.resize(sourceTimeStepInfos.size());
 
 
@@ -188,9 +191,13 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 
                 for (size_t stIdx = 0; stIdx < statisticalResultNames.size(); ++stIdx)
                 {
-                    size_t scalarResultIndex = destCellResultsData->findScalarResultIndex(resultType, statisticalResultNames[stIdx]);
+                    destCellResultsData->findScalarResultIndex(resultType, statisticalResultNames[stIdx]);
 
-                    cvf::ref<RigResultModifier> resultModifier = RigResultModifierFactory::createResultModifier(m_destinationCase, grid->gridIndex(), poroModel, dataAccessTimeStepIndex, scalarResultIndex);
+                    cvf::ref<RigResultModifier> resultModifier = RigResultModifierFactory::createResultModifier(m_destinationCase, 
+                                                                                                                grid->gridIndex(), 
+                                                                                                                poroModel, 
+                                                                                                                dataAccessTimeStepIndex, 
+                                                                                                                RigEclipseResultAddress(resultType, statisticalResultNames[stIdx]));
                     destinationDataAccessList.push_back(resultModifier.p());
                 }
 

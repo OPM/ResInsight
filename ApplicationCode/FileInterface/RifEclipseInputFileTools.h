@@ -91,7 +91,6 @@ private:
     static size_t   findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name);
 
     static qint64   findKeyword(const QString& keyword, QFile& file, qint64 startPos);
-    static size_t   findOrCreateResult(const QString& newResultName, RigEclipseCaseData* reservoir);
     static bool     isValidDataKeyword(const QString& keyword);
     
 private:

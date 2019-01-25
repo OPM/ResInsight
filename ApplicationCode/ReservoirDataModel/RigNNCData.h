@@ -109,7 +109,7 @@ public:
 
     std::vector<QString>                      availableProperties(NNCResultType resultType) const;
 
-    void setScalarResultIndex(const QString& nncDataType, const RigEclipseResultAddress& resVarAddr);
+    void setEclResultAddress(const QString& nncDataType, const RigEclipseResultAddress& resVarAddr);
 
     bool hasScalarValues(const RigEclipseResultAddress& resVarAddr);
 
@@ -120,5 +120,5 @@ private:
 private:
     std::vector<RigConnection>                                 m_connections; 
     std::map<QString, std::vector< std::vector<double> > >     m_connectionResults;
-    std::map<size_t, QString>                                  m_resultIndexToNNCDataType;
+    std::map<RigEclipseResultAddress, QString>                 m_resultAddrToNNCDataType;
 };

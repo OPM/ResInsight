@@ -299,7 +299,7 @@ class RiaSetNNCProperty: public RiaSocketCommand
 public:
     RiaSetNNCProperty() :
         m_currentReservoir(nullptr),
-        m_currentScalarIndex(cvf::UNDEFINED_SIZE_T),
+        m_currentEclResultAddress(),
         m_timeStepCountToRead(0),
         m_bytesPerTimeStepToRead(0),
         m_currentTimeStepNumberToRead(0),
@@ -350,8 +350,9 @@ public:
                 server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the property named: \"%2\"").arg(propertyName));
                 return true;
             }
-            size_t scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadKnownScalarResult(QString("%1IJK").arg(propertyName));
-            nncData->setScalarResultIndex(propertyName, RigEclipseResultAddress(scalarResultIndex));
+            QString totalPropName = QString("%1IJK").arg(propertyName);
+            rimCase->results(m_porosityModelEnum)->findOrLoadKnownScalarResult(totalPropName);
+            nncData->setEclResultAddress(propertyName, RigEclipseResultAddress(totalPropName));
         }
 
         // Create a list of all the requested time steps
@@ -408,7 +409,7 @@ public:
 
         return false;
     }
-
+private:
     static bool createIJKCellResults(RigCaseCellResultsData* results, QString propertyName)
     {
         bool ok;
@@ -434,7 +435,7 @@ public:
         if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
         {
             std::vector< std::vector<double> >* scalarResultFrames = nullptr;
-            scalarResultFrames = &(results->cellScalarResults(RigEclipseResultAddress(scalarResultIndex)));
+            scalarResultFrames = &(results->cellScalarResults(RigEclipseResultAddress(propertyName)));
             size_t timeStepCount = results->maxTimeStepCount();
             scalarResultFrames->resize(timeStepCount);
             return true;
@@ -442,7 +443,7 @@ public:
 
         return false;
     }
-
+public:
     bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient) override
     {
         if (m_invalidConnectionCountDetected) return true;
@@ -534,11 +535,11 @@ public:
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
 
-                if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&
+                if( m_currentEclResultAddress.isValid() && // Will never be valid because it is never set. What is correct behaviour ? 
                     m_currentReservoir->eclipseCaseData() &&
                     m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum) )
                 {
-                    m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum)->recalculateStatistics(RigEclipseResultAddress(m_currentScalarIndex));
+                    m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentEclResultAddress);
                 }
 
                 for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)
@@ -565,7 +566,7 @@ public:
 
 private:
     RimEclipseCase*                     m_currentReservoir;
-    size_t                              m_currentScalarIndex;
+    RigEclipseResultAddress             m_currentEclResultAddress;
     QString                             m_currentPropertyName;
     std::vector<size_t>                 m_requestedTimesteps;
     RiaDefines::PorosityModelType       m_porosityModelEnum;

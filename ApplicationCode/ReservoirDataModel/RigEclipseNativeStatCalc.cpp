@@ -30,9 +30,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigEclipseNativeStatCalc::RigEclipseNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex)
-    : m_resultsData(cellResultsData),
-    m_scalarResultIndex(scalarResultIndex)
+RigEclipseNativeStatCalc::RigEclipseNativeStatCalc(RigCaseCellResultsData* cellResultsData, const RigEclipseResultAddress& eclipseResultAddress)
+    : m_resultsData(cellResultsData)
+    , m_eclipseResultAddress(eclipseResultAddress)
 {
 
 }
@@ -93,7 +93,7 @@ void RigEclipseNativeStatCalc::valueSumAndSampleCount(size_t timeStepIndex, doub
 //--------------------------------------------------------------------------------------------------
 size_t RigEclipseNativeStatCalc::timeStepCount()
 {
-    return m_resultsData->timeStepCount(RigEclipseResultAddress(m_scalarResultIndex));
+    return m_resultsData->timeStepCount(m_eclipseResultAddress);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,10 +110,10 @@ void RigEclipseNativeStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, do
         return;
     }
 
-    const std::vector<double>& weights = m_resultsData->cellScalarResults(RigEclipseResultAddress(mobPVResultIndex), 0);
-    const std::vector<double>& values = m_resultsData->cellScalarResults(RigEclipseResultAddress(m_scalarResultIndex), timeStepIndex);
+    const std::vector<double>& weights = m_resultsData->cellScalarResults(RigEclipseResultAddress(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName()), 0);
+    const std::vector<double>& values = m_resultsData->cellScalarResults(m_eclipseResultAddress, timeStepIndex);
 
     const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo();
 
-    RigWeightedMeanCalc::weightedMeanOverCells(&weights, &values, nullptr, false, actCellInfo, m_resultsData->isUsingGlobalActiveIndex(RigEclipseResultAddress(m_scalarResultIndex)), &mean);
+    RigWeightedMeanCalc::weightedMeanOverCells(&weights, &values, nullptr, false, actCellInfo, m_resultsData->isUsingGlobalActiveIndex(m_eclipseResultAddress), &mean);
 }

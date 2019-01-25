@@ -793,29 +793,29 @@ bool RimEclipseCase::openReserviorCase()
                     results->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
                 if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameCombTrans(),
-                                                                                   RigEclipseResultAddress(combinedTransResIdx));
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameCombTrans(),
+                                                                                   RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName()));
                 }
                 size_t combinedWatFluxResIdx =
                     results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName());
                 if (combinedWatFluxResIdx != cvf::UNDEFINED_SIZE_T)
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxWat(),
-                                                                                   RigEclipseResultAddress(combinedWatFluxResIdx));
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameFluxWat(),
+                                                                                   RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName()));
                 }
                 size_t combinedOilFluxResIdx =
                     results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
                 if (combinedOilFluxResIdx != cvf::UNDEFINED_SIZE_T)
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxOil(),
-                                                                                   RigEclipseResultAddress(combinedOilFluxResIdx));
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameFluxOil(),
+                                                                                   RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName()));
                 }
                 size_t combinedGasFluxResIdx =
                     results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
                 if (combinedGasFluxResIdx != cvf::UNDEFINED_SIZE_T)
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxGas(),
-                                                                                   RigEclipseResultAddress(combinedGasFluxResIdx));
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameFluxGas(),
+                                                                                   RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName()));
                 }
             }
         }

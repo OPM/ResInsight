@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RigEclipseResultAddress.h"
+
 #include "RiaDefines.h"
 
 #include <QDateTime>
@@ -64,6 +66,8 @@ public:
     std::vector<int>            reportNumbers() const;
     
     bool operator<(const RigEclipseResultInfo& rhs) const;
+
+    RigEclipseResultAddress toAddress() const { return RigEclipseResultAddress (m_resultType, m_resultName );}
 
 private:
     friend class RigCaseCellResultsData;

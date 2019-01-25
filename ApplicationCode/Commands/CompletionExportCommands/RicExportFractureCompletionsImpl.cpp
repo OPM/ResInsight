@@ -222,7 +222,6 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     const RigMainGrid* mainGrid            = caseToApply->eclipseCaseData()->mainGrid();
 
     const RigCaseCellResultsData* results             = caseToApply->results(RiaDefines::MATRIX_MODEL);
-    size_t                        pressureResultIndex = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "PRESSURE");
     const RigActiveCellInfo*      actCellInfo         = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
     bool performPressureDepletionScaling = pdParams.performScaling;
@@ -262,7 +261,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     const std::vector<double>*              currentMatrixPressures = nullptr;
     if (performPressureDepletionScaling)
     {
-        pressureResultVector = &results->cellScalarResults(RigEclipseResultAddress(pressureResultIndex));
+        pressureResultVector = &results->cellScalarResults(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PRESSURE"));
         CVF_ASSERT(!pressureResultVector->empty());
 
         if (pdParams.pressureScalingTimeStep < static_cast<int>(pressureResultVector->size()))

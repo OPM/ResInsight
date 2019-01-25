@@ -82,7 +82,7 @@ public:
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultFrames = &(rimCase->results(porosityModelEnum)->cellScalarResults(RigEclipseResultAddress(scalarResultIndex)));
+                scalarResultFrames = &(rimCase->results(porosityModelEnum)->cellScalarResults(RigEclipseResultAddress(propertyName)));
             }
 
         }
@@ -246,6 +246,8 @@ public:
         }
 
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
+        
+        RigEclipseResultAddress resVarAddr(propertyName);
 
         if (gridIdx < 0  || rimCase->eclipseCaseData()->gridCount() <= (size_t)gridIdx)
         {
@@ -278,7 +280,7 @@ public:
         if (args.size() <= 5)
         {
             // Select all
-            for (size_t tsIdx = 0; tsIdx < rimCase->results(porosityModelEnum)->timeStepCount(RigEclipseResultAddress(scalarResultIndex)); ++tsIdx)
+            for (size_t tsIdx = 0; tsIdx < rimCase->results(porosityModelEnum)->timeStepCount(resVarAddr); ++tsIdx)
             {
                 requestedTimesteps.push_back(tsIdx);
             }
@@ -384,7 +386,7 @@ public:
     RiaSetActiveCellProperty() :
         m_currentReservoir(nullptr),
         m_scalarResultsToAdd(nullptr),
-        m_currentScalarIndex(cvf::UNDEFINED_SIZE_T),
+        m_currentEclResultAddress(),
         m_timeStepCountToRead(0),
         m_bytesPerTimeStepToRead(0),
         m_currentTimeStepNumberToRead(0),
@@ -408,12 +410,13 @@ public:
 
         // Find the requested data, Or create a set if we are setting data and it is not found
 
-        size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
         std::vector< std::vector<double> >* scalarResultFrames = nullptr;
 
         if (rimCase && rimCase->results(m_porosityModelEnum))
         {
+            size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
             scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadKnownScalarResult(RiaDefines::GENERATED, propertyName);
+            RigEclipseResultAddress eclResAddr(RiaDefines::GENERATED, propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
             {
@@ -422,16 +425,16 @@ public:
                 RigEclipseResultAddress addrToMaxTimeStepCountResult;
                 rimCase->results(m_porosityModelEnum)->maxTimeStepCount(&addrToMaxTimeStepCountResult);
                 const std::vector<RigEclipseTimeStepInfo> timeStepInfos = rimCase->results(m_porosityModelEnum)->timeStepInfos(addrToMaxTimeStepCountResult);
-                rimCase->results(m_porosityModelEnum)->setTimeStepInfos(RigEclipseResultAddress(scalarResultIndex), timeStepInfos);
+                rimCase->results(m_porosityModelEnum)->setTimeStepInfos(eclResAddr, timeStepInfos);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultFrames = &(rimCase->results(m_porosityModelEnum)->cellScalarResults(RigEclipseResultAddress(scalarResultIndex)));
+                scalarResultFrames = &(rimCase->results(m_porosityModelEnum)->cellScalarResults(eclResAddr));
                 size_t timeStepCount = rimCase->results(m_porosityModelEnum)->maxTimeStepCount();
                 scalarResultFrames->resize(timeStepCount);
 
-                m_currentScalarIndex = scalarResultIndex;
+                m_currentEclResultAddress = eclResAddr;
                 m_currentPropertyName = propertyName;
             }
         }
@@ -654,15 +657,15 @@ public:
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
 
-                if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&
+                if(     m_currentEclResultAddress.isValid() &&
                         m_currentReservoir->eclipseCaseData() &&
                         m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum) )
                 {
                     // Adjust the result data if only one time step is requested so the result behaves like a static result
-                    if (m_requestedTimesteps.size() == 1 && m_currentScalarIndex != cvf::UNDEFINED_SIZE_T)
+                    if (m_requestedTimesteps.size() == 1 && m_currentEclResultAddress.isValid())
                     {
                         std::vector< std::vector<double> >* scalarResultFrames = nullptr;
-                        scalarResultFrames = &(m_currentReservoir->results(m_porosityModelEnum)->cellScalarResults(RigEclipseResultAddress(m_currentScalarIndex)));
+                        scalarResultFrames = &(m_currentReservoir->results(m_porosityModelEnum)->cellScalarResults(m_currentEclResultAddress));
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for (size_t i = 0; i < scalarResultFrames->size(); i++)
                         {
@@ -678,7 +681,7 @@ public:
                         }
                     }
 
-                    m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum)->recalculateStatistics(RigEclipseResultAddress(m_currentScalarIndex));
+                    m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentEclResultAddress);
                 }
 
                 for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)
@@ -706,7 +709,7 @@ public:
 private:
     RimEclipseCase*                            m_currentReservoir;
     std::vector< std::vector<double> >* m_scalarResultsToAdd;
-    size_t                              m_currentScalarIndex;
+    RigEclipseResultAddress             m_currentEclResultAddress;
     QString                             m_currentPropertyName;
     std::vector<size_t>                 m_requestedTimesteps;
     RiaDefines::PorosityModelType m_porosityModelEnum;
@@ -731,7 +734,6 @@ public:
       m_currentReservoir(nullptr),
           m_scalarResultsToAdd(nullptr),
           m_currentGridIndex(cvf::UNDEFINED_SIZE_T),
-          m_currentScalarIndex(cvf::UNDEFINED_SIZE_T),
           m_timeStepCountToRead(0),
           m_bytesPerTimeStepToRead(0),
           m_currentTimeStepNumberToRead(0),
@@ -816,11 +818,11 @@ public:
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultFrames = &(rimCase->results(m_porosityModelEnum)->cellScalarResults(RigEclipseResultAddress(scalarResultIndex)));
+                m_currentResultAddress = RigEclipseResultAddress(RiaDefines::GENERATED, propertyName);
+                scalarResultFrames = &(rimCase->results(m_porosityModelEnum)->cellScalarResults(m_currentResultAddress));
                 size_t timeStepCount = rimCase->results(m_porosityModelEnum)->maxTimeStepCount();
                 scalarResultFrames->resize(timeStepCount);
 
-                m_currentScalarIndex = scalarResultIndex;
                 m_currentPropertyName = propertyName;
             }
         }
@@ -983,7 +985,11 @@ public:
                 return true;
             }
 
-            cvf::ref<RigResultModifier> resultModifier = RigResultModifierFactory::createResultModifier(m_currentReservoir->eclipseCaseData(), grid->gridIndex(), m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);
+            cvf::ref<RigResultModifier> resultModifier = RigResultModifierFactory::createResultModifier(m_currentReservoir->eclipseCaseData(), 
+                                                                                                        grid->gridIndex(), 
+                                                                                                        m_porosityModelEnum, 
+                                                                                                        m_requestedTimesteps[m_currentTimeStepNumberToRead], 
+                                                                                                        m_currentResultAddress);
             if (!resultModifier.isNull())
             {
                 for (size_t cellIdx = 0; static_cast<size_t>(cellIdx) < cellCountFromOctave; cellIdx++)
@@ -1018,15 +1024,15 @@ public:
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
 
-                if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&
+                if( m_currentResultAddress.isValid() &&
                     m_currentReservoir->eclipseCaseData() &&
                     m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum) )
                 {
                     // Adjust the result data if only one time step is requested so the result behaves like a static result
-                    if (m_requestedTimesteps.size() == 1 && m_currentScalarIndex != cvf::UNDEFINED_SIZE_T)
+                    if (m_requestedTimesteps.size() == 1 && m_currentResultAddress.isValid())
                     {
                         std::vector< std::vector<double> >* scalarResultFrames = nullptr;
-                        scalarResultFrames = &(m_currentReservoir->results(m_porosityModelEnum)->cellScalarResults(RigEclipseResultAddress(m_currentScalarIndex)));
+                        scalarResultFrames = &(m_currentReservoir->results(m_porosityModelEnum)->cellScalarResults(RigEclipseResultAddress(m_currentResultAddress)));
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for (size_t i = 0; i < scalarResultFrames->size(); i++)
                         {
@@ -1042,7 +1048,7 @@ public:
                         }
                     }
 
-                    m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum)->recalculateStatistics(RigEclipseResultAddress(m_currentScalarIndex));
+                    m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum)->recalculateStatistics(RigEclipseResultAddress(m_currentResultAddress));
                 }
 
                 for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)
@@ -1072,7 +1078,7 @@ private:
     RimEclipseCase*                            m_currentReservoir;
     std::vector< std::vector<double> >* m_scalarResultsToAdd;
     size_t                              m_currentGridIndex;
-    size_t                              m_currentScalarIndex;
+    RigEclipseResultAddress             m_currentResultAddress;
     QString                             m_currentPropertyName;
     std::vector<size_t>                 m_requestedTimesteps;
     RiaDefines::PorosityModelType m_porosityModelEnum;
@@ -1198,17 +1204,16 @@ public:
             }
         }
 
-        size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
         if (rimCase && rimCase->results(porosityModel))
         {
-            scalarResultIndex = rimCase->results(porosityModel)->findOrLoadKnownScalarResult(propertyName);
+            rimCase->results(porosityModel)->findOrLoadKnownScalarResult(propertyName);
         }
 
         std::vector<size_t> requestedTimesteps;
         if (args.size() < 5)
         {
             // Select all
-            for (size_t tsIdx = 0; tsIdx < rimCase->results(porosityModel)->timeStepCount(RigEclipseResultAddress(scalarResultIndex)); ++tsIdx)
+            for (size_t tsIdx = 0; tsIdx < rimCase->results(porosityModel)->timeStepCount(RigEclipseResultAddress(propertyName)); ++tsIdx)
             {
                 requestedTimesteps.push_back(tsIdx);
             }

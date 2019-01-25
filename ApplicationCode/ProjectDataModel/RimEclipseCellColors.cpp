@@ -442,6 +442,8 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
             RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
             {
                 size_t scalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+                RigEclipseResultAddress resAddr(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+
                 if ( scalarSetIndex != cvf::UNDEFINED_SIZE_T )
                 {
                     double globalMin = 0.0;
@@ -449,8 +451,8 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                     double localMin = 0.0;
                     double localMax = 1.0;
 
-                    cellResultsData->minMaxCellScalarValues(RigEclipseResultAddress(scalarSetIndex), globalMin, globalMax);
-                    cellResultsData->minMaxCellScalarValues(RigEclipseResultAddress(scalarSetIndex), currentTimeStep, localMin, localMax);
+                    cellResultsData->minMaxCellScalarValues(resAddr, globalMin, globalMax);
+                    cellResultsData->minMaxCellScalarValues(resAddr, currentTimeStep, localMin, localMax);
 
                     ternaryLegendConfig->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
                 }
@@ -458,6 +460,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
 
             {
                 size_t scalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+                RigEclipseResultAddress resAddr(RiaDefines::DYNAMIC_NATIVE, "SGAS");
                 if ( scalarSetIndex != cvf::UNDEFINED_SIZE_T )
                 {
                     double globalMin = 0.0;
@@ -465,8 +468,8 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                     double localMin = 0.0;
                     double localMax = 1.0;
 
-                    cellResultsData->minMaxCellScalarValues(RigEclipseResultAddress(scalarSetIndex), globalMin, globalMax);
-                    cellResultsData->minMaxCellScalarValues(RigEclipseResultAddress(scalarSetIndex), currentTimeStep, localMin, localMax);
+                    cellResultsData->minMaxCellScalarValues(resAddr, globalMin, globalMax);
+                    cellResultsData->minMaxCellScalarValues(resAddr, currentTimeStep, localMin, localMax);
 
                     ternaryLegendConfig->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
                 }
@@ -474,6 +477,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
 
             {
                 size_t scalarSetIndex = gridCellResults->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
+                RigEclipseResultAddress resAddr(RiaDefines::DYNAMIC_NATIVE, "SWAT");
                 if ( scalarSetIndex != cvf::UNDEFINED_SIZE_T )
                 {
                     double globalMin = 0.0;
@@ -481,8 +485,8 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                     double localMin = 0.0;
                     double localMax = 1.0;
 
-                    cellResultsData->minMaxCellScalarValues(RigEclipseResultAddress(scalarSetIndex), globalMin, globalMax);
-                    cellResultsData->minMaxCellScalarValues(RigEclipseResultAddress(scalarSetIndex), currentTimeStep, localMin, localMax);
+                    cellResultsData->minMaxCellScalarValues(resAddr, globalMin, globalMax);
+                    cellResultsData->minMaxCellScalarValues(resAddr, currentTimeStep, localMin, localMax);
 
                     ternaryLegendConfig->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
                 }

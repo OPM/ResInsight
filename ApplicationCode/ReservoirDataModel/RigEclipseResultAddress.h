@@ -24,24 +24,21 @@ class RigEclipseResultAddress
 {
 public:
     RigEclipseResultAddress()
-        : scalarResultIndex(-1)
-        , m_resultCatType(RiaDefines::UNDEFINED)
+        : m_resultCatType(RiaDefines::UNDEFINED)
     {}
-
-    explicit RigEclipseResultAddress(size_t ascalarResultIndex)
-        : scalarResultIndex(ascalarResultIndex)
-        ,  m_resultCatType(RiaDefines::UNDEFINED)
+ 
+    explicit RigEclipseResultAddress(const QString& resultName)
+        : m_resultCatType(RiaDefines::UNDEFINED)
+        , m_resultName(resultName)
     {}
 
     explicit RigEclipseResultAddress(RiaDefines::ResultCatType type, const QString& resultName)
-        : scalarResultIndex(-1)
-        , m_resultCatType(type)
+        : m_resultCatType(type)
         , m_resultName(resultName)
     {}
 
     bool isValid() const
     {
-        if (scalarResultIndex != -1) return true;
         if (!m_resultName.isEmpty()) return true;
 
         return false;
@@ -49,11 +46,6 @@ public:
 
     bool operator< (const RigEclipseResultAddress& other ) const
     {
-        if (scalarResultIndex !=  other.scalarResultIndex)
-        {
-            return (scalarResultIndex <  other.scalarResultIndex);
-        }
-
         if (m_resultCatType != other.m_resultCatType)
         {
             return (m_resultCatType <  other.m_resultCatType);
@@ -61,8 +53,6 @@ public:
 
         return (m_resultName <  other.m_resultName);
     }
-
-    size_t scalarResultIndex; // Temporary. Must be removed 
 
     RiaDefines::ResultCatType m_resultCatType;
     QString m_resultName;

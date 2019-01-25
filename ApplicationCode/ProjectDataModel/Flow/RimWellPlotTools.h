@@ -29,6 +29,7 @@
 #include "RifEclipseRftAddress.h"
 #include "RimWellLogFile.h"
 #include "RiaEclipseUnitTools.h"
+#include "RigEclipseResultAddress.h"
 
 class RimEclipseCase;
 class RimEclipseResultCase;
@@ -62,7 +63,9 @@ public:
     static RimWellPath*                             wellPathByWellPathNameOrSimWellName(const QString& wellPathNameOrSimwellName);
 
 // RFT Only
-    static std::pair<size_t, QString>               pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData);
+private:
+    static std::pair<RigEclipseResultAddress, QString> pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData);
+public:
     static void                                     addTimeStepsToMap(std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& destMap,
                                                                       const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepsToAdd);
     static std::vector<RimWellLogFile*>             wellLogFilesContainingPressure(const QString& wellPathNameOrSimWellName);

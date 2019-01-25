@@ -127,11 +127,11 @@ size_t RigEclipseMultiPropertyStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigEclipseMultiPropertyStatCalc::addNativeStatisticsCalculator(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex)
+void RigEclipseMultiPropertyStatCalc::addNativeStatisticsCalculator(RigCaseCellResultsData* cellResultsData, const RigEclipseResultAddress& eclipseResultAddress)
 {
-    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
+    if (eclipseResultAddress.isValid())
     {
-        this->addStatisticsCalculator(new RigEclipseNativeStatCalc(cellResultsData, scalarResultIndex));
+        this->addStatisticsCalculator(new RigEclipseNativeStatCalc(cellResultsData, eclipseResultAddress));
     }
 }
 

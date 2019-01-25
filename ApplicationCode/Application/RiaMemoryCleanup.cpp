@@ -176,13 +176,11 @@ std::set<RigEclipseResultAddress> RiaMemoryCleanup::findEclipseResultsInUse() co
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
     if (eclipseCase)
     {
-        RigCaseCellResultsData* caseData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
-
         std::vector<RimEclipseResultDefinition*> eclipseResultDefs;
         eclipseCase->descendantsIncludingThisOfType(eclipseResultDefs);
         for (RimEclipseResultDefinition* resultDef : eclipseResultDefs)
         {
-            RigEclipseResultAddress resultAddr(caseData->findScalarResultIndex(resultDef->resultType(), resultDef->resultVariable()));
+            RigEclipseResultAddress resultAddr(resultDef->resultType(), resultDef->resultVariable());
             resultsInUse.insert(resultAddr);
         }
     }

@@ -494,9 +494,9 @@ std::vector<QString> RigNNCData::availableProperties(NNCResultType resultType) c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::setScalarResultIndex(const QString& nncDataType, const RigEclipseResultAddress& resVarAddr)
+void RigNNCData::setEclResultAddress(const QString& nncDataType, const RigEclipseResultAddress& resVarAddr)
 {
-    m_resultIndexToNNCDataType[resVarAddr.scalarResultIndex] = nncDataType;
+    m_resultAddrToNNCDataType[resVarAddr] = nncDataType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,8 +516,8 @@ bool RigNNCData::hasScalarValues(const RigEclipseResultAddress& resVarAddr)
 //--------------------------------------------------------------------------------------------------
 const QString RigNNCData::getNNCDataTypeFromScalarResultIndex(const RigEclipseResultAddress& resVarAddr) const
 {
-    auto it = m_resultIndexToNNCDataType.find(resVarAddr.scalarResultIndex);
-    if (it != m_resultIndexToNNCDataType.end())
+    auto it = m_resultAddrToNNCDataType.find(resVarAddr);
+    if (it != m_resultAddrToNNCDataType.end())
     {
         return it->second;
     }

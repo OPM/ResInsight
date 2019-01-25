@@ -575,8 +575,8 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
     QStringList resultNames = hdf5ReaderInterface->propertyNames();
     for (int i = 0; i < resultNames.size(); ++i)
     {
-        size_t resIndex = matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::SOURSIMRL, resultNames[i], false);
-        matrixModelResults->setTimeStepInfos(RigEclipseResultAddress(resIndex), timeStepInfos);
+        matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::SOURSIMRL, resultNames[i], false);
+        matrixModelResults->setTimeStepInfos(RigEclipseResultAddress(RiaDefines::SOURSIMRL, resultNames[i]), timeStepInfos);
     }
 
     m_hdfReaderInterface = std::move(hdf5ReaderInterface);
@@ -855,8 +855,8 @@ void RifReaderEclipseOutput::buildMetaData(ecl_grid_type* grid)
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
-                size_t resIndex = matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepInfos(RigEclipseResultAddress(resIndex), timeStepInfos);
+                matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
+                matrixModelResults->setTimeStepInfos(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, matrixResultNames[i]), timeStepInfos);
             }
         }
 
@@ -868,8 +868,8 @@ void RifReaderEclipseOutput::buildMetaData(ecl_grid_type* grid)
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
-                size_t resIndex = fractureModelResults->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepInfos(RigEclipseResultAddress(resIndex), timeStepInfos);
+                fractureModelResults->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
+                fractureModelResults->setTimeStepInfos(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, fractureResultNames[i]), timeStepInfos);
             }
         }
     }
@@ -939,8 +939,8 @@ void RifReaderEclipseOutput::buildMetaData(ecl_grid_type* grid)
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
-                size_t resIndex = matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepInfos(RigEclipseResultAddress(resIndex), staticTimeStepInfo);
+                matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, matrixResultNames[i], false);
+                matrixModelResults->setTimeStepInfos(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, matrixResultNames[i]), staticTimeStepInfo);
             }
         }
 
@@ -954,8 +954,8 @@ void RifReaderEclipseOutput::buildMetaData(ecl_grid_type* grid)
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
-                size_t resIndex = fractureModelResults->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepInfos(RigEclipseResultAddress(resIndex), staticTimeStepInfo);
+                fractureModelResults->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, fractureResultNames[i], false);
+                fractureModelResults->setTimeStepInfos(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, fractureResultNames[i]), staticTimeStepInfo);
             }
         }
     }
