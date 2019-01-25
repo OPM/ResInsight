@@ -74,7 +74,7 @@ RimCellEdgeColors::RimCellEdgeColors()
     m_legendConfig = new RimRegularLegendConfig();
 
     m_ignoredResultScalar = cvf::UNDEFINED_DOUBLE;
-    resetResultIndices();
+    resetResultAddresses();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,15 +105,15 @@ void RimCellEdgeColors::loadResult()
     {
         m_singleVarEdgeResultColors->loadResult();;
         
-        RigEclipseResultAddress resultindex = m_singleVarEdgeResultColors->eclipseResultAddress();
+        RigEclipseResultAddress resultAddr = m_singleVarEdgeResultColors->eclipseResultAddress();
         for (int cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
         {
-            m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(m_singleVarEdgeResultColors->resultVariable(), resultindex);
+            m_resultNameToAddressPairs[cubeFaceIdx] = std::make_pair(m_singleVarEdgeResultColors->resultVariable(), resultAddr);
         }
     }
     else
     {
-        resetResultIndices();
+        resetResultAddresses();
         QStringList vars = findResultVariableNames();
         updateIgnoredScalarValue();
 
@@ -132,7 +132,7 @@ void RimCellEdgeColors::loadResult()
 
                      if (vars[i].endsWith(varEnd))
                      {
-                         m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(vars[i], RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, vars[i]));
+                         m_resultNameToAddressPairs[cubeFaceIdx] = std::make_pair(vars[i], RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, vars[i]));
                      }
                  }
              }
@@ -322,7 +322,7 @@ void RimCellEdgeColors::gridScalarIndices(RigEclipseResultAddress resultIndices[
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
     {
-        resultIndices[cubeFaceIndex] = RigEclipseResultAddress(m_resultNameToIndexPairs[cubeFaceIndex].second);
+        resultIndices[cubeFaceIndex] = RigEclipseResultAddress(m_resultNameToAddressPairs[cubeFaceIndex].second);
     }
 }
 
@@ -336,7 +336,7 @@ void RimCellEdgeColors::gridScalarResultNames(std::vector<QString>* resultNames)
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
     {
-        resultNames->push_back(m_resultNameToIndexPairs[cubeFaceIndex].first);
+        resultNames->push_back(m_resultNameToAddressPairs[cubeFaceIndex].first);
     }
 }
 
@@ -382,12 +382,12 @@ void RimCellEdgeColors::cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaD
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeColors::resetResultIndices()
+void RimCellEdgeColors::resetResultAddresses()
 {
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
     {
-        m_resultNameToIndexPairs[cubeFaceIndex].second = RigEclipseResultAddress();
+        m_resultNameToAddressPairs[cubeFaceIndex].second = RigEclipseResultAddress();
     }
 }
 
@@ -407,7 +407,7 @@ bool RimCellEdgeColors::hasResult() const
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
     {
-        hasResult |=  m_resultNameToIndexPairs[cubeFaceIndex].second.isValid();
+        hasResult |=  m_resultNameToAddressPairs[cubeFaceIndex].second.isValid();
     }
 
     return hasResult;

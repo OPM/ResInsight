@@ -107,7 +107,7 @@ protected:
     QStringList                     findResultVariableNames();
 
 private:
-    void                            resetResultIndices();
+    void                            resetResultAddresses();
     void                            updateIgnoredScalarValue();
 
     void                            gridScalarResultNames(std::vector<QString>* resultNames);
@@ -120,7 +120,7 @@ private:
     caf::PdmField<bool>    useYVariable;
     caf::PdmField<bool>    useZVariable;
 
-    std::array<std::pair<QString, RigEclipseResultAddress>, 6> m_resultNameToIndexPairs;
+    std::array<std::pair<QString, RigEclipseResultAddress>, 6> m_resultNameToAddressPairs;
     caf::PdmPointer<RimEclipseView>           m_reservoirView;
     double                                    m_ignoredResultScalar;
 
