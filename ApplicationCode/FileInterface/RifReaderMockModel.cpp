@@ -84,8 +84,8 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclip
         RigEclipseResultAddress resAddr(RiaDefines::INPUT_PROPERTY, resultName);\
         cellResults->createResultEntry(resAddr, false); \
         cellResults->setTimeStepInfos(resAddr, staticResultTimeStepInfos); \
-        cellResults->cellScalarResults(resAddr).resize(1); \
-        std::vector<double>& values = cellResults->cellScalarResults(resAddr)[0]; \
+        cellResults->modifiableCellScalarResultTimesteps(resAddr).resize(1); \
+        std::vector<double>& values = cellResults->modifiableCellScalarResultTimesteps(resAddr)[0]; \
         this->inputProperty(resultName, &values); \
     }
 

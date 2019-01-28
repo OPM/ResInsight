@@ -55,7 +55,7 @@ private:
             return;
         }
 
-        std::vector<double>& values = m_resultsData->cellScalarResults(m_eclipseResultAddress, timeStepIndex);
+        const std::vector<double>& values = m_resultsData->cellScalarResults(m_eclipseResultAddress, timeStepIndex);
 
         if (values.empty())
         {

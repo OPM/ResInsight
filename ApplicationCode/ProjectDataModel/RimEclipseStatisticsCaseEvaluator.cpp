@@ -54,7 +54,7 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* d
     destinationCellResults->createResultEntry(resAddr, true);
 
     destinationCellResults->setTimeStepInfos(resAddr, sourceTimeStepInfos);
-    std::vector< std::vector<double> >& dataValues = destinationCellResults->cellScalarResults(resAddr);
+    std::vector< std::vector<double> >& dataValues = destinationCellResults->modifiableCellScalarResultTimesteps(resAddr);
     dataValues.resize(sourceTimeStepInfos.size());
 
 

@@ -53,7 +53,7 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEc
         return nullptr;
     }
 
-    std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(resVarAddr);
+    std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->modifiableCellScalarResultTimesteps(resVarAddr);
 
     if (timeStepIndex >= scalarSetResults.size())
     {

@@ -321,7 +321,7 @@ bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type* eclipseKeywordDa
     RigEclipseResultAddress resAddr( RiaDefines::INPUT_PROPERTY, resultName);
     caseData->results(RiaDefines::MATRIX_MODEL)->createResultEntry( resAddr, false);
 
-    std::vector< std::vector<double> >& newPropertyData = caseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(resAddr);
+    std::vector< std::vector<double> >& newPropertyData = caseData->results(RiaDefines::MATRIX_MODEL)->modifiableCellScalarResultTimesteps(resAddr);
 
     newPropertyData.push_back(std::vector<double>());
     newPropertyData[0].resize(ecl_kw_get_size(eclipseKeywordData), HUGE_VAL);

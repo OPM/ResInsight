@@ -434,7 +434,7 @@ private:
         }
 
         std::vector< std::vector<double> >* scalarResultFrames = nullptr;
-        scalarResultFrames = &(results->cellScalarResults(resAddr));
+        scalarResultFrames = &(results->modifiableCellScalarResultTimesteps(resAddr));
         size_t timeStepCount = results->maxTimeStepCount();
         scalarResultFrames->resize(timeStepCount);
 

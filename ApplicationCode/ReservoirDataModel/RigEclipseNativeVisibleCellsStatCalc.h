@@ -56,7 +56,7 @@ private:
     template <typename StatisticsAccumulator>
     void traverseCells(StatisticsAccumulator& accumulator, size_t timeStepIndex)
     {
-        std::vector<double>& values = m_caseData->cellScalarResults(m_resultAddress, timeStepIndex);
+        const std::vector<double>& values = m_caseData->cellScalarResults(m_resultAddress, timeStepIndex);
 
         if (values.empty())
         {
