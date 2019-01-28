@@ -220,7 +220,7 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     {
         uiOrdering.add(nameField(), caf::PdmUiOrdering::LayoutOptions(true, 3, 1));
         uiOrdering.add(&m_fractureTemplate, {true, 2, 1});
-        uiOrdering.add(&m_editFractureTemplate, false);
+        uiOrdering.add(&m_editFractureTemplate, { false, 1, 0 });
     }
     else
     {

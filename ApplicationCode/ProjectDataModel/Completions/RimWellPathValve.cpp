@@ -49,12 +49,13 @@ RimWellPathValve::RimWellPathValve()
     CAF_PDM_InitFieldNoDefault(&m_valveTemplate, "ValveTemplate", "Valve Template", "", "", "");
     CAF_PDM_InitField(&m_measuredDepth, "StartMeasuredDepth", 0.0, "Start MD", "", "", "");    
     CAF_PDM_InitFieldNoDefault(&m_multipleValveLocations, "ValveLocations", "Valve Locations", "", "", "");
-    CAF_PDM_InitField(&m_createOrEditValveTemplate, "CreateTemplate", false, "Create new", "", "", "");
+    CAF_PDM_InitField(&m_createOrEditValveTemplate, "CreateTemplate", false, "New", "", "", "");
     
     m_measuredDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     m_multipleValveLocations = new RimMultipleValveLocations;
     m_multipleValveLocations.uiCapability()->setUiTreeHidden(true);
     m_multipleValveLocations.uiCapability()->setUiTreeChildrenHidden(true);
+    m_createOrEditValveTemplate.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_createOrEditValveTemplate.uiCapability()->setUiEditorTypeName(caf::PdmUiToolButtonEditor::uiEditorTypeName());
     nameField()->uiCapability()->setUiReadOnly(true);
 
@@ -450,10 +451,9 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 {
     uiOrdering.skipRemainingFields(true);
 
-    uiOrdering.add(&m_valveTemplate);
+    uiOrdering.add(&m_valveTemplate, { true, 2, 1 });
 
     {
-        uiOrdering.add(&m_createOrEditValveTemplate, false);
         if (m_valveTemplate() == nullptr)
         {
             m_createOrEditValveTemplate.uiCapability()->setUiName("New");
@@ -462,6 +462,7 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
         {
             m_createOrEditValveTemplate.uiCapability()->setUiName("Edit");
         }
+        uiOrdering.add(&m_createOrEditValveTemplate, { false, 1, 0 });
     }
 
     if (componentType() == RiaDefines::ICV || componentType() == RiaDefines::ICD)
@@ -491,7 +492,7 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
         m_multipleValveLocations->uiOrdering(uiConfigName, *group);
     }
 
-    if (m_valveTemplate())
+    if (m_valveTemplate() != nullptr)
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Parameters from Template");
         m_valveTemplate->uiOrdering("InsideValve", *group);
