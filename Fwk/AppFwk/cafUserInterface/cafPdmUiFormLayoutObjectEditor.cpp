@@ -224,6 +224,13 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                                     // Apply margins determined by the editor type
                                     fieldLabelWidget->setContentsMargins(fieldEditor->labelContentMargins());
                                 }
+                                else
+                                {
+                                    if (fieldColumnSpan == PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN)
+                                    {
+                                        fieldColumnSpan = itemColumnSpan;
+                                    }
+                                }
                                 fieldEditorWidget->setParent(containerWidgetWithGridLayout); // To make sure this widget has the current group box as parent.
                                 parentLayout->addWidget(fieldEditorWidget, currentRowIndex, currentColumn + leftLabelColumnSpan, 1, fieldColumnSpan, Qt::AlignTop);
 
