@@ -53,6 +53,8 @@ class RigCaseCellResultsData : public cvf::Object
 public:
     explicit RigCaseCellResultsData(RigEclipseCaseData* ownerCaseData);
 
+    // Initialization
+
     void                                               setReaderInterface(RifReaderInterface* readerInterface);
     void                                               setHdf5Filename(const QString& hdf5SourSimFilename );
     void                                               setActiveFormationNames(RigFormationNames* activeFormationNames);
@@ -63,7 +65,21 @@ public:
     RigActiveCellInfo*                                 activeCellInfo();
     const RigActiveCellInfo*                           activeCellInfo() const;
 
-    // Max and min values of the results
+    // Access the results data
+
+    const std::vector< std::vector<double> > &         cellScalarResults(const RigEclipseResultAddress& resVarAddr) const;
+    std::vector< std::vector<double> > &               cellScalarResults(const RigEclipseResultAddress& resVarAddr);
+    const std::vector<double>&                         cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex) const;
+    std::vector<double>&                               cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex);
+
+    bool                                               isUsingGlobalActiveIndex(const RigEclipseResultAddress& resVarAddr) const;
+
+    static const std::vector<double>*                  getResultIndexableStaticResult(RigActiveCellInfo* actCellInfo,
+                                                                                      RigCaseCellResultsData* gridCellResults,
+                                                                                      QString porvResultName,
+                                                                                      std::vector<double> &activeCellsResultsTempContainer);
+    // Statistic values of the results
+
     void                                               recalculateStatistics(const RigEclipseResultAddress& resVarAddr);
     void                                               minMaxCellScalarValues(const RigEclipseResultAddress& resVarAddr, double& min, double& max);
     void                                               minMaxCellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& min, double& max);
@@ -85,9 +101,6 @@ public:
 
     size_t                                             timeStepCount(const RigEclipseResultAddress& resVarAddr) const; 
     size_t                                             maxTimeStepCount(RigEclipseResultAddress* resultAddressWithMostTimeSteps = nullptr) const; 
-    QStringList                                        resultNames(RiaDefines::ResultCatType type) const;
-    bool                                               isUsingGlobalActiveIndex(const RigEclipseResultAddress& resVarAddr) const;
-    bool                                               hasFlowDiagUsableFluxes() const;
 
     std::vector<QDateTime>                             allTimeStepDatesFromEclipseReader() const;
     std::vector<QDateTime>                             timeStepDates() const;
@@ -99,45 +112,31 @@ public:
     std::vector<RigEclipseTimeStepInfo>                timeStepInfos(const RigEclipseResultAddress& resVarAddr) const;
     void                                               setTimeStepInfos(const RigEclipseResultAddress& resVarAddr, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos);
 
-
-    QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
-
-    void                                               createPlaceholderResultEntries();
-    void                                               computeDepthRelatedResults();
-    void                                               computeCellVolumes();
-
     void                                               clearScalarResult(RiaDefines::ResultCatType type, const QString & resultName);
     void                                               clearScalarResult(const RigEclipseResultAddress& resultAddress);
     void                                               clearAllResults();
     void                                               freeAllocatedResultsData();
-    bool                                               isResultLoaded(const RigEclipseResultAddress& resultAddress) const;
     void                                               eraseAllSourSimData();
 
     bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
+    QStringList                                        resultNames(RiaDefines::ResultCatType type) const;
+    QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
+    std::vector<RigEclipseResultAddress>               existingResults() const;
+    const RigEclipseResultInfo*                        resultInfo(const RigEclipseResultAddress& resVarAddr) const;
 
     void                                               ensureKnownResultLoadedForTimeStep(const RigEclipseResultAddress& resultAddress, size_t timeStepIndex);
     bool                                               ensureKnownResultLoaded(const RigEclipseResultAddress& resultAddress);
     bool                                               hasResultEntry(const RigEclipseResultAddress& resultAddress) const;
+    bool                                               isResultLoaded(const RigEclipseResultAddress& resultAddress) const;
     void                                               createResultEntry(const RigEclipseResultAddress& resultAddress, bool needsToBeStored);
+    void                                               createPlaceholderResultEntries();
+    void                                               computeDepthRelatedResults();
+    void                                               computeCellVolumes();
+    bool                                               hasFlowDiagUsableFluxes() const;
 
-    // Access the results data
-
-    const std::vector< std::vector<double> > &         cellScalarResults(const RigEclipseResultAddress& resVarAddr) const;
-    std::vector< std::vector<double> > &               cellScalarResults(const RigEclipseResultAddress& resVarAddr);
-    const std::vector<double>&                         cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex) const;
-    std::vector<double>&                               cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex);
-
-    static const std::vector<double>*                  getResultIndexableStaticResult(RigActiveCellInfo* actCellInfo,
-                                                                                      RigCaseCellResultsData* gridCellResults,
-                                                                                      QString porvResultName,
-                                                                                      std::vector<double> &activeCellsResultsTempContainer);
     static void                                        copyResultsMetaDataFromMainCase(RigEclipseCaseData* mainCaseResultsData,
                                                                                        RiaDefines::PorosityModelType poroModel,
                                                                                        std::vector<RimEclipseCase*> destinationCases);
-
-    std::vector<RigEclipseResultAddress>               existingResults() const;
-    const RigEclipseResultInfo*                        resultInfo(const RigEclipseResultAddress& resVarAddr) const;
-
 private:
     size_t                                             findOrLoadKnownScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
     size_t                                             findOrLoadKnownScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
