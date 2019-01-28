@@ -53,8 +53,9 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclip
 
     for (size_t i = 0; i < m_reservoirBuilder.resultCount(); i++)
     {
-        cellResults->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, QString("Dynamic_Result_%1").arg(i), false);
-        cellResults->setTimeStepInfos(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, QString("Dynamic_Result_%1").arg(i)), timeStepInfos);
+        RigEclipseResultAddress resAddr(RiaDefines::DYNAMIC_NATIVE, QString("Dynamic_Result_%1").arg(i));
+        cellResults->createResultEntry(resAddr, false);
+        cellResults->setTimeStepInfos(resAddr, timeStepInfos);
     }
 
     if (m_reservoirBuilder.timeStepCount() == 0) return true;
@@ -69,9 +70,11 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclip
         if (i == 1) varEnd = "Y";
         int resIndex = 0;
         if (i > 1) resIndex = i;
+        
+        RigEclipseResultAddress resAddr(RiaDefines::STATIC_NATIVE, QString("Static_Result_%1%2").arg(resIndex).arg(varEnd));
 
-        cellResults->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, QString("Static_Result_%1%2").arg(resIndex).arg(varEnd), false);
-        cellResults->setTimeStepInfos(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, QString("Static_Result_%1%2").arg(resIndex).arg(varEnd)), staticResultTimeStepInfos);
+        cellResults->createResultEntry(resAddr, false);
+        cellResults->setTimeStepInfos(resAddr, staticResultTimeStepInfos);
     }
 
 
@@ -79,7 +82,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclip
     { \
         QString resultName(Name); \
         RigEclipseResultAddress resAddr(RiaDefines::INPUT_PROPERTY, resultName);\
-        cellResults->findOrCreateScalarResultIndex(RiaDefines::INPUT_PROPERTY, resultName, false); \
+        cellResults->createResultEntry(resAddr, false); \
         cellResults->setTimeStepInfos(resAddr, staticResultTimeStepInfos); \
         cellResults->cellScalarResults(resAddr).resize(1); \
         std::vector<double>& values = cellResults->cellScalarResults(resAddr)[0]; \

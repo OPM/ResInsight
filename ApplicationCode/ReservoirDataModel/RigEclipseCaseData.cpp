@@ -730,10 +730,9 @@ const std::vector<double>* RigEclipseCaseData::resultValues(RiaDefines::Porosity
                                                             size_t timeStepIndex)
 {
     RigCaseCellResultsData* gridCellResults = this->results(porosityModel);
-    size_t scalarResultIndex = gridCellResults->findOrLoadKnownScalarResult(type, resultName);
 
     const std::vector<double>* swatResults = nullptr;
-    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
+    if (gridCellResults->ensureKnownResultLoaded(RigEclipseResultAddress(type, resultName)))
     {
         swatResults = &(gridCellResults->cellScalarResults(RigEclipseResultAddress(type, resultName), timeStepIndex));
     }

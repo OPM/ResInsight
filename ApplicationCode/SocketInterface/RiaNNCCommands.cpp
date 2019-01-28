@@ -350,9 +350,9 @@ public:
                 server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the property named: \"%2\"").arg(propertyName));
                 return true;
             }
-            QString totalPropName = QString("%1IJK").arg(propertyName);
-            rimCase->results(m_porosityModelEnum)->findOrLoadKnownScalarResult(totalPropName);
-            nncData->setEclResultAddress(propertyName, RigEclipseResultAddress(totalPropName));
+            RigEclipseResultAddress resAddr(QString("%1IJK").arg(propertyName));
+            rimCase->results(m_porosityModelEnum)->ensureKnownResultLoaded(resAddr);
+            nncData->setEclResultAddress(propertyName, resAddr);
         }
 
         // Create a list of all the requested time steps
@@ -426,22 +426,19 @@ private:
 
     static bool scalarResultExistsOrCreate(RigCaseCellResultsData* results, QString propertyName)
     {
-        size_t scalarResultIndex = results->findOrLoadKnownScalarResult(propertyName);
-        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        RigEclipseResultAddress resAddr(RiaDefines::GENERATED, propertyName);
+
+        if ( !results->ensureKnownResultLoaded(resAddr) )
         {
-            scalarResultIndex = results->findOrCreateScalarResultIndex(RiaDefines::GENERATED, propertyName, true);
-        }
-        
-        if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
-        {
-            std::vector< std::vector<double> >* scalarResultFrames = nullptr;
-            scalarResultFrames = &(results->cellScalarResults(RigEclipseResultAddress(propertyName)));
-            size_t timeStepCount = results->maxTimeStepCount();
-            scalarResultFrames->resize(timeStepCount);
-            return true;
+            results->createResultEntry(resAddr, true);
         }
 
-        return false;
+        std::vector< std::vector<double> >* scalarResultFrames = nullptr;
+        scalarResultFrames = &(results->cellScalarResults(resAddr));
+        size_t timeStepCount = results->maxTimeStepCount();
+        scalarResultFrames->resize(timeStepCount);
+
+        return true;
     }
 public:
     bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient) override

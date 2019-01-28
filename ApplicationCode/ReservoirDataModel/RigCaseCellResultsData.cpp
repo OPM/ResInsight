@@ -1305,6 +1305,64 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(RiaDefines::ResultCat
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::ensureKnownResultLoaded(const RigEclipseResultAddress& resultAddress)
+{
+    size_t resultIndex = cvf::UNDEFINED_SIZE_T;
+    if (resultAddress.m_resultCatType != RiaDefines::UNDEFINED)
+    {
+        resultIndex = findOrLoadKnownScalarResult(resultAddress.m_resultCatType, resultAddress.m_resultName);
+    }
+    else
+    {
+        resultIndex = findOrLoadKnownScalarResult(resultAddress.m_resultName);
+    }
+
+    return (resultIndex != cvf::UNDEFINED_SIZE_T);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::hasResultEntry(const RigEclipseResultAddress& resultAddress) const
+{
+    size_t resultIndex = cvf::UNDEFINED_SIZE_T;
+    if (resultAddress.m_resultCatType != RiaDefines::UNDEFINED)
+    {
+        resultIndex = findScalarResultIndex(resultAddress.m_resultCatType, resultAddress.m_resultName);
+    }
+    else
+    {
+        resultIndex = findScalarResultIndex(resultAddress.m_resultName);
+    }
+
+    return (resultIndex != cvf::UNDEFINED_SIZE_T);   
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::createResultEntry(const RigEclipseResultAddress& resultAddress, bool needsToBeStored)
+{
+    findOrCreateScalarResultIndex(resultAddress.m_resultCatType, resultAddress.m_resultName, needsToBeStored);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::ensureKnownResultLoadedForTimeStep(const RigEclipseResultAddress& resultAddress, 
+                                                                 size_t timeStepIndex)
+{
+    CAF_ASSERT(resultAddress.m_resultCatType != RiaDefines::UNDEFINED);
+
+    findOrLoadKnownScalarResultForTimeStep(resultAddress.m_resultCatType, 
+                                           resultAddress.m_resultName,
+                                           timeStepIndex);
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// This method is intended to be used for multicase cross statistical calculations, when
 /// we need process one timestep at a time, freeing memory as we go.
 //--------------------------------------------------------------------------------------------------

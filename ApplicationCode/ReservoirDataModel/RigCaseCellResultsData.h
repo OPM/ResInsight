@@ -115,19 +115,10 @@ public:
 
     bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
-    // Index based stuff to rewrite/hide -->
-
-    size_t                                             findOrLoadKnownScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
-    size_t                                             findOrLoadKnownScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
-    size_t                                             findOrLoadKnownScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
-
-    // Find or create a slot for the results
-
-    size_t                                             findOrCreateScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
-    size_t                                             findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const;
-    size_t                                             findScalarResultIndex(const QString& resultName) const;
-
-    // <---
+    void                                               ensureKnownResultLoadedForTimeStep(const RigEclipseResultAddress& resultAddress, size_t timeStepIndex);
+    bool                                               ensureKnownResultLoaded(const RigEclipseResultAddress& resultAddress);
+    bool                                               hasResultEntry(const RigEclipseResultAddress& resultAddress) const;
+    void                                               createResultEntry(const RigEclipseResultAddress& resultAddress, bool needsToBeStored);
 
     // Access the results data
 
@@ -148,6 +139,15 @@ public:
     const RigEclipseResultInfo*                        resultInfo(const RigEclipseResultAddress& resVarAddr) const;
 
 private:
+    size_t                                             findOrLoadKnownScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
+    size_t                                             findOrLoadKnownScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
+    size_t                                             findOrLoadKnownScalarResultForTimeStep(RiaDefines::ResultCatType type, 
+                                                                                              const QString& resultName, 
+                                                                                              size_t timeStepIndex);
+    size_t                                             findOrCreateScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
+    size_t                                             findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const;
+    size_t                                             findScalarResultIndex(const QString& resultName) const;
+
     size_t                                             addStaticScalarResult(RiaDefines::ResultCatType type, 
                                                                              const QString& resultName, 
                                                                              bool needsToBeStored,

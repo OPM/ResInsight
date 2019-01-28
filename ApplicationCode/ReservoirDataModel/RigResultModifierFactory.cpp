@@ -27,28 +27,6 @@
 
 
 //--------------------------------------------------------------------------------------------------
-/// This function must be harmonized with RigResultAccessorFactory::createNativeResultAccessor()
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEclipseCaseData* eclipseCase,
-                                                                           size_t gridIndex,
-                                                                           RiaDefines::PorosityModelType porosityModel,
-                                                                           size_t timeStepIndex,
-                                                                           QString& uiResultName)
-{
-    if (!eclipseCase) return nullptr;
-
-    if (!eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
-    {
-        return nullptr;
-    }
-
-    eclipseCase->results(porosityModel)->findScalarResultIndex(uiResultName);
-
-    return createResultModifier(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(uiResultName));
-}
-
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEclipseCaseData* eclipseCase,

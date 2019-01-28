@@ -187,7 +187,7 @@ std::vector<RigCompletionData>
     if (pdParams.performScaling)
     {
         RigCaseCellResultsData* results = caseToApply->results(RiaDefines::MATRIX_MODEL);
-        results->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "PRESSURE");
+        results->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PRESSURE"));
     }
 
     return generateCompdatValuesConst(caseToApply,

@@ -105,9 +105,11 @@ size_t RigEclipseNativeVisibleCellsStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RigEclipseNativeVisibleCellsStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, double &result)
 {
-    m_caseData->findOrLoadKnownScalarResult(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
+    RigEclipseResultAddress mobPorvAddress(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
 
-    const std::vector<double>& weights = m_caseData->cellScalarResults(RigEclipseResultAddress(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName()), 0);
+    m_caseData->ensureKnownResultLoaded(mobPorvAddress);
+
+    const std::vector<double>& weights = m_caseData->cellScalarResults(mobPorvAddress, 0);
     const std::vector<double>& values  = m_caseData->cellScalarResults(m_resultAddress, timeStepIndex);
 
     const RigActiveCellInfo* actCellInfo = m_caseData->activeCellInfo();

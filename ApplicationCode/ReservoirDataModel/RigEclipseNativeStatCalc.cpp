@@ -101,16 +101,16 @@ size_t RigEclipseNativeStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RigEclipseNativeStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, double& mean)
 {
-    size_t mobPVResultIndex = m_resultsData->findOrLoadKnownScalarResult(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
+    RigEclipseResultAddress mobPorvAddress(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
 
     // For statistics result cases, the pore volume is not available, as RigCaseCellResultsData::createPlaceholderResultEntries
     // has not been executed
-    if (mobPVResultIndex == cvf::UNDEFINED_SIZE_T)
+    if (!m_resultsData->ensureKnownResultLoaded(mobPorvAddress))
     {
         return;
     }
 
-    const std::vector<double>& weights = m_resultsData->cellScalarResults(RigEclipseResultAddress(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName()), 0);
+    const std::vector<double>& weights = m_resultsData->cellScalarResults(mobPorvAddress, 0);
     const std::vector<double>& values = m_resultsData->cellScalarResults(m_eclipseResultAddress, timeStepIndex);
 
     const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo();

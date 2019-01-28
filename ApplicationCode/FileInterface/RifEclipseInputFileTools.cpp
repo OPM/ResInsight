@@ -318,13 +318,10 @@ bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type* eclipseKeywordDa
 
     if (!mathingItemCount) return false;
 
-    size_t resultIndex = caseData->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(resultName); // Todo : Is it neccessary to search without type first ?
-    if (resultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        caseData->results(RiaDefines::MATRIX_MODEL)->findOrCreateScalarResultIndex(RiaDefines::INPUT_PROPERTY, resultName, false);
-    }
+    RigEclipseResultAddress resAddr( RiaDefines::INPUT_PROPERTY, resultName);
+    caseData->results(RiaDefines::MATRIX_MODEL)->createResultEntry( resAddr, false);
 
-    std::vector< std::vector<double> >& newPropertyData = caseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(RigEclipseResultAddress(resultName));
+    std::vector< std::vector<double> >& newPropertyData = caseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(resAddr);
 
     newPropertyData.push_back(std::vector<double>());
     newPropertyData[0].resize(ecl_kw_get_size(eclipseKeywordData), HUGE_VAL);

@@ -150,9 +150,9 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot(const RimEclipse
 
             // Make sure we load the results that we'll query below
             RigCaseCellResultsData* cellResultsData = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
-            cellResultsData->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
-            cellResultsData->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
-            cellResultsData->findOrLoadKnownScalarResult(RiaDefines::STATIC_NATIVE, "SATNUM");
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SWAT"));
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SGAS"));
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "SATNUM"));
 
             // Fetch SWAT and SGAS cell values for the selected cell
             const size_t timeStepIndex = static_cast<size_t>(eclipseView.currentTimeStep());

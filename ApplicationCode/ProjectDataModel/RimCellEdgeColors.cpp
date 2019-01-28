@@ -120,7 +120,7 @@ void RimCellEdgeColors::loadResult()
         int i;
         for (i = 0; i < vars.size(); ++i)
         {
-             m_reservoirView->currentGridCellResults()->findOrLoadKnownScalarResult(RiaDefines::STATIC_NATIVE, vars[i]);
+             m_reservoirView->currentGridCellResults()->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, vars[i]));
              int cubeFaceIdx;
              for (cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
              {

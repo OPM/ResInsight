@@ -55,11 +55,11 @@ public:
                               RiaDefines::ResultCatType resultType);
 
     static cvf::ref<RigResultAccessor>
-        createFromResultIdx(const RigEclipseCaseData* eclipseCase,
-                            size_t gridIndex,
-                            RiaDefines::PorosityModelType porosityModel,
-                            size_t timeStepIndex,
-                            const RigEclipseResultAddress& resultIndex);
+        createFromResultAddress(const RigEclipseCaseData* eclipseCase,
+                                size_t gridIndex,
+                                RiaDefines::PorosityModelType porosityModel,
+                                size_t timeStepIndex,
+                                const RigEclipseResultAddress& resultIndex);
 
 
 

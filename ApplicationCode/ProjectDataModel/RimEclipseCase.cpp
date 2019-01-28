@@ -691,8 +691,7 @@ bool RimEclipseCase::loadStaticResultsByName(const std::vector<QString>& resultN
     {
         for (const auto& resultName : resultNames)
         {
-            size_t resultIdx = cellResultsData->findOrLoadKnownScalarResult(RiaDefines::STATIC_NATIVE, resultName);
-            if (resultIdx == cvf::UNDEFINED_SIZE_T)
+            if (!cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, resultName)))
             {
                 foundDataForAllResults = false;
             }
@@ -789,33 +788,33 @@ bool RimEclipseCase::openReserviorCase()
                 results->createPlaceholderResultEntries();
                 // After the placeholder result for combined transmissibility is created,
                 // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
-                size_t combinedTransResIdx =
-                    results->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
-                if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
+
+                RigEclipseResultAddress combinedTransmissibilityResAddr(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
+                if (results->hasResultEntry(combinedTransmissibilityResAddr))
                 {
                     eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameCombTrans(),
-                                                                                   RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName()));
+                                                                                  combinedTransmissibilityResAddr);
                 }
-                size_t combinedWatFluxResIdx =
-                    results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName());
-                if (combinedWatFluxResIdx != cvf::UNDEFINED_SIZE_T)
+                
+                RigEclipseResultAddress combinedWaterFluxResAddr(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName());
+                if (results->hasResultEntry(combinedWaterFluxResAddr))
                 {
                     eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameFluxWat(),
-                                                                                   RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName()));
+                                                                                  combinedWaterFluxResAddr);
                 }
-                size_t combinedOilFluxResIdx =
-                    results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
-                if (combinedOilFluxResIdx != cvf::UNDEFINED_SIZE_T)
+
+                RigEclipseResultAddress combinedOilFluxResAddr(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
+                if (results->hasResultEntry(combinedOilFluxResAddr))
                 {
                     eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameFluxOil(),
-                                                                                   RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName()));
+                                                                                  combinedOilFluxResAddr);
                 }
-                size_t combinedGasFluxResIdx =
-                    results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
-                if (combinedGasFluxResIdx != cvf::UNDEFINED_SIZE_T)
+                RigEclipseResultAddress combinedGasFluxResAddr(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
+                    
+                if (results->hasResultEntry(combinedGasFluxResAddr))
                 {
                     eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameFluxGas(),
-                                                                                   RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName()));
+                                                                                  combinedGasFluxResAddr);
                 }
             }
         }

@@ -153,10 +153,10 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot(const RimEclipseView& eclipseView
 
             // The following calls will read results from file in preparation for the queries below
             RigCaseCellResultsData* cellResultsData = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
-            cellResultsData->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "RS");
-            cellResultsData->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "RV");
-            cellResultsData->findOrLoadKnownScalarResult(RiaDefines::DYNAMIC_NATIVE, "PRESSURE");
-            cellResultsData->findOrLoadKnownScalarResult(RiaDefines::STATIC_NATIVE, "PVTNUM");
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "RS"));
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "RV"));
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PRESSURE"));
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PVTNUM"));
 
             cvf::ref<RigResultAccessor> rsAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "RS", RiaDefines::DYNAMIC_NATIVE);
             cvf::ref<RigResultAccessor> rvAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "RV", RiaDefines::DYNAMIC_NATIVE);

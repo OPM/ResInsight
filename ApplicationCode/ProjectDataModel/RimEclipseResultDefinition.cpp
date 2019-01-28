@@ -772,7 +772,7 @@ void RimEclipseResultDefinition::loadResult()
     RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        gridCellResults->findOrLoadKnownScalarResult(m_resultType(), m_resultVariable);
+        gridCellResults->ensureKnownResultLoaded(RigEclipseResultAddress(m_resultType(), m_resultVariable));
     }
 
 }
@@ -810,8 +810,8 @@ bool RimEclipseResultDefinition::hasResult() const
     else if (this->currentGridCellResults() )
     {
         const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
-        size_t gridScalarResultIndex = gridCellResults->findScalarResultIndex(m_resultType(), m_resultVariable());
-        return gridScalarResultIndex != cvf::UNDEFINED_SIZE_T;
+
+        return gridCellResults->hasResultEntry(RigEclipseResultAddress(m_resultType(), m_resultVariable()));
     }
 
     return false;

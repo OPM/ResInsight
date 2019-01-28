@@ -71,8 +71,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(cons
         return nullptr;
     }
 
-    size_t scalarSetIndex = eclipseCase->results(porosityModel)->findScalarResultIndex(resultType, uiResultName);
-    if (scalarSetIndex == cvf::UNDEFINED_SIZE_T)
+    if (!eclipseCase->results(porosityModel)->hasResultEntry(RigEclipseResultAddress(resultType, uiResultName)))
     {
         return nullptr;
     }
@@ -91,7 +90,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(cons
         adjustedTimeStepIndex = 0;
     }
 
-    return createFromResultIdx(eclipseCase, gridIndex, porosityModel, adjustedTimeStepIndex, RigEclipseResultAddress(resultType, uiResultName));
+    return createFromResultAddress(eclipseCase, gridIndex, porosityModel, adjustedTimeStepIndex, RigEclipseResultAddress(resultType, uiResultName));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,13 +147,12 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultNa
         return nullptr;
     }
 
-    size_t scalarSetIndex = eclipseCase->results(porosityModel)->findScalarResultIndex(uiResultName);
-    if (scalarSetIndex == cvf::UNDEFINED_SIZE_T)
+    if (!eclipseCase->results(porosityModel)->hasResultEntry(RigEclipseResultAddress(uiResultName)))
     {
         return nullptr;
     }
 
-    return createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(uiResultName));
+    return createFromResultAddress(eclipseCase, gridIndex, porosityModel, timeStepIndex, RigEclipseResultAddress(uiResultName));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,11 +300,11 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createDerivedResultAccesso
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(const RigEclipseCaseData* eclipseCase,
-                                                                          size_t gridIndex,
-                                                                          RiaDefines::PorosityModelType porosityModel,
-                                                                          size_t timeStepIndex,
-                                                                          const RigEclipseResultAddress& resultAddress)
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultAddress(const RigEclipseCaseData* eclipseCase,
+                                                                              size_t gridIndex,
+                                                                              RiaDefines::PorosityModelType porosityModel,
+                                                                              size_t timeStepIndex,
+                                                                              const RigEclipseResultAddress& resultAddress)
 {
     if ( !resultAddress.isValid() )
     {
