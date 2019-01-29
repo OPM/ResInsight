@@ -25,16 +25,19 @@ class RigEclipseResultAddress
 public:
     RigEclipseResultAddress()
         : m_resultCatType(RiaDefines::UNDEFINED)
+        , m_timeLapseBaseFrameIdx(NO_TIME_LAPSE)
     {}
  
     explicit RigEclipseResultAddress(const QString& resultName)
         : m_resultCatType(RiaDefines::UNDEFINED)
         , m_resultName(resultName)
+        , m_timeLapseBaseFrameIdx(NO_TIME_LAPSE)
     {}
 
-    explicit RigEclipseResultAddress(RiaDefines::ResultCatType type, const QString& resultName)
+    explicit RigEclipseResultAddress(RiaDefines::ResultCatType type, const QString& resultName, int timeLapseBaseTimeStep = NO_TIME_LAPSE)
         : m_resultCatType(type)
         , m_resultName(resultName)
+        , m_timeLapseBaseFrameIdx(timeLapseBaseTimeStep)
     {}
 
     bool isValid() const
@@ -44,8 +47,19 @@ public:
         return false;
     }
 
+    static const int ALL_TIME_LAPSES = -2;
+    static const int NO_TIME_LAPSE = -1;
+
+    bool isTimeLapse() const { return m_timeLapseBaseFrameIdx > NO_TIME_LAPSE;}
+    bool representsAllTimeLapses() const { return m_timeLapseBaseFrameIdx == ALL_TIME_LAPSES;}
+
     bool operator< (const RigEclipseResultAddress& other ) const
     {
+        if (m_timeLapseBaseFrameIdx != other.m_timeLapseBaseFrameIdx)
+        {
+            return (m_timeLapseBaseFrameIdx < other.m_timeLapseBaseFrameIdx);
+        }
+
         if (m_resultCatType != other.m_resultCatType)
         {
             return (m_resultCatType <  other.m_resultCatType);
@@ -54,8 +68,22 @@ public:
         return (m_resultName <  other.m_resultName);
     }
 
+    bool operator==(const RigEclipseResultAddress& other ) const
+    {
+        if (   m_resultCatType != other.m_resultCatType
+            || m_resultName    != other.m_resultName
+            || m_timeLapseBaseFrameIdx != other.m_timeLapseBaseFrameIdx)
+        {
+            return false;
+        }
+
+        return true;  
+    }
+
     RiaDefines::ResultCatType m_resultCatType;
-    QString m_resultName;
+    QString                   m_resultName;
+    int                       m_timeLapseBaseFrameIdx;
+
 };
 
 

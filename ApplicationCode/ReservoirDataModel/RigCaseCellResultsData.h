@@ -138,14 +138,12 @@ public:
                                                                                        RiaDefines::PorosityModelType poroModel,
                                                                                        std::vector<RimEclipseCase*> destinationCases);
 private:
-    size_t                                             findOrLoadKnownScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
-    size_t                                             findOrLoadKnownScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
-    size_t                                             findOrLoadKnownScalarResultForTimeStep(RiaDefines::ResultCatType type, 
-                                                                                              const QString& resultName, 
+    size_t                                             findOrLoadKnownScalarResult(const RigEclipseResultAddress& resVarAddr);
+    size_t                                             findOrLoadKnownScalarResultForTimeStep(const RigEclipseResultAddress& resVarAddr, 
                                                                                               size_t timeStepIndex);
-    size_t                                             findOrCreateScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
-    size_t                                             findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const;
-    size_t                                             findScalarResultIndex(const QString& resultName) const;
+    size_t                                             findOrCreateScalarResultIndex(const RigEclipseResultAddress& resVarAddr, bool needsToBeStored);
+
+    size_t                                             findScalarResultIndexFromAddress(const RigEclipseResultAddress& resVarAddr ) const;
 
     size_t                                             addStaticScalarResult(RiaDefines::ResultCatType type, 
                                                                              const QString& resultName, 
@@ -182,7 +180,6 @@ private:
     void                                               assignValuesToTemporaryLgrs(const QString& resultName, std::vector<double>& values);
 
     RigStatisticsDataCache*                            statistics(const RigEclipseResultAddress& resVarAddr);
-    size_t                                             findScalarResultIndexFromAddress(const RigEclipseResultAddress& resVarAddr ) const;
 
 private:
     cvf::ref<RifReaderInterface>                       m_readerInterface;

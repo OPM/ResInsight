@@ -51,8 +51,7 @@ public:
 class RigEclipseResultInfo
 {
 public:
-    RigEclipseResultInfo(RiaDefines::ResultCatType resultType,
-                         QString resultName,
+    RigEclipseResultInfo(const RigEclipseResultAddress& resultAddress,
                          bool needsToBeStored = false,
                          bool mustBeCalculated = false,
                          size_t gridScalarResultIndex = 0u);
@@ -67,7 +66,7 @@ public:
     
     bool operator<(const RigEclipseResultInfo& rhs) const;
 
-    RigEclipseResultAddress toAddress() const { return RigEclipseResultAddress (m_resultType, m_resultName );}
+    RigEclipseResultAddress toAddress() const { return m_resultAddress;}
 
 private:
     friend class RigCaseCellResultsData;
@@ -80,11 +79,11 @@ private:
     const std::vector<RigEclipseTimeStepInfo>& timeStepInfos() const;
     void                                       setTimeStepInfos(const std::vector<RigEclipseTimeStepInfo>& timeSteps);
 
-    RiaDefines::ResultCatType   m_resultType;
+    RigEclipseResultAddress     m_resultAddress;
+    size_t                      m_gridScalarResultIndex;
+    std::vector<RigEclipseTimeStepInfo> m_timeStepInfos;
+
     bool                        m_needsToBeStored;
     bool                        m_mustBeCalculated;
-    QString                     m_resultName;
-    size_t                      m_gridScalarResultIndex;
     
-    std::vector<RigEclipseTimeStepInfo> m_timeStepInfos;
 };
