@@ -36,44 +36,11 @@
 
 CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection, "SummaryCaseSubCollection");
 
-
-//--------------------------------------------------------------------------------------------------
-/// Return an integer derived from the logarithm of the range.
-/// -1 if there is practically no variation and a rising positive integer for non-zero range.
-//--------------------------------------------------------------------------------------------------
-int EnsembleParameter::logarithmicVariationIndex() const
-{
-    const double eps = 1.0e-4;
-
-    double maxAbs = std::max(std::fabs(maxValue), std::fabs(minValue));
-    if (maxAbs < eps)
-    {
-        return -1;
-    }
-
-    double normalisedStdDevPercent = 2.0 * m_stdDeviation / maxAbs * 100.0;
-    if (normalisedStdDevPercent < eps)
-    {
-        return -1;
-    }
-
-    // Should always yield an index from and including -1 to and including 2
-    // As the maximum normalisedStdDevPercent is ~282
-    // Found with two values symmetric around 0 so min = -X and max = +X
-    // normalisedStdDevPercent is then 2 * sqrt(2X^2) / X * 100 = sqrt(2) * 100 = ~282.
-    // And log10 value is ~2.45.
-    int variationIndex = std::max(-1, (int) std::round(std::log10(normalisedStdDevPercent)));
-    //CVF_ASSERT(variationIndex >= -1 && variationIndex <= 2);
-    return variationIndex;
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void EnsembleParameter::calculateStdDeviation()
+double EnsembleParameter::stdDeviation() const
 {
-    m_stdDeviation = 0.0;
-
     double N = static_cast<double>(values.size());
     if (N > 1 && isNumeric())
     {
@@ -86,10 +53,80 @@ void EnsembleParameter::calculateStdDeviation()
             sumValuesSquared += value * value;
         }
 
-        m_stdDeviation = std::sqrt((N * sumValuesSquared - sumValues * sumValues) / (N * (N - 1.0)));
+        return std::sqrt((N * sumValuesSquared - sumValues * sumValues) / (N * (N - 1.0)));
     }
+    return 0.0;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Standard deviation normalized by max absolute value of min/max values.
+/// Produces values between 0.0 and sqrt(2.0).
+//--------------------------------------------------------------------------------------------------
+double EnsembleParameter::normalizedStdDeviation() const
+{
+    const double eps = 1.0e-4;
+
+    double maxAbs = std::max(std::fabs(maxValue), std::fabs(minValue));
+    if (maxAbs < eps)
+    {
+        return 0.0;
+    }
+
+    double normalisedStdDev = stdDeviation() / maxAbs;
+    if (normalisedStdDev < eps)
+    {
+        return 0.0;
+    }
+    return normalisedStdDev;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void EnsembleParameter::sortByBinnedVariation(std::vector<NameParameterPair>& parameterVector)
+{
+    double minStdDev = std::numeric_limits<double>::infinity();
+    double maxStdDev = 0.0;
+    for (const auto& paramPair : parameterVector)
+    {
+        minStdDev = std::min(minStdDev, paramPair.second.normalizedStdDeviation());
+        maxStdDev = std::max(maxStdDev, paramPair.second.normalizedStdDeviation());
+    }
+    if ((maxStdDev - minStdDev) < 1.0e-8)
+    {
+        return;
+    }
+
+    double delta = (maxStdDev - minStdDev) / NR_OF_VARIATION_BINS;
+
+    std::vector<double> bins;
+    for (int i = 0; i < NR_OF_VARIATION_BINS - 1; ++i)
+    {
+        bins.push_back(minStdDev + (i + 1) * delta);
+    }
+
+    for (NameParameterPair& nameParamPair : parameterVector)
+    {
+        int binNumber = 0;
+        for (double bin : bins)
+        {
+            if (nameParamPair.second.normalizedStdDeviation() >= bin)
+            {
+                binNumber++;
+            }
+        }
+        nameParamPair.second.variationBin = binNumber;
+    }
+
+    // Sort by variation bin (highest first) but keep name as sorting parameter when parameters have the same variation index
+    std::stable_sort(parameterVector.begin(), parameterVector.end(),
+        [&bins](const NameParameterPair& lhs, const NameParameterPair& rhs)
+        {
+            return lhs.second.variationBin > rhs.second.variationBin;
+        }
+    );
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -338,8 +375,6 @@ EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& par
         }
     }
     
-    eParam.calculateStdDeviation();
-
     return eParam;
 }
 

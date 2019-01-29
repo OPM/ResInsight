@@ -127,26 +127,27 @@ private:
 
     caf::PdmFieldHandle*                    userDescriptionField() override;
     caf::PdmFieldHandle*                    objectToggleField() override;
-    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                          defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
-    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                          defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
-    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                             const QVariant& oldValue, const QVariant& newValue) override;
+    void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                   const QVariant& oldValue, const QVariant& newValue) override;
 
-    void                                    appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
-                                                                                 RimSummaryCaseCollection* summaryCaseGroup,
-                                                                                 RimSummaryFilter* summaryFilter);
+    void                          appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
+                                                                       RimSummaryCaseCollection* summaryCaseGroup,
+                                                                       RimSummaryFilter* summaryFilter);
 
-    void                                    updateCurveColors();
-    void                                    updateQwtPlotAxis();
+    void                          updateCurveColors();
+    void                          updateQwtPlotAxis();
 
-    QString                                 name() const;
-    QString                                 createAutoName() const;
+    QString                       name() const;
+    QString                       createAutoName() const;
 
-    void                                    updateLegendMappingMode();
+    void                          updateLegendMappingMode();
+    void                          sortParameterVectorByBinnedVariation(std::vector<NameParameterPair>& parameterVector) const;
 private:
     caf::PdmField<bool>                             m_showCurves;
     caf::PdmChildArrayField<RimSummaryCurve*>       m_curves;

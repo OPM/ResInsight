@@ -453,16 +453,13 @@ QString RimEnsembleCurveSet::ensembleParameterUiName(const RimEnsembleCurveSet::
     QString variationString;
     if (paramPair.second.isNumeric())
     {
-        switch (paramPair.second.logarithmicVariationIndex())
+        switch (paramPair.second.variationBin)
         {
-        case -1:
-            variationString = QString(" (No variation)");
-        case 0:
+        case EnsembleParameter::LOW_VARIATION:
             variationString = QString(" (Low variation)");
+        case EnsembleParameter::MEDIUM_VARIATION:
             break;
-        case 1:
-            break;
-        case 2:
+        case EnsembleParameter::HIGH_VARIATION:
             variationString = QString(" (High variation)");
             break;
         }
@@ -1170,13 +1167,7 @@ std::vector<RimEnsembleCurveSet::NameParameterPair> RimEnsembleCurveSet::ensembl
     {
         parameterVector.push_back(std::make_pair(parameterName, group->ensembleParameter(parameterName)));
     }
-
-    // Sort by variation index (highest first) but keep name as sorting parameter when parameters have the same variation index
-    std::stable_sort(parameterVector.begin(), parameterVector.end(), [](const NameParameterPair& lhs, const NameParameterPair& rhs)
-    {
-        return lhs.second.logarithmicVariationIndex() > rhs.second.logarithmicVariationIndex();
-    });
-
+    EnsembleParameter::sortByBinnedVariation(parameterVector);
     return parameterVector;
 }
 
