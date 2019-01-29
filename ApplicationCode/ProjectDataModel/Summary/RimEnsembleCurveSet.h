@@ -65,6 +65,8 @@ class RimEnsembleCurveSet : public caf::PdmObject
 public:
     enum ColorMode {SINGLE_COLOR, BY_ENSEMBLE_PARAM};
 
+    typedef std::pair<QString, EnsembleParameter> NameParameterPair;
+
     RimEnsembleCurveSet();
     ~RimEnsembleCurveSet() override;
 
@@ -97,6 +99,7 @@ public:
     ColorMode                               colorMode() const;
     void                                    updateEnsembleLegendItem();
     EnsembleParameter::Type                 currentEnsembleParameterType() const;
+    static QString                          ensembleParameterUiName(const NameParameterPair& paramPair);
 
     void                                    updateAllCurves();
     void                                    updateStatisticsCurves();
@@ -107,7 +110,7 @@ public:
     void                                    markCachedDataForPurge();
 
     void                                    updateAllTextInPlot();
-    std::vector<QString>                    ensembleParameterNames() const;
+    std::vector<NameParameterPair>          ensembleParameters() const;
 
     std::vector<RimSummaryCase*>            filterEnsembleCases(const std::vector<RimSummaryCase*>& sumCases);
     void                                    disableStatisticCurves();
@@ -144,7 +147,6 @@ private:
     QString                                 createAutoName() const;
 
     void                                    updateLegendMappingMode();
-
 private:
     caf::PdmField<bool>                             m_showCurves;
     caf::PdmChildArrayField<RimSummaryCurve*>       m_curves;

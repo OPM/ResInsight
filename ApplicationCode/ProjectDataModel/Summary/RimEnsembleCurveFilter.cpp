@@ -133,10 +133,10 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilter::calculateValueOptions(cons
         auto curveSet = parentCurveSet();
         if (curveSet)
         {
-             auto names = curveSet->ensembleParameterNames();
-             for (auto& name : names)
+             auto nameParameterPairs = curveSet->ensembleParameters();
+             for (auto& nameParamPair : nameParameterPairs)
              {
-                 options.push_back(caf::PdmOptionItemInfo(name, name));
+                 options.push_back(caf::PdmOptionItemInfo(RimEnsembleCurveSet::ensembleParameterUiName(nameParamPair), nameParamPair.first));
              }
         }
     }
@@ -348,10 +348,10 @@ void RimEnsembleCurveFilter::setInitialValues(bool forceDefault)
 {
     if (!selectedEnsembleParameter().isValid())
     {
-        auto parameterNames = parentCurveSet()->ensembleParameterNames();
+        auto parameterNames = parentCurveSet()->ensembleParameters();
         if (!parameterNames.empty())
         {
-            m_ensembleParameterName = parameterNames.front();
+            m_ensembleParameterName = parameterNames.front().first;
             updateConnectedEditors();
         }
     }

@@ -46,11 +46,20 @@ public:
     EnsembleParameter() :
         type(TYPE_NONE),
         minValue(std::numeric_limits<double>::infinity()),
-        maxValue(-std::numeric_limits<double>::infinity()) { }
+        maxValue(-std::numeric_limits<double>::infinity()),
+        m_stdDeviation(0.0)
+    {}
 
     bool isValid() const { return !name.isEmpty() && type != TYPE_NONE; }
     bool isNumeric() const { return type == TYPE_NUMERIC; }
     bool isText() const { return type == TYPE_TEXT; }
+    double range() const { return std::abs(maxValue - minValue); }
+    void calculateStdDeviation();
+
+    int logarithmicVariationIndex() const;
+
+private:
+    double m_stdDeviation;
 };
 
 //==================================================================================================

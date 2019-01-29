@@ -445,6 +445,32 @@ EnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() cons
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleCurveSet::ensembleParameterUiName(const RimEnsembleCurveSet::NameParameterPair& paramPair)
+{
+    QString stem = paramPair.first;
+    QString variationString;
+    if (paramPair.second.isNumeric())
+    {
+        switch (paramPair.second.logarithmicVariationIndex())
+        {
+        case -1:
+            variationString = QString(" (No variation)");
+        case 0:
+            variationString = QString(" (Low variation)");
+            break;
+        case 1:
+            break;
+        case 2:
+            variationString = QString(" (High variation)");
+            break;
+        }
+    }
+    return QString("%1%2").arg(stem).arg(variationString);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateAllCurves()
@@ -518,8 +544,8 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     {
         if (m_ensembleParameter().isEmpty())
         {
-            auto params = ensembleParameterNames();
-            m_ensembleParameter = !params.empty() ? params.front() : "";
+            auto params = ensembleParameters();
+            m_ensembleParameter = !params.empty() ? params.front().first : "";
         }
         updateCurveColors();
         
@@ -741,16 +767,16 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions(const c
         auto byEnsParamOption = caf::AppEnum<RimEnsembleCurveSet::ColorMode>(RimEnsembleCurveSet::BY_ENSEMBLE_PARAM);
 
         options.push_back(caf::PdmOptionItemInfo(singleColorOption.uiText(), RimEnsembleCurveSet::SINGLE_COLOR));
-        if (!ensembleParameterNames().empty())
+        if (!ensembleParameters().empty())
         {
             options.push_back(caf::PdmOptionItemInfo(byEnsParamOption.uiText(), RimEnsembleCurveSet::BY_ENSEMBLE_PARAM));
         }
     }
     else if (fieldNeedingOptions == &m_ensembleParameter)
     {
-        for (const auto& param : ensembleParameterNames())
+        for (const auto& paramPair : ensembleParameters())
         {
-            options.push_back(caf::PdmOptionItemInfo(param, param));
+            options.push_back(caf::PdmOptionItemInfo(ensembleParameterUiName(paramPair), paramPair.first));
         }
     }
     else if (fieldNeedingOptions == &m_yValuesUiFilterResultSelection)
@@ -1121,7 +1147,7 @@ void RimEnsembleCurveSet::updateAllTextInPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimEnsembleCurveSet::ensembleParameterNames() const
+std::vector<RimEnsembleCurveSet::NameParameterPair> RimEnsembleCurveSet::ensembleParameters() const
 {
     RimSummaryCaseCollection* group = m_yValuesSummaryGroup;
 
@@ -1137,7 +1163,21 @@ std::vector<QString> RimEnsembleCurveSet::ensembleParameterNames() const
             }
         }
     }
-    return std::vector<QString>(paramSet.begin(), paramSet.end());
+
+    std::vector<NameParameterPair> parameterVector;
+    parameterVector.reserve(paramSet.size());
+    for (const QString& parameterName : paramSet)
+    {
+        parameterVector.push_back(std::make_pair(parameterName, group->ensembleParameter(parameterName)));
+    }
+
+    // Sort by variation index (highest first) but keep name as sorting parameter when parameters have the same variation index
+    std::stable_sort(parameterVector.begin(), parameterVector.end(), [](const NameParameterPair& lhs, const NameParameterPair& rhs)
+    {
+        return lhs.second.logarithmicVariationIndex() > rhs.second.logarithmicVariationIndex();
+    });
+
+    return parameterVector;
 }
 
 //--------------------------------------------------------------------------------------------------

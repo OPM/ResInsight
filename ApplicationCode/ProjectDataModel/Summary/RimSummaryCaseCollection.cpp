@@ -36,6 +36,60 @@
 
 CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection, "SummaryCaseSubCollection");
 
+
+//--------------------------------------------------------------------------------------------------
+/// Return an integer derived from the logarithm of the range.
+/// -1 if there is practically no variation and a rising positive integer for non-zero range.
+//--------------------------------------------------------------------------------------------------
+int EnsembleParameter::logarithmicVariationIndex() const
+{
+    const double eps = 1.0e-4;
+
+    double maxAbs = std::max(std::abs(maxValue), std::abs(minValue));
+    if (maxAbs < eps)
+    {
+        return -1;
+    }
+
+    double normalisedStdDevPercent = 2.0 * m_stdDeviation / maxAbs * 100.0;
+    if (normalisedStdDevPercent < eps)
+    {
+        return -1;
+    }
+
+    // Should always yield an index from and including -1 to and including 2
+    // As the maximum normalisedStdDevPercent is ~282
+    // Found with two values symmetric around 0 so min = -X and max = +X
+    // normalisedStdDevPercent is then 2 * sqrt(2X^2) / X * 100 = sqrt(2) * 100 = ~282.
+    // And log10 value is ~2.45.
+    int variationIndex = std::max(-1, (int) std::round(std::log10(normalisedStdDevPercent)));
+    //CVF_ASSERT(variationIndex >= -1 && variationIndex <= 2);
+    return variationIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void EnsembleParameter::calculateStdDeviation()
+{
+    m_stdDeviation = 0.0;
+
+    double N = static_cast<double>(values.size());
+    if (N > 1 && isNumeric())
+    {
+        double sumValues = 0.0;
+        double sumValuesSquared = 0.0;
+        for (const QVariant& variant : values)
+        {
+            double value = variant.toDouble();
+            sumValues += value;
+            sumValuesSquared += value * value;
+        }
+
+        m_stdDeviation = std::sqrt((N * sumValuesSquared - sumValues * sumValues) / (N * (N - 1.0)));
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -283,6 +337,9 @@ EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& par
             eParam.values.push_back(QVariant(val));
         }
     }
+    
+    eParam.calculateStdDeviation();
+
     return eParam;
 }
 
