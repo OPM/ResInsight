@@ -453,11 +453,11 @@ void RimEclipseCase::updateFormationNamesData()
     {
         if (activeFormationNames())
         {
-            rigEclipseCase->setActiveFormationNames(activeFormationNames()->formationNamesData());
+            rigEclipseCase->setActiveFormationNamesAndUpdatePlots(activeFormationNames()->formationNamesData());
         }
         else
         {
-            rigEclipseCase->setActiveFormationNames(nullptr);
+            rigEclipseCase->setActiveFormationNamesAndUpdatePlots(nullptr);
         }
         std::vector<Rim3dView*> views = this->views();
         for (Rim3dView* view : views)
@@ -552,11 +552,11 @@ void RimEclipseCase::computeCachedData()
         pInf.setProgressDescription("Calculating Formation Names Result");
         if (activeFormationNames())
         {
-            rigEclipseCase->setActiveFormationNames(activeFormationNames()->formationNamesData());
+            rigEclipseCase->setActiveFormationNamesAndUpdatePlots(activeFormationNames()->formationNamesData());
         }
         else
         {
-            rigEclipseCase->setActiveFormationNames(nullptr);
+            rigEclipseCase->setActiveFormationNamesAndUpdatePlots(nullptr);
         }
 
         pInf.incrementProgress();
@@ -1028,7 +1028,7 @@ void RimEclipseCase::setFormationNames(RimFormationNames* formationNames)
     activeFormationNames = formationNames;
     if (m_rigEclipseCase.notNull() && formationNames != nullptr)
     {
-        m_rigEclipseCase->setActiveFormationNames(formationNames->formationNamesData());
+        m_rigEclipseCase->setActiveFormationNamesAndUpdatePlots(formationNames->formationNamesData());
     }
 }
 

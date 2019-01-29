@@ -673,7 +673,7 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setActiveFormationNames(RigFormationNames* activeFormationNames)
+void RigEclipseCaseData::setActiveFormationNamesAndUpdatePlots(RigFormationNames* activeFormationNames)
 {
     m_matrixModelResults->setActiveFormationNames(activeFormationNames);
 
