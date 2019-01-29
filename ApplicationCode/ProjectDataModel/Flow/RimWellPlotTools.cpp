@@ -227,8 +227,11 @@ bool RimWellPlotTools::hasFlowData(RimEclipseResultCase* gridCase)
 
     for (const QString& channelName : FLOW_DATA_NAMES)
     {
-        return   eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, 
-                                                                                                            channelName));
+        if (eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, 
+                                                                                                       channelName)) )
+        {
+            return true;
+        }
     }
     return false;
 }
