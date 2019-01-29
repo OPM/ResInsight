@@ -171,7 +171,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     // When reading active cell info, only the total cell count is tested for consistency
 
     RimEclipseCase* mainCase = caseCollection()->reservoirs[0];
-    if (!mainCase->ensureReservoirCaseIsOpen())
+    if (!mainCase->openReserviorCase())
     {
         QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                              "Error when opening project file",

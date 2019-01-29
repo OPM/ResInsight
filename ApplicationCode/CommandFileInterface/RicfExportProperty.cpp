@@ -71,10 +71,13 @@ void RicfExportProperty::execute()
             return;
         }
 
-        if (!eclipseCase->ensureReservoirCaseIsOpen())
+        if (!eclipseCase->eclipseCaseData())
         {
-            RiaLogging::error(QString("exportProperty: Could not find eclipseCaseData with ID %1").arg(m_caseId()));
-            return;
+            if (!eclipseCase->openReserviorCase())
+            {
+                RiaLogging::error(QString("exportProperty: Could not find eclipseCaseData with ID %1").arg(m_caseId()));
+                return;
+            }
         }
     }
 

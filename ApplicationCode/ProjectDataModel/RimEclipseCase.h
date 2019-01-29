@@ -70,6 +70,7 @@ public:
     void                                        setFilesContainingFaults(const std::vector<QString>& val);
 
     bool                                        ensureReservoirCaseIsOpen();
+    bool                                        openReserviorCase();
     virtual bool                                openEclipseGridFile() = 0;
                                                       
     RigEclipseCaseData*                         eclipseCaseData();
@@ -130,8 +131,7 @@ protected:
 
 private:
     void                                        createTimeStepFormatString();
-    std::vector<Rim3dView*>                     allSpecialViews() const override;
-    bool                                        openReserviorCase();
+    std::vector<Rim3dView*>             allSpecialViews() const override;
 
 protected:
     caf::PdmField<bool>                         m_flipXAxis;

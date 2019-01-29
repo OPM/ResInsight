@@ -830,7 +830,7 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     if (m_eclipseCase)
     {
-        if (!m_eclipseCase->ensureReservoirCaseIsOpen())
+        if (!m_eclipseCase->openReserviorCase())
         {
             QMessageBox::warning(RiuMainWindow::instance(), 
                                 "Error when opening project file", 
