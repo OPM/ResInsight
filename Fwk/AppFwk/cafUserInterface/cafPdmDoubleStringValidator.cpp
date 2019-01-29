@@ -33,31 +33,25 @@
 //   for more details.
 //
 //##################################################################################################
-#pragma once
 
-#include <QValidator>
-#include <set>
+#include "cafPdmDoubleStringValidator.h"
 
-namespace caf
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QValidator::State caf::PdmDoubleStringValidator::validate(QString& inputString, int& position) const
 {
-class PdmUniqueIdValidator : public QValidator
+    if (m_defaultString == inputString)
+    {
+        return QValidator::Acceptable;
+    }
+    return QDoubleValidator::validate(inputString, position);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caf::PdmDoubleStringValidator::fixup(QString& inputString) const
 {
-    Q_OBJECT
-public:
-    PdmUniqueIdValidator(const std::set<int>& usedIds, bool multipleSelectionOfSameFieldsSelected, const QString& errorMessage, QObject* parent);
-
-    State validate(QString& currentString, int &) const override;
-
-    void fixup(QString& editorText) const override;
-
-private:
-    int computeNextValidId();
-
-private:
-    std::set<int> m_usedIds;
-
-    int m_nextValidValue;
-    bool m_multipleSelectionOfSameFieldsSelected;
-    QString m_errorMessage;
-};
+    inputString = m_defaultString;
 }

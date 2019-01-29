@@ -35,29 +35,30 @@
 //##################################################################################################
 #pragma once
 
-#include <QValidator>
-#include <set>
+#include <QDoubleValidator>
+#include <QString>
 
 namespace caf
 {
-class PdmUniqueIdValidator : public QValidator
+//////////////////////////////////////////////////////////////////////////
+/// Class that validates text strings containing double values but allows
+/// a default text string that isn't necessarily a double.
+/// Example use is the "1*" value in ECLIPSE output files or "N/A".
+//////////////////////////////////////////////////////////////////////////
+class PdmDoubleStringValidator : public QDoubleValidator
 {
     Q_OBJECT
 public:
-    PdmUniqueIdValidator(const std::set<int>& usedIds, bool multipleSelectionOfSameFieldsSelected, const QString& errorMessage, QObject* parent);
+    PdmDoubleStringValidator(const QString& defaultString)
+        : QDoubleValidator(nullptr), m_defaultString(defaultString)
+    {
+    }
 
-    State validate(QString& currentString, int &) const override;
-
-    void fixup(QString& editorText) const override;
+    State validate(QString& inputString, int& position) const override;
+    void  fixup(QString& inputString) const override;
 
 private:
-    int computeNextValidId();
-
-private:
-    std::set<int> m_usedIds;
-
-    int m_nextValidValue;
-    bool m_multipleSelectionOfSameFieldsSelected;
-    QString m_errorMessage;
+    QString m_defaultString;
 };
 }
+

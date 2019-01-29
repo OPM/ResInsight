@@ -53,6 +53,7 @@ set (MOC_HEADER_FILES
     cafPdmUiFormLayoutObjectEditor.h
     cafPdmUiDoubleValueEditor.h
 	cafPdmUniqueIdValidator.h
+	cafPdmDoubleStringValidator.h
 )
 
 if ( NOT CMAKE_AUTOMOC )
@@ -156,6 +157,7 @@ set( PROJECT_FILES
     cafMemoryInspector.h
     cafMemoryInspector.cpp
 	cafPdmUniqueIdValidator.cpp
+	cafPdmDoubleStringValidator.cpp
 )
 
 add_library( ${PROJECT_NAME}

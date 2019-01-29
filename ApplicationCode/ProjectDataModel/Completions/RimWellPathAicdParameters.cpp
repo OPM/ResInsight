@@ -24,37 +24,12 @@
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiLineEditor.h"
-
-#include <QDoubleValidator>
+#include "cafPdmDoubleStringValidator.h"
 
 #include <limits>
 
 CAF_PDM_SOURCE_INIT(RimWellPathAicdParameters, "WellPathAicdParameters");
 
-class NumericStringValidator : public QDoubleValidator
-{
-public:
-    NumericStringValidator(const QString& defaultValue)
-        : m_defaultValue(defaultValue), QDoubleValidator(nullptr)
-    {}
-
-    void fixup(QString& input) const override
-    {
-        input = m_defaultValue;
-    }
-
-    State validate(QString& input, int& pos) const override
-    {
-        if (input == m_defaultValue)
-        {
-            return QValidator::Acceptable;
-        }
-
-        return QDoubleValidator::validate(input, pos);
-    }
-private:
-    QString m_defaultValue;
-};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -133,7 +108,7 @@ std::array<double, AICD_NUM_PARAMS> RimWellPathAicdParameters::doubleValues() co
     std::array<double, AICD_NUM_PARAMS> doubleValues;
     for (int i = 0; i < (int)AICD_NUM_PARAMS; ++i)
     {
-        NumericStringValidator validator(nullptr);
+        caf::PdmDoubleStringValidator validator(nullptr);
         QString stringValue = m_aicdParameterFields[(AICDParameters)i].value();
         bool ok = true;
         double doubleValue = stringValue.toDouble(&ok);
@@ -186,11 +161,11 @@ void RimWellPathAicdParameters::defineEditorAttribute(const caf::PdmFieldHandle*
     {
         if (stringFieldsWithNoValidDefault().count(stringField))
         {
-            lineEditorAttr->validator = new NumericStringValidator("");
+            lineEditorAttr->validator = new caf::PdmDoubleStringValidator("");
         }
         else
         {
-            lineEditorAttr->validator = new NumericStringValidator("1*");
+            lineEditorAttr->validator = new caf::PdmDoubleStringValidator("1*");
         }
     }
 }

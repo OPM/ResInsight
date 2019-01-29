@@ -705,14 +705,21 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile(RimEclipse
     QTextStream stream(exportFile.get());
 
     RifEclipseDataTableFormatter formatter(stream);
-    formatter.setColumnSpacing(3);
+    formatter.setColumnSpacing(2);
 
     std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn("Well"),
                                                        RifEclipseOutputTableColumn("Grp"),
                                                        RifEclipseOutputTableColumn("I"),
                                                        RifEclipseOutputTableColumn("J"),
                                                        RifEclipseOutputTableColumn("RefDepth"),
-                                                       RifEclipseOutputTableColumn("WellType")};
+                                                       RifEclipseOutputTableColumn("Type"),
+                                                       RifEclipseOutputTableColumn("DrainRad"),
+                                                       RifEclipseOutputTableColumn("GasInEq"),
+                                                       RifEclipseOutputTableColumn("AutoShut"),
+                                                       RifEclipseOutputTableColumn("XFlow"),
+                                                       RifEclipseOutputTableColumn("FluidPVT"),
+                                                       RifEclipseOutputTableColumn("HydSDens"),
+                                                       RifEclipseOutputTableColumn("FluidInPlReg")};
 
     formatter.keyword("WELSPECS");
     formatter.header(header);
@@ -732,15 +739,22 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile(RimEclipse
     // Export
     for (const auto wellPath : wellPathSet)
     {
-        auto rimCcompletions = wellPath->completions();
+        auto rimCompletions = wellPath->completions();
         auto ijIntersection  = wellPathUpperGridIntersectionIJ(gridCase, wellPath);
 
-        formatter.add(rimCcompletions->wellNameForExport())
-            .add(rimCcompletions->wellGroupNameForExport())
+        formatter.add(rimCompletions->wellNameForExport())
+            .add(rimCompletions->wellGroupNameForExport())
             .addOneBasedCellIndex(ijIntersection.second.x())
             .addOneBasedCellIndex(ijIntersection.second.y())
-            .add(rimCcompletions->referenceDepthForExport())
-            .add(rimCcompletions->wellTypeNameForExport())
+            .add(rimCompletions->referenceDepthForExport())
+            .add(rimCompletions->wellTypeNameForExport())
+            .add(rimCompletions->drainageRadiusForExport())
+            .add(rimCompletions->gasInflowEquationForExport())
+            .add(rimCompletions->automaticWellShutInForExport())
+            .add(rimCompletions->allowWellCrossFlowForExport())
+            .add(rimCompletions->wellBoreFluidPVTForExport())
+            .add(rimCompletions->hydrostaticDensityForExport())
+            .add(rimCompletions->fluidInPlaceRegionForExport())
             .rowCompleted();
     }
 
@@ -758,7 +772,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
     QTextStream stream(exportFile.get());
 
     RifEclipseDataTableFormatter formatter(stream);
-    formatter.setColumnSpacing(3);
+    formatter.setColumnSpacing(2);
 
     std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn("Well"),
                                                        RifEclipseOutputTableColumn("Grp"),
@@ -766,7 +780,14 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
                                                        RifEclipseOutputTableColumn("I"),
                                                        RifEclipseOutputTableColumn("J"),
                                                        RifEclipseOutputTableColumn("RefDepth"),
-                                                       RifEclipseOutputTableColumn("WellType")};
+                                                       RifEclipseOutputTableColumn("Type"),
+                                                       RifEclipseOutputTableColumn("DrainRad"),
+                                                       RifEclipseOutputTableColumn("GasInEq"),
+                                                       RifEclipseOutputTableColumn("AutoShut"),
+                                                       RifEclipseOutputTableColumn("XFlow"),
+                                                       RifEclipseOutputTableColumn("FluidPVT"),
+                                                       RifEclipseOutputTableColumn("HydSDens"),
+                                                       RifEclipseOutputTableColumn("FluidInPlReg")};
 
     formatter.keyword("WELSPECL");
     formatter.header(header);
@@ -817,6 +838,13 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
                 .addOneBasedCellIndex(ijIntersection.y())
                 .add(rimCompletions->referenceDepthForExport())
                 .add(rimCompletions->wellTypeNameForExport())
+                .add(rimCompletions->drainageRadiusForExport())
+                .add(rimCompletions->gasInflowEquationForExport())
+                .add(rimCompletions->automaticWellShutInForExport())
+                .add(rimCompletions->allowWellCrossFlowForExport())
+                .add(rimCompletions->wellBoreFluidPVTForExport())
+                .add(rimCompletions->hydrostaticDensityForExport())
+                .add(rimCompletions->fluidInPlaceRegionForExport())
                 .rowCompleted();
         }
     }
