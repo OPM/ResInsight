@@ -176,7 +176,7 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 void RimEclipseStatisticsCase::reloadEclipseGridFile()
 {
     setReservoirData(nullptr);
-    openReserviorCase();
+    ensureReservoirCaseIsOpen();
 }
 
 //--------------------------------------------------------------------------------------------------
