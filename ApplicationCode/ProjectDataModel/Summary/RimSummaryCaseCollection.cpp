@@ -45,7 +45,7 @@ int EnsembleParameter::logarithmicVariationIndex() const
 {
     const double eps = 1.0e-4;
 
-    double maxAbs = std::max(std::abs(maxValue), std::abs(minValue));
+    double maxAbs = std::max(std::fabs(maxValue), std::fabs(minValue));
     if (maxAbs < eps)
     {
         return -1;
