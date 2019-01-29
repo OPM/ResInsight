@@ -20,6 +20,8 @@
 
 #include "RimEclipseResultDefinition.h"
 
+#include "RiaLogging.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -768,6 +770,15 @@ QString RimEclipseResultDefinition::resultVariableUiShortName() const
 void RimEclipseResultDefinition::loadResult()
 {
     if (isFlowDiagOrInjectionFlooding()) return; // Will load automatically on access
+
+    if (m_eclipseCase)
+    {
+        if (!m_eclipseCase->ensureReservoirCaseIsOpen())
+        {
+            RiaLogging::error("Could not open the Eclipse Grid file: " + m_eclipseCase->gridFileName());
+            return;
+        }
+    }
 
     RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)

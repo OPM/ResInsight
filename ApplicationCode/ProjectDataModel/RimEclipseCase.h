@@ -69,6 +69,7 @@ public:
     std::vector<QString>                        filesContainingFaults() const;
     void                                        setFilesContainingFaults(const std::vector<QString>& val);
 
+    bool                                        ensureReservoirCaseIsOpen();
     bool                                        openReserviorCase();
     virtual bool                                openEclipseGridFile() = 0;
                                                       
