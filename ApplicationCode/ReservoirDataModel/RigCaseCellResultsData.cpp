@@ -400,11 +400,11 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex(const RigEclipseRes
 //--------------------------------------------------------------------------------------------------
 QStringList RigCaseCellResultsData::resultNames(RiaDefines::ResultCatType resType) const
 {
-    QStringList                                       varList;
+    QStringList varList;
     std::vector<RigEclipseResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
-        if (it->resultType() == resType)
+        if (it->resultType() == resType && !it->eclipseResultAddress().isTimeLapse())
         {
             varList.push_back(it->resultName());
         }
@@ -572,18 +572,18 @@ void RigCaseCellResultsData::setTimeStepInfos(const RigEclipseResultAddress& res
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::maxTimeStepCount(RigEclipseResultAddress* resultAddressWithMostTimeSteps) const
 {
-    size_t maxTsCount                      = 0;
+    size_t maxTsCount = 0;
     RigEclipseResultAddress scalarResultIndexWithMaxTsCount;
 
     for (size_t i = 0; i < m_resultInfos.size(); i++)
     {
         if (m_resultInfos[i].timeStepInfos().size() > maxTsCount)
         {
-            maxTsCount                      = m_resultInfos[i].timeStepInfos().size();
+            maxTsCount = m_resultInfos[i].timeStepInfos().size();
 
             if (resultAddressWithMostTimeSteps)
             {
-                *resultAddressWithMostTimeSteps = m_resultInfos[i].toAddress(); 
+                *resultAddressWithMostTimeSteps = m_resultInfos[i].eclipseResultAddress(); 
             }
         }
     }
@@ -968,7 +968,7 @@ std::vector<RigEclipseResultAddress> RigCaseCellResultsData::existingResults() c
     std::vector<RigEclipseResultAddress> addresses;
     for (const auto & ri: m_resultInfos)
     {
-        addresses.emplace_back(ri.toAddress());
+        addresses.emplace_back(ri.eclipseResultAddress());
     }
 
     return addresses;
@@ -980,6 +980,46 @@ std::vector<RigEclipseResultAddress> RigCaseCellResultsData::existingResults() c
 const RigEclipseResultInfo* RigCaseCellResultsData::resultInfo(const RigEclipseResultAddress& resVarAddr) const
 {
     return &(m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::ensureKnownResultLoaded(const RigEclipseResultAddress& resultAddress)
+{
+    size_t resultIndex = findOrLoadKnownScalarResult(resultAddress);
+
+    return (resultIndex != cvf::UNDEFINED_SIZE_T);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::hasResultEntry(const RigEclipseResultAddress& resultAddress) const
+{
+    size_t resultIndex = findScalarResultIndexFromAddress(resultAddress);
+
+    return (resultIndex != cvf::UNDEFINED_SIZE_T);   
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::createResultEntry(const RigEclipseResultAddress& resultAddress, bool needsToBeStored)
+{
+    findOrCreateScalarResultIndex(resultAddress, needsToBeStored);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::ensureKnownResultLoadedForTimeStep(const RigEclipseResultAddress& resultAddress, 
+                                                                 size_t timeStepIndex)
+{
+    CAF_ASSERT(resultAddress.m_resultCatType != RiaDefines::UNDEFINED);
+
+    findOrLoadKnownScalarResultForTimeStep(resultAddress,
+                                           timeStepIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1031,7 +1071,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(const RigEclipseResul
 
         return scalarResultIndex;
     }
-   
+
 
     size_t scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddr);
 
@@ -1040,6 +1080,48 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(const RigEclipseResul
     RiaDefines::ResultCatType type = resVarAddr.m_resultCatType; 
     QString resultName = resVarAddr.m_resultName;
 
+    if (resVarAddr.isTimeLapse())
+    {
+        RigEclipseResultAddress noneTimeLapseAddress(resVarAddr);
+        noneTimeLapseAddress.m_timeLapseBaseFrameIdx = RigEclipseResultAddress::NO_TIME_LAPSE;
+        size_t sourceResultIdx = this->findOrLoadKnownScalarResult(noneTimeLapseAddress);
+
+        if (sourceResultIdx != cvf::UNDEFINED_SIZE_T)
+        {
+            std::vector< std::vector<double> > & srcFrames = m_cellScalarResults[sourceResultIdx];
+            std::vector< std::vector<double> > & dstFrames = m_cellScalarResults[scalarResultIndex];
+
+            size_t baseFrameIdx = resVarAddr.m_timeLapseBaseFrameIdx;
+            size_t frameCount = srcFrames.size();
+
+            if (!(baseFrameIdx < frameCount )) 
+            {
+                dstFrames.clear();
+                return scalarResultIndex;
+            }
+
+            std::vector<double>& srcBaseVals = srcFrames[baseFrameIdx];
+
+            dstFrames.resize(frameCount);
+
+            for (size_t fIdx = 0; fIdx < frameCount; ++fIdx)
+            {
+                std::vector<double>& srcVals = srcFrames[fIdx];
+
+                std::vector<double>& dstVals = dstFrames[fIdx];
+                dstVals.resize(srcVals.size(), std::numeric_limits<double>::infinity());
+                size_t valCount = srcVals.size();
+
+                //#pragma omp parallel for
+                for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
+                {
+                    dstVals[vIdx] = srcVals[vIdx] - srcBaseVals[vIdx];
+                }
+            }
+        }
+
+        return scalarResultIndex;
+    }
 
     // Load dependency data sets
 
@@ -1258,46 +1340,6 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(const RigEclipseResul
     }
 
     return scalarResultIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RigCaseCellResultsData::ensureKnownResultLoaded(const RigEclipseResultAddress& resultAddress)
-{
-    size_t resultIndex = findOrLoadKnownScalarResult(resultAddress);
-
-    return (resultIndex != cvf::UNDEFINED_SIZE_T);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RigCaseCellResultsData::hasResultEntry(const RigEclipseResultAddress& resultAddress) const
-{
-    size_t resultIndex = findScalarResultIndexFromAddress(resultAddress);
-
-    return (resultIndex != cvf::UNDEFINED_SIZE_T);   
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::createResultEntry(const RigEclipseResultAddress& resultAddress, bool needsToBeStored)
-{
-    findOrCreateScalarResultIndex(resultAddress, needsToBeStored);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::ensureKnownResultLoadedForTimeStep(const RigEclipseResultAddress& resultAddress, 
-                                                                 size_t timeStepIndex)
-{
-    CAF_ASSERT(resultAddress.m_resultCatType != RiaDefines::UNDEFINED);
-
-    findOrLoadKnownScalarResultForTimeStep(resultAddress,
-                                           timeStepIndex);
 }
 
 
@@ -2845,7 +2887,7 @@ size_t RigCaseCellResultsData::findScalarResultIndexFromAddress(const RigEclipse
         std::vector<RigEclipseResultInfo>::const_iterator it;
         for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
         {
-            if (it->toAddress() == resVarAddr)
+            if (it->eclipseResultAddress() == resVarAddr)
             {
                 return it->gridScalarResultIndex();
             }
@@ -2882,7 +2924,7 @@ void RigCaseCellResultsData::copyResultsMetaDataFromMainCase(RigEclipseCaseData*
 
         for ( size_t resIdx = 0; resIdx < resultInfos.size(); resIdx++ )
         {
-            RigEclipseResultAddress resVarAddr = resultInfos[resIdx].toAddress();
+            RigEclipseResultAddress resVarAddr = resultInfos[resIdx].eclipseResultAddress();
 
             bool needsToBeStored = resultInfos[resIdx].needsToBeStored();
             bool mustBeCalculated = resultInfos[resIdx].mustBeCalculated();

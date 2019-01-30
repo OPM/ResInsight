@@ -131,6 +131,8 @@ protected:
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultType;
     caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModel;
     caf::PdmField<QString>                                          m_resultVariable;
+    caf::PdmField<bool>                                             m_isTimeLapseResult;
+    caf::PdmField<int>                                              m_timeLapseBaseTimestep;
 
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolution;
     caf::PdmField<std::vector<QString> >                            m_selectedInjectorTracers;
@@ -146,6 +148,8 @@ protected:
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultTypeUiField;
     caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
+    caf::PdmField<bool>                                             m_isTimeLapseResultUiField;
+    caf::PdmField<int>                                              m_timeLapseBaseTimestepUiField;
 
     caf::PdmField< caf::AppEnum< FlowTracerSelectionType > >        m_flowTracerSelectionMode;
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolutionUiField;
@@ -175,6 +179,7 @@ private:
 
     QString                         flowDiagResUiText(bool shortLabel, int maxTracerStringLength = std::numeric_limits<int>::max()) const;
 
+    QString                         convertToTimeDiffUiVarName(const QString& resultName);
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
     QList<caf::PdmOptionItemInfo>   calcOptionsForSelectedTracerField(bool injector);
     

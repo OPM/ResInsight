@@ -66,7 +66,7 @@ public:
     
     bool operator<(const RigEclipseResultInfo& rhs) const;
 
-    RigEclipseResultAddress toAddress() const { return m_resultAddress;}
+    const RigEclipseResultAddress& eclipseResultAddress() const { return m_resultAddress;}
 
 private:
     friend class RigCaseCellResultsData;

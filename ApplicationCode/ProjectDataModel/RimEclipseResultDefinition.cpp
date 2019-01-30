@@ -53,6 +53,7 @@
 
 #include <QDebug>
 #include <QList>
+#include "RimTools.h"
 
 namespace caf
 {
@@ -90,6 +91,13 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     CAF_PDM_InitFieldNoDefault(&m_flowSolution, "FlowDiagSolution", "Solution", "", "", "");
     m_flowSolution.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitField(&m_isTimeLapseResult, "IsTimeLapseResult", false, "TimeLapseResult", "", "", "");
+    m_isTimeLapseResult.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", 0, "Base Time Step", "", "", "");
+    m_timeLapseBaseTimestep.uiCapability()->setUiHidden(true);
+
+
     // One single tracer list has been split into injectors and producers.
     // The old list is defined as injectors and we'll have to move any producers in old projects.
     CAF_PDM_InitFieldNoDefault(&m_selectedTracers_OBSOLETE, "SelectedTracers", "Tracers", "", "", "");
@@ -119,6 +127,12 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     CAF_PDM_InitField(&m_resultVariableUiField, "MResultVariable", RiaDefines::undefinedResultName(), "Result Property", "", "", "" );
     m_resultVariableUiField.xmlCapability()->disableIO();
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&m_isTimeLapseResultUiField, "IsTimeLapseResultUI", false, "Enable Relative Result", "", "Use the difference with respect to a specific time step as the result variable to plot", "");
+    m_isTimeLapseResultUiField.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField(&m_timeLapseBaseTimestepUiField, "TimeLapseBaseTimeStepUI", 0, "Base Time Step", "", "", "");
+    m_timeLapseBaseTimestepUiField.xmlCapability()->disableIO();
 
 
     CAF_PDM_InitFieldNoDefault(&m_flowSolutionUiField, "MFlowDiagSolution", "Solution", "", "", "");
@@ -242,6 +256,8 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         m_porosityModel  = m_porosityModelUiField;
         m_resultType     = m_resultTypeUiField;
         m_resultVariable = m_resultVariableUiField;
+        m_isTimeLapseResult = m_isTimeLapseResultUiField;
+        m_timeLapseBaseTimestep = m_timeLapseBaseTimestepUiField;
         
         if (m_resultTypeUiField() == RiaDefines::FLOW_DIAGNOSTICS)
         {
@@ -254,6 +270,16 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             m_selectedSouringTracers = m_selectedSouringTracersUiField();
         }
         loadDataAndUpdate();
+    }
+
+    if (&m_isTimeLapseResultUiField == changedField)
+    {
+        if (m_isTimeLapseResultUiField() && m_timeLapseBaseTimestep() == RigFemResultAddress::NO_TIME_LAPSE)
+        {
+            m_timeLapseBaseTimestepUiField = 0;
+        }
+
+        m_resultVariableUiField = "";
     }
 
     if (&m_flowTracerSelectionMode == changedField)
@@ -616,6 +642,21 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         {
             options = calcOptionsForVariableUiFieldStandard();
         }
+        else if (fieldNeedingOptions == &m_timeLapseBaseTimestepUiField)
+        {
+            std::vector<QDateTime> stepDates;
+            const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
+            if(gridCellResults)
+            {
+                stepDates = gridCellResults->timeStepDates();
+            }
+
+            for (size_t stepIdx = 0; stepIdx < stepDates.size(); ++stepIdx)
+            {
+                options.push_back(caf::PdmOptionItemInfo(stepDates[stepIdx].toString(RimTools::dateFormatString()), 
+                                                         static_cast<int>(stepIdx)));
+            }
+        }
     }
 
 
@@ -634,7 +675,10 @@ RigEclipseResultAddress RimEclipseResultDefinition::eclipseResultAddress() const
     const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults )
     {
-        return RigEclipseResultAddress(m_resultType(), m_resultVariable());
+        if (m_isTimeLapseResult())
+            return RigEclipseResultAddress(m_resultType(), m_resultVariable(), m_timeLapseBaseTimestep());
+        else
+            return RigEclipseResultAddress(m_resultType(), m_resultVariable());
     }
     else
     {
@@ -748,7 +792,14 @@ QString RimEclipseResultDefinition::resultVariableUiName() const
         return flowDiagResUiText(false, 32);
     }
 
-    return m_resultVariable();
+    if (m_isTimeLapseResult() && resultType() == RiaDefines::DYNAMIC_NATIVE)
+    {
+        return m_resultVariable() + "_D" + QString::number(m_timeLapseBaseTimestep());
+    }
+    else
+    {
+        return m_resultVariable();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -761,7 +812,14 @@ QString RimEclipseResultDefinition::resultVariableUiShortName() const
         return flowDiagResUiText(true, 24);
     }
 
-    return m_resultVariable();
+    if (m_isTimeLapseResult() && resultType() == RiaDefines::DYNAMIC_NATIVE)
+    {
+        return m_resultVariable() + "_D" + QString::number(m_timeLapseBaseTimestep());
+    }
+    else
+    {
+        return m_resultVariable();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -783,7 +841,12 @@ void RimEclipseResultDefinition::loadResult()
     RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        gridCellResults->ensureKnownResultLoaded(RigEclipseResultAddress(m_resultType(), m_resultVariable));
+        if (m_isTimeLapseResult())
+        {
+            gridCellResults->createResultEntry(this->eclipseResultAddress(), false);
+        }
+
+        gridCellResults->ensureKnownResultLoaded(this->eclipseResultAddress());
     }
 
 }
@@ -822,7 +885,7 @@ bool RimEclipseResultDefinition::hasResult() const
     {
         const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
 
-        return gridCellResults->hasResultEntry(RigEclipseResultAddress(m_resultType(), m_resultVariable()));
+        return gridCellResults->hasResultEntry(this->eclipseResultAddress());
     }
 
     return false;
@@ -881,6 +944,8 @@ void RimEclipseResultDefinition::initAfterRead()
     m_porosityModelUiField = m_porosityModel;
     m_resultTypeUiField = m_resultType;
     m_resultVariableUiField = m_resultVariable;
+    m_isTimeLapseResultUiField = m_isTimeLapseResult;
+    m_timeLapseBaseTimestepUiField = m_timeLapseBaseTimestep;
 
     m_flowSolutionUiField = m_flowSolution();
     m_selectedInjectorTracersUiField = m_selectedInjectorTracers;
@@ -1068,6 +1133,7 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         uiOrdering.add(&m_porosityModelUiField);
     }
 
+
     if ( m_resultTypeUiField() == RiaDefines::FLOW_DIAGNOSTICS )
     { 
         uiOrdering.add(&m_flowSolutionUiField);
@@ -1108,6 +1174,14 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
     else
     {
         uiOrdering.add(&m_resultVariableUiField);
+    }
+
+    if ( m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE )
+    {
+        caf::PdmUiGroup * timeLapseGr = uiOrdering.addNewGroup("Relative Result Options");
+        timeLapseGr->add(&m_isTimeLapseResultUiField);
+        if ( m_isTimeLapseResultUiField() )
+            timeLapseGr->add(&m_timeLapseBaseTimestepUiField);
     }
 
     uiOrdering.skipRemainingFields(true);
@@ -1260,6 +1334,21 @@ QString RimEclipseResultDefinition::flowDiagResUiText(bool shortLabel, int maxTr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RimEclipseResultDefinition::convertToTimeDiffUiVarName(const QString& resultName)
+{
+    if (m_isTimeLapseResultUiField() && m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE)
+    {
+        return resultName + "_D" + QString::number(m_timeLapseBaseTimestepUiField());
+    }
+    else
+    {
+        return resultName;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard()
 {
     CVF_ASSERT(m_resultTypeUiField() != RiaDefines::FLOW_DIAGNOSTICS && m_resultTypeUiField() != RiaDefines::INJECTION_FLOODING);
@@ -1272,6 +1361,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         QStringList cellFaceResultNames;
 
         RigCaseCellResultsData* results = this->currentGridCellResults();
+
         foreach(QString s, getResultNamesForCurrentUiResultType())
         {
             if (s == RiaDefines::completionTypeResultName() && results->timeStepDates().empty()) continue;
@@ -1292,7 +1382,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         // Cell Center result names
         foreach(QString s, cellCenterResultNames)
         {
-            optionList.push_back(caf::PdmOptionItemInfo(s, s));
+            optionList.push_back(caf::PdmOptionItemInfo(convertToTimeDiffUiVarName(s), s));
         }
 
         // Ternary Result
@@ -1319,11 +1409,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         {
             if (showDerivedResultsFirstInList)
             {
-                optionList.push_front(caf::PdmOptionItemInfo(s, s));
+                optionList.push_front(caf::PdmOptionItemInfo(convertToTimeDiffUiVarName(s), s));
             }
             else
             {
-                optionList.push_back(caf::PdmOptionItemInfo(s, s));
+                optionList.push_back(caf::PdmOptionItemInfo(convertToTimeDiffUiVarName(s), s));
             }
         }
 
@@ -1535,7 +1625,7 @@ void RimEclipseResultDefinition::removePerCellFaceOptionItems(QList<caf::PdmOpti
     std::vector<int> indicesToRemove;
     for (int i = 0; i < optionItems.size(); i++)
     {
-        QString text = optionItems[i].optionUiText();
+        QString text = optionItems[i].value().toString();
 
         if (RiaDefines::isPerCellFaceResult(text))
         {

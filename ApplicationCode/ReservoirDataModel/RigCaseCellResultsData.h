@@ -118,11 +118,11 @@ public:
     void                                               freeAllocatedResultsData();
     void                                               eraseAllSourSimData();
 
-    bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
     QStringList                                        resultNames(RiaDefines::ResultCatType type) const;
-    QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
     std::vector<RigEclipseResultAddress>               existingResults() const;
     const RigEclipseResultInfo*                        resultInfo(const RigEclipseResultAddress& resVarAddr) const;
+    bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
+    QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
 
     void                                               ensureKnownResultLoadedForTimeStep(const RigEclipseResultAddress& resultAddress, size_t timeStepIndex);
     bool                                               ensureKnownResultLoaded(const RigEclipseResultAddress& resultAddress);
