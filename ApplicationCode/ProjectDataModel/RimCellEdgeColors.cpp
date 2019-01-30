@@ -481,17 +481,17 @@ void RimCellEdgeColors::posNegClosestToZero(double& pos, double& neg)
     pos = HUGE_VAL;
     neg = -HUGE_VAL;
 
-    RigEclipseResultAddress resultIndices[6];
-    this->gridScalarIndices(resultIndices);
+    RigEclipseResultAddress resultAddresses[6];
+    this->gridScalarIndices(resultAddresses);
 
-    size_t idx;
-    for (idx = 0; idx < 6; idx++)
+    size_t faceIdx;
+    for (faceIdx = 0; faceIdx < 6; faceIdx++)
     {
-        if (!resultIndices[idx].isValid()) continue;
+        if (!resultAddresses[faceIdx].isValid()) continue;
 
         {
             double localPos, localNeg;
-            m_reservoirView->currentGridCellResults()->posNegClosestToZero(resultIndices[idx], localPos, localNeg);
+            m_reservoirView->currentGridCellResults()->posNegClosestToZero(resultAddresses[faceIdx], localPos, localNeg);
 
             if (localPos > 0 && localPos < pos) pos = localPos;
             if (localNeg < 0 && localNeg > neg) neg = localNeg;
