@@ -42,9 +42,14 @@ public:
 
     bool isValid() const
     {
-        if (!m_resultName.isEmpty()) return true;
-
-        return false;
+        if (m_resultName.isEmpty() || m_resultName == RiaDefines::undefinedResultName())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     static const int ALL_TIME_LAPSES = -2;

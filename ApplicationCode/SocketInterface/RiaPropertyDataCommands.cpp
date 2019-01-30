@@ -325,7 +325,7 @@ public:
 
         for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
         {
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(rimCase->eclipseCaseData(), gridIdx, porosityModelEnum, requestedTimesteps[tsIdx], propertyName);
+            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultAddress(rimCase->eclipseCaseData(), gridIdx, porosityModelEnum, requestedTimesteps[tsIdx], RigEclipseResultAddress(propertyName));
 
             if (resultAccessor.isNull())
             {
@@ -1255,7 +1255,7 @@ public:
         {
             for (const std::pair<size_t, size_t> selectedCell : selectedCells)
             {
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(rimCase->eclipseCaseData(), selectedCell.first, porosityModel, timeStep, propertyName);
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultAddress(rimCase->eclipseCaseData(), selectedCell.first, porosityModel, timeStep, RigEclipseResultAddress(propertyName));
                 if (resultAccessor.isNull())
                 {
                     return false;

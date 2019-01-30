@@ -377,5 +377,5 @@ cvf::ref<RigResultAccessor>
     const RigEclipseCaseData*     eclipseCaseData = eclipseCase->eclipseCaseData();
 
     // Create result accessor object for main grid at time step zero (static result date is always at first time step
-    return RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, uiResultName);
+    return RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, porosityModel, 0, RigEclipseResultAddress(uiResultName));
 }

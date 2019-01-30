@@ -450,17 +450,17 @@ void RimCellEdgeColors::minMaxCellEdgeValues(double& min, double& max)
         }
         else
         {
-            RigEclipseResultAddress resultIndices[6];
-            this->gridScalarIndices(resultIndices);
+            RigEclipseResultAddress resultAddresses[6];
+            this->gridScalarIndices(resultAddresses);
 
-            size_t idx;
-            for (idx = 0; idx < 6; idx++)
+            size_t faceIdx;
+            for (faceIdx = 0; faceIdx < 6; faceIdx++)
             {
-                if (!resultIndices[idx].isValid()) continue;
+                if (!resultAddresses[faceIdx].isValid()) continue;
 
                 {
                     double cMin, cMax;
-                    m_reservoirView->currentGridCellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
+                    m_reservoirView->currentGridCellResults()->minMaxCellScalarValues(resultAddresses[faceIdx], cMin, cMax);
 
                     globalMin = CVF_MIN(globalMin, cMin);
                     globalMax = CVF_MAX(globalMax, cMax);

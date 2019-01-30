@@ -1733,12 +1733,12 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         if (eclWellLogExtractor)
         {
             RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_formationCase());
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCase->eclipseCaseData(),
-                                                                                                         0,
-                                                                                                         RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                                         0,
-                                                                                                         RiaDefines::activeFormationNamesResultName(),
-                                                                                                         RiaDefines::FORMATION_NAMES);
+            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultAddress(eclipseCase->eclipseCaseData(),
+                                                                                                           0,
+                                                                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                                           0,
+                                                                                                           RigEclipseResultAddress(RiaDefines::FORMATION_NAMES,
+                                                                                                                                   RiaDefines::activeFormationNamesResultName()));
 
             curveData = RimWellLogTrack::curveSamplingPointData(eclWellLogExtractor, resultAccessor.p());
         }

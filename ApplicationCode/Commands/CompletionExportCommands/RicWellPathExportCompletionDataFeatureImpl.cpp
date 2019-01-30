@@ -1260,13 +1260,13 @@ CellDirection RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirec
 
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DX"));
     cvf::ref<RigResultAccessor> dxAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "DX");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DX"));
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DY"));
     cvf::ref<RigResultAccessor> dyAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "DY");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DY"));
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DZ"));
     cvf::ref<RigResultAccessor> dzAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "DZ");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DZ"));
 
     double xLengthFraction = fabs(lengthsInCell.x() / dxAccessObject->cellScalarGlobIdx(globalCellIndex));
     double yLengthFraction = fabs(lengthsInCell.y() / dyAccessObject->cellScalarGlobIdx(globalCellIndex));
@@ -1304,23 +1304,23 @@ TransmissibilityData
 
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DX"));
     cvf::ref<RigResultAccessor> dxAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "DX");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DX"));
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DY"));
     cvf::ref<RigResultAccessor> dyAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "DY");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0,RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DY"));
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DZ"));
     cvf::ref<RigResultAccessor> dzAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "DZ");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DZ"));
 
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMX"));
     cvf::ref<RigResultAccessor> permxAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMX");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMX"));
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMY"));
     cvf::ref<RigResultAccessor> permyAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMY");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMY"));
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMZ"));
     cvf::ref<RigResultAccessor> permzAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMZ");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMZ"));
 
     if (dxAccessObject.isNull() || dyAccessObject.isNull() || dzAccessObject.isNull() || permxAccessObject.isNull() ||
         permyAccessObject.isNull() || permzAccessObject.isNull())
@@ -1334,7 +1334,7 @@ TransmissibilityData
         eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "NTG"));
 
         cvf::ref<RigResultAccessor> ntgAccessObject =
-            RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "NTG");
+            RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "NTG"));
 
         if (ntgAccessObject.notNull())
         {
@@ -1400,7 +1400,7 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor(RimEclipseCa
     {
         eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PORO"));
         cvf::ref<RigResultAccessor> poroAccessObject =
-            RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PORO");
+            RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PORO"));
 
         if (poroAccessObject.notNull())
         {
@@ -1438,29 +1438,29 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
 
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DX"));
     cvf::ref<RigResultAccessor> dxAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "DX");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DX"));
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DY"));
     cvf::ref<RigResultAccessor> dyAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "DY");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DY"));
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DZ"));
     cvf::ref<RigResultAccessor> dzAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "DZ");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DZ"));
 
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMX"));
     cvf::ref<RigResultAccessor> permxAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMX");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMX"));
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMY"));
     cvf::ref<RigResultAccessor> permyAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMY");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMY"));
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMZ"));
     cvf::ref<RigResultAccessor> permzAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMZ");
+        RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMZ"));
 
     double ntg       = 1.0;
     if (eclipseCase->results(RiaDefines::MATRIX_MODEL)->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "NTG")))
     {
         cvf::ref<RigResultAccessor> ntgAccessObject =
-            RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "NTG");
+            RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "NTG"));
         ntg = ntgAccessObject->cellScalarGlobIdx(globalCellIndex);
     }
 

@@ -501,7 +501,7 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
         {
             if (resultColors->resultVariable().compare(RiaDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
             {
-                cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RiaDefines::combinedTransmissibilityResultName());
+                cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createFromResultAddress(eclipseCase, gridIndex, porosityModel, 0, RigEclipseResultAddress(RiaDefines::combinedTransmissibilityResultName()));
                 {
                     double scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
                     resultInfoText->append(QString("Tran X : %1\n").arg(scalarValue));
@@ -517,7 +517,7 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
             }
             else if (resultColors->resultVariable().compare(RiaDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
             {
-                cvf::ref<RigResultAccessor> multResultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RiaDefines::combinedMultResultName());
+                cvf::ref<RigResultAccessor> multResultAccessor = RigResultAccessorFactory::createFromResultAddress(eclipseCase, gridIndex, porosityModel, 0, RigEclipseResultAddress(RiaDefines::combinedMultResultName()));
                 {
                     double scalarValue = multResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
                     resultInfoText->append(QString("MULTX : %1\n").arg(scalarValue));
@@ -539,7 +539,7 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
             }
             else if (resultColors->resultVariable().compare(RiaDefines::combinedRiTranResultName(), Qt::CaseInsensitive) == 0)
             {
-                cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RiaDefines::combinedRiTranResultName());
+                cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createFromResultAddress(eclipseCase, gridIndex, porosityModel, 0, RigEclipseResultAddress(RiaDefines::combinedRiTranResultName()));
                 {
                     double scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
                     resultInfoText->append(QString("riTran X : %1\n").arg(scalarValue));
@@ -555,7 +555,7 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
             }
             else if (resultColors->resultVariable().compare(RiaDefines::combinedRiMultResultName(), Qt::CaseInsensitive) == 0)
             {
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RiaDefines::combinedRiMultResultName());
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultAddress(eclipseCase, gridIndex, porosityModel, 0, RigEclipseResultAddress(RiaDefines::combinedRiMultResultName()));
                 {
                     double scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
                     resultInfoText->append(QString("riMult X : %1\n").arg(scalarValue));
@@ -571,7 +571,7 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
             }
             else if (resultColors->resultVariable().compare(RiaDefines::combinedRiAreaNormTranResultName(), Qt::CaseInsensitive) == 0)
             {
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, 0, RiaDefines::combinedRiAreaNormTranResultName());
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultAddress(eclipseCase, gridIndex, porosityModel, 0, RigEclipseResultAddress(RiaDefines::combinedRiAreaNormTranResultName()));
                 {
                     double scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
                     resultInfoText->append(QString("riTransByArea X : %1\n").arg(scalarValue));

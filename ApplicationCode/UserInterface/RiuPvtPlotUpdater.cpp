@@ -158,10 +158,10 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot(const RimEclipseView& eclipseView
             cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PRESSURE"));
             cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PVTNUM"));
 
-            cvf::ref<RigResultAccessor> rsAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "RS", RiaDefines::DYNAMIC_NATIVE);
-            cvf::ref<RigResultAccessor> rvAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "RV", RiaDefines::DYNAMIC_NATIVE);
-            cvf::ref<RigResultAccessor> pressureAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "PRESSURE", RiaDefines::DYNAMIC_NATIVE);
-            cvf::ref<RigResultAccessor> pvtnumAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "PVTNUM", RiaDefines::STATIC_NATIVE);
+            cvf::ref<RigResultAccessor> rsAccessor       = RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "RS"       ));
+            cvf::ref<RigResultAccessor> rvAccessor       = RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "RV"       ));
+            cvf::ref<RigResultAccessor> pressureAccessor = RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ));
+            cvf::ref<RigResultAccessor> pvtnumAccessor   = RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE , "PVTNUM"   ));
 
             RiuPvtPlotPanel::CellValues cellValues;
             cellValues.rs = rsAccessor.notNull() ? rsAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;

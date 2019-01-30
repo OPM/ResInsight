@@ -310,8 +310,8 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccess
     }
     else
     {
-        RigEclipseResultAddress resultIndices[6];
-        cellEdgeResultColors->gridScalarIndices(resultIndices);
+        RigEclipseResultAddress resultAddresses[6];
+        cellEdgeResultColors->gridScalarIndices(resultAddresses);
 
         std::vector<RimCellEdgeMetaData> metaData;
         cellEdgeResultColors->cellEdgeMetaData(&metaData);
@@ -326,7 +326,7 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccess
             }
 
             RiaDefines::PorosityModelType porosityModel = cellResultColors->porosityModel();
-            cvf::ref<RigResultAccessor> daObj = RigResultAccessorFactory::createFromResultAddress(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStep, resultIndices[cubeFaceIdx]);
+            cvf::ref<RigResultAccessor> daObj = RigResultAccessorFactory::createFromResultAddress(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStep, resultAddresses[cubeFaceIdx]);
             cellEdgeResultAccessor->setDataAccessObjectForFace(static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx), daObj.p());
         }
     }
