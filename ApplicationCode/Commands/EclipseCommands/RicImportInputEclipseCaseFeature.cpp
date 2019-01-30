@@ -101,7 +101,7 @@ void RicImportInputEclipseCaseFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
-    QStringList fileNames = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties Eclipse Input Files (*.GRDECL);;All Files (*.*)");
+    QStringList fileNames = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties (*.GRDECL);;All Files (*.*)");
 
     if (fileNames.isEmpty()) return;
 

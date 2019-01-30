@@ -30,6 +30,7 @@ class RicImportEclipseCaseFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+    static bool openEclipseCaseFromFileNames(const QStringList& fileNames);
 protected:
     // Overrides
     bool isCommandEnabled() override;

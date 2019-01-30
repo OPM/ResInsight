@@ -41,6 +41,24 @@
 CAF_CMD_SOURCE_INIT(RicImportSummaryCaseFeature, "RicImportSummaryCaseFeature");
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicImportSummaryCaseFeature::openSummaryCaseFromFileNames(const QStringList& fileNames)
+{
+    std::vector<RimSummaryCase*> newCases;
+    if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames, &newCases))
+    {
+        RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(newCases);
+        for (const RimSummaryCase* newCase : newCases)
+        {
+            RiaApplication::instance()->addToRecentFiles(newCase->summaryHeaderFilename());
+        }
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryCaseFeature::isCommandEnabled()
@@ -72,15 +90,7 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
 
     if (fileNames.isEmpty()) return;
 
-    std::vector<RimSummaryCase*> newCases;
-    if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames, &newCases))
-    {
-        RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(newCases);
-        for (const RimSummaryCase* newCase : newCases)
-        {
-            RiaApplication::instance()->addToRecentFiles(newCase->summaryHeaderFilename());
-        }
-    }
+    openSummaryCaseFromFileNames(fileNames);
 }
 
 //--------------------------------------------------------------------------------------------------
