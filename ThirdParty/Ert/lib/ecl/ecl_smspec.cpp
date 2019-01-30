@@ -844,11 +844,14 @@ static void ecl_smspec_install_special_keys( ecl_smspec_type * ecl_smspec , smsp
     hash_insert_ref( ecl_smspec->field_var_index , keyword , smspec_node );
     break;
   case(ECL_SMSPEC_GROUP_VAR):
-    if (!hash_has_key(ecl_smspec->group_var_index , group))
-      hash_insert_hash_owned_ref(ecl_smspec->group_var_index , group, hash_alloc() , hash_free__);
+    if (group)
     {
-      hash_type * var_hash = (hash_type*)hash_get(ecl_smspec->group_var_index , group);
-      hash_insert_ref(var_hash , keyword , smspec_node );
+      if (!hash_has_key(ecl_smspec->group_var_index , group))
+        hash_insert_hash_owned_ref(ecl_smspec->group_var_index , group, hash_alloc() , hash_free__);
+      {
+        hash_type * var_hash = (hash_type*)hash_get(ecl_smspec->group_var_index , group);
+        hash_insert_ref(var_hash , keyword , smspec_node );
+      }
     }
     break;
   case(ECL_SMSPEC_REGION_VAR):

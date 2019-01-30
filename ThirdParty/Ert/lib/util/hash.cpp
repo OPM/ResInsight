@@ -82,6 +82,11 @@ static void * __hash_get_node(const hash_type *__hash , const char *key, bool ab
   hash_type * hash = (hash_type *) __hash;  /* The net effect is no change - but .... ?? */
   hash_node_type * node = NULL;
   {
+    if (key == NULL)
+    {
+      return NULL;
+    }
+
     const uint32_t global_index = hash->hashf(key , strlen(key));
     const uint32_t table_index  = (global_index % hash->size);
 
