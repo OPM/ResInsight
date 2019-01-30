@@ -226,6 +226,38 @@ RifRestartFileInfo RifReaderEclipseSummary::getFileInfo(const QString& headerFil
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::string stringFromPointer(const char* pointerToChar)
+{
+    std::string myString;
+
+    // NB! Assigning a null pointer to a std::string causes runtime crash
+    if (pointerToChar)
+    {
+        myString = pointerToChar;
+    }
+
+    return myString;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string wellNameFromNode(const smspec_node_type * ertSumVarNode)
+{
+    return stringFromPointer(smspec_node_get_wgname(ertSumVarNode));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string lgrNameFromNode(const smspec_node_type * ertSumVarNode)
+{
+    return stringFromPointer(smspec_node_get_lgr_name(ertSumVarNode));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSumVarNode)
 {
     if (smspec_node_get_var_type(ertSumVarNode) == ECL_SMSPEC_INVALID_VAR) 
@@ -260,7 +292,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_WELL_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL;
-            wellName = smspec_node_get_wgname(ertSumVarNode);
+            wellName = wellNameFromNode(ertSumVarNode);
         }
         break;
         case ECL_SMSPEC_REGION_VAR:
@@ -277,7 +309,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_GROUP_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_GROUP;
-            wellGroupName = smspec_node_get_wgname(ertSumVarNode);
+            wellGroupName = wellNameFromNode(ertSumVarNode);
         }
         break;
         case ECL_SMSPEC_BLOCK_VAR:
@@ -293,7 +325,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_COMPLETION_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION;
-            wellName = smspec_node_get_wgname(ertSumVarNode);
+            wellName = wellNameFromNode(ertSumVarNode);
             const int* ijk = smspec_node_get_ijk(ertSumVarNode);
             cellI = ijk[0];
             cellJ = ijk[1];
@@ -303,7 +335,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_LOCAL_BLOCK_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR;
-            lgrName = smspec_node_get_lgr_name(ertSumVarNode);
+            lgrName = lgrNameFromNode(ertSumVarNode);
             const int* ijk = smspec_node_get_lgr_ijk(ertSumVarNode);
             cellI = ijk[0];
             cellJ = ijk[1];
@@ -313,8 +345,8 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_LOCAL_COMPLETION_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR;
-            wellName = smspec_node_get_wgname(ertSumVarNode);
-            lgrName = smspec_node_get_lgr_name(ertSumVarNode);
+            wellName = wellNameFromNode(ertSumVarNode);
+            lgrName = lgrNameFromNode(ertSumVarNode);
             const int* ijk = smspec_node_get_lgr_ijk(ertSumVarNode);
             cellI = ijk[0];
             cellJ = ijk[1];
@@ -324,8 +356,8 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_LOCAL_WELL_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_LGR;
-            wellName = smspec_node_get_wgname(ertSumVarNode);
-            lgrName = smspec_node_get_lgr_name(ertSumVarNode);
+            wellName = wellNameFromNode(ertSumVarNode);
+            lgrName = lgrNameFromNode(ertSumVarNode);
         }
         break;
         case ECL_SMSPEC_NETWORK_VAR:
@@ -344,7 +376,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_SEGMENT_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
-            wellName = smspec_node_get_wgname(ertSumVarNode);
+            wellName = wellNameFromNode(ertSumVarNode);
             wellSegmentNumber = smspec_node_get_num(ertSumVarNode);
         }
         break;
