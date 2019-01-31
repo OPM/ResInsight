@@ -135,7 +135,7 @@ public:
     // Test whether it is any point in doing navigation etc.
     bool                    canRender() const;
 
-    bool                    rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints) ;
+    bool                    rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints, cvf::Vec3d* rayGlobalOrigin = nullptr) ;
     cvf::OverlayItem*       overlayItem(int winPosX, int winPosY);
 
     // QPainter based drawing on top of the OpenGL graphics

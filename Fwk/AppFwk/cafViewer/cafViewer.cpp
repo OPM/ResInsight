@@ -474,7 +474,7 @@ const caf::NavigationPolicy* caf::Viewer::getNavigationPolicy() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool caf::Viewer::rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints)
+bool caf::Viewer::rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints, cvf::Vec3d* globalRayOrigin/*=nullptr*/)
 {
     CVF_ASSERT(m_mainRendering.notNull());
 
@@ -485,7 +485,11 @@ bool caf::Viewer::rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pick
     if (ris.notNull())
     {
         bool retVal = m_mainRendering->rayIntersect(*ris, pickedPoints);
-
+        if (retVal && globalRayOrigin)
+        {
+            CVF_ASSERT(ris->ray() != nullptr);
+            *globalRayOrigin = ris->ray()->origin();
+        }
         return retVal;
     }
     else

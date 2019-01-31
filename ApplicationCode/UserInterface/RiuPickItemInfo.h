@@ -28,6 +28,7 @@ namespace cvf
     class Object;
     class HitItem;
     class HitItemCollection;
+    class Ray;
 }
 
 
@@ -39,18 +40,21 @@ public:
     , m_pickedPart(nullptr)
     , m_globalPickedPoint (cvf::Vec3d::UNDEFINED)
     , m_localPickedPoint (cvf::Vec3d::UNDEFINED)
+    , m_globalRayOrigin(cvf::Vec3d::UNDEFINED)
     , m_sourceInfo (nullptr)
     , m_faceIdx (-1)
     {}
 
-    explicit RiuPickItemInfo(const cvf::HitItem* hitItem) 
+    explicit RiuPickItemInfo(const cvf::HitItem* hitItem, const cvf::Vec3d& globalRayOrigin) 
         : m_pickedPart(nullptr)
         , m_globalPickedPoint (cvf::Vec3d::UNDEFINED)
         , m_localPickedPoint (cvf::Vec3d::UNDEFINED)
+        , m_globalRayOrigin(cvf::Vec3d::UNDEFINED)
         , m_sourceInfo (nullptr)
         , m_faceIdx (-1)
     {
         *this = extractPickItemInfo(hitItem);
+        m_globalRayOrigin = globalRayOrigin;
     }
 
     const cvf::Part*   pickedPart()         const { return m_pickedPart;}
@@ -59,18 +63,19 @@ public:
     const cvf::Object* sourceInfo()         const { return m_sourceInfo;}
     cvf::uint          faceIdx()            const { return m_faceIdx;}
     double             distanceAlongRay()   const { return m_distanceAlongRay;}
+    cvf::Vec3d         globalRayOrigin()    const { return m_globalRayOrigin;}
 
     static RiuPickItemInfo              extractPickItemInfo(const cvf::HitItem* hitItem);
-    static std::vector<RiuPickItemInfo> convertToPickItemInfos(const cvf::HitItemCollection &hitItems);
+    static std::vector<RiuPickItemInfo> convertToPickItemInfos(const cvf::HitItemCollection &hitItems, const cvf::Vec3d& globalRayOrigin);
 
 private:
     double             m_distanceAlongRay;
     const cvf::Part*   m_pickedPart;
     cvf::Vec3d         m_globalPickedPoint;
     cvf::Vec3d         m_localPickedPoint;
+    cvf::Vec3d         m_globalRayOrigin;
     const cvf::Object* m_sourceInfo;
     cvf::uint          m_faceIdx;
-
 };
 
 
