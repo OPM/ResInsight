@@ -24,7 +24,7 @@
 
 #ifdef _MSC_VER
 #pragma warning (push)
-#pragma warning (disable: 4267 4307 4319 4244)
+#pragma warning (disable: 4267 4307 4319 4244 4456)
 #endif
 
 #include "farmhash/farmhash.cc"
