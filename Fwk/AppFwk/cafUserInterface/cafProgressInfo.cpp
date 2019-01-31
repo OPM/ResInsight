@@ -369,6 +369,10 @@ namespace caf {
     #ifdef _MSC_VER
     #pragma warning (push)
     #pragma warning (disable: 4668)
+    // Define this one to tell windows.h to not define min() and max() as macros
+    #if defined WIN32 && !defined NOMINMAX
+    #define NOMINMAX
+    #endif
     #include <windows.h>
     #pragma warning (pop)
     #endif

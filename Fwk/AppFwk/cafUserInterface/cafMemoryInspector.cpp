@@ -6,6 +6,10 @@
 #include <QStringList>
 
 #ifdef _WIN32
+// Define this one to tell windows.h to not define min() and max() as macros
+#if defined WIN32 && !defined NOMINMAX
+#define NOMINMAX
+#endif
 #include "windows.h"
 #include "psapi.h"
 #elif defined (__linux__)
