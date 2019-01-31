@@ -1,3 +1,4 @@
+#pragma once
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
