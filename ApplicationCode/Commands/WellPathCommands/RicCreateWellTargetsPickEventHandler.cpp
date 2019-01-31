@@ -20,9 +20,16 @@
 
 #include "RiaOffshoreSphericalCoords.h"
 
+#include "RigFemPart.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPartGrid.h"
+#include "RigHexIntersectionTools.h"
+#include "RigMainGrid.h"
 #include "RigWellPath.h"
 
 #include "Rim3dView.h"
+#include "RimGeoMechView.h"
+#include "RimEclipseView.h"
 #include "RimModeledWellPath.h"
 #include "RimWellPath.h"
 #include "RimWellPathGeometryDef.h"
@@ -30,10 +37,17 @@
 
 #include "RiuViewerCommands.h"
 
+#include "RivFemPartGeometryGenerator.h"
+#include "RivFemPickSourceInfo.h"
+#include "RivSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
+
+#include "cvfStructGridGeometryGenerator.h"
+
+#include <QDebug>
 
 #include <vector>
 
@@ -98,6 +112,17 @@ bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent&
         {
             targetPointInDomain        = intersectionPointInDomain;
             doSetAzimuthAndInclination = false;
+
+            cvf::Vec3d domainRayOrigin =
+                rimView->displayCoordTransform()->transformToDomainCoord(firstPickItem.globalRayOrigin());
+            cvf::Vec3d domainRayEnd = targetPointInDomain + (targetPointInDomain - domainRayOrigin);
+
+            cvf::Vec3d hexElementIntersection = findHexElementIntersection(rimView, firstPickItem, domainRayOrigin, domainRayEnd);
+            CVF_ASSERT(!hexElementIntersection.isUndefined());
+            if (!hexElementIntersection.isUndefined())
+            {
+                targetPointInDomain = hexElementIntersection;
+            }            
         }
 
         if (!m_geometryToAddTargetsTo->firstActiveTarget())
@@ -195,4 +220,76 @@ bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd(do
     *azimuth     = 0.0;
     *inclination = 0.0;
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection(Rim3dView* view, const RiuPickItemInfo& pickItem, const cvf::Vec3d& domainRayOrigin, const cvf::Vec3d& domainRayEnd)
+{
+    auto sourceInfo    = dynamic_cast<const RivSourceInfo*>(pickItem.sourceInfo());
+    auto femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(pickItem.sourceInfo());
+
+    size_t cellIndex = cvf::UNDEFINED_SIZE_T;
+    std::array<cvf::Vec3d, 8> cornerVertices;
+    double characteristicLength = 0.0;
+    if (sourceInfo)
+    {
+        size_t gridIndex = sourceInfo->gridIndex();
+        if (sourceInfo->hasCellFaceMapping())
+        {
+            cellIndex = sourceInfo->m_cellFaceFromTriangleMapper->cellIndex(pickItem.faceIdx());
+            
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
+            if (eclipseView && eclipseView->mainGrid())
+            {
+                RigGridBase*              hitGrid = eclipseView->mainGrid()->gridByIndex(gridIndex);                
+                hitGrid->cellCornerVertices(cellIndex, cornerVertices.data());
+                double dx, dy, dz;
+                hitGrid->characteristicCellSizes(&dx, &dy, &dz);
+                characteristicLength = dz;
+            }
+        }
+    }
+    else if (femSourceInfo)
+    {
+        size_t femPartIndex = femSourceInfo->femPartIndex();
+        if (femSourceInfo->triangleToElmMapper())
+        {
+            size_t elementIndex = femSourceInfo->triangleToElmMapper()->elementIndex(pickItem.faceIdx());
+
+            RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
+            if (geoMechView && geoMechView->femParts())
+            {
+                RigFemPart* femPart = geoMechView->femParts()->part(femPartIndex);
+                if (femPart->elementType(cellIndex) == HEX8 || femPart->elementType(cellIndex) == HEX8P)
+                {
+                    cellIndex = elementIndex;
+                    femPart->getOrCreateStructGrid()->cellCornerVertices(cellIndex, cornerVertices.data());
+                    characteristicLength = femPart->characteristicElementSize();
+                }
+            }
+        }
+    }
+
+    std::vector<HexIntersectionInfo> intersectionInfo;
+    RigHexIntersectionTools::lineHexCellIntersection(domainRayOrigin, domainRayEnd, cornerVertices.data(), cellIndex, &intersectionInfo);
+    if (!intersectionInfo.empty())
+    {
+        // Sort intersection on distance to ray origin
+        CVF_ASSERT(intersectionInfo.size() > 1);
+        std::sort(intersectionInfo.begin(), intersectionInfo.end(),
+            [&domainRayOrigin](const HexIntersectionInfo& lhs, const HexIntersectionInfo& rhs)
+            {
+                return (lhs.m_intersectionPoint - domainRayOrigin).lengthSquared() < (rhs.m_intersectionPoint - domainRayOrigin).lengthSquared();
+            }
+        );
+        const double eps = 1.0e-3;
+        cvf::Vec3d intersectionRay = intersectionInfo.back().m_intersectionPoint - intersectionInfo.front().m_intersectionPoint;
+        cvf::Vec3d newPoint = intersectionInfo.front().m_intersectionPoint + intersectionRay * eps;
+        CVF_ASSERT(RigHexIntersectionTools::isPointInCell(newPoint, cornerVertices.data()));
+        return newPoint;
+    }
+
+    return cvf::Vec3d::UNDEFINED;
 }

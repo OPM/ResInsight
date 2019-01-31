@@ -158,9 +158,10 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     std::vector<RiuPickItemInfo> pickItemInfos;
     {
         cvf::HitItemCollection hitItems;
-        if (m_viewer->rayPick(event->x(), event->y(), &hitItems))
+        cvf::Vec3d globalRayOrigin;
+        if (m_viewer->rayPick(event->x(), event->y(), &hitItems, &globalRayOrigin))
         {
-            pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems);
+            pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems, globalRayOrigin);
         }
     }
 
@@ -524,15 +525,16 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
     std::vector<RiuPickItemInfo> pickItemInfos;
     {
+        cvf::Vec3d globalRayOrigin;
         cvf::HitItemCollection hitItems;
-        m_viewer->rayPick(winPosX, winPosY, &hitItems);
+        m_viewer->rayPick(winPosX, winPosY, &hitItems, &globalRayOrigin);
 
         // Do specialized text pick, since vizfwk does not hit text
         handleTextPicking(winPosX, winPosY, &hitItems);
 
         if (hitItems.count())
         {
-            pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems);
+            pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems, globalRayOrigin);
         }
     }
 

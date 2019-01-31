@@ -44,6 +44,7 @@ private:
                                             double*            azimuth,
                                             double*            inclination) const;
 
+    static cvf::Vec3d findHexElementIntersection(Rim3dView* view, const RiuPickItemInfo& pickItem, const cvf::Vec3d& domainRayOrigin, const cvf::Vec3d& domainRayEnd);
 private:
     caf::PdmPointer<RimWellPathGeometryDef> m_geometryToAddTargetsTo;
 };
