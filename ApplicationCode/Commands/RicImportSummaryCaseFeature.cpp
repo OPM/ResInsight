@@ -85,10 +85,10 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
         fileNames.push_back(RiaFilePathTools::toInternalSeparator(s));
     }
 
+    if (fileNames.isEmpty()) return;
+
     // Remember the path to next time
     app->setLastUsedDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
-
-    if (fileNames.isEmpty()) return;
 
     openSummaryCaseFromFileNames(fileNames);
 }
