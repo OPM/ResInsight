@@ -49,12 +49,11 @@ void RicImportGeneralDataFeature::onActionTriggered(bool isChecked)
     QString eclipseInputFilePattern("*.GRDECL");
     QString eclipseSummaryFilePattern("*.SMSPEC");
         
-    QStringList filePatternTexts = {
-        QString("Eclipse Files (%1 %2 %3)").arg(eclipseGridFilePattern).arg(eclipseInputFilePattern).arg(eclipseSummaryFilePattern),
-        QString("Eclipse Grid Files (%1)").arg(eclipseGridFilePattern),
-        QString("Eclipse Input Files and Input Properties (%1)").arg(eclipseInputFilePattern),
-        QString("Eclipse Summary File (%1)").arg(eclipseSummaryFilePattern)
-    };
+    QStringList filePatternTexts;
+    filePatternTexts += QString("Eclipse Files (%1 %2 %3)").arg(eclipseGridFilePattern).arg(eclipseInputFilePattern).arg(eclipseSummaryFilePattern);
+    filePatternTexts += QString("Eclipse Grid Files (%1)").arg(eclipseGridFilePattern);
+    filePatternTexts += QString("Eclipse Input Files and Input Properties (%1)").arg(eclipseInputFilePattern);
+    filePatternTexts += QString("Eclipse Summary File (%1)").arg(eclipseSummaryFilePattern);
 
     QString fullPattern = filePatternTexts.join(";;");
 
