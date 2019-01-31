@@ -41,6 +41,24 @@
 CAF_CMD_SOURCE_INIT(RicImportSummaryCaseFeature, "RicImportSummaryCaseFeature");
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicImportSummaryCaseFeature::openSummaryCaseFromFileNames(const QStringList& fileNames)
+{
+    std::vector<RimSummaryCase*> newCases;
+    if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames, &newCases))
+    {
+        RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(newCases);
+        for (const RimSummaryCase* newCase : newCases)
+        {
+            RiaApplication::instance()->addToRecentFiles(newCase->summaryHeaderFilename());
+        }
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryCaseFeature::isCommandEnabled()
@@ -67,20 +85,12 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
         fileNames.push_back(RiaFilePathTools::toInternalSeparator(s));
     }
 
+    if (fileNames.isEmpty()) return;
+
     // Remember the path to next time
     app->setLastUsedDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
 
-    if (fileNames.isEmpty()) return;
-
-    std::vector<RimSummaryCase*> newCases;
-    if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames, &newCases))
-    {
-        RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(newCases);
-        for (const RimSummaryCase* newCase : newCases)
-        {
-            RiaApplication::instance()->addToRecentFiles(newCase->summaryHeaderFilename());
-        }
-    }
+    openSummaryCaseFromFileNames(fileNames);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -35,6 +35,23 @@
 CAF_CMD_SOURCE_INIT(RicImportEclipseCaseFeature, "RicImportEclipseCaseFeature");
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicImportEclipseCaseFeature::openEclipseCaseFromFileNames(const QStringList& fileNames)
+{
+    QStringList newCaseFiles;
+    if (RiaImportEclipseCaseTools::openEclipseCasesFromFile(fileNames, &newCaseFiles))
+    {
+        for (const auto newCaseFile : newCaseFiles)
+        {
+            RiaApplication::instance()->addToRecentFiles(newCaseFile);
+        }
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicImportEclipseCaseFeature::isCommandEnabled()
@@ -51,16 +68,13 @@ void RicImportEclipseCaseFeature::onActionTriggered(bool isChecked)
 
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
     QStringList fileNames = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
-    if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
+
+    if (fileNames.isEmpty()) return;
+
+    defaultDir = QFileInfo(fileNames.last()).absolutePath();
     app->setLastUsedDialogDirectory("BINARY_GRID", defaultDir);
 
-    QStringList newCaseFiles;
-    RiaImportEclipseCaseTools::openEclipseCasesFromFile(fileNames, &newCaseFiles);
-
-    for (const auto newCaseFile : newCaseFiles)
-    {
-        RiaApplication::instance()->addToRecentFiles(newCaseFile);
-    }
+    openEclipseCaseFromFileNames(fileNames);
 }
 
 //--------------------------------------------------------------------------------------------------
