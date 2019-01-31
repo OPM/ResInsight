@@ -118,7 +118,6 @@ bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent&
             cvf::Vec3d domainRayEnd = targetPointInDomain + (targetPointInDomain - domainRayOrigin);
 
             cvf::Vec3d hexElementIntersection = findHexElementIntersection(rimView, firstPickItem, domainRayOrigin, domainRayEnd);
-            CVF_ASSERT(!hexElementIntersection.isUndefined());
             if (!hexElementIntersection.isUndefined())
             {
                 targetPointInDomain = hexElementIntersection;
@@ -232,7 +231,6 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection(Rim3
 
     size_t cellIndex = cvf::UNDEFINED_SIZE_T;
     std::array<cvf::Vec3d, 8> cornerVertices;
-    double characteristicLength = 0.0;
     if (sourceInfo)
     {
         size_t gridIndex = sourceInfo->gridIndex();
@@ -247,7 +245,6 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection(Rim3
                 hitGrid->cellCornerVertices(cellIndex, cornerVertices.data());
                 double dx, dy, dz;
                 hitGrid->characteristicCellSizes(&dx, &dy, &dz);
-                characteristicLength = dz;
             }
         }
     }
@@ -261,35 +258,39 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection(Rim3
             RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
             if (geoMechView && geoMechView->femParts())
             {
-                RigFemPart* femPart = geoMechView->femParts()->part(femPartIndex);
-                if (femPart->elementType(cellIndex) == HEX8 || femPart->elementType(cellIndex) == HEX8P)
+                RigFemPart* femPart           = geoMechView->femParts()->part(femPartIndex);
+                RigElementType elType         = femPart->elementType(elementIndex);
+
+                if (elType == HEX8 || elType == HEX8P)
                 {
                     cellIndex = elementIndex;
-                    femPart->getOrCreateStructGrid()->cellCornerVertices(cellIndex, cornerVertices.data());
-                    characteristicLength = femPart->characteristicElementSize();
+                    const RigFemPartGrid* femGrid = femPart->getOrCreateStructGrid();
+                    femGrid->cellCornerVertices(cellIndex, cornerVertices.data());
                 }
             }
         }
     }
 
-    std::vector<HexIntersectionInfo> intersectionInfo;
-    RigHexIntersectionTools::lineHexCellIntersection(domainRayOrigin, domainRayEnd, cornerVertices.data(), cellIndex, &intersectionInfo);
-    if (!intersectionInfo.empty())
+    if (cellIndex)
     {
-        // Sort intersection on distance to ray origin
-        CVF_ASSERT(intersectionInfo.size() > 1);
-        std::sort(intersectionInfo.begin(), intersectionInfo.end(),
-            [&domainRayOrigin](const HexIntersectionInfo& lhs, const HexIntersectionInfo& rhs)
+        std::vector<HexIntersectionInfo> intersectionInfo;
+        RigHexIntersectionTools::lineHexCellIntersection(domainRayOrigin, domainRayEnd, cornerVertices.data(), cellIndex, &intersectionInfo);
+        if (!intersectionInfo.empty())
+        {
+            // Sort intersection on distance to ray origin
+            CVF_ASSERT(intersectionInfo.size() > 1);
+            std::sort(intersectionInfo.begin(), intersectionInfo.end(),
+                [&domainRayOrigin](const HexIntersectionInfo& lhs, const HexIntersectionInfo& rhs)
             {
                 return (lhs.m_intersectionPoint - domainRayOrigin).lengthSquared() < (rhs.m_intersectionPoint - domainRayOrigin).lengthSquared();
             }
-        );
-        const double eps = 1.0e-3;
-        cvf::Vec3d intersectionRay = intersectionInfo.back().m_intersectionPoint - intersectionInfo.front().m_intersectionPoint;
-        cvf::Vec3d newPoint = intersectionInfo.front().m_intersectionPoint + intersectionRay * eps;
-        CVF_ASSERT(RigHexIntersectionTools::isPointInCell(newPoint, cornerVertices.data()));
-        return newPoint;
+            );
+            const double eps = 1.0e-3;
+            cvf::Vec3d intersectionRay = intersectionInfo.back().m_intersectionPoint - intersectionInfo.front().m_intersectionPoint;
+            cvf::Vec3d newPoint = intersectionInfo.front().m_intersectionPoint + intersectionRay * eps;
+            CVF_ASSERT(RigHexIntersectionTools::isPointInCell(newPoint, cornerVertices.data()));
+            return newPoint;
+        }
     }
-
     return cvf::Vec3d::UNDEFINED;
 }
