@@ -6,8 +6,7 @@ image: Visual Studio 2017
 clone_depth: 1
 environment:
   QT5: C:\Qt\5.10.1\msvc2017_64
-configuration:
-  - Release
+configuration: Release
 build_script:
 - cmd: >-
     mkdir cmakebuild
