@@ -108,7 +108,7 @@ bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent&
             doSetAzimuthAndInclination = calculateAzimuthAndInclinationAtMd(
                 md, wellPathSourceInfo->wellPath()->wellPathGeometry(), &azimuth, &inclination);
         }
-        else
+        else if (isGridSourceObject(firstPickItem.sourceInfo()))
         {
             targetPointInDomain        = intersectionPointInDomain;
             doSetAzimuthAndInclination = false;
@@ -118,6 +118,7 @@ bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent&
             cvf::Vec3d domainRayEnd = targetPointInDomain + (targetPointInDomain - domainRayOrigin);
 
             cvf::Vec3d hexElementIntersection = findHexElementIntersection(rimView, firstPickItem, domainRayOrigin, domainRayEnd);
+            CVF_TIGHT_ASSERT(!hexElementIntersection.isUndefined());
             if (!hexElementIntersection.isUndefined())
             {
                 targetPointInDomain = hexElementIntersection;
@@ -224,6 +225,16 @@ bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd(do
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RicCreateWellTargetsPickEventHandler::isGridSourceObject(const cvf::Object* object)
+{
+    auto sourceInfo    = dynamic_cast<const RivSourceInfo*>(object);
+    auto femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(object);
+    return sourceInfo || femSourceInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection(Rim3dView* view, const RiuPickItemInfo& pickItem, const cvf::Vec3d& domainRayOrigin, const cvf::Vec3d& domainRayEnd)
 {
     auto sourceInfo    = dynamic_cast<const RivSourceInfo*>(pickItem.sourceInfo());
@@ -285,7 +296,7 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection(Rim3
                 return (lhs.m_intersectionPoint - domainRayOrigin).lengthSquared() < (rhs.m_intersectionPoint - domainRayOrigin).lengthSquared();
             }
             );
-            const double eps = 1.0e-3;
+            const double eps = 1.0e-2;
             cvf::Vec3d intersectionRay = intersectionInfo.back().m_intersectionPoint - intersectionInfo.front().m_intersectionPoint;
             cvf::Vec3d newPoint = intersectionInfo.front().m_intersectionPoint + intersectionRay * eps;
             CVF_ASSERT(RigHexIntersectionTools::isPointInCell(newPoint, cornerVertices.data()));
