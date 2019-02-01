@@ -17,4 +17,4 @@ build_script:
 
     cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Release -DRESINSIGHT_BUILD_WITH_QT5=true -DRESINSIGHT_ENABLE_COTIRE=on "-DCMAKE_PREFIX_PATH=%QT5%" ..
 
-    cmake --build . --target ResInsight_unity
+    cmake --build . --target ResInsight_unity --config Release
