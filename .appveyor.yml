@@ -1,0 +1,20 @@
+version: 1.0.{build}
+branches:
+  only:
+  - dev
+image: Visual Studio 2017
+clone_depth: 1
+environment:
+  QT5: C:\Qt\5.10.1\msvc2017_64
+configuration:
+  - Release
+build_script:
+- cmd: >-
+    mkdir cmakebuild
+    cd cmakebuild
+
+    if exist "%QT5%" set Path=%QT5%\bin;%Path%
+
+    cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Release -DRESINSIGHT_BUILD_WITH_QT5=true -DRESINSIGHT_ENABLE_COTIRE=on "-DCMAKE_PREFIX_PATH=%QT5%" ..
+
+    cmake --build . --target ResInsight_unity
