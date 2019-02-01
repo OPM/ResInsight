@@ -67,7 +67,14 @@ find_package(Octave)
 option(RESINSIGHT_ENABLE_COTIRE "Experimental speedup of compilation using cotire" OFF)
 mark_as_advanced(FORCE RESINSIGHT_ENABLE_COTIRE)
 if(RESINSIGHT_ENABLE_COTIRE)
-    include(cotire)
+
+  if(NOT COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES)
+    message("cotire: Setting default number of includes to 5")
+    set(COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES 5)
+  endif()
+  
+  include(cotire)
+  include(RiHelpers)
 endif()
 
 ################################################################################
