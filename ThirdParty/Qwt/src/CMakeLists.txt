@@ -299,3 +299,7 @@ target_include_directories(${PROJECT_NAME}
 if (Qt5Core_FOUND)
   target_link_libraries(${PROJECT_NAME} Qt5::Concurrent Qt5::Core Qt5::OpenGL Qt5::PrintSupport Qt5::Widgets)
 endif()
+
+if (COMMAND ri_apply_cotire)
+  ri_apply_cotire()
+endif()

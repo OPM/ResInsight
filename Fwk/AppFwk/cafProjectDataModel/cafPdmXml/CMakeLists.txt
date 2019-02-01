@@ -71,3 +71,7 @@ if (MSVC)
 endif()
 
 source_group("" FILES ${PROJECT_FILES})
+
+if (COMMAND ri_apply_cotire)
+  ri_apply_cotire()
+endif()

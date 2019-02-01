@@ -122,3 +122,7 @@ else()
 	    endforeach( qtlib )
 	endif(MSVC)
 endif(Qt5Core_FOUND)
+
+if (COMMAND ri_apply_cotire)
+  ri_apply_cotire()
+endif()

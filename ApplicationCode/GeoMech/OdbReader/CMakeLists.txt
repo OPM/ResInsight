@@ -92,3 +92,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} ${RI_ODB_LIBS} RigGeoMechDataModel LibCore)
 
 source_group("" FILES ${PROJECT_FILES})
+
+if (COMMAND ri_apply_cotire)
+  ri_apply_cotire()
+endif()

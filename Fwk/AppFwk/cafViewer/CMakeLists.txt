@@ -73,3 +73,8 @@ if (MSVC)
 endif() 
 
 source_group("" FILES ${PROJECT_FILES})
+
+if (COMMAND ri_apply_cotire)
+  set_source_files_properties (cafOpenGLWidget.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
+  ri_apply_cotire()
+endif()
