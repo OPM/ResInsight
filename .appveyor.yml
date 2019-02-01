@@ -11,6 +11,7 @@ configuration:
 build_script:
 - cmd: >-
     mkdir cmakebuild
+    
     cd cmakebuild
 
     if exist "%QT5%" set Path=%QT5%\bin;%Path%
