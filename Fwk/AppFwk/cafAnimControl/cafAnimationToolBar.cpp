@@ -41,7 +41,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
-
+#include <QToolButton>
 
 namespace caf
 {
@@ -50,7 +50,7 @@ namespace caf
 /// 
 //--------------------------------------------------------------------------------------------------
 AnimationToolBar::AnimationToolBar(QWidget *parent /*= 0*/)
-    : QToolBar (parent)
+    : QToolBar (parent)    
 {
     setObjectName("AnimationToolBar");
     init();
@@ -79,9 +79,17 @@ void AnimationToolBar::init()
     m_animSkipToStartAction  = new QAction(QIcon(":/cafAnimControl/SkipToStart.png"),    tr("Skip to Start"), this);
     m_animStepBackwardAction = new QAction(QIcon(":/cafAnimControl/StepBwd.png"),        tr("Step Backward"), this);
     m_animPlayBwdAction      = new QAction(QIcon(":/cafAnimControl/PlayBwd.png"),        tr("Play Backwards"), this);
-    m_animStopAction         = new QAction(QIcon(":/cafAnimControl/Stop.png"),           tr("Stop"), this);
     m_animPauseAction        = new QAction(QIcon(":/cafAnimControl/Pause.png"),          tr("Pause"), this);
     m_animPlayAction         = new QAction(QIcon(":/cafAnimControl/Play.png"),           tr("Play"), this);
+    m_animPlayBwdButton = new QToolButton(this);
+    m_animPlayBwdButton->setIcon(m_animPlayBwdAction->icon());
+    m_animPlayBwdButton->setToolTip(m_animPlayBwdAction->toolTip());
+    QObject::connect(m_animPlayBwdButton, SIGNAL(clicked()), this, SLOT(playBwdClicked()));
+    m_animPlayPauseButton    = new QToolButton(this);
+    m_animPlayPauseButton->setIcon(m_animPlayAction->icon());
+    m_animPlayPauseButton->setToolTip(m_animPlayAction->toolTip());
+    QObject::connect(m_animPlayPauseButton, SIGNAL(clicked()), this, SLOT(playPauseChanged()));
+
     m_animStepForwardAction  = new QAction(QIcon(":/cafAnimControl/StepFwd.png"),        tr("Step Forward"), this);
     m_animSkipToEndAction    = new QAction(QIcon(":/cafAnimControl/SkipToEnd.png"),      tr("Skip to End"), this);
     
@@ -116,10 +124,8 @@ void AnimationToolBar::init()
     // Add actions and widgets to animation toolbar
     addAction(m_animSkipToStartAction);
     addAction(m_animStepBackwardAction);
-    addAction(m_animPlayBwdAction         );
-    //addAction(m_animStopAction);
-    addAction(m_animPauseAction);
-    addAction(m_animPlayAction);
+    addWidget(m_animPlayBwdButton);
+    addWidget(m_animPlayPauseButton);
     addAction(m_animStepForwardAction);
     addAction(m_animSkipToEndAction);
 
@@ -138,6 +144,44 @@ void AnimationToolBar::init()
 
     addWidget(m_timestepCombo);
 
+    updateAnimationButtons();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void AnimationToolBar::updateAnimationButtons()
+{
+    bool isPlaying = m_activeAnimationControl && m_activeAnimationControl->isActive();
+    
+    if (isPlaying)
+    {
+        m_animPlayPauseButton->setIcon(m_animPauseAction->icon());
+        m_animPlayPauseButton->setToolTip(m_animPauseAction->toolTip());
+    }
+    else
+    {
+        m_animPlayPauseButton->setIcon(m_animPlayAction->icon());
+        m_animPlayPauseButton->setToolTip(m_animPlayAction->toolTip());
+    }
+
+    bool isAtStart = m_timestepCombo->count() == 0 || m_timestepCombo->currentIndex() == 0;
+    bool isAtEnd   = m_timestepCombo->count() > 0 && m_timestepCombo->currentIndex() == m_timestepCombo->count() - 1;
+
+    // Going backwards actions disabled when we're stopped at the start
+    m_animSkipToStartAction->setEnabled(isPlaying || !isAtStart);
+    m_animStepBackwardAction->setEnabled(isPlaying || !isAtStart);
+    m_animPlayBwdButton->setEnabled(isPlaying || !isAtStart);
+
+    bool isRepeat = m_activeAnimationControl &&
+                    (m_activeAnimationControl->isRepeatingFromStart() ||
+                     m_activeAnimationControl->isRepeatingFwdBwd());
+
+    // Going forwards actions disabled when we're stopped at the end
+    m_animStepForwardAction->setEnabled(isPlaying || !isAtEnd);
+    m_animSkipToEndAction->setEnabled(isPlaying || !isAtEnd);
+    // ... however we allow playing if we have repeat on
+    m_animPlayPauseButton->setEnabled(isPlaying || isRepeat || !isAtEnd);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,7 +192,7 @@ void AnimationToolBar::connectAnimationControl(caf::FrameAnimationControl* anima
     // Animation action connections
     if (m_activeAnimationControl)
     {
-        m_activeAnimationControl->disconnect(this, SLOT(slotUpdateComboBoxIndex(int)));
+        m_activeAnimationControl->disconnect(this, SLOT(slotUpdateAnimationGuiFromFrameIndex(int)));
         m_activeAnimationControl->disconnect(this, SLOT(slotUpdateTimestepList(int)));
     }
 
@@ -156,7 +200,6 @@ void AnimationToolBar::connectAnimationControl(caf::FrameAnimationControl* anima
 
     m_animSkipToStartAction->disconnect();
     m_animStepBackwardAction->disconnect();
-    m_animStopAction->disconnect();  
     m_animPauseAction->disconnect();  
     m_animPlayAction->disconnect();
     m_animStepForwardAction->disconnect();
@@ -173,7 +216,6 @@ void AnimationToolBar::connectAnimationControl(caf::FrameAnimationControl* anima
     {
         connect(m_animSkipToStartAction,    SIGNAL(triggered()),        animationControl, SLOT(slotSkipToStart()));
         connect(m_animStepBackwardAction,   SIGNAL(triggered()),        animationControl, SLOT(slotStepBackward()));
-        connect(m_animStopAction,           SIGNAL(triggered()),        animationControl, SLOT(slotStop()));
         connect(m_animPauseAction,          SIGNAL(triggered()),        animationControl, SLOT(slotPause()));
         connect(m_animPlayAction,           SIGNAL(triggered()),        animationControl, SLOT(slotPlayFwd()));
         connect(m_animStepForwardAction,    SIGNAL(triggered()),        animationControl, SLOT(slotStepForward()));
@@ -193,14 +235,13 @@ void AnimationToolBar::connectAnimationControl(caf::FrameAnimationControl* anima
         connect(m_timestepCombo,            SIGNAL(currentIndexChanged(int)), animationControl, SLOT(setCurrentFrame(int)));
         connect(m_frameRateSlider,          SIGNAL(valueChanged(int)),  this,             SLOT(slotFrameRateSliderChanged(int)));
 
-        connect(animationControl,           SIGNAL(changeFrame(int)),       this,         SLOT(slotUpdateComboBoxIndex(int)));
+        connect(animationControl,           SIGNAL(changeFrame(int)),       this,         SLOT(slotUpdateAnimationGuiFromFrameIndex(int)));
         connect(animationControl,           SIGNAL(frameCountChanged(int)), this,         SLOT(slotUpdateTimestepList(int)));
 
         int timeout = animationControl->timeout();
         double initialFrameRate = 1000;
         if (timeout > 0) initialFrameRate = 1000.0/timeout;
-        setFrameRate(initialFrameRate);
-        
+        setFrameRate(initialFrameRate);        
     }
 }
 
@@ -250,6 +291,7 @@ void AnimationToolBar::setCurrentTimeStepIndex(int index)
 {
     m_timestepCombo->blockSignals(true);
     m_timestepCombo->setCurrentIndex(index);
+    updateAnimationButtons();
     m_timestepCombo->blockSignals(false);
 }
 
@@ -311,7 +353,34 @@ void AnimationToolBar::slotUpdateTimestepList(int frameCount)
 
     m_timestepCombo->clear();
     m_timestepCombo->addItems(timeStepNames);
+    updateAnimationButtons();
     m_timestepCombo->blockSignals(false);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void AnimationToolBar::playBwdClicked()
+{
+    m_animPlayBwdAction->trigger();
+    updateAnimationButtons();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void AnimationToolBar::playPauseChanged()
+{
+    if (m_activeAnimationControl->isActive())
+    {
+        m_animPauseAction->trigger();
+        updateAnimationButtons();
+    }
+    else
+    {
+        m_animPlayAction->trigger();
+        updateAnimationButtons();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -323,6 +392,7 @@ void AnimationToolBar::slotFromStartModeToggled(bool on)
     {
         m_animRepeatFwdBwdAction->blockSignals(true);
         m_animRepeatFwdBwdAction->setChecked(false);
+        updateAnimationButtons();
         m_animRepeatFwdBwdAction->blockSignals(false);
     }
 }
@@ -336,6 +406,7 @@ void AnimationToolBar::slotFwdBwdModeToggled(bool on)
     {
         m_animRepeatFromStartAction->blockSignals(true);
         m_animRepeatFromStartAction->setChecked(false);
+        updateAnimationButtons();
         m_animRepeatFromStartAction->blockSignals(false);
     }
 }
@@ -343,13 +414,14 @@ void AnimationToolBar::slotFwdBwdModeToggled(bool on)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void AnimationToolBar::slotUpdateComboBoxIndex(int value)
+void AnimationToolBar::slotUpdateAnimationGuiFromFrameIndex(int value)
 {
     // Update only the combo box index, but do not set current frame 
     // Disconnect the signal temporarily when updating UI
 
     disconnect(m_timestepCombo, SIGNAL(currentIndexChanged(int)), m_activeAnimationControl, SLOT(setCurrentFrame(int)));
     m_timestepCombo->setCurrentIndex(value);
+    updateAnimationButtons();
     connect(m_timestepCombo, SIGNAL(currentIndexChanged(int)), m_activeAnimationControl, SLOT(setCurrentFrame(int)));
 }
 
