@@ -254,8 +254,6 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection(Rim3
             {
                 RigGridBase*              hitGrid = eclipseView->mainGrid()->gridByIndex(gridIndex);                
                 hitGrid->cellCornerVertices(cellIndex, cornerVertices.data());
-                double dx, dy, dz;
-                hitGrid->characteristicCellSizes(&dx, &dy, &dz);
             }
         }
     }
