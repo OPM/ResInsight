@@ -568,7 +568,12 @@ if (RESINSIGHT_PRIVATE_INSTALL)
             COMMAND set PATH=%PATH%$<SEMICOLON>${qt5_install_prefix}/bin
             COMMAND
             Qt5::windeployqt
-            --dir "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
+			--no-compiler-runtime
+			--no-system-d3d-compiler
+			--no-quick-import
+			--no-translations
+            --verbose 0
+			--dir "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
             "$<TARGET_FILE_DIR:ResInsight>/$<TARGET_FILE_NAME:ResInsight>"
           )
 
