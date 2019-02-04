@@ -142,28 +142,45 @@ QString RiaSummaryCurveDefinition::curveDefinitionText(const QString& caseName, 
 //--------------------------------------------------------------------------------------------------
 bool RiaSummaryCurveDefinition::operator<(const RiaSummaryCurveDefinition& other) const
 {
-    if (m_summaryCase != other.summaryCase())
     {
-        // Try comparing the dereferenced objects first. They have a predictable sorting operator.
-        if (m_summaryCase && other.summaryCase())
+        QString ensembleName;
+        QString otherEnsembleName;
+
+        if (m_ensemble)
         {
-            return *m_summaryCase < *other.summaryCase();
+            ensembleName = m_ensemble->name();
         }
-        // Sorting by pointer address, which may appear random to the user.
-        return m_summaryCase < other.summaryCase();
+
+        if (other.ensemble())
+        {
+            otherEnsembleName = other.ensemble()->name();
+        }
+
+        if (ensembleName != otherEnsembleName)
+        {
+            return ensembleName < otherEnsembleName;
+        }
     }
 
-    if (m_ensemble != other.ensemble())
     {
-        // Try comparing the dereferenced objects first. They have a predictable sorting operator.
-        if (m_ensemble && other.ensemble())
+        QString summaryCaseName;
+        QString otherSummaryCaseName;
+
+        if (m_summaryCase)
         {
-            return *m_ensemble < *other.ensemble();
+            summaryCaseName = m_summaryCase->caseName();
         }
-        // Sorting by pointer address, which may appear random to the user.
-        return (m_ensemble < other.ensemble());
+        if (other.summaryCase())
+        {
+            otherSummaryCaseName = other.summaryCase()->caseName();
+        }
+
+        if (summaryCaseName != otherSummaryCaseName)
+        {
+            return summaryCaseName < otherSummaryCaseName;
+        }
     }
-    
+
     return (m_summaryAddress < other.summaryAddress());
 }
 
