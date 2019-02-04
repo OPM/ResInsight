@@ -45,8 +45,6 @@
 #include <algorithm>
 #include <omp.h>
 
-#include <QDebug>
-
 namespace caf
 {
 template<>
@@ -520,6 +518,10 @@ double RimContourMapProjection::calculateValueInMapCell(uint i, uint j, const st
                     {
                         maxValue = std::max(maxValue, cellValue);
                     }                    
+                }
+                if (maxValue == -std::numeric_limits<double>::infinity())
+                {
+                    maxValue = std::numeric_limits<double>::infinity();
                 }
                 return maxValue;
             }
