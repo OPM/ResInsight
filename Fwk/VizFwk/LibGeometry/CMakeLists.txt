@@ -66,6 +66,6 @@ target_link_libraries ( ${PROJECT_NAME}
 set(PROJECT_FILES ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 source_group("" FILES ${PROJECT_FILES})
 
-if (COMMAND ri_apply_cotire)
-  ri_apply_cotire()
-endif()
+#if (COMMAND ri_apply_cotire)
+#  ri_apply_cotire()
+#endif()
