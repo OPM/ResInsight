@@ -91,6 +91,7 @@ protected:
 
 protected:
     caf::PdmField<bool>                           m_limitToPorePressureRegions;
+    caf::PdmField<bool>                           m_applyPPRegionLimitVertically;
     caf::PdmField<double>                         m_paddingAroundPorePressureRegion;
     cvf::ref<RigFemPart>                          m_femPart;
     cvf::cref<RigFemPartGrid>                     m_femPartGrid;

@@ -61,7 +61,8 @@ RimGeoMechContourMapProjection::RimGeoMechContourMapProjection()
 {
     CAF_PDM_InitObject("RimContourMapProjection", ":/2DMapProjection16x16.png", "", "");
     CAF_PDM_InitField(&m_limitToPorePressureRegions, "LimitToPorRegion", true, "Limit to Pore Pressure regions", "", "", "");
-    CAF_PDM_InitField(&m_paddingAroundPorePressureRegion, "PaddingAroundPorRegion", 0.0, "Padding around PP regions", "", "", "");
+    CAF_PDM_InitField(&m_applyPPRegionLimitVertically, "VerticalLimit", false, "Apply Limit Vertically", "", "", "");
+    CAF_PDM_InitField(&m_paddingAroundPorePressureRegion, "PaddingAroundPorRegion", 0.0, "Horizontal Padding around PP regions", "", "", "");
     m_paddingAroundPorePressureRegion.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     setName("Map Projection");
     nameField()->uiCapability()->setUiReadOnly(true);
@@ -121,10 +122,16 @@ cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() co
     cvf::ref<cvf::UByteArray> cellGridIdxVisibility = new cvf::UByteArray(m_femPart->elementCount());
     RivFemElmVisibilityCalculator::computeAllVisible(cellGridIdxVisibility.p(), m_femPart.p());
 
-    cvf::CellRangeFilter cellRangeFilter;
-    view()->rangeFilterCollection()->compoundCellRangeFilter(&cellRangeFilter, 0);
-    RivFemElmVisibilityCalculator::computeRangeVisibility(cellGridIdxVisibility.p(), m_femPart.p(), cellRangeFilter);
-    RivFemElmVisibilityCalculator::computePropertyVisibility(cellGridIdxVisibility.p(), m_femPart.p(), view()->currentTimeStep(), cellGridIdxVisibility.p(), view()->geoMechPropertyFilterCollection());
+    if (view()->rangeFilterCollection()->isActive())
+    {
+        cvf::CellRangeFilter cellRangeFilter;
+        view()->rangeFilterCollection()->compoundCellRangeFilter(&cellRangeFilter, 0);
+        RivFemElmVisibilityCalculator::computeRangeVisibility(cellGridIdxVisibility.p(), m_femPart.p(), cellRangeFilter);
+    }
+    if (view()->propertyFilterCollection()->isActive())
+    {
+        RivFemElmVisibilityCalculator::computePropertyVisibility(cellGridIdxVisibility.p(), m_femPart.p(), view()->currentTimeStep(), cellGridIdxVisibility.p(), view()->geoMechPropertyFilterCollection());
+    }
 
     return cellGridIdxVisibility;
 }
@@ -164,10 +171,8 @@ cvf::BoundingBox RimGeoMechContourMapProjection::calculateExpandedPorBarBBox(int
     cvf::Vec3d boxExtent = boundingBox.extent();
     boxMin.x() -= boxExtent.x() * 0.5 * m_paddingAroundPorePressureRegion();
     boxMin.y() -= boxExtent.y() * 0.5 * m_paddingAroundPorePressureRegion();
-    boxMin.z() -= geoMechCase()->characteristicCellSize();
     boxMax.x() += boxExtent.x() * 0.5 * m_paddingAroundPorePressureRegion();
     boxMax.y() += boxExtent.y() * 0.5 * m_paddingAroundPorePressureRegion();
-    boxMax.z() += geoMechCase()->characteristicCellSize();    
     return cvf::BoundingBox(boxMin, boxMax);
 }
 
@@ -194,6 +199,11 @@ void RimGeoMechContourMapProjection::updateGridInformation()
     }
     cvf::Vec3d minExpandedPoint = m_expandedBoundingBox.min() - cvf::Vec3d(gridEdgeOffset(), gridEdgeOffset(), 0.0);
     cvf::Vec3d maxExpandedPoint = m_expandedBoundingBox.max() + cvf::Vec3d(gridEdgeOffset(), gridEdgeOffset(), 0.0);
+    if (m_limitToPorePressureRegions && !m_applyPPRegionLimitVertically)
+    {
+        minExpandedPoint.z() = m_gridBoundingBox.min().z();
+        maxExpandedPoint.z() = m_gridBoundingBox.max().z();
+    }
     m_expandedBoundingBox = cvf::BoundingBox(minExpandedPoint, maxExpandedPoint);
 
     m_mapSize = calculateMapSize();
@@ -511,7 +521,8 @@ void RimGeoMechContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle*
                                                       const QVariant&            newValue)
 {
     RimContourMapProjection::fieldChangedByUi(changedField, oldValue, newValue);
-    if (changedField == &m_limitToPorePressureRegions || changedField == &m_paddingAroundPorePressureRegion)
+    if (changedField == &m_limitToPorePressureRegions || changedField == &m_applyPPRegionLimitVertically ||
+        changedField == &m_paddingAroundPorePressureRegion)
     {
         clearGridMapping();
     }
@@ -549,9 +560,11 @@ QList<caf::PdmOptionItemInfo>
 void RimGeoMechContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     RimContourMapProjection::defineUiOrdering(uiConfigName, uiOrdering);
-    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Grid Boundaries");
+    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Map Boundaries");
     group->add(&m_limitToPorePressureRegions);
+    group->add(&m_applyPPRegionLimitVertically);
     group->add(&m_paddingAroundPorePressureRegion);
+    m_applyPPRegionLimitVertically.uiCapability()->setUiReadOnly(!m_limitToPorePressureRegions());
     m_paddingAroundPorePressureRegion.uiCapability()->setUiReadOnly(!m_limitToPorePressureRegions());
 }
 
