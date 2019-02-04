@@ -44,6 +44,7 @@
 #include "cafFixedAtlasFont.h"
 
 #include "cvfBoundingBox.h"
+#include "cvfCamera.h"
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
 #include "cvfModelBasicList.h"
@@ -69,7 +70,8 @@ RivMeasurementPartMgr::~RivMeasurementPartMgr() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivMeasurementPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList*              model,
+void RivMeasurementPartMgr::appendGeometryPartsToModel(const cvf::Camera*                camera,
+                                                       cvf::ModelBasicList*              model,
                                                        const caf::DisplayCoordTransform* displayCoordTransform,
                                                        const cvf::BoundingBox&           boundingBox)
 {
@@ -84,7 +86,7 @@ void RivMeasurementPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList*     
     // Check bounding box
     if (!isPolylinesInBoundingBox(boundingBox)) return;
 
-    buildPolyLineParts(displayCoordTransform);
+    buildPolyLineParts(camera, displayCoordTransform);
 
     if (m_linePart.notNull())
     {
@@ -115,7 +117,8 @@ void RivMeasurementPartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivMeasurementPartMgr::buildPolyLineParts(const caf::DisplayCoordTransform* displayCoordTransform)
+void RivMeasurementPartMgr::buildPolyLineParts(const cvf::Camera* camera,
+                                               const caf::DisplayCoordTransform* displayCoordTransform)
 {
     auto pointsInDisplay = displayCoordTransform->transformToDisplayCoords(m_measurement->pointsInDomainCoords());
 
@@ -176,15 +179,21 @@ void RivMeasurementPartMgr::buildPolyLineParts(const caf::DisplayCoordTransform*
     // Text label
     if (pointsInDisplay.size() > 1)
     {
-        auto    fontSize        = RiaFontCache::FONT_SIZE_8;
+        bool negativeXDir = false;
+        cvf::Vec3d lastV = pointsInDisplay[pointsInDisplay.size() - 1] - pointsInDisplay[pointsInDisplay.size() - 2];
+        if (lastV.x() < 0.0)
+        {
+            negativeXDir = true;
+        }
+
         auto    backgroundColor = RiaApplication::instance()->preferences()->defaultViewerBackgroundColor;
         auto    fontColor       = cvf::Color3f::BLACK;
         QString text            = m_measurement->label();
         auto    labelPosition   = pointsInDisplay.back();
+        auto    font            = RiaApplication::instance()->customFont();
 
-        auto                        font         = RiaFontCache::getFont(fontSize);
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont(font.p());
+        drawableText->setFont(font);
         drawableText->setCheckPosVisible(false);
         drawableText->setDrawBorder(true);
         drawableText->setDrawBackground(true);
@@ -194,6 +203,21 @@ void RivMeasurementPartMgr::buildPolyLineParts(const caf::DisplayCoordTransform*
         drawableText->setTextColor(fontColor);
 
         cvf::String cvfString = cvfqt::Utils::toString(text);
+
+        cvf::Vec3d windowLabelPosition;
+        camera->project(labelPosition, &windowLabelPosition);
+
+        cvf::BoundingBox oneCharBB = drawableText->textBoundingBox(cvf::String("A"), cvf::Vec3f(labelPosition));
+        if (negativeXDir)
+        {
+            cvf::BoundingBox textBB = drawableText->textBoundingBox(cvfString, cvf::Vec3f(labelPosition));
+            windowLabelPosition.x() -= textBB.extent().x() + oneCharBB.extent().x();
+        }
+        else
+        {
+            windowLabelPosition.x() += oneCharBB.extent().x();
+        }
+        camera->unproject(windowLabelPosition, &labelPosition);
 
         cvf::Vec3f textCoord(labelPosition);
         drawableText->addText(cvfString, textCoord);

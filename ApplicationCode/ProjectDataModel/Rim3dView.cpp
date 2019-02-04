@@ -758,7 +758,7 @@ void Rim3dView::addMeasurementToModel(cvf::ModelBasicList* wellPathModelBasicLis
     else
     {
         cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-        m_measurementPartManager->appendGeometryPartsToModel(
+        m_measurementPartManager->appendGeometryPartsToModel(m_viewer->mainCamera(),
             wellPathModelBasicList, transForm.p(), ownerCase()->allCellsBoundingBox());
     }
 

@@ -28,6 +28,7 @@
 namespace cvf
 {
     class BoundingBox;
+    class Camera;
     class Part;
     class ModelBasicList;
     class Transform;
@@ -50,14 +51,15 @@ public:
     RivMeasurementPartMgr(Rim3dView* view);
     ~RivMeasurementPartMgr() override;
 
-    void appendGeometryPartsToModel(cvf::ModelBasicList*              model,
+    void appendGeometryPartsToModel(const cvf::Camera*                camera,
+                                    cvf::ModelBasicList*              model,
                                     const caf::DisplayCoordTransform* displayCoordTransform,
                                     const cvf::BoundingBox&           boundingBox);
 
     void clearGeometryCache();
 
 private:
-    void buildPolyLineParts(const caf::DisplayCoordTransform* displayCoordTransform);
+    void buildPolyLineParts(const cvf::Camera* camera, const caf::DisplayCoordTransform* displayCoordTransform);
 
     bool               isPolylinesInBoundingBox(const cvf::BoundingBox& boundingBox);
 
