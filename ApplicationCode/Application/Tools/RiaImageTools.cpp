@@ -49,7 +49,7 @@ void RiaImageTools::distanceTransform2d(std::vector<std::vector<unsigned int>>& 
                 g[x][y] = 1 + g[x][y - 1];
             }
         }
-        for (int64_t y = N - 2; y > 0; --y)
+        for (int64_t y = N - 2; y >= 0; --y)
         {
             if (g[x][y + 1] < g[x][y])
             {
@@ -100,7 +100,7 @@ void RiaImageTools::distanceTransform2d(std::vector<std::vector<unsigned int>>& 
                 }
             }
         }
-        for (int64_t u = M - 1; u > 0; --u)
+        for (int64_t u = M - 1; u >= 0; --u)
         {
             int64_t fVal = f(u, s[q], g, y);
             CVF_ASSERT(fVal <= std::numeric_limits<double>::max());

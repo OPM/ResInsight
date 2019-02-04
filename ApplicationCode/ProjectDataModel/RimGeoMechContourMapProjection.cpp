@@ -162,11 +162,11 @@ cvf::BoundingBox RimGeoMechContourMapProjection::calculateExpandedPorBarBBox(int
     cvf::Vec3d boxMin = boundingBox.min();
     cvf::Vec3d boxMax = boundingBox.max();
     cvf::Vec3d boxExtent = boundingBox.extent();
-    boxMin.x() -= boxExtent.x() * 0.5;
-    boxMin.y() -= boxExtent.y() * 0.5;
+    boxMin.x() -= boxExtent.x() * 0.5 * m_paddingAroundPorePressureRegion();
+    boxMin.y() -= boxExtent.y() * 0.5 * m_paddingAroundPorePressureRegion();
     boxMin.z() -= geoMechCase()->characteristicCellSize();
-    boxMax.x() += boxExtent.x() * 0.5;
-    boxMax.y() += boxExtent.y() * 0.5;
+    boxMax.x() += boxExtent.x() * 0.5 * m_paddingAroundPorePressureRegion();
+    boxMax.y() += boxExtent.y() * 0.5 * m_paddingAroundPorePressureRegion();
     boxMax.z() += geoMechCase()->characteristicCellSize();    
     return cvf::BoundingBox(boxMin, boxMax);
 }
