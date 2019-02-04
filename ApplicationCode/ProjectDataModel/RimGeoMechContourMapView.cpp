@@ -163,6 +163,14 @@ bool RimGeoMechContourMapView::isGridVisualizationMode() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimGeoMechContourMapView::isTimeStepDependentDataVisible() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::initAfterRead()
 {
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.

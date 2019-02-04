@@ -40,6 +40,8 @@ public:
     void    updateCurrentTimeStepAndRedraw() override;
     bool    isGridVisualizationMode() const override;
 
+    bool    isTimeStepDependentDataVisible() const override;
+
 protected:
     void initAfterRead() override;
     void createDisplayModel() override;

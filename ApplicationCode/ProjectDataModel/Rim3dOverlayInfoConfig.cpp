@@ -772,6 +772,10 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
                                 "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
                                 "</table>").arg(histData.min).arg(histData.p10).arg(histData.mean).arg(histData.p90).arg(histData.max).arg(histData.sum);
         }
+        else
+        {
+            infoText += QString("<b>No valid result selected</b>");
+        }
     }
     return infoText;
 }

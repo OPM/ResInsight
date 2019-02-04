@@ -105,10 +105,17 @@ void RimGeoMechContourMapProjection::updateLegend()
     legendConfig()->setAutomaticRanges(minmaxValAllTimeSteps.first, minmaxValAllTimeSteps.second, minVal, maxVal);
 
     QString projectionLegendText = QString("Map Projection\n%1").arg(m_resultAggregation().uiText());
-    projectionLegendText += QString("\nResult: %1").arg(cellColors->resultFieldUiName());
-    if (!cellColors->resultComponentUiName().isEmpty())
+    if (cellColors->resultAddress().isValid())
     {
-        projectionLegendText += QString(", %1").arg(cellColors->resultComponentUiName());
+        projectionLegendText += QString("\nResult: %1").arg(cellColors->resultFieldUiName());
+        if (!cellColors->resultComponentUiName().isEmpty())
+        {
+            projectionLegendText += QString(", %1").arg(cellColors->resultComponentUiName());
+        }
+    }
+    else
+    {
+        projectionLegendText += QString("\nNo Result Selected");
     }
 
     legendConfig()->setTitle(projectionLegendText);
@@ -308,8 +315,12 @@ std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress(R
     size_t                       nCells           = numberOfCells();
     std::vector<double>          aggregatedResults = std::vector<double>(nCells, std::numeric_limits<double>::infinity());
 
+    bool wasInvalid = false;
     if (!resultAddress.isValid())
-        return aggregatedResults;
+    {
+        wasInvalid = true;
+        resultAddress = RigFemResultAddress(RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "");
+    }
 
     if (resultAddress.fieldName == "PP")
     {
@@ -326,6 +337,19 @@ std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress(R
 
     std::vector<float> resultValuesF = resultCollection->resultValues(resultAddress, 0, timeStep);
     std::vector<double> resultValues = gridCellValues(resultAddress, resultValuesF);
+
+    if (wasInvalid)
+    {
+        // For invalid result addresses we just use the POR-Bar result to get the reservoir region
+        // And display a dummy 0-result in the region.
+        for (double& value : resultValues)
+        {
+            if (value != std::numeric_limits<double>::infinity())
+            {
+                value = 0.0;
+            }
+        }
+    }
 
 #pragma omp parallel for
     for (int index = 0; index < static_cast<int>(nCells); ++index)
