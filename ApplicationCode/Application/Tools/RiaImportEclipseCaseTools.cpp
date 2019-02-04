@@ -18,7 +18,8 @@
 
 #include "RiaImportEclipseCaseTools.h"
 
-#include "../SummaryPlotCommands/RicNewSummaryPlotFeature.h"
+#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
+#include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
@@ -47,6 +48,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
+#include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuMainWindow.h"
@@ -90,9 +92,9 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
         if (sumCaseColl)
         {
             std::vector<RimSummaryCase*> newSumCases = sumCaseColl->createSummaryCasesFromFileInfos(summaryFileInfos);
-
             for (RimSummaryCase* newSumCase : newSumCases)
             {
+
                 RimSummaryCaseCollection* existingCollection = nullptr;
                 QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(newSumCase->summaryHeaderFilename());
                 RimEclipseCase* gridCase = project->eclipseCaseFromGridFileName(gridCaseFile);
@@ -149,6 +151,15 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
                     sumCaseColl->addCase(newSumCase);
                 }
                 sumCaseColl->updateAllRequiredEditors();
+            }
+
+            if (!newSumCases.empty())
+            {
+                RimSummaryPlotCollection* summaryPlotColl = project->mainPlotCollection()->summaryPlotCollection();
+
+                RicNewSummaryCurveFeature::ensureAtLeastOnePlot(summaryPlotColl, newSumCases.front());
+
+                RiuPlotMainWindowTools::setExpanded(newSumCases.front());
             }
         }
     }

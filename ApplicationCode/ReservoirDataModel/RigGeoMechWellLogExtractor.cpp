@@ -113,7 +113,7 @@ float RigGeoMechWellLogExtractor::calculatePorePressureInSegment(int64_t interse
     double porePressure = hydroStaticPorePressureBar;
 
     // 1: Try pore pressure from the grid
-    if (porePressure == hydroStaticPorePressureBar && averageSegmentPorePressureBar > 0.0)
+    if (porePressure == hydroStaticPorePressureBar && averageSegmentPorePressureBar != std::numeric_limits<double>::infinity() && averageSegmentPorePressureBar > 0.0)
     {
         porePressure = averageSegmentPorePressureBar;
     }

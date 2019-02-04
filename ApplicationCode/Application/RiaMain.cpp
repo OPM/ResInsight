@@ -45,6 +45,10 @@ int main(int argc, char *argv[])
     window.loadWinGeoAndDockToolBarLayout();
     window.showWindow();
 
+    // Create plot main window to be able to set expanded state on created objects
+    // The plot window is hidden by default
+    RiaApplication::instance()->getOrCreateMainPlotWindow();
+
     if (app.parseArguments())
     {
         RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(window.messagePanel()));
