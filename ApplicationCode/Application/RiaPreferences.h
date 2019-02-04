@@ -22,6 +22,8 @@
 
 #include "RiaApplication.h"
 
+#include "RiaFontCache.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -39,6 +41,7 @@ class RiaPreferences : public caf::PdmObject
 public:
     enum SummaryRestartFilesImportMode { IMPORT, NOT_IMPORT, SEPARATE_CASES };
     typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
+    typedef RiaFontCache::FontSizeType FontSizeType;
 
     RiaPreferences(void);
     ~RiaPreferences(void) override;
@@ -72,7 +75,7 @@ public: // Pdm Fields
     caf::PdmField<cvf::Color3f> defaultViewerBackgroundColor;
     caf::PdmField<cvf::Color3f> defaultWellLabelColor;
     caf::PdmField<bool>     showLasCurveWithoutTvdWarning;
-    caf::PdmField<QString>  fontSizeInScene;
+    caf::PdmField<FontSizeType> fontSizeInScene;
     caf::PdmField<bool>     showLegendBackground;
 
     caf::PdmField<bool>     useShaders;

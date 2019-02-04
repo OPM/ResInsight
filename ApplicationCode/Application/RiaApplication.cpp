@@ -1857,36 +1857,7 @@ void RiaApplication::applyPreferences()
             mainPlotWindow()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
     }
 
-    RiaFontCache::FontSize fontSizeType = RiaFontCache::FONT_SIZE_16;
-    if (m_preferences->fontSizeInScene() == "8")
-    {
-        fontSizeType = RiaFontCache::FONT_SIZE_8;
-    }
-    else if (m_preferences->fontSizeInScene() == "10")
-    {
-        fontSizeType = RiaFontCache::FONT_SIZE_10;
-    }
-    else if (m_preferences->fontSizeInScene() == "12")
-    {
-        fontSizeType = RiaFontCache::FONT_SIZE_12;
-    }
-    else if (m_preferences->fontSizeInScene() == "14")
-    {
-        fontSizeType = RiaFontCache::FONT_SIZE_14;
-    }
-    else if (m_preferences->fontSizeInScene() == "16")
-    {
-        fontSizeType = RiaFontCache::FONT_SIZE_16;
-    }
-    else if (m_preferences->fontSizeInScene() == "24")
-    {
-        fontSizeType = RiaFontCache::FONT_SIZE_24;
-    }
-    else if (m_preferences->fontSizeInScene() == "32")
-    {
-        fontSizeType = RiaFontCache::FONT_SIZE_32;
-    }
-
+    RiaFontCache::FontSize fontSizeType = m_preferences->fontSizeInScene();
     m_customFont = RiaFontCache::getFont(fontSizeType);
 
     if (this->project())

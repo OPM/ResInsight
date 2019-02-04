@@ -39,6 +39,10 @@
 #include "RivReachCircleAnnotationPartMgr.h"
 #include "RivTextAnnotationPartMgr.h"
 
+#include "cafDisplayCoordTransform.h"
+#include "cafEffectGenerator.h"
+#include "cafFixedAtlasFont.h"
+
 #include "cvfBoundingBox.h"
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
@@ -47,9 +51,6 @@
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStatePoint.h"
 #include "cvfqtUtils.h"
-
-#include "cafDisplayCoordTransform.h"
-#include "cafEffectGenerator.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

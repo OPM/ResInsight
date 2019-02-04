@@ -18,10 +18,16 @@
 
 #pragma once
 
-#include <cvfBase.h>
-#include <cafFixedAtlasFont.h>
+#include "cvfBase.h"
+#include "cvfObject.h"
 
 #include <map>
+
+namespace caf
+{
+class FixedAtlasFont;
+template<typename T> class AppEnum;
+}
 
 class RimSummaryCaseCollection;
 
@@ -42,10 +48,10 @@ public:
         FONT_SIZE_32
     };
 
+    typedef caf::AppEnum<FontSize> FontSizeType;
+
     static cvf::ref<caf::FixedAtlasFont> getFont(FontSize size);
 
 private:
-    static caf::FixedAtlasFont::FontSize mapToAtlasFontSize(FontSize fontSize);
-
     static std::map<FontSize, cvf::ref<caf::FixedAtlasFont>> ms_fonts;
 };

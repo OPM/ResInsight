@@ -72,7 +72,7 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&defaultViewerBackgroundColor,      "defaultViewerBackgroundColor", cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer Background", "", "The viewer background color for new views", "");
 
     CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "");
-    CAF_PDM_InitField(&fontSizeInScene,                 "fontSizeInScene", QString("8"), "Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&fontSizeInScene,        "fontSizeInScene", "Font Size", "", "", "");
 
     CAF_PDM_InitField(&showLasCurveWithoutTvdWarning,   "showLasCurveWithoutTvdWarning", true, "Show LAS Curve Without TVD Warning", "", "", "");
     showLasCurveWithoutTvdWarning.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
@@ -249,23 +249,7 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if (&fontSizeInScene == fieldNeedingOptions)
-    {
-        QStringList fontSizes;
-        fontSizes <<  "8";
-        fontSizes << "10";
-        fontSizes << "12";
-        fontSizes << "14";
-        fontSizes << "16";
-        fontSizes << "24";
-        fontSizes << "32";
-
-        for (int oIdx = 0; oIdx < fontSizes.size(); ++oIdx)
-        {
-            options.push_back(caf::PdmOptionItemInfo(fontSizes[oIdx], fontSizes[oIdx]));
-        }
-    }
-    else if (fieldNeedingOptions == &gridImportMode)
+    if (fieldNeedingOptions == &gridImportMode)
     {
         // Manual option handling in order to one only a subset of the enum values
         SummaryRestartFilesImportModeType skip(RiaPreferences::NOT_IMPORT);

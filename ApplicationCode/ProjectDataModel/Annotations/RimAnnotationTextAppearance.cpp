@@ -27,24 +27,6 @@
 
 CAF_PDM_SOURCE_INIT(RimAnnotationTextAppearance, "RimAnnotationTextAppearance");
 
-
-namespace caf
-{
-template<>
-void RimAnnotationTextAppearance::FontSize::setUp()
-{
-    addItem(RiaFontCache::FONT_SIZE_8, "FONT_SIZE_8", "8");
-    addItem(RiaFontCache::FONT_SIZE_10, "FONT_SIZE_10", "10");
-    addItem(RiaFontCache::FONT_SIZE_12, "FONT_SIZE_12", "12");
-    addItem(RiaFontCache::FONT_SIZE_14, "FONT_SIZE_14", "14");
-    addItem(RiaFontCache::FONT_SIZE_16, "FONT_SIZE_16", "16");
-    addItem(RiaFontCache::FONT_SIZE_24, "FONT_SIZE_24", "24");
-    addItem(RiaFontCache::FONT_SIZE_32, "FONT_SIZE_32", "32");
-
-    setDefault(RiaFontCache::FONT_SIZE_8);
-}
-} // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +37,9 @@ RimAnnotationTextAppearance::RimAnnotationTextAppearance()
     auto prefs = RiaApplication::instance()->preferences();
     auto defaultBackgroundColor = prefs->defaultViewerBackgroundColor();
 
-    CAF_PDM_InitField(&m_fontSize,          "FontSize", FontSize(), "Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_fontSize,          "FontSize", "Font Size", "", "", "");
+    m_fontSize = prefs->fontSizeInScene();
+
     CAF_PDM_InitField(&m_fontColor,         "FontColor", cvf::Color3f(cvf::Color3f::BLACK),  "Font Color", "", "", "");
     CAF_PDM_InitField(&m_backgroundColor,   "BackgroundColor", defaultBackgroundColor , "Background Color", "", "", "");
     CAF_PDM_InitField(&m_anchorLineColor,   "AnchorLineColor", cvf::Color3f(cvf::Color3f::BLACK), "Anchor Line Color", "", "", "");

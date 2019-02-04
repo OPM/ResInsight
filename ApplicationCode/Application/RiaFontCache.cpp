@@ -18,6 +18,52 @@
 
 #include "RiaFontCache.h"
 
+#include "cafAppEnum.h"
+#include "cafFixedAtlasFont.h"
+
+namespace caf
+{
+template<>
+void RiaFontCache::FontSizeType::setUp()
+{
+    addItem(RiaFontCache::FONT_SIZE_8, "8", "8");
+    addItem(RiaFontCache::FONT_SIZE_10, "10", "10");
+    addItem(RiaFontCache::FONT_SIZE_12, "12", "12");
+    addItem(RiaFontCache::FONT_SIZE_14, "14", "14");
+    addItem(RiaFontCache::FONT_SIZE_16, "16", "16");
+    addItem(RiaFontCache::FONT_SIZE_24, "24", "24");
+    addItem(RiaFontCache::FONT_SIZE_32, "32", "32");
+
+    setDefault(RiaFontCache::FONT_SIZE_8);
+}
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::FixedAtlasFont::FontSize mapToAtlasFontSize(RiaFontCache::FontSize fontSize)
+{
+    switch (fontSize)
+    {
+        case RiaFontCache::FONT_SIZE_8:
+            return caf::FixedAtlasFont::POINT_SIZE_8;
+        case RiaFontCache::FONT_SIZE_10:
+            return caf::FixedAtlasFont::POINT_SIZE_10;
+        case RiaFontCache::FONT_SIZE_12:
+            return caf::FixedAtlasFont::POINT_SIZE_12;
+        case RiaFontCache::FONT_SIZE_14:
+            return caf::FixedAtlasFont::POINT_SIZE_14;
+        case RiaFontCache::FONT_SIZE_16:
+            return caf::FixedAtlasFont::POINT_SIZE_16;
+        case RiaFontCache::FONT_SIZE_24:
+            return caf::FixedAtlasFont::POINT_SIZE_24;
+        case RiaFontCache::FONT_SIZE_32:
+            return caf::FixedAtlasFont::POINT_SIZE_32;
+        default:
+            return caf::FixedAtlasFont::POINT_SIZE_16;
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -34,22 +80,4 @@ cvf::ref<caf::FixedAtlasFont> RiaFontCache::getFont(FontSize size)
         ms_fonts.insert(std::make_pair(size, newFont));
     }
     return ms_fonts[size];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::FixedAtlasFont::FontSize RiaFontCache::mapToAtlasFontSize(FontSize fontSize)
-{
-    switch (fontSize)
-    {
-    case FONT_SIZE_8:   return caf::FixedAtlasFont::POINT_SIZE_8;
-    case FONT_SIZE_10:  return caf::FixedAtlasFont::POINT_SIZE_10;
-    case FONT_SIZE_12:  return caf::FixedAtlasFont::POINT_SIZE_12;
-    case FONT_SIZE_14:  return caf::FixedAtlasFont::POINT_SIZE_14;
-    case FONT_SIZE_16:  return caf::FixedAtlasFont::POINT_SIZE_16;
-    case FONT_SIZE_24:  return caf::FixedAtlasFont::POINT_SIZE_24;
-    case FONT_SIZE_32:  return caf::FixedAtlasFont::POINT_SIZE_32;
-    default:            return caf::FixedAtlasFont::POINT_SIZE_16;
-    }
 }

@@ -12,6 +12,7 @@
 #include "RimContourMapProjection.h"
 
 #include "cafEffectGenerator.h"
+#include "cafFixedAtlasFont.h"
 
 #include "cvfCamera.h"
 #include "cvfDrawableText.h"

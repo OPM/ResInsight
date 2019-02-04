@@ -40,6 +40,7 @@
 
 #include "cafEffectGenerator.h"
 #include "cafDisplayCoordTransform.h"
+#include "cafFixedAtlasFont.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"

@@ -30,6 +30,8 @@
 #include "cvfObject.h"
 #include "cvfFont.h"
 
+#include "RiaFontCache.h"
+
 #include <iostream>
 #include <memory>
 
@@ -89,6 +91,8 @@ public:
         PLA_NONE = 0,
         PLA_CALCULATE_STATISTICS = 1
     };
+
+    typedef RiaFontCache::FontSize FontSize;
 
 public:
     RiaApplication(int& argc, char** argv);
