@@ -43,7 +43,7 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
 
     CAF_PDM_InitField(&m_centerPointXyd, "CenterPointXyd", Vec3d::ZERO, "Center Point", "", "", "");
     m_centerPointXyd.uiCapability()->setUiEditorTypeName(caf::PdmUiVec3dEditor::uiEditorTypeName());
-    CAF_PDM_InitField(&m_radius, "Radius", 0.0, "Radius", "", "", "");
+    CAF_PDM_InitField(&m_radius, "Radius", 100.0, "Radius", "", "", "");
     CAF_PDM_InitField(&m_name, "Name", QString("Circle Annotation"), "Name", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_appearance, "Appearance", "Appearance", "", "", "");
