@@ -106,6 +106,22 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
         m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
     }
 
+    {
+        auto* obj = RiaSummaryTools::summaryCaseMainCollection();
+        if (obj)
+        {
+            setExpanded(obj);
+        }
+    }
+
+    {
+        auto* obj = RiaSummaryTools::summaryPlotCollection();
+        if (obj)
+        {
+            setExpanded(obj);
+        }
+    }
+
     refreshToolbars();
 }
 
