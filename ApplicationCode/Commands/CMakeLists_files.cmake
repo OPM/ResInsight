@@ -49,6 +49,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSelectOrCreateViewFeatureImpl.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.h
+${CMAKE_CURRENT_LIST_DIR}/RicVec3dPickEventHandler.h
 
 # General delete of any object in a child array field
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExec.h
@@ -127,6 +128,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSelectOrCreateViewFeatureImpl.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicPickEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicVec3dPickEventHandler.cpp
 
 # General delete of any object in a child array field
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExec.cpp
