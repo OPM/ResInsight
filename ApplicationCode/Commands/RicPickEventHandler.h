@@ -19,12 +19,15 @@
 
 #pragma once
 
+#include "RiuPickItemInfo.h"
+
 #include "cafCmdFeature.h"
+#include "cafPickEventHandler.h"
+#include "cafPdmField.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
-#include "RiuPickItemInfo.h"
 
 namespace cvf { 
     class Part; 
@@ -35,7 +38,7 @@ class Rim3dView;
 //==================================================================================================
 /// 
 //==================================================================================================
-class Ric3DPickEvent
+class Ric3DPickEvent : public caf::PickEvent
 {
 public:
     Ric3DPickEvent(const std::vector<RiuPickItemInfo>& pickItemInfos, 
@@ -62,10 +65,13 @@ public:
 //==================================================================================================
 /// A temporary, dynamic pick handler that overrides the default ones
 //==================================================================================================
-class RicPickEventHandler 
+class RicPickEventHandler : public caf::PickEventHandler
 {
 public:
+    // Override from caf
+    void registerAsPickEventHandler() override;
+    void unregisterAsPickEventHandler() override;
+    bool handlePickEvent(const caf::PickEvent& eventObject) override;
     virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) = 0;
-    virtual void notifyUnregistered() = 0;
 };
 

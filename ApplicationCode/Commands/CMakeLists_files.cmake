@@ -125,6 +125,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicExportFeatureImpl.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectOrCreateViewFeatureImpl.cpp
 
+${CMAKE_CURRENT_LIST_DIR}/RicPickEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.cpp
 
 # General delete of any object in a child array field
