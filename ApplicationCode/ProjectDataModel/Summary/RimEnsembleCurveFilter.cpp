@@ -22,6 +22,7 @@
 #include "RimSummaryCase.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
 #include <algorithm>
@@ -46,6 +47,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter() : m_lowerLimit(DOUBLE_INF), m_u
     m_active = true;
 
     CAF_PDM_InitFieldNoDefault(&m_ensembleParameterName, "EnsembleParameter", "Ensemble Parameter", "", "", "");
+    m_ensembleParameterName.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     
     CAF_PDM_InitFieldNoDefault(&m_minValue, "MinValue", "Min", "", "", "");
     m_minValue.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
