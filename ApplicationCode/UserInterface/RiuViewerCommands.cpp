@@ -542,9 +542,9 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
     if (pickItemInfos.size())
     {
-        Ric3DPickEvent viewerEventObject(pickItemInfos, m_reservoirView);
+        Ric3dPickEvent viewerEventObject(pickItemInfos, m_reservoirView);
 
-        if (sm_overridingPickHandler && sm_overridingPickHandler->handlePickEvent(viewerEventObject))
+        if (sm_overridingPickHandler && sm_overridingPickHandler->handle3dPickEvent(viewerEventObject))
         {
             return;
         }

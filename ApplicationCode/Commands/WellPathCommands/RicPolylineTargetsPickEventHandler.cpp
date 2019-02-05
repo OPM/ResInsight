@@ -60,7 +60,7 @@ void RicPolylineTargetsPickEventHandler::notifyUnregistered()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPolylineTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool RicPolylineTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
     if (!caf::SelectionManager::instance()->isSelected(m_polylineDef.p(), 0))
     {

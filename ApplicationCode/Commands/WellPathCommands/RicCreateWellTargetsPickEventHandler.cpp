@@ -75,7 +75,7 @@ void RicCreateWellTargetsPickEventHandler::notifyUnregistered()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
     if (!caf::SelectionManager::instance()->isSelected(m_geometryToAddTargetsTo.p(), 0))
     {

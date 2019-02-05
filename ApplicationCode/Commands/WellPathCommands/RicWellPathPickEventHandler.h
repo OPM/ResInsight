@@ -30,6 +30,6 @@ class RicWellPathPickEventHandler : public RicDefaultPickEventHandler
 public:
     static RicWellPathPickEventHandler* instance();
 
-    bool handlePickEvent(const Ric3DPickEvent& eventObject) override;
+    bool handlePickEvent(const Ric3dPickEvent& eventObject) override;
 };
 

@@ -32,7 +32,7 @@ RicVec3dPickEventHandler::RicVec3dPickEventHandler(caf::PdmField<cvf::Vec3d>* ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicVec3dPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool RicVec3dPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
     const Rim3dView* rimView = eventObject.m_view;
 

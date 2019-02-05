@@ -43,8 +43,8 @@ bool RicPickEventHandler::handlePickEvent(const caf::PickEvent& eventObject)
 {
     try
     {
-        const Ric3DPickEvent& eventObject3d = dynamic_cast<const Ric3DPickEvent&>(eventObject);
-        return handlePickEvent(eventObject3d);
+        const Ric3dPickEvent& eventObject3d = dynamic_cast<const Ric3dPickEvent&>(eventObject);
+        return handle3dPickEvent(eventObject3d);
     }
     catch (const std::bad_cast&)
     {

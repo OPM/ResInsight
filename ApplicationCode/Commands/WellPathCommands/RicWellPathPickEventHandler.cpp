@@ -53,7 +53,7 @@ RicWellPathPickEventHandler* RicWellPathPickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool RicWellPathPickEventHandler::handlePickEvent(const Ric3dPickEvent& eventObject)
 {
     if (eventObject.m_pickItemInfos.empty()) return false;
 

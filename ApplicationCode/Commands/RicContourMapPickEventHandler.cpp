@@ -43,7 +43,7 @@ RicContourMapPickEventHandler* RicContourMapPickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicContourMapPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool RicContourMapPickEventHandler::handlePickEvent(const Ric3dPickEvent& eventObject)
 {
     if (eventObject.m_pickItemInfos.empty()) return false;
 

@@ -39,7 +39,7 @@ RicIntersectionPickEventHandler* RicIntersectionPickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicIntersectionPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool RicIntersectionPickEventHandler::handlePickEvent(const Ric3dPickEvent& eventObject)
 {
     std::vector<RimIntersection*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);

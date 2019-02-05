@@ -38,10 +38,10 @@ class Rim3dView;
 //==================================================================================================
 /// 
 //==================================================================================================
-class Ric3DPickEvent : public caf::PickEvent
+class Ric3dPickEvent : public caf::PickEvent
 {
 public:
-    Ric3DPickEvent(const std::vector<RiuPickItemInfo>& pickItemInfos, 
+    Ric3dPickEvent(const std::vector<RiuPickItemInfo>& pickItemInfos, 
                    Rim3dView* view)
         : m_pickItemInfos(pickItemInfos)
         , m_view(view)
@@ -59,7 +59,7 @@ public:
 class RicDefaultPickEventHandler
 {
 public:
-    virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) = 0;
+    virtual bool handlePickEvent(const Ric3dPickEvent& eventObject) = 0;
 };
 
 //==================================================================================================
@@ -72,6 +72,6 @@ public:
     void registerAsPickEventHandler() override;
     void unregisterAsPickEventHandler() override;
     bool handlePickEvent(const caf::PickEvent& eventObject) override;
-    virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) = 0;
+    virtual bool handle3dPickEvent(const Ric3dPickEvent& eventObject) = 0;
 };
 
