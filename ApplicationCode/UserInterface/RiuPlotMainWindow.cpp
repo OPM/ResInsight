@@ -21,11 +21,14 @@
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaPreferences.h"
+#include "RiaSummaryTools.h"
 
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimProject.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurveCommonDataSource.h"
@@ -40,6 +43,7 @@
 #include "RiuWellLogPlot.h"
 
 #include "cafCmdFeatureManager.h"
+#include "cafPdmObjectHandle.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiToolBarEditor.h"
 #include "cafPdmUiTreeView.h"
@@ -54,11 +58,13 @@
 #include <QToolBar>
 #include <QTreeView>
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotMainWindow::RiuPlotMainWindow() : m_activePlotViewWindow(nullptr), m_windowMenu(nullptr), m_blockSlotSubWindowActivated(false)
+RiuPlotMainWindow::RiuPlotMainWindow()
+    : m_activePlotViewWindow(nullptr)
+    , m_windowMenu(nullptr)
+    , m_blockSlotSubWindowActivated(false)
 {
     m_mdiArea = new QMdiArea;
     m_mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation, true);
@@ -157,8 +163,7 @@ void RiuPlotMainWindow::closeEvent(QCloseEvent* event)
 
     app->saveWinGeoAndDockToolBarLayout();
 
-    if (!app->tryCloseMainWindow())
-        return;
+    if (!app->tryCloseMainWindow()) return;
 
     app->closeProject();
 }
@@ -373,7 +378,8 @@ void RiuPlotMainWindow::createDockPanels()
 
         connect(m_projectTreeView, SIGNAL(selectionChanged()), this, SLOT(selectedObjectsChanged()));
         m_projectTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(m_projectTreeView->treeView(), SIGNAL(customContextMenuRequested(const QPoint&)),
+        connect(m_projectTreeView->treeView(),
+                SIGNAL(customContextMenuRequested(const QPoint&)),
                 SLOT(customMenuRequested(const QPoint&)));
 
         m_projectTreeView->setUiConfigurationName("PlotWindow");
@@ -494,7 +500,7 @@ void RiuPlotMainWindow::updateWellLogPlotToolBar()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::updateSummaryPlotToolBar(bool forceUpdateUi)
 {
@@ -582,8 +588,7 @@ void RiuPlotMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
         if (wellLogPlot)
         {
             QSize preferredSize = wellLogPlot->preferredSize();
-            subWindowSize = 
-                QSize(preferredSize.width(), m_mdiArea->height());
+            subWindowSize       = QSize(preferredSize.width(), m_mdiArea->height());
         }
         else
         {
@@ -636,12 +641,10 @@ void RiuPlotMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
-    if (!subWindow)
-        return;
+    if (!subWindow) return;
 
     RimProject* proj = RiaApplication::instance()->project();
-    if (!proj)
-        return;
+    if (!proj) return;
 
     // Select in Project Tree
 
@@ -669,8 +672,7 @@ void RiuPlotMainWindow::setActiveViewer(QWidget* viewer)
     m_blockSlotSubWindowActivated = true;
 
     QMdiSubWindow* swin = findMdiSubWindow(viewer);
-    if (swin)
-        m_mdiArea->setActiveSubWindow(swin);
+    if (swin) m_mdiArea->setActiveSubWindow(swin);
 
     m_blockSlotSubWindowActivated = false;
 }
@@ -745,7 +747,6 @@ void RiuPlotMainWindow::selectedObjectsChanged()
 
         if (!firstSelectedObject) return;
 
-        
         RimViewWindow* selectedWindow = dynamic_cast<RimViewWindow*>(firstSelectedObject);
         if (!selectedWindow)
         {
@@ -813,7 +814,6 @@ void RiuPlotMainWindow::restoreTreeViewState()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -872,8 +872,7 @@ void RiuPlotMainWindow::tileWindows()
 
     // Perform stable sort of list so we first sort by window position but retain activation order
     // for windows with the same position. Needs to be sorted in decreasing order for workaround below.
-    windowList.sort([](const QMdiSubWindow* lhs, const QMdiSubWindow* rhs)
-    {   
+    windowList.sort([](const QMdiSubWindow* lhs, const QMdiSubWindow* rhs) {
         return lhs->frameGeometry().topLeft().rx() > rhs->frameGeometry().topLeft().rx();
     });
 
