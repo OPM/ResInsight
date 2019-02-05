@@ -37,6 +37,7 @@
 #include <vector>
 
 class QString;
+class RicVec3dPickEventHandler;
 class RimGridView;
 class RimReachCircleLineAppearance;
 
@@ -69,6 +70,7 @@ protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
+    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     caf::PdmField<bool>     m_isActive;
@@ -77,4 +79,6 @@ private:
     caf::PdmField<double>   m_radius;
     caf::PdmField<QString>  m_name;
     caf::PdmChildField<RimReachCircleLineAppearance*> m_appearance;
+
+    std::shared_ptr<RicVec3dPickEventHandler> m_centerPointEventHandler;
 };

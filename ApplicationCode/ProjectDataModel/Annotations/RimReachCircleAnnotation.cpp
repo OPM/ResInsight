@@ -24,6 +24,9 @@
 #include "RimProject.h"
 #include "RimAnnotationCollection.h"
 
+#include "RicVec3dPickEventHandler.h"
+
+#include "cafPdmUiVec3dEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimReachCircleAnnotation, "RimReachCircleAnnotation");
 
@@ -39,6 +42,7 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
     m_isActive.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_centerPointXyd, "CenterPointXyd", Vec3d::ZERO, "Center Point", "", "", "");
+    m_centerPointXyd.uiCapability()->setUiEditorTypeName(caf::PdmUiVec3dEditor::uiEditorTypeName());
     CAF_PDM_InitField(&m_radius, "Radius", 0.0, "Radius", "", "", "");
     CAF_PDM_InitField(&m_name, "Name", QString("Circle Annotation"), "Name", "", "", "");
 
@@ -47,6 +51,8 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
     m_appearance = new RimReachCircleLineAppearance();
     m_appearance.uiCapability()->setUiTreeHidden(true);
     m_appearance.uiCapability()->setUiTreeChildrenHidden(true);
+
+    m_centerPointEventHandler.reset(new RicVec3dPickEventHandler(&m_centerPointXyd));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,5 +150,27 @@ caf::PdmFieldHandle* RimReachCircleAnnotation::userDescriptionField()
 caf::PdmFieldHandle* RimReachCircleAnnotation::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimReachCircleAnnotation::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                     QString                    uiConfigName,
+                                                     caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_centerPointXyd)
+    {
+        caf::PdmUiVec3dEditorAttribute* attr = dynamic_cast<caf::PdmUiVec3dEditorAttribute*>(attribute);
+        if (attr)
+        {
+            attr->pickEventHandler = m_centerPointEventHandler;
+            if (m_centerPointXyd().isZero())
+            {
+                attr->startPicking = true;
+            }
+        }
+    }
+
 }
 

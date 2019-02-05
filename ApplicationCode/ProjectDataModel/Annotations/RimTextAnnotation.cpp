@@ -25,10 +25,16 @@
 #include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationTextAppearance.h"
 
+#include "RicVec3dPickEventHandler.h"
 #include "AnnotationCommands/RicTextAnnotation3dEditor.h"
 
+#include "cafCmdFeatureManager.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiVec3dEditor.h"
+
+#include <QAction>
+#include <QPointer>
 
 CAF_PDM_SOURCE_INIT(RimTextAnnotation, "RimTextAnnotation");
 
@@ -42,7 +48,9 @@ RimTextAnnotation::RimTextAnnotation()
     this->setUi3dEditorTypeName(RicTextAnnotation3dEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point", "", "", "");
+    m_anchorPointXyd.uiCapability()->setUiEditorTypeName(caf::PdmUiVec3dEditor::uiEditorTypeName());
     CAF_PDM_InitField(&m_labelPointXyd, "LabelPointXyd", Vec3d::ZERO, "Label Point", "", "", "");
+    m_labelPointXyd.uiCapability()->setUiEditorTypeName(caf::PdmUiVec3dEditor::uiEditorTypeName());
     CAF_PDM_InitField(&m_text, "Text", QString("(New text)"), "Text", "", "", "");
     m_text.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
 
@@ -58,6 +66,9 @@ RimTextAnnotation::RimTextAnnotation()
     m_nameProxy.registerGetMethod(this, &RimTextAnnotation::extractNameFromText);
     m_nameProxy.uiCapability()->setUiReadOnly(true);
     m_nameProxy.xmlCapability()->disableIO();
+
+    m_anchorPointPickEventHandler.reset(new RicVec3dPickEventHandler(&m_anchorPointXyd));
+    m_labelPointPickEventHandler.reset(new RicVec3dPickEventHandler(&m_labelPointXyd));
 
 }
 
@@ -145,6 +156,16 @@ void RimTextAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue)
 {
+    if (changedField == &m_anchorPointXyd && m_labelPointXyd().isZero())
+    {
+        m_labelPointXyd = m_anchorPointXyd();
+    }
+    if (changedField == &m_labelPointXyd && m_anchorPointXyd().isZero())
+    {
+        m_anchorPointXyd = m_labelPointXyd();
+    }
+
+
     RimAnnotationCollectionBase* annColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(annColl);
 
@@ -178,6 +199,7 @@ bool RimTextAnnotation::isVisible() const
     bool visible = true;
     if (coll) visible = coll->isVisible();
     if(visible) visible = m_isActive;
+
     return visible;
 }
 
@@ -195,6 +217,29 @@ RimAnnotationTextAppearance* RimTextAnnotation::appearance() const
 caf::PdmFieldHandle* RimTextAnnotation::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTextAnnotation::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                              QString                    uiConfigName,
+                                              caf::PdmUiEditorAttribute* attribute)
+{
+    caf::PdmUiVec3dEditorAttribute* attr = dynamic_cast<caf::PdmUiVec3dEditorAttribute*>(attribute);
+
+    if (attr && field == &m_anchorPointXyd)
+    {
+        attr->pickEventHandler = m_anchorPointPickEventHandler;
+        if (m_anchorPointXyd().isZero())
+        {
+            attr->startPicking = true;
+        }
+    }
+    else if (attr && field == &m_labelPointXyd)
+    {
+        attr->pickEventHandler = m_labelPointPickEventHandler;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
