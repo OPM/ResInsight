@@ -33,41 +33,12 @@
 //   for more details.
 //
 //##################################################################################################
+#include "cafPickEventHandler.h"
 
-#pragma once
-
-#include "cafPdmObjectHandle.h"
-
-namespace caf
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool caf::PickEventHandler::isObjectBeingModified(const PdmObjectHandle* object) const
 {
-
-//==================================================================================================
-/// Interface for Pick Events
-//==================================================================================================
-class PickEvent
-{
-public:
-    virtual ~PickEvent() {}
-};
-
-//==================================================================================================
-/// Interface for Pick handlers
-//==================================================================================================
-class PickEventHandler
-{
-public:
-    PickEventHandler(const PdmObjectHandle* objectBeingModified) : m_objectBeingModified(objectBeingModified) {}
-
-    bool isObjectBeingModified(const PdmObjectHandle* testObject) const;
-
-    virtual void registerAsPickEventHandler()                  = 0;
-    virtual void unregisterAsPickEventHandler()                = 0;
-    // TODO: Rename to just handlePickEvent when the RicPickEventHandler::handlePickEvent has been renamed
-    virtual bool handlePickEvent(const PickEvent& eventObject) = 0;
-    virtual void notifyUnregistered()                          = 0;
-
-private:
-    const PdmObjectHandle* m_objectBeingModified;
-};
+    return m_objectBeingModified == object;
 }
-

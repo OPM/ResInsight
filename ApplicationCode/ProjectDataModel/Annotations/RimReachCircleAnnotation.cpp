@@ -52,7 +52,7 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
     m_appearance.uiCapability()->setUiTreeHidden(true);
     m_appearance.uiCapability()->setUiTreeChildrenHidden(true);
 
-    m_centerPointEventHandler.reset(new RicVec3dPickEventHandler(&m_centerPointXyd));
+    m_centerPointEventHandler.reset(new RicVec3dPickEventHandler(this, &m_centerPointXyd));
 }
 
 //--------------------------------------------------------------------------------------------------

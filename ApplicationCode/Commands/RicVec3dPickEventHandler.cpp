@@ -20,12 +20,15 @@
 #include "Rim3dView.h"
 
 #include "cafDisplayCoordTransform.h"
+#include "cafSelectionManager.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicVec3dPickEventHandler::RicVec3dPickEventHandler(caf::PdmField<cvf::Vec3d>* vectorField)
-    : m_vectorField(vectorField)
+RicVec3dPickEventHandler::RicVec3dPickEventHandler(const caf::PdmObjectHandle* handlingObject,
+                                                   caf::PdmField<cvf::Vec3d>* vectorField)
+    : Ric3dViewPickEventHandler(handlingObject)
+    , m_vectorField(vectorField)
 {
 }
 
@@ -34,14 +37,19 @@ RicVec3dPickEventHandler::RicVec3dPickEventHandler(caf::PdmField<cvf::Vec3d>* ve
 //--------------------------------------------------------------------------------------------------
 bool RicVec3dPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
-    const Rim3dView* rimView = eventObject.m_view;
+    caf::PdmObjectHandle* selectedObject = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
+    if (isObjectBeingModified(selectedObject))
+    {
+        const Rim3dView* rimView = eventObject.m_view;
 
-    cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-    cvf::Vec3d pickedPositionInUTM = transForm->transformToDomainCoord(eventObject.m_pickItemInfos.front().globalPickedPoint());
-    
-    pickedPositionInUTM.z() *= -1.0;
-    m_vectorField->setValueWithFieldChanged(pickedPositionInUTM);
-    return true;
+        cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+        cvf::Vec3d pickedPositionInUTM = transForm->transformToDomainCoord(eventObject.m_pickItemInfos.front().globalPickedPoint());
+
+        pickedPositionInUTM.z() *= -1.0;
+        m_vectorField->setValueWithFieldChanged(pickedPositionInUTM);
+        return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

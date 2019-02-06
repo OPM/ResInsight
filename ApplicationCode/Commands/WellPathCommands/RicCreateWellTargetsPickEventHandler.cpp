@@ -55,7 +55,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RicCreateWellTargetsPickEventHandler::RicCreateWellTargetsPickEventHandler(RimWellPathGeometryDef* wellGeometryDef)
-    : m_geometryToAddTargetsTo(wellGeometryDef)
+    : Ric3dViewPickEventHandler(wellGeometryDef), m_geometryToAddTargetsTo(wellGeometryDef)
 {
 }
 
@@ -77,7 +77,7 @@ void RicCreateWellTargetsPickEventHandler::notifyUnregistered()
 //--------------------------------------------------------------------------------------------------
 bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
-    if (!caf::SelectionManager::instance()->isSelected(m_geometryToAddTargetsTo.p(), 0))
+    if (!isObjectBeingModified(caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>()))
     {
         m_geometryToAddTargetsTo->enableTargetPointPicking(false);
 

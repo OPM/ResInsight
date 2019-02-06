@@ -40,7 +40,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RicPolylineTargetsPickEventHandler::RicPolylineTargetsPickEventHandler(RimUserDefinedPolylinesAnnotation* polylineDef)
-    : m_polylineDef(polylineDef)
+    : Ric3dViewPickEventHandler(polylineDef), m_polylineDef(polylineDef)
 {
 }
 
@@ -62,7 +62,7 @@ void RicPolylineTargetsPickEventHandler::notifyUnregistered()
 //--------------------------------------------------------------------------------------------------
 bool RicPolylineTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
-    if (!caf::SelectionManager::instance()->isSelected(m_polylineDef.p(), 0))
+    if (!isObjectBeingModified(caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>()))
     {
         return false;
     }

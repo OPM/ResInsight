@@ -159,6 +159,7 @@ set( PROJECT_FILES
     cafPdmUniqueIdValidator.cpp
     cafPdmDoubleStringValidator.cpp
     cafPickEventHandler.h
+	cafPickEventHandler.cpp
 )
 
 add_library( ${PROJECT_NAME}

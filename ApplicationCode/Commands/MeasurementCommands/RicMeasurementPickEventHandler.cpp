@@ -46,6 +46,13 @@ RicMeasurementPickEventHandler* RicMeasurementPickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicMeasurementPickEventHandler::RicMeasurementPickEventHandler()
+    : Ric3dViewPickEventHandler(nullptr)
+{}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicMeasurementPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
     auto measurement = RiaApplication::instance()->project()->measurement();

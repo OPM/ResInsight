@@ -29,6 +29,7 @@ public:
     static RicMeasurementPickEventHandler* instance();
 
 protected:
+    RicMeasurementPickEventHandler();
     bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;
     void notifyUnregistered() override;
 };
