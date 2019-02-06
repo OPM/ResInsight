@@ -26,7 +26,7 @@
 #include <QPointer>
 
 class RicDefaultPickEventHandler;
-class RicPickEventHandler;
+class Ric3dViewPickEventHandler;
 class RimEclipseView;
 class RimGeoMechView;
 class RimIntersection;
@@ -60,8 +60,8 @@ public:
     void            displayContextMenu(QMouseEvent* event);
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
 
-    static void     setPickEventHandler(RicPickEventHandler* pickEventHandler);
-    static void     removePickEventHandlerIfActive(RicPickEventHandler* pickEventHandler);
+    static void     setPickEventHandler(Ric3dViewPickEventHandler* pickEventHandler);
+    static void     removePickEventHandlerIfActive(Ric3dViewPickEventHandler* pickEventHandler);
 
     cvf::Vec3d      lastPickPositionInDomainCoords() const;
 private:
@@ -87,7 +87,7 @@ private:
     caf::PdmPointer<Rim3dView>            m_reservoirView;
     QPointer<RiuViewer>                   m_viewer;
 
-    static RicPickEventHandler*                         sm_overridingPickHandler;
+    static Ric3dViewPickEventHandler*                         sm_overridingPickHandler;
     static std::vector<RicDefaultPickEventHandler*>     sm_defaultPickEventHandlers;
     void handleTextPicking(int winPosX, int winPosY, cvf::HitItemCollection* hitItems);
 };

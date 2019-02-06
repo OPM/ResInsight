@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RicPickEventHandler.h"
+#include "Ric3dViewPickEventHandler.h"
 
 #include "cafPdmPointer.h"
 
@@ -28,7 +28,7 @@ class RigWellPath;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicCreateWellTargetsPickEventHandler : public RicPickEventHandler
+class RicCreateWellTargetsPickEventHandler : public Ric3dViewPickEventHandler
 {
 public:
     RicCreateWellTargetsPickEventHandler(RimWellPathGeometryDef* wellGeometryDef);

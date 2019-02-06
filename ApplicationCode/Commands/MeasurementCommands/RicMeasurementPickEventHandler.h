@@ -18,12 +18,12 @@
 
 #pragma once
 
-#include "RicPickEventHandler.h"
+#include "Ric3dViewPickEventHandler.h"
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicMeasurementPickEventHandler : public RicPickEventHandler
+class RicMeasurementPickEventHandler : public Ric3dViewPickEventHandler
 {
 public:
     static RicMeasurementPickEventHandler* instance();

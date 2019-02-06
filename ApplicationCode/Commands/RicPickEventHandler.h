@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
@@ -23,7 +24,6 @@
 
 #include "cafCmdFeature.h"
 #include "cafPickEventHandler.h"
-#include "cafPdmField.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -59,19 +59,6 @@ public:
 class RicDefaultPickEventHandler
 {
 public:
-    virtual bool handlePickEvent(const Ric3dPickEvent& eventObject) = 0;
-};
-
-//==================================================================================================
-/// A temporary, dynamic pick handler that overrides the default ones
-//==================================================================================================
-class RicPickEventHandler : public caf::PickEventHandler
-{
-public:
-    // Override from caf
-    void registerAsPickEventHandler() override;
-    void unregisterAsPickEventHandler() override;
-    bool handlePickEvent(const caf::PickEvent& eventObject) override;
     virtual bool handle3dPickEvent(const Ric3dPickEvent& eventObject) = 0;
 };
 

@@ -15,7 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RicPickEventHandler.h"
+#include "Ric3dViewPickEventHandler.h"
 #include "RiuViewerCommands.h"
 
 #include <typeinfo>
@@ -23,7 +23,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPickEventHandler::registerAsPickEventHandler()
+void Ric3dViewPickEventHandler::registerAsPickEventHandler()
 {
     RiuViewerCommands::setPickEventHandler(this);
 }
@@ -31,7 +31,7 @@ void RicPickEventHandler::registerAsPickEventHandler()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPickEventHandler::unregisterAsPickEventHandler()
+void Ric3dViewPickEventHandler::unregisterAsPickEventHandler()
 {
     RiuViewerCommands::removePickEventHandlerIfActive(this);
 }
@@ -39,15 +39,12 @@ void RicPickEventHandler::unregisterAsPickEventHandler()
 //--------------------------------------------------------------------------------------------------
 /// Override from caf::PickEventHandler. Translates to a 3d Pick event.
 //--------------------------------------------------------------------------------------------------
-bool RicPickEventHandler::handlePickEvent(const caf::PickEvent& eventObject)
+bool Ric3dViewPickEventHandler::handlePickEvent(const caf::PickEvent& eventObject)
 {
-    try
+    const Ric3dPickEvent* eventObject3d = dynamic_cast<const Ric3dPickEvent*>(&eventObject);
+    if (eventObject3d != nullptr)
     {
-        const Ric3dPickEvent& eventObject3d = dynamic_cast<const Ric3dPickEvent&>(eventObject);
-        return handle3dPickEvent(eventObject3d);
+        return handle3dPickEvent(*eventObject3d);
     }
-    catch (const std::bad_cast&)
-    {
-        return false;
-    }
+    return false;
 }

@@ -29,6 +29,6 @@ public:
     static RicIntersectionPickEventHandler* instance();
 
 protected:
-    bool handlePickEvent(const Ric3dPickEvent& eventObject) override;
+    bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;
 };
 

@@ -48,6 +48,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicExportFeatureImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectOrCreateViewFeatureImpl.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicPickEventHandler.h
+${CMAKE_CURRENT_LIST_DIR}/Ric3dViewPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicVec3dPickEventHandler.h
 
@@ -126,7 +127,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicExportFeatureImpl.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectOrCreateViewFeatureImpl.cpp
 
-${CMAKE_CURRENT_LIST_DIR}/RicPickEventHandler.cpp
+${CMAKE_CURRENT_LIST_DIR}/Ric3dViewPickEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicVec3dPickEventHandler.cpp
 

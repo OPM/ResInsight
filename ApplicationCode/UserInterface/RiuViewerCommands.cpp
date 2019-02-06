@@ -112,7 +112,7 @@
 // RiaViewerCommands
 //
 //==================================================================================================
-RicPickEventHandler* RiuViewerCommands::sm_overridingPickHandler = nullptr;
+Ric3dViewPickEventHandler* RiuViewerCommands::sm_overridingPickHandler = nullptr;
 
 std::vector<RicDefaultPickEventHandler*> RiuViewerCommands::sm_defaultPickEventHandlers;
 //--------------------------------------------------------------------------------------------------
@@ -551,7 +551,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
         for (size_t i = 0; i < sm_defaultPickEventHandlers.size(); i++)
         {
-            if (sm_defaultPickEventHandlers[i]->handlePickEvent(viewerEventObject))
+            if (sm_defaultPickEventHandlers[i]->handle3dPickEvent(viewerEventObject))
             {
                 return;
             }
@@ -926,7 +926,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::setPickEventHandler(RicPickEventHandler* pickEventHandler)
+void RiuViewerCommands::setPickEventHandler(Ric3dViewPickEventHandler* pickEventHandler)
 {
     if (sm_overridingPickHandler) sm_overridingPickHandler->notifyUnregistered();
 
@@ -936,7 +936,7 @@ void RiuViewerCommands::setPickEventHandler(RicPickEventHandler* pickEventHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::removePickEventHandlerIfActive(RicPickEventHandler* pickEventHandler)
+void RiuViewerCommands::removePickEventHandlerIfActive(Ric3dViewPickEventHandler* pickEventHandler)
 {
     if (sm_overridingPickHandler == pickEventHandler)
     {

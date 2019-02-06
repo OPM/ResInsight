@@ -17,24 +17,22 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "Ric3dViewPickEventHandler.h"
+#include "RicPickEventHandler.h"
 
-#include "cafPdmUiCoreVec3d.h"
-
-class Rim3dView;
+#include "cafPdmField.h"
 
 //==================================================================================================
-/// A 3d view pick handler for Vec3d fields
+/// A temporary, dynamic pick handler that overrides the default ones
 //==================================================================================================
-class RicVec3dPickEventHandler : public Ric3dViewPickEventHandler
+class Ric3dViewPickEventHandler : public caf::PickEventHandler
 {
 public:
-    RicVec3dPickEventHandler(caf::PdmField<cvf::Vec3d>* vectorField);
-    bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;
-    void notifyUnregistered() override;
-
-private:
-    caf::PdmField<cvf::Vec3d>* m_vectorField;
+    // Override from caf
+    void registerAsPickEventHandler() override;
+    void unregisterAsPickEventHandler() override;
+    bool handlePickEvent(const caf::PickEvent& eventObject) override;
+    virtual bool handle3dPickEvent(const Ric3dPickEvent& eventObject) = 0;
 };
+
 
 
