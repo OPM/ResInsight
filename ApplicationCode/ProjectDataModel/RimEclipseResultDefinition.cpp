@@ -128,7 +128,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     m_resultVariableUiField.xmlCapability()->disableIO();
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_isTimeLapseResultUiField, "IsTimeLapseResultUI", false, "Enable Relative Result", "", "Use the difference with respect to a specific time step as the result variable to plot", "");
+    CAF_PDM_InitField(&m_isTimeLapseResultUiField, "IsTimeLapseResultUI", false, "Enable Time Difference", "", "Use the difference with respect to a specific time step as the result variable to plot", "");
     m_isTimeLapseResultUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_timeLapseBaseTimestepUiField, "TimeLapseBaseTimeStepUI", 0, "Base Time Step", "", "", "");
@@ -1178,7 +1178,7 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
 
     if ( m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE )
     {
-        caf::PdmUiGroup * timeLapseGr = uiOrdering.addNewGroup("Relative Result Options");
+        caf::PdmUiGroup * timeLapseGr = uiOrdering.addNewGroup("Time Difference Options");
         timeLapseGr->add(&m_isTimeLapseResultUiField);
         if ( m_isTimeLapseResultUiField() )
             timeLapseGr->add(&m_timeLapseBaseTimestepUiField);
