@@ -56,10 +56,10 @@ class PickEventHandler;
 class PdmUiVec3dEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    PdmUiVec3dEditorAttribute() : startPicking(false) {}
+    PdmUiVec3dEditorAttribute() : startInPickingMode(false) {}
 
 public:
-    bool                              startPicking;
+    bool                              startInPickingMode;
     std::shared_ptr<PickEventHandler> pickEventHandler;
 };
 

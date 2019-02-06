@@ -123,7 +123,7 @@ void caf::PdmUiVec3dEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         m_lineEdit->setStyleSheet("");
     }
-    pickButtonToggled(m_attribute.startPicking);
+    pickButtonToggled(m_attribute.startInPickingMode);
 
     m_lineEdit->setToolTip(uiField()->uiToolTip(uiConfigName));
 }

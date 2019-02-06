@@ -233,7 +233,7 @@ void RimTextAnnotation::defineEditorAttribute(const caf::PdmFieldHandle* field,
         attr->pickEventHandler = m_anchorPointPickEventHandler;
         if (m_anchorPointXyd().isZero())
         {
-            attr->startPicking = true;
+            attr->startInPickingMode = true;
         }
     }
     else if (attr && field == &m_labelPointXyd)

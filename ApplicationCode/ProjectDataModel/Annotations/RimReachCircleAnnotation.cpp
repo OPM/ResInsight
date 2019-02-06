@@ -167,7 +167,7 @@ void RimReachCircleAnnotation::defineEditorAttribute(const caf::PdmFieldHandle* 
             attr->pickEventHandler = m_centerPointEventHandler;
             if (m_centerPointXyd().isZero())
             {
-                attr->startPicking = true;
+                attr->startInPickingMode = true;
             }
         }
     }
