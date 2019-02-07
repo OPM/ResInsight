@@ -347,6 +347,12 @@ void RimWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     {
         proj->reloadCompletionTypeResultsInAllViews();
     }
+    else if (changedField == &m_name)
+    {
+        QString previousName = oldValue.toString();
+        QString newName = newValue.toString();
+        m_completions->updateWellPathNameHasChanged(newName, previousName);
+    }
     else
     {
         proj->scheduleCreateDisplayModelAndRedrawAllViews();

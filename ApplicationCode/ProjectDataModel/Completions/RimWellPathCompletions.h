@@ -59,6 +59,7 @@ public:
     std::vector<const RimWellPathComponentInterface*> allCompletions() const;
 
     void                        setWellNameForExport(const QString& name);
+    void                        updateWellPathNameHasChanged(const QString& newWellPathName, const QString& previousWellPathName);
     QString                     wellNameForExport() const;
     QString                     wellGroupNameForExport() const;
     QString                     referenceDepthForExport() const;

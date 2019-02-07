@@ -159,6 +159,17 @@ void RimWellPathCompletions::setWellNameForExport(const QString& name)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellPathCompletions::updateWellPathNameHasChanged(const QString& newWellPathName, const QString& previousWellPathName)
+{
+    if (m_wellNameForExport == previousWellPathName)
+    {
+        m_wellNameForExport = newWellPathName;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletions::wellNameForExport() const
 {
     return formatStringForExport(m_wellNameForExport());
