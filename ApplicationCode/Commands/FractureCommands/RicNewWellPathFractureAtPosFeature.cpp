@@ -37,9 +37,6 @@ CAF_CMD_SOURCE_INIT(RicNewWellPathFractureAtPosFeature, "RicNewWellPathFractureA
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj->allFractureTemplates().empty()) return;
-
     Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
     RiuSelectionItem* selItem = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
 
@@ -66,8 +63,5 @@ void RicNewWellPathFractureAtPosFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellPathFractureAtPosFeature::isCommandEnabled()
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj->allFractureTemplates().empty()) return false;
-
     return true;
 }
