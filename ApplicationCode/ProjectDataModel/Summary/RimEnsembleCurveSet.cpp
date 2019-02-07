@@ -977,7 +977,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves(const std::vector<RimSummaryCase*
             {
                 RimSummaryCurve* curve = new RimSummaryCurve();
                 curve->setSummaryCaseY(sumCase);
-                curve->setSummaryAddressY(addr->address());
+                curve->setSummaryAddressYAndApplyInterpolation(addr->address());
                 curve->setLeftOrRightAxisY(m_plotAxis());
 
                 addCurve(curve);
@@ -1069,7 +1069,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves(const std::vector<RimSummaryCas
         }
         curve->setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
         curve->setSummaryCaseY(m_ensembleStatCase.get());
-        curve->setSummaryAddressY(address);
+        curve->setSummaryAddressYAndApplyInterpolation(address);
         curve->setLeftOrRightAxisY(m_plotAxis());
 
         curve->updateCurveVisibility(false);
