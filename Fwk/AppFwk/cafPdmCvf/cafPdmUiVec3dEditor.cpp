@@ -91,6 +91,17 @@ QWidget* PdmUiVec3dEditor::createLabelWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+caf::PdmUiVec3dEditor::~PdmUiVec3dEditor()
+{
+    if (pickEventHandler())
+    {
+        pickEventHandler()->unregisterAsPickEventHandler();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void caf::PdmUiVec3dEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     if (!m_label.isNull())

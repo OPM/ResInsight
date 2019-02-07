@@ -31,6 +31,9 @@ class RicVec3dPickEventHandler : public Ric3dViewPickEventHandler
 public:
     RicVec3dPickEventHandler(const caf::PdmObjectHandle* handlingObject, caf::PdmField<cvf::Vec3d>* vectorField);
     bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;
+
+
+    void registerAsPickEventHandler() override;
     void notifyUnregistered() override;
 
 private:

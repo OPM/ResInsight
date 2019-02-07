@@ -73,7 +73,7 @@ class PdmUiVec3dEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiVec3dEditor() {}
-    ~PdmUiVec3dEditor() override {}
+    ~PdmUiVec3dEditor() override;
 
 protected:
     QWidget* createEditorWidget(QWidget* parent) override;
