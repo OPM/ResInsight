@@ -126,7 +126,10 @@ std::vector<RimStimPlanFractureTemplate*> RicNewStimPlanFractureTemplateFeature:
 void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimStimPlanFractureTemplate*> newFractures = createNewTemplates();
-    selectFractureTemplateAndUpdate(newFractures.back());
+    if (!newFractures.empty())
+    {
+        selectFractureTemplateAndUpdate(newFractures.back());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
