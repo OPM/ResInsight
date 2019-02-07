@@ -92,6 +92,14 @@ RimTimeStepFilter::RimTimeStepFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimTimeStepFilter::clearFilteredTimeSteps()
+{
+    m_filteredTimeSteps = std::vector<int>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<QDateTime>& timeSteps)
 {
     m_dateFormat = RimTools::createTimeFormatStringFromDates(timeSteps);
@@ -109,7 +117,7 @@ void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<QDateTime>& timeS
 
     if (m_filteredTimeSteps().empty())
     {
-        m_filteredTimeSteps = filteredTimeStepIndicesFromUi();        
+        m_filteredTimeSteps = filteredTimeStepIndicesFromUi();
     }
     m_filteredTimeStepsUi = m_filteredTimeSteps;
 }
