@@ -83,7 +83,7 @@ RiuWellPathSelectionItem* RicNewPerforationIntervalAtMeasuredDepthFeature::wellP
 //--------------------------------------------------------------------------------------------------
 void RicNewPerforationIntervalAtMeasuredDepthFeature::setupActionLook(QAction* actionToSetup)
 {
-    //actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
+    actionToSetup->setIcon(QIcon(":/PerforationIntervals16x16.png"));
     actionToSetup->setText("New Perforation Interval");
 }
 
