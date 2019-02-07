@@ -317,11 +317,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder.addSeparator();
             menuBuilder.subMenuStart("Completions", QIcon(":/CompletionsSymbol16x16.png"));
-            menuBuilder << "RicNewWellPathFractureFeature";
-            menuBuilder << "RicNewFishbonesSubsFeature";
             menuBuilder << "RicNewPerforationIntervalFeature";
-            menuBuilder << "RicNewValveFeature";
             menuBuilder << "RicEditPerforationCollectionFeature";
+            menuBuilder << "RicNewValveFeature";
+            menuBuilder << "RicNewFishbonesSubsFeature";
+            menuBuilder << "RicNewWellPathFractureFeature";
             menuBuilder.subMenuEnd();
 
             menuBuilder.subMenuStart("Export Completions", QIcon(":/ExportCompletionsSymbol16x16.png"));
@@ -333,8 +333,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             {
                 menuBuilder << "RicShowWellPlanFeature";
             }
-            menuBuilder << "RicCreateMultipleFracturesFeature"; 
             menuBuilder << "RicNewWellPathAttributeFeature";
+            menuBuilder << "RicCreateMultipleFracturesFeature"; 
 
             menuBuilder << "Separator";
 
@@ -824,7 +824,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             }
         }
 
-        menuBuilder << "RicCreateMultipleFracturesFeature";
         menuBuilder << "RicWellPathImportCompletionsFileFeature";
         menuBuilder << "RicFlyToObjectFeature";
 
@@ -839,6 +838,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
         menuBuilder << "RicCloseObservedDataFeature";
 
+        menuBuilder << "RicCreateMultipleFracturesFeature";
         menuBuilder << "RicCreateTemporaryLgrFeature";
 
         // Work in progress -- End
