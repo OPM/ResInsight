@@ -60,6 +60,7 @@ namespace RiaDefines
     };
 
     bool isPerCellFaceResult(const QString& resultName);
+    bool isNativeCategoryResult(const QString& resultName);
 
     QString undefinedResultName();
     QString undefinedGridFaultName();
