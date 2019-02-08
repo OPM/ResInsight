@@ -34,6 +34,7 @@
 #include "cafContourLines.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafProgressInfo.h"
 
 #include "cvfArray.h"
 #include "cvfCellRange.h"
@@ -98,20 +99,31 @@ RimContourMapProjection::RimContourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapProjection::~RimContourMapProjection() {}
+RimContourMapProjection::~RimContourMapProjection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::generateResultsIfNecessary(int timeStep)
 {
+    caf::ProgressInfo progress(100, "Generate Results", true);
+
     updateGridInformation();
+    progress.setProgress(10);
 
     if (gridMappingNeedsUpdating() || mapCellVisibilityNeedsUpdating())
     {
         clearResults();
         m_projected3dGridIndices = generateGridMapping();
+        progress.setProgress(20);
         m_mapCellVisibility      = getMapCellVisibility();
+        progress.setProgress(30);
+    }
+    else
+    {
+        progress.setProgress(30);
     }
 
     if (resultVariableChanged())
@@ -124,8 +136,10 @@ void RimContourMapProjection::generateResultsIfNecessary(int timeStep)
     {
         clearGeometry();
         m_aggregatedResults = generateResults(timeStep);
+        progress.setProgress(80);
         generateVertexResults();
     }
+    progress.setProgress(100);
     m_currentResultTimestep = timeStep;
 }
 
@@ -134,11 +148,15 @@ void RimContourMapProjection::generateResultsIfNecessary(int timeStep)
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::generateGeometryIfNecessary()
 {
+    caf::ProgressInfo progress(100, "Generate Geometry", true);
+
     if (geometryNeedsUpdating())
     {
         generateContourPolygons();
+        progress.setProgress(25);
         generateTrianglesWithVertexValues();
     }
+    progress.setProgress(100);
 }
 
 //--------------------------------------------------------------------------------------------------

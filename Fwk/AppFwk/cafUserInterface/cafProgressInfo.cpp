@@ -99,9 +99,9 @@ namespace caf {
     /// If you do not need a title for a particular level, simply pass "" and it will be ignored.
     /// \sa setProgressDescription
     //--------------------------------------------------------------------------------------------------
-    ProgressInfo::ProgressInfo(size_t maxProgressValue, const QString& title)
+    ProgressInfo::ProgressInfo(size_t maxProgressValue, const QString& title, bool delayShowingProgress)
     {
-        ProgressInfoStatic::start(maxProgressValue, title);
+        ProgressInfoStatic::start(maxProgressValue, title, delayShowingProgress);
 
         if (qApp)
         {
@@ -448,7 +448,7 @@ namespace caf {
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    void ProgressInfoStatic::start(size_t maxProgressValue, const QString& title)
+    void ProgressInfoStatic::start(size_t maxProgressValue, const QString& title, bool delayShowingProgress)
     {
         if (!isUpdatePossible()) return;
 
@@ -462,7 +462,14 @@ namespace caf {
             progressDialog()->setMinimum(0);
             progressDialog()->setWindowTitle(title);
             progressDialog()->setCancelButton(nullptr);
-            progressDialog()->show();
+            if (delayShowingProgress)
+            {
+                progressDialog()->setMinimumDuration(1000);
+            }
+            else
+            {
+                progressDialog()->show();
+            }
         }
 
         maxProgressStack_v.push_back(maxProgressValue);

@@ -34,7 +34,9 @@
 #include "RimGridCollection.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimScaleLegendConfig.h"
+
 #include "cafPdmUiTreeOrdering.h"
+#include "cafProgressInfo.h"
 
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
@@ -237,23 +239,32 @@ void RimEclipseContourMapView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapView::updateGeometry()
 {
+    caf::ProgressInfo progress(100, "Generate Contour Map", true);
+
     this->updateVisibleGeometriesAndCellColors();
 
-    if (m_contourMapProjection->isChecked())
-    {
-        m_contourMapProjection->generateResultsIfNecessary(m_currentTimeStep());
+    { // Step 1: generate results and some minor updates. About 30% of the time.
+        if (m_contourMapProjection->isChecked())
+        {
+            m_contourMapProjection->generateResultsIfNecessary(m_currentTimeStep());
+        }
+        progress.setProgress(30);
     }
 
     updateLegends(); // To make sure the scalar mappers are set up correctly
-
     appendWellsAndFracturesToModel();
 
-    createContourMapGeometry();
-    appendContourMapProjectionToModel();
-    appendContourLinesToModel();
+    { // Step 2: generate geometry. Takes about 60% of the time.
+        createContourMapGeometry();
+        progress.setProgress(90);
+    }
 
-    appendPickPointVisToModel();
-
+    { // Step 3: generate drawables. Takes about 10% of the time.
+        appendContourMapProjectionToModel();
+        appendContourLinesToModel();
+        appendPickPointVisToModel();
+        progress.setProgress(100);
+    }
     m_overlayInfoConfig()->update3DInfo();
 }
 

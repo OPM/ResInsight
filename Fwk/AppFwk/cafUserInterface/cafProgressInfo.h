@@ -46,7 +46,7 @@ namespace caf {
 class ProgressInfo
 {
 public:
-    ProgressInfo(size_t maxProgressValue, const QString& title);
+    ProgressInfo(size_t maxProgressValue, const QString& title, bool delayShowingProgress = false);
 
     ~ProgressInfo();
     void setProgressDescription(const QString& description);
@@ -61,7 +61,7 @@ public:
 class ProgressInfoStatic 
 {
 public:
-    static void start(size_t maxProgressValue, const QString& title);
+    static void start(size_t maxProgressValue, const QString& title, bool delayShowingProgress);
 
     static void setProgressDescription(const QString& description);
     static void setProgress(size_t progressValue);

@@ -29,7 +29,9 @@
 #include "RimScaleLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimViewNameConfig.h"
+
 #include "cafPdmUiTreeOrdering.h"
+#include "cafProgressInfo.h"
 
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
@@ -245,18 +247,29 @@ void RimGeoMechContourMapView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::updateGeometry()
 {
-    if (m_contourMapProjection->isChecked())
-    {
-        m_contourMapProjection->generateResultsIfNecessary(m_currentTimeStep());
-   }
-    updateLegends();
+    caf::ProgressInfo progress(100, "Generate Contour Map", true);
 
-    createContourMapGeometry();
-    appendContourMapProjectionToModel();
-    appendContourLinesToModel();
+    { // Step 1: generate results. About 30% of the time.
+        if (m_contourMapProjection->isChecked())
+        {
+            m_contourMapProjection->generateResultsIfNecessary(m_currentTimeStep());
+        }
+        updateLegends();
 
-    appendPickPointVisToModel();
-
+        progress.setProgress(30);
+    }
+    
+    { // Step 2: generate geometry. Takes about 60% of the time.
+        createContourMapGeometry();
+        progress.setProgress(90);
+    }
+    
+    { // Step 3: generate drawables. About 10% of the time.
+        appendContourMapProjectionToModel();
+        appendContourLinesToModel();
+        appendPickPointVisToModel();
+        progress.setProgress(100);
+    }
     m_overlayInfoConfig->update3DInfo();
 }
 
