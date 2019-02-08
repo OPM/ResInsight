@@ -8,16 +8,12 @@ endif (MSVC)
 project (cafUserInterface)
 
 # Qt
-if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS Core QUIET)
-endif(RESINSIGHT_BUILD_WITH_QT5)
-
-if (Qt5Core_FOUND)
-    find_package(Qt5 CONFIG REQUIRED Core Gui Widgets)
+if (CAF_USE_QT5)
+	find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 else()
     find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
     include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
+endif(CAF_USE_QT5)
 
 # These headers need to go through Qt's MOC compiler
 set (MOC_HEADER_FILES    
@@ -57,11 +53,11 @@ set (MOC_HEADER_FILES
 )
 
 if ( NOT CMAKE_AUTOMOC )
-	if (Qt5Core_FOUND)
+	if (CAF_USE_QT5)
 		qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 	else()
 		qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-	endif()
+	endif(CAF_USE_QT5)
 endif()
 
 
@@ -178,9 +174,9 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if (Qt5Core_FOUND)
+if (CAF_USE_QT5)
 	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-endif()
+endif(CAF_USE_QT5)
 
 target_link_libraries ( ${PROJECT_NAME}
     cafProjectDataModel

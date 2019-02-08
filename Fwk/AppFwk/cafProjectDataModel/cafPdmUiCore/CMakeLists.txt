@@ -3,16 +3,12 @@ cmake_minimum_required (VERSION 2.8.12)
 project (cafPdmUiCore)		
 
 # Qt
-if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS Core QUIET)
-endif(RESINSIGHT_BUILD_WITH_QT5)
-
-if (Qt5Core_FOUND)
-	find_package(Qt5 CONFIG REQUIRED Core Gui Widgets)
+if (CAF_USE_QT5)
+	find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 else()
 	find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
     include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
+endif(CAF_USE_QT5)
 
 
 include_directories (
@@ -27,11 +23,11 @@ set (MOC_HEADER_FILES
 
 # Run MOC on the headers
 add_definitions(-DCVF_USING_CMAKE)
-if (Qt5Core_FOUND)
+if (CAF_USE_QT5)
 	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 else()
 	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif()
+endif(CAF_USE_QT5)
 
 set( PROJECT_FILES
 
@@ -83,9 +79,9 @@ add_library( ${PROJECT_NAME}
 	${MOC_SOURCE_FILES}
 )
 
-if (Qt5Core_FOUND)
+if (CAF_USE_QT5)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-endif()
+endif(CAF_USE_QT5)
 
 target_link_libraries ( ${PROJECT_NAME}
     cafPdmCore

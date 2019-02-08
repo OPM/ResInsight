@@ -375,6 +375,10 @@ set_property(TARGET
 # Application Framework
 ################################################################################
 
+if (RESINSIGHT_BUILD_WITH_QT5)
+  set(CAF_USE_QT5 ON)
+endif(RESINSIGHT_BUILD_WITH_QT5)
+
 add_subdirectory(Fwk/AppFwk/cafAnimControl)
 add_subdirectory(Fwk/AppFwk/cafViewer)
 

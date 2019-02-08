@@ -3,16 +3,12 @@ cmake_minimum_required (VERSION 2.8.12)
 project (cafPdmCore)
 
 # Qt
-if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS Core QUIET)
-endif(RESINSIGHT_BUILD_WITH_QT5)
-
-if (Qt5Core_FOUND)
-	find_package(Qt5 CONFIG REQUIRED Core)
+if (CAF_USE_QT5)
+	find_package(Qt5 COMPONENTS Core REQUIRED)
 else()
 	find_package(Qt4 COMPONENTS QtCore REQUIRED)
     include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
+endif(CAF_USE_QT5)
 
 set( PROJECT_FILES
 
@@ -68,9 +64,9 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if (Qt5Core_FOUND)
+if (CAF_USE_QT5)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-endif()
+endif(CAF_USE_QT5)
 
 target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES})
 
