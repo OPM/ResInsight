@@ -10,16 +10,12 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Wno-long-long")
 endif()
 
-if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS Core QUIET)
-endif(RESINSIGHT_BUILD_WITH_QT5)
-
-if (Qt5Core_FOUND)
-	find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Widgets)
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS Core Gui OpenGL Widgets REQUIRED)
 else()
 	find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED)
     include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
+endif(CEE_USE_QT5)
 
 set(CEE_HEADER_FILES
 cvfqtBasicAboutDialog.h
@@ -49,7 +45,7 @@ target_include_directories(${PROJECT_NAME}
 )
 
 if ( NOT CMAKE_AUTOMOC )
-	if (Qt5Core_FOUND)
+	if (CEE_USE_QT5)
 		qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 	
 	else()
@@ -57,7 +53,7 @@ if ( NOT CMAKE_AUTOMOC )
 	endif()
 endif()
 
-if (Qt5Core_FOUND)
+if (CEE_USE_QT5)
     set(QT_LIBRARIES Qt5::Core Qt5::OpenGL Qt5::Widgets)
 endif()
 

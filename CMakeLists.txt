@@ -347,6 +347,10 @@ if (CMAKE_COMPILER_IS_GNUCC)
  
 endif()
 
+if (RESINSIGHT_BUILD_WITH_QT5)
+  set(CEE_USE_QT5 ON)
+endif(RESINSIGHT_BUILD_WITH_QT5)
+
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibCore)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGeometry)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibRender)

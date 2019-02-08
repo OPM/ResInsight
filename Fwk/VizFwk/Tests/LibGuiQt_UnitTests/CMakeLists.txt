@@ -7,17 +7,15 @@ project(LibGuiQt_UnitTests)
 
 find_package(OpenGL)
 
-find_package(Qt5 CONFIG COMPONENTS Core)
-if (Qt5Core_FOUND)
-	message(STATUS "Found Qt5")
-	find_package(Qt5 CONFIG REQUIRED Core OpenGL Widgets)
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS Core Gui OpenGL Widgets REQUIRED)
 else()
 	find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED)
     include(${QT_USE_FILE})
 	if (QT4_FOUND)
 		message(STATUS "Found Qt4")
 	endif(QT4_FOUND)
-endif(Qt5Core_FOUND)
+endif(CEE_USE_QT5)
 
 include_directories(${LibCore_SOURCE_DIR})
 include_directories(${LibIo_SOURCE_DIR})
@@ -36,9 +34,9 @@ cvfqtUtils-Test.cpp
 LibGuiQt_UnitTests.cpp
 )
 
-if (Qt5Core_FOUND)
+if (CEE_USE_QT5)
     set(QT_LIBRARIES Qt5::Core Qt5::OpenGL Qt5::Widgets)
-endif(Qt5Core_FOUND)
+endif(CEE_USE_QT5)
 
 
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))

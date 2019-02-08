@@ -12,17 +12,15 @@ endif()
 
 find_package(OpenGL)
 
-find_package(Qt5 CONFIG COMPONENTS Core)
-if (Qt5Core_FOUND)
-	message(STATUS "Found Qt5")
-	find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Widgets)
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS Core Gui OpenGL Widgets REQUIRED)
 else()
 	find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED)
     include(${QT_USE_FILE})
 	if (QT4_FOUND)
 		message(STATUS "Found Qt4")
 	endif(QT4_FOUND)
-endif(Qt5Core_FOUND)
+endif(CEE_USE_QT5)
 
 include_directories(${LibCore_SOURCE_DIR})
 include_directories(${LibGeometry_SOURCE_DIR})
@@ -60,18 +58,18 @@ QSRSnippetWidget.h
 # Run MOC on the headers
 add_definitions(-DCVF_USING_CMAKE)
 set(MOC_SOURCE_FILES)
-if (Qt5Core_FOUND)
+if (CEE_USE_QT5)
 	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
 else()
 	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif()
+endif(CEE_USE_QT5)
 
 
 add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES} ${MOC_SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${CEE_LIBS} ${OPENGL_LIBRARIES} ${QT_LIBRARIES})
 
-if (Qt5Core_FOUND)
+if (CEE_USE_QT5)
     foreach (qtlib ${QT_LIBRARIES})
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
@@ -91,4 +89,4 @@ else()
 	        execute_process(COMMAND cmake -E copy_if_different ${QT_BINARY_DIR}/${qtlib}4.dll ${CMAKE_BINARY_DIR}/Release/${qtlib}4.dll)
 	    endforeach( qtlib )
 	endif(MSVC)
-endif(Qt5Core_FOUND)
+endif(CEE_USE_QT5)
