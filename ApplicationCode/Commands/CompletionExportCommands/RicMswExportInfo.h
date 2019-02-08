@@ -41,7 +41,6 @@ public:
                      const QString&                  lengthAndDepthText,
                      const QString&                  pressureDropText);
     
-    void setTopWellBoreVolume(double topWellBoreVolume);
     void setLinerDiameter(double linerDiameter);
     void setRoughnessFactor(double roughnessFactor);
     void setHasSubGridIntersections(bool subGridIntersections);

@@ -53,14 +53,6 @@ RicMswExportInfo::RicMswExportInfo(const RimWellPath*              wellPath,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswExportInfo::setTopWellBoreVolume(double topWellBoreVolume)
-{
-    m_topWellBoreVolume = topWellBoreVolume;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicMswExportInfo::setLinerDiameter(double linerDiameter)
 {
     m_linerDiameter = linerDiameter;
