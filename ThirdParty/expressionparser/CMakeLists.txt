@@ -8,15 +8,11 @@ if(MSVC)
  endif() 
 
 if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS Core QUIET)
-endif(RESINSIGHT_BUILD_WITH_QT5)
-
-if (Qt5Core_FOUND)
-	find_package(Qt5 CONFIG REQUIRED Core)
+	find_package(Qt5 COMPONENTS Core REQUIRED)
 else()
 	find_package(Qt4 COMPONENTS QtCore REQUIRED)
     include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 list (APPEND MAIN_SOURCE_FILES
     ExpressionParser.h
@@ -39,8 +35,8 @@ if(MSVC)
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if (Qt5Core_FOUND)
+if (RESINSIGHT_BUILD_WITH_QT5)
 	target_link_libraries(${PROJECT_NAME} Qt5::Core)
-endif()
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 source_group("" FILES ${PROJECT_FILES})
