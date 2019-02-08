@@ -52,7 +52,6 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafUtils.h"
 
-
 namespace caf
 {
 template<>
@@ -1346,7 +1345,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
 
         foreach (QString s, getResultNamesForCurrentUiResultType())
         {
-            if (s == RiaDefines::completionTypeResultName() && results->timeStepDates().empty()) continue;
+            if (s == RiaDefines::completionTypeResultName())
+            {
+                if (m_isTimeLapseResultUiField()) continue;
+                if (results->timeStepDates().empty()) continue;
+            }
 
             if (RiaDefines::isPerCellFaceResult(s))
             {
@@ -1376,7 +1379,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         else if (cellCenterResultNames.contains("SWAT"))
             hasAtLeastOneTernaryComponent = true;
 
-        if (m_resultTypeUiField == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
+        if (!m_isTimeLapseResultUiField() && m_resultTypeUiField == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
         {
             optionList.push_front(
                 caf::PdmOptionItemInfo(RiaDefines::ternarySaturationResultName(), RiaDefines::ternarySaturationResultName()));
