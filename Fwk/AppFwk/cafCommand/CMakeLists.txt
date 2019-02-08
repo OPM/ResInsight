@@ -1,10 +1,6 @@
 cmake_minimum_required (VERSION 2.8.12)
 
 # Qt
-if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS Core QUIET)
-endif(RESINSIGHT_BUILD_WITH_QT5)
-
 if (CAF_USE_QT5)
 	find_package(Qt5 COMPONENTS Core Gui OpenGL Widgets REQUIRED)
 else()
