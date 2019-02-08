@@ -8,15 +8,11 @@ if (MSVC)
 endif()
 
 if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS Core QUIET)
-endif(RESINSIGHT_BUILD_WITH_QT5)
-
-if (Qt5Core_FOUND)
-	find_package(Qt5 CONFIG REQUIRED Concurrent Core OpenGL PrintSupport Widgets)
+	find_package(Qt5 COMPONENTS Concurrent Core OpenGL PrintSupport Widgets REQUIRED)
 else()
 	find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL qtmain REQUIRED)
     include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 # Adapted from src.pri file in Qwt's source catalog for Qwt 6.1.0
 # Compiles static library
@@ -282,11 +278,11 @@ qwt_wheel.h
     
 
 set(MOC_SOURCE_FILES)
-if (Qt5Core_FOUND)
+if (RESINSIGHT_BUILD_WITH_QT5)
   qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 else()
   qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif()
+endif(RESINSIGHT_BUILD_WITH_QT5)
     
 
 add_library(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${MOC_SOURCE_FILES})
@@ -296,9 +292,9 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if (Qt5Core_FOUND)
+if (RESINSIGHT_BUILD_WITH_QT5)
   target_link_libraries(${PROJECT_NAME} Qt5::Concurrent Qt5::Core Qt5::OpenGL Qt5::PrintSupport Qt5::Widgets)
-endif()
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 if (COMMAND ri_apply_cotire)
   ri_apply_cotire()
