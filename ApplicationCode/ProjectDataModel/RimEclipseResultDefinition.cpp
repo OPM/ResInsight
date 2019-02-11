@@ -640,8 +640,10 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
             for (size_t stepIdx = 0; stepIdx < stepDates.size(); ++stepIdx)
             {
-                options.push_back(
-                    caf::PdmOptionItemInfo(stepDates[stepIdx].toString(RimTools::dateFormatString()), static_cast<int>(stepIdx)));
+                QString displayString = stepDates[stepIdx].toString(RimTools::dateFormatString());
+                displayString += " (" + QString::number(stepIdx) + ")";
+
+                options.push_back(caf::PdmOptionItemInfo(displayString, static_cast<int>(stepIdx)));
             }
         }
     }
