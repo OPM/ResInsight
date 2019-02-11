@@ -311,35 +311,105 @@ const std::vector<PdmUiOrdering::FieldAndLayout>& PdmUiOrdering::uiItemsWithLayo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiOrdering::nrOfColumns() const
+PdmUiOrdering::TableLayout PdmUiOrdering::calculateTableLayout(const QString& uiConfigName) const
 {
-    int maxColumns = 0;
-    int currentRowColumns = 0;
-    for (const FieldAndLayout& itemAndLayout : m_ordering)
-    {
-        int currentColumnSpan = itemAndLayout.second.totalColumnSpan;
-        if (currentColumnSpan == LayoutOptions::MAX_COLUMN_SPAN)
-        {
-            int minimumFieldColumnSpan = 1;
-            int minimumLabelColumnSpan = 0;
-            if (itemAndLayout.first->uiLabelPosition() == PdmUiItemInfo::LEFT)
-            {
-                minimumLabelColumnSpan = 1;
-            }
-            currentColumnSpan = minimumLabelColumnSpan + minimumFieldColumnSpan;
-        }
+    TableLayout tableLayout;
 
-        if (itemAndLayout.second.newRow)
+    for (size_t i = 0; i < m_ordering.size(); ++i)
+    {
+        if (m_ordering[i].first->isUiHidden(uiConfigName)) continue;
+
+        if (m_ordering[i].second.newRow || i == 0u)
         {
-            currentRowColumns = currentColumnSpan;
+            tableLayout.push_back(RowLayout());
         }
-        else
-        {
-            currentRowColumns += currentColumnSpan;
-        }
-        maxColumns = std::max(maxColumns, currentRowColumns);
+        tableLayout.back().push_back(m_ordering[i]);
     }
-    return maxColumns;
+    return tableLayout;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int PdmUiOrdering::nrOfColumns(const TableLayout& tableLayout) const
+{
+    int maxNrOfColumns = 0;
+
+    for (const auto& rowContent : tableLayout)
+    {
+        maxNrOfColumns = std::max(maxNrOfColumns, nrOfRequiredColumnsInRow(rowContent));
+    }
+
+    return maxNrOfColumns;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int PdmUiOrdering::nrOfRequiredColumnsInRow(const RowLayout& rowItems) const
+{
+    int totalColumns = 0;
+    for (const FieldAndLayout& item : rowItems)
+    {
+        int totalItemColumns = 0, labelItemColumns = 0, fieldItemColumns = 0;
+        nrOfColumnsRequiredForItem(item, &totalItemColumns, &labelItemColumns, &fieldItemColumns);
+        totalColumns += totalItemColumns;
+    }
+    return totalColumns;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int PdmUiOrdering::nrOfExpandingItemsInRow(const RowLayout& rowItems) const
+{
+    int nrOfExpandingItems = 0;
+    for (const FieldAndLayout& item : rowItems)
+    {
+        if (item.second.totalColumnSpan == LayoutOptions::MAX_COLUMN_SPAN)
+            nrOfExpandingItems++;
+    }
+    return nrOfExpandingItems;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiOrdering::nrOfColumnsRequiredForItem(const FieldAndLayout& fieldAndLayout,
+                                               int*                  totalColumnsRequired,
+                                               int*                  labelColumnsRequired,
+                                               int*                  fieldColumnsRequired) const
+{
+    const PdmUiItem* uiItem = fieldAndLayout.first;
+    CAF_ASSERT(uiItem && totalColumnsRequired && labelColumnsRequired && fieldColumnsRequired);
+
+    LayoutOptions layoutOption = fieldAndLayout.second;
+
+    if (uiItem->isUiGroup())
+    {
+        *totalColumnsRequired = 1;
+        *labelColumnsRequired = 0;
+        *fieldColumnsRequired = 0;
+    }
+    else
+    {
+        *fieldColumnsRequired = 1;
+        *labelColumnsRequired = 0;
+        if (uiItem->uiLabelPosition() == PdmUiItemInfo::LEFT)
+        {
+            *labelColumnsRequired = 1;
+            if (layoutOption.leftLabelColumnSpan != LayoutOptions::MAX_COLUMN_SPAN)
+            {
+                *labelColumnsRequired = layoutOption.leftLabelColumnSpan;
+            }
+        }
+        *totalColumnsRequired = *labelColumnsRequired + *fieldColumnsRequired;
+    }
+
+    if (layoutOption.totalColumnSpan != LayoutOptions::MAX_COLUMN_SPAN)
+    {
+        *totalColumnsRequired = layoutOption.totalColumnSpan;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
