@@ -87,10 +87,8 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     CAF_PDM_InitFieldNoDefault(&m_flowSolution, "FlowDiagSolution", "Solution", "", "", "");
     m_flowSolution.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_isTimeLapseResult, "IsTimeLapseResult", false, "TimeLapseResult", "", "", "");
-    m_isTimeLapseResult.uiCapability()->setUiHidden(true);
-
-    CAF_PDM_InitField(&m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", 0, "Base Time Step", "", "", "");
+    CAF_PDM_InitField(
+        &m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", RigEclipseResultAddress::NO_TIME_LAPSE, "Base Time Step", "", "", "");
     m_timeLapseBaseTimestep.uiCapability()->setUiHidden(true);
 
     // One single tracer list has been split into injectors and producers.
@@ -123,16 +121,13 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     m_resultVariableUiField.xmlCapability()->disableIO();
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_isTimeLapseResultUiField,
-                      "IsTimeLapseResultUI",
-                      false,
-                      "Enable Time Difference",
+    CAF_PDM_InitField(&m_timeLapseBaseTimestepUiField,
+                      "TimeLapseBaseTimeStepUI",
+                      RigEclipseResultAddress::NO_TIME_LAPSE,
+                      "Base Time Step",
                       "",
-                      "Use the difference with respect to a specific time step as the result variable to plot",
+                      "",
                       "");
-    m_isTimeLapseResultUiField.xmlCapability()->disableIO();
-
-    CAF_PDM_InitField(&m_timeLapseBaseTimestepUiField, "TimeLapseBaseTimeStepUI", 0, "Base Time Step", "", "", "");
     m_timeLapseBaseTimestepUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_flowSolutionUiField, "MFlowDiagSolution", "Solution", "", "", "");
@@ -249,7 +244,6 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         m_porosityModel         = m_porosityModelUiField;
         m_resultType            = m_resultTypeUiField;
         m_resultVariable        = m_resultVariableUiField;
-        m_isTimeLapseResult     = m_isTimeLapseResultUiField;
         m_timeLapseBaseTimestep = m_timeLapseBaseTimestepUiField;
 
         if (m_resultTypeUiField() == RiaDefines::FLOW_DIAGNOSTICS)
@@ -265,13 +259,8 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         loadDataAndUpdate();
     }
 
-    if (&m_isTimeLapseResultUiField == changedField)
+    if (&m_timeLapseBaseTimestepUiField == changedField)
     {
-        if (m_isTimeLapseResultUiField() && m_timeLapseBaseTimestep() == RigFemResultAddress::NO_TIME_LAPSE)
-        {
-            m_timeLapseBaseTimestepUiField = 0;
-        }
-
         m_resultVariableUiField = "";
     }
 
@@ -638,6 +627,8 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
                 stepDates = gridCellResults->timeStepDates();
             }
 
+            options.push_back(caf::PdmOptionItemInfo("Disabled", RigEclipseResultAddress::NO_TIME_LAPSE));
+
             for (size_t stepIdx = 0; stepIdx < stepDates.size(); ++stepIdx)
             {
                 QString displayString = stepDates[stepIdx].toString(RimTools::dateFormatString());
@@ -663,7 +654,7 @@ RigEclipseResultAddress RimEclipseResultDefinition::eclipseResultAddress() const
     const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        if (m_isTimeLapseResult())
+        if (isTimeDiffResult())
             return RigEclipseResultAddress(m_resultType(), m_resultVariable(), m_timeLapseBaseTimestep());
         else
             return RigEclipseResultAddress(m_resultType(), m_resultVariable());
@@ -780,7 +771,7 @@ QString RimEclipseResultDefinition::resultVariableUiName() const
         return flowDiagResUiText(false, 32);
     }
 
-    if (m_isTimeLapseResult() && resultType() == RiaDefines::DYNAMIC_NATIVE)
+    if (isTimeDiffResult() && resultType() == RiaDefines::DYNAMIC_NATIVE)
     {
         return timeDiffResultName(m_resultVariable(), m_timeLapseBaseTimestep());
     }
@@ -798,7 +789,7 @@ QString RimEclipseResultDefinition::resultVariableUiShortName() const
         return flowDiagResUiText(true, 24);
     }
 
-    if (m_isTimeLapseResult() && resultType() == RiaDefines::DYNAMIC_NATIVE)
+    if (isTimeDiffResult() && resultType() == RiaDefines::DYNAMIC_NATIVE)
     {
         return timeDiffResultName(m_resultVariable(), m_timeLapseBaseTimestep());
     }
@@ -825,7 +816,7 @@ void RimEclipseResultDefinition::loadResult()
     RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        if (m_isTimeLapseResult())
+        if (isTimeDiffResult())
         {
             gridCellResults->createResultEntry(this->eclipseResultAddress(), false);
         }
@@ -926,7 +917,6 @@ void RimEclipseResultDefinition::initAfterRead()
     m_porosityModelUiField         = m_porosityModel;
     m_resultTypeUiField            = m_resultType;
     m_resultVariableUiField        = m_resultVariable;
-    m_isTimeLapseResultUiField     = m_isTimeLapseResult;
     m_timeLapseBaseTimestepUiField = m_timeLapseBaseTimestep;
 
     m_flowSolutionUiField            = m_flowSolution();
@@ -1159,8 +1149,7 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
     if (m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE)
     {
         caf::PdmUiGroup* timeLapseGr = uiOrdering.addNewGroup("Time Difference Options");
-        timeLapseGr->add(&m_isTimeLapseResultUiField);
-        if (m_isTimeLapseResultUiField()) timeLapseGr->add(&m_timeLapseBaseTimestepUiField);
+        timeLapseGr->add(&m_timeLapseBaseTimestepUiField);
     }
 
     uiOrdering.skipRemainingFields(true);
@@ -1323,7 +1312,7 @@ QString RimEclipseResultDefinition::timeDiffResultName(const QString& resultName
 //--------------------------------------------------------------------------------------------------
 QString RimEclipseResultDefinition::convertToTimeDiffUiVarName(const QString& resultName)
 {
-    if (m_isTimeLapseResultUiField() &&
+    if (m_timeLapseBaseTimestepUiField() >= 0 &&
         (m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE || m_resultTypeUiField() == RiaDefines::GENERATED))
     {
         return timeDiffResultName(resultName, m_timeLapseBaseTimestepUiField());
@@ -1352,7 +1341,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         {
             if (s == RiaDefines::completionTypeResultName())
             {
-                if (m_isTimeLapseResultUiField()) continue;
+                if (m_timeLapseBaseTimestepUiField() >= 0) continue;
                 if (results->timeStepDates().empty()) continue;
             }
 
@@ -1384,7 +1373,8 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         else if (cellCenterResultNames.contains("SWAT"))
             hasAtLeastOneTernaryComponent = true;
 
-        if (!m_isTimeLapseResultUiField() && m_resultTypeUiField == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
+        if ((m_timeLapseBaseTimestepUiField() < 0) && m_resultTypeUiField == RiaDefines::DYNAMIC_NATIVE &&
+            hasAtLeastOneTernaryComponent)
         {
             optionList.push_front(
                 caf::PdmOptionItemInfo(RiaDefines::ternarySaturationResultName(), RiaDefines::ternarySaturationResultName()));
@@ -1817,4 +1807,12 @@ void RimEclipseResultDefinition::syncProducerToInjectorSelection()
         std::vector<QString> newInjectorVector(newInjectorSelection.begin(), newInjectorSelection.end());
         setSelectedInjectorTracers(newInjectorVector);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::isTimeDiffResult() const
+{
+    return m_timeLapseBaseTimestep() >= 0;
 }

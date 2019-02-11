@@ -131,7 +131,6 @@ protected:
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultType;
     caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModel;
     caf::PdmField<QString>                                          m_resultVariable;
-    caf::PdmField<bool>                                             m_isTimeLapseResult;
     caf::PdmField<int>                                              m_timeLapseBaseTimestep;
 
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolution;
@@ -148,7 +147,6 @@ protected:
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultTypeUiField;
     caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
-    caf::PdmField<bool>                                             m_isTimeLapseResultUiField;
     caf::PdmField<int>                                              m_timeLapseBaseTimestepUiField;
 
     caf::PdmField< caf::AppEnum< FlowTracerSelectionType > >        m_flowTracerSelectionMode;
@@ -201,5 +199,7 @@ private:
     
     void                            syncInjectorToProducerSelection();
     void                            syncProducerToInjectorSelection();
+
+    bool                            isTimeDiffResult() const;
 };
 
