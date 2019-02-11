@@ -782,12 +782,10 @@ QString RimEclipseResultDefinition::resultVariableUiName() const
 
     if (m_isTimeLapseResult() && resultType() == RiaDefines::DYNAMIC_NATIVE)
     {
-        return m_resultVariable() + "_D" + QString::number(m_timeLapseBaseTimestep());
+        return timeDiffResultName(m_resultVariable(), m_timeLapseBaseTimestep());
     }
-    else
-    {
-        return m_resultVariable();
-    }
+
+    return m_resultVariable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -802,12 +800,10 @@ QString RimEclipseResultDefinition::resultVariableUiShortName() const
 
     if (m_isTimeLapseResult() && resultType() == RiaDefines::DYNAMIC_NATIVE)
     {
-        return m_resultVariable() + "_D" + QString::number(m_timeLapseBaseTimestep());
+        return timeDiffResultName(m_resultVariable(), m_timeLapseBaseTimestep());
     }
-    else
-    {
-        return m_resultVariable();
-    }
+
+    return m_resultVariable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1317,16 +1313,23 @@ QString RimEclipseResultDefinition::flowDiagResUiText(bool shortLabel, int maxTr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimEclipseResultDefinition::timeDiffResultName(const QString& resultName, int timeStepIndex)
+{
+    return resultName + "_dt_" + QString::number(timeStepIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimEclipseResultDefinition::convertToTimeDiffUiVarName(const QString& resultName)
 {
-    if (m_isTimeLapseResultUiField() && m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE)
+    if (m_isTimeLapseResultUiField() &&
+        (m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE || m_resultTypeUiField() == RiaDefines::GENERATED))
     {
-        return resultName + "_D" + QString::number(m_timeLapseBaseTimestepUiField());
+        return timeDiffResultName(resultName, m_timeLapseBaseTimestepUiField());
     }
-    else
-    {
-        return resultName;
-    }
+
+    return resultName;
 }
 
 //--------------------------------------------------------------------------------------------------

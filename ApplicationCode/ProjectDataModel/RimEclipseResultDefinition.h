@@ -178,6 +178,7 @@ private:
     bool                            hasDualPorFractureResult();
 
     QString                         flowDiagResUiText(bool shortLabel, int maxTracerStringLength = std::numeric_limits<int>::max()) const;
+    static QString                  timeDiffResultName(const QString& resultName, int timeStepIndex);
 
     QString                         convertToTimeDiffUiVarName(const QString& resultName);
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
