@@ -419,6 +419,10 @@ if(RESINSIGHT_ENABLE_COTIRE)
         set_source_files_properties (${fileToExclude} PROPERTIES COTIRE_EXCLUDED TRUE)
     endforeach(fileToExclude)
 
+    foreach (cppFile ${CAF_COTIRE_START_NEW_UNITY_SOURCES})
+        set_source_files_properties (${cppFile} PROPERTIES COTIRE_START_NEW_UNITY_SOURCE TRUE)
+    endforeach(cppFile ${CAF_COTIRE_START_NEW_UNITY_SOURCES})
+
     # disable precompiled headers
     set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
    

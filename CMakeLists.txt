@@ -74,8 +74,10 @@ if(RESINSIGHT_ENABLE_COTIRE)
   endif()
   
   include(cotire)
-  include(RiHelpers)
 endif()
+
+# always include cotire tools to avoid checking if a macro is available
+include(cafCotireTools)
 
 ################################################################################
 # ERT

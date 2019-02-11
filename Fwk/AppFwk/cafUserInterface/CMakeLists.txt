@@ -185,6 +185,7 @@ target_link_libraries ( ${PROJECT_NAME}
 
 source_group("" FILES ${PROJECT_FILES})
 
-if (COMMAND ri_apply_cotire)
-  ri_apply_cotire()
+# cotire
+if (COMMAND caf_apply_cotire)
+  caf_apply_cotire("${PROJECT_NAME}")
 endif()

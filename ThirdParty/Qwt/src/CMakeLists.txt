@@ -296,6 +296,6 @@ if (RESINSIGHT_BUILD_WITH_QT5)
   target_link_libraries(${PROJECT_NAME} Qt5::Concurrent Qt5::Core Qt5::OpenGL Qt5::PrintSupport Qt5::Widgets)
 endif(RESINSIGHT_BUILD_WITH_QT5)
 
-if (COMMAND ri_apply_cotire)
-  ri_apply_cotire()
+if (COMMAND caf_apply_cotire)
+  caf_apply_cotire("${PROJECT_NAME}")
 endif()

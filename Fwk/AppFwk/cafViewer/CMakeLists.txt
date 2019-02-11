@@ -70,7 +70,10 @@ endif()
 
 source_group("" FILES ${PROJECT_FILES})
 
-if (COMMAND ri_apply_cotire)
-  set_source_files_properties (cafOpenGLWidget.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
-  ri_apply_cotire()
+# cotire
+if (COMMAND caf_apply_cotire)
+  list(APPEND CAF_COTIRE_EXCLUDE_FILES
+    cafOpenGLWidget.cpp
+  )
+  caf_apply_cotire("${PROJECT_NAME}")
 endif()
