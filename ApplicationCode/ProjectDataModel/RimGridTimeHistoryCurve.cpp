@@ -24,6 +24,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigTimeHistoryResultAccessor.h"
+#include "RigFemResultAddress.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"

@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaSummaryTools.h"
 
+#include "RigFemResultAddress.h"
+
 #include "RicNewSummaryCurveFeature.h"
 #include "RicSelectSummaryPlotUI.h"
 #include "RicWellLogTools.h"

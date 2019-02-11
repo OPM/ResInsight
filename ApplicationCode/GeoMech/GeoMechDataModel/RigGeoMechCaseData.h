@@ -18,18 +18,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "cvfObject.h"
-#include <string>
-#include <map>
-#include <vector>
-#include "RigFemResultPosEnum.h"
-#include "cvfCollection.h"
+
 #include "RigFemPartResults.h"
-#include "RigFemResultAddress.h"
+#include "RigFemResultPosEnum.h"
+
+#include "cvfObject.h"
+
+#include <string>
+#include <vector>
 
 class RifGeoMechReaderInterface;
 class RigFemPartCollection;
-class RigFemScalarResultFrames;
 class RigFemPartResultsCollection;
 class RifElementPropertyReader;
 

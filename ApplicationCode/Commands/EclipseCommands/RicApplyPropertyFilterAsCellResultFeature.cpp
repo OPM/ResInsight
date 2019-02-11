@@ -18,6 +18,8 @@
 
 #include "RicApplyPropertyFilterAsCellResultFeature.h"
 
+#include "RigFemResultAddress.h"
+
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseView.h"

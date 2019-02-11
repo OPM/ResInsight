@@ -24,7 +24,6 @@
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
 #include "RigFemResultPosEnum.h"
-#include "RigFemResultAddress.h"
 #include "RimFemResultObserver.h"
 
 class RimGeoMechView;

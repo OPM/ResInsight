@@ -18,11 +18,11 @@
 
 #pragma once
 
-#include "RigFemResultAddress.h"
-
 #include "cafPdmObject.h"
 
 #include <vector>
+
+class RigFemResultAddress;
 
 class RimFemResultObserver : public caf::PdmObject
 {
