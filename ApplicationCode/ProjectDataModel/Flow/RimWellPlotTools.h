@@ -18,18 +18,18 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+#include "RiaRftPltCurveDefinition.h"
 
 #include "RifDataSourceForRftPltQMetaType.h"
-#include "RiaRftPltCurveDefinition.h"
+#include "RifEclipseRftAddress.h"
+
+#include "RimWellLogFile.h"
 
 #include <QMetaType>
 
 #include <map>
 #include <set>
-#include "RifEclipseRftAddress.h"
-#include "RimWellLogFile.h"
-#include "RiaEclipseUnitTools.h"
-#include "RigEclipseResultAddress.h"
 
 class RimEclipseCase;
 class RimEclipseResultCase;
@@ -39,6 +39,7 @@ class RimWellLogPlot;
 class RimWellPath;
 class RiuWellRftPlot;
 class RigEclipseCaseData;
+class RigEclipseResultAddress;
 
 //==================================================================================================
 ///  

@@ -25,6 +25,7 @@
 #include "RiaSimWellBranchTools.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
