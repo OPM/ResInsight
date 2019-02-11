@@ -209,14 +209,6 @@ void RimUserDefinedPolylinesAnnotation::updateVisualization()
 void RimUserDefinedPolylinesAnnotation::enablePicking(bool enable)
 {
     m_enablePicking = enable;
-    if (enable)
-    {
-        RiuViewerCommands::setPickEventHandler(m_pickTargetsEventHandler);
-    }
-    else
-    {
-        RiuViewerCommands::removePickEventHandlerIfActive(m_pickTargetsEventHandler);
-    }
     updateConnectedEditors();
 }
 
@@ -259,7 +251,7 @@ void RimUserDefinedPolylinesAnnotation::fieldChangedByUi(const caf::PdmFieldHand
 {
     if (changedField == &m_enablePicking)
     {
-        enablePicking(m_enablePicking);
+        this->updateConnectedEditors();
     }
     else if (changedField == &m_showLines)
     {
@@ -271,6 +263,19 @@ void RimUserDefinedPolylinesAnnotation::fieldChangedByUi(const caf::PdmFieldHand
     }
 
     updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimUserDefinedPolylinesAnnotation::defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    RicPolyline3dEditorAttribute* attrib = dynamic_cast<RicPolyline3dEditorAttribute*>(attribute);
+    if (attrib)
+    {
+        attrib->pickEventHandler = m_pickTargetsEventHandler;
+        attrib->enablePicking    = m_enablePicking;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

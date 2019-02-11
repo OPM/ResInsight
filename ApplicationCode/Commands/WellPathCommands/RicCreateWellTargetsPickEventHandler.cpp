@@ -18,6 +18,7 @@
 
 #include "RicCreateWellTargetsPickEventHandler.h"
 
+#include "RiaApplication.h"
 #include "RiaOffshoreSphericalCoords.h"
 
 #include "RigFemPart.h"
@@ -55,7 +56,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RicCreateWellTargetsPickEventHandler::RicCreateWellTargetsPickEventHandler(RimWellPathGeometryDef* wellGeometryDef)
-    : Ric3dViewPickEventHandler(wellGeometryDef), m_geometryToAddTargetsTo(wellGeometryDef)
+    : m_geometryToAddTargetsTo(wellGeometryDef)
 {
 }
 
@@ -67,9 +68,18 @@ RicCreateWellTargetsPickEventHandler::~RicCreateWellTargetsPickEventHandler() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicCreateWellTargetsPickEventHandler::registerAsPickEventHandler()
+{
+    RiaApplication::instance()->setOverrideCursor(Qt::CrossCursor);
+    Ric3dViewPickEventHandler::registerAsPickEventHandler();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicCreateWellTargetsPickEventHandler::notifyUnregistered()
 {
-    m_geometryToAddTargetsTo->enableTargetPointPicking(false);
+    RiaApplication::instance()->restoreOverrideCursor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,13 +87,6 @@ void RicCreateWellTargetsPickEventHandler::notifyUnregistered()
 //--------------------------------------------------------------------------------------------------
 bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
-    if (!isObjectBeingModified(caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>()))
-    {
-        m_geometryToAddTargetsTo->enableTargetPointPicking(false);
-
-        return false;
-    }
-
     if (m_geometryToAddTargetsTo)
     {
         Rim3dView* rimView             = eventObject.m_view;

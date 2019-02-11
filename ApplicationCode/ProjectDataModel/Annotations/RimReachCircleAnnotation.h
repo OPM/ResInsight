@@ -76,6 +76,7 @@ private:
     caf::PdmField<bool>     m_isActive;
 
     caf::PdmField<Vec3d>    m_centerPointXyd;
+    caf::PdmField<bool>     m_centerPointPickEnabled;
     caf::PdmField<double>   m_radius;
     caf::PdmField<QString>  m_name;
     caf::PdmChildField<RimReachCircleLineAppearance*> m_appearance;

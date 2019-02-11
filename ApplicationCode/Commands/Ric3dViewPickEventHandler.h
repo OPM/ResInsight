@@ -28,8 +28,6 @@
 class Ric3dViewPickEventHandler : public caf::PickEventHandler
 {
 public:
-    Ric3dViewPickEventHandler(const caf::PdmObjectHandle* handlingObject);
-
     // Override from caf
     void registerAsPickEventHandler() override;
     void unregisterAsPickEventHandler() override;

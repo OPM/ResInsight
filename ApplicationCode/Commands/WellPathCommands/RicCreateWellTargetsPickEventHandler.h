@@ -34,6 +34,8 @@ public:
     RicCreateWellTargetsPickEventHandler(RimWellPathGeometryDef* wellGeometryDef);
     ~RicCreateWellTargetsPickEventHandler();
 
+    void registerAsPickEventHandler() override;
+
 protected:
     bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;
     void notifyUnregistered() override;

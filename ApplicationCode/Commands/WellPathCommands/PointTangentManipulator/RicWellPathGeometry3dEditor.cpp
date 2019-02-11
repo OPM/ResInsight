@@ -24,6 +24,7 @@
 #include "RimWellPathTarget.h"
 #include "RimWellPathGeometryDef.h"
 
+#include "cafPickEventHandler.h"
 
 CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT(RicWellPathGeometry3dEditor);
 
@@ -44,6 +45,10 @@ RicWellPathGeometry3dEditor::~RicWellPathGeometry3dEditor()
     {
         delete targetEditor;
     }
+    if (m_attribute.pickEventHandler)
+    {
+        m_attribute.pickEventHandler->unregisterAsPickEventHandler();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,6 +66,7 @@ void RicWellPathGeometry3dEditor::configureAndUpdateUi(const QString& uiConfigNa
 
     if (!geomDef) return;
 
+    geomDef->objectEditorAttribute("", &m_attribute);
 
     std::vector<RimWellPathTarget*> targets = geomDef->activeWellTargets();
 
@@ -71,6 +77,18 @@ void RicWellPathGeometry3dEditor::configureAndUpdateUi(const QString& uiConfigNa
         targetEditor->setPdmObject(target);
         m_targetEditors.push_back(targetEditor); 
         targetEditor->updateUi();
+    }
+
+    if (m_attribute.pickEventHandler)
+    {
+        if (m_attribute.enablePicking)
+        {
+            m_attribute.pickEventHandler->registerAsPickEventHandler();
+        }
+        else
+        {
+            m_attribute.pickEventHandler->unregisterAsPickEventHandler();
+        }
     }
 }
 

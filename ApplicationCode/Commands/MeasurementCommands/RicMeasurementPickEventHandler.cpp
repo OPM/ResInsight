@@ -47,7 +47,6 @@ RicMeasurementPickEventHandler* RicMeasurementPickEventHandler::instance()
 ///
 //--------------------------------------------------------------------------------------------------
 RicMeasurementPickEventHandler::RicMeasurementPickEventHandler()
-    : Ric3dViewPickEventHandler(nullptr)
 {}
 
 //--------------------------------------------------------------------------------------------------

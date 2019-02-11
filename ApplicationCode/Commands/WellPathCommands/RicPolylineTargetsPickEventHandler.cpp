@@ -18,6 +18,7 @@
 
 #include "RicPolylineTargetsPickEventHandler.h"
 
+#include "RiaApplication.h"
 #include "RiaOffshoreSphericalCoords.h"
 
 #include "RigWellPath.h"
@@ -40,7 +41,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RicPolylineTargetsPickEventHandler::RicPolylineTargetsPickEventHandler(RimUserDefinedPolylinesAnnotation* polylineDef)
-    : Ric3dViewPickEventHandler(polylineDef), m_polylineDef(polylineDef)
+    : m_polylineDef(polylineDef)
 {
 }
 
@@ -52,9 +53,18 @@ RicPolylineTargetsPickEventHandler::~RicPolylineTargetsPickEventHandler() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicPolylineTargetsPickEventHandler::registerAsPickEventHandler()
+{
+    RiaApplication::instance()->setOverrideCursor(Qt::CrossCursor);
+    Ric3dViewPickEventHandler::registerAsPickEventHandler();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicPolylineTargetsPickEventHandler::notifyUnregistered()
 {
-    //m_polylineDef->enableTargetPointPicking(false);
+    RiaApplication::instance()->restoreOverrideCursor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,11 +72,6 @@ void RicPolylineTargetsPickEventHandler::notifyUnregistered()
 //--------------------------------------------------------------------------------------------------
 bool RicPolylineTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
-    if (!isObjectBeingModified(caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>()))
-    {
-        return false;
-    }
-
     if (m_polylineDef)
     {
         Rim3dView* rimView             = eventObject.m_view;

@@ -26,7 +26,8 @@
 
 #include "RicVec3dPickEventHandler.h"
 
-#include "cafPdmUiVec3dEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiPickableLineEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimReachCircleAnnotation, "RimReachCircleAnnotation");
 
@@ -42,7 +43,11 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
     m_isActive.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_centerPointXyd, "CenterPointXyd", Vec3d::ZERO, "Center Point", "", "", "");
-    m_centerPointXyd.uiCapability()->setUiEditorTypeName(caf::PdmUiVec3dEditor::uiEditorTypeName());
+    m_centerPointXyd.uiCapability()->setUiEditorTypeName(caf::PdmUiPickableLineEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_centerPointPickEnabled, "AnchorPointPick", true, "", "", "", "");
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_centerPointPickEnabled);
+    m_centerPointPickEnabled.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::HIDDEN);
+
     CAF_PDM_InitField(&m_radius, "Radius", 100.0, "Radius", "", "", "");
     CAF_PDM_InitField(&m_name, "Name", QString("Circle Annotation"), "Name", "", "", "");
 
@@ -52,7 +57,7 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
     m_appearance.uiCapability()->setUiTreeHidden(true);
     m_appearance.uiCapability()->setUiTreeChildrenHidden(true);
 
-    m_centerPointEventHandler.reset(new RicVec3dPickEventHandler(this, &m_centerPointXyd));
+    m_centerPointEventHandler.reset(new RicVec3dPickEventHandler(&m_centerPointXyd));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,6 +120,7 @@ void RimReachCircleAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUi
 {
     uiOrdering.add(&m_name);
     uiOrdering.add(&m_centerPointXyd);
+    uiOrdering.add(&m_centerPointPickEnabled);
     uiOrdering.add(&m_radius);
 
     auto appearanceGroup = uiOrdering.addNewGroup("Appearance");
@@ -130,6 +136,15 @@ void RimReachCircleAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* chang
                                                 const QVariant&            oldValue,
                                                 const QVariant&            newValue)
 {
+    if (changedField == &m_centerPointXyd)
+    {
+        m_centerPointPickEnabled = false;
+        this->updateConnectedEditors();
+    }
+    if (changedField == &m_centerPointPickEnabled)
+    {
+        this->updateConnectedEditors();
+    }
     RimAnnotationCollection* annColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(annColl);
 
@@ -161,13 +176,30 @@ void RimReachCircleAnnotation::defineEditorAttribute(const caf::PdmFieldHandle* 
 {
     if (field == &m_centerPointXyd)
     {
-        caf::PdmUiVec3dEditorAttribute* attr = dynamic_cast<caf::PdmUiVec3dEditorAttribute*>(attribute);
+        auto* attr = dynamic_cast<caf::PdmUiPickableLineEditorAttribute*>(attribute);
         if (attr)
         {
             attr->pickEventHandler = m_centerPointEventHandler;
+            attr->enablePicking = m_centerPointPickEnabled;
             if (m_centerPointXyd().isZero())
             {
-                attr->startInPickingMode = true;
+                attr->enablePicking = true;
+            }
+        }
+    }
+
+    if (field == &m_centerPointPickEnabled)
+    {
+        auto* attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+        if (attr)
+        {
+            if (m_centerPointPickEnabled)
+            {
+                attr->m_buttonText = "Stop";
+            }
+            else
+            {
+                attr->m_buttonText = "Pick";
             }
         }
     }

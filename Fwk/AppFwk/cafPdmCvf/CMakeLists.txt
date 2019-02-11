@@ -10,19 +10,7 @@ else()
     include(${QT_USE_FILE})
 endif(CAF_USE_QT5)
 
-
-# These headers need to go through Qt's MOC compiler
-set (MOC_HEADER_FILES    
-    cafPdmUiVec3dEditor.h
-)
-
-# Run MOC on the headers
 add_definitions(-DCVF_USING_CMAKE)
-if (CAF_USE_QT5)
-	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-else()
-	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif(CAF_USE_QT5)
 
 add_library( ${PROJECT_NAME}
     cafPdmCoreColor3f.h
@@ -45,10 +33,6 @@ add_library( ${PROJECT_NAME}
     cafPdmXmlMat4d.cpp
     cafPdmXmlMat4d.h
     cafPdmFieldCvfMat4d.h
-	cafPdmUiVec3dEditor.cpp
-
-	${MOC_HEADER_FILES}
-	${MOC_SOURCE_FILES}
 )
 
 target_include_directories(${PROJECT_NAME}

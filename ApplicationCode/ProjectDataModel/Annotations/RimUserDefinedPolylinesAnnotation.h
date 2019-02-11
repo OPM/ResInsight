@@ -22,6 +22,8 @@
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmChildArrayField.h"
 
+#include <memory>
+
 class RicPolylineTargetsPickEventHandler;
 class RimPolylineTarget;
 
@@ -59,6 +61,7 @@ protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget) override;
@@ -71,7 +74,8 @@ private:
     caf::PdmField<QString>                      m_name;
     caf::PdmField<bool>                         m_enablePicking;
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
-    RicPolylineTargetsPickEventHandler*         m_pickTargetsEventHandler;
+    
+    std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 };
 
 

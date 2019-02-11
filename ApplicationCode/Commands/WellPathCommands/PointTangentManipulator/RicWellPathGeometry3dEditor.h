@@ -18,8 +18,24 @@
 
 #pragma once
 #include "cafPdmUi3dObjectEditorHandle.h"
+#include "cafPdmUiFieldEditorHandle.h"
+#include <memory>
+
+namespace caf
+{
+class PickEventHandler;
+}
 
 class RicWellTarget3dEditor;
+
+
+class RicWellPathGeometry3dEditorAttribute : public caf::PdmUiEditorAttribute
+{
+public:
+    RicWellPathGeometry3dEditorAttribute() : enablePicking(false) {}
+    bool                                   enablePicking;
+    std::shared_ptr<caf::PickEventHandler> pickEventHandler;
+};
 
 class RicWellPathGeometry3dEditor : public caf::PdmUi3dObjectEditorHandle
 {
@@ -33,8 +49,8 @@ protected:
     void configureAndUpdateUi(const QString& uiConfigName) override;
 
 private:
-    
-    std::vector<RicWellTarget3dEditor*> m_targetEditors;
+    std::vector<RicWellTarget3dEditor*>  m_targetEditors;
+    RicWellPathGeometry3dEditorAttribute m_attribute;
 };
 
 

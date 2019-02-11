@@ -23,6 +23,7 @@
 #include "RimPolylineTarget.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
 
+#include "cafPickEventHandler.h"
 
 CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT(RicPolyline3dEditor);
 
@@ -43,6 +44,10 @@ RicPolyline3dEditor::~RicPolyline3dEditor()
     {
         delete targetEditor;
     }
+    if (m_attribute.pickEventHandler != nullptr)
+    {
+        m_attribute.pickEventHandler->unregisterAsPickEventHandler();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,6 +65,18 @@ void RicPolyline3dEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     if (!geomDef) return;
 
+    geomDef->objectEditorAttribute("", &m_attribute);
+    if (m_attribute.pickEventHandler != nullptr)
+    {
+        if (m_attribute.enablePicking)
+        {
+            m_attribute.pickEventHandler->registerAsPickEventHandler();
+        }
+        else
+        {
+            m_attribute.pickEventHandler->unregisterAsPickEventHandler();
+        }
+    }
 
     std::vector<RimPolylineTarget*> targets = geomDef->activeTargets();
 

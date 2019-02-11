@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2019- Ceetron Solution AS
+//   Copyright (C) 2019- Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -33,12 +33,48 @@
 //   for more details.
 //
 //##################################################################################################
-#include "cafPickEventHandler.h"
+#pragma once
+
+#include "cafPdmUiLineEditor.h"
+
+#include <memory>
+
+namespace caf
+{
+class PickEventHandler;
+
+//==================================================================================================
+///
+//==================================================================================================
+class PdmUiPickableLineEditorAttribute : public PdmUiEditorAttribute
+{
+public:
+    PdmUiPickableLineEditorAttribute() : enablePicking(false) {}
+
+public:
+    bool                              enablePicking;
+    std::shared_ptr<PickEventHandler> pickEventHandler;
+};
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::PickEventHandler::isObjectBeingModified(const PdmObjectHandle* object) const
+class PdmUiPickableLineEditor : public PdmUiLineEditor
 {
-    return m_objectBeingModified == object;
-}
+    Q_OBJECT
+    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+
+public:
+    PdmUiPickableLineEditor() {}
+    ~PdmUiPickableLineEditor() override;
+
+protected:
+    void configureAndUpdateUi(const QString& uiConfigName) override;
+
+private:
+    PdmUiPickableLineEditorAttribute m_attribute;
+};
+
+} // end namespace caf
+
+

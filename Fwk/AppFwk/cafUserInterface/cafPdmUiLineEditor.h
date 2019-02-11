@@ -116,7 +116,7 @@ protected slots:
 private:
     bool        isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* editorField) const;
 
-private:
+protected:
     QPointer<PdmUiLineEdit> m_lineEdit;
     QPointer<QLabel>        m_label;
 

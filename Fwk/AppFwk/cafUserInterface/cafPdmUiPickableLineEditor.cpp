@@ -33,68 +33,59 @@
 //   for more details.
 //
 //##################################################################################################
-#pragma once
+#include "cafPdmUiPickableLineEditor.h"
 
-#include "cafPdmUiLineEditor.h"
-#include "cafPdmCoreVec3d.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmUiDefaultObjectEditor.h"
+#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPickEventHandler.h"
 
-#include "cvfAssert.h"
-#include "cvfVector3.h"
-
-#include <memory>
-#include <vector>
-
-class QPushButton;
-
-namespace caf
-{
-class PickEventHandler;
-
-//==================================================================================================
-///
-//==================================================================================================
-class PdmUiVec3dEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiVec3dEditorAttribute() : startInPickingMode(false) {}
-
-public:
-    bool                              startInPickingMode;
-    std::shared_ptr<PickEventHandler> pickEventHandler;
-};
+using namespace caf;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiVec3dEditor : public PdmUiFieldEditorHandle
+caf::PdmUiPickableLineEditor::~PdmUiPickableLineEditor()
 {
-    Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+    if (m_attribute.pickEventHandler)
+    {
+        m_attribute.pickEventHandler->unregisterAsPickEventHandler();
+    }
+}
 
-public:
-    PdmUiVec3dEditor() {}
-    ~PdmUiVec3dEditor() override;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiPickableLineEditor::configureAndUpdateUi(const QString& uiConfigName)
+{
+    PdmUiLineEditor::configureAndUpdateUi(uiConfigName);
 
-protected:
-    QWidget* createEditorWidget(QWidget* parent) override;
-    QWidget* createLabelWidget(QWidget* parent) override;
-    void     configureAndUpdateUi(const QString& uiConfigName) override;
-    QMargins calculateLabelContentMargins() const override;
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
+    if (uiObject)
+    {
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attribute);
+    }
 
-protected slots:
-    void slotEditingFinished();
-    void pickButtonToggled(bool checked);
-private:
-    bool isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* editorField) const;
-    PickEventHandler* pickEventHandler();
-private:
-    QPointer<QLineEdit>   m_lineEdit;
-    QPointer<QPushButton> m_pickButton;
-    QPointer<QLabel>      m_label;
+    if (m_attribute.pickEventHandler)
+    {
+        if (m_attribute.enablePicking)
+        {
+            m_attribute.pickEventHandler->registerAsPickEventHandler();
+            m_lineEdit->setStyleSheet("QLineEdit {"
+                                      "color: #000000;"
+                                      "background-color: #FFDCFF;}");            
+        }
+        else
+        {
+            m_attribute.pickEventHandler->unregisterAsPickEventHandler();
+            m_lineEdit->setStyleSheet("");
+        }
+    }
 
-    PdmUiVec3dEditorAttribute m_attribute;
-};
+    m_lineEdit->setToolTip(uiField()->uiToolTip(uiConfigName));
+}
 
-} // end namespace caf
-
-
+// Define at this location to avoid duplicate symbol definitions in 'cafPdmUiDefaultObjectEditor.cpp' in a cotire build. The
+// variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same line number.
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiPickableLineEditor);

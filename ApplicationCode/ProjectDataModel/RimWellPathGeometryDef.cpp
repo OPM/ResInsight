@@ -100,11 +100,6 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
 //--------------------------------------------------------------------------------------------------
 RimWellPathGeometryDef::~RimWellPathGeometryDef()
 {
-    RiuViewerCommands::removePickEventHandlerIfActive(m_pickTargetsEventHandler);
-
-    delete m_pickTargetsEventHandler;
-
-    m_pickTargetsEventHandler = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -290,18 +285,8 @@ const RimWellPathTarget* RimWellPathGeometryDef::lastActiveTarget() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGeometryDef::enableTargetPointPicking(bool isEnabling)
 {
-    if (isEnabling)
-    {
-        m_pickPointsEnabled = true;
-        RiuViewerCommands::setPickEventHandler(m_pickTargetsEventHandler);
-        updateConnectedEditors();
-    }
-    else
-    {
-        RiuViewerCommands::removePickEventHandlerIfActive(m_pickTargetsEventHandler);
-        m_pickPointsEnabled = false;
-        updateConnectedEditors();
-    }
+    m_pickPointsEnabled = isEnabling;
+    this->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -333,7 +318,7 @@ void RimWellPathGeometryDef::fieldChangedByUi(const caf::PdmFieldHandle* changed
     }
     else if (changedField == &m_pickPointsEnabled)
     {
-        enableTargetPointPicking(m_pickPointsEnabled);
+        this->updateConnectedEditors();
     }
 
     updateWellPathVisualization();
@@ -637,6 +622,19 @@ void RimWellPathGeometryDef::defineEditorAttribute(const caf::PdmFieldHandle* fi
                 tvAttribute->alwaysEnforceResizePolicy = true;
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    RicWellPathGeometry3dEditorAttribute* attrib = dynamic_cast<RicWellPathGeometry3dEditorAttribute*>(attribute);
+    if (attrib)
+    {
+        attrib->pickEventHandler = m_pickTargetsEventHandler;
+        attrib->enablePicking    = m_pickPointsEnabled;
     }
 }
 

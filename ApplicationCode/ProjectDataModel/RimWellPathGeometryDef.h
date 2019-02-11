@@ -80,6 +80,9 @@ protected:
                                     
 
 
+
+    virtual void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+
 private:
     void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                                                      const QVariant& oldValue, 
@@ -101,11 +104,12 @@ private:
     caf::PdmChildArrayField<RimWellPathTarget*>      m_wellTargets;
 
     caf::PdmField< bool >                            m_pickPointsEnabled;
-    RicCreateWellTargetsPickEventHandler*            m_pickTargetsEventHandler;
 
-    // Unused for now. Remove when dust settles
+    // TODO: Unused for now. Remove when dust settles
 
     caf::PdmField<caf::AppEnum<WellStartType> >      m_wellStartType;
     caf::PdmField<double>                            m_kickoffDepthOrMD;
     caf::PdmPtrField<RimWellPath*>                   m_parentWell;
+
+    std::shared_ptr<RicCreateWellTargetsPickEventHandler> m_pickTargetsEventHandler;
 };

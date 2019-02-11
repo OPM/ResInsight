@@ -50,6 +50,7 @@ set (MOC_HEADER_FILES
     cafPdmUiDoubleValueEditor.h
     cafPdmUniqueIdValidator.h
     cafPdmDoubleStringValidator.h
+    cafPdmUiPickableLineEditor.h
 )
 
 if ( NOT CMAKE_AUTOMOC )
@@ -155,7 +156,7 @@ set( PROJECT_FILES
     cafPdmUniqueIdValidator.cpp
     cafPdmDoubleStringValidator.cpp
     cafPickEventHandler.h
-	cafPickEventHandler.cpp
+    cafPdmUiPickableLineEditor.cpp
 )
 
 add_library( ${PROJECT_NAME}

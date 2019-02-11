@@ -23,13 +23,6 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Ric3dViewPickEventHandler::Ric3dViewPickEventHandler(const caf::PdmObjectHandle* handlingObject)
-    : caf::PickEventHandler(handlingObject)
-{}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void Ric3dViewPickEventHandler::registerAsPickEventHandler()
 {
     RiuViewerCommands::setPickEventHandler(this);
