@@ -33,6 +33,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "RigEclipseResultInfo.h"
 
 //==================================================================================================
 ///

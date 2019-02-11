@@ -20,6 +20,10 @@
 
 #include "RiaApplication.h"
 #include "RiaMemoryCleanup.h"
+
+#include "RigEclipseResultAddress.h"
+#include "RigFemResultAddress.h"
+
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"

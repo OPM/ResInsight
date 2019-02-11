@@ -18,9 +18,6 @@
 
 #pragma once
 
-#include "RigFemResultAddress.h"
-#include "RigEclipseResultInfo.h"
-#include "RigEclipseResultAddress.h"
 
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
@@ -30,6 +27,8 @@
 
 class RimCase;
 class Rim3dView;
+class RigFemResultAddress;
+class RigEclipseResultAddress;
 
 class RiaMemoryCleanup : public caf::PdmObject
 {
