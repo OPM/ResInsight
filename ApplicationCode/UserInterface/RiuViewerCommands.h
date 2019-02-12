@@ -87,7 +87,7 @@ private:
     caf::PdmPointer<Rim3dView>            m_reservoirView;
     QPointer<RiuViewer>                   m_viewer;
 
-    static Ric3dViewPickEventHandler*                         sm_overridingPickHandler;
+    static Ric3dViewPickEventHandler*                   sm_overridingPickHandler;
     static std::vector<RicDefaultPickEventHandler*>     sm_defaultPickEventHandlers;
     void handleTextPicking(int winPosX, int winPosY, cvf::HitItemCollection* hitItems);
 };

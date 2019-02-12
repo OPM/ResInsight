@@ -55,14 +55,13 @@ void RimMeasurement::setMeasurementMode(bool measurementMode)
 
     if (m_isInMeasurementMode)
     {
-        RiuViewerCommands::setPickEventHandler(RicMeasurementPickEventHandler::instance());
-
+        RicMeasurementPickEventHandler::instance()->registerAsPickEventHandler();
         m_eventFilter = new RiuMeasurementEventFilter(this);
         m_eventFilter->registerFilter();
     }
     else
     {
-        RiuViewerCommands::removePickEventHandlerIfActive(RicMeasurementPickEventHandler::instance());
+        RicMeasurementPickEventHandler::instance()->unregisterAsPickEventHandler();
         removeAllPoints();
 
         if (m_eventFilter)

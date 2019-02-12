@@ -28,6 +28,10 @@ class RicMeasurementPickEventHandler : public Ric3dViewPickEventHandler
 public:
     static RicMeasurementPickEventHandler* instance();
 
+
+    void registerAsPickEventHandler() override;
+    void unregisterAsPickEventHandler() override;
+
 protected:
     RicMeasurementPickEventHandler();
     bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;

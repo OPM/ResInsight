@@ -19,6 +19,7 @@
 #include "RicMeasurementPickEventHandler.h"
 
 #include "RiaApplication.h"
+#include "RiuViewerCommands.h"
 
 #include "Rim3dView.h"
 #include "RimIntersection.h"
@@ -41,6 +42,24 @@ RicMeasurementPickEventHandler* RicMeasurementPickEventHandler::instance()
 {
     static RicMeasurementPickEventHandler* singleton = new RicMeasurementPickEventHandler;
     return singleton;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMeasurementPickEventHandler::registerAsPickEventHandler()
+{
+    RiaApplication::instance()->setOverrideCursor(Qt::CrossCursor);
+    RiuViewerCommands::setPickEventHandler(RicMeasurementPickEventHandler::instance());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMeasurementPickEventHandler::unregisterAsPickEventHandler()
+{
+    RiaApplication::instance()->restoreOverrideCursor();
+    RiuViewerCommands::removePickEventHandlerIfActive(RicMeasurementPickEventHandler::instance());
 }
 
 //--------------------------------------------------------------------------------------------------
