@@ -23,10 +23,12 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RigCaseCellResultCalculator.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
 #include "RigEclipseNativeStatCalc.h"
 #include "RigEclipseResultInfo.h"
+#include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
@@ -44,7 +46,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include "RigFormationNames.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -404,7 +405,9 @@ QStringList RigCaseCellResultsData::resultNames(RiaDefines::ResultCatType resTyp
     std::vector<RigEclipseResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
-        if (it->resultType() == resType && !it->eclipseResultAddress().isTimeLapse())
+        if (it->resultType() == resType &&
+            !it->eclipseResultAddress().isTimeLapse() &&
+            !it->eclipseResultAddress().hasDifferenceCase())
         {
             varList.push_back(it->resultName());
         }
@@ -1118,6 +1121,15 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(const RigEclipseResul
                     dstVals[vIdx] = srcVals[vIdx] - srcBaseVals[vIdx];
                 }
             }
+        }
+
+        return scalarResultIndex;
+    }
+    else if (resVarAddr.hasDifferenceCase())
+    {
+        if (!RigCaseCellResultCalculator::computeDifference(this->m_ownerCaseData, RiaDefines::MATRIX_MODEL, resVarAddr))
+        {
+            return cvf::UNDEFINED_SIZE_T;
         }
 
         return scalarResultIndex;

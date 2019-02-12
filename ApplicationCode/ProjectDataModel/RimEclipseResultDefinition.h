@@ -133,6 +133,8 @@ protected:
     caf::PdmField<QString>                                          m_resultVariable;
     caf::PdmField<int>                                              m_timeLapseBaseTimestep;
 
+    caf::PdmPtrField<RimEclipseCase*>                               m_differenceCase;
+
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolution;
     caf::PdmField<std::vector<QString> >                            m_selectedInjectorTracers;
     caf::PdmField<std::vector<QString> >                            m_selectedProducerTracers;
@@ -148,6 +150,8 @@ protected:
     caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
     caf::PdmField<int>                                              m_timeLapseBaseTimestepUiField;
+
+    caf::PdmPtrField<RimEclipseCase*>                               m_differenceCaseUiField;
 
     caf::PdmField< caf::AppEnum< FlowTracerSelectionType > >        m_flowTracerSelectionMode;
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolutionUiField;
@@ -176,9 +180,11 @@ private:
     bool                            hasDualPorFractureResult();
 
     QString                         flowDiagResUiText(bool shortLabel, int maxTracerStringLength = std::numeric_limits<int>::max()) const;
-    static QString                  timeDiffResultName(const QString& resultName, int timeStepIndex);
 
-    QString                         convertToTimeDiffUiVarName(const QString& resultName);
+    static QString                  timeDiffResultName(const QString& resultName, int timeStepIndex);
+    static QString                  caseDiffResultName(const QString& resultName, int caseId);
+
+    QString                         convertToTimeOrCaseDiffUiVarName(const QString& resultName);
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
     QList<caf::PdmOptionItemInfo>   calcOptionsForSelectedTracerField(bool injector);
     
@@ -201,5 +207,6 @@ private:
     void                            syncProducerToInjectorSelection();
 
     bool                            isTimeDiffResult() const;
+    bool                            isCaseDifferenceResult() const;
 };
 

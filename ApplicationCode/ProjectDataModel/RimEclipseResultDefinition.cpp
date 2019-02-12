@@ -42,6 +42,7 @@
 #include "RimGridTimeHistoryCurve.h"
 #include "RimIntersectionCollection.h"
 #include "RimPlotCurve.h"
+#include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
 #include "RimViewLinker.h"
@@ -91,6 +92,9 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
         &m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", RigEclipseResultAddress::NO_TIME_LAPSE, "Base Time Step", "", "", "");
     m_timeLapseBaseTimestep.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_differenceCase, "DifferenceCase", "Difference Case", "", "", "");
+    m_differenceCase.uiCapability()->setUiHidden(true);
+
     // One single tracer list has been split into injectors and producers.
     // The old list is defined as injectors and we'll have to move any producers in old projects.
     CAF_PDM_InitFieldNoDefault(&m_selectedTracers_OBSOLETE, "SelectedTracers", "Tracers", "", "", "");
@@ -129,6 +133,9 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
                       "",
                       "");
     m_timeLapseBaseTimestepUiField.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault(&m_differenceCaseUiField, "MDifferenceCase", "Difference Case", "", "", "");
+    m_differenceCaseUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_flowSolutionUiField, "MFlowDiagSolution", "Solution", "", "", "");
     m_flowSolutionUiField.xmlCapability()->disableIO();
@@ -245,6 +252,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         m_resultType            = m_resultTypeUiField;
         m_resultVariable        = m_resultVariableUiField;
         m_timeLapseBaseTimestep = m_timeLapseBaseTimestepUiField;
+        m_differenceCase        = m_differenceCaseUiField();
 
         if (m_resultTypeUiField() == RiaDefines::FLOW_DIAGNOSTICS)
         {
@@ -259,7 +267,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         loadDataAndUpdate();
     }
 
-    if (&m_timeLapseBaseTimestepUiField == changedField)
+    if (&m_timeLapseBaseTimestepUiField == changedField || &m_differenceCaseUiField == changedField)
     {
         m_resultVariableUiField = "";
     }
@@ -637,6 +645,30 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
                 options.push_back(caf::PdmOptionItemInfo(displayString, static_cast<int>(stepIdx)));
             }
         }
+        else if (fieldNeedingOptions == &m_differenceCaseUiField)
+        {
+            options.push_back(caf::PdmOptionItemInfo("None", nullptr));
+
+            RimEclipseCase* eclipseCase = nullptr;
+            this->firstAncestorOrThisOfTypeAsserted(eclipseCase);
+            if (eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid())
+            {
+                RimProject* proj = nullptr;
+                eclipseCase->firstAncestorOrThisOfTypeAsserted(proj);
+
+                std::vector<RimEclipseCase*> allCases = proj->eclipseCases();
+                for (RimEclipseCase* otherCase : allCases)
+                {
+                    if (otherCase == eclipseCase) continue;
+
+                    if (otherCase->eclipseCaseData() && otherCase->eclipseCaseData()->mainGrid())
+                    {
+                        options.push_back(
+                            caf::PdmOptionItemInfo(otherCase->caseUserDescription(), otherCase, false, otherCase->uiIcon()));
+                    }
+                }
+            }
+        }
     }
 
     (*useOptionsOnly) = true;
@@ -654,10 +686,20 @@ RigEclipseResultAddress RimEclipseResultDefinition::eclipseResultAddress() const
     const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
+        int timelapseTimeStep = RigEclipseResultAddress::NO_TIME_LAPSE;
+        int diffCaseId        = RigEclipseResultAddress::NO_CASE_DIFF;
+
         if (isTimeDiffResult())
-            return RigEclipseResultAddress(m_resultType(), m_resultVariable(), m_timeLapseBaseTimestep());
-        else
-            return RigEclipseResultAddress(m_resultType(), m_resultVariable());
+        {
+            timelapseTimeStep = m_timeLapseBaseTimestep();
+        }
+
+        if (isCaseDifferenceResult())
+        {
+            diffCaseId = m_differenceCase->caseId();
+        }
+
+        return RigEclipseResultAddress(m_resultType(), m_resultVariable(), timelapseTimeStep, diffCaseId);
     }
     else
     {
@@ -776,6 +818,11 @@ QString RimEclipseResultDefinition::resultVariableUiName() const
         return timeDiffResultName(m_resultVariable(), m_timeLapseBaseTimestep());
     }
 
+    if (isCaseDifferenceResult())
+    {
+        return caseDiffResultName(m_resultVariable(), m_differenceCase()->caseId());
+    }
+
     return m_resultVariable();
 }
 
@@ -792,6 +839,11 @@ QString RimEclipseResultDefinition::resultVariableUiShortName() const
     if (isTimeDiffResult() && resultType() == RiaDefines::DYNAMIC_NATIVE)
     {
         return timeDiffResultName(m_resultVariable(), m_timeLapseBaseTimestep());
+    }
+
+    if (isCaseDifferenceResult())
+    {
+        return caseDiffResultName(m_resultVariable(), m_differenceCase()->caseId());
     }
 
     return m_resultVariable();
@@ -813,10 +865,19 @@ void RimEclipseResultDefinition::loadResult()
         }
     }
 
+    if (m_differenceCase)
+    {
+        if (!m_differenceCase->ensureReservoirCaseIsOpen())
+        {
+            RiaLogging::error("Could not open the Eclipse Grid file: " + m_eclipseCase->gridFileName());
+            return;
+        }
+    }
+
     RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        if (isTimeDiffResult())
+        if (isTimeDiffResult() || isCaseDifferenceResult())
         {
             gridCellResults->createResultEntry(this->eclipseResultAddress(), false);
         }
@@ -918,6 +979,7 @@ void RimEclipseResultDefinition::initAfterRead()
     m_resultTypeUiField            = m_resultType;
     m_resultVariableUiField        = m_resultVariable;
     m_timeLapseBaseTimestepUiField = m_timeLapseBaseTimestep;
+    m_differenceCaseUiField        = m_differenceCase();
 
     m_flowSolutionUiField            = m_flowSolution();
     m_selectedInjectorTracersUiField = m_selectedInjectorTracers;
@@ -1150,6 +1212,7 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
     {
         caf::PdmUiGroup* timeLapseGr = uiOrdering.addNewGroup("Time Difference Options");
         timeLapseGr->add(&m_timeLapseBaseTimestepUiField);
+        timeLapseGr->add(&m_differenceCaseUiField);
     }
 
     uiOrdering.skipRemainingFields(true);
@@ -1310,12 +1373,25 @@ QString RimEclipseResultDefinition::timeDiffResultName(const QString& resultName
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimEclipseResultDefinition::convertToTimeDiffUiVarName(const QString& resultName)
+QString RimEclipseResultDefinition::caseDiffResultName(const QString& resultName, int caseId)
+{
+    return resultName + " (diff case - " + QString::number(caseId) + ")";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseResultDefinition::convertToTimeOrCaseDiffUiVarName(const QString& resultName)
 {
     if (m_timeLapseBaseTimestepUiField() >= 0 &&
         (m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE || m_resultTypeUiField() == RiaDefines::GENERATED))
     {
         return timeDiffResultName(resultName, m_timeLapseBaseTimestepUiField());
+    }
+
+    if (m_differenceCaseUiField())
+    {
+        return caseDiffResultName(resultName, m_differenceCaseUiField()->caseId());
     }
 
     return resultName;
@@ -1361,7 +1437,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         // Cell Center result names
         foreach (QString s, cellCenterResultNames)
         {
-            optionList.push_back(caf::PdmOptionItemInfo(convertToTimeDiffUiVarName(s), s));
+            optionList.push_back(caf::PdmOptionItemInfo(convertToTimeOrCaseDiffUiVarName(s), s));
         }
 
         // Ternary Result
@@ -1393,11 +1469,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         {
             if (showDerivedResultsFirstInList)
             {
-                optionList.push_front(caf::PdmOptionItemInfo(convertToTimeDiffUiVarName(s), s));
+                optionList.push_front(caf::PdmOptionItemInfo(convertToTimeOrCaseDiffUiVarName(s), s));
             }
             else
             {
-                optionList.push_back(caf::PdmOptionItemInfo(convertToTimeDiffUiVarName(s), s));
+                optionList.push_back(caf::PdmOptionItemInfo(convertToTimeOrCaseDiffUiVarName(s), s));
             }
         }
 
@@ -1815,4 +1891,12 @@ void RimEclipseResultDefinition::syncProducerToInjectorSelection()
 bool RimEclipseResultDefinition::isTimeDiffResult() const
 {
     return m_timeLapseBaseTimestep() >= 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::isCaseDifferenceResult() const
+{
+    return m_differenceCase() != nullptr;
 }
