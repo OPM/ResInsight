@@ -42,6 +42,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QToolButton>
+#include <QHBoxLayout>
 
 namespace caf
 {
@@ -91,21 +92,36 @@ void AnimationToolBar::init()
     m_animRepeatFromStartAction = new QAction(QIcon(":/cafAnimControl/RepeatFromStart.png"),      tr("Repeat From start"), this);
     m_animRepeatFromStartAction->setCheckable(true);
    
+    m_animSpeedButton        = new QToolButton(this);
+    m_animSpeedButton->setIcon(QIcon(":/cafAnimControl/Fast.png"));
+    m_animSpeedButton->setToolTip("Adjust Animation Speed");
+    m_animSpeedButton->setCheckable(true);
+
     m_timestepCombo = new QComboBox(this);
     m_timestepCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_timestepCombo->setToolTip(tr("Current Time Step"));
 
-    QLabel* slowLabel = new QLabel ( this);
-    slowLabel->setPixmap(QPixmap(":/cafAnimControl/Slow.png"));
-    slowLabel->setToolTip(tr("Slow"));
-    QLabel* fastLabel = new QLabel(this);
-    fastLabel->setPixmap(QPixmap(":/cafAnimControl/Fast.png"));
-    fastLabel->setAlignment(Qt::AlignRight);
-    fastLabel->setToolTip(tr("Fast"));
+    m_frameRateSlowLabel = new QLabel(this);
+    m_frameRateSlowLabel->setPixmap(QPixmap(":/cafAnimControl/Slow.png"));
+    m_frameRateSlowLabel->setToolTip(tr("Slow"));
+
+    m_frameRateFastLabel = new QLabel(this);
+    m_frameRateFastLabel->setPixmap(QPixmap(":/cafAnimControl/Fast.png"));
+    m_frameRateFastLabel->setToolTip(tr("Fast"));
+    m_frameRateFastLabel->setAlignment(Qt::AlignRight);
 
     m_frameRateSlider = new QSlider(Qt::Horizontal, this);
-    m_frameRateSlider->setMaximumWidth(75);
     m_frameRateSlider->setToolTip(tr("Animation speed"));
+
+    m_frameRatePopup = new PopupWidget(m_animSpeedButton);
+        
+    QHBoxLayout* frameRatePopupLayout = new QHBoxLayout(m_frameRatePopup);
+    frameRatePopupLayout->setContentsMargins(QMargins(2, 2, 2, 2));
+    m_frameRatePopup->setLayout(frameRatePopupLayout);
+
+    frameRatePopupLayout->addWidget(m_frameRateSlowLabel);
+    frameRatePopupLayout->addWidget(m_frameRateSlider);
+    frameRatePopupLayout->addWidget(m_frameRateFastLabel);
 
     QAction* separator1 = new QAction(this);
     separator1->setSeparator(true);
@@ -126,10 +142,8 @@ void AnimationToolBar::init()
     addAction(m_animRepeatFromStartAction );
 
     addAction(separator2);
-
-    addWidget(slowLabel);
-    addWidget(m_frameRateSlider);
-    addWidget(fastLabel);
+    
+    addWidget(m_animSpeedButton);
 
     addAction(separator3);
 

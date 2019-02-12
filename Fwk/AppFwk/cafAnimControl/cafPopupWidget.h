@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2019- Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -33,83 +33,30 @@
 //   for more details.
 //
 //##################################################################################################
-
-
 #pragma once
 
-#include <QToolBar>
-#include <QPointer>
-#include <QToolButton>
+#include <QWidget>
 
-#include "cafFrameAnimationControl.h"
-#include "cafPopupWidget.h"
-
-class QComboBox;
-class QLabel;
-class QLineEdit;
-class QSlider;
 class QToolButton;
 
 namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
-class AnimationToolBar : public QToolBar
+class PopupWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit AnimationToolBar(QWidget *parent = nullptr);
-    AnimationToolBar(const QString &title, QWidget *parent = nullptr);
-
-    void connectAnimationControl(caf::FrameAnimationControl* animationControl);
-
-    void setTimeStepStrings(const QStringList& timeStepStrings);
-
-    void setFrameRate(double frameRate);
-    void setSlowFrameRate(float frameRate);
-    void setFastFrameRate(float frameRate);
-
-    void setCurrentTimeStepIndex(int index);
+    PopupWidget(QToolButton* parentButton);
 
 public slots:
-    void slotUpdateTimestepList(int frameCount);
-    void playPauseChanged();
-
-private slots:
-    void slotFrameRateSliderChanged(int value);
-    void slotUpdateAnimationGuiFromFrameIndex(int value);
+    void buttonClicked(bool checked);
+protected:
+    void showEvent(QShowEvent*) override;
+    void hideEvent(QHideEvent*) override;
 
 private:
-    void init();
-    void updateAnimationButtons();
-private:
-    QAction*     m_animSkipToStartAction;
-    QAction*     m_animStepBackwardAction;
-    QToolButton* m_animPlayPauseButton;
-    QAction*     m_animPauseAction;
-    QAction*     m_animPlayAction;
-    QAction*     m_animStepForwardAction;  
-    QAction*     m_animSkipToEndAction;
-    QToolButton* m_animSpeedButton;
-
-    QAction*     m_animRepeatFromStartAction;
-
-    QLabel*      m_frameRateFastLabel;
-    QLabel*      m_frameRateSlowLabel;
-    QSlider*     m_frameRateSlider;
-    PopupWidget* m_frameRatePopup;
-
-    QComboBox*   m_timestepCombo;
-    
-    QPointer<caf::FrameAnimationControl> m_activeAnimationControl;
-
-    float       m_slowFrameRate;
-    float       m_fastFrameRate;
-    bool        m_hasAutoTimeStepStrings;
 };
-
-
-} // End namespace caf
+}
