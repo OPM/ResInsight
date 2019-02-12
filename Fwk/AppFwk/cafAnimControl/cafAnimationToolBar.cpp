@@ -78,13 +78,8 @@ void AnimationToolBar::init()
     // Create actions and widgets
     m_animSkipToStartAction  = new QAction(QIcon(":/cafAnimControl/SkipToStart.png"),    tr("Skip to Start"), this);
     m_animStepBackwardAction = new QAction(QIcon(":/cafAnimControl/StepBwd.png"),        tr("Step Backward"), this);
-    m_animPlayBwdAction      = new QAction(QIcon(":/cafAnimControl/PlayBwd.png"),        tr("Play Backwards"), this);
     m_animPauseAction        = new QAction(QIcon(":/cafAnimControl/Pause.png"),          tr("Pause"), this);
     m_animPlayAction         = new QAction(QIcon(":/cafAnimControl/Play.png"),           tr("Play"), this);
-    m_animPlayBwdButton = new QToolButton(this);
-    m_animPlayBwdButton->setIcon(m_animPlayBwdAction->icon());
-    m_animPlayBwdButton->setToolTip(m_animPlayBwdAction->toolTip());
-    QObject::connect(m_animPlayBwdButton, SIGNAL(clicked()), this, SLOT(playBwdClicked()));
     m_animPlayPauseButton    = new QToolButton(this);
     m_animPlayPauseButton->setIcon(m_animPlayAction->icon());
     m_animPlayPauseButton->setToolTip(m_animPlayAction->toolTip());
@@ -95,8 +90,6 @@ void AnimationToolBar::init()
     
     m_animRepeatFromStartAction = new QAction(QIcon(":/cafAnimControl/RepeatFromStart.png"),      tr("Repeat From start"), this);
     m_animRepeatFromStartAction->setCheckable(true);
-    m_animRepeatFwdBwdAction    = new QAction(QIcon(":/cafAnimControl/RepeatFwdBwd.png"),      tr("Repeat Forward/Backward"), this);
-    m_animRepeatFwdBwdAction->setCheckable(true);
    
     m_timestepCombo = new QComboBox(this);
     m_timestepCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -124,7 +117,6 @@ void AnimationToolBar::init()
     // Add actions and widgets to animation toolbar
     addAction(m_animSkipToStartAction);
     addAction(m_animStepBackwardAction);
-    addWidget(m_animPlayBwdButton);
     addWidget(m_animPlayPauseButton);
     addAction(m_animStepForwardAction);
     addAction(m_animSkipToEndAction);
@@ -132,7 +124,6 @@ void AnimationToolBar::init()
     addAction(separator1);
 
     addAction(m_animRepeatFromStartAction );
-    addAction(m_animRepeatFwdBwdAction    );
 
     addAction(separator2);
 
@@ -171,11 +162,9 @@ void AnimationToolBar::updateAnimationButtons()
     // Going backwards actions disabled when we're stopped at the start
     m_animSkipToStartAction->setEnabled(isPlaying || !isAtStart);
     m_animStepBackwardAction->setEnabled(isPlaying || !isAtStart);
-    m_animPlayBwdButton->setEnabled(isPlaying || !isAtStart);
 
     bool isRepeat = m_activeAnimationControl &&
-                    (m_activeAnimationControl->isRepeatingFromStart() ||
-                     m_activeAnimationControl->isRepeatingFwdBwd());
+                    m_activeAnimationControl->isRepeatingFromStart();
 
     // Going forwards actions disabled when we're stopped at the end
     m_animStepForwardAction->setEnabled(isPlaying || !isAtEnd);
@@ -205,9 +194,7 @@ void AnimationToolBar::connectAnimationControl(caf::FrameAnimationControl* anima
     m_animStepForwardAction->disconnect();
     m_animSkipToEndAction->disconnect();
 
-    m_animPlayBwdAction        ->disconnect();
     m_animRepeatFromStartAction->disconnect();
-    m_animRepeatFwdBwdAction   ->disconnect();
 
     m_timestepCombo->disconnect();
     m_frameRateSlider->disconnect();
@@ -221,16 +208,9 @@ void AnimationToolBar::connectAnimationControl(caf::FrameAnimationControl* anima
         connect(m_animStepForwardAction,    SIGNAL(triggered()),        animationControl, SLOT(slotStepForward()));
         connect(m_animSkipToEndAction,      SIGNAL(triggered()),        animationControl, SLOT(slotSkipToEnd()));
 
-        connect(m_animPlayBwdAction        ,SIGNAL(triggered()),        animationControl, SLOT(slotPlayBwd()));
-
         m_animRepeatFromStartAction->setChecked(animationControl->isRepeatingFromStart());
-        m_animRepeatFwdBwdAction->setChecked(animationControl->isRepeatingFwdBwd());
 
         connect(m_animRepeatFromStartAction,SIGNAL(triggered(bool)),    animationControl, SLOT(slotRepeatFromStart(bool)));
-        connect(m_animRepeatFwdBwdAction   ,SIGNAL(triggered(bool)),    animationControl, SLOT(slotRepeatFwdBwd(bool)));
-
-        connect(m_animRepeatFromStartAction,SIGNAL(triggered(bool)),    this,             SLOT(slotFromStartModeToggled(bool)));
-        connect(m_animRepeatFwdBwdAction   ,SIGNAL(triggered(bool)),    this,             SLOT(slotFwdBwdModeToggled(bool)));
         
         connect(m_timestepCombo,            SIGNAL(currentIndexChanged(int)), animationControl, SLOT(setCurrentFrame(int)));
         connect(m_frameRateSlider,          SIGNAL(valueChanged(int)),  this,             SLOT(slotFrameRateSliderChanged(int)));
@@ -360,15 +340,6 @@ void AnimationToolBar::slotUpdateTimestepList(int frameCount)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void AnimationToolBar::playBwdClicked()
-{
-    m_animPlayBwdAction->trigger();
-    updateAnimationButtons();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void AnimationToolBar::playPauseChanged()
 {
     if (m_activeAnimationControl->isActive())
@@ -380,34 +351,6 @@ void AnimationToolBar::playPauseChanged()
     {
         m_animPlayAction->trigger();
         updateAnimationButtons();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void AnimationToolBar::slotFromStartModeToggled(bool on)
-{
-    if (on) 
-    {
-        m_animRepeatFwdBwdAction->blockSignals(true);
-        m_animRepeatFwdBwdAction->setChecked(false);
-        updateAnimationButtons();
-        m_animRepeatFwdBwdAction->blockSignals(false);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void AnimationToolBar::slotFwdBwdModeToggled(bool on)
-{
-    if (on) 
-    {
-        m_animRepeatFromStartAction->blockSignals(true);
-        m_animRepeatFromStartAction->setChecked(false);
-        updateAnimationButtons();
-        m_animRepeatFromStartAction->blockSignals(false);
     }
 }
 

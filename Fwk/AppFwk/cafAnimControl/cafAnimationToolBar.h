@@ -74,13 +74,10 @@ public:
 
 public slots:
     void slotUpdateTimestepList(int frameCount);
-    void playBwdClicked();
     void playPauseChanged();
 
 private slots:
     void slotFrameRateSliderChanged(int value);
-    void slotFromStartModeToggled(bool on);
-    void slotFwdBwdModeToggled(bool on);
     void slotUpdateAnimationGuiFromFrameIndex(int value);
 
 private:
@@ -89,8 +86,6 @@ private:
 private:
     QAction*     m_animSkipToStartAction;
     QAction*     m_animStepBackwardAction;
-    QAction*     m_animPlayBwdAction;
-    QToolButton* m_animPlayBwdButton;
     QToolButton* m_animPlayPauseButton;
     QAction*     m_animPauseAction;
     QAction*     m_animPlayAction;
@@ -98,7 +93,6 @@ private:
     QAction*     m_animSkipToEndAction;
 
     QAction*     m_animRepeatFromStartAction;
-    QAction*     m_animRepeatFwdBwdAction;
 
     QSlider*     m_frameRateSlider;
 
