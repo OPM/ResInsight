@@ -45,13 +45,15 @@ void RicImportGeneralDataFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
 
-    QString eclipseGridFilePattern("*.GRID *.EGRID");
+    QString eclipseGridFilePattern("*.GRID");
+    QString eclipseEGridFilePattern("*.EGRID");
     QString eclipseInputFilePattern("*.GRDECL");
     QString eclipseSummaryFilePattern("*.SMSPEC");
         
     QStringList filePatternTexts;
-    filePatternTexts += QString("Eclipse Files (%1 %2 %3)").arg(eclipseGridFilePattern).arg(eclipseInputFilePattern).arg(eclipseSummaryFilePattern);
+    filePatternTexts += QString("Eclipse Files (%1 %2 %3 %4)").arg(eclipseGridFilePattern).arg(eclipseEGridFilePattern).arg(eclipseInputFilePattern).arg(eclipseSummaryFilePattern);
     filePatternTexts += QString("Eclipse Grid Files (%1)").arg(eclipseGridFilePattern);
+    filePatternTexts += QString("Eclipse EGrid Files (%1)").arg(eclipseEGridFilePattern);
     filePatternTexts += QString("Eclipse Input Files and Input Properties (%1)").arg(eclipseInputFilePattern);
     filePatternTexts += QString("Eclipse Summary File (%1)").arg(eclipseSummaryFilePattern);
 
