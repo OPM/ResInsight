@@ -127,6 +127,11 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEven
                 targetPointInDomain = hexElementIntersection;
             }            
         }
+        else
+        {
+            targetPointInDomain        = intersectionPointInDomain;
+            doSetAzimuthAndInclination = false;
+        }
 
         if (!m_geometryToAddTargetsTo->firstActiveTarget())
         {
