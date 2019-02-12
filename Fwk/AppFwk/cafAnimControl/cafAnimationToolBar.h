@@ -37,12 +37,10 @@
 
 #pragma once
 
-#include <QToolBar>
 #include <QPointer>
-#include <QToolButton>
+#include <QToolBar>
 
 #include "cafFrameAnimationControl.h"
-#include "cafPopupWidget.h"
 
 class QComboBox;
 class QLabel;
@@ -52,6 +50,7 @@ class QToolButton;
 
 namespace caf
 {
+class PopupMenuButton;
 
 //==================================================================================================
 /// 
@@ -93,14 +92,13 @@ private:
     QAction*     m_animPlayAction;
     QAction*     m_animStepForwardAction;  
     QAction*     m_animSkipToEndAction;
-    QToolButton* m_animSpeedButton;
 
     QAction*     m_animRepeatFromStartAction;
 
+    PopupMenuButton* m_animSpeedButton;
     QLabel*      m_frameRateFastLabel;
     QLabel*      m_frameRateSlowLabel;
     QSlider*     m_frameRateSlider;
-    PopupWidget* m_frameRatePopup;
 
     QComboBox*   m_timestepCombo;
     

@@ -37,12 +37,13 @@
 
 #include "cafAnimationToolBar.h"
 
+#include "cafPopupMenuButton.h"
+
 #include <QAction>
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QToolButton>
-#include <QHBoxLayout>
 
 namespace caf
 {
@@ -92,14 +93,9 @@ void AnimationToolBar::init()
     m_animRepeatFromStartAction = new QAction(QIcon(":/cafAnimControl/RepeatFromStart.png"),      tr("Repeat From start"), this);
     m_animRepeatFromStartAction->setCheckable(true);
    
-    m_animSpeedButton        = new QToolButton(this);
+    m_animSpeedButton = new PopupMenuButton(this);
     m_animSpeedButton->setIcon(QIcon(":/cafAnimControl/Fast.png"));
     m_animSpeedButton->setToolTip("Adjust Animation Speed");
-    m_animSpeedButton->setCheckable(true);
-
-    m_timestepCombo = new QComboBox(this);
-    m_timestepCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    m_timestepCombo->setToolTip(tr("Current Time Step"));
 
     m_frameRateSlowLabel = new QLabel(this);
     m_frameRateSlowLabel->setPixmap(QPixmap(":/cafAnimControl/Slow.png"));
@@ -112,16 +108,15 @@ void AnimationToolBar::init()
 
     m_frameRateSlider = new QSlider(Qt::Horizontal, this);
     m_frameRateSlider->setToolTip(tr("Animation speed"));
-
-    m_frameRatePopup = new PopupWidget(m_animSpeedButton);
+    m_frameRateSlider->setMinimumWidth(100);
         
-    QHBoxLayout* frameRatePopupLayout = new QHBoxLayout(m_frameRatePopup);
-    frameRatePopupLayout->setContentsMargins(QMargins(2, 2, 2, 2));
-    m_frameRatePopup->setLayout(frameRatePopupLayout);
-
-    frameRatePopupLayout->addWidget(m_frameRateSlowLabel);
-    frameRatePopupLayout->addWidget(m_frameRateSlider);
-    frameRatePopupLayout->addWidget(m_frameRateFastLabel);
+    m_animSpeedButton->addWidget(m_frameRateSlowLabel);
+    m_animSpeedButton->addWidget(m_frameRateSlider);
+    m_animSpeedButton->addWidget(m_frameRateFastLabel);
+    
+    m_timestepCombo = new QComboBox(this);
+    m_timestepCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    m_timestepCombo->setToolTip(tr("Current Time Step"));
 
     QAction* separator1 = new QAction(this);
     separator1->setSeparator(true);

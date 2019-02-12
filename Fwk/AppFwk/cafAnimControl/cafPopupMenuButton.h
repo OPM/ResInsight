@@ -34,9 +34,10 @@
 //
 //##################################################################################################
 #pragma once
+#include <QPointer>
+#include <QToolButton>
 
-#include <QWidget>
-
+class QBoxLayout;
 class QToolButton;
 
 namespace caf
@@ -44,19 +45,19 @@ namespace caf
 //==================================================================================================
 ///
 //==================================================================================================
-class PopupWidget : public QWidget
+class PopupMenuButton : public QToolButton
 {
     Q_OBJECT
 
 public:
-    PopupWidget(QToolButton* parentButton);
+    PopupMenuButton(QWidget* parentWidget,
+                Qt::Orientation orientation = Qt::Horizontal,
+                ToolButtonPopupMode popupMode = InstantPopup);
 
-public slots:
-    void buttonClicked(bool checked);
-protected:
-    void showEvent(QShowEvent*) override;
-    void hideEvent(QHideEvent*) override;
+    void addWidget(QWidget* widget, int stretch = 0, Qt::Alignment alignment = Qt::Alignment());
 
-private:
+private:    
+    QPointer<QBoxLayout> m_layout;
 };
+
 }

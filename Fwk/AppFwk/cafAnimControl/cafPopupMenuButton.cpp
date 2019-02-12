@@ -33,52 +33,44 @@
 //   for more details.
 //
 //##################################################################################################
-#include "cafPopupWidget.h"
+#include "cafPopupMenuButton.h"
 
-#include <QDebug>
-#include <QHideEvent>
-#include <QToolButton>
+#include <QHBoxLayout>
+#include <QMenu>
+#include <QVBoxLayout>
 
+using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PopupWidget::PopupWidget(QToolButton* parentButton)
-    : QWidget(parentButton, Qt::Popup | Qt::FramelessWindowHint)
-{
-    QObject::connect(parentButton, SIGNAL(clicked(bool)), this, SLOT(buttonClicked(bool)));
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void caf::PopupWidget::buttonClicked(bool checked)
+PopupMenuButton::PopupMenuButton(QWidget* parentWidget,
+                         Qt::Orientation orientation /*= Qt::Horizontal*/, 
+                         ToolButtonPopupMode popupMode /*=InstantPopup*/)
+    : QToolButton(parentWidget)
 {
-    QToolButton* parentButton = static_cast<QToolButton*>(this->parentWidget());
-
-    if (checked)
+    if (orientation == Qt::Horizontal)
     {
-        QRect  buttonRect = parentButton->contentsRect();
-        QPoint buttonLeftPos = parentButton->mapToGlobal(buttonRect.bottomLeft());
-        QSize  currentSize = this->size();
-        setGeometry(buttonLeftPos.x() - currentSize.width() / 2, buttonLeftPos.y() + 2, currentSize.width(), currentSize.height());
-        show();
-
+        m_layout = new QHBoxLayout(this);
     }
     else
     {
-        hide();
+        m_layout = new QVBoxLayout(this);
     }
+    m_layout->setContentsMargins(QMargins(2, 2, 2, 2));
+
+    QMenu* menu = new QMenu(this);
+    menu->setLayout(m_layout);
+    setMenu(menu);
+
+    setCheckable(true);        
+    setPopupMode(popupMode);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PopupWidget::showEvent(QShowEvent*)
+void caf::PopupMenuButton::addWidget(QWidget* widget, int stretch, Qt::Alignment alignment)
 {
-}
-//--------------------------------------------------------------------------------------------------
-/// Hides window but also unchecks the owning tool bar button
-//--------------------------------------------------------------------------------------------------
-void caf::PopupWidget::hideEvent(QHideEvent* event)
-{
+    m_layout->addWidget(widget, stretch, alignment);
 }

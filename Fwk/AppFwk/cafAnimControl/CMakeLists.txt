@@ -14,7 +14,7 @@ endif(CAF_USE_QT5)
 set( MOC_HEADER_FILES    
     cafFrameAnimationControl.h
     cafAnimationToolBar.h
-	cafPopupWidget.h
+	cafPopupMenuButton.h
 )
 
 if (CAF_USE_QT5)
@@ -43,8 +43,8 @@ set( PROJECT_FILES
     cafFrameAnimationControl.cpp
     cafAnimationToolBar.h
     cafAnimationToolBar.cpp
-	cafPopupWidget.h
-	cafPopupWidget.cpp
+	cafPopupMenuButton.h
+	cafPopupMenuButton.cpp
 )
 
 add_library( ${PROJECT_NAME}
