@@ -1208,11 +1208,17 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         uiOrdering.add(&m_resultVariableUiField);
     }
 
-    if (m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE)
+    if (m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE || m_resultTypeUiField() == RiaDefines::STATIC_NATIVE ||
+        m_resultTypeUiField() == RiaDefines::GENERATED)
     {
-        caf::PdmUiGroup* timeLapseGr = uiOrdering.addNewGroup("Time Difference Options");
-        timeLapseGr->add(&m_timeLapseBaseTimestepUiField);
-        timeLapseGr->add(&m_differenceCaseUiField);
+        caf::PdmUiGroup* differenceGroup = uiOrdering.addNewGroup("Difference Options");
+
+        if (m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE)
+        {
+            differenceGroup->add(&m_timeLapseBaseTimestepUiField);
+        }
+
+        differenceGroup->add(&m_differenceCaseUiField);
     }
 
     uiOrdering.skipRemainingFields(true);
