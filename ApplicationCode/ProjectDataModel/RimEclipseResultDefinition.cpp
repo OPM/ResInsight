@@ -1569,15 +1569,15 @@ QString RimEclipseResultDefinition::timeOfFlightString(bool shorter) const
     }
     else if (injectorSelectionState() != NONE_SELECTED)
     {
-        tofString = shorter ? "Fwd.TOF" : "Forward Time Of Flight";
+        tofString = shorter ? "Fwd.TOF" : "Forward Time of Flight";
     }
     else if (producerSelectionState() != NONE_SELECTED)
     {
-        tofString = shorter ? "Rev.TOF" : "Reverse Time Of Flight";
+        tofString = shorter ? "Rev.TOF" : "Reverse Time of Flight";
     }
     else
     {
-        tofString = shorter ? "TOF" : "Time Of Flight";
+        tofString = shorter ? "TOF" : "Time of Flight";
     }
 
     multipleSelected =
