@@ -73,6 +73,7 @@ CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultDefinition::RimEclipseResultDefinition()
+    : m_showUiForDerivedDifferenceResults(false)
 {
     CAF_PDM_InitObject("Result Definition", "", "", "");
 
@@ -1105,6 +1106,14 @@ void RimEclipseResultDefinition::updateUiFieldsFromActiveResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::enableUiForDerivedDifferenceResults()
+{
+    m_showUiForDerivedDifferenceResults = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 {
     bool isTernary = (m_resultType() == RiaDefines::DYNAMIC_NATIVE) &&
@@ -1208,17 +1217,25 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         uiOrdering.add(&m_resultVariableUiField);
     }
 
-    if (m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE || m_resultTypeUiField() == RiaDefines::STATIC_NATIVE ||
-        m_resultTypeUiField() == RiaDefines::GENERATED)
+    if (m_showUiForDerivedDifferenceResults)
     {
-        caf::PdmUiGroup* differenceGroup = uiOrdering.addNewGroup("Difference Options");
+        // NOTE
+        //
+        // It is possible to use the case/time diff results in property filter, fault result, etc
+        // but to limit the number of UI items, the time/case diff is only available as part of "Cell Result"
 
-        if (m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE)
+        if (m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE || m_resultTypeUiField() == RiaDefines::STATIC_NATIVE ||
+            m_resultTypeUiField() == RiaDefines::GENERATED)
         {
-            differenceGroup->add(&m_timeLapseBaseTimestepUiField);
-        }
+            caf::PdmUiGroup* differenceGroup = uiOrdering.addNewGroup("Difference Options");
 
-        differenceGroup->add(&m_differenceCaseUiField);
+            if (m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE)
+            {
+                differenceGroup->add(&m_timeLapseBaseTimestepUiField);
+            }
+
+            differenceGroup->add(&m_differenceCaseUiField);
+        }
     }
 
     uiOrdering.skipRemainingFields(true);

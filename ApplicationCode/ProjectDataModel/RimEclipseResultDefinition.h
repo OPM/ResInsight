@@ -116,6 +116,7 @@ public:
 
     void                            updateUiFieldsFromActiveResult();
 
+    void                            enableUiForDerivedDifferenceResults();
 protected:
     virtual void                  updateLegendCategorySettings() {};
 
@@ -208,5 +209,7 @@ private:
 
     bool                            isTimeDiffResult() const;
     bool                            isCaseDifferenceResult() const;
+
+    bool                            m_showUiForDerivedDifferenceResults;
 };
 
