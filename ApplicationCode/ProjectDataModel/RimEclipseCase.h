@@ -107,7 +107,6 @@ public:
     cvf::BoundingBox                            allCellsBoundingBox() const override;
     cvf::Vec3d                                  displayModelOffset() const override;
 
-    void                                        reloadDataAndUpdate();
     virtual void                                reloadEclipseGridFile() = 0;
 
 

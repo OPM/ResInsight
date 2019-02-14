@@ -126,6 +126,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
 )
 
 
@@ -256,6 +257,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

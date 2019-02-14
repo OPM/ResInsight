@@ -26,6 +26,7 @@
 
 #include "RimEclipseResultCase.h"
 #include "RimGeoMechCase.h"
+#include "RimReloadCaseTools.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
 
@@ -200,10 +201,9 @@ void RimTimeStepFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     {
         if (updateFilteredTimeStepsFromUi())
         {
-
             if (rimEclipseResultCase)
             {
-                rimEclipseResultCase->reloadDataAndUpdate();
+                RimReloadCaseTools::reloadAllEclipseGridData(rimEclipseResultCase);
             }
             else if (rimGeoMechCase)
             {

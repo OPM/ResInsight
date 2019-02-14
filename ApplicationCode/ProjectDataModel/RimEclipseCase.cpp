@@ -35,14 +35,14 @@
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
-#include "RimEclipseContourMapView.h"
-#include "RimEclipseContourMapViewCollection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
 #include "RimCommandObject.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseContourMapView.h"
+#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
@@ -57,6 +57,7 @@
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
+#include "RimReloadCaseTools.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimStimPlanColors.h"
 #include "RimSummaryCase.h"
@@ -414,7 +415,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 {
     if (changedField == &m_releaseResultMemory)
     {
-        reloadDataAndUpdate();
+        RimReloadCaseTools::reloadAllEclipseGridData(this);
 
         m_releaseResultMemory = oldValue.toBool();
     }
@@ -691,7 +692,7 @@ bool RimEclipseCase::loadStaticResultsByName(const std::vector<QString>& resultN
     {
         for (const auto& resultName : resultNames)
         {
-            if (!cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, resultName)))
+            if (!cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, resultName)))
             {
                 foundDataForAllResults = false;
             }
@@ -762,7 +763,7 @@ void RimEclipseCase::setFilesContainingFaults(const std::vector<QString>& val)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseCase::ensureReservoirCaseIsOpen()
 {
@@ -802,28 +803,32 @@ bool RimEclipseCase::openReserviorCase()
                 // After the placeholder result for combined transmissibility is created,
                 // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
 
-                RigEclipseResultAddress combinedTransmissibilityResAddr(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
+                RigEclipseResultAddress combinedTransmissibilityResAddr(RiaDefines::STATIC_NATIVE,
+                                                                        RiaDefines::combinedTransmissibilityResultName());
                 if (results->hasResultEntry(combinedTransmissibilityResAddr))
                 {
                     eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameCombTrans(),
                                                                                   combinedTransmissibilityResAddr);
                 }
-                
-                RigEclipseResultAddress combinedWaterFluxResAddr(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName());
+
+                RigEclipseResultAddress combinedWaterFluxResAddr(RiaDefines::DYNAMIC_NATIVE,
+                                                                 RiaDefines::combinedWaterFluxResultName());
                 if (results->hasResultEntry(combinedWaterFluxResAddr))
                 {
                     eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameFluxWat(),
                                                                                   combinedWaterFluxResAddr);
                 }
 
-                RigEclipseResultAddress combinedOilFluxResAddr(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
+                RigEclipseResultAddress combinedOilFluxResAddr(RiaDefines::DYNAMIC_NATIVE,
+                                                               RiaDefines::combinedOilFluxResultName());
                 if (results->hasResultEntry(combinedOilFluxResAddr))
                 {
                     eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameFluxOil(),
                                                                                   combinedOilFluxResAddr);
                 }
-                RigEclipseResultAddress combinedGasFluxResAddr(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
-                    
+                RigEclipseResultAddress combinedGasFluxResAddr(RiaDefines::DYNAMIC_NATIVE,
+                                                               RiaDefines::combinedGasFluxResultName());
+
                 if (results->hasResultEntry(combinedGasFluxResAddr))
                 {
                     eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameFluxGas(),
@@ -922,88 +927,6 @@ QString RimEclipseCase::timeStepName(int frameIdx) const
     }
 
     return QString("");
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseCase::reloadDataAndUpdate()
-{
-    if (this->eclipseCaseData())
-    {
-        RigCaseCellResultsData* matrixModelResults = eclipseCaseData()->results(RiaDefines::MATRIX_MODEL);
-        if (matrixModelResults)
-        {
-            matrixModelResults->clearAllResults();
-        }
-
-        RigCaseCellResultsData* fractureModelResults = eclipseCaseData()->results(RiaDefines::FRACTURE_MODEL);
-        if (fractureModelResults)
-        {
-            fractureModelResults->clearAllResults();
-        }
-
-        reloadEclipseGridFile();
-
-        for (size_t i = 0; i < reservoirViews().size(); i++)
-        {
-            RimEclipseView* reservoirView = reservoirViews()[i];
-            CVF_ASSERT(reservoirView);
-            reservoirView->loadDataAndUpdate();
-            reservoirView->updateGridBoxData();
-            reservoirView->updateAnnotationItems();
-        }
-
-        for (RimEclipseContourMapView* contourMap : m_contourMapCollection->views())
-        {
-            CVF_ASSERT(contourMap);
-            contourMap->loadDataAndUpdate();
-            contourMap->updateGridBoxData();
-            contourMap->updateAnnotationItems();
-        }
-
-        for (Rim2dIntersectionView* view : intersectionViewCollection()->views())
-        {
-            view->createDisplayModelAndRedraw();
-        }
-
-        RimProject* project = RiaApplication::instance()->project();
-        if (project)
-        {
-            RimSummaryCaseMainCollection* sumCaseColl =
-                project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
-            if (sumCaseColl)
-            {
-                sumCaseColl->loadAllSummaryCaseData();
-            }
-
-            if (project->mainPlotCollection())
-            {
-                RimWellLogPlotCollection* wellPlotCollection    = project->mainPlotCollection()->wellLogPlotCollection();
-                RimSummaryPlotCollection* summaryPlotCollection = project->mainPlotCollection()->summaryPlotCollection();
-                RimFlowPlotCollection*    flowPlotCollection    = project->mainPlotCollection()->flowPlotCollection();
-
-                if (wellPlotCollection)
-                {
-                    for (size_t i = 0; i < wellPlotCollection->wellLogPlots().size(); ++i)
-                    {
-                        wellPlotCollection->wellLogPlots()[i]->loadDataAndUpdate();
-                    }
-                }
-                if (summaryPlotCollection)
-                {
-                    for (size_t i = 0; i < summaryPlotCollection->summaryPlots().size(); ++i)
-                    {
-                        summaryPlotCollection->summaryPlots()[i]->loadDataAndUpdate();
-                    }
-                }
-                if (flowPlotCollection)
-                {
-                    flowPlotCollection->loadDataAndUpdate();
-                }
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
