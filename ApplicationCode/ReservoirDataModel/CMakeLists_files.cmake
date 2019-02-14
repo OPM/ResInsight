@@ -45,7 +45,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCurveData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellLogExtractionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigHexIntersectionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTimeHistoryResultAccessor.h
-${CMAKE_CURRENT_LIST_DIR}/RigObservedData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigLasFileExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RigSimulationWellCoordsAndMD.h
 ${CMAKE_CURRENT_LIST_DIR}/RigFishbonesGeometry.h
@@ -112,7 +111,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RigEclipseMultiPropertyStatCalc.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCurveData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigHexIntersectionTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTimeHistoryResultAccessor.cpp
-${CMAKE_CURRENT_LIST_DIR}/RigObservedData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigLasFileExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigSimulationWellCoordsAndMD.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigFishbonesGeometry.cpp
