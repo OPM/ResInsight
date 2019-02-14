@@ -64,7 +64,6 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
-
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir");
 
 //------------------------------------------------------------------------------------------------
