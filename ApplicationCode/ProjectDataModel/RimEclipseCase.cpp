@@ -24,8 +24,8 @@
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 
-#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RigActiveCellInfo.h"
@@ -35,11 +35,9 @@
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
-#include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
-#include "RimCommandObject.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
@@ -47,8 +45,6 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
-#include "RimFlowCharacteristicsPlot.h"
-#include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
@@ -56,18 +52,10 @@
 #include "RimOilField.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
-#include "RimRegularLegendConfig.h"
 #include "RimReloadCaseTools.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimStimPlanColors.h"
-#include "RimSummaryCase.h"
-#include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimTools.h"
-#include "RimVirtualPerforationResults.h"
-#include "RimWellAllocationPlot.h"
-#include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -76,10 +64,6 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
-#include <QDebug>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir");
 
