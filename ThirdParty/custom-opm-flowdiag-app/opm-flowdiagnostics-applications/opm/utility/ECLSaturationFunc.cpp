@@ -2477,7 +2477,10 @@ max2PSatSum(const RawCurve&       fi,
             }
         }
         else {
-            const auto swco = this->wat_->swco();
+            const auto swco = (this->wat_ != nullptr)
+                ? this->wat_->swco()
+                : std::vector<double>(this->numTables_, 0.0);
+
             smin = swco[regID - 1];
         }
     }
@@ -2494,7 +2497,10 @@ max2PSatSum(const RawCurve&       fi,
             }
         }
         else {
-            const auto sgco = this->gas_->sgco();
+            const auto sgco = (this->gas_ != nullptr)
+                ? this->gas_->sgco()
+                : std::vector<double>(this->numTables_, 0.0);
+
             smin = sgco[regID - 1];
         }
     }
