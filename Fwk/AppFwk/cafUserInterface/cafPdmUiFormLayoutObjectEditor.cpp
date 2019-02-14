@@ -201,7 +201,7 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                             }
                         }
 
-                        if (labelPos != PdmUiItemInfo::TOP) // Already added if TOP
+                        if (fieldLabelWidget && labelPos != PdmUiItemInfo::TOP) // Already added if TOP
                         {
                             fieldColumnSpan += spareColumnsToAssign;
 
@@ -220,7 +220,11 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                         {
                             QWidget::setTabOrder(*previousTabOrderWidget, fieldEditorWidget);
                         }
-                        previousTabOrderWidget = &fieldLabelWidget;
+
+                        if (fieldLabelWidget)
+                        {
+                            previousTabOrderWidget = &fieldLabelWidget;
+                        }
                     }
                     fieldEditor->updateUi(uiConfigName);
                 }
