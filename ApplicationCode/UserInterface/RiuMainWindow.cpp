@@ -546,6 +546,7 @@ void RiuMainWindow::createToolBars()
     {
 #ifdef USE_ODB_API
         QToolBar* toolbar = addToolBar(tr("Import GeoMech"));
+        toolbar->setObjectName(toolbar->windowTitle());
         toolbar->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
         toolbar->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseTimeStepFilterFeature"));
         toolbar->addAction(cmdFeatureMgr->action("RicImportElementPropertyFeature"));
