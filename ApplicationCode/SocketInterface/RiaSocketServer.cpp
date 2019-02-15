@@ -22,6 +22,7 @@
 #include "RiaSocketCommand.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -67,14 +68,17 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
 
     if (!m_tcpServer->listen(QHostAddress::LocalHost, 40001)) 
     {
-        m_errorMessageDialog->showMessage("Octave communication disabled :\n"
-                                          "\n"
-                                          "This instance of ResInsight could not start the Socket Server enabling octave to get and set data.\n"
-                                          "This is probably because you already have a running ResInsight process.\n"
-                                          "Octave can only communicate with one ResInsight process at a time, so the Octave\n"
-                                          "communication in this ResInsight instance will be disabled.\n"
-                                          "\n"
-                                          + tr("The error from the socket system is: %1.").arg(m_tcpServer->errorString()));
+        if (RiaApplication::instance()->preferences()->showOctaveCommunicationWarning())
+        {
+            m_errorMessageDialog->showMessage("Octave communication disabled :\n"
+                                              "\n"
+                                              "This instance of ResInsight could not start the Socket Server enabling octave to get and set data.\n"
+                                              "This is probably because you already have a running ResInsight process.\n"
+                                              "Octave can only communicate with one ResInsight process at a time, so the Octave\n"
+                                              "communication in this ResInsight instance will be disabled.\n"
+                                              "\n"
+                                              + tr("The error from the socket system is: %1.").arg(m_tcpServer->errorString()));
+        }
         return;
     }
 

@@ -929,7 +929,7 @@ bool RiaApplication::hasValidProjectFileExtension(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::askUserToSaveModifiedProject()
 {
-    if (caf::PdmUiModelChangeDetector::instance()->isModelChanged())
+    if (m_preferences->showProjectChangedDialog() && caf::PdmUiModelChangeDetector::instance()->isModelChanged())
     {
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Question);
@@ -1858,7 +1858,7 @@ void RiaApplication::applyPreferences()
     }
 
     RiaFontCache::FontSize fontSizeType = m_preferences->fontSizeInScene();
-    m_customFont = RiaFontCache::getFont(fontSizeType);
+    m_customFont                        = RiaFontCache::getFont(fontSizeType);
 
     if (this->project())
     {

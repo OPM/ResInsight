@@ -55,6 +55,8 @@ public:
     bool appendFieldKeywordToToolTipText() const;
     bool showTestToolbar() const;
     bool includeFractureDebugInfoFile() const;
+    bool showProjectChangedDialog() const;
+    bool showOctaveCommunicationWarning() const;
     QString holoLensExportFolder() const;
 
 public: // Pdm Fields
@@ -101,6 +103,10 @@ private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
     caf::PdmField<bool>                    m_appendClassNameToUiText;
     caf::PdmField<bool>                    m_appendFieldKeywordToToolTipText;
+
+    caf::PdmField<bool>                    m_showProjectChangedDialog;
+    caf::PdmField<bool>                    m_showOctaveWarningForMultipleInstances;
+
     caf::PdmField<bool>                    m_showTestToolbar;
     caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
     caf::PdmField<QString>                 m_holoLensExportFolder;
