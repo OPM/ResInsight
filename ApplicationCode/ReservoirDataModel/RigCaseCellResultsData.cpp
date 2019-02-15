@@ -1083,7 +1083,16 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(const RigEclipseResul
     RiaDefines::ResultCatType type = resVarAddr.m_resultCatType; 
     QString resultName = resVarAddr.m_resultName;
 
-    if (resVarAddr.isTimeLapse())
+    if (resVarAddr.hasDifferenceCase())
+    {
+        if (!RigCaseCellResultCalculator::computeDifference(this->m_ownerCaseData, RiaDefines::MATRIX_MODEL, resVarAddr))
+        {
+            return cvf::UNDEFINED_SIZE_T;
+        }
+
+        return scalarResultIndex;
+    }
+    else if (resVarAddr.isTimeLapse())
     {
         RigEclipseResultAddress noneTimeLapseAddress(resVarAddr);
         noneTimeLapseAddress.m_timeLapseBaseFrameIdx = RigEclipseResultAddress::NO_TIME_LAPSE;
@@ -1124,16 +1133,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(const RigEclipseResul
         }
 
         return scalarResultIndex;
-    }
-    else if (resVarAddr.hasDifferenceCase())
-    {
-        if (!RigCaseCellResultCalculator::computeDifference(this->m_ownerCaseData, RiaDefines::MATRIX_MODEL, resVarAddr))
-        {
-            return cvf::UNDEFINED_SIZE_T;
-        }
-
-        return scalarResultIndex;
-    }
+    }   
 
     // Load dependency data sets
 

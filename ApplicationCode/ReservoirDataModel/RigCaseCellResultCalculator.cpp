@@ -49,7 +49,7 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
     // Assume at this stage that data for the case is available
     // It is up to the caller to make sure the case is read from file
 
-    RigEclipseCaseData* otherCase = nullptr;
+    RigEclipseCaseData* baseCase = nullptr;
 
     {
         auto eclipseCases = RiaApplication::instance()->project()->eclipseCases();
@@ -59,13 +59,13 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
             {
                 if (c && c->eclipseCaseData())
                 {
-                    otherCase = c->eclipseCaseData();
+                    baseCase = c->eclipseCaseData();
                 }
             }
         }
     }
 
-    if (!otherCase || !sourceCase)
+    if (!baseCase || !sourceCase)
     {
         RiaLogging::error("Missing input case for difference calculator");
 
@@ -73,19 +73,19 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
     }
 
     RigMainGrid* sourceMainGrid = sourceCase->mainGrid();
-    RigMainGrid* otherMainGrid  = otherCase->mainGrid();
+    RigMainGrid* baseMainGrid  = baseCase->mainGrid();
 
-    if (!RigGridManager::isEqual(sourceMainGrid, otherMainGrid))
+    if (!RigGridManager::isEqual(sourceMainGrid, baseMainGrid))
     {
         RiaLogging::error("Case difference : Grid cases do not match");
 
         return false;
     }
 
-    RigCaseCellResultsData* otherCaseResults  = otherCase->results(porosityModel);
+    RigCaseCellResultsData* baseCaseResults   = baseCase->results(porosityModel);
     RigCaseCellResultsData* sourceCaseResults = sourceCase->results(porosityModel);
 
-    if (!otherCaseResults || !sourceCaseResults)
+    if (!baseCaseResults || !sourceCaseResults)
     {
         RiaLogging::error("Missing result data for difference calculator");
 
@@ -93,7 +93,8 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
     }
 
     RigEclipseResultAddress nativeAddress(address);
-    nativeAddress.m_differenceCaseId = RigEclipseResultAddress::NO_CASE_DIFF;
+    nativeAddress.m_differenceCaseId      = RigEclipseResultAddress::NO_CASE_DIFF;
+    nativeAddress.m_timeLapseBaseFrameIdx = RigEclipseResultAddress::NO_TIME_LAPSE;
     if (!sourceCaseResults->ensureKnownResultLoaded(nativeAddress))
     {
         RiaLogging::error("Failed to load destination diff result");
@@ -101,7 +102,7 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
         return false;
     }
 
-    if (!otherCaseResults->ensureKnownResultLoaded(nativeAddress))
+    if (!baseCaseResults->ensureKnownResultLoaded(nativeAddress))
     {
         RiaLogging::error("Failed to load difference result");
 
@@ -122,9 +123,9 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
         }
     }
 
-    size_t otherFrameCount  = otherCaseResults->cellScalarResults(nativeAddress).size();
+    size_t baseFrameCount   = baseCaseResults->cellScalarResults(nativeAddress).size();
     size_t sourceFrameCount = sourceCaseResults->cellScalarResults(nativeAddress).size();
-    size_t maxFrameCount    = std::min(otherFrameCount, sourceFrameCount);
+    size_t maxFrameCount    = std::min(baseFrameCount, sourceFrameCount);
 
     for (size_t gridIdx = 0; gridIdx < sourceMainGrid->gridCount(); ++gridIdx)
     {
@@ -136,11 +137,17 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
             cvf::ref<RigResultAccessor> sourceResultAccessor =
                 RigResultAccessorFactory::createFromResultAddress(sourceCase, gridIdx, porosityModel, fIdx, nativeAddress);
 
-            cvf::ref<RigResultAccessor> otherResultAccessor =
-                RigResultAccessorFactory::createFromResultAddress(otherCase, gridIdx, porosityModel, fIdx, nativeAddress);
-
             cvf::ref<RigResultModifier> resultModifier =
                 RigResultModifierFactory::createResultModifier(sourceCase, gridIdx, porosityModel, fIdx, address);
+
+            size_t baseFrameIdx = fIdx;
+            if (address.isTimeLapse())
+            {
+                baseFrameIdx = address.m_timeLapseBaseFrameIdx;
+            }
+
+            cvf::ref<RigResultAccessor> baseResultAccessor =
+                RigResultAccessorFactory::createFromResultAddress(baseCase, gridIdx, porosityModel, baseFrameIdx, nativeAddress);
 
             for (size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++)
             {
@@ -148,9 +155,9 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
                 if (activeCellInfo->isActive(reservoirCellIndex))
                 {
                     double sourceVal = sourceResultAccessor->cellScalar(localGridCellIdx);
-                    double otherVal  = otherResultAccessor->cellScalar(localGridCellIdx);
+                    double baseVal  = baseResultAccessor->cellScalar(localGridCellIdx);
 
-                    double difference = otherVal - sourceVal;
+                    double difference = sourceVal - baseVal;
 
                     resultModifier->setCellScalar(localGridCellIdx, difference);
                 }

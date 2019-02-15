@@ -1255,13 +1255,13 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         caf::PdmUiGroup* differenceGroup = uiOrdering.addNewGroup("Difference Options");
         differenceGroup->setUiReadOnly(!(isTimeDiffResultAvailable() || isCaseDiffResultAvailable()));
 
-        m_timeLapseBaseTimestep.uiCapability()->setUiReadOnly(!isTimeDiffResultAvailable());
         m_differenceCase.uiCapability()->setUiReadOnly(!isCaseDiffResultAvailable());
+        m_timeLapseBaseTimestep.uiCapability()->setUiReadOnly(!isTimeDiffResultAvailable());
 
-        if (isTimeDiffResultAvailable())
-            differenceGroup->add(&m_timeLapseBaseTimestep);
         if (isCaseDiffResultAvailable())
             differenceGroup->add(&m_differenceCase);
+        if (isTimeDiffResultAvailable())
+            differenceGroup->add(&m_timeLapseBaseTimestep);
 
         QString resultPropertyLabel = "Result Property";
         if (isTimeDiffResult() || isCaseDiffResult())
