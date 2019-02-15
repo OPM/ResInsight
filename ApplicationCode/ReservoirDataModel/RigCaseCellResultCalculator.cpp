@@ -44,22 +44,22 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
                                                     const RigEclipseResultAddress& address)
 {
     CVF_ASSERT(address.isValid());
-    CVF_ASSERT(address.hasDifferenceCase());
+    CVF_ASSERT(address.hasDifferenceCase() || address.isTimeLapse());
 
     // Assume at this stage that data for the case is available
     // It is up to the caller to make sure the case is read from file
 
-    RigEclipseCaseData* baseCase = nullptr;
+    RigEclipseCaseData* baseCase = sourceCase;
 
+    if (address.hasDifferenceCase())
     {
-        auto eclipseCases = RiaApplication::instance()->project()->eclipseCases();
-        for (RimEclipseCase* c : eclipseCases)
         {
-            if (c->caseId() == address.m_differenceCaseId)
+            auto eclipseCases = RiaApplication::instance()->project()->eclipseCases();
+            for (RimEclipseCase* c : eclipseCases)
             {
-                if (c && c->eclipseCaseData())
+                if (c && c->caseId() == address.m_differenceCaseId && c->eclipseCaseData())
                 {
-                    baseCase = c->eclipseCaseData();
+                	baseCase = c->eclipseCaseData();
                 }
             }
         }

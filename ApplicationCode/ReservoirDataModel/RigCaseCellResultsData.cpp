@@ -1083,7 +1083,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(const RigEclipseResul
     RiaDefines::ResultCatType type = resVarAddr.m_resultCatType; 
     QString resultName = resVarAddr.m_resultName;
 
-    if (resVarAddr.hasDifferenceCase())
+    if (resVarAddr.hasDifferenceCase() || resVarAddr.isTimeLapse())
     {
         if (!RigCaseCellResultCalculator::computeDifference(this->m_ownerCaseData, RiaDefines::MATRIX_MODEL, resVarAddr))
         {
@@ -1092,48 +1092,6 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(const RigEclipseResul
 
         return scalarResultIndex;
     }
-    else if (resVarAddr.isTimeLapse())
-    {
-        RigEclipseResultAddress noneTimeLapseAddress(resVarAddr);
-        noneTimeLapseAddress.m_timeLapseBaseFrameIdx = RigEclipseResultAddress::NO_TIME_LAPSE;
-        size_t sourceResultIdx = this->findOrLoadKnownScalarResult(noneTimeLapseAddress);
-
-        if (sourceResultIdx != cvf::UNDEFINED_SIZE_T)
-        {
-            std::vector< std::vector<double> > & srcFrames = m_cellScalarResults[sourceResultIdx];
-            std::vector< std::vector<double> > & dstFrames = m_cellScalarResults[scalarResultIndex];
-
-            size_t baseFrameIdx = resVarAddr.m_timeLapseBaseFrameIdx;
-            size_t frameCount = srcFrames.size();
-
-            if (!(baseFrameIdx < frameCount )) 
-            {
-                dstFrames.clear();
-                return scalarResultIndex;
-            }
-
-            std::vector<double>& srcBaseVals = srcFrames[baseFrameIdx];
-
-            dstFrames.resize(frameCount);
-
-            for (size_t fIdx = 0; fIdx < frameCount; ++fIdx)
-            {
-                std::vector<double>& srcVals = srcFrames[fIdx];
-
-                std::vector<double>& dstVals = dstFrames[fIdx];
-                dstVals.resize(srcVals.size(), std::numeric_limits<double>::infinity());
-                size_t valCount = srcVals.size();
-
-                //#pragma omp parallel for
-                for (long vIdx = 0; vIdx < static_cast<long>(valCount); ++vIdx)
-                {
-                    dstVals[vIdx] = srcVals[vIdx] - srcBaseVals[vIdx];
-                }
-            }
-        }
-
-        return scalarResultIndex;
-    }   
 
     // Load dependency data sets
 
