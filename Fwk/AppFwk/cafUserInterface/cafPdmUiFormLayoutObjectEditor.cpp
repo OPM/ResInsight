@@ -176,9 +176,9 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                                     labelAndFieldVerticalLayout, currentRowIndex, currentColumn, 1, itemColumnSpan, Qt::AlignTop);
                                 labelAndFieldVerticalLayout->addWidget(fieldLabelWidget, 0, Qt::AlignTop);
                                 labelAndFieldVerticalLayout->addWidget(fieldEditorWidget, 1, Qt::AlignTop);
+                                
                                 // Apply margins determined by the editor type
                                 fieldLabelWidget->setContentsMargins(fieldEditor->labelContentMargins());
-
                             }
                             else
                             {
@@ -198,10 +198,13 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
 
                                 parentLayout->addWidget(fieldLabelWidget, currentRowIndex, currentColumn, 1, leftLabelColumnSpan, Qt::AlignTop);
                                 currentColumn += leftLabelColumnSpan;
+
+                                // Apply margins determined by the editor type
+                                fieldLabelWidget->setContentsMargins(fieldEditor->labelContentMargins());
                             }
                         }
 
-                        if (fieldLabelWidget && labelPos != PdmUiItemInfo::TOP) // Already added if TOP
+                        if (labelPos != PdmUiItemInfo::TOP) // Already added if TOP
                         {
                             fieldColumnSpan += spareColumnsToAssign;
 
@@ -209,10 +212,6 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                             fieldColumnSpan = std::max(1, fieldColumnSpan);
 
                             parentLayout->addWidget(fieldEditorWidget, currentRowIndex, currentColumn, 1, fieldColumnSpan, Qt::AlignTop);
-
-                            // Apply margins determined by the editor type
-                            fieldLabelWidget->setContentsMargins(fieldEditor->labelContentMargins());
-
                             currentColumn += fieldColumnSpan;
                         }
 
@@ -221,10 +220,7 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                             QWidget::setTabOrder(*previousTabOrderWidget, fieldEditorWidget);
                         }
 
-                        if (fieldLabelWidget)
-                        {
-                            previousTabOrderWidget = &fieldLabelWidget;
-                        }
+                        previousTabOrderWidget = &fieldEditorWidget;
                     }
                     fieldEditor->updateUi(uiConfigName);
                 }
