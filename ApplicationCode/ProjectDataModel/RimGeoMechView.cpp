@@ -554,6 +554,11 @@ void RimGeoMechView::updateLegendTextAndRanges(RimRegularLegendConfig* legendCon
         legendTitle += " [GPa]";
     }
 
+    if (!cellResult->diffResultUiShortName().isEmpty())
+    {
+        legendTitle += QString("\nTime Diff:\n%1").arg(cellResult->diffResultUiShortName());
+    }
+
     legendConfig->setTitle(legendTitle);
 }
 

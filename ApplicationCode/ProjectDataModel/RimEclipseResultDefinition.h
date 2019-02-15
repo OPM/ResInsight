@@ -93,6 +93,10 @@ public:
     QString                         resultVariableUiName() const;
     QString                         resultVariableUiShortName() const;
 
+    QString                         diffResultUiName() const;
+    QString                         diffResultUiShortName() const;
+    QString                         diffResultUiShortNameHTML() const;
+
     void                            loadResult();
     RigEclipseResultAddress         eclipseResultAddress() const;
     bool                            hasStaticResult() const;
@@ -116,7 +120,7 @@ public:
 
     void                            updateUiFieldsFromActiveResult();
 
-    void                            enableUiForDerivedDifferenceResults();
+    void                            setDiffResultOptionsEnabled(bool enabled);
 protected:
     virtual void                  updateLegendCategorySettings() {};
 
@@ -150,9 +154,6 @@ protected:
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultTypeUiField;
     caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
-    caf::PdmField<int>                                              m_timeLapseBaseTimestepUiField;
-
-    caf::PdmPtrField<RimEclipseCase*>                               m_differenceCaseUiField;
 
     caf::PdmField< caf::AppEnum< FlowTracerSelectionType > >        m_flowTracerSelectionMode;
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolutionUiField;
@@ -182,10 +183,6 @@ private:
 
     QString                         flowDiagResUiText(bool shortLabel, int maxTracerStringLength = std::numeric_limits<int>::max()) const;
 
-    static QString                  timeDiffResultName(const QString& resultName, int timeStepIndex);
-    static QString                  caseDiffResultName(const QString& resultName, int caseId);
-
-    QString                         convertToTimeOrCaseDiffUiVarName(const QString& resultName);
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
     QList<caf::PdmOptionItemInfo>   calcOptionsForSelectedTracerField(bool injector);
     
@@ -207,9 +204,13 @@ private:
     void                            syncInjectorToProducerSelection();
     void                            syncProducerToInjectorSelection();
 
+    bool                            enableDiffResultOptions() const;
+    bool                            isTimeDiffResultAvailable() const;
     bool                            isTimeDiffResult() const;
-    bool                            isCaseDifferenceResult() const;
+    bool                            isCaseDiffResultAvailable() const;
+    bool                            isCaseDiffResult() const;
 
-    bool                            m_showUiForDerivedDifferenceResults;
+private:
+    bool                            m_diffResultOptionsEnabled;
 };
 

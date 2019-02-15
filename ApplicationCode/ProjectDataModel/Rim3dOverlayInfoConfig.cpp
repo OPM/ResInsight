@@ -632,9 +632,14 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
         if (isResultsInfoRelevant)
         {
             QString propName = eclipseView->cellResult()->resultVariableUiShortName();
+            QString diffResString = eclipseView->cellResult()->diffResultUiName();
             if (!contourMap->contourMapProjection()->isColumnResult())
             {
-                infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
+                infoText += QString("<b>Cell Property:</b> %1<br>").arg(propName);
+            }
+            if (!diffResString.isEmpty())
+            {
+                infoText += QString("%1<br>").arg(diffResString);
             }
             infoText += QString("<br><b>Statistics:</b> Current Time Step and Visible Cells");
             infoText += QString("<table border=0 cellspacing=5 >"
@@ -656,13 +661,18 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
         if (isResultsInfoRelevant)
         {
             QString propName = eclipseView->cellResult()->resultVariableUiShortName();
+            QString diffResString = eclipseView->cellResult()->diffResultUiName();
             QString timeRangeText = m_statisticsTimeRange().uiText();
             if (eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
             {
                 timeRangeText = caf::AppEnum<StatisticsTimeRangeType>::uiText(CURRENT_TIMESTEP);
             }
 
-            infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
+            infoText += QString("<b>Cell Property:</b> %1<br>").arg(propName);
+            if (!diffResString.isEmpty())
+            {
+                infoText += QString("%1<br>").arg(diffResString);
+            }
             infoText += QString("<br><b>Statistics:</b> ") + timeRangeText + " and " + m_statisticsCellRange().uiText();
             infoText += QString("<table border=0 cellspacing=5 >"
                                 "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
@@ -734,9 +744,9 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
         if (isResultsInfoRelevant)
         {
             QString resultPos;
-            QString fieldName = geoMechView->cellResultResultDefinition()->resultFieldUiName();
-            QString compName = geoMechView->cellResultResultDefinition()->resultComponentUiName();
-
+            QString fieldName     = geoMechView->cellResultResultDefinition()->resultFieldUiName();
+            QString compName      = geoMechView->cellResultResultDefinition()->resultComponentUiName();
+            QString diffResString = geoMechView->cellResultResultDefinition()->diffResultUiName();
             switch (geoMechView->cellResultResultDefinition()->resultPositionType())
             {
             case RIG_NODAL:
@@ -759,13 +769,17 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
             }
             if (compName == "")
             {
-                infoText += QString("<b>Cell result:</b> %1, %2").arg(resultPos).arg(fieldName);
+                infoText += QString("<b>Cell result:</b> %1, %2<br>").arg(resultPos).arg(fieldName);
             }
             else
             {
-                infoText += QString("<b>Cell result:</b> %1, %2, %3").arg(resultPos).arg(fieldName).arg(compName);
+                infoText += QString("<b>Cell result:</b> %1, %2, %3<br>").arg(resultPos).arg(fieldName).arg(compName);
             }
-
+            
+            if (!diffResString.isEmpty())
+            {
+                infoText += QString("%1<br>").arg(diffResString);
+            }
             infoText += QString("<br><b>Statistics:</b> ") + m_statisticsTimeRange().uiText() + " and " + m_statisticsCellRange().uiText();
             infoText += QString("<table border=0 cellspacing=5 >"
                                 "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"

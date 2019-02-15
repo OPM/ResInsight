@@ -121,7 +121,7 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitFieldNoDefault(&m_cellResult,  "GridCellResult", "Cell Result", ":/CellResult.png", "", "");
     m_cellResult = new RimEclipseCellColors();
     m_cellResult.uiCapability()->setUiHidden(true);
-    m_cellResult->enableUiForDerivedDifferenceResults();
+    m_cellResult->setDiffResultOptionsEnabled(true);
 
     CAF_PDM_InitFieldNoDefault(&m_cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     m_cellEdgeResult = new RimCellEdgeColors();
@@ -1204,7 +1204,13 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
 
     if (resultColors->hasResult() && resultColors->legendConfig()->showLegend())
     {
-        resultColors->legendConfig()->setTitle(legendLabel + resultColors->resultVariableUiName());
+        QString title = legendLabel + resultColors->resultVariableUiName();
+        if (!resultColors->diffResultUiShortName().isEmpty())
+        {
+            title += QString("\n%1").arg(resultColors->diffResultUiShortName());
+        }
+        
+        resultColors->legendConfig()->setTitle(title);
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->titledOverlayFrame());
     }
 

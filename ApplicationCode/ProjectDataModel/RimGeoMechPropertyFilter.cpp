@@ -177,8 +177,7 @@ void RimGeoMechPropertyFilter::updateReadOnlyStateOfAllFields()
     // Include fields declared in RimResultDefinition
     objFields.push_back(&(resultDefinition->m_resultPositionTypeUiField));
     objFields.push_back(&(resultDefinition->m_resultVariableUiField));
-    objFields.push_back(&(resultDefinition->m_isTimeLapseResultUiField));
-    objFields.push_back(&(resultDefinition->m_timeLapseBaseTimestepUiField));
+    objFields.push_back(&(resultDefinition->m_timeLapseBaseTimestep));
 
     for (size_t i = 0; i < objFields.size(); i++)
     {

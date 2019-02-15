@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2015-2018 Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
@@ -43,28 +44,30 @@ public:
     RimGeoMechResultDefinition(void);
     ~RimGeoMechResultDefinition(void) override;
 
-    void                                              setGeoMechCase(RimGeoMechCase* geomCase);
+    void                                      setGeoMechCase(RimGeoMechCase* geomCase);
 
-    RigGeoMechCaseData*                               ownerCaseData();
-    bool                                              hasResult(); 
-    void                                              loadResult();
-    void                                              setAddWellPathDerivedResults(bool addWellPathDerivedResults);
+    RigGeoMechCaseData*                       ownerCaseData();
+    bool                                      hasResult(); 
+    void                                      loadResult();
+    void                                      setAddWellPathDerivedResults(bool addWellPathDerivedResults);
 
-    RigFemResultAddress                               resultAddress() const;
+    RigFemResultAddress                       resultAddress() const;
     std::vector<RigFemResultAddress>          observedResults() const override;
 
-    RigFemResultPosEnum                               resultPositionType() const;
-    QString                                           resultFieldName() const;
-    QString                                           resultComponentName() const;
-    void                                              setResultAddress(const RigFemResultAddress& resultAddress);
+    RigFemResultPosEnum                       resultPositionType() const;
+    QString                                   resultFieldName() const;
+    QString                                   resultComponentName() const;
+    QString                                   diffResultUiName() const;
+    QString                                   diffResultUiShortName() const;
+    void                                      setResultAddress(const RigFemResultAddress& resultAddress);
 
-    QString                                           resultFieldUiName();
-    QString                                           resultComponentUiName();
+    QString                                   resultFieldUiName();
+    QString                                   resultComponentUiName();
 
-    bool                                              hasCategoryResult()  { return m_resultPositionType() == RIG_FORMATION_NAMES; }
+    bool                                      hasCategoryResult()  { return m_resultPositionType() == RIG_FORMATION_NAMES; }
 
 protected:
-    virtual void                                      updateLegendCategorySettings() {};
+    virtual void                              updateLegendCategorySettings() {};
     void                                      defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
@@ -83,40 +86,32 @@ private:
     std::map<std::string, std::vector<std::string> >  getResultMetaDataForUIFieldSetting();
     static void                                       getUiAndResultVariableStringList(QStringList* uiNames, 
                                                                                        QStringList* variableNames, 
-                                                                                       const std::map<std::string, std::vector<std::string> >& fieldCompNames, 
-                                                                                       bool isTimeLapseResultList, 
-                                                                                       int baseFrameIdx);
+                                                                                       const std::map<std::string, std::vector<std::string> >& fieldCompNames);
     static QString                                    composeFieldCompString(const QString& resultFieldName, 
                                                                              const QString& resultComponentName);
 
-    static QString                                    convertToUiResultFieldName(QString resultFieldName,
-                                                                                 bool isTimeLapseResultList,
-                                                                                 int baseFrameIdx);
-    static QString                                    convertToUIComponentName(QString resultComponentName,
-                                                                               bool isTimeLapseResultList,
-                                                                               int baseFrameIdx);
+    static QString                                    convertToUiResultFieldName(QString resultFieldName);
 
     // Data Fields
 
     caf::PdmField<caf::AppEnum<RigFemResultPosEnum> > m_resultPositionType;
     caf::PdmField<QString>                            m_resultFieldName;
     caf::PdmField<QString>                            m_resultComponentName;
-    caf::PdmField<bool>                               m_isTimeLapseResult;
     caf::PdmField<int>                                m_timeLapseBaseTimestep;
     caf::PdmField<int>                                m_compactionRefLayer;
 
     // UI Fields only
-
     friend class RimGeoMechPropertyFilter;  // Property filter needs the ui fields
     friend class RimWellLogExtractionCurve; // Curve needs the ui fields
     friend class RimGeoMechCellColors;      // Needs the ui fields
  
     caf::PdmField<caf::AppEnum<RigFemResultPosEnum> > m_resultPositionTypeUiField;
     caf::PdmField<QString>                            m_resultVariableUiField;
-    caf::PdmField<bool>                               m_isTimeLapseResultUiField;
-    caf::PdmField<int>                                m_timeLapseBaseTimestepUiField;
     caf::PdmField<int>                                m_compactionRefLayerUiField;
     caf::PdmPointer<RimGeoMechCase>                   m_geomCase;
+
+    // Obsolete Data Fields
+    caf::PdmField<bool>                               m_isTimeLapseResult_OBSOLETE;
 
     bool                                              m_isChangedByField;
     bool                                              m_addWellPathDerivedResults;
