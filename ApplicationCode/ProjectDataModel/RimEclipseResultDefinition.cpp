@@ -252,8 +252,13 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         loadDataAndUpdate();
     }
 
-    if (&m_timeLapseBaseTimestep == changedField ||
-        &m_differenceCase == changedField)
+    if (&m_differenceCase == changedField)
+    {
+        m_timeLapseBaseTimestep = RigEclipseResultAddress::NO_TIME_LAPSE;
+        loadDataAndUpdate();
+    }
+
+    if (&m_timeLapseBaseTimestep == changedField)        
     {
         loadDataAndUpdate();
     }
@@ -611,26 +616,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         if (fieldNeedingOptions == &m_resultVariableUiField)
         {
             options = calcOptionsForVariableUiFieldStandard();
-        }
-        else if (fieldNeedingOptions == &m_timeLapseBaseTimestep)
-        {
-            std::vector<QDateTime>        stepDates;
-            const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
-            if (gridCellResults)
-            {
-                stepDates = gridCellResults->timeStepDates();
-            }
-
-            options.push_back(caf::PdmOptionItemInfo("Disabled", RigEclipseResultAddress::NO_TIME_LAPSE));
-
-            for (size_t stepIdx = 0; stepIdx < stepDates.size(); ++stepIdx)
-            {
-                QString displayString = stepDates[stepIdx].toString(RimTools::dateFormatString());
-                displayString += QString(" (#%1)").arg(stepIdx);
-
-                options.push_back(caf::PdmOptionItemInfo(displayString, static_cast<int>(stepIdx)));
-            }
-        }
+        }       
         else if (fieldNeedingOptions == &m_differenceCase)
         {
             options.push_back(caf::PdmOptionItemInfo("None", nullptr));
@@ -653,6 +639,28 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
                             caf::PdmOptionItemInfo(QString("%1 (#%2)").arg(otherCase->caseUserDescription()).arg(otherCase->caseId()), otherCase, false, otherCase->uiIcon()));
                     }
                 }
+            }
+        }
+        else if (fieldNeedingOptions == &m_timeLapseBaseTimestep)
+        {
+            RimEclipseCase* currentCase = nullptr;
+            this->firstAncestorOrThisOfTypeAsserted(currentCase);
+
+            RimEclipseCase* baseCase = currentCase;
+            if (m_differenceCase)
+            {
+                baseCase = m_differenceCase;
+            }
+
+            options.push_back(caf::PdmOptionItemInfo("Disabled", RigEclipseResultAddress::NO_TIME_LAPSE));
+
+            std::vector<QDateTime> stepDates = baseCase->timeStepDates();
+            for (size_t stepIdx = 0; stepIdx < stepDates.size(); ++stepIdx)
+            {
+                QString displayString = stepDates[stepIdx].toString(RimTools::dateFormatString());
+                displayString += QString(" (#%1)").arg(stepIdx);
+
+                options.push_back(caf::PdmOptionItemInfo(displayString, static_cast<int>(stepIdx)));
             }
         }
     }
