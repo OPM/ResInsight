@@ -848,13 +848,13 @@ QString RimEclipseResultDefinition::diffResultUiShortName() const
     {
         diffResult += QString("Diff. Options:");
     }
-    if (isTimeDiffResult())
-    {
-        diffResult += QString("Base Time: #%1").arg(m_timeLapseBaseTimestep());
-    }
     if (isCaseDiffResult())
     {
         diffResult += QString("Base Case: #%1").arg(m_differenceCase()->caseId());
+    }
+    if (isTimeDiffResult())
+    {
+        diffResult += QString("Base Time: #%1").arg(m_timeLapseBaseTimestep());
     }
     return diffResult.join("\n");
 }
@@ -869,13 +869,13 @@ QString RimEclipseResultDefinition::diffResultUiShortNameHTML() const
     {
         diffResult += QString("<b>Diff. Options:</b>");
     }
-    if (isTimeDiffResult())
-    {
-        diffResult += QString("Base Time: #%1").arg(m_timeLapseBaseTimestep());
-    }
     if (isCaseDiffResult())
     {
         diffResult += QString("Base Case: #%1").arg(m_differenceCase()->caseId());
+    }
+    if (isTimeDiffResult())
+    {
+        diffResult += QString("Base Time: #%1").arg(m_timeLapseBaseTimestep());
     }
     return diffResult.join("\n<br>");
 }
