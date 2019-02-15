@@ -144,6 +144,5 @@ private:
 
     QPointer<RiuWellRftPlot>                        m_wellLogPlotWidget;
 
-    bool m_selectedSourcesOrTimeStepsFieldsChanged;
     bool m_isOnLoad;
 };

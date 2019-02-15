@@ -105,7 +105,6 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue(false);
 
     this->setAsPlotMdiWindow();
-    m_selectedSourcesOrTimeStepsFieldsChanged = false;
     m_isOnLoad                                = true;
 }
 
@@ -682,10 +681,7 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     if (changedField == &m_wellPathNameOrSimWellName)
     {
         setDescription(QString(plotNameFormatString()).arg(m_wellPathNameOrSimWellName));
-    }
 
-    if (changedField == &m_wellPathNameOrSimWellName)
-    {
         m_branchIndex = 0;
 
         RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
@@ -709,7 +705,6 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
-        m_selectedSourcesOrTimeStepsFieldsChanged = true;
     }
     else if (changedField == &m_showPlotTitle)
     {
@@ -746,12 +741,6 @@ QImage RimWellRftPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    if (!m_selectedSourcesOrTimeStepsFieldsChanged)
-    {
-        updateEditorsFromCurves();
-    }
-    m_selectedSourcesOrTimeStepsFieldsChanged = false;
-
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_wellPathNameOrSimWellName);
 
