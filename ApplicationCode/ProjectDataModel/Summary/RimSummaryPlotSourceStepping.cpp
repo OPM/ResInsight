@@ -364,8 +364,8 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             ensembleCurveColl->updateConnectedEditors();
         }
 
-        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
-        bool forceUpdateOfFieldsInToolbar = true;
+        RiuPlotMainWindow* mainPlotWindow               = RiaApplication::instance()->getOrCreateMainPlotWindow();
+        bool               forceUpdateOfFieldsInToolbar = true;
         mainPlotWindow->updateSummaryPlotToolBar(forceUpdateOfFieldsInToolbar);
 
         return;
@@ -780,10 +780,28 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
         analyzer.appendAdresses(addressesCurveCollection());
 
         RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_INVALID;
+
+        if (!analyzer.categories().empty())
         {
             if (analyzer.categories().size() == 1)
             {
                 category = *(analyzer.categories().begin());
+            }
+            else
+            {
+                bool allCategoriesAreDependingOnWellName = true;
+                for (auto c : analyzer.categories())
+                {
+                    if (!RifEclipseSummaryAddress::isDependentOnWellName(c))
+                    {
+                        allCategoriesAreDependingOnWellName = false;
+                    }
+                }
+
+                if (allCategoriesAreDependingOnWellName)
+                {
+                    category = RifEclipseSummaryAddress::SUMMARY_WELL;
+                }
             }
         }
 
