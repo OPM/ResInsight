@@ -179,6 +179,9 @@ protected:
     // Implementation of RiuViewerToViewInterface
     void                                    applyBackgroundColor();
 
+    // Implementation of RimNameConfigHolderInterface
+    void                                    performHolderUpdate() override;
+
     // Abstract methods to implement in subclasses
 
     virtual void                            axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) = 0;
