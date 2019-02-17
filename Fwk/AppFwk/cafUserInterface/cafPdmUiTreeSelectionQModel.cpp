@@ -51,13 +51,14 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel(QObject *parent /*= 0*/) 
-   : QAbstractItemModel(parent), 
-     m_uiValueCache(nullptr)
+caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel(QObject* parent /*= 0*/)
+    : QAbstractItemModel(parent)
+    , m_uiFieldHandle(nullptr)
+    , m_uiValueCache(nullptr)
+    , m_tree(nullptr)
+    , m_singleSelectionMode(false)
+    , m_indexForLastUncheckedItem(QModelIndex())
 {
-    m_uiFieldHandle = nullptr;
-    m_tree = nullptr;
-    m_singleSelectionMode = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -476,6 +477,8 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
             }
             else
             {
+                m_indexForLastUncheckedItem = index;
+
                 selectedIndices.erase(std::remove(selectedIndices.begin(), selectedIndices.end(), opIndex), selectedIndices.end());
             }
 
@@ -492,6 +495,22 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QModelIndex caf::PdmUiTreeSelectionQModel::indexForLastUncheckedItem() const
+{
+    return m_indexForLastUncheckedItem;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeSelectionQModel::clearIndexForLastUncheckedItem()
+{
+    m_indexForLastUncheckedItem = QModelIndex();
 }
 
 //--------------------------------------------------------------------------------------------------

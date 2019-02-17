@@ -589,6 +589,16 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotClicked(const QModelIndex& index)
 {
+    QModelIndex lastUncheckedIndex = m_model->indexForLastUncheckedItem();
+    m_model->clearIndexForLastUncheckedItem();
+
+    QModelIndex proxyModelIndex = m_proxyModel->mapFromSource(lastUncheckedIndex);
+    if (proxyModelIndex == index)
+    {
+        // Early return to avoid changing the current item if an item was unchecked
+        return;
+    }
+
     if (m_attributes.setCurrentIndexWhenItemIsChecked && index.isValid())
     {
         QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes(); 
