@@ -103,38 +103,10 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     this->enableOverlyPainting(true);
     this->setReleaseOGLResourcesEachFrame(true);
 
-    QColor   c;
-    QPalette p = QApplication::palette();
-    // QColor frameAndTextColor(255, 255, 255, 255);
-    QColor frameAndTextColor(0, 0, 0, 255);
-    QColor progressAndHistogramColor(0, 0, 90, 70); // Also Progress bar dark text color
-
-    // p.setColor(QPalette::Window, QColor(144, 173, 208, 180));
-    p.setColor(QPalette::Window, QColor(255, 255, 255, 50));
-
-    p.setColor(QPalette::WindowText, frameAndTextColor);
-
-    c = p.color(QPalette::Base);
-    c.setAlpha(100);
-    p.setColor(QPalette::Base, c);
-
-    // c = p.color(QPalette::AlternateBase );
-    // c.setAlpha(0);
-    // p.setColor(QPalette::AlternateBase, c);
-
-    // p.setColor(QPalette::Highlight, QColor(20, 20, 130, 40));
-    p.setColor(QPalette::Highlight, progressAndHistogramColor);
-
-    // p.setColor(QPalette::HighlightedText, frameAndTextColor);
-    p.setColor(QPalette::HighlightedText, QColor(255, 255, 255, 255)); // Progress bar light text color
-
-    // p.setColor(QPalette::Dark, QColor(230, 250, 255, 100));
-    p.setColor(QPalette::Dark, progressAndHistogramColor);
-
     // Info Text
     m_infoLabel = new QLabel();
-    m_infoLabel->setPalette(p);
     m_infoLabel->setFrameShape(QFrame::Box);
+    m_infoLabel->setFrameShadow(QFrame::Raised);
     m_infoLabel->setMinimumWidth(275);
     m_showInfoText = true;
 
@@ -152,16 +124,8 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_showZScaleLabel    = true;
     m_hideZScaleCheckbox = false;
 
-    QPalette versionInfoPalette    = p;
-    QColor   versionInfoLabelColor = p.color(QPalette::Window);
-    versionInfoLabelColor.setAlpha(0);
-    versionInfoPalette.setColor(QPalette::Window, versionInfoLabelColor);
-    m_versionInfoLabel->setPalette(versionInfoPalette);
-    m_zScaleLabel->setPalette(versionInfoPalette);
-
     // Animation progress bar
     m_animationProgress = new QProgressBar();
-    m_animationProgress->setPalette(p);
     m_animationProgress->setFormat("Time Step: %v/%m");
     m_animationProgress->setTextVisible(true);
     m_animationProgress->setAlignment(Qt::AlignCenter);
@@ -174,8 +138,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 
     // Histogram
     m_histogramWidget = new RiuSimpleHistogramWidget();
-    m_histogramWidget->setPalette(p);
-    m_showHistogram = false;
+    m_showHistogram   = false;
 
     m_viewerCommands = new RiuViewerCommands(this);
 
@@ -1095,6 +1058,8 @@ void RiuViewer::updateTextAndTickMarkColorForOverlayItems()
     }
 
     updateAxisCrossTextColor();
+
+    updateOverlayItemsPalette();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1105,6 +1070,48 @@ void RiuViewer::updateAxisCrossTextColor()
     cvf::Color3f contrastColor = computeContrastColor();
 
     m_axisCross->setAxisLabelsColor(contrastColor);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateOverlayItemsPalette()
+{
+    QColor backgroundColor;
+    QColor backgroundFrameColor;
+    QColor contrastColor;
+    {
+        cvf::Color4f cvf_backgroundColor = mainCamera()->viewport()->clearColor();
+        cvf_backgroundColor.a()          = 0.8f;
+
+        cvf::Color4f cvf_backgroundFrameColor =
+            cvf::Color4f(RiaColorTools::computeOffsetColor(cvf_backgroundColor.toColor3f(), 0.3f), 0.9f);
+
+        cvf::Color3f cvf_contrastColor = computeContrastColor();
+
+        backgroundColor      = RiaColorTools::toQColor(cvf_backgroundColor);
+        backgroundFrameColor = RiaColorTools::toQColor(cvf_backgroundFrameColor);
+        contrastColor        = RiaColorTools::toQColor(cvf_contrastColor);
+    }
+
+    QPalette p = QApplication::palette();
+
+    p.setColor(QPalette::Window, backgroundColor);
+    p.setColor(QPalette::Base, backgroundColor);
+
+    p.setColor(QPalette::WindowText, contrastColor);
+
+    p.setColor(QPalette::Shadow, backgroundFrameColor);
+    p.setColor(QPalette::Light, backgroundFrameColor);
+    p.setColor(QPalette::Midlight, backgroundFrameColor);
+    p.setColor(QPalette::Dark, backgroundFrameColor);
+    p.setColor(QPalette::Mid, backgroundFrameColor);
+
+    m_infoLabel->setPalette(p);
+    m_animationProgress->setPalette(p);
+    m_histogramWidget->setPalette(p);
+    m_versionInfoLabel->setPalette(p);
+    m_zScaleLabel->setPalette(p);
 }
 
 //--------------------------------------------------------------------------------------------------
