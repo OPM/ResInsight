@@ -72,6 +72,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result Definition", "", "", "");
     resultDefinition = new RimEclipseResultDefinition();
+    resultDefinition->setDiffResultOptionsEnabled(true);
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()

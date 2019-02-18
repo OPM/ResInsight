@@ -168,6 +168,9 @@ void RimEclipseResultDefinition::simpleCopy(const RimEclipseResultDefinition* ot
     this->setSelectedSouringTracers(other->m_selectedSouringTracers());
     m_flowTracerSelectionMode = other->m_flowTracerSelectionMode();
     m_phaseSelection          = other->m_phaseSelection;
+
+    m_differenceCase = other->m_differenceCase();
+    m_timeLapseBaseTimestep = other->m_timeLapseBaseTimestep();
 }
 
 //--------------------------------------------------------------------------------------------------
