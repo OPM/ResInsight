@@ -1504,7 +1504,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
 
     for (const auto& propFilter : m_propertyFilterCollection()->propertyFilters)
     {
-        if (propFilter->isActive() && propFilter->resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
+        if (propFilter->isActive() && propFilter->resultDefinition()->resultVariable() == RiaDefines::completionTypeResultName())
         {
             isDependingOnCompletionType = true;
         }
@@ -1526,7 +1526,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
 
     for (const auto& propFilter : m_propertyFilterCollection()->propertyFilters)
     {
-        if (propFilter->isActive() && propFilter->resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
+        if (propFilter->isActive() && propFilter->resultDefinition()->resultVariable() == RiaDefines::completionTypeResultName())
         {
             propFilter->updateConnectedEditors();
         }

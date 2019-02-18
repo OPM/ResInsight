@@ -39,7 +39,7 @@ public:
     RimEclipsePropertyFilter();
     ~RimEclipsePropertyFilter() override;
 
-    caf::PdmChildField<RimEclipseResultDefinition*> resultDefinition;
+    RimEclipseResultDefinition* resultDefinition() const;
 
     void rangeValues(double* lower, double* upper) const;
     bool isCategorySelectionActive() const;
@@ -54,7 +54,7 @@ public:
 
     void updateUiFieldsFromActiveResult();
 
-protected:
+private:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
@@ -75,9 +75,10 @@ private:
     RimEclipsePropertyFilterCollection* parentContainer();
 
 private:
-    caf::PdmField<QString> m_rangeLabelText;
-    caf::PdmField<double>  m_lowerBound;
-    caf::PdmField<double>  m_upperBound;
+    caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
+    caf::PdmField<QString>                          m_rangeLabelText;
+    caf::PdmField<double>                           m_lowerBound;
+    caf::PdmField<double>                           m_upperBound;
 
     caf::PdmField<bool> m_useCategorySelection;
 

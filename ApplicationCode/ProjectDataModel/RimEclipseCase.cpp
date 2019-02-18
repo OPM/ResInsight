@@ -461,7 +461,7 @@ void RimEclipseCase::updateFormationNamesData()
                     RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
                     for (RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters)
                     {
-                        if (propFilter->resultDefinition->resultType() == RiaDefines::FORMATION_NAMES)
+                        if (propFilter->resultDefinition()->resultType() == RiaDefines::FORMATION_NAMES)
                         {
                             propFilter->resultDefinition()->setResultVariable(RiaDefines::undefinedResultName());
                         }
@@ -471,7 +471,7 @@ void RimEclipseCase::updateFormationNamesData()
                 RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
                 for (RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters)
                 {
-                    if (propFilter->resultDefinition->resultType() == RiaDefines::FORMATION_NAMES)
+                    if (propFilter->resultDefinition()->resultType() == RiaDefines::FORMATION_NAMES)
                     {
                         propFilter->setToDefaultValues();
                         propFilter->updateConnectedEditors();
