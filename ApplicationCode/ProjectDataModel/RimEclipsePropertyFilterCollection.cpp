@@ -70,11 +70,11 @@ void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
         RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
-        propertyFilter->resultDefinition->setEclipseCase(reservoirView()->eclipseCase());
+        propertyFilter->resultDefinition()->setEclipseCase(reservoirView()->eclipseCase());
         propertyFilter->initAfterRead();
         if (isActive() && propertyFilter->isActive())
         {
-            propertyFilter->resultDefinition->loadResult();
+            propertyFilter->resultDefinition()->loadResult();
             propertyFilter->computeResultValueRange();
         }
     }
@@ -98,7 +98,7 @@ bool RimEclipsePropertyFilterCollection::hasActiveFilters() const
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
         RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
-        if (propertyFilter->isActive() && propertyFilter->resultDefinition->hasResult()) return true;
+        if (propertyFilter->isActive() && propertyFilter->resultDefinition()->hasResult()) return true;
     }
 
     return false;
@@ -114,7 +114,7 @@ bool RimEclipsePropertyFilterCollection::hasActiveDynamicFilters() const
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
         RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
-        if (propertyFilter->isActive() && propertyFilter->resultDefinition->hasDynamicResult()) return true;
+        if (propertyFilter->isActive() && propertyFilter->resultDefinition()->hasDynamicResult()) return true;
     }
 
     return false;
@@ -132,8 +132,8 @@ bool RimEclipsePropertyFilterCollection::isUsingFormationNames() const
     {
         RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
         if (   propertyFilter->isActive() 
-            && propertyFilter->resultDefinition->resultType() == RiaDefines::FORMATION_NAMES 
-            && propertyFilter->resultDefinition->resultVariable() != RiaDefines::undefinedResultName()) return true;
+            && propertyFilter->resultDefinition()->resultType() == RiaDefines::FORMATION_NAMES 
+            && propertyFilter->resultDefinition()->resultVariable() != RiaDefines::undefinedResultName()) return true;
     }
 
     return false;

@@ -68,14 +68,14 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     CAF_PDM_InitFieldNoDefault(&obsoleteField_evaluationRegion, "EvaluationRegion", "Evaluation Region", "", "", "");
     RiaFieldhandleTools::disableWriteAndSetFieldHidden(&obsoleteField_evaluationRegion);
 
-    CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result Definition", "", "", "");
-    resultDefinition = new RimEclipseResultDefinition();
-    resultDefinition->setDiffResultOptionsEnabled(true);
+    CAF_PDM_InitFieldNoDefault(&m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "");
+    m_resultDefinition = new RimEclipseResultDefinition();
+    m_resultDefinition->setDiffResultOptionsEnabled(true);
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
-    resultDefinition.uiCapability()->setUiHidden(true);
-    resultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
+    m_resultDefinition.uiCapability()->setUiHidden(true);
+    m_resultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&m_rangeLabelText, "Dummy_keyword", QString("Range Type"), "Range Type", "", "", "");
     m_rangeLabelText.xmlCapability()->disableIO();
@@ -101,7 +101,15 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilter::~RimEclipsePropertyFilter()
 {
-    delete resultDefinition;
+    delete m_resultDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseResultDefinition* RimEclipsePropertyFilter::resultDefinition() const
+{
+    return m_resultDefinition;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,7 +126,7 @@ void RimEclipsePropertyFilter::rangeValues(double* lower, double* upper) const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilter::isCategorySelectionActive() const
 {
-    if (resultDefinition->hasCategoryResult() && m_useCategorySelection)
+    if (m_resultDefinition->hasCategoryResult() && m_useCategorySelection)
     {
         return true;
     }
@@ -142,7 +150,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         || &m_selectedCategoryValues == changedField
         || &m_useCategorySelection == changedField)
     {
-        this->resultDefinition->loadResult();
+        this->m_resultDefinition->loadResult();
         this->computeResultValueRange();
         updateFilterName();
         this->updateIconState();
@@ -188,9 +196,9 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     // Fields declared in RimCellFilter
     uiOrdering.add(&name);
 
-    // Fields declared in RimResultDefinition
+    // Fields declared in Rimm_resultDefinition
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
-    resultDefinition->uiOrdering(uiConfigName, *group1);
+    m_resultDefinition->uiOrdering(uiConfigName, *group1);
 
     caf::PdmUiGroup& group2 = *(uiOrdering.addNewGroup("Filter Settings"));
 
@@ -199,12 +207,12 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
     group2.add(&m_rangeLabelText);
 
-    if (resultDefinition->hasCategoryResult())
+    if (m_resultDefinition->hasCategoryResult())
     {
         group2.add(&m_useCategorySelection);
     }
 
-    if (resultDefinition->hasCategoryResult() && m_useCategorySelection())
+    if (m_resultDefinition->hasCategoryResult() && m_useCategorySelection())
     {
         group2.add(&m_selectedCategoryValues);
     }
@@ -240,10 +248,10 @@ void RimEclipsePropertyFilter::updateReadOnlyStateOfAllFields()
     std::vector<caf::PdmFieldHandle*> objFields;
     this->fields(objFields);
 
-    // Include fields declared in RimResultDefinition
-    objFields.push_back(&(resultDefinition->m_resultTypeUiField));
-    objFields.push_back(&(resultDefinition->m_porosityModelUiField));
-    objFields.push_back(&(resultDefinition->m_resultVariableUiField));
+    // Include fields declared in Rimm_resultDefinition
+    objFields.push_back(&(m_resultDefinition->m_resultTypeUiField));
+    objFields.push_back(&(m_resultDefinition->m_porosityModelUiField));
+    objFields.push_back(&(m_resultDefinition->m_resultVariableUiField));
 
     for (auto f : objFields)
     {
@@ -258,7 +266,7 @@ void RimEclipsePropertyFilter::updateReadOnlyStateOfAllFields()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateRangeLabel()
 {
-    if (resultDefinition->isFlowDiagOrInjectionFlooding())
+    if (m_resultDefinition->isFlowDiagOrInjectionFlooding())
     {
         m_rangeLabelText = "Current Timestep";
     }
@@ -356,38 +364,38 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
     clearCategories();
 
-    if (resultDefinition->isFlowDiagOrInjectionFlooding())
+    if (m_resultDefinition->isFlowDiagOrInjectionFlooding())
     {
         Rim3dView* view;
         this->firstAncestorOrThisOfType(view);
 
         int timeStep = 0;
         if (view) timeStep = view->currentTimeStep();
-        RigFlowDiagResultAddress resAddr = resultDefinition->flowDiagResAddress();
-        if (resultDefinition->flowDiagSolution())
+        RigFlowDiagResultAddress resAddr = m_resultDefinition->flowDiagResAddress();
+        if (m_resultDefinition->flowDiagSolution())
         {
-            RigFlowDiagResults* results = resultDefinition->flowDiagSolution()->flowDiagResults();
+            RigFlowDiagResults* results = m_resultDefinition->flowDiagSolution()->flowDiagResults();
             results->minMaxScalarValues(resAddr, timeStep, &min, &max);
 
-            if (resultDefinition->hasCategoryResult())
+            if (m_resultDefinition->hasCategoryResult())
             {
-                setCategoriesFromTracerNames(resultDefinition->flowDiagSolution()->tracerNames());
+                setCategoriesFromTracerNames(m_resultDefinition->flowDiagSolution()->tracerNames());
             }
         }
     }
     else
     {
-        RigEclipseResultAddress scalarIndex = resultDefinition->eclipseResultAddress();
+        RigEclipseResultAddress scalarIndex = m_resultDefinition->eclipseResultAddress();
         if (scalarIndex.isValid())
         {
-            RigCaseCellResultsData* results = resultDefinition->currentGridCellResults();
+            RigCaseCellResultsData* results = m_resultDefinition->currentGridCellResults();
             if (results)
             {
                 results->minMaxCellScalarValues(scalarIndex, min, max);
 
-                if (resultDefinition->hasCategoryResult())
+                if (m_resultDefinition->hasCategoryResult())
                 {
-                    if (resultDefinition->resultType() == RiaDefines::FORMATION_NAMES)
+                    if (m_resultDefinition->resultType() == RiaDefines::FORMATION_NAMES)
                     {
                         CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData());
                         CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData()->activeFormationNames());
@@ -400,7 +408,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                                                                    ->formationNames();
                         setCategoryNames(fnVector);
                     }
-                    else if (resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
+                    else if (m_resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
                     {
                         std::vector<RiaDefines::WellPathComponentType> componentTypes = {
                             RiaDefines::WELL_PATH, RiaDefines::PERFORATION_INTERVAL, RiaDefines::FISHBONES, RiaDefines::FRACTURE};
@@ -439,7 +447,7 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
     //
     // If the user manually has set a filter value, this value is left untouched
 
-    if (!resultDefinition->isFlowDiagOrInjectionFlooding())
+    if (!m_resultDefinition->isFlowDiagOrInjectionFlooding())
     {
         return;
     }
@@ -466,15 +474,15 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
     this->firstAncestorOrThisOfTypeAsserted(view);
 
     int                      timeStep = view->currentTimeStep();
-    RigFlowDiagResultAddress resAddr  = resultDefinition->flowDiagResAddress();
-    if (resultDefinition->flowDiagSolution())
+    RigFlowDiagResultAddress resAddr  = m_resultDefinition->flowDiagResAddress();
+    if (m_resultDefinition->flowDiagSolution())
     {
-        RigFlowDiagResults* results = resultDefinition->flowDiagSolution()->flowDiagResults();
+        RigFlowDiagResults* results = m_resultDefinition->flowDiagSolution()->flowDiagResults();
         results->minMaxScalarValues(resAddr, timeStep, &min, &max);
 
-        if (resultDefinition->hasCategoryResult())
+        if (m_resultDefinition->hasCategoryResult())
         {
-            setCategoriesFromTracerNames(resultDefinition->flowDiagSolution()->tracerNames());
+            setCategoriesFromTracerNames(m_resultDefinition->flowDiagSolution()->tracerNames());
         }
     }
 
@@ -514,7 +522,7 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateFilterName()
 {
-    QString newFiltername = resultDefinition->resultVariableUiShortName();
+    QString newFiltername = m_resultDefinition->resultVariableUiShortName();
 
     if (isCategorySelectionActive())
     {
@@ -558,9 +566,9 @@ void RimEclipsePropertyFilter::updateFilterName()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::initAfterRead()
 {
-    resultDefinition->initAfterRead();
+    m_resultDefinition->initAfterRead();
 
-    resultDefinition->setEclipseCase(parentContainer()->reservoirView()->eclipseCase());
+    m_resultDefinition->setEclipseCase(parentContainer()->reservoirView()->eclipseCase());
     updateIconState();
 }
 
@@ -569,5 +577,5 @@ void RimEclipsePropertyFilter::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateUiFieldsFromActiveResult()
 {
-    resultDefinition->updateUiFieldsFromActiveResult();
+    m_resultDefinition->updateUiFieldsFromActiveResult();
 }

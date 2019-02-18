@@ -118,10 +118,10 @@ void RicEclipsePropertyFilterFeatureImpl::setDefaults(RimEclipsePropertyFilter* 
     RimEclipseView* reservoirView = nullptr;
     propertyFilter->firstAncestorOrThisOfTypeAsserted(reservoirView);
 
-    propertyFilter->resultDefinition->setEclipseCase(reservoirView->eclipseCase());
-    propertyFilter->resultDefinition->simpleCopy(reservoirView->cellResult());
+    propertyFilter->resultDefinition()->setEclipseCase(reservoirView->eclipseCase());
+    propertyFilter->resultDefinition()->simpleCopy(reservoirView->cellResult());
 
-    propertyFilter->resultDefinition->loadResult();
+    propertyFilter->resultDefinition()->loadResult();
     propertyFilter->setToDefaultValues();
     propertyFilter->updateFilterName();
     propertyFilter->m_useCategorySelection = true;
