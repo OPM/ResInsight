@@ -144,6 +144,7 @@ private:
     cvf::Color3f    computeContrastColor() const;
 
     void            updateAxisCrossTextColor();
+    void            updateOverlayItemsPalette();
 
     void            paintOverlayItems(QPainter* painter) override;
 
