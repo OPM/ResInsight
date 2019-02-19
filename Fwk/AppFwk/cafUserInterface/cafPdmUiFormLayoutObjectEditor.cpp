@@ -220,7 +220,7 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                             QWidget::setTabOrder(*previousTabOrderWidget, fieldEditorWidget);
                         }
 
-                        previousTabOrderWidget = &fieldEditorWidget;
+                        //previousTabOrderWidget = &fieldEditorWidget;
                     }
                     fieldEditor->updateUi(uiConfigName);
                 }
