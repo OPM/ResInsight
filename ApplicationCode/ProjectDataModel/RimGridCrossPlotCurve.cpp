@@ -17,6 +17,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlotCurve.h"
 
+#include "RiaColorTables.h"
+
+#include "RigCaseCellResultCalculator.h"
+
+#include "RimCase.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
+#include "RimGridCrossPlot.h"
+#include "RimTools.h"
+
+#include "cafPdmUiComboBoxEditor.h"
+
+#include <QDebug>
 #include <QPointF>
 #include <QVector>
 
@@ -30,9 +43,32 @@ CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurve, "GridCrossPlotCurve");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurve::setCategoryIndex(int index)
+{
+    const caf::ColorTable& colors = RiaColorTables::categoryPaletteColors();
+    setColor(colors.cycledColor3f(index));
+
+    RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbol(index);
+    setSymbol(symbol); 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimGridCrossPlotCurve::RimGridCrossPlotCurve()
 {
-    CAF_PDM_InitObject("GridCrossPlotCurve", ":/WellLogCurve16x16.png", "", "");
+    CAF_PDM_InitObject("Cross Plot Points", ":/WellLogCurve16x16.png", "", "");
+   
+    setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
+    setSymbolSize(6);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurve::setSamples(const QVector<QPointF>& samples)
+{
+    m_qwtPlotCurve->setSamples(samples);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,7 +76,9 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::updateZoomInParentPlot()
 {
-
+    RimGridCrossPlot* plot;
+    this->firstAncestorOrThisOfTypeAsserted(plot);
+    plot->calculateZoomRangeAndUpdateQwt();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +94,7 @@ void RimGridCrossPlotCurve::updateLegendsInPlot()
 //--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlotCurve::createCurveAutoName()
 {
-    return "Cross Plot";
+    return "Cross Plot Curve";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,25 +102,33 @@ QString RimGridCrossPlotCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
-    QVector<QPointF> samples;
+}
 
-    const int N = 10000000;
-    const double minValueX = 0.0;
-    const double maxValueX = 1.0;
-    const double yValueStdDev = 5000.0;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
+}
 
-    std::random_device                     rd;
-    std::mt19937                           gen(rd());
-    std::uniform_real_distribution<double> distributionX(minValueX, maxValueX);
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                           bool*                      useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+    return options;
+}
 
-    for (size_t i = 0; i < N; ++i)
-    {
-        double xValue = distributionX(gen);
-        double yValueMean = 2000 + 4000 * std::pow(xValue, 3.0);
-        std::normal_distribution<double> distributionY(yValueMean, yValueStdDev);
-        double yValueRandom = distributionY(gen);
-        QPointF point(xValue, yValueRandom);
-        samples.push_back(point);
-    }
-    m_qwtPlotCurve->setSamples(samples);    
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                             const QVariant&            oldValue,
+                                             const QVariant&            newValue)
+{
+ 
 }

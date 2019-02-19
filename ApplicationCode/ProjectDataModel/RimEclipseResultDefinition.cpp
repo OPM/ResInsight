@@ -39,6 +39,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
+#include "RimGridCrossPlotCurveSet.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimIntersectionCollection.h"
 #include "RimPlotCurve.h"
@@ -468,6 +469,13 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
         {
             view->scheduleCreateDisplayModelAndRedraw();
         }
+    }
+
+    RimGridCrossPlotCurveSet* crossPlotCurveSet = nullptr;
+    this->firstAncestorOrThisOfType(crossPlotCurveSet);
+    if (crossPlotCurveSet)
+    {
+        crossPlotCurveSet->loadDataAndUpdate();
     }
 
     RimPlotCurve* curve = nullptr;

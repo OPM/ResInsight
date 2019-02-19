@@ -17,39 +17,45 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimPlotCurve.h"
-
+#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-#include <QPointF>
-#include <QVector>
-
 class RimCase;
+class RimGridCrossPlotCurve;
 class RimEclipseResultDefinition;
+class QwtPlot;
 class QwtPlotCurve;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimGridCrossPlotCurve : public RimPlotCurve
+class RimGridCrossPlotCurveSet : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGridCrossPlotCurve();
-    ~RimGridCrossPlotCurve() override = default;
-    void setCategoryIndex(int index);
-    void setSamples(const QVector<QPointF>& samples);
+    RimGridCrossPlotCurveSet();
+    ~RimGridCrossPlotCurveSet() = default;
+
+    void loadDataAndUpdate();
+    void setParentQwtPlotNoReplot(QwtPlot* parent);
 protected:
-    void updateZoomInParentPlot() override;
-    void updateLegendsInPlot() override;
-    QString createCurveAutoName() override;
-    void onLoadDataAndUpdate(bool updateParentPlot) override;
+    void onLoadDataAndUpdate();
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                        bool*                      useOptionsOnly) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void triggerReplotAndTreeRebuild();
+private:
+    caf::PdmPtrField<RimCase*>                      m_case;
+    caf::PdmField<int>                              m_timeStep;
+    caf::PdmChildField<RimEclipseResultDefinition*> m_xAxisProperty;
+    caf::PdmChildField<RimEclipseResultDefinition*> m_yAxisProperty;
+
+    caf::PdmChildArrayField<RimGridCrossPlotCurve*> m_crossPlotCurves;
 };
-

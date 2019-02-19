@@ -50,16 +50,19 @@ public:
         SYMBOL_LEFT_TRIANGLE,
         SYMBOL_RIGHT_TRIANGLE,
         SYMBOL_LEFT_ANGLED_TRIANGLE,
-        SYMBOL_RIGHT_ANGLED_TRIANGLE
+        SYMBOL_RIGHT_ANGLED_TRIANGLE,
+        NR_OF_SYMBOLS
     };
 
     RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition = LabelAboveSymbol);
-
+    
     void    renderSymbols(QPainter *painter, const QPointF *points, int numPoints) const override;
     void    renderSymbolLabel(QPainter *painter, const QPointF& position) const;
     QString label() const { return m_label; }
 
     void    setLabelPosition(LabelPosition labelPosition);
+    
+    static PointSymbolEnum cycledSymbol(int itemIndex);
 private:
     QRect   labelBoundingRect(const QPainter* painter, const QRect& symbolRect) const;
 

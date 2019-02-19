@@ -419,6 +419,14 @@ void RimPlotCurve::updateLegendsInPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    throw std::logic_error("The method or operation is not implemented.");
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)

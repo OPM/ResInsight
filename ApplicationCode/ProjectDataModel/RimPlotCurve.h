@@ -99,6 +99,8 @@ protected:
     void                            updateOptionSensitivity();
     void                            updatePlotTitle();
     virtual void                    updateLegendsInPlot();
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 protected:
 
     // Overridden PDM methods

@@ -17,7 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlot.h"
 
-#include "RimGridCrossPlotCurve.h"
+#include "RimGridCrossPlotCurveSet.h"
+
+#include "cvfAssert.h"
 
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
@@ -31,11 +33,11 @@ CAF_PDM_SOURCE_INIT(RimGridCrossPlot, "RimGridCrossPlot");
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlot::RimGridCrossPlot()
 {
-    CAF_PDM_InitObject("Grid Cross Plot", ":/SummaryXPlotsLight16x16.png", "", "");
+    CAF_PDM_InitObject("Grid Cross Plot", ":/SummaryXPlotLight16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_crossPlotCurve, "CrossPlotCurve", "Cross Plot Data Set", "", "", "");
-    m_crossPlotCurve.uiCapability()->setUiHidden(true);
-    m_crossPlotCurve = new RimGridCrossPlotCurve();
+    CAF_PDM_InitFieldNoDefault(&m_crossPlotCurveSet, "CrossPlotCurve", "Cross Plot Data Set", "", "", "");
+    m_crossPlotCurveSet.uiCapability()->setUiHidden(true);
+    m_crossPlotCurveSet = new RimGridCrossPlotCurveSet();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +69,24 @@ QImage RimGridCrossPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::zoomAll()
 {
-    
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::calculateZoomRangeAndUpdateQwt()
+{
+    // this->calculateXZoomRange();
+    m_qwtPlot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::attachPlotCurvesToQwtAndReplot()
+{
+    m_crossPlotCurveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+    m_qwtPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,21 +119,13 @@ void RimGridCrossPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::onLoadDataAndUpdate()
 {
-    qDebug() << "Loading Data for X-Plot";
-
     updateMdiWindowVisibility();
     CVF_ASSERT(m_qwtPlot);
-    
+
+    m_crossPlotCurveSet->loadDataAndUpdate();
+    m_crossPlotCurveSet->setParentQwtPlotNoReplot(m_qwtPlot);
     m_qwtPlot->setTitle("Cross Plot Test");
     m_qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
     m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
-
-    m_crossPlotCurve->setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
-    m_crossPlotCurve->setSymbol(RiuQwtSymbol::SYMBOL_CROSS);
-    m_crossPlotCurve->setSymbolSize(6);
-    m_crossPlotCurve->setColor(cvf::Color3::RED);
-    m_crossPlotCurve->loadDataAndUpdate(false);
-    m_crossPlotCurve->setParentQwtPlotAndReplot(m_qwtPlot);
-    m_crossPlotCurve->updateCurveAppearance();
     m_qwtPlot->show();
 }

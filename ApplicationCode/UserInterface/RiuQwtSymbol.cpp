@@ -147,6 +147,17 @@ void RiuQwtSymbol::setLabelPosition(LabelPosition labelPosition)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbol(int itemIndex)
+{
+    int nrOfValidSymbols = int(NR_OF_SYMBOLS) - 1;
+    int symbolIndex = itemIndex % nrOfValidSymbols + 1;
+
+    return static_cast<PointSymbolEnum>(symbolIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QRect RiuQwtSymbol::labelBoundingRect(const QPainter* painter, const QRect& symbolRect) const
 {
     CVF_ASSERT(painter);

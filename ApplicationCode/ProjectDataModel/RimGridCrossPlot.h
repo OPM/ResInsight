@@ -24,7 +24,7 @@
 
 #include <QPointer>
 
-class RimGridCrossPlotCurve;
+class RimGridCrossPlotCurveSet;
 class QwtPlot;
 
 class RimGridCrossPlot : public RimViewWindow
@@ -34,18 +34,19 @@ public:
     RimGridCrossPlot();
     ~RimGridCrossPlot() = default;
 
-    virtual QWidget* viewWidget() override;
-    virtual QImage snapshotWindowContent() override;
-    virtual void zoomAll() override;
-
+    QWidget* viewWidget() override;
+    QImage   snapshotWindowContent() override;
+    void     zoomAll() override;
+    void     calculateZoomRangeAndUpdateQwt();
+    void     attachPlotCurvesToQwtAndReplot();
 protected:
-    virtual QWidget* createViewWidget(QWidget* mainWindowParent) override;
-    virtual void deleteViewWidget() override;
-    virtual void onLoadDataAndUpdate() override;
+    QWidget* createViewWidget(QWidget* mainWindowParent) override;
+    void     deleteViewWidget() override;
+    void     onLoadDataAndUpdate() override;
 
 private:
-    caf::PdmChildField<RimGridCrossPlotCurve*> m_crossPlotCurve;
-    QPointer<QwtPlot>                          m_qwtPlot;
+    caf::PdmChildField<RimGridCrossPlotCurveSet*> m_crossPlotCurveSet;
+    QPointer<QwtPlot>                             m_qwtPlot;
 };
 
 
