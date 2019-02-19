@@ -127,6 +127,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
+${CMAKE_CURRENT_LIST_DIR}/RimGridCrossPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimGridCrossPlotCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimGridCrossPlotCurve.h
 )
 
 
@@ -258,6 +261,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimGridCrossPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimGridCrossPlotCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimGridCrossPlotCurve.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

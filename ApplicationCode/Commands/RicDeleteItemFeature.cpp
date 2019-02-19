@@ -34,6 +34,7 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
 #include "RimGridTimeHistoryCurve.h"
+#include "RimGridCrossPlot.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
@@ -131,6 +132,7 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimTextAnnotation*>(uiItem))                return true;
     if (dynamic_cast<RimReachCircleAnnotation*>(uiItem))         return true;
     if (dynamic_cast<RimPolylinesAnnotation*>(uiItem))           return true;
+    if (dynamic_cast<RimGridCrossPlot*>(uiItem))                 return true;
     return false;    
 }
 
