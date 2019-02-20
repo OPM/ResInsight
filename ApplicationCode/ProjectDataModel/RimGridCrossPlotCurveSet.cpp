@@ -55,10 +55,14 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     m_yAxisProperty.uiCapability()->setUiHidden(true);
     m_yAxisProperty.uiCapability()->setUiTreeChildrenHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "Name", "", "", "");
+    m_nameConfig = new RimGridCrossPlotCurveSetNameConfig(this);
+    m_nameConfig.uiCapability()->setUiTreeHidden(true);
+    m_nameConfig.uiCapability()->setUiTreeChildrenHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_crossPlotCurves, "CrossPlotCurves", "Curves", "", "", "");
     m_crossPlotCurves.uiCapability()->setUiTreeHidden(true);
 
-    updateName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,6 +103,48 @@ QString RimGridCrossPlotCurveSet::yAxisName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlotCurveSet::createAutoName() const
+{
+    if (m_case() == nullptr)
+    {
+        return "Undefined";
+    }
+
+    QStringList nameTags;
+    if (!m_nameConfig->customName().isEmpty())
+    {
+        nameTags += m_nameConfig->customName();
+    }
+
+    if (m_nameConfig->addCaseName())
+    {
+        nameTags += m_case->caseUserDescription();
+    }
+
+    if (m_nameConfig->addAxisVariables())
+    {
+        nameTags += QString("%1 x %2").arg(xAxisName(), yAxisName());
+    }
+
+    if (m_nameConfig->addTimestep())
+    {
+        if (m_timeStep() == -1)
+        {
+            nameTags += "All Time Steps";
+        }
+        else
+        {
+            QStringList timeStepNames = m_case->timeStepStrings();
+            nameTags += timeStepNames[m_timeStep()];
+        }
+    }
+
+    return nameTags.join(", ");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::initAfterRead()
 {
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
@@ -114,7 +160,7 @@ void RimGridCrossPlotCurveSet::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 {
-    updateName();
+    performAutoNameUpdate();
 
     m_crossPlotCurves.deleteAllChildObjects();
 
@@ -223,6 +269,8 @@ void RimGridCrossPlotCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUi
         caf::PdmUiGroup* yAxisGroup = uiOrdering.addNewGroup("Y-Axis Property");
         m_yAxisProperty->uiOrdering(uiConfigName, *yAxisGroup);
     }
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Name Configuration");
+    m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -289,24 +337,45 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurveSet::calculateValueOptions(co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::updateName()
-{
-    QString caseName = "Undefined";
-    if (m_case())
-    {
-        caseName = m_case->caseUserDescription();
-    }
-    QString name = QString("%1: %2 x %3").arg(caseName).arg(xAxisName()).arg(yAxisName());
-    this->setName(name);    
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::triggerReplotAndTreeRebuild()
 {
     RimGridCrossPlot* parent;
     this->firstAncestorOrThisOfTypeAsserted(parent);
     parent->loadDataAndUpdate();
     parent->updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::performAutoNameUpdate()
+{
+    this->setName(createAutoName());
+}
+
+CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSetNameConfig, "RimGridCrossPlotNameConfig");
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridCrossPlotCurveSetNameConfig::RimGridCrossPlotCurveSetNameConfig(RimNameConfigHolderInterface* parent)
+    : RimNameConfig(parent)
+{
+    CAF_PDM_InitObject("Cross Plot Name Generator", "", "", "");
+
+    CAF_PDM_InitField(&addCaseName, "AddCaseName", false, "Add Case Name", "", "", "");
+    CAF_PDM_InitField(&addAxisVariables, "AddAxisVariables", true, "Add Axis Variables", "", "", "");
+    CAF_PDM_InitField(&addTimestep, "AddTimeStep", false, "Add Time Step", "", "", "");
+
+    setCustomName("");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSetNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&addCaseName);
+    uiOrdering.add(&addAxisVariables);
+    uiOrdering.add(&addTimestep);
 }

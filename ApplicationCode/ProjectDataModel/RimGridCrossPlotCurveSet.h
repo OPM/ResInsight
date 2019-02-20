@@ -32,11 +32,26 @@ class RimEclipseResultDefinition;
 class QwtPlot;
 class QwtPlotCurve;
 
+class RimGridCrossPlotCurveSetNameConfig : public RimNameConfig
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimGridCrossPlotCurveSetNameConfig(RimNameConfigHolderInterface* parent = nullptr);
+
+    caf::PdmField<bool> addCaseName;
+    caf::PdmField<bool> addAxisVariables;
+    caf::PdmField<bool> addTimestep;
+
+protected:
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+};
+
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimGridCrossPlotCurveSet : public RimCheckableNamedObject
+class RimGridCrossPlotCurveSet : public RimCheckableNamedObject, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -48,6 +63,9 @@ public:
     void    setParentQwtPlotNoReplot(QwtPlot* parent);
     QString xAxisName() const;
     QString yAxisName() const;
+
+    QString createAutoName() const override;
+
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);
@@ -55,14 +73,17 @@ protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
-    void updateName();
     void triggerReplotAndTreeRebuild();
+    void performAutoNameUpdate() override;
 
 private:
+
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmChildField<RimEclipseResultDefinition*> m_xAxisProperty;
     caf::PdmChildField<RimEclipseResultDefinition*> m_yAxisProperty;
+
+    caf::PdmChildField<RimGridCrossPlotCurveSetNameConfig*> m_nameConfig;
 
     caf::PdmChildArrayField<RimGridCrossPlotCurve*> m_crossPlotCurves;
 };

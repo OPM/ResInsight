@@ -20,6 +20,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 
+#include "RimNameConfig.h"
 #include "RimViewWindow.h"
 
 #include <QPointer>
@@ -27,7 +28,7 @@
 class RimGridCrossPlotCurveSet;
 class QwtPlot;
 
-class RimGridCrossPlot : public RimViewWindow
+class RimGridCrossPlot : public RimViewWindow, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 public:

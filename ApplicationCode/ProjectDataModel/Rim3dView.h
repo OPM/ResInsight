@@ -180,7 +180,7 @@ protected:
     void                                    applyBackgroundColor();
 
     // Implementation of RimNameConfigHolderInterface
-    void                                    performHolderUpdate() override;
+    void                                    performAutoNameUpdate() override;
 
     // Abstract methods to implement in subclasses
 

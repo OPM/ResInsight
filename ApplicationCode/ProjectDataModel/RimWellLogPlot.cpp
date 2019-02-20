@@ -698,7 +698,7 @@ QString RimWellLogPlot::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::performHolderUpdate()
+void RimWellLogPlot::performAutoNameUpdate()
 {
     this->m_commonDataSource->updateDefaultOptions();
     this->updatePlotTitle();
