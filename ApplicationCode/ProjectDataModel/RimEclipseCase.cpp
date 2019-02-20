@@ -536,11 +536,11 @@ void RimEclipseCase::computeCachedData()
         pInf.setProgressDescription("Calculating Formation Names Result");
         if (activeFormationNames())
         {
-            rigEclipseCase->setActiveFormationNamesAndUpdatePlots(activeFormationNames()->formationNamesData());
+            rigEclipseCase->setActiveFormationNames(activeFormationNames()->formationNamesData());
         }
         else
         {
-            rigEclipseCase->setActiveFormationNamesAndUpdatePlots(nullptr);
+            rigEclipseCase->setActiveFormationNames(nullptr);
         }
 
         pInf.incrementProgress();

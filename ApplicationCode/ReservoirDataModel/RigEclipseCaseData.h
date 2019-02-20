@@ -86,6 +86,7 @@ public:
 
     bool                                        hasFractureResults() const;
 
+    void                                        setActiveFormationNames(RigFormationNames* activeFormationNames);
     void                                        setActiveFormationNamesAndUpdatePlots(RigFormationNames* activeFormationNames);
     RigFormationNames*                          activeFormationNames(); 
 

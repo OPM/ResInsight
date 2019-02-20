@@ -671,11 +671,19 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigEclipseCaseData::setActiveFormationNames(RigFormationNames* activeFormationNames)
+{
+    m_matrixModelResults->setActiveFormationNames(activeFormationNames);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCaseData::setActiveFormationNamesAndUpdatePlots(RigFormationNames* activeFormationNames)
 {
-    m_matrixModelResults->setActiveFormationNames(activeFormationNames);
+    setActiveFormationNames(activeFormationNames);
 
     RimProject* project = RiaApplication::instance()->project();
     if (project)
