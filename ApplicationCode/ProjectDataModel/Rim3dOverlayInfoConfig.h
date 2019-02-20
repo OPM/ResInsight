@@ -88,6 +88,8 @@ public:
     bool          isActive() const;
     void          setIsActive(bool active);
 
+    bool          showVersionInfo() const;
+
     enum StatisticsTimeRangeType
     {
         ALL_TIMESTEPS,
@@ -129,6 +131,7 @@ private:
     caf::PdmField<bool>                         m_showResultInfo;
     caf::PdmField<bool>                         m_showVolumeWeightedMean;
     caf::PdmField<bool>                         m_showHistogram;
+    caf::PdmField<bool>                         m_showVersionInfo;
 
     caf::PdmField<caf::AppEnum<StatisticsTimeRangeType> > m_statisticsTimeRange;
     caf::PdmField<caf::AppEnum<StatisticsCellRangeType> > m_statisticsCellRange;

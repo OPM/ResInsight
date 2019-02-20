@@ -115,6 +115,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_versionInfoLabel->setFrameShape(QFrame::NoFrame);
     m_versionInfoLabel->setAlignment(Qt::AlignRight);
     m_versionInfoLabel->setText(QString("%1 v%2").arg(RI_APPLICATION_NAME, RiaApplication::getVersionStringApp(false)));
+    m_showVersionInfo = true;
 
     // Z scale label
     m_zScaleLabel = new QLabel();
@@ -395,7 +396,7 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
         // yPos +=  m_histogramWidget->height() + margin;
     }
 
-    if (m_showInfoText) // Version Label
+    if (m_showVersionInfo) // Version Label
     {
         QSize  size(m_versionInfoLabel->sizeHint().width(), m_versionInfoLabel->sizeHint().height());
         QPoint pos(this->width() - size.width() - margin - edgeAxisFrameBorderWidth,
@@ -476,6 +477,14 @@ void RiuViewer::setZScale(int scale)
 void RiuViewer::showInfoText(bool enable)
 {
     m_showInfoText = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::showVersionInfo(bool enable)
+{
+    m_showVersionInfo = enable;
 }
 
 //--------------------------------------------------------------------------------------------------

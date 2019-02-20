@@ -109,6 +109,7 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
     CAF_PDM_InitField(&m_showResultInfo,         "ShowResultInfo",         true, "Result Info", "", "", "");
     CAF_PDM_InitField(&m_showHistogram,          "ShowHistogram",          true, "Histogram", "", "", "");
     CAF_PDM_InitField(&m_showVolumeWeightedMean, "ShowVolumeWeightedMean", true, "Mobile Volume Weighted Mean", "", "", "");
+    CAF_PDM_InitField(&m_showVersionInfo,        "ShowVersionInfo",        true, "Version Info", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_statisticsTimeRange, "StatisticsTimeRange", "Statistics Time Range", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_statisticsCellRange, "StatisticsCellRange", "Statistics Cell Range", "", "", "");
@@ -277,6 +278,14 @@ bool Rim3dOverlayInfoConfig::isActive() const
 void Rim3dOverlayInfoConfig::setIsActive(bool active)
 {
     m_active = active;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim3dOverlayInfoConfig::showVersionInfo() const
+{
+    return m_showVersionInfo();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -830,6 +839,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         m_viewDef->viewer()->showInfoText(false);
         m_viewDef->viewer()->showHistogram(false);
         m_viewDef->viewer()->showAnimationProgress(false);
+        m_viewDef->viewer()->showVersionInfo(false);
 
         update3DInfoIn2dViews();
         return;
@@ -838,6 +848,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     m_viewDef->viewer()->showInfoText(m_showCaseInfo() || m_showResultInfo());
     m_viewDef->viewer()->showHistogram(false);
     m_viewDef->viewer()->showAnimationProgress(m_showAnimProgress());
+    m_viewDef->viewer()->showVersionInfo(m_showVersionInfo());
 
     m_isVisCellStatUpToDate = false;
 
@@ -902,6 +913,8 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     {
         visGroup->add(&m_showHistogram);
     }
+    
+    visGroup->add(&m_showVersionInfo);
 
     if (contourMap)
     {

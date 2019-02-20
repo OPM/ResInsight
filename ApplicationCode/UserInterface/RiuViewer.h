@@ -81,6 +81,7 @@ public:
     void            setEnableMask(unsigned int mask);
 
     void            showInfoText(bool enable);
+    void            showVersionInfo(bool enable);
     void            setInfoText(QString text);
 
     void            hideZScaleCheckbox(bool hide);
@@ -156,7 +157,8 @@ private:
     QRect           m_infoLabelOverlayArea;
 
     QLabel*         m_versionInfoLabel;
-    bool            m_showInfoText; 
+    bool            m_showInfoText;
+    bool            m_showVersionInfo;
 
     QLabel*         m_zScaleLabel;
     bool            m_showZScaleLabel;
