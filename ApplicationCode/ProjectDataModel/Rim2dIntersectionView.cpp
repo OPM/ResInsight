@@ -203,6 +203,7 @@ void Rim2dIntersectionView::update3dInfo()
         m_viewer->showInfoText(false);
         m_viewer->showHistogram(false);
         m_viewer->showAnimationProgress(false);
+        m_viewer->showVersionInfo(false);
 
         m_viewer->update();
         return;
@@ -702,6 +703,7 @@ void Rim2dIntersectionView::resetLegendsInViewer()
     m_viewer->showAnimationProgress(true);
     m_viewer->showHistogram(false);
     m_viewer->showInfoText(false);
+    m_viewer->showVersionInfo(false);
     m_viewer->showEdgeTickMarksXZ(true, m_showAxisLines());
 
     m_viewer->setMainScene(new cvf::Scene());
