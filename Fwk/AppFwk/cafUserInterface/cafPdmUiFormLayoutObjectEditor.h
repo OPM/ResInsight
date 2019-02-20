@@ -74,7 +74,7 @@ protected:
     
     void            recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(const PdmUiOrdering& uiOrdering,
                                                                               QWidget* containerWidgetWithGridLayout,
-                                                                              const QString& uiConfigName, QWidget** previousTabOrderWidget = nullptr);
+                                                                              const QString& uiConfigName);
 
     void recursivelyAddGroupToGridLayout(PdmUiItem*     currentItem,
                                          QWidget*       containerWidget,
@@ -82,8 +82,7 @@ protected:
                                          QGridLayout*   parentLayout,
                                          int            currentRowIndex,
                                          int            currentColumn,
-                                         int            itemColumnSpan,
-                                         QWidget**      previousTabOrderWidget);
+                                         int            itemColumnSpan);
 
     QMinimizePanel*         findOrCreateGroupBox(QWidget* parent, PdmUiGroup* group, const QString& uiConfigName);
     PdmUiFieldEditorHandle* findOrCreateFieldEditor(QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName);

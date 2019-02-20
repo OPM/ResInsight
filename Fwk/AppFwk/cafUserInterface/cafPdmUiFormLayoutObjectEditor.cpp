@@ -76,10 +76,11 @@ caf::PdmUiFormLayoutObjectEditor::~PdmUiFormLayoutObjectEditor()
 void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(
     const PdmUiOrdering& uiOrdering,
     QWidget*             containerWidgetWithGridLayout,
-    const QString&       uiConfigName,
-    QWidget**            previousTabOrderWidget)
+    const QString&       uiConfigName)
 {
     CAF_ASSERT(containerWidgetWithGridLayout);
+
+    QWidget* previousTabOrderWidget = nullptr;
 
     // Currently, only QGridLayout is supported
     QGridLayout* parentLayout = dynamic_cast<QGridLayout*>(containerWidgetWithGridLayout->layout());    
@@ -128,7 +129,7 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
             {
                 recursivelyAddGroupToGridLayout(currentItem, containerWidgetWithGridLayout,
                                                 uiConfigName, parentLayout, currentRowIndex,
-                                                currentColumn, itemColumnSpan, previousTabOrderWidget);
+                                                currentColumn, itemColumnSpan);
                 currentColumn += itemColumnSpan;
             }
             else
@@ -215,12 +216,11 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                             currentColumn += fieldColumnSpan;
                         }
 
-                        if (previousTabOrderWidget && *previousTabOrderWidget)
+                        if (previousTabOrderWidget)
                         {
-                            QWidget::setTabOrder(*previousTabOrderWidget, fieldEditorWidget);
+                            QWidget::setTabOrder(previousTabOrderWidget, fieldEditorWidget);
                         }
-
-                        //previousTabOrderWidget = &fieldEditorWidget;
+                        previousTabOrderWidget = fieldEditorWidget;
                     }
                     fieldEditor->updateUi(uiConfigName);
                 }
@@ -240,8 +240,7 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout(PdmUiItem
                                                                        QGridLayout*   parentLayout,
                                                                        int            currentRowIndex,
                                                                        int            currentColumn,
-                                                                       int            itemColumnSpan,
-                                                                       QWidget** previousTabOrderWidget)
+                                                                       int            itemColumnSpan)
 {
     PdmUiGroup* group = static_cast<PdmUiGroup*>(currentItem);
 
@@ -250,7 +249,7 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout(PdmUiItem
     /// Insert the group box at the correct position of the parent layout
     parentLayout->addWidget(groupBox, currentRowIndex, currentColumn, 1, itemColumnSpan);
 
-    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(*group, groupBox->contentFrame(), uiConfigName, previousTabOrderWidget);
+    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(*group, groupBox->contentFrame(), uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
