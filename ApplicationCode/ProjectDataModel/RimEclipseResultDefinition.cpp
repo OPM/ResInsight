@@ -898,6 +898,8 @@ QString RimEclipseResultDefinition::diffResultUiShortNameHTML() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::loadResult()
 {
+    ensureProcessingOfObsoleteFields();
+
     if (isFlowDiagOrInjectionFlooding()) return; // Will load automatically on access
 
     if (ownerEclipseCase())
@@ -1319,36 +1321,7 @@ void RimEclipseResultDefinition::defineEditorAttribute(const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::onEditorWidgetsCreated()
 {
-    if (m_flowSolution() && !m_selectedTracers_OBSOLETE().empty())
-    {
-        std::vector<QString> selectedTracers;
-        selectedTracers.swap(m_selectedTracers_OBSOLETE.v());
-
-        std::set<QString, TracerComp> allInjectorTracers = setOfTracersOfType(true);
-        std::set<QString, TracerComp> allProducerTracers = setOfTracersOfType(false);
-
-        std::vector<QString> selectedInjectorTracers;
-        std::vector<QString> selectedProducerTracers;
-        for (const QString& tracerName : selectedTracers)
-        {
-            if (allInjectorTracers.count(tracerName))
-            {
-                selectedInjectorTracers.push_back(tracerName);
-            }
-            if (allProducerTracers.count(tracerName))
-            {
-                selectedProducerTracers.push_back(tracerName);
-            }
-        }
-        if (!selectedInjectorTracers.empty())
-        {
-            setSelectedInjectorTracers(selectedInjectorTracers);
-        }
-        if (!selectedProducerTracers.empty())
-        {
-            setSelectedProducerTracers(selectedProducerTracers);
-        }
-    }
+    ensureProcessingOfObsoleteFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1967,4 +1940,41 @@ bool RimEclipseResultDefinition::isCaseDiffResultAvailable() const
 bool RimEclipseResultDefinition::isCaseDiffResult() const
 {
     return isCaseDiffResultAvailable() && m_differenceCase() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::ensureProcessingOfObsoleteFields()
+{
+    if (m_flowSolution() && !m_selectedTracers_OBSOLETE().empty())
+    {
+        std::vector<QString> selectedTracers;
+        selectedTracers.swap(m_selectedTracers_OBSOLETE.v());
+
+        std::set<QString, TracerComp> allInjectorTracers = setOfTracersOfType(true);
+        std::set<QString, TracerComp> allProducerTracers = setOfTracersOfType(false);
+
+        std::vector<QString> selectedInjectorTracers;
+        std::vector<QString> selectedProducerTracers;
+        for (const QString& tracerName : selectedTracers)
+        {
+            if (allInjectorTracers.count(tracerName))
+            {
+                selectedInjectorTracers.push_back(tracerName);
+            }
+            if (allProducerTracers.count(tracerName))
+            {
+                selectedProducerTracers.push_back(tracerName);
+            }
+        }
+        if (!selectedInjectorTracers.empty())
+        {
+            setSelectedInjectorTracers(selectedInjectorTracers);
+        }
+        if (!selectedProducerTracers.empty())
+        {
+            setSelectedProducerTracers(selectedProducerTracers);
+        }
+    }
 }

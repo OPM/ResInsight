@@ -208,6 +208,8 @@ private:
     bool                            isCaseDiffResultAvailable() const;
     bool                            isCaseDiffResult() const;
 
+    void                            ensureProcessingOfObsoleteFields();
+
 private:
     bool                            m_diffResultOptionsEnabled;
 };
