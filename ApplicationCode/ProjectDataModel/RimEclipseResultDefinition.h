@@ -166,6 +166,9 @@ protected:
 
     caf::PdmField<std::vector<QString> >                            m_selectedSouringTracersUiField;
 
+
+    caf::PdmPointer<RimEclipseCase>                                 m_eclipseCase;
+
     caf::PdmField<std::vector<QString> >                            m_selectedTracers_OBSOLETE;
 private:
     struct TracerComp
@@ -175,7 +178,6 @@ private:
 
 private:
     void                            assignFlowSolutionFromCase();
-    RimEclipseCase*                 ownerEclipseCase() const;
 
     bool                            hasDualPorFractureResult();
 

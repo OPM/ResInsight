@@ -178,6 +178,8 @@ void RimEclipseResultDefinition::simpleCopy(const RimEclipseResultDefinition* ot
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
 {
+    m_eclipseCase = eclipseCase;
+
     assignFlowSolutionFromCase();
 }
 
@@ -186,9 +188,9 @@ void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 RigCaseCellResultsData* RimEclipseResultDefinition::currentGridCellResults() const
 {
-    if (!ownerEclipseCase()) return nullptr;
+    if (!m_eclipseCase) return nullptr;
 
-    return ownerEclipseCase()->results(m_porosityModel());
+    return m_eclipseCase->results(m_porosityModel());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -497,7 +499,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     if (fieldNeedingOptions == &m_resultTypeUiField)
     {
         bool                  hasSourSimRLFile = false;
-        RimEclipseResultCase* eclResCase       = dynamic_cast<RimEclipseResultCase*>(ownerEclipseCase());
+        RimEclipseResultCase* eclResCase       = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
         if (eclResCase && eclResCase->eclipseCaseData())
         {
             hasSourSimRLFile = eclResCase->hasSourSimFile();
@@ -512,9 +514,9 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         bool enableSouring = false;
 
 #ifdef ENABLE_SOURING
-        if (ownerEclipseCase())
+        if (m_eclipseCase.notNull())
         {
-            RigCaseCellResultsData* cellResultsData = ownerEclipseCase()->results(this->porosityModel());
+            RigCaseCellResultsData* cellResultsData = m_eclipseCase->results(this->porosityModel());
 
             if (cellResultsData->hasFlowDiagUsableFluxes())
             {
@@ -569,7 +571,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         }
         else if (fieldNeedingOptions == &m_flowSolutionUiField)
         {
-            RimEclipseResultCase* eclCase = dynamic_cast<RimEclipseResultCase*>(ownerEclipseCase());
+            RimEclipseResultCase* eclCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
             if (eclCase)
             {
                 std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
@@ -902,11 +904,11 @@ void RimEclipseResultDefinition::loadResult()
 
     if (isFlowDiagOrInjectionFlooding()) return; // Will load automatically on access
 
-    if (ownerEclipseCase())
+    if (m_eclipseCase)
     {
-        if (!ownerEclipseCase()->ensureReservoirCaseIsOpen())
+        if (!m_eclipseCase->ensureReservoirCaseIsOpen())
         {
-            RiaLogging::error("Could not open the Eclipse Grid file: " + ownerEclipseCase()->gridFileName());
+            RiaLogging::error("Could not open the Eclipse Grid file: " + m_eclipseCase->gridFileName());
             return;
         }
     }
@@ -915,7 +917,7 @@ void RimEclipseResultDefinition::loadResult()
     {
         if (!m_differenceCase->ensureReservoirCaseIsOpen())
         {
-            RiaLogging::error("Could not open the Eclipse Grid file: " + m_differenceCase->gridFileName());
+            RiaLogging::error("Could not open the Eclipse Grid file: " + m_eclipseCase->gridFileName());
             return;
         }
     }
@@ -930,7 +932,6 @@ void RimEclipseResultDefinition::loadResult()
 
         gridCellResults->ensureKnownResultLoaded(this->eclipseResultAddress());
     }
-  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1179,8 +1180,8 @@ bool RimEclipseResultDefinition::isCompletionTypeSelected() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasCategoryResult() const
 {
-    if (this->m_resultType() == RiaDefines::FORMATION_NAMES && ownerEclipseCase() && ownerEclipseCase()->eclipseCaseData() &&
-        ownerEclipseCase()->eclipseCaseData()->activeFormationNames())
+    if (this->m_resultType() == RiaDefines::FORMATION_NAMES && m_eclipseCase && m_eclipseCase->eclipseCaseData() &&
+        m_eclipseCase->eclipseCaseData()->activeFormationNames())
         return true;
 
     if (this->m_resultType() == RiaDefines::DYNAMIC_NATIVE && this->resultVariable() == RiaDefines::completionTypeResultName())
@@ -1350,7 +1351,7 @@ void RimEclipseResultDefinition::assignFlowSolutionFromCase()
 {
     RimFlowDiagSolution* defaultFlowDiagSolution = nullptr;
 
-    RimEclipseResultCase* eclCase = dynamic_cast<RimEclipseResultCase*>(ownerEclipseCase());
+    RimEclipseResultCase* eclCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
 
     if (eclCase)
     {
@@ -1360,24 +1361,13 @@ void RimEclipseResultDefinition::assignFlowSolutionFromCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimEclipseResultDefinition::ownerEclipseCase() const
-{
-    RimEclipseCase* eclipseCase = nullptr;
-    this->firstAncestorOrThisOfType(eclipseCase);
-
-    return eclipseCase;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasDualPorFractureResult()
 {
-    if (ownerEclipseCase() && ownerEclipseCase()->eclipseCaseData())
+    if (m_eclipseCase && m_eclipseCase->eclipseCaseData())
     {
-        return ownerEclipseCase()->eclipseCaseData()->hasFractureResults();
+        return m_eclipseCase->eclipseCaseData()->hasFractureResults();
     }
 
     return false;
