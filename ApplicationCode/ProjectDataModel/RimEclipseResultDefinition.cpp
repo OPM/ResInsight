@@ -363,6 +363,13 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
         cellColors->updateConnectedEditors();
     }
 
+    RimGridCrossPlotCurveSet* crossPlotCurveSet = nullptr;
+    this->firstAncestorOrThisOfType(crossPlotCurveSet);
+    if (crossPlotCurveSet)
+    {
+        crossPlotCurveSet->updateConnectedEditors();
+    }
+
     RimPlotCurve* curve = nullptr;
     this->firstAncestorOrThisOfType(curve);
     if (curve)

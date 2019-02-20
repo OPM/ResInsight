@@ -17,7 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlotCurveSet.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigActiveCellsResultAccessor.h"
 #include "RigCaseCellResultCalculator.h"
+#include "RigMainGrid.h"
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
@@ -96,11 +99,14 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate()
 
             if (xAddress.isValid() && yAddress.isValid())
             {
+                RigActiveCellInfo* activeCellInfo = resultData->activeCellInfo();
+                const RigMainGrid*       mainGrid = eclipseCase->mainGrid();
+
                 resultData->ensureKnownResultLoaded(xAddress);
                 resultData->ensureKnownResultLoaded(yAddress);
 
-                const std::vector<std::vector<double>> xValuesForAllSteps = resultData->cellScalarResults(xAddress);
-                const std::vector<std::vector<double>> yValuesForAllSteps = resultData->cellScalarResults(yAddress);
+                const std::vector<std::vector<double>>& xValuesForAllSteps = resultData->cellScalarResults(xAddress);
+                const std::vector<std::vector<double>>& yValuesForAllSteps = resultData->cellScalarResults(yAddress);
 
                 std::set<int> timeStepsToInclude;
                 if (m_timeStep() == -1)
@@ -123,11 +129,16 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate()
                     int xIndex = timeStep >= (int) xValuesForAllSteps.size() ? 0 : timeStep;
                     int yIndex = timeStep >= (int) yValuesForAllSteps.size() ? 0 : timeStep;
 
-                    CVF_ASSERT(xValuesForAllSteps[xIndex].size() == yValuesForAllSteps[yIndex].size());
-
-                    for (size_t j = 0; j < xValuesForAllSteps[xIndex].size(); ++j)
+                    RigActiveCellsResultAccessor xAccessor(mainGrid, &xValuesForAllSteps[xIndex], activeCellInfo);
+                    RigActiveCellsResultAccessor yAccessor(mainGrid, &yValuesForAllSteps[yIndex], activeCellInfo);
+                    for (size_t j = 0; j < activeCellInfo->reservoirCellCount(); ++j)
                     {
-                        samples[timeStep].push_back(QPointF(xValuesForAllSteps[xIndex][j], yValuesForAllSteps[yIndex][j]));
+                        double xValue = xAccessor.cellScalarGlobIdx(j);
+                        double yValue = yAccessor.cellScalarGlobIdx(j);
+                        if (xValue != HUGE_VAL && yValue != HUGE_VAL)
+                        {
+                            samples[timeStep].push_back(QPointF(xValue, yValue));
+                        }
                     }
                 }
             }
