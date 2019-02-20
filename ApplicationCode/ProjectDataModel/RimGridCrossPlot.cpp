@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlot.h"
 
+#include "RiuQwtPlotTools.h"
+
 #include "RimGridCrossPlotCurveSet.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
@@ -130,9 +132,14 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
     m_crossPlotCurveSet->loadDataAndUpdate(false);
     m_crossPlotCurveSet->setParentQwtPlotNoReplot(m_qwtPlot);
     m_qwtPlot->setTitle("Grid Cross Plot");
-    m_qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
-    m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
 
+    m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
+    m_qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
+    m_qwtPlot->setAxisTitle(QwtPlot::xBottom, QwtText(m_crossPlotCurveSet->xAxisName()));
+    m_qwtPlot->setAxisTitle(QwtPlot::yLeft, QwtText(m_crossPlotCurveSet->yAxisName()));
+
+    RiuQwtPlotTools::setCommonPlotBehaviour(m_qwtPlot);
+    RiuQwtPlotTools::setDefaultAxes(m_qwtPlot);
     if (m_showLegend())
     {
         // Will be released in plot destructor or when a new legend is set

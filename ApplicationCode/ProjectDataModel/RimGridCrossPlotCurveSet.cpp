@@ -57,6 +57,8 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
 
     CAF_PDM_InitFieldNoDefault(&m_crossPlotCurves, "CrossPlotCurves", "Curves", "", "", "");
     m_crossPlotCurves.uiCapability()->setUiTreeHidden(true);
+
+    updateName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,8 +76,24 @@ void RimGridCrossPlotCurveSet::setParentQwtPlotNoReplot(QwtPlot* parent)
 {
     for (auto& curve : m_crossPlotCurves())
     {
-        curve->setParentQwtPlotNoReplot(parent);
+        curve->setParentQwtPlotNoReplot(m_isChecked() ? parent : nullptr);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlotCurveSet::xAxisName() const
+{
+    return m_xAxisProperty->resultVariableUiShortName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlotCurveSet::yAxisName() const
+{
+    return m_yAxisProperty->resultVariableUiShortName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,6 +114,8 @@ void RimGridCrossPlotCurveSet::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 {
+    updateName();
+
     m_crossPlotCurves.deleteAllChildObjects();
 
     std::map<int, QVector<QPointF>> samples;
@@ -173,13 +193,14 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
         {
             timeStepName = timeStepNames[sampleCategory.first];
         }
-        curve->setCustomName(QString("Time Step %1").arg(timeStepName));
+        curve->setCustomName(timeStepName);
         curve->setCategoryIndex(sampleCategory.first);
         curve->setSamples(sampleCategory.second);
         curve->updateCurveAppearance();
         curve->updateCurveNameAndUpdatePlotLegendAndTitle();
         m_crossPlotCurves.push_back(curve);
     }
+
     if (updateParentPlot)
     {
         triggerReplotAndTreeRebuild();
@@ -229,6 +250,10 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
         triggerReplotAndTreeRebuild();
     }
+    else if (changedField == &m_isChecked)
+    {
+        triggerReplotAndTreeRebuild();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,6 +284,20 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurveSet::calculateValueOptions(co
         }
     }
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::updateName()
+{
+    QString caseName = "Undefined";
+    if (m_case())
+    {
+        caseName = m_case->caseUserDescription();
+    }
+    QString name = QString("%1: %2 x %3").arg(caseName).arg(xAxisName()).arg(yAxisName());
+    this->setName(name);    
 }
 
 //--------------------------------------------------------------------------------------------------

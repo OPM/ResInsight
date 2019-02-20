@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimCheckableNamedObject.h"
+#include "RimNameConfig.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -33,7 +36,7 @@ class QwtPlotCurve;
 ///
 ///
 //==================================================================================================
-class RimGridCrossPlotCurveSet : public caf::PdmObject
+class RimGridCrossPlotCurveSet : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -41,8 +44,10 @@ public:
     RimGridCrossPlotCurveSet();
     ~RimGridCrossPlotCurveSet() = default;
 
-    void loadDataAndUpdate(bool updateParentPlot);
-    void setParentQwtPlotNoReplot(QwtPlot* parent);
+    void    loadDataAndUpdate(bool updateParentPlot);
+    void    setParentQwtPlotNoReplot(QwtPlot* parent);
+    QString xAxisName() const;
+    QString yAxisName() const;
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);
@@ -50,6 +55,7 @@ protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
+    void updateName();
     void triggerReplotAndTreeRebuild();
 
 private:
