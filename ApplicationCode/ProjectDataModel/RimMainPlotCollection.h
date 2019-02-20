@@ -56,7 +56,7 @@ public:
     RimSummaryPlotCollection*       summaryPlotCollection();
     RimSummaryCrossPlotCollection*  summaryCrossPlotCollection();
     RimFlowPlotCollection*          flowPlotCollection();
-    RimGridCrossPlotCollection*       gridCrossPlotCollection();
+    RimGridCrossPlotCollection*     gridCrossPlotCollection();
 
     void                            deleteAllContainedObjects();
     void                            updateCurrentTimeStepInPlots();
@@ -76,7 +76,7 @@ private:
     caf::PdmChildField<RimSummaryPlotCollection*>       m_summaryPlotCollection;
     caf::PdmChildField<RimSummaryCrossPlotCollection*>  m_summaryCrossPlotCollection;
     caf::PdmChildField<RimFlowPlotCollection*>          m_flowPlotCollection;
-    caf::PdmChildField<RimGridCrossPlotCollection*>       m_3dCrossPlotCollection;
+    caf::PdmChildField<RimGridCrossPlotCollection*>     m_gridCrossPlotCollection;
 
     caf::PdmField<bool> m_show;
 };

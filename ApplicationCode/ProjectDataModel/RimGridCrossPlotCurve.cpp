@@ -94,7 +94,7 @@ void RimGridCrossPlotCurve::updateLegendsInPlot()
 //--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlotCurve::createCurveAutoName()
 {
-    return "Cross Plot Curve";
+    return m_customCurveName;
 }
 
 //--------------------------------------------------------------------------------------------------

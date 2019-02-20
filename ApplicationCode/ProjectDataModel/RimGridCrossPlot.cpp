@@ -83,15 +83,6 @@ void RimGridCrossPlot::calculateZoomRangeAndUpdateQwt()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::attachPlotCurvesToQwtAndReplot()
-{
-    m_crossPlotCurveSet->setParentQwtPlotNoReplot(m_qwtPlot);
-    m_qwtPlot->replot();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QWidget* RimGridCrossPlot::createViewWidget(QWidget* mainWindowParent)
 {
     if (!m_qwtPlot)
@@ -122,10 +113,12 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     CVF_ASSERT(m_qwtPlot);
 
-    m_crossPlotCurveSet->loadDataAndUpdate();
+    m_crossPlotCurveSet->loadDataAndUpdate(false);
     m_crossPlotCurveSet->setParentQwtPlotNoReplot(m_qwtPlot);
     m_qwtPlot->setTitle("Cross Plot Test");
     m_qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
     m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
+    m_qwtPlot->replot();
     m_qwtPlot->show();
+    this->updateAllRequiredEditors();
 }

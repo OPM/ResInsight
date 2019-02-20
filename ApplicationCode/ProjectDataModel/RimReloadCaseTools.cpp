@@ -32,6 +32,8 @@
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
+#include "RimGridCrossPlot.h"
+#include "RimGridCrossPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -157,6 +159,15 @@ void RimReloadCaseTools::updateAllPlots()
             for (RimSummaryPlot* summaryPlot : summaryPlotCollection->summaryPlots())
             {
                 summaryPlot->loadDataAndUpdate();
+            }
+        }
+
+        RimGridCrossPlotCollection* gridCrossPlotCollection = project->mainPlotCollection()->gridCrossPlotCollection();
+        if (gridCrossPlotCollection)
+        {
+            for (RimGridCrossPlot* crossPlot : gridCrossPlotCollection->gridCrossPlots())
+            {
+                crossPlot->loadDataAndUpdate();
             }
         }
 

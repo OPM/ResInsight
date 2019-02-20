@@ -41,16 +41,17 @@ public:
     RimGridCrossPlotCurveSet();
     ~RimGridCrossPlotCurveSet() = default;
 
-    void loadDataAndUpdate();
+    void loadDataAndUpdate(bool updateParentPlot);
     void setParentQwtPlotNoReplot(QwtPlot* parent);
 protected:
-    void onLoadDataAndUpdate();
+    void initAfterRead() override;
+    void onLoadDataAndUpdate(bool updateParentPlot);
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
-
     void triggerReplotAndTreeRebuild();
+
 private:
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;

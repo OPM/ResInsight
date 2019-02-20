@@ -19,6 +19,7 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
@@ -66,8 +67,8 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault(&m_flowPlotCollection, "FlowPlotCollection", "Flow Diagnostics Plots", "", "", "");
     m_flowPlotCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_3dCrossPlotCollection, "Rim3dCrossPlotCollection", "3d Cross Plots", "", "", "");
-    m_3dCrossPlotCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_gridCrossPlotCollection, "Rim3dCrossPlotCollection", "3d Cross Plots", "", "", "");
+    m_gridCrossPlotCollection.uiCapability()->setUiHidden(true);
 
     m_wellLogPlotCollection         = new RimWellLogPlotCollection();
     m_rftPlotCollection             = new RimRftPlotCollection();
@@ -75,7 +76,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_summaryPlotCollection         = new RimSummaryPlotCollection();
     m_summaryCrossPlotCollection    = new RimSummaryCrossPlotCollection();
     m_flowPlotCollection            = new RimFlowPlotCollection();
-    m_3dCrossPlotCollection         = new RimGridCrossPlotCollection;
+    m_gridCrossPlotCollection       = new RimGridCrossPlotCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,7 +155,7 @@ RimFlowPlotCollection* RimMainPlotCollection::flowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlotCollection* RimMainPlotCollection::gridCrossPlotCollection()
 {
-    return m_3dCrossPlotCollection();
+    return m_gridCrossPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,7 +168,7 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_pltPlotCollection()->deleteAllPlots();
     m_summaryPlotCollection()->summaryPlots.deleteAllChildObjects();
     m_summaryCrossPlotCollection()->deleteAllChildObjects();
-    m_3dCrossPlotCollection->deleteAllChildObjects();
+    m_gridCrossPlotCollection->deleteAllChildObjects();
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
 }
 
@@ -212,6 +213,14 @@ void RimMainPlotCollection::updatePlotsWithFormations()
     if (m_flowPlotCollection)
     {
         m_flowPlotCollection->loadDataAndUpdate();
+    }
+
+    if (m_gridCrossPlotCollection)
+    {
+        for (RimGridCrossPlot* crossPlot : m_gridCrossPlotCollection->gridCrossPlots())
+        {
+            crossPlot->loadDataAndUpdate();
+        }
     }
 }
 
