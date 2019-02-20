@@ -287,6 +287,10 @@ void RimPlotCurve::setParentQwtPlotNoReplot(QwtPlot* plot)
     {
         m_qwtPlotCurve->attach(m_parentQwtPlot);
     }
+    else
+    {
+        m_qwtPlotCurve->detach();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

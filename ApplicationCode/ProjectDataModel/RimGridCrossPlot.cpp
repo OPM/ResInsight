@@ -88,6 +88,15 @@ void RimGridCrossPlot::calculateZoomRangeAndUpdateQwt()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::reattachCurvesToQwtAndReplot()
+{
+    m_crossPlotCurveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+    m_qwtPlot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* RimGridCrossPlot::createViewWidget(QWidget* mainWindowParent)
 {
     if (!m_qwtPlot)

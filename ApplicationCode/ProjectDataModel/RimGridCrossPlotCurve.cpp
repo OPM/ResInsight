@@ -102,6 +102,12 @@ QString RimGridCrossPlotCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
+    if (updateParentPlot)
+    {
+        RimGridCrossPlot* crossPlot;
+        firstAncestorOrThisOfTypeAsserted(crossPlot);
+        crossPlot->reattachCurvesToQwtAndReplot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,14 +127,4 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurve::calculateValueOptions(const
 {
     QList<caf::PdmOptionItemInfo> options;
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue)
-{
- 
 }

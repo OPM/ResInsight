@@ -38,7 +38,7 @@ public:
     QImage   snapshotWindowContent() override;
     void     zoomAll() override;
     void     calculateZoomRangeAndUpdateQwt();
-    
+    void     reattachCurvesToQwtAndReplot();
 protected:
     QWidget* createViewWidget(QWidget* mainWindowParent) override;
     void     deleteViewWidget() override;
