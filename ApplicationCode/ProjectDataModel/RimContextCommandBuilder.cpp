@@ -58,6 +58,7 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimGridCollection.h"
+#include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
@@ -465,6 +466,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimGridCrossPlotCollection*>(uiItem))
         {
             menuBuilder << "RicCreateGridCrossPlotFeature";
+        }
+        else if (dynamic_cast<RimGridCrossPlot*>(uiItem))
+        {
+            menuBuilder << "RicCreateGridCrossPlotCurveSetFeature";
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))  // This is also the definition for RimSummaryCrossPlot
         {

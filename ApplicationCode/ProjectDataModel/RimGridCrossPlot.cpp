@@ -45,12 +45,22 @@ RimGridCrossPlot::RimGridCrossPlot()
     m_nameConfig.uiCapability()->setUiTreeHidden(true);
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_crossPlotCurveSet, "CrossPlotCurve", "Cross Plot Data Set", "", "", "");
-    m_crossPlotCurveSet.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_crossPlotCurveSets, "CrossPlotCurve", "Cross Plot Data Set", "", "", "");
+    m_crossPlotCurveSets.uiCapability()->setUiHidden(true);
 
     m_nameConfig        = new RimGridCrossPlotNameConfig(this);
-    m_crossPlotCurveSet = new RimGridCrossPlotCurveSet();
+    
+    createCurveSet();
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridCrossPlotCurveSet* RimGridCrossPlot::createCurveSet()
+{
+    RimGridCrossPlotCurveSet* curveSet = new RimGridCrossPlotCurveSet();
+    m_crossPlotCurveSets.push_back(curveSet);
+    return curveSet;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +108,10 @@ void RimGridCrossPlot::calculateZoomRangeAndUpdateQwt()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::reattachCurvesToQwtAndReplot()
 {
-    m_crossPlotCurveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+    for (auto curveSet : m_crossPlotCurveSets)
+    {
+        curveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+    }
     m_qwtPlot->replot();
 }
 
@@ -116,7 +129,10 @@ QString RimGridCrossPlot::createAutoName() const
     if (m_nameConfig->addDataSetNames())
     {
         QStringList dataSets;
-        dataSets += m_crossPlotCurveSet->createAutoName();
+        for (auto curveSet : m_crossPlotCurveSets)
+        {
+            dataSets += curveSet->createAutoName();
+        }
         if (!dataSets.isEmpty())
         {
             autoName += QString("(%1)").arg(dataSets.join(", "));
@@ -167,15 +183,18 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     CVF_ASSERT(m_qwtPlot);
 
-    m_crossPlotCurveSet->loadDataAndUpdate(false);
-    m_crossPlotCurveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+    for (auto curveSet : m_crossPlotCurveSets)
+    {
+        curveSet->loadDataAndUpdate(false);
+        curveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+    }
 
     performAutoNameUpdate();
 
     m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
     m_qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
-    m_qwtPlot->setAxisTitle(QwtPlot::xBottom, QwtText(m_crossPlotCurveSet->xAxisName()));
-    m_qwtPlot->setAxisTitle(QwtPlot::yLeft, QwtText(m_crossPlotCurveSet->yAxisName()));
+    m_qwtPlot->setAxisTitle(QwtPlot::xBottom, QwtText(xAxisParameterString()));
+    m_qwtPlot->setAxisTitle(QwtPlot::yLeft, QwtText(yAxisParameterString()));
 
     RiuQwtPlotTools::setCommonPlotBehaviour(m_qwtPlot);
     RiuQwtPlotTools::setDefaultAxes(m_qwtPlot);
@@ -215,15 +234,6 @@ void RimGridCrossPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
     m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
 
     uiOrdering.skipRemainingFields(true);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                             QString                    uiConfigName,
-                                             caf::PdmUiEditorAttribute* attribute)
-{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -273,6 +283,53 @@ void RimGridCrossPlot::performAutoNameUpdate()
         m_qwtPlot->setTitle(this->createAutoName());
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlot::xAxisParameterString() const
+{
+    QStringList xAxisParams;
+    for (auto curveSet : m_crossPlotCurveSets)
+    {
+        xAxisParams.push_back(curveSet->xAxisName());
+    }
+
+    xAxisParams.removeDuplicates();
+
+    if (xAxisParams.size() > 5)
+    {
+        return QString("%1 parameters").arg(xAxisParams.size());
+    }
+
+    return xAxisParams.join(", ");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlot::yAxisParameterString() const
+{
+    QStringList yAxisParams;
+    for (auto curveSet : m_crossPlotCurveSets)
+    {
+        yAxisParams.push_back(curveSet->yAxisName());
+    }
+
+    yAxisParams.removeDuplicates();
+
+    if (yAxisParams.size() > 5)
+    {
+        return QString("%1 parameters").arg(yAxisParams.size());
+    }
+
+    return yAxisParams.join(", ");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Name Configuration
+/// 
+//--------------------------------------------------------------------------------------------------
 
 CAF_PDM_SOURCE_INIT(RimGridCrossPlotNameConfig, "RimGridCrossPlotNameConfig");
 

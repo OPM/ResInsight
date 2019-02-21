@@ -21,12 +21,10 @@
 
 #include <vector>
 
-class RimGridCrossPlot;
-
 //==================================================================================================
 ///
 //==================================================================================================
-class RicCreateGridCrossPlotFeature : public caf::CmdFeature
+class RicCreateGridCrossPlotCurveSetFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -34,8 +32,7 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered(bool isChecked) override;
     void setupActionLook(QAction* actionToSetup) override;
-
-private:
 };
+
 
 
