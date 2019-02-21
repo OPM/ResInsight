@@ -27,7 +27,7 @@
 #include <QPointer>
 
 class RimGridCrossPlotCurveSet;
-class QwtPlot;
+class RiuGridCrossQwtPlot;
 
 class RimGridCrossPlotNameConfig : public RimNameConfig
 {
@@ -47,7 +47,7 @@ class RimGridCrossPlot : public RimViewWindow, public RimNameConfigHolderInterfa
     CAF_PDM_HEADER_INIT;
 public:
     RimGridCrossPlot();
-    ~RimGridCrossPlot() = default;
+    ~RimGridCrossPlot();
 
     RimGridCrossPlotCurveSet* createCurveSet();
     int                       indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSet) const;
@@ -60,6 +60,7 @@ public:
     QString  createAutoName() const override;
     
     caf::PdmFieldHandle* userDescriptionField() override;
+    void                 detachAllCurves();
 
 protected:
     QWidget* createViewWidget(QWidget* mainWindowParent) override;
@@ -71,7 +72,7 @@ protected:
                                                         bool*                      useOptionsOnly) override;
 
     void performAutoNameUpdate() override;
-
+    void updatePlot();
     QString xAxisParameterString() const;
     QString yAxisParameterString() const;
 
@@ -82,7 +83,8 @@ private:
 
     caf::PdmChildArrayField<RimGridCrossPlotCurveSet*> m_crossPlotCurveSets;
 
-    QPointer<QwtPlot>                                  m_qwtPlot;
+    QPointer<RiuGridCrossQwtPlot>                      m_qwtPlot;
+    
 };
 
 

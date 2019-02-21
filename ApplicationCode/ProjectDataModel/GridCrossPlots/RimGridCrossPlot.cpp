@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlot.h"
 
+#include "RiuGridCrossQwtPlot.h"
 #include "RiuQwtPlotTools.h"
 
 #include "RimGridCrossPlotCurveSet.h"
@@ -51,6 +52,15 @@ RimGridCrossPlot::RimGridCrossPlot()
     m_nameConfig        = new RimGridCrossPlotNameConfig(this);
     
     createCurveSet();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridCrossPlot::~RimGridCrossPlot()
+{
+    removeMdiWindowFromMdiArea();
+    deleteViewWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,7 +182,13 @@ QWidget* RimGridCrossPlot::createViewWidget(QWidget* mainWindowParent)
 {
     if (!m_qwtPlot)
     {
-        m_qwtPlot = new QwtPlot(QString("Grid Cross Plot"), mainWindowParent);
+        m_qwtPlot = new RiuGridCrossQwtPlot(this, mainWindowParent);
+
+        for (auto curveSet : m_crossPlotCurveSets)
+        {
+            curveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+        }
+        m_qwtPlot->replot();
     }
 
     return m_qwtPlot;
@@ -183,6 +199,7 @@ QWidget* RimGridCrossPlot::createViewWidget(QWidget* mainWindowParent)
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::deleteViewWidget()
 {
+    detachAllCurves();
     if (m_qwtPlot)
     {
         m_qwtPlot->deleteLater();
@@ -196,41 +213,17 @@ void RimGridCrossPlot::deleteViewWidget()
 void RimGridCrossPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
-    CVF_ASSERT(m_qwtPlot);
 
     for (auto curveSet : m_crossPlotCurveSets)
     {
         curveSet->loadDataAndUpdate(false);
-        curveSet->setParentQwtPlotNoReplot(m_qwtPlot);
     }
 
     performAutoNameUpdate();
+    updateAllRequiredEditors();
+    updatePlot();
+    
 
-    m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
-    m_qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
-    m_qwtPlot->setAxisTitle(QwtPlot::xBottom, QwtText(xAxisParameterString()));
-    m_qwtPlot->setAxisTitle(QwtPlot::yLeft, QwtText(yAxisParameterString()));
-
-    RiuQwtPlotTools::setCommonPlotBehaviour(m_qwtPlot);
-    RiuQwtPlotTools::setDefaultAxes(m_qwtPlot);
-    if (m_showLegend())
-    {
-        // Will be released in plot destructor or when a new legend is set
-        QwtLegend* legend = new QwtLegend(m_qwtPlot);
-
-        auto font = legend->font();
-        font.setPixelSize(m_legendFontSize());
-        legend->setFont(font);
-        m_qwtPlot->insertLegend(legend, QwtPlot::BottomLegend);
-    }
-    else
-    {
-        m_qwtPlot->insertLegend(nullptr);
-    }
-
-    m_qwtPlot->replot();
-    m_qwtPlot->show();
-    this->updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,6 +295,44 @@ void RimGridCrossPlot::performAutoNameUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::updatePlot()
+{
+    if (m_qwtPlot)
+    {
+        m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
+        m_qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
+        m_qwtPlot->setAxisTitle(QwtPlot::xBottom, QwtText(xAxisParameterString()));
+        m_qwtPlot->setAxisTitle(QwtPlot::yLeft, QwtText(yAxisParameterString()));
+
+        RiuQwtPlotTools::setCommonPlotBehaviour(m_qwtPlot);
+        RiuQwtPlotTools::setDefaultAxes(m_qwtPlot);
+
+        for (auto curveSet : m_crossPlotCurveSets)
+        {
+            curveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+        }
+
+        if (m_showLegend())
+        {
+            // Will be released in plot destructor or when a new legend is set
+            QwtLegend* legend = new QwtLegend(m_qwtPlot);
+
+            auto font = legend->font();
+            font.setPixelSize(m_legendFontSize());
+            legend->setFont(font);
+            m_qwtPlot->insertLegend(legend, QwtPlot::BottomLegend);
+        }
+        else
+        {
+            m_qwtPlot->insertLegend(nullptr);
+        }
+        m_qwtPlot->replot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlot::xAxisParameterString() const
 {
     QStringList xAxisParams;
@@ -339,6 +370,17 @@ QString RimGridCrossPlot::yAxisParameterString() const
     }
 
     return yAxisParams.join(", ");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::detachAllCurves()
+{
+    for (auto curveSet : m_crossPlotCurveSets())
+    {
+        curveSet->detachAllCurves();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

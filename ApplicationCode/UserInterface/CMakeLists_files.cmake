@@ -36,6 +36,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuRmsNavigation.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSelectionChangedHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/Riu3dSelectionManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSimpleHistogramWidget.h
+${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTimeStepChangedHandler.h
@@ -116,6 +117,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuRmsNavigation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSelectionChangedHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Riu3dSelectionManager.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSimpleHistogramWidget.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuTimeStepChangedHandler.cpp
@@ -182,6 +184,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuRecentFileActionProvider.h
+${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.h
