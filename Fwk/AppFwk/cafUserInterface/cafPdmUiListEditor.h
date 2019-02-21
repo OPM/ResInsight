@@ -81,6 +81,8 @@ public:
     PdmUiListEditor(); 
     ~PdmUiListEditor() override; 
 
+    void        ensureCurrentItemIsVisible();
+
 protected:
     QWidget*    createEditorWidget(QWidget * parent) override;
     QWidget*    createLabelWidget(QWidget * parent) override;
@@ -102,8 +104,9 @@ private:
     QPointer<QLabel>              m_label;
     QPointer<QStringListModel>    m_model;
 
-    bool                    m_isEditOperationsAvailable;
-    int                     m_optionItemCount;
+    bool m_isEditOperationsAvailable;
+    int  m_optionItemCount;
+    bool m_isScrollToItemAllowed;
 };
 
 

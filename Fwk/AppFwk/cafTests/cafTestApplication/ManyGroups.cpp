@@ -1,6 +1,7 @@
 
 #include "ManyGroups.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafPdmUiListEditor.h"
 
 CAF_PDM_SOURCE_INIT(ManyGroups, "LargeObject");
 
@@ -34,6 +35,9 @@ ManyGroups::ManyGroups()
     m_multiSelectList.v().push_back("First");
     m_multiSelectList.v().push_back("Second");
     m_multiSelectList.v().push_back("Third");
+
+    CAF_PDM_InitField(&m_singleStringWithManySelectableItems, "m_singleStringWithManySelectableItems", QString(""), "Text with many items", "", "Text tooltip", "");
+    m_singleStringWithManySelectableItems.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,6 +65,18 @@ void ManyGroups::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const
 QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
+
+    // Test code used to switch between two lists with different content, but same item count
+    if (fieldNeedingOptions == &m_singleStringWithManySelectableItems)
+    {
+        for (int i = 0; i < 100; i++)
+        {
+            QString text = QString("item %1").arg(i);
+            options.push_back(caf::PdmOptionItemInfo(text, text));
+        }
+
+        return options;
+    }
 
     // Test code used to switch between two lists with different content, but same item count
     if (fieldNeedingOptions == &m_multiSelectList)

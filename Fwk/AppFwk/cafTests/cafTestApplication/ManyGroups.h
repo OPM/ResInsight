@@ -18,6 +18,7 @@ public:
     caf::PdmProxyValueField<double> m_proxyDoubleField;
 
     caf::PdmField<std::vector<QString> > m_multiSelectList;
+    caf::PdmField<QString> m_singleStringWithManySelectableItems;
 
     caf::PdmField<bool>     m_toggleField;
     caf::PdmFieldHandle* objectToggleField() override;

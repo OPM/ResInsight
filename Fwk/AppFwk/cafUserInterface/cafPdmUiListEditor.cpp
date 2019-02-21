@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiListEditor.h"
 
 #include "cafPdmUiDefaultObjectEditor.h"
@@ -138,7 +137,8 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiListEditor);
 //--------------------------------------------------------------------------------------------------
 PdmUiListEditor::PdmUiListEditor() :
     m_isEditOperationsAvailable(true),
-    m_optionItemCount(0)
+    m_optionItemCount(0),
+    m_isScrollToItemAllowed(true)
 {
 }
 
@@ -147,6 +147,21 @@ PdmUiListEditor::PdmUiListEditor() :
 //--------------------------------------------------------------------------------------------------
 PdmUiListEditor::~PdmUiListEditor()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiListEditor::ensureCurrentItemIsVisible()
+{
+    if (m_isScrollToItemAllowed)
+    {
+        QModelIndex mi = m_listView->currentIndex();
+        if (mi.isValid())
+        {
+            m_listView->scrollTo(mi);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,6 +281,8 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 
         m_listView->selectionModel()->blockSignals(false);
     }
+
+    //ensureCurrentItemIsVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,6 +322,8 @@ QWidget* PdmUiListEditor::createLabelWidget(QWidget * parent)
 void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
     if (m_optionItemCount == 0) return;
+
+    m_isScrollToItemAllowed = false;
 
     QVariant fieldValue = uiField()->uiValue();
     if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
@@ -359,6 +378,8 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
 
         this->setValueToField(valuesToSetInField);
     }
+
+    m_isScrollToItemAllowed = true;
 }
 
 //--------------------------------------------------------------------------------------------------
