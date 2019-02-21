@@ -22,6 +22,7 @@
 #include "RiaBaseDefs.h"
 #include "RiaEclipseFileNameTools.h"
 #include "RiaImportEclipseCaseTools.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTestRunner.h"
@@ -146,6 +147,15 @@ bool RiaArgumentParser::parseArguments()
     {
         CVF_ASSERT(o.valueCount() == 1);
         QString regressionTestPath = cvfqt::Utils::toQString(o.value(0));
+
+        // Use a logger writing to stdout instead of message panel
+        // This is useful when executing regression tests on a build server, and this is the reason for creating the logger when
+        // parsing the command line options
+        auto stdLogger = new RiaStdOutLogger;
+        stdLogger->setLevel(RI_LL_DEBUG);
+
+        RiaLogging::setLoggerInstance(stdLogger);
+
         RiaRegressionTestRunner::instance()->executeRegressionTests(regressionTestPath, QStringList());
         return false;
     }

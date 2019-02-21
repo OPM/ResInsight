@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <string>
+
 class QString;
 
 enum RILogLevel
@@ -72,3 +74,37 @@ private:
     static RiaLogger*   sm_logger;
 };
 
+//==================================================================================================
+//
+//==================================================================================================
+class RiuMessageLoggerBase : public RiaLogger
+{
+public:
+    explicit RiuMessageLoggerBase();
+
+    int  level() const override;
+    void setLevel(int logLevel) override;
+
+    void error(const char* message) override;
+    void warning(const char* message) override;
+    void info(const char* message) override;
+    void debug(const char* message) override;
+
+protected:
+    virtual void writeMessageToLogger(const std::string& str) = 0;
+
+private:
+    void writeMessageWithPrefixToLogger(const char* prefix, const char* message);
+
+private:
+    int m_logLevel;
+};
+
+//==================================================================================================
+//
+//==================================================================================================
+class RiaStdOutLogger : public RiuMessageLoggerBase
+{
+public:
+    void writeMessageToLogger(const std::string& str) override;
+};
