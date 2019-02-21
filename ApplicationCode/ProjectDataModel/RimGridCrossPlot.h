@@ -50,6 +50,7 @@ public:
     ~RimGridCrossPlot() = default;
 
     RimGridCrossPlotCurveSet* createCurveSet();
+    int                       indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSet) const;
 
     QWidget* viewWidget() override;
     QImage   snapshotWindowContent() override;

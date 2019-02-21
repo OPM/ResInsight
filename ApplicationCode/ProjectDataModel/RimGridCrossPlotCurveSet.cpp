@@ -103,6 +103,16 @@ QString RimGridCrossPlotCurveSet::yAxisName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimGridCrossPlotCurveSet::indexInPlot() const
+{
+    RimGridCrossPlot* parent;
+    this->firstAncestorOrThisOfTypeAsserted(parent);
+    return parent->indexOfCurveSet(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlotCurveSet::createAutoName() const
 {
     if (m_case() == nullptr)
@@ -231,6 +241,8 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
         timeStepNames = m_case->timeStepStrings();
     }
 
+    int curveSetIndex = indexInPlot();
+
     for (const auto& sampleCategory : samples)
     {
         RimGridCrossPlotCurve* curve = new RimGridCrossPlotCurve();
@@ -239,8 +251,8 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
         {
             timeStepName = timeStepNames[sampleCategory.first];
         }
-        curve->setCustomName(timeStepName);
-        curve->setCategoryIndex(sampleCategory.first);
+        curve->setCustomName(QString("%1 : %2").arg(createAutoName()).arg(timeStepName));
+        curve->setCurveSetAndCategoryIndex(curveSetIndex, sampleCategory.first);
         curve->setSamples(sampleCategory.second);
         curve->updateCurveAppearance();
         curve->updateCurveNameAndUpdatePlotLegendAndTitle();

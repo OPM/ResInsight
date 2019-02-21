@@ -66,6 +66,21 @@ RimGridCrossPlotCurveSet* RimGridCrossPlot::createCurveSet()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimGridCrossPlot::indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSet) const
+{
+    for (size_t i = 0; i < m_crossPlotCurveSets.size(); ++i)
+    {
+        if (curveSet == m_crossPlotCurveSets[i])
+        {
+            return static_cast<int>(i);
+        }
+    }
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* RimGridCrossPlot::viewWidget()
 {
     return m_qwtPlot;

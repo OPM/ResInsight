@@ -64,6 +64,7 @@ public:
     QString xAxisName() const;
     QString yAxisName() const;
 
+    int     indexInPlot() const;
     QString createAutoName() const override;
 
 protected:

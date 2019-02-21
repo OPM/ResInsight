@@ -102,6 +102,18 @@ RiuQwtSymbol::RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, Label
             setPinPoint(QPointF(0, 10));
         }
         break;
+    case SYMBOL_UP_TRIANGLE:
+        style = QwtSymbol::UTriangle;
+        break;
+    case SYMBOL_STAR1:
+        style = QwtSymbol::Star1;
+        break;
+    case SYMBOL_STAR2:
+        style = QwtSymbol::Star2;
+        break;
+    case SYMBOL_HEXAGON:
+        style = QwtSymbol::Hexagon;
+        break;
     default:
         break;
     }
@@ -147,12 +159,22 @@ void RiuQwtSymbol::setLabelPosition(LabelPosition labelPosition)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbol(int itemIndex)
+RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbolStyle(int indexLevel1, int indexLevel2)
 {
-    int nrOfValidSymbols = int(NR_OF_SYMBOLS) - 1;
-    int symbolIndex = itemIndex % nrOfValidSymbols + 1;
+    std::vector<std::vector<PointSymbolEnum>> categorisedStyles =
+    {
+        {SYMBOL_ELLIPSE, SYMBOL_RECT, SYMBOL_DIAMOND},
+        {SYMBOL_TRIANGLE, SYMBOL_DOWN_TRIANGLE, SYMBOL_UP_TRIANGLE},
+        {SYMBOL_LEFT_TRIANGLE, SYMBOL_RIGHT_TRIANGLE},
+        {SYMBOL_LEFT_ANGLED_TRIANGLE, SYMBOL_RIGHT_ANGLED_TRIANGLE},
+        {SYMBOL_CROSS, SYMBOL_XCROSS},
+        {SYMBOL_STAR1, SYMBOL_STAR2},
+    };
 
-    return static_cast<PointSymbolEnum>(symbolIndex);
+    int level1Category = indexLevel1 % int(categorisedStyles.size());
+    int level2Category = indexLevel2 % int(categorisedStyles[level1Category].size());
+
+    return categorisedStyles[level1Category][level2Category];
 }
 
 //--------------------------------------------------------------------------------------------------

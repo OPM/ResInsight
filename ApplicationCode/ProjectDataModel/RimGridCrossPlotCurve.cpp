@@ -43,12 +43,17 @@ CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurve, "GridCrossPlotCurve");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::setCategoryIndex(int index)
+void RimGridCrossPlotCurve::setCurveSetAndCategoryIndex(int curveSetIndex, int categoryIndex)
 {
-    const caf::ColorTable& colors = RiaColorTables::categoryPaletteColors();
-    setColor(colors.cycledColor3f(index));
+    const caf::ColorTable& colors = RiaColorTables::contrastCategoryPaletteColors();
+    int colorIndex = categoryIndex + curveSetIndex; // Offset cycle for each curve set
+    setColor(colors.cycledColor3f(colorIndex));
+    int numColors = (int) colors.size();
 
-    RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbol(index);
+    // Retain same symbol until we've gone full cycle in colors
+    int symbolIndex = categoryIndex / numColors;
+       
+    RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbolStyle(curveSetIndex, symbolIndex);
     setSymbol(symbol); 
 }
 

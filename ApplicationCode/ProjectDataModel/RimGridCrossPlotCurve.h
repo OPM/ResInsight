@@ -40,8 +40,9 @@ class RimGridCrossPlotCurve : public RimPlotCurve
 public:
     RimGridCrossPlotCurve();
     ~RimGridCrossPlotCurve() override = default;
-    void setCategoryIndex(int index);
+    void setCurveSetAndCategoryIndex(int curveSetIndex, int categoryIndex);
     void setSamples(const QVector<QPointF>& samples);
+
 protected:
     void updateZoomInParentPlot() override;
     void updateLegendsInPlot() override;

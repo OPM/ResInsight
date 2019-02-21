@@ -40,6 +40,7 @@ public:
     static const caf::ColorTable& blueWhiteRedPaletteColors();
     static const caf::ColorTable& redWhiteBluePaletteColors();
     static const caf::ColorTable& categoryPaletteColors();
+    static const caf::ColorTable& contrastCategoryPaletteColors();
     static const caf::ColorTable& tensorWhiteGrayBlackPaletteColors();
     static const caf::ColorTable& tensorOrangeBlueWhitePaletteColors();
     static const caf::ColorTable& tensorsMagentaBrownGrayPaletteColors();
@@ -65,5 +66,6 @@ public:
 
 private:
     static std::vector<cvf::Color3ub> categoryColors();
+    static std::vector<cvf::Color3ub> contrastCategoryColors();
     static std::vector<cvf::Color3ub> invertedCategoryColors();
 };
