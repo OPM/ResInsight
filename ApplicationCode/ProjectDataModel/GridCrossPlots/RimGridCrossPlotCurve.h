@@ -40,7 +40,7 @@ class RimGridCrossPlotCurve : public RimPlotCurve
 public:
     RimGridCrossPlotCurve();
     ~RimGridCrossPlotCurve() override = default;
-    void setCurveSetAndCategoryIndex(int curveSetIndex, int categoryIndex);
+    void determineColorAndSymbol(int curveSetIndex, int categoryIndex, bool contrastColors = false);
     void setSamples(const QVector<QPointF>& samples);
 
 protected:

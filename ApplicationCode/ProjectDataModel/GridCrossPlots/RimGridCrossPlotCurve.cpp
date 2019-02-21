@@ -43,7 +43,7 @@ CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurve, "GridCrossPlotCurve");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::setCurveSetAndCategoryIndex(int curveSetIndex, int categoryIndex)
+void RimGridCrossPlotCurve::determineColorAndSymbol(int curveSetIndex, int categoryIndex, bool contrastColors)
 {
     const caf::ColorTable& colors = RiaColorTables::contrastCategoryPaletteColors();
     int colorIndex = categoryIndex + curveSetIndex; // Offset cycle for each curve set

@@ -184,7 +184,7 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
             RigCaseCellResultsData* resultData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
 
             RigEclipseResultAddress xAddress(m_xAxisProperty->resultType(), m_xAxisProperty->resultVariable());
-            RigEclipseResultAddress yAddress(m_yAxisProperty->resultType(), m_yAxisProperty->resultVariable());
+            RigEclipseResultAddress yAddress(m_yAxisProperty->resultType(), m_yAxisProperty->resultVariable());            
 
             if (xAddress.isValid() && yAddress.isValid())
             {
@@ -251,8 +251,16 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
         {
             timeStepName = timeStepNames[sampleCategory.first];
         }
-        curve->setCustomName(QString("%1 : %2").arg(createAutoName()).arg(timeStepName));
-        curve->setCurveSetAndCategoryIndex(curveSetIndex, sampleCategory.first);
+        bool staticResultsOnly = staticResultsOnly = m_xAxisProperty->hasStaticResult() && m_yAxisProperty->hasStaticResult();
+        if (staticResultsOnly)
+        {
+            curve->setCustomName(createAutoName());
+        }
+        else
+        {
+            curve->setCustomName(QString("%1 : %2").arg(createAutoName()).arg(timeStepName));
+        }
+        curve->determineColorAndSymbol(curveSetIndex, sampleCategory.first);
         curve->setSamples(sampleCategory.second);
         curve->updateCurveAppearance();
         curve->updateCurveNameAndUpdatePlotLegendAndTitle();
