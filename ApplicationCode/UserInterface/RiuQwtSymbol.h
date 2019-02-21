@@ -66,6 +66,7 @@ public:
     void    setLabelPosition(LabelPosition labelPosition);
     
     static PointSymbolEnum cycledSymbolStyle(int indexLevel1, int indexLevel2);
+    static PointSymbolEnum cycledFilledSymbolStyle(int indexLevel);
 private:
     QRect   labelBoundingRect(const QPainter* painter, const QRect& symbolRect) const;
 

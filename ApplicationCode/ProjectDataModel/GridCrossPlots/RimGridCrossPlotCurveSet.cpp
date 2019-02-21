@@ -157,6 +157,17 @@ QString RimGridCrossPlotCurveSet::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::detachAllCurves()
+{
+    for (auto curve : m_crossPlotCurves())
+    {
+        curve->detachQwtCurve();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::initAfterRead()
 {
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
@@ -173,7 +184,8 @@ void RimGridCrossPlotCurveSet::initAfterRead()
 void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 {
     performAutoNameUpdate();
-
+    
+    detachAllCurves();
     m_crossPlotCurves.deleteAllChildObjects();
 
     std::map<int, QVector<QPointF>> samples;
@@ -269,7 +281,7 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
         {
             curve->setCustomName(QString("%1 : %2").arg(createAutoName()).arg(timeStepName));
         }
-        curve->determineColorAndSymbol(curveSetIndex, sampleCategory.first);
+        curve->determineColorAndSymbol(curveSetIndex, sampleCategory.first, (int) samples.size(), false);
         curve->setSamples(sampleCategory.second);
         curve->updateCurveAppearance();
         curve->updateCurveNameAndUpdatePlotLegendAndTitle();

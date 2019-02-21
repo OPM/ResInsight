@@ -64,6 +64,7 @@ public:
 
     static WellPathComponentColors wellPathComponentColors();
 
+    static caf::ColorTable createBrightnessBasedColorTable(cvf::Color3ub baseColor, int brightnessLevelCount);
 private:
     static std::vector<cvf::Color3ub> categoryColors();
     static std::vector<cvf::Color3ub> contrastCategoryColors();

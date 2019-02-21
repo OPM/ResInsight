@@ -41,6 +41,7 @@ public:
     static cvf::Color3f contrastColor(cvf::Color3f backgroundColor, bool softerContrast = false);
     static QColor       toQColor(cvf::Color3f color, float alpha = 1.0f);
     static QColor       toQColor(cvf::Color4f color);
+    static cvf::Color3f fromQColorTo3f(QColor);
     static float        contrastRatio(cvf::Color3f color1, cvf::Color3f color2);
 private:
     static float relativeLuminance(cvf::Color3f backgroundColor);

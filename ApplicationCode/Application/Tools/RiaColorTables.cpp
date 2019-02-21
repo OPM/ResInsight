@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaColorTables.h"
+#include "RiaColorTools.h"
+
+#include "cvfAssert.h"
 
 #include <QColor>
 
@@ -536,6 +539,32 @@ RiaColorTables::WellPathComponentColors RiaColorTables::wellPathComponentColors(
             {RiaDefines::LINER, cvf::Color3::OLIVE},
             {RiaDefines::PACKER, cvf::Color3::GRAY},
             {RiaDefines::UNDEFINED_COMPONENT, cvf::Color3::MAGENTA}};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::ColorTable RiaColorTables::createBrightnessBasedColorTable(cvf::Color3ub baseColor, int brightnessLevelCount)
+{
+    CVF_ASSERT(brightnessLevelCount >= 1);
+    QColor baseRGB(baseColor.r(), baseColor.g(), baseColor.b());
+    float hueF = baseRGB.hslHueF();
+    float satF = baseRGB.hslSaturationF();
+        
+    std::vector<cvf::Color3ub> colors;
+    if (brightnessLevelCount == 1)
+    {
+        colors.push_back(cvf::Color3ub(RiaColorTools::fromQColorTo3f(QColor::fromHslF(hueF, satF, 0.5))));
+    }
+    else
+    {
+        for (int i = 0; i < brightnessLevelCount; ++i)
+        {
+            float brightness = static_cast<float>(i) / static_cast<float>(brightnessLevelCount - 1);
+            colors.push_back(cvf::Color3ub(RiaColorTools::fromQColorTo3f(QColor::fromHslF(hueF, satF, brightness))));
+        }
+    }
+    return caf::ColorTable(colors);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -136,6 +136,14 @@ QColor RiaColorTools::toQColor(cvf::Color4f color)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTools::fromQColorTo3f(QColor color)
+{
+    return cvf::Color3f(color.redF(), color.greenF(), color.blueF());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 float RiaColorTools::contrastRatio(cvf::Color3f color1, cvf::Color3f color2)
 {
     float L1 = relativeLuminance(color1);

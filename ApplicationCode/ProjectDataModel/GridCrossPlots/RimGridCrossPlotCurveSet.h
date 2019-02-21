@@ -66,7 +66,7 @@ public:
 
     int     indexInPlot() const;
     QString createAutoName() const override;
-
+    void    detachAllCurves();
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);

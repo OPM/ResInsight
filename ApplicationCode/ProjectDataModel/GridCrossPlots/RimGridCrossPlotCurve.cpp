@@ -43,18 +43,30 @@ CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurve, "GridCrossPlotCurve");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::determineColorAndSymbol(int curveSetIndex, int categoryIndex, bool contrastColors)
+void RimGridCrossPlotCurve::determineColorAndSymbol(int curveSetIndex, int categoryIndex, int nCategories, bool contrastColors)
 {
-    const caf::ColorTable& colors = RiaColorTables::contrastCategoryPaletteColors();
-    int colorIndex = categoryIndex + curveSetIndex; // Offset cycle for each curve set
-    setColor(colors.cycledColor3f(colorIndex));
-    int numColors = (int) colors.size();
+    if (contrastColors)
+    {
+        const caf::ColorTable& colors = RiaColorTables::contrastCategoryPaletteColors();
+        int colorIndex = categoryIndex + curveSetIndex; // Offset cycle for each curve set
+        setColor(colors.cycledColor3f(colorIndex));
+        int numColors = (int)colors.size();
 
-    // Retain same symbol until we've gone full cycle in colors
-    int symbolIndex = categoryIndex / numColors;
-       
-    RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbolStyle(curveSetIndex, symbolIndex);
-    setSymbol(symbol); 
+        // Retain same symbol until we've gone full cycle in colors
+        int symbolIndex = categoryIndex / numColors;
+
+        RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbolStyle(curveSetIndex, symbolIndex);
+        setSymbol(symbol);
+    }
+    else
+    {
+        const caf::ColorTable& colors           = RiaColorTables::contrastCategoryPaletteColors();
+        cvf::Color3ub          cycledBaseColor  = colors.cycledColor3ub(curveSetIndex);
+        caf::ColorTable        hueConstColTable = RiaColorTables::createBrightnessBasedColorTable(cycledBaseColor, nCategories);
+        setColor(hueConstColTable.cycledColor3f(categoryIndex));
+        RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledFilledSymbolStyle(curveSetIndex);
+        setSymbol(symbol);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,6 +77,8 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
     CAF_PDM_InitObject("Cross Plot Points", ":/WellLogCurve16x16.png", "", "");
    
     setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
+    setLineThickness(0);
+    setSymbol(RiuQwtSymbol::SYMBOL_NONE);
     setSymbolSize(6);
 }
 

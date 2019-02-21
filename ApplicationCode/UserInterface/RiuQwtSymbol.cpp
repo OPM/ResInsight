@@ -164,7 +164,7 @@ RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbolStyle(int indexLevel1, i
     std::vector<std::vector<PointSymbolEnum>> categorisedStyles =
     {
         {SYMBOL_ELLIPSE, SYMBOL_RECT, SYMBOL_DIAMOND},
-        {SYMBOL_TRIANGLE, SYMBOL_DOWN_TRIANGLE, SYMBOL_UP_TRIANGLE},
+        {SYMBOL_DOWN_TRIANGLE, SYMBOL_UP_TRIANGLE},
         {SYMBOL_LEFT_TRIANGLE, SYMBOL_RIGHT_TRIANGLE},
         {SYMBOL_LEFT_ANGLED_TRIANGLE, SYMBOL_RIGHT_ANGLED_TRIANGLE},
         {SYMBOL_CROSS, SYMBOL_XCROSS},
@@ -175,6 +175,18 @@ RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbolStyle(int indexLevel1, i
     int level2Category = indexLevel2 % int(categorisedStyles[level1Category].size());
 
     return categorisedStyles[level1Category][level2Category];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledFilledSymbolStyle(int indexLevel)
+{
+    std::vector<PointSymbolEnum> contrastingSymbols =
+    {
+        SYMBOL_ELLIPSE, SYMBOL_RECT };
+
+    return contrastingSymbols[indexLevel % (int)contrastingSymbols.size()];
 }
 
 //--------------------------------------------------------------------------------------------------
