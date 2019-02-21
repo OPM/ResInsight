@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlotCurveSet.h"
 
+#include "RiaLogging.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigActiveCellsResultAccessor.h"
 #include "RigCaseCellResultCalculator.h"
@@ -181,6 +183,13 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
         if (eclipseCase)
         {
+            if (!eclipseCase->ensureReservoirCaseIsOpen())
+            {
+                RiaLogging::warning(QString("Failed to open eclipse grid file %1").arg(eclipseCase->gridFileName()));
+
+                return;
+            }
+
             RigCaseCellResultsData* resultData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
 
             RigEclipseResultAddress xAddress(m_xAxisProperty->resultType(), m_xAxisProperty->resultVariable());
