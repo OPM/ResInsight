@@ -57,6 +57,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Annotations
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
+	${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
     
@@ -107,6 +108,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     FileInterface/CMakeLists_files.cmake
     
     ProjectDataModel/CMakeLists_files.cmake
+	ProjectDataModel/GridCrossPlots/CMakeLists_files.cmake
     ProjectDataModel/Summary/CMakeLists_files.cmake
     ProjectDataModel/Flow/CMakeLists_files.cmake
     ProjectDataModel/Annotations/CMakeLists_files.cmake
@@ -132,6 +134,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
     Commands/ExportCommands/CMakeLists_files.cmake
     Commands/FlowCommands/CMakeLists_files.cmake
+	Commands/GridCrossPlotCommands/CMakeLists_files.cmake
     Commands/HoloLensCommands/CMakeLists_files.cmake
     Commands/IntersectionBoxCommands/CMakeLists_files.cmake
     Commands/IntersectionViewCommands/CMakeLists_files.cmake

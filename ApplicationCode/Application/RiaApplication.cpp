@@ -50,6 +50,8 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
+#include "RimGridCrossPlot.h"
+#include "RimGridCrossPlotCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedData.h"
@@ -653,6 +655,7 @@ void RiaApplication::loadAndUpdatePlotData()
     RimFlowPlotCollection*         flowColl = nullptr;
     RimRftPlotCollection*          rftColl  = nullptr;
     RimPltPlotCollection*          pltColl  = nullptr;
+    RimGridCrossPlotCollection*    gcpColl  = nullptr;
 
     if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
     {
@@ -678,6 +681,10 @@ void RiaApplication::loadAndUpdatePlotData()
     {
         pltColl = m_project->mainPlotCollection()->pltPlotCollection();
     }
+    if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->gridCrossPlotCollection())
+    {
+        gcpColl = m_project->mainPlotCollection()->gridCrossPlotCollection();
+    }
 
     size_t plotCount = 0;
     plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
@@ -686,6 +693,7 @@ void RiaApplication::loadAndUpdatePlotData()
     plotCount += flowColl ? flowColl->plotCount() : 0;
     plotCount += rftColl ? rftColl->rftPlots().size() : 0;
     plotCount += pltColl ? pltColl->pltPlots().size() : 0;
+    plotCount += gcpColl ? gcpColl->gridCrossPlots().size() : 0;
 
     if (plotCount > 0)
     {
@@ -738,6 +746,15 @@ void RiaApplication::loadAndUpdatePlotData()
             for (const auto& pltPlot : pltColl->pltPlots())
             {
                 pltPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if (gcpColl)
+        {
+            for (const auto& gcpPlot : gcpColl->gridCrossPlots())
+            {
+                gcpPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }

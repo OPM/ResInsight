@@ -900,7 +900,7 @@ void Rim3dView::applyBackgroundColor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::performHolderUpdate()
+void Rim3dView::performAutoNameUpdate()
 {
     updateMdiWindowTitle();
 }

@@ -287,6 +287,10 @@ void RimPlotCurve::setParentQwtPlotNoReplot(QwtPlot* plot)
     {
         m_qwtPlotCurve->attach(m_parentQwtPlot);
     }
+    else
+    {
+        m_qwtPlotCurve->detach();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -416,6 +420,14 @@ void RimPlotCurve::updateLegendsInPlot()
     {
         m_parentQwtPlot->updateLegend();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    throw std::logic_error("The method or operation is not implemented.");
 }
 
 //--------------------------------------------------------------------------------------------------

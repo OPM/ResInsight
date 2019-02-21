@@ -325,7 +325,7 @@ void RiuQwtPlotCurve::setAppearance(LineStyleEnum          lineStyle,
                                                const QColor&          curveColor)
 {
     QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::NoCurve;
-    Qt::PenStyle penStyle = Qt::SolidLine;
+    Qt::PenStyle penStyle = Qt::NoPen;
 
     if (lineStyle != STYLE_NONE)
     {

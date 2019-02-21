@@ -93,12 +93,14 @@ protected:
     virtual QString                 createCurveAutoName() = 0;
     virtual void                    updateZoomInParentPlot() = 0;
     virtual void                    onLoadDataAndUpdate(bool updateParentPlot) = 0;
-    void                    initAfterRead() override;
+    void                            initAfterRead() override;
     void                            updateCurvePresentation(bool updatePlotLegendAndTitle);
 
     void                            updateOptionSensitivity();
     void                            updatePlotTitle();
     virtual void                    updateLegendsInPlot();
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 protected:
 
     // Overridden PDM methods

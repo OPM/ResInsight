@@ -28,6 +28,7 @@
 
 #include "RiuPlotMainWindowTools.h" 
 #include "RiuQwtCurvePointTracker.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
 #include "RiuQwtScalePicker.h"
@@ -305,16 +306,9 @@ QSize RiuSummaryQwtPlot::sizeHint() const
 void RiuSummaryQwtPlot::setDefaults()
 {
     setCommonPlotBehaviour(this);
-
-    enableAxis(QwtPlot::xBottom, true);
-    enableAxis(QwtPlot::yLeft, true);
-    enableAxis(QwtPlot::xTop, false);
-    enableAxis(QwtPlot::yRight, false);
+    RiuQwtPlotTools::setDefaultAxes(this);
 
     useDateBasedTimeAxis();
-
-    setAxisMaxMinor(QwtPlot::xBottom, 2);
-    setAxisMaxMinor(QwtPlot::yLeft, 3);
 
     // The legend will be deleted in the destructor of the plot or when 
     // another legend is inserted.
@@ -324,62 +318,8 @@ void RiuSummaryQwtPlot::setDefaults()
 
 void RiuSummaryQwtPlot::setCommonPlotBehaviour(QwtPlot* plot)
 {
-    // Plot background and frame look
-
-    QPalette newPalette(plot->palette());
-    newPalette.setColor(QPalette::Background, Qt::white);
-    plot->setPalette(newPalette);
-
-    plot->setAutoFillBackground(true);
-    plot->setCanvasBackground(Qt::white);
-
-    QFrame* canvasFrame = dynamic_cast<QFrame*>(plot->canvas());
-    if (canvasFrame)
-    {
-        canvasFrame->setFrameShape(QFrame::NoFrame);
-    }
-
-    // Grid
-
-    QwtPlotGrid* grid = new QwtPlotGrid;
-    grid->attach(plot);
-    QPen gridPen(Qt::SolidLine);
-    gridPen.setColor(Qt::lightGray);
-    grid->setPen(gridPen);
-
-    // Axis number font
-    QFont axisFont =  plot->axisFont(QwtPlot::xBottom);
-    axisFont.setPixelSize(11);
-
-    plot->setAxisFont(QwtPlot::xBottom, axisFont);
-    plot->setAxisFont(QwtPlot::xTop, axisFont);
-    plot->setAxisFont(QwtPlot::yLeft, axisFont);
-    plot->setAxisFont(QwtPlot::yRight, axisFont);
-
-    // Axis title font
-    QwtText axisTitle = plot->axisTitle(QwtPlot::xBottom);
-    QFont axisTitleFont = axisTitle.font();
-    axisTitleFont.setPixelSize(11);
-    axisTitleFont.setBold(false);
-    axisTitle.setFont(axisTitleFont);
-    axisTitle.setRenderFlags(Qt::AlignRight);
-
-    plot->setAxisTitle(QwtPlot::xBottom, axisTitle);
-    plot->setAxisTitle(QwtPlot::xTop,    axisTitle);
-    plot->setAxisTitle(QwtPlot::yLeft,   axisTitle);
-    plot->setAxisTitle(QwtPlot::yRight,  axisTitle);
-
-    // Set a focus policy to allow it taking key press events.
-    // This is not strictly necessary since this widget inherit QwtPlot
-    // which already has a focus policy.
-    // However, for completeness we still do it here.
-    plot->setFocusPolicy(Qt::WheelFocus);
-
-    // Enable mousetracking and event filter
-    plot->canvas()->setMouseTracking(true);
-    plot->canvas()->installEventFilter(plot);
-    plot->plotLayout()->setAlignCanvasToScales(true);
-
+    RiuQwtPlotTools::setCommonPlotBehaviour(plot);
+  
     new RiuQwtCurvePointTracker(plot, true, &ensembleCurveInfoTextProvider);
 }
 
