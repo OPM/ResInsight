@@ -353,7 +353,7 @@ void RimGridCrossPlotCurveSet::performAutoNameUpdate()
     this->setName(createAutoName());
 }
 
-CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSetNameConfig, "RimGridCrossPlotNameConfig");
+CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSetNameConfig, "RimGridCrossPlotCurveSetNameConfig");
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -361,7 +361,7 @@ CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSetNameConfig, "RimGridCrossPlotNameCon
 RimGridCrossPlotCurveSetNameConfig::RimGridCrossPlotCurveSetNameConfig(RimNameConfigHolderInterface* parent)
     : RimNameConfig(parent)
 {
-    CAF_PDM_InitObject("Cross Plot Name Generator", "", "", "");
+    CAF_PDM_InitObject("Cross Plot Curve Set NameGenerator", "", "", "");
 
     CAF_PDM_InitField(&addCaseName, "AddCaseName", false, "Add Case Name", "", "", "");
     CAF_PDM_InitField(&addAxisVariables, "AddAxisVariables", true, "Add Axis Variables", "", "", "");

@@ -28,6 +28,19 @@
 class RimGridCrossPlotCurveSet;
 class QwtPlot;
 
+class RimGridCrossPlotNameConfig : public RimNameConfig
+{
+    CAF_PDM_HEADER_INIT;
+public:
+    RimGridCrossPlotNameConfig(RimNameConfigHolderInterface* holder = nullptr);
+public:
+    caf::PdmField<bool> addDataSetNames;
+
+protected:
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+};
+
 class RimGridCrossPlot : public RimViewWindow, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
@@ -40,6 +53,10 @@ public:
     void     zoomAll() override;
     void     calculateZoomRangeAndUpdateQwt();
     void     reattachCurvesToQwtAndReplot();
+    QString  createAutoName() const override;
+    
+    caf::PdmFieldHandle* userDescriptionField() override;
+
 protected:
     QWidget* createViewWidget(QWidget* mainWindowParent) override;
     void     deleteViewWidget() override;
@@ -49,11 +66,17 @@ protected:
     void     fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
+
+    void performAutoNameUpdate() override;
+
 private:
-    caf::PdmField<bool>                           m_showLegend;
-    caf::PdmField<int>                            m_legendFontSize;
-    caf::PdmChildField<RimGridCrossPlotCurveSet*> m_crossPlotCurveSet;
-    QPointer<QwtPlot>                             m_qwtPlot;
+    caf::PdmField<bool>                             m_showLegend;
+    caf::PdmField<int>                              m_legendFontSize;
+    caf::PdmChildField<RimGridCrossPlotNameConfig*> m_nameConfig;
+
+    caf::PdmChildField<RimGridCrossPlotCurveSet*>   m_crossPlotCurveSet;
+
+    QPointer<QwtPlot>                               m_qwtPlot;
 };
 
 

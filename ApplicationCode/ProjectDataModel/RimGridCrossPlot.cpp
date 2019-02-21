@@ -41,10 +41,16 @@ RimGridCrossPlot::RimGridCrossPlot()
 
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Show Legend", "", "", "");
     CAF_PDM_InitField(&m_legendFontSize, "LegendFontSize", 10, "Legend Font Size", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_crossPlotCurveSet, "CrossPlotCurve", "Cross Plot Data Set", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "Name Config", "", "", "");
+    m_nameConfig.uiCapability()->setUiTreeHidden(true);
+    m_nameConfig.uiCapability()->setUiTreeChildrenHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_crossPlotCurveSet, "CrossPlotCurve", "Cross Plot Data Set", "", "", "");
     m_crossPlotCurveSet.uiCapability()->setUiHidden(true);
+
+    m_nameConfig        = new RimGridCrossPlotNameConfig(this);
     m_crossPlotCurveSet = new RimGridCrossPlotCurveSet();
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,6 +105,38 @@ void RimGridCrossPlot::reattachCurvesToQwtAndReplot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlot::createAutoName() const
+{
+    QStringList autoName;
+    if (!m_nameConfig->customName().isEmpty())
+    {
+        autoName += m_nameConfig->customName();
+    }
+
+    if (m_nameConfig->addDataSetNames())
+    {
+        QStringList dataSets;
+        dataSets += m_crossPlotCurveSet->createAutoName();
+        if (!dataSets.isEmpty())
+        {
+            autoName += QString("(%1)").arg(dataSets.join(", "));
+        }
+    }
+
+    return autoName.join(" ");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimGridCrossPlot::userDescriptionField()
+{
+    return m_nameConfig->nameField();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* RimGridCrossPlot::createViewWidget(QWidget* mainWindowParent)
 {
     if (!m_qwtPlot)
@@ -131,7 +169,8 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
 
     m_crossPlotCurveSet->loadDataAndUpdate(false);
     m_crossPlotCurveSet->setParentQwtPlotNoReplot(m_qwtPlot);
-    m_qwtPlot->setTitle("Grid Cross Plot");
+
+    performAutoNameUpdate();
 
     m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom);
     m_qwtPlot->setAxisAutoScale(QwtPlot::yLeft);
@@ -171,6 +210,10 @@ void RimGridCrossPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
     {
         uiOrdering.add(&m_legendFontSize);
     }
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Name Configuration");
+    m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
+
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -218,4 +261,39 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlot::calculateValueOptions(const caf:
         }
     }
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::performAutoNameUpdate()
+{
+    if (m_qwtPlot)
+    {
+        m_qwtPlot->setTitle(this->createAutoName());
+    }
+}
+
+CAF_PDM_SOURCE_INIT(RimGridCrossPlotNameConfig, "RimGridCrossPlotNameConfig");
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridCrossPlotNameConfig::RimGridCrossPlotNameConfig(RimNameConfigHolderInterface* holder /*= nullptr*/)
+    : RimNameConfig(holder)
+{
+    CAF_PDM_InitObject("Cross Plot Name Generator", "", "", "");
+
+    CAF_PDM_InitField(&addDataSetNames, "AddDataSetNames", true, "Add Data Set Names", "", "", "");
+
+    setCustomName("Cross Plot");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimNameConfig::defineUiOrdering(uiConfigName, uiOrdering);
+    uiOrdering.add(&addDataSetNames);
 }
