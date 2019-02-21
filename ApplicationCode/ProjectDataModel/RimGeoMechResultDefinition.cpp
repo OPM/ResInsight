@@ -410,7 +410,7 @@ void RimGeoMechResultDefinition::getUiAndResultVariableStringList(QStringList* u
         for (compIt = fieldIt->second.begin(); compIt != fieldIt->second.end(); ++compIt)
         {
             QString resultCompName = QString::fromStdString(*compIt);
-            uiNames->push_back(resultCompName);
+            uiNames->push_back("   " + resultCompName);
             variableNames->push_back(composeFieldCompString(resultFieldName, resultCompName));
         }
     }
