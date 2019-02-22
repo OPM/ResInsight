@@ -42,7 +42,7 @@ RimGridCrossPlotCollection::~RimGridCrossPlotCollection() {}
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCollection::deleteAllChildObjects()
 {
-    m_gridCrossPlots.deleteAllChildObjectsAsync();
+    m_gridCrossPlots.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
