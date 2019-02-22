@@ -152,7 +152,7 @@ PdmUiListEditor::~PdmUiListEditor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::ensureCurrentItemIsVisible()
+void PdmUiListEditor::scrollToSelectedItem() const
 {
     if (m_isScrollToItemAllowed)
     {

@@ -81,7 +81,7 @@ public:
     PdmUiListEditor(); 
     ~PdmUiListEditor() override; 
 
-    void        ensureCurrentItemIsVisible();
+    void        scrollToSelectedItem() const;
 
 protected:
     QWidget*    createEditorWidget(QWidget * parent) override;

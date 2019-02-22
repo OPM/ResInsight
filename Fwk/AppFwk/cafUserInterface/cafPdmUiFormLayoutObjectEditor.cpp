@@ -69,6 +69,21 @@ caf::PdmUiFormLayoutObjectEditor::~PdmUiFormLayoutObjectEditor()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiFormLayoutObjectEditor::scrollToSelectedItemsInFieldEditors() const
+{
+    for (auto fieldView : m_fieldViews)
+    {
+        auto listEditor = dynamic_cast<PdmUiListEditor*>(fieldView.second);
+        if (listEditor)
+        {
+            listEditor->scrollToSelectedItem();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(
@@ -475,19 +490,6 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi(const QString& uiCon
     if (uiObject)
     {
         uiObject->onEditorWidgetsCreated();
-    }
-
-    // Process events to make sure the layout has completed before scrolling the list editor to current item
-    // If this step is omitted, the scrollTo method ends up at arbitrary positions
-    //qApp->processEvents();
-
-    for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
-    {
-        auto myObj = dynamic_cast<PdmUiListEditor*>(it->second);
-        if (myObj)
-        {
-            myObj->ensureCurrentItemIsVisible();
-        }
     }
 }
 

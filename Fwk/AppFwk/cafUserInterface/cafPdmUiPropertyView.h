@@ -42,6 +42,7 @@
 #include <QPointer>
 
 class QVBoxLayout;
+class QTimer;
 
 
 #include <QScrollArea>
@@ -62,7 +63,7 @@ namespace caf
 {
 
 class PdmObjectHandle;
-class PdmUiWidgetObjectEditorHandle;
+class PdmUiDefaultObjectEditor;
 
 //==================================================================================================
 /// 
@@ -82,13 +83,16 @@ public:
 
 public slots:
     void                showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
+    void                slotScrollToSelectedItemsInFieldEditors();
 
 private:
-    PdmUiWidgetObjectEditorHandle* m_currentObjectView; 
+    PdmUiDefaultObjectEditor*      m_currentObjectView; 
     QString                        m_uiConfigName;
     
     QPointer<QVBoxLayout>          m_placeHolderLayout;
     QPointer<QWidget>              m_placeholder;
+
+    QTimer*                        m_scrollToSelectedItemTimer;
 };
 
 

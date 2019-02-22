@@ -66,6 +66,8 @@ public:
     PdmUiFormLayoutObjectEditor();
     ~PdmUiFormLayoutObjectEditor() override;
 
+    void scrollToSelectedItemsInFieldEditors() const;
+
 protected:
     /// When overriding this function, use findOrCreateGroupBox() or findOrCreateFieldEditor() for detailed control
     /// Use recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn() for automatic layout of group and field widgets
