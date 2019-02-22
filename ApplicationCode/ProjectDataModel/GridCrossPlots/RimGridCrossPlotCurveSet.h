@@ -76,7 +76,7 @@ protected:
                                                         bool*                      useOptionsOnly) override;
     void triggerReplotAndTreeRebuild();
     void performAutoNameUpdate() override;
-
+    void setDefaults();
 private:
 
     caf::PdmPtrField<RimCase*>                      m_case;
@@ -87,4 +87,5 @@ private:
     caf::PdmChildField<RimGridCrossPlotCurveSetNameConfig*> m_nameConfig;
 
     caf::PdmChildArrayField<RimGridCrossPlotCurve*> m_crossPlotCurves;
+    
 };

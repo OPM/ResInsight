@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlotCurveSet.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RigActiveCellInfo.h"
@@ -29,6 +30,7 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
+#include "RimProject.h"
 #include "RimTools.h"
 
 #include "cafPdmUiComboBoxEditor.h"
@@ -65,6 +67,7 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     CAF_PDM_InitFieldNoDefault(&m_crossPlotCurves, "CrossPlotCurves", "Curves", "", "", "");
     m_crossPlotCurves.uiCapability()->setUiTreeHidden(true);
 
+    setDefaults();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -356,7 +359,10 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurveSet::calculateValueOptions(co
     if (fieldNeedingOptions == &m_case)
     {
         RimTools::caseOptionItems(&options);
-        options.push_front(caf::PdmOptionItemInfo("None", nullptr));
+        if (options.empty())
+        {
+            options.push_front(caf::PdmOptionItemInfo("None", nullptr));
+        }
     }
     else if (fieldNeedingOptions == &m_timeStep)
     {
@@ -392,6 +398,30 @@ void RimGridCrossPlotCurveSet::triggerReplotAndTreeRebuild()
 void RimGridCrossPlotCurveSet::performAutoNameUpdate()
 {
     this->setName(createAutoName());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::setDefaults()
+{
+    RimProject* project = RiaApplication::instance()->project();
+    if (project)
+    {
+        if (!project->eclipseCases().empty())
+        {
+            RimEclipseCase* eclipseCase = project->eclipseCases().front();
+            m_case = eclipseCase;
+            m_xAxisProperty->setEclipseCase(eclipseCase);
+            m_yAxisProperty->setEclipseCase(eclipseCase);
+
+            m_xAxisProperty->setResultType(RiaDefines::DYNAMIC_NATIVE);
+            m_xAxisProperty->setResultVariable("SOIL");
+
+            m_yAxisProperty->setResultType(RiaDefines::DYNAMIC_NATIVE);
+            m_yAxisProperty->setResultVariable("PRESSURE");
+        }
+    }    
 }
 
 CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSetNameConfig, "RimGridCrossPlotCurveSetNameConfig");

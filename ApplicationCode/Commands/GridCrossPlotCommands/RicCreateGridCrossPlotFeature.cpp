@@ -49,6 +49,7 @@ void RicCreateGridCrossPlotFeature::onActionTriggered(bool isChecked)
     RimGridCrossPlotCollection* collection = project->mainPlotCollection()->gridCrossPlotCollection();    
     RimGridCrossPlot* plot = collection->createGridCrossPlot();
     
+    plot->createCurveSet();    
     plot->loadDataAndUpdate();
     plot->updateConnectedEditors();
 

@@ -49,9 +49,7 @@ RimGridCrossPlot::RimGridCrossPlot()
     CAF_PDM_InitFieldNoDefault(&m_crossPlotCurveSets, "CrossPlotCurve", "Cross Plot Data Set", "", "", "");
     m_crossPlotCurveSets.uiCapability()->setUiHidden(true);
 
-    m_nameConfig        = new RimGridCrossPlotNameConfig(this);
-    
-    createCurveSet();
+    m_nameConfig        = new RimGridCrossPlotNameConfig(this);    
 }
 
 //--------------------------------------------------------------------------------------------------
