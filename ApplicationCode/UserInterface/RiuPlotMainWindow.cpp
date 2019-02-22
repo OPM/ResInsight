@@ -623,7 +623,9 @@ void RiuPlotMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
         initialStateMaximized = true;
     }
 
-    subWin->show();
+    // Qt5: Using show() causes a update issue in MDI area
+    // https://github.com/OPM/ResInsight/issues/4131
+    subWin->showNormal();
 
     // Move and resize must be done after window is visible
     // If not, the position and size of the window is different to specification (Windows 7)
