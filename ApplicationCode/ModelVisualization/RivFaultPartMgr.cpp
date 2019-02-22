@@ -65,6 +65,7 @@ RivFaultPartMgr::RivFaultPartMgr(const RigGridBase*              grid,
     , m_opacityLevel(1.0f)
     , m_defaultColor(cvf::Color3::WHITE)
 {
+    CVF_ASSERT(rimFault->faultGeometry());
     cvf::ref<cvf::Array<size_t>> connIdxes = new cvf::Array<size_t>;
     connIdxes->assign(rimFault->faultGeometry()->connectionIndices());
 
