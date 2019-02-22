@@ -37,15 +37,14 @@
 
 #pragma once
 
+#include <QPointer>
+#include <QScrollArea>
 #include <QString>
 #include <QWidget>
-#include <QPointer>
 
 class QVBoxLayout;
 class QTimer;
 
-
-#include <QScrollArea>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -86,16 +85,12 @@ public slots:
     void                slotScrollToSelectedItemsInFieldEditors();
 
 private:
-    PdmUiDefaultObjectEditor*      m_currentObjectView; 
-    QString                        m_uiConfigName;
-    
-    QPointer<QVBoxLayout>          m_placeHolderLayout;
-    QPointer<QWidget>              m_placeholder;
-
-    QTimer*                        m_scrollToSelectedItemTimer;
+    PdmUiDefaultObjectEditor* m_defaultObjectEditor;
+    QString                   m_uiConfigName;
+    QPointer<QVBoxLayout>     m_placeHolderLayout;
+    QPointer<QWidget>         m_placeholder;
+    QTimer*                   m_scrollToSelectedItemTimer;
 };
-
-
 
 } // End of namespace caf
 

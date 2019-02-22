@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiPropertyView.h"
 
 #include "cafPdmObject.h"
@@ -99,7 +98,7 @@ PdmUiPropertyView::PdmUiPropertyView(QWidget* parent, Qt::WindowFlags f)
     dummy->setContentsMargins(0,0,0,0);
     dummy->addWidget(scrollArea);
 
-    m_currentObjectView = nullptr;
+    m_defaultObjectEditor = nullptr;
 
     m_scrollToSelectedItemTimer = new QTimer(this);
     connect(m_scrollToSelectedItemTimer, SIGNAL(timeout()), this, SLOT(slotScrollToSelectedItemsInFieldEditors()));
@@ -110,7 +109,7 @@ PdmUiPropertyView::PdmUiPropertyView(QWidget* parent, Qt::WindowFlags f)
 //--------------------------------------------------------------------------------------------------
 PdmUiPropertyView::~PdmUiPropertyView()
 {
-    if (m_currentObjectView) delete m_currentObjectView;
+    if (m_defaultObjectEditor) delete m_defaultObjectEditor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,11 +122,11 @@ void PdmUiPropertyView::setUiConfigurationName(QString uiConfigName)
     { 
         m_uiConfigName = uiConfigName;
 
-        if (m_currentObjectView)
+        if (m_defaultObjectEditor)
         {
-            PdmObjectHandle* object = m_currentObjectView->pdmObject();
-            delete m_currentObjectView;
-            m_currentObjectView = nullptr;
+            PdmObjectHandle* object = m_defaultObjectEditor->pdmObject();
+            delete m_defaultObjectEditor;
+            m_defaultObjectEditor = nullptr;
             this->showProperties(object);
         }
     }
@@ -144,13 +143,13 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
 
     bool rebuildWidget = false;
 
-    if (!m_currentObjectView) rebuildWidget = true;
+    if (!m_defaultObjectEditor) rebuildWidget = true;
         
-    if (m_currentObjectView && m_currentObjectView->pdmObject())
+    if (m_defaultObjectEditor && m_defaultObjectEditor->pdmObject())
     {
         if (object)
         {
-            PdmUiObjectHandle* uiObject1 = uiObj(m_currentObjectView->pdmObject());
+            PdmUiObjectHandle* uiObject1 = uiObj(m_defaultObjectEditor->pdmObject());
             PdmUiObjectHandle* uiObject2 = uiObj(object);
 
             if (uiObject1 && uiObject2 && (uiObject1->uiEditorTypeName(m_uiConfigName) != uiObject2->uiEditorTypeName(m_uiConfigName)))
@@ -163,20 +162,20 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
     if (rebuildWidget)
     {
         // Remove Widget from layout
-        if (m_currentObjectView)
+        if (m_defaultObjectEditor)
         {
-            this->m_placeHolderLayout->removeWidget(m_currentObjectView->widget());
-            delete m_currentObjectView;
-            m_currentObjectView = nullptr;
+            this->m_placeHolderLayout->removeWidget(m_defaultObjectEditor->widget());
+            delete m_defaultObjectEditor;
+            m_defaultObjectEditor = nullptr;
         }
 
-        if (!m_currentObjectView)
+        if (!m_defaultObjectEditor)
         {
-            m_currentObjectView = new PdmUiDefaultObjectEditor();
+            m_defaultObjectEditor = new PdmUiDefaultObjectEditor();
         }
 
         // Create widget to handle this
-        QWidget* propertyWidget = m_currentObjectView->getOrCreateWidget(m_placeholder);
+        QWidget* propertyWidget = m_defaultObjectEditor->getOrCreateWidget(m_placeholder);
         
         CAF_ASSERT(propertyWidget);
 
@@ -186,15 +185,15 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
         this->m_placeHolderLayout->insertStretch(-1, 1);
     }
 
-    m_currentObjectView->setPdmObject(object);
-    m_currentObjectView->updateUi(m_uiConfigName);
+    m_defaultObjectEditor->setPdmObject(object);
+    m_defaultObjectEditor->updateUi(m_uiConfigName);
 
     if (object)
     {
         if (!m_scrollToSelectedItemTimer->isActive())
         {
             m_scrollToSelectedItemTimer->setSingleShot(true);
-            m_scrollToSelectedItemTimer->start(100);
+            m_scrollToSelectedItemTimer->start(150);
         }
     }
 }
@@ -204,9 +203,9 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
 //--------------------------------------------------------------------------------------------------
 void PdmUiPropertyView::slotScrollToSelectedItemsInFieldEditors()
 {
-    if (m_currentObjectView)
+    if (m_defaultObjectEditor)
     {
-        m_currentObjectView->scrollToSelectedItemsInFieldEditors();
+        m_defaultObjectEditor->scrollToSelectedItemsInFieldEditors();
     }
 }
 
@@ -215,8 +214,8 @@ void PdmUiPropertyView::slotScrollToSelectedItemsInFieldEditors()
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmUiPropertyView::currentObject()
 {
-    if (!m_currentObjectView) return nullptr;
-    return m_currentObjectView->pdmObject();
+    if (!m_defaultObjectEditor) return nullptr;
+    return m_defaultObjectEditor->pdmObject();
 }
 
 
