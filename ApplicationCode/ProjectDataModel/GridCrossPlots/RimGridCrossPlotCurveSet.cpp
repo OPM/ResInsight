@@ -288,6 +288,8 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
         curve->setSamples(sampleCategory.second);
         curve->updateCurveAppearance();
         curve->updateCurveNameAndUpdatePlotLegendAndTitle();
+        curve->updateUiIconFromPlotSymbol();
+
         m_crossPlotCurves.push_back(curve);
     }
 

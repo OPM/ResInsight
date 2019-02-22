@@ -20,6 +20,7 @@
 #include "RiaColorTables.h"
 
 #include "RigCaseCellResultCalculator.h"
+#include "RiuQwtSymbol.h"
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
@@ -35,6 +36,7 @@
 
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
+#include "qwt_graphic.h"
 
 #include <random>
 
@@ -77,7 +79,6 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
     CAF_PDM_InitObject("Cross Plot Points", ":/WellLogCurve16x16.png", "", "");
    
     setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
-    setLineThickness(0);
     setSymbol(RiuQwtSymbol::SYMBOL_NONE);
     setSymbolSize(6);
 }
@@ -136,14 +137,4 @@ void RimGridCrossPlotCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 {
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
     RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                           bool*                      useOptionsOnly)
-{
-    QList<caf::PdmOptionItemInfo> options;
-    return options;
 }

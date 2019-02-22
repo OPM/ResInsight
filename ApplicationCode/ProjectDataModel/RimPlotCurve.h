@@ -87,6 +87,7 @@ public:
 
     virtual void                    updateCurveAppearance();
     bool                            isCrossPlotCurve() const;
+    void                            updateUiIconFromPlotSymbol();
 
 protected:
 
@@ -110,7 +111,6 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     void                            appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering);
     void                            curveNameUiOrdering(caf::PdmUiOrdering& uiOrdering);
-
 private:
     bool                            canCurveBeAttached() const;
 

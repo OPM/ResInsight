@@ -455,6 +455,22 @@ void RimPlotCurve::curveNameUiOrdering(caf::PdmUiOrdering& uiOrdering)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateUiIconFromPlotSymbol()
+{
+    if (m_pointSymbol() != RiuQwtSymbol::NoSymbol)
+    {
+        QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
+
+        QSizeF iconSize(24, 24);
+        QwtGraphic graphic = m_qwtPlotCurve->legendIcon(0, iconSize);
+        QPixmap pixmap = graphic.toPixmap();
+        setUiIcon(QIcon(pixmap));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RimPlotCurve::canCurveBeAttached() const
@@ -512,7 +528,7 @@ void RimPlotCurve::updateCurveAppearance()
     // Make sure the legend lines are long enough to distinguish between line types.
     // Standard width in Qwt is 8 which is too short.
     // Use 10 and scale this by curve thickness + add space for displaying symbol.
-    if (m_curveThickness() > 0)
+    if (m_lineStyle() != RiuQwtPlotCurve::STYLE_NONE)
     {
         QSize legendIconSize = m_qwtPlotCurve->legendIconSize();
 

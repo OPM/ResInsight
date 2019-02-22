@@ -225,7 +225,6 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
     updateAllRequiredEditors();
     updatePlot();
     
-
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -49,6 +49,5 @@ protected:
     QString createCurveAutoName() override;
     void onLoadDataAndUpdate(bool updateParentPlot) override;
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 };
 
