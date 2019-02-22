@@ -335,12 +335,12 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
             m_yAxisProperty->setEclipseCase(eclipseCase);
             m_xAxisProperty->updateConnectedEditors();
             m_yAxisProperty->updateConnectedEditors();
-            triggerReplotAndTreeRebuild();
+            loadDataAndUpdate(true);
         }
     }
     else if (changedField == &m_timeStep)
     {
-        triggerReplotAndTreeRebuild();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_isChecked)
     {
@@ -388,7 +388,7 @@ void RimGridCrossPlotCurveSet::triggerReplotAndTreeRebuild()
 {
     RimGridCrossPlot* parent;
     this->firstAncestorOrThisOfTypeAsserted(parent);
-    parent->loadDataAndUpdate();
+    parent->reattachCurvesToQwtAndReplot();
     parent->updateAllRequiredEditors();
 }
 
