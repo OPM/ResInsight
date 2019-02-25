@@ -320,15 +320,18 @@ void RiuQwtPlotCurve::setErrorBarsColor(QColor color)
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::setAppearance(LineStyleEnum          lineStyle,
-                                               CurveInterpolationEnum interpolationType,
-                                               int                    curveThickness,
-                                               const QColor&          curveColor)
+                                    CurveInterpolationEnum interpolationType,
+                                    int                    requestedCurveThickness,
+                                    const QColor&          curveColor)
 {
     QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::NoCurve;
     Qt::PenStyle penStyle = Qt::NoPen;
 
+    // Qwt bug workaround (#4135): need to set 0 curve thickness for STYLE_NONE
+    int curveThickness = 0;
     if (lineStyle != STYLE_NONE)
     {
+        curveThickness = requestedCurveThickness;
         switch (interpolationType)
         {
         case INTERPOLATION_STEP_LEFT:
