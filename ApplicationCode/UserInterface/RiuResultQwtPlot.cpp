@@ -26,7 +26,7 @@
 #include "RimCase.h"
 
 #include "RiuQwtPlotCurve.h"
-#include "RiuSummaryQwtPlot.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuTextDialog.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -173,14 +173,14 @@ void RiuResultQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuResultQwtPlot::setDefaults()
 {
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(this);
+    RiuQwtPlotTools::setCommonPlotBehaviour(this);
 
     enableAxis(QwtPlot::xBottom, true);
     enableAxis(QwtPlot::yLeft, true);
     enableAxis(QwtPlot::xTop, false);
     enableAxis(QwtPlot::yRight, false);
 
-    RiuSummaryQwtPlot::enableDateBasedBottomXAxis(this);
+    RiuQwtPlotTools::enableDateBasedBottomXAxis(this);
     
     setAxisMaxMinor(QwtPlot::xBottom, 2);
     setAxisMaxMinor(QwtPlot::yLeft, 3);

@@ -18,8 +18,8 @@
 
 #include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuRelativePermeabilityPlotUpdater.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuQwtPlotCurve.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuTextDialog.h"
 
 #include "RiaCurveDataTools.h"
@@ -154,7 +154,7 @@ RiuRelativePermeabilityPlotPanel::~RiuRelativePermeabilityPlotPanel()
 //--------------------------------------------------------------------------------------------------
 void RiuRelativePermeabilityPlotPanel::setPlotDefaults(QwtPlot* plot)
 {
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(plot);
+    RiuQwtPlotTools::setCommonPlotBehaviour(plot);
 
     {
         QwtText plotTitle = plot->title();

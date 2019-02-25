@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016 Statoil ASA
+//  Copyright (C) 2016-2018 Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -33,7 +34,7 @@
 ///
 ///
 //==================================================================================================
-class RimSummaryAxisProperties : public caf::PdmObject
+class RimPlotAxisProperties : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -52,8 +53,9 @@ public:
     };
 
 public:
-    RimSummaryAxisProperties();
+    RimPlotAxisProperties();
 
+    void                 setEnableTitleTextSettings(bool enable);
     void                 setNameAndAxis(const QString& name, QwtPlot::Axis axis);
     QwtPlot::Axis        qwtPlotAxisType() const;
     RiaDefines::PlotAxis plotAxisType() const;
@@ -104,4 +106,6 @@ private:
 
     caf::PdmField<QString> m_name;
     QwtPlot::Axis          m_axis;
+
+    bool                   m_enableTitleTextSettings;
 };

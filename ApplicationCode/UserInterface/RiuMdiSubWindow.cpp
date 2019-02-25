@@ -26,7 +26,6 @@
 
 #include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuViewer.h"
 #include "RiuWellLogPlot.h"
 

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2019- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,13 +17,26 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-class QwtPlot;
+#include "RimViewWindow.h"
 
-class RiuQwtPlotTools
+namespace caf
+{
+class PdmObject;
+}
+
+class QwtPlotCurve;
+
+class RimRiuQwtPlotOwnerInterface
 {
 public:
-    static void setCommonPlotBehaviour(QwtPlot* plot);
-    static void setDefaultAxes(QwtPlot* plot);
-    static void enableDateBasedBottomXAxis(QwtPlot* plot);
-};
+    virtual void detachAllCurves() = 0;
+    virtual void updateAxisScaling() = 0;
+    virtual void updateAxisDisplay() = 0;
+    virtual void updateZoomWindowFromQwt() = 0;
+    virtual void selectAxisInPropertyEditor(int axis) = 0;
+    virtual void setAutoZoomForAllAxes(bool enableAutoZoom) = 0;
+    
+    virtual caf::PdmObject* findRimPlotObjectFromQwtCurve(const QwtPlotCurve* curve) const = 0;
 
+
+};

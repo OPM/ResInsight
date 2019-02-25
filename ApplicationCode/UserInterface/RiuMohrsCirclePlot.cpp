@@ -21,7 +21,7 @@
 #include "RiaColorTables.h"
 
 #include "Riu3dSelectionManager.h"
-#include "RiuSummaryQwtPlot.h"
+#include "RiuQwtPlotTools.h"
 
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
@@ -66,7 +66,7 @@ RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
     , m_sourceGeoMechViewOfLastPlot(nullptr)
     , m_scheduleUpdateAxisScaleTimer(nullptr)
 {
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(this);
+    RiuQwtPlotTools::setCommonPlotBehaviour(this);
 
     enableAxis(QwtPlot::xBottom, true);
     enableAxis(QwtPlot::yLeft, true);

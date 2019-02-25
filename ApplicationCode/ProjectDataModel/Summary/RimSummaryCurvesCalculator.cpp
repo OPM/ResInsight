@@ -22,7 +22,7 @@
 
 #include "RiaDefines.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryAxisProperties.h"
+#include "RimPlotAxisProperties.h"
 #include "RimAsciiDataCurve.h"
 
 #include "RiuSummaryQwtPlot.h"
@@ -105,7 +105,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotYAxisFormatter::RimSummaryPlotYAxisFormatter(RimSummaryAxisProperties* axisProperties,
+RimSummaryPlotYAxisFormatter::RimSummaryPlotYAxisFormatter(RimPlotAxisProperties* axisProperties,
     const std::vector<RimSummaryCurve*>& summaryCurves,
     const std::vector<RimAsciiDataCurve*>& asciiCurves,
     const std::set<QString>& timeHistoryCurveQuantities)
@@ -138,10 +138,10 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
 
         switch (m_axisProperties->titlePositionEnum())
         {
-            case RimSummaryAxisProperties::AXIS_TITLE_CENTER:
+            case RimPlotAxisProperties::AXIS_TITLE_CENTER:
             axisTitleY.setRenderFlags(Qt::AlignCenter);
             break;
-            case RimSummaryAxisProperties::AXIS_TITLE_END:
+            case RimPlotAxisProperties::AXIS_TITLE_END:
             axisTitleY.setRenderFlags(Qt::AlignRight);
             break;
         }
@@ -157,16 +157,16 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
     }
 
     {
-        if (m_axisProperties->numberFormat == RimSummaryAxisProperties::NUMBER_FORMAT_AUTO)
+        if (m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_AUTO)
         {
             qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), new QwtScaleDraw);
         }
-        else if (m_axisProperties->numberFormat == RimSummaryAxisProperties::NUMBER_FORMAT_DECIMAL)
+        else if (m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL)
         {
             qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), 
                                       new DecimalScaleDraw(m_axisProperties->scaleFactor(), m_axisProperties->numberOfDecimals()));
         }
-        else if (m_axisProperties->numberFormat == RimSummaryAxisProperties::NUMBER_FORMAT_SCIENTIFIC)
+        else if (m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC)
         {
             qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), 
                                       new ScientificScaleDraw(m_axisProperties->scaleFactor(), m_axisProperties->numberOfDecimals()));
@@ -265,7 +265,7 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
     QString assembledYAxisText;
     QString scaleFactorText = "";
 
-    if (m_axisProperties->numberFormat() != RimSummaryAxisProperties::NUMBER_FORMAT_AUTO)
+    if (m_axisProperties->numberFormat() != RimPlotAxisProperties::NUMBER_FORMAT_AUTO)
     {
         if (m_axisProperties->scaleFactor() != 1.0)
         {

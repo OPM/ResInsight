@@ -18,7 +18,6 @@
 
 #include "RiuPvtPlotPanel.h"
 #include "RiuPvtPlotUpdater.h"
-#include "RiuSummaryQwtPlot.h"
 
 #include "RigFlowDiagSolverInterface.h"
 

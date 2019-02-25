@@ -1,0 +1,25 @@
+@startuml
+package Rim {
+
+PdmObject <|-- RimViewWindow
+package plots {
+RimViewWindow <|-- RimGridCrossPlot
+RimViewWindow <|-- RimSummaryPlot
+RimRiuQwtPlotOwnerInterface <|-- RimGridCrossPlot
+RimRiuQwtPlotOwnerInterface <|-- RimSummaryPlot
+}
+
+package Qwt {
+QWidget <|-- QwtPlot
+}
+
+package RiuQwt
+{
+QwtPlot <|--- RiuQwtPlot
+RiuQwtPlot <|--- RiuSummaryQwtPlot
+RiuQwtPlot -r-> RimRiuQwtPlotOwnerInterface
+}
+
+RimSummaryPlot -r-> RiuSummaryQwtPlot
+RimGridCrossPlot -r-> RiuQwtPlot
+@enduml

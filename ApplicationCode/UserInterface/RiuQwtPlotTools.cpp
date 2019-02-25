@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuQwtPlotTools.h"
 
+#include "qwt_date_scale_draw.h"
+#include "qwt_date_scale_engine.h"
 #include "qwt_plot.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
@@ -99,4 +101,17 @@ void RiuQwtPlotTools::setDefaultAxes(QwtPlot* plot)
 
     plot->setAxisMaxMinor(QwtPlot::xBottom, 2);
     plot->setAxisMaxMinor(QwtPlot::yLeft, 3);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotTools::enableDateBasedBottomXAxis(QwtPlot* plot)
+{
+    QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw(Qt::UTC);
+    scaleDraw->setDateFormat(QwtDate::Year, QString("dd-MM-yyyy"));
+
+    QwtDateScaleEngine* scaleEngine = new QwtDateScaleEngine(Qt::UTC);
+    plot->setAxisScaleEngine(QwtPlot::xBottom, scaleEngine);
+    plot->setAxisScaleDraw(QwtPlot::xBottom, scaleDraw);
 }

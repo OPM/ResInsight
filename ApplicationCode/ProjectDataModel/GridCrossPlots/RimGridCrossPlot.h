@@ -21,13 +21,16 @@
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 
+#include "RiaDefines.h"
+#include "RimRiuQwtPlotOwnerInterface.h"
 #include "RimNameConfig.h"
 #include "RimViewWindow.h"
 
 #include <QPointer>
 
+class RimPlotAxisProperties;
 class RimGridCrossPlotCurveSet;
-class RiuGridCrossQwtPlot;
+class RiuQwtPlot;
 
 class RimGridCrossPlotNameConfig : public RimNameConfig
 {
@@ -42,9 +45,10 @@ protected:
 
 };
 
-class RimGridCrossPlot : public RimViewWindow, public RimNameConfigHolderInterface
+class RimGridCrossPlot : public RimViewWindow, public RimRiuQwtPlotOwnerInterface, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
+    
 public:
     RimGridCrossPlot();
     ~RimGridCrossPlot();
@@ -61,12 +65,22 @@ public:
     
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 detachAllCurves();
+public:
+    // Rim2dPlotInterface overrides
+    void updateAxisScaling() override;
+    void updateAxisDisplay() override;
+    void updateZoomWindowFromQwt() override;
+    void selectAxisInPropertyEditor(int axis) override;
+    void setAutoZoomForAllAxes(bool enableAutoZoom) override;
+    caf::PdmObject* findRimPlotObjectFromQwtCurve(const QwtPlotCurve* curve) const override;
 
 protected:
     QWidget* createViewWidget(QWidget* mainWindowParent) override;
     void     deleteViewWidget() override;
     void     onLoadDataAndUpdate() override;
     void     defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void     defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+
     void     fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
@@ -76,14 +90,20 @@ protected:
     QString xAxisParameterString() const;
     QString yAxisParameterString() const;
 
+    void updateAxisInQwt(RiaDefines::PlotAxis axisType);
+    void updateAxisFromQwt(RiaDefines::PlotAxis axisType);
+
 private:
     caf::PdmField<bool>                                m_showLegend;
     caf::PdmField<int>                                 m_legendFontSize;
     caf::PdmChildField<RimGridCrossPlotNameConfig*>    m_nameConfig;
 
+    caf::PdmChildField<RimPlotAxisProperties*>         m_yAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*>         m_xAxisProperties;
+
     caf::PdmChildArrayField<RimGridCrossPlotCurveSet*> m_crossPlotCurveSets;
 
-    QPointer<RiuGridCrossQwtPlot>                      m_qwtPlot;
+    QPointer<RiuQwtPlot>                      m_qwtPlot;
     
 };
 

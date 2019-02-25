@@ -27,6 +27,7 @@
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
+#include "RiuQwtPlotTools.h"
 
 #include "RiuQwtLinearScaleEngine.h"
 
@@ -46,7 +47,6 @@
 #include <QWheelEvent>
 
 #include <cfloat>
-#include "RiuSummaryQwtPlot.h"
 
 #define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1
 #define RIU_SCROLLWHEEL_PANFACTOR   0.1
@@ -77,7 +77,7 @@ RiuWellLogTrack::~RiuWellLogTrack()
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::setDefaults()
 {
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(this);
+    RiuQwtPlotTools::setCommonPlotBehaviour(this);
 
     enableAxis(QwtPlot::xTop, true);
     enableAxis(QwtPlot::yLeft, true);

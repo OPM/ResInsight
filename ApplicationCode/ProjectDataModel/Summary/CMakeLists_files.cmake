@@ -17,7 +17,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCrossPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTimeAxisProperties.h
-${CMAKE_CURRENT_LIST_DIR}/RimSummaryAxisProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedData.h
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryObservedDataFile.h
@@ -58,7 +57,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCrossPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTimeAxisProperties.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimSummaryAxisProperties.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryObservedDataFile.cpp

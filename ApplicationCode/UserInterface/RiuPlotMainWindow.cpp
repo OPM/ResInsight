@@ -36,7 +36,6 @@
 
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuWellAllocationPlot.h"

@@ -26,7 +26,7 @@
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
 #include "RiuResultQwtPlot.h"
-#include "RiuSummaryQwtPlot.h"
+#include "RiuQwtPlotTools.h"
 
 #include "cvfBase.h"
 #include "cvfColor3.h"
@@ -73,18 +73,18 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
     mainLayout->addWidget(m_flowCapVsStorageCapPlot, 1, 0);
     mainLayout->addWidget(m_sweepEffPlot, 1, 1);
 
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(m_lorenzPlot);
+    RiuQwtPlotTools::setCommonPlotBehaviour(m_lorenzPlot);
     new RiuQwtPlotWheelZoomer(m_lorenzPlot);
     addWindowZoom(m_lorenzPlot);
-    RiuSummaryQwtPlot::enableDateBasedBottomXAxis(m_lorenzPlot);
+    RiuQwtPlotTools::enableDateBasedBottomXAxis(m_lorenzPlot);
     m_lorenzPlot->setTitle("Lorenz Coefficient");
 
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(m_sweepEffPlot);
+    RiuQwtPlotTools::setCommonPlotBehaviour(m_sweepEffPlot);
     new RiuQwtPlotWheelZoomer(m_sweepEffPlot);
     addWindowZoom(m_sweepEffPlot);
     m_sweepEffPlot->setTitle("Sweep Efficiency");
 
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(m_flowCapVsStorageCapPlot);
+    RiuQwtPlotTools::setCommonPlotBehaviour(m_flowCapVsStorageCapPlot);
     new RiuQwtPlotWheelZoomer(m_flowCapVsStorageCapPlot);
     addWindowZoom(m_flowCapVsStorageCapPlot);
     m_flowCapVsStorageCapPlot->setTitle("Flow Capacity vs Storage Capacity");

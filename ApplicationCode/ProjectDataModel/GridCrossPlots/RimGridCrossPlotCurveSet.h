@@ -67,6 +67,9 @@ public:
     int     indexInPlot() const;
     QString createAutoName() const override;
     void    detachAllCurves();
+    
+    std::vector< RimGridCrossPlotCurve*> curves() const;
+
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);

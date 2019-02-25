@@ -171,6 +171,14 @@ void RimGridCrossPlotCurveSet::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimGridCrossPlotCurve*> RimGridCrossPlotCurveSet::curves() const
+{
+    return m_crossPlotCurves.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::initAfterRead()
 {
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());

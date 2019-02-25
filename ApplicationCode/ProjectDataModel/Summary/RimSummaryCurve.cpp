@@ -45,7 +45,6 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
-#include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -53,6 +52,7 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include "qwt_date.h"
+#include "qwt_plot.h"
 
 #include <QMessageBox>
 

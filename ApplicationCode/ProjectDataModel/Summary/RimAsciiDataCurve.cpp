@@ -31,13 +31,13 @@
 #include "RimSummaryTimeAxisProperties.h"
 
 #include "RiuQwtPlotCurve.h"
-#include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "qwt_date.h"
+#include "qwt_plot.h"
 
 
 CAF_PDM_SOURCE_INIT(RimAsciiDataCurve, "AsciiDataCurve");

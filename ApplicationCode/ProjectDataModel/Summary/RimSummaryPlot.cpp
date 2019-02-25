@@ -29,7 +29,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimProject.h"
-#include "RimSummaryAxisProperties.h"
+#include "RimPlotAxisProperties.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
@@ -160,17 +160,17 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_leftYAxisProperties, "LeftYAxisProperties", "Left Y Axis", "", "", "");
     m_leftYAxisProperties.uiCapability()->setUiTreeHidden(true);
-    m_leftYAxisProperties = new RimSummaryAxisProperties;
+    m_leftYAxisProperties = new RimPlotAxisProperties;
     m_leftYAxisProperties->setNameAndAxis("Left Y-Axis", QwtPlot::yLeft);
 
     CAF_PDM_InitFieldNoDefault(&m_rightYAxisProperties, "RightYAxisProperties", "Right Y Axis", "", "", "");
     m_rightYAxisProperties.uiCapability()->setUiTreeHidden(true);
-    m_rightYAxisProperties = new RimSummaryAxisProperties;
+    m_rightYAxisProperties = new RimPlotAxisProperties;
     m_rightYAxisProperties->setNameAndAxis("Right Y-Axis", QwtPlot::yRight);
 
     CAF_PDM_InitFieldNoDefault(&m_bottomAxisProperties, "BottomAxisProperties", "Bottom X Axis", "", "", "");
     m_bottomAxisProperties.uiCapability()->setUiTreeHidden(true);
-    m_bottomAxisProperties = new RimSummaryAxisProperties;
+    m_bottomAxisProperties = new RimPlotAxisProperties;
     m_bottomAxisProperties->setNameAndAxis("Bottom X-Axis", QwtPlot::xBottom);
 
     CAF_PDM_InitFieldNoDefault(&m_timeAxisProperties, "TimeAxisProperties", "Time Axis", "", "", "");
@@ -236,33 +236,6 @@ bool RimSummaryPlot::isLogarithmicScaleEnabled(RiaDefines::PlotAxis plotAxis) co
 RimSummaryTimeAxisProperties* RimSummaryPlot::timeAxisProperties()
 {
     return m_timeAxisProperties();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::selectAxisInPropertyEditor(int axis)
-{
-    RiuPlotMainWindowTools::showPlotMainWindow();
-    if (axis == QwtPlot::yLeft)
-    {
-        RiuPlotMainWindowTools::selectAsCurrentItem(m_leftYAxisProperties);
-    }
-    else if (axis == QwtPlot::yRight)
-    {
-        RiuPlotMainWindowTools::selectAsCurrentItem(m_rightYAxisProperties);
-    }
-    else if (axis == QwtPlot::xBottom)
-    {
-        if (m_isCrossPlot)
-        {
-            RiuPlotMainWindowTools::selectAsCurrentItem(m_bottomAxisProperties);
-        }
-        else
-        {
-            RiuPlotMainWindowTools::selectAsCurrentItem(m_timeAxisProperties);
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -566,6 +539,22 @@ size_t RimSummaryPlot::singleColorCurveCount() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateAxisScaling()
+{
+    loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateAxisDisplay()
+{
+    updateAxes();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
@@ -582,7 +571,7 @@ void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
         qwtAxis = QwtPlot::yRight;
     }
 
-    RimSummaryAxisProperties* yAxisProperties = yAxisPropertiesLeftOrRight(plotAxis);
+    RimPlotAxisProperties* yAxisProperties = yAxisPropertiesLeftOrRight(plotAxis);
     if (yAxisProperties->isActive() && hasVisibleCurvesForAxis(plotAxis))
     {
         m_qwtPlot->enableAxis(qwtAxis, true);
@@ -639,7 +628,7 @@ void RimSummaryPlot::updateZoomForAxis(RiaDefines::PlotAxis plotAxis)
     }
     else
     {
-        RimSummaryAxisProperties* yAxisProps = yAxisPropertiesLeftOrRight(plotAxis);
+        RimPlotAxisProperties* yAxisProps = yAxisPropertiesLeftOrRight(plotAxis);
 
         if (yAxisProps->isAutoZoom())
         {
@@ -764,9 +753,9 @@ bool RimSummaryPlot::hasVisibleCurvesForAxis(RiaDefines::PlotAxis plotAxis) cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryAxisProperties* RimSummaryPlot::yAxisPropertiesLeftOrRight(RiaDefines::PlotAxis leftOrRightPlotAxis) const
+RimPlotAxisProperties* RimSummaryPlot::yAxisPropertiesLeftOrRight(RiaDefines::PlotAxis leftOrRightPlotAxis) const
 {
-    RimSummaryAxisProperties* yAxisProps = nullptr;
+    RimPlotAxisProperties* yAxisProps = nullptr;
 
     if (leftOrRightPlotAxis == RiaDefines::PLOT_AXIS_LEFT)
     {
@@ -892,7 +881,7 @@ void RimSummaryPlot::updateBottomXAxis()
 
     QwtPlot::Axis qwtAxis = QwtPlot::xBottom;
 
-    RimSummaryAxisProperties* bottomAxisProperties = m_bottomAxisProperties();
+    RimPlotAxisProperties* bottomAxisProperties = m_bottomAxisProperties();
 
     if (bottomAxisProperties->isActive())
     {
@@ -1268,14 +1257,60 @@ void RimSummaryPlot::updateZoomWindowFromQwt()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::selectAxisInPropertyEditor(int axis)
+{
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    if (axis == QwtPlot::yLeft)
+    {
+        RiuPlotMainWindowTools::selectAsCurrentItem(m_leftYAxisProperties);
+    }
+    else if (axis == QwtPlot::yRight)
+    {
+        RiuPlotMainWindowTools::selectAsCurrentItem(m_rightYAxisProperties);
+    }
+    else if (axis == QwtPlot::xBottom)
+    {
+        if (m_isCrossPlot)
+        {
+            RiuPlotMainWindowTools::selectAsCurrentItem(m_bottomAxisProperties);
+        }
+        else
+        {
+            RiuPlotMainWindowTools::selectAsCurrentItem(m_timeAxisProperties);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setAutoZoomForAllAxes(bool enableAutoZoom)
+{
+    m_leftYAxisProperties->setAutoZoom(enableAutoZoom);
+    m_rightYAxisProperties->setAutoZoom(enableAutoZoom);
+
+    if (m_isCrossPlot)
+    {
+        m_bottomAxisProperties->setAutoZoom(enableAutoZoom);
+    }
+    else
+    {
+        m_timeAxisProperties->setAutoZoom(enableAutoZoom);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxisRangesFromQwt()
 {
     if (!m_qwtPlot) return;
 
-    QwtInterval leftAxis, rightAxis, timeAxis;
-    m_qwtPlot->currentVisibleWindow(&leftAxis, &rightAxis, &timeAxis);
+    QwtInterval leftAxis = m_qwtPlot->currentAxisRange(QwtPlot::yLeft);
+    QwtInterval rightAxis = m_qwtPlot->currentAxisRange(QwtPlot::yRight);
+    QwtInterval timeAxis = m_qwtPlot->currentAxisRange(QwtPlot::xBottom);
 
     m_leftYAxisProperties->visibleRangeMax = leftAxis.maxValue();
     m_leftYAxisProperties->visibleRangeMin = leftAxis.minValue();
@@ -1298,24 +1333,6 @@ void RimSummaryPlot::updateAxisRangesFromQwt()
         m_timeAxisProperties->updateConnectedEditors();
     }
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setAutoZoomForAllAxes(bool enableAutoZoom)
-{
-    m_leftYAxisProperties->setAutoZoom(enableAutoZoom);
-    m_rightYAxisProperties->setAutoZoom(enableAutoZoom);
-
-    if (m_isCrossPlot)
-    {
-        m_bottomAxisProperties->setAutoZoom(enableAutoZoom);
-    }
-    else
-    {
-        m_timeAxisProperties->setAutoZoom(enableAutoZoom);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

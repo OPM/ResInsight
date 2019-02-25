@@ -49,8 +49,8 @@
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuPlotMainWindow.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
+#include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiListEditor.h"

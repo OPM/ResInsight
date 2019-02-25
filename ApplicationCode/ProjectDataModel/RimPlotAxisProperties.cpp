@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016 Statoil ASA
+//  Copyright (C) 2016-2018 Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,10 +17,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSummaryAxisProperties.h"
+#include "RimPlotAxisProperties.h"
 
 #include "RiaDefines.h"
-#include "RimSummaryPlot.h"
+
+#include "RimRiuQwtPlotOwnerInterface.h"
 
 #include "cafPdmUiSliderEditor.h"
 
@@ -29,33 +31,34 @@
 namespace caf
 {
 template<>
-void caf::AppEnum<RimSummaryAxisProperties::NumberFormatType>::setUp()
+void caf::AppEnum<RimPlotAxisProperties::NumberFormatType>::setUp()
 {
-    addItem(RimSummaryAxisProperties::NUMBER_FORMAT_AUTO,       "NUMBER_FORMAT_AUTO",       "Auto");
-    addItem(RimSummaryAxisProperties::NUMBER_FORMAT_DECIMAL,    "NUMBER_FORMAT_DECIMAL",    "Decimal");
-    addItem(RimSummaryAxisProperties::NUMBER_FORMAT_SCIENTIFIC, "NUMBER_FORMAT_SCIENTIFIC", "Scientific");
+    addItem(RimPlotAxisProperties::NUMBER_FORMAT_AUTO,       "NUMBER_FORMAT_AUTO",       "Auto");
+    addItem(RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL,    "NUMBER_FORMAT_DECIMAL",    "Decimal");
+    addItem(RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC, "NUMBER_FORMAT_SCIENTIFIC", "Scientific");
 
-    setDefault(RimSummaryAxisProperties::NUMBER_FORMAT_AUTO);
+    setDefault(RimPlotAxisProperties::NUMBER_FORMAT_AUTO);
 }
 
 template<>
-void caf::AppEnum<RimSummaryAxisProperties::AxisTitlePositionType>::setUp()
+void caf::AppEnum<RimPlotAxisProperties::AxisTitlePositionType>::setUp()
 {
-    addItem(RimSummaryAxisProperties::AXIS_TITLE_CENTER, "AXIS_TITLE_CENTER",   "Center");
-    addItem(RimSummaryAxisProperties::AXIS_TITLE_END,    "AXIS_TITLE_END",      "At End");
+    addItem(RimPlotAxisProperties::AXIS_TITLE_CENTER, "AXIS_TITLE_CENTER",   "Center");
+    addItem(RimPlotAxisProperties::AXIS_TITLE_END,    "AXIS_TITLE_END",      "At End");
 
-    setDefault(RimSummaryAxisProperties::AXIS_TITLE_CENTER);
+    setDefault(RimPlotAxisProperties::AXIS_TITLE_CENTER);
 }
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT(RimSummaryAxisProperties, "SummaryYAxisProperties");
+CAF_PDM_SOURCE_INIT(RimPlotAxisProperties, "SummaryYAxisProperties");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryAxisProperties::RimSummaryAxisProperties()
+RimPlotAxisProperties::RimPlotAxisProperties()
+    : m_enableTitleTextSettings(true)
 {
-    CAF_PDM_InitObject("Y-Axis Properties", ":/LeftAxis16x16.png", "", "");
+    CAF_PDM_InitObject("Axis Properties", ":/LeftAxis16x16.png", "", "");
 
     CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
     m_isActive.uiCapability()->setUiHidden(true);
@@ -88,13 +91,20 @@ RimSummaryAxisProperties::RimSummaryAxisProperties()
 
     updateOptionSensitivity();
 }
-
 // clang-format on
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSummaryAxisProperties::userDescriptionField()
+void RimPlotAxisProperties::setEnableTitleTextSettings(bool enable)
+{
+    m_enableTitleTextSettings = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimPlotAxisProperties::userDescriptionField()
 {
     return &m_name;
 }
@@ -102,7 +112,7 @@ caf::PdmFieldHandle* RimSummaryAxisProperties::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimSummaryAxisProperties::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+QList<caf::PdmOptionItemInfo> RimPlotAxisProperties::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                               bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -144,8 +154,9 @@ QList<caf::PdmOptionItemInfo> RimSummaryAxisProperties::calculateValueOptions(co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimPlotAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    if (m_enableTitleTextSettings)
     {
         caf::PdmUiGroup* titleTextGroup = uiOrdering.addNewGroup("Title Text");
 
@@ -192,7 +203,7 @@ void RimSummaryAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axis axis)
+void RimPlotAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axis axis)
 {
     m_name = name;
     m_axis = axis;
@@ -204,7 +215,7 @@ void RimSummaryAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtPlot::Axis RimSummaryAxisProperties::qwtPlotAxisType() const
+QwtPlot::Axis RimPlotAxisProperties::qwtPlotAxisType() const
 {
     return m_axis;
 }
@@ -212,7 +223,7 @@ QwtPlot::Axis RimSummaryAxisProperties::qwtPlotAxisType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RimSummaryAxisProperties::plotAxisType() const
+RiaDefines::PlotAxis RimPlotAxisProperties::plotAxisType() const
 {
     if (m_axis == QwtPlot::yRight) return RiaDefines::PLOT_AXIS_RIGHT;
     if (m_axis == QwtPlot::xBottom) return RiaDefines::PLOT_AXIS_BOTTOM;
@@ -223,7 +234,7 @@ RiaDefines::PlotAxis RimSummaryAxisProperties::plotAxisType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryAxisProperties::useAutoTitle() const
+bool RimPlotAxisProperties::useAutoTitle() const
 {
     return isAutoTitle();
 }
@@ -231,7 +242,7 @@ bool RimSummaryAxisProperties::useAutoTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryAxisProperties::showDescription() const
+bool RimPlotAxisProperties::showDescription() const
 {
     return m_displayLongName();
 }
@@ -239,7 +250,7 @@ bool RimSummaryAxisProperties::showDescription() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryAxisProperties::showAcronym() const
+bool RimPlotAxisProperties::showAcronym() const
 {
     return m_displayShortName();
 }
@@ -247,7 +258,7 @@ bool RimSummaryAxisProperties::showAcronym() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryAxisProperties::showUnitText() const
+bool RimPlotAxisProperties::showUnitText() const
 {
     return m_displayUnitText();
 }
@@ -255,7 +266,7 @@ bool RimSummaryAxisProperties::showUnitText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryAxisProperties::isAutoZoom() const
+bool RimPlotAxisProperties::isAutoZoom() const
 {
     return m_isAutoZoom();
 }
@@ -263,7 +274,7 @@ bool RimSummaryAxisProperties::isAutoZoom() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAxisProperties::setAutoZoom(bool enableAutoZoom)
+void RimPlotAxisProperties::setAutoZoom(bool enableAutoZoom)
 {
     m_isAutoZoom = enableAutoZoom;
 }
@@ -271,7 +282,7 @@ void RimSummaryAxisProperties::setAutoZoom(bool enableAutoZoom)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryAxisProperties::isActive() const
+bool RimPlotAxisProperties::isActive() const
 {
     return m_isActive;
 }
@@ -279,38 +290,37 @@ bool RimSummaryAxisProperties::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
+void RimPlotAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
                                                 const QVariant& newValue)
 {
     if (changedField == &isAutoTitle)
     {
         updateOptionSensitivity();
     }
-
-    RimSummaryPlot* rimSummaryPlot = nullptr;
-    this->firstAncestorOrThisOfType(rimSummaryPlot);
-    if (rimSummaryPlot)
+    else if (changedField == &visibleRangeMax)
     {
-        if (changedField == &visibleRangeMax)
-        {
-            if (visibleRangeMin > visibleRangeMax) visibleRangeMax = oldValue.toDouble();
+        if (visibleRangeMin > visibleRangeMax) visibleRangeMax = oldValue.toDouble();
 
-            m_isAutoZoom = false;
-        }
-        else if (changedField == &visibleRangeMin)
-        {
-            if (visibleRangeMin > visibleRangeMax) visibleRangeMin = oldValue.toDouble();
+        m_isAutoZoom = false;
+    }
+    else if (changedField == &visibleRangeMin)
+    {
+        if (visibleRangeMin > visibleRangeMax) visibleRangeMin = oldValue.toDouble();
 
-            m_isAutoZoom = false;
-        }
+        m_isAutoZoom = false;
+    }
 
+    RimRiuQwtPlotOwnerInterface* parentPlot = nullptr;
+    this->firstAncestorOrThisOfType(parentPlot);
+    if (parentPlot)
+    {
         if (changedField == &isLogarithmicScaleEnabled)
         {
-            rimSummaryPlot->loadDataAndUpdate();
+            parentPlot->updateAxisScaling();
         }
         else
         {
-            rimSummaryPlot->updateAxes();
+            parentPlot->updateAxisDisplay();
         }
     }
 }
@@ -318,7 +328,7 @@ void RimSummaryAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAxisProperties::updateOptionSensitivity()
+void RimPlotAxisProperties::updateOptionSensitivity()
 {
     customTitle.uiCapability()->setUiReadOnly(isAutoTitle);
 }
@@ -326,7 +336,7 @@ void RimSummaryAxisProperties::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAxisProperties::initAfterRead()
+void RimPlotAxisProperties::initAfterRead()
 {
     updateOptionSensitivity();
 }
@@ -334,7 +344,7 @@ void RimSummaryAxisProperties::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSummaryAxisProperties::objectToggleField()
+caf::PdmFieldHandle* RimPlotAxisProperties::objectToggleField()
 {
     return &m_isActive;
 }

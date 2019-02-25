@@ -26,6 +26,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimRiuQwtPlotOwnerInterface.h"
 #include "RimViewWindow.h"
 
 #include "qwt_plot_textlabel.h"
@@ -44,7 +45,7 @@ class RimEnsembleCurveSet;
 class RimEnsembleCurveSetCollection;
 class RimSummaryCurveFilter_OBSOLETE;
 class RimSummaryTimeAxisProperties;
-class RimSummaryAxisProperties;
+class RimPlotAxisProperties;
 class RiuSummaryQwtPlot;
 class RimSummaryPlotNameHelper;
 
@@ -55,7 +56,7 @@ class QwtPlotCurve;
 ///  
 ///  
 //==================================================================================================
-class RimSummaryPlot : public RimViewWindow
+class RimSummaryPlot : public RimViewWindow, public RimRiuQwtPlotOwnerInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -84,7 +85,6 @@ public:
 
     void                                            addAsciiDataCruve(RimAsciiDataCurve* curve);
 
-    caf::PdmObject*                                 findRimPlotObjectFromQwtCurve(const QwtPlotCurve* curve) const;
     size_t                                          curveCount() const;
     
     void                                            detachAllCurves();
@@ -92,19 +92,16 @@ public:
     void                                            updateCaseNameHasChanged();
 
     void                                            updateAxes();
-    void                                    zoomAll() override;
+    void                                            zoomAll() override;
 
     void                                            updateZoomInQwt();
-    void                                            updateZoomWindowFromQwt();
     
     bool                                            isLogarithmicScaleEnabled(RiaDefines::PlotAxis plotAxis) const;
 
     RimSummaryTimeAxisProperties*                   timeAxisProperties();
     time_t                                          firstTimeStepOfFirstCurve();
 
-    void                                            selectAxisInPropertyEditor(int axis);
-
-    QWidget*                                viewWidget() override;
+    QWidget*                                        viewWidget() override;
 
     QString                                         asciiDataForPlotExport(DateTimePeriod resamplingPeriod = DateTimePeriod::NONE) const;
 
@@ -134,8 +131,18 @@ public:
     bool                                            containsResamplableCurves() const;
 
     size_t                                          singleColorCurveCount() const;
-    // RimViewWindow overrides
+
 public:
+    // Rim2dPlotInterface overrides
+    void updateAxisScaling() override;
+    void updateAxisDisplay() override;
+    void updateZoomWindowFromQwt() override;
+    void selectAxisInPropertyEditor(int axis) override;
+    void setAutoZoomForAllAxes(bool enableAutoZoom) override;
+    caf::PdmObject* findRimPlotObjectFromQwtCurve(const QwtPlotCurve* curve) const override;
+
+public:
+    // RimViewWindow overrides
     QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     void                                    deleteViewWidget() override; 
     void                                    initAfterRead() override;
@@ -164,7 +171,7 @@ private:
     std::vector<RimAsciiDataCurve*>                 visibleAsciiDataCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
     bool                                            hasVisibleCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
 
-    RimSummaryAxisProperties*                       yAxisPropertiesLeftOrRight(RiaDefines::PlotAxis leftOrRightPlotAxis) const;
+    RimPlotAxisProperties*                       yAxisPropertiesLeftOrRight(RiaDefines::PlotAxis leftOrRightPlotAxis) const;
     void                                            updateAxis(RiaDefines::PlotAxis plotAxis);
 
     void                                            updateZoomForAxis(RiaDefines::PlotAxis plotAxis);
@@ -173,7 +180,6 @@ private:
     void                                            updateBottomXAxis();
 
     void                                            updateAxisRangesFromQwt();
-    void                                            setAutoZoomForAllAxes(bool enableAutoZoom);
 
 private:
     caf::PdmField<bool>                                 m_showPlotTitle;
@@ -189,10 +195,10 @@ private:
 
     caf::PdmChildArrayField<RimAsciiDataCurve*>         m_asciiDataCurves;
 
-    caf::PdmChildField<RimSummaryAxisProperties*>       m_leftYAxisProperties;
-    caf::PdmChildField<RimSummaryAxisProperties*>       m_rightYAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*>       m_leftYAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*>       m_rightYAxisProperties;
 
-    caf::PdmChildField<RimSummaryAxisProperties*>       m_bottomAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*>       m_bottomAxisProperties;
     caf::PdmChildField<RimSummaryTimeAxisProperties*>   m_timeAxisProperties;
 
     QPointer<RiuSummaryQwtPlot>                         m_qwtPlot;

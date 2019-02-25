@@ -33,7 +33,6 @@
 #include "RimTools.h"
 
 #include "RiuPlotMainWindow.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuTools.h"
 
 #include <QVBoxLayout>
