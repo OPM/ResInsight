@@ -20,6 +20,7 @@
 #include "RimCheckableNamedObject.h"
 #include "RimNameConfig.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -56,6 +57,15 @@ class RimGridCrossPlotCurveSet : public RimCheckableNamedObject, public RimNameC
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum CurveCategorization
+    {
+        NO_CATEGORIZATION,
+        TIME_CATEGORIZATION,
+        FORMATION_CATEGORIZATION
+    };
+    typedef caf::AppEnum<CurveCategorization> CurveCategorizationEnum;
+
+public:
     RimGridCrossPlotCurveSet();
     ~RimGridCrossPlotCurveSet() = default;
 
@@ -84,6 +94,7 @@ private:
 
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
+    caf::PdmField<CurveCategorizationEnum>          m_categorization;
     caf::PdmChildField<RimEclipseResultDefinition*> m_xAxisProperty;
     caf::PdmChildField<RimEclipseResultDefinition*> m_yAxisProperty;
 

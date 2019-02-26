@@ -49,7 +49,7 @@ void RimGridCrossPlotCurve::determineColorAndSymbol(int curveSetIndex, int categ
 {
     if (contrastColors)
     {
-        const caf::ColorTable& colors = RiaColorTables::contrastCategoryPaletteColors();
+        const caf::ColorTable& colors = RiaColorTables::categoryPaletteColors();
         int colorIndex = categoryIndex + curveSetIndex; // Offset cycle for each curve set
         setColor(colors.cycledColor3f(colorIndex));
         int numColors = (int)colors.size();
