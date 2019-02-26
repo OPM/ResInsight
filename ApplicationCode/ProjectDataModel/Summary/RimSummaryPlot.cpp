@@ -1228,7 +1228,6 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     if (m_qwtPlot) m_qwtPlot->updateLegend();
     this->updateAxes();
-    updateZoomInQwt();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1244,6 +1243,8 @@ void RimSummaryPlot::updateZoomInQwt()
         updateZoomForAxis(RiaDefines::PLOT_AXIS_RIGHT);
 
         m_qwtPlot->replot();
+
+        updateAxisRangesFromQwt();
     }
 }
 
