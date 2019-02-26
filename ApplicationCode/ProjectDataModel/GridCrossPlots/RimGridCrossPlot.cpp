@@ -136,8 +136,10 @@ void RimGridCrossPlot::zoomAll()
     setAutoZoomForAllAxes(true);
     updateAxisInQwt(RiaDefines::PLOT_AXIS_LEFT);
     updateAxisInQwt(RiaDefines::PLOT_AXIS_BOTTOM);
-    updateZoomWindowFromQwt();
+    
     m_qwtPlot->replot();
+    
+    updateZoomWindowFromQwt();    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,8 +240,7 @@ void RimGridCrossPlot::updateZoomWindowFromQwt()
     
     updateAxisFromQwt(RiaDefines::PLOT_AXIS_LEFT);
     updateAxisFromQwt(RiaDefines::PLOT_AXIS_BOTTOM);
-    
-    setAutoZoomForAllAxes(false);
+    this->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -513,15 +514,6 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
     if (axisProperties->isActive())
     {
         m_qwtPlot->enableAxis(qwtAxisId, true);
-
-        if (axisProperties->isAutoZoom())
-        {
-            m_qwtPlot->setAxisAutoScale(qwtAxisId);
-        }
-        else
-        {
-            m_qwtPlot->setAxisScale(qwtAxisId, axisProperties->visibleRangeMin, axisProperties->visibleRangeMax);
-        }
         
         QwtText axisTitle(axisParameterString);
         QFont font = m_qwtPlot->axisFont(qwtAxisId);
@@ -561,6 +553,16 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
                 m_qwtPlot->setAxisMaxMinor(axisProperties->qwtPlotAxisType(), 3);
             }
         }
+
+        if (axisProperties->isAutoZoom())
+        {
+            m_qwtPlot->setAxisAutoScale(qwtAxisId);
+        }
+        else
+        {
+            m_qwtPlot->setAxisScale(qwtAxisId, axisProperties->visibleRangeMin, axisProperties->visibleRangeMax);
+        }
+
 
     }
     else

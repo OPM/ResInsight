@@ -106,7 +106,13 @@ void RimGridCrossPlotCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::updateLegendsInPlot() 
 {
-
+    RimGridCrossPlot* plot = nullptr;
+    this->firstAncestorOrThisOfType(plot);
+    if (plot)
+    {
+        plot->reattachCurvesToQwtAndReplot();
+    }
+    RimPlotCurve::updateLegendsInPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,4 +143,8 @@ void RimGridCrossPlotCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 {
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
     RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
+    nameGroup->add(&m_curveName);
+    nameGroup->add(&m_showLegend);
+    uiOrdering.skipRemainingFields(true);
 }

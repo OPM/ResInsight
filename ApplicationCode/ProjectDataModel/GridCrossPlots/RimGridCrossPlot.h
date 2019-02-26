@@ -92,7 +92,7 @@ protected:
 
     void updateAxisInQwt(RiaDefines::PlotAxis axisType);
     void updateAxisFromQwt(RiaDefines::PlotAxis axisType);
-
+    std::pair<double, double> getAxisRangeFromData(RiaDefines::PlotAxis axisType);
 private:
     caf::PdmField<bool>                                m_showLegend;
     caf::PdmField<int>                                 m_legendFontSize;
@@ -104,7 +104,7 @@ private:
     caf::PdmChildArrayField<RimGridCrossPlotCurveSet*> m_crossPlotCurveSets;
 
     QPointer<RiuQwtPlot>                      m_qwtPlot;
-    
+        
 };
 
 
