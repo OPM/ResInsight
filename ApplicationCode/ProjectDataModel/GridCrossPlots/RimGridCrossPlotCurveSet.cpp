@@ -405,7 +405,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurveSet::calculateValueOptions(co
 
     if (fieldNeedingOptions == &m_case)
     {
-        RimTools::caseOptionItems(&options);
+        RimTools::eclipseCaseOptionItems(&options);
         if (options.empty())
         {
             options.push_front(caf::PdmOptionItemInfo("None", nullptr));

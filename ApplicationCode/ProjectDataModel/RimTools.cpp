@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellLogFile.h"
@@ -300,6 +301,31 @@ void RimTools::caseOptionItems(QList<caf::PdmOptionItemInfo>* options)
         for (RimCase* c : cases)
         {
             options->push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::eclipseCaseOptionItems(QList<caf::PdmOptionItemInfo>* options)
+{
+    CVF_ASSERT(options);
+    if (!options) return;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj)
+    {
+        std::vector<RimCase*> cases;
+        proj->allCases(cases);
+
+        for (RimCase* c : cases)
+        {
+            RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(c);
+            if (eclipseCase)
+            {
+                options->push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+            }
         }
     }
 }
