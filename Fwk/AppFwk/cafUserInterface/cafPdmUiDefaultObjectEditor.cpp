@@ -90,7 +90,7 @@ PdmUiDefaultObjectEditor::~PdmUiDefaultObjectEditor()
 QWidget* PdmUiDefaultObjectEditor::createWidget(QWidget* parent)
 {
     QWidget* widget = new QWidget(parent);
-    
+    widget->setObjectName("ObjectEditor");
     QGridLayout* gridLayout = new QGridLayout();
     gridLayout->setContentsMargins(0, 0, 0, 0);
     widget->setLayout(gridLayout);

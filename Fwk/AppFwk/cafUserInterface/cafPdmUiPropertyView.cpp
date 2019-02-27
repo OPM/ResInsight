@@ -41,6 +41,7 @@
 
 #include <QEvent>
 #include <QHBoxLayout>
+#include <QResizeEvent>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTimer>
@@ -58,21 +59,6 @@ QVerticalScrollArea::QVerticalScrollArea(QWidget* parent) :
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool QVerticalScrollArea::eventFilter(QObject* object, QEvent* event)
-{
-    // This works because QScrollArea::setWidget installs an eventFilter on the widget
-    if (object && object == widget() && event->type() == QEvent::Resize)
-    {
-        setMinimumWidth(widget()->minimumSizeHint().width() + verticalScrollBar()->width());
-    }
-
-    return QScrollArea::eventFilter(object, event);
-}
-
-
 namespace caf
 {
 
@@ -83,12 +69,12 @@ namespace caf
 PdmUiPropertyView::PdmUiPropertyView(QWidget* parent, Qt::WindowFlags f)
     : QWidget (parent, f)
 {
-    QVerticalScrollArea* scrollArea = new QVerticalScrollArea(this);
-    scrollArea->setFrameStyle(QFrame::NoFrame);
-    scrollArea->setWidgetResizable(true);
+    m_scrollArea = new QVerticalScrollArea(this);
+    m_scrollArea->setFrameStyle(QFrame::NoFrame);
+    m_scrollArea->setWidgetResizable(true);
 
     m_placeholder = new QWidget();
-    scrollArea->setWidget(m_placeholder);
+    m_scrollArea->setWidget(m_placeholder);
 
     m_placeHolderLayout = new QVBoxLayout();
     m_placeHolderLayout->setContentsMargins(5,5,5,0);
@@ -96,7 +82,7 @@ PdmUiPropertyView::PdmUiPropertyView(QWidget* parent, Qt::WindowFlags f)
 
     QVBoxLayout* dummy = new QVBoxLayout(this);
     dummy->setContentsMargins(0,0,0,0);
-    dummy->addWidget(scrollArea);
+    dummy->addWidget(m_scrollArea);
 
     m_defaultObjectEditor = nullptr;
 }
@@ -180,6 +166,10 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
 
         // Add stretch to make sure the property widget is not stretched
         this->m_placeHolderLayout->insertStretch(-1, 1);
+
+        int minimumWidth = propertyWidget->minimumSizeHint().width() + m_scrollArea->verticalScrollBar()->width();
+        m_scrollArea->setMinimumWidth(minimumWidth);
+        m_scrollArea->adjustSize();
     }
 
     m_defaultObjectEditor->setPdmObject(object);

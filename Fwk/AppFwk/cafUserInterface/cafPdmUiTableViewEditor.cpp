@@ -321,6 +321,13 @@ void PdmUiTableViewEditor::onSelectionManagerSelectionChanged( const std::set<in
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTableViewEditor::isMultiRowEditor() const
+{
+    return true;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// NOTE: If no selection role is defined, the selection manager is not changed, the selection in the 

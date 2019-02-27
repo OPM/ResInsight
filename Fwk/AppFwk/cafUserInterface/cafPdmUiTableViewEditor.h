@@ -137,6 +137,7 @@ protected:
     void            configureAndUpdateUi(const QString& uiConfigName) override;
 
     void            onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
+    bool isMultiRowEditor() const override;
 
 private:
     void            selectedUiItems(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects);

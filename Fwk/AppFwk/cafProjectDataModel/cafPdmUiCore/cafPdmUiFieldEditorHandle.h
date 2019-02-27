@@ -98,7 +98,7 @@ public:
     QWidget*            editorWidget()                          { return m_editorWidget; }
     QWidget*            labelWidget()                           { return m_labelWidget; }
     QMargins            labelContentMargins() const;
-
+    int                 rowStretchFactor() const;
 protected: // Virtual interface to override
     /// Implement one of these, or both editor and label. The widgets will be used in the parent layout according to 
     /// being "Label" Editor" or a single combined widget. 
@@ -111,6 +111,7 @@ protected: // Virtual interface to override
 
     void                updateLabelFromField(QLabel* label, const QString& uiConfigName = "") const;
     virtual QMargins    calculateLabelContentMargins() const;
+    virtual bool isMultiRowEditor() const;
 
 private slots:
     void                customMenuRequested(QPoint pos);

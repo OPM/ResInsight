@@ -123,6 +123,14 @@ QMargins PdmUiFieldEditorHandle::labelContentMargins() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int PdmUiFieldEditorHandle::rowStretchFactor() const
+{
+    return isMultiRowEditor() ? 1 : 0;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void PdmUiFieldEditorHandle::setValueToField(const QVariant& newUiValue)
@@ -163,6 +171,14 @@ void PdmUiFieldEditorHandle::updateLabelFromField(QLabel* label, const QString& 
 QMargins PdmUiFieldEditorHandle::calculateLabelContentMargins() const
 {
     return m_labelWidget->contentsMargins();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiFieldEditorHandle::isMultiRowEditor() const
+{
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

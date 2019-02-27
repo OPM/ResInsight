@@ -36,11 +36,9 @@
 
 #pragma once
 
-#include <QWidget>
+#include <QFrame>
 
-class QFrame;
 class QLabel;
-class QPalette;
 class QPushButton;
 
 //==================================================================================================
@@ -48,7 +46,7 @@ class QPushButton;
 //
 //
 //==================================================================================================
-class QMinimizePanel : public QWidget
+class QMinimizePanel : public QFrame
 {
     Q_OBJECT
 public:
@@ -61,9 +59,6 @@ public:
     QString title() const;
     void    enableFrame(bool showFrame);
 
-    QSize   minimumSizeHint() const override;
-    QSize   sizeHint() const override;
-
 public slots:
     void    setExpanded(bool isExpanded);
     void    toggleExpanded();
@@ -71,20 +66,18 @@ public slots:
 signals:
     void    expandedChanged(bool isExpanded);
 
-public:
-
 protected:
 
     QFrame*         m_titleFrame;
     QLabel*         m_titleLabel;
     QPushButton*    m_collapseButton;
     QFrame*         m_contentFrame;
-    QPalette        m_contentPalette;
-
-    void    resizeEvent(QResizeEvent *) override;
-    bool    event(QEvent* event) override; // To catch QEvent::LayoutRequest
 
 private:
     void    initialize(const QString &title);
+
+    QString titleFrameStyleSheet();
+    QString contentFrameStyleSheet();
     QSize   calculateSizeHint(bool minimumSizeHint) const;
+
 };

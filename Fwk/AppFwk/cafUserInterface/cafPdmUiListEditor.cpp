@@ -520,4 +520,12 @@ bool PdmUiListEditor::eventFilter(QObject* object, QEvent * event)
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiListEditor::isMultiRowEditor() const
+{
+    return true;
+}
+
 } // end namespace caf

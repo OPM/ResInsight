@@ -54,7 +54,6 @@ class QVerticalScrollArea : public QScrollArea
     Q_OBJECT
 public:
     explicit QVerticalScrollArea(QWidget* parent = nullptr);
-    bool eventFilter(QObject* object, QEvent* event) override;
 };
 
 
@@ -85,10 +84,11 @@ public slots:
     void                slotScheduleScrollToSelectedItemsInFieldEditors();
 
 private:
-    PdmUiDefaultObjectEditor* m_defaultObjectEditor;
-    QString                   m_uiConfigName;
-    QPointer<QVBoxLayout>     m_placeHolderLayout;
-    QPointer<QWidget>         m_placeholder;
+    PdmUiDefaultObjectEditor*     m_defaultObjectEditor;
+    QString                       m_uiConfigName;
+    QPointer<QVBoxLayout>         m_placeHolderLayout;
+    QPointer<QWidget>             m_placeholder;
+    QPointer<QVerticalScrollArea> m_scrollArea;
 };
 
 } // End of namespace caf

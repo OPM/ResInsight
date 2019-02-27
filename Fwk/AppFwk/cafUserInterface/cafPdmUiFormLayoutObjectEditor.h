@@ -75,11 +75,11 @@ protected:
     virtual void    recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
                                                                     const QString& uiConfigName) = 0;
     
-    void            recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(const PdmUiOrdering& uiOrdering,
+    bool            recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(const PdmUiOrdering& uiOrdering,
                                                                               QWidget* containerWidgetWithGridLayout,
                                                                               const QString& uiConfigName);
 
-    void recursivelyAddGroupToGridLayout(PdmUiItem*     currentItem,
+    bool recursivelyAddGroupToGridLayout(PdmUiItem*     currentItem,
                                          QWidget*       containerWidget,
                                          const QString& uiConfigName,
                                          QGridLayout*   parentLayout,
