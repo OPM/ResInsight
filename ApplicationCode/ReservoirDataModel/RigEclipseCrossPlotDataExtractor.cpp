@@ -74,8 +74,12 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
         if (resultTimeStep == -1)
         {
             size_t nStepsInData = std::max(xValuesForAllSteps.size(), yValuesForAllSteps.size());
-            CVF_ASSERT(xValuesForAllSteps.size() == 1u || xValuesForAllSteps.size() == nStepsInData);
-            CVF_ASSERT(yValuesForAllSteps.size() == 1u || yValuesForAllSteps.size() == nStepsInData);
+            bool xValid = xValuesForAllSteps.size() == 1u || xValuesForAllSteps.size() == nStepsInData;
+            bool yValid = yValuesForAllSteps.size() == 1u || yValuesForAllSteps.size() == nStepsInData;
+            
+            if (!(xValid && yValid))
+                return result;
+
             for (size_t i = 0; i < nStepsInData; ++i)
             {
                 timeStepsToInclude.insert((int)i);
@@ -141,7 +145,7 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
         QString categoryName;
         if (categorizationType == TIME_CATEGORIZATION && categorySamplesMap.size() > 1u)
         {
-            if (sampleCategory.first < timeStepDates.size())
+            if (sampleCategory.first < static_cast<int>(timeStepDates.size()))
             {
                 categoryName = RiaQDateTimeTools::toStringUsingApplicationLocale(timeStepDates[sampleCategory.first], timeFormatString);
             }

@@ -65,6 +65,8 @@ public:
     
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 detachAllCurves();
+    void                 performAutoNameUpdate() override;
+
 public:
     // Rim2dPlotInterface overrides
     void updateAxisScaling() override;
@@ -85,7 +87,6 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
 
-    void performAutoNameUpdate() override;
     void updatePlot();
     QString xAxisParameterString() const;
     QString yAxisParameterString() const;
