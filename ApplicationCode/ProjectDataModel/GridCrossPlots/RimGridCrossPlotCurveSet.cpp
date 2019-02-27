@@ -30,9 +30,11 @@
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseView.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
+#include "RimGridView.h"
 #include "RimProject.h"
 #include "RimTools.h"
 
@@ -67,6 +69,8 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     m_case.uiCapability()->setUiTreeChildrenHidden(true);
     CAF_PDM_InitField(&m_timeStep, "TimeStep", -1, "Time Step", "", "", "");
     m_timeStep.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+
+    CAF_PDM_InitFieldNoDefault(&m_cellFilterView, "VisibleCellView", "Limit to Cells Visible in View", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_categorization, "Categorization", "Data Categorization", "", "", "");
 
@@ -243,6 +247,17 @@ void RimGridCrossPlotCurveSet::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::cellFilterViewUpdated()
+{
+    if (m_cellFilterView())
+    {
+        loadDataAndUpdate(true);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimGridCrossPlotCurve*> RimGridCrossPlotCurveSet::curves() const
 {
     return m_crossPlotCurves.childObjects();
@@ -295,8 +310,10 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
     RigEclipseResultAddress yAddress(m_yAxisProperty->resultType(), m_yAxisProperty->resultVariable());
     RigEclipseResultAddress catAddress(m_categoryProperty->resultType(), m_categoryProperty->resultVariable());
 
+    std::map<int, cvf::UByteArray> timeStepCellVisibilityMap = calculateCellVisibility(eclipseCase);
+
     RigEclipseCrossPlotResult result = RigEclipseCrossPlotDataExtractor::extract(
-        eclipseCase->eclipseCaseData(), m_timeStep(), xAddress, yAddress, m_categorization(), catAddress, m_categoryBinCount);
+        eclipseCase->eclipseCaseData(), m_timeStep(), xAddress, yAddress, m_categorization(), catAddress, m_categoryBinCount, timeStepCellVisibilityMap);
 
     for (const auto& sampleCategory : result.categorySamplesMap)
     {
@@ -330,12 +347,45 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<int, cvf::UByteArray> RimGridCrossPlotCurveSet::calculateCellVisibility(RimEclipseCase* eclipseCase) const
+{
+    std::map<int, cvf::UByteArray> timeStepCellVisibilityMap;
+    if (m_cellFilterView)
+    {
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_cellFilterView());
+        if (eclipseView)
+        {
+            std::set<int> timeSteps;
+            if (m_timeStep() == -1)
+            {
+                for (int i = 0; i < (int)eclipseCase->timeStepDates().size(); ++i)
+                {
+                    timeSteps.insert(i);
+                }
+            }
+            else
+            {
+                timeSteps.insert(m_timeStep());
+            }
+            for (int i : timeSteps)
+            {
+                eclipseView->calculateCurrentTotalCellVisibility(&timeStepCellVisibilityMap[i], i);
+            }
+        }
+    }
+    return timeStepCellVisibilityMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_case);
     if (m_case)
     {
         uiOrdering.add(&m_timeStep);
+        uiOrdering.add(&m_cellFilterView);
         uiOrdering.add(&m_categorization);
 
         if (m_categorization() == RESULT_CATEGORIZATION)
@@ -389,6 +439,10 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
         loadDataAndUpdate(true);
     }
+    else if (changedField == &m_cellFilterView)
+    {
+        loadDataAndUpdate(true);
+    }
     else if (changedField == &m_isChecked)
     {
         triggerReplotAndTreeRebuild();
@@ -423,6 +477,18 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurveSet::calculateValueOptions(co
         for (int i = 0; i < timeStepNames.size(); i++)
         {
             options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
+        }
+    }
+    else if (fieldNeedingOptions == &m_cellFilterView)
+    {
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
+        if (eclipseCase)
+        {
+            options.push_back(caf::PdmOptionItemInfo("Disabled", nullptr));
+            for (RimEclipseView* view : eclipseCase->reservoirViews.childObjects())
+            {
+                options.push_back(caf::PdmOptionItemInfo(view->name(), view, false, view->uiIcon()));
+            }
         }
     }
     return options;

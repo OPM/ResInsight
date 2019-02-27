@@ -19,6 +19,9 @@
 
 #include "RigGridCrossPlotCurveCategorization.h"
 
+#include "cvfBase.h"
+#include "cvfArray.h"
+
 #include <map>
 #include <utility>
 #include <vector>
@@ -48,5 +51,6 @@ public:
                                              const RigEclipseResultAddress&      yAddress,
                                              RigGridCrossPlotCurveCategorization categorizationType,
                                              const RigEclipseResultAddress&      categoryAddress,
-                                             int                                 categoryBinCount);
+                                             int                                 categoryBinCount,
+                                             std::map<int, cvf::UByteArray>      timeStepCellVisibilityMap);
 };

@@ -56,6 +56,7 @@
 #include "RimFracture.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGridCollection.h"
+#include "RimGridCrossPlotCurveSet.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimOilField.h"
@@ -552,13 +553,23 @@ void RimEclipseView::createDisplayModel()
         updateLegends();
     }
 
-    std::vector<RimFlowCharacteristicsPlot*> objects;
-    this->objectsWithReferringPtrFieldsOfType(objects);
-    for (auto plot : objects)
+    std::vector<RimFlowCharacteristicsPlot*> characteristicsPlots;
+    this->objectsWithReferringPtrFieldsOfType(characteristicsPlots);
+    for (auto plot : characteristicsPlots)
     {
         if (plot != nullptr)
         {
             plot->viewGeometryUpdated();
+        }
+    }
+
+    std::vector<RimGridCrossPlotCurveSet*> curveSets;
+    this->objectsWithReferringPtrFieldsOfType(curveSets);
+    for (auto curveSet : curveSets)
+    {
+        if (curveSet != nullptr)
+        {
+            curveSet->cellFilterViewUpdated();
         }
     }
 

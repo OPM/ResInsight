@@ -29,10 +29,15 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include <cvfArray.h>
+
 #include <QList>
+#include <map>
 
 class RimCase;
 class RimGridCrossPlotCurve;
+class RimGridView;
+class RimEclipseCase;
 class RimEclipseResultDefinition;
 class QwtPlot;
 class QwtPlotCurve;
@@ -79,12 +84,16 @@ public:
     QString createAutoName() const override;
     QString createShortAutoName() const;
     void    detachAllCurves();
-    
+    void    cellFilterViewUpdated();
+
     std::vector< RimGridCrossPlotCurve*> curves() const;
 
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);
+
+    std::map<int, cvf::UByteArray> calculateCellVisibility(RimEclipseCase* eclipseCase) const;
+
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -98,6 +107,7 @@ private:
 
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
+    caf::PdmPtrField<RimGridView*>                  m_cellFilterView;
     caf::PdmField<CurveCategorizationEnum>          m_categorization;
     caf::PdmChildField<RimEclipseResultDefinition*> m_xAxisProperty;
     caf::PdmChildField<RimEclipseResultDefinition*> m_yAxisProperty;

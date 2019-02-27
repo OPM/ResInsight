@@ -40,7 +40,8 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
                                                                     const RigEclipseResultAddress&      yAddress,
                                                                     RigGridCrossPlotCurveCategorization categorizationType,
                                                                     const RigEclipseResultAddress&      catAddress,
-                                                                    int                                 categoryBinCount)
+                                                                    int                                 categoryBinCount,
+                                                                    std::map<int, cvf::UByteArray>      timeStepCellVisibilityMap)
 {
     RigEclipseCrossPlotResult result;
     RigEclipseCrossPlotResult::CategorySamplesMap& categorySamplesMap = result.categorySamplesMap;
@@ -92,6 +93,12 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
 
         for (int timeStep : timeStepsToInclude)
         {
+            const cvf::UByteArray* cellVisibility = nullptr;
+            if (timeStepCellVisibilityMap.count(timeStep))
+            {
+                cellVisibility = &timeStepCellVisibilityMap[timeStep];
+            }            
+
             int xIndex = timeStep >= (int)xValuesForAllSteps.size() ? 0 : timeStep;
             int yIndex = timeStep >= (int)yValuesForAllSteps.size() ? 0 : timeStep;
 
@@ -107,6 +114,8 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
 
             for (size_t globalCellIdx = 0; globalCellIdx < activeCellInfo->reservoirCellCount(); ++globalCellIdx)
             {
+                if (cellVisibility && !(*cellVisibility)[globalCellIdx]) continue;
+
                 double xValue = xAccessor.cellScalarGlobIdx(globalCellIdx);
                 double yValue = yAccessor.cellScalarGlobIdx(globalCellIdx);
 
