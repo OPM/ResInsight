@@ -32,7 +32,6 @@
 #include "RimEclipseResultCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
@@ -937,7 +936,7 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(
         {
             allTimeSteps.push_back(timeStepPair.first);
         }
-        dateFormatString = RimTools::createTimeFormatStringFromDates(allTimeSteps);
+        dateFormatString = RiaQDateTimeTools::createTimeFormatStringFromDates(allTimeSteps);
     }
 
     for (const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources)

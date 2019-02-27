@@ -57,7 +57,6 @@
 #include "RimGeoMechView.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimTools.h"
 
 #include "RiuViewer.h"
 
@@ -1092,7 +1091,7 @@ QString Rim3dOverlayInfoConfig::timeStepText(RimEclipseView* eclipseView)
     QString dateTimeString;
     if (currTimeStepIndex >= 0 && currTimeStepIndex < (int)timeSteps.size())
     {
-        QString dateFormat = RimTools::createTimeFormatStringFromDates(timeSteps);
+        QString dateFormat = RiaQDateTimeTools::createTimeFormatStringFromDates(timeSteps);
 
         QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(timeSteps[currTimeStepIndex], dateFormat);
 

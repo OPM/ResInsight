@@ -293,12 +293,12 @@ void RimGridCrossPlotCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUi
     {
         uiOrdering.add(&m_timeStep);
         uiOrdering.add(&m_categorization);
+        uiOrdering.add(&m_categoryBinCount);
 
         if (m_categorization() == RESULT_CATEGORIZATION)
         {
             caf::PdmUiGroup* categoryGroup = uiOrdering.addNewGroup("Categorization Property");
             m_categoryProperty->uiOrdering(uiConfigName, *categoryGroup);
-            categoryGroup->add(&m_categoryBinCount);
         }
 
         caf::PdmUiGroup* xAxisGroup = uiOrdering.addNewGroup("X-Axis Property");

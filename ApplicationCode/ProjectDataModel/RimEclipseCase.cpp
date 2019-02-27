@@ -55,7 +55,6 @@
 #include "RimReloadCaseTools.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimStimPlanColors.h"
-#include "RimTools.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -588,7 +587,7 @@ void RimEclipseCase::createTimeStepFormatString()
 {
     std::vector<QDateTime> timeStepDates = this->timeStepDates();
 
-    m_timeStepFormatString = RimTools::createTimeFormatStringFromDates(timeStepDates);
+    m_timeStepFormatString = RiaQDateTimeTools::createTimeFormatStringFromDates(timeStepDates);
 }
 
 //--------------------------------------------------------------------------------------------------

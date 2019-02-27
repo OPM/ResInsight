@@ -334,7 +334,7 @@ void RimWellLogFile::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
     caf::PdmUiDateEditorAttribute* attrib = dynamic_cast<caf::PdmUiDateEditorAttribute*> (attribute);
     if (attrib != nullptr)
     {
-        attrib->dateFormat = RimTools::dateFormatString();
+        attrib->dateFormat = RiaQDateTimeTools::dateFormatString();
     }
 }
 

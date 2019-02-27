@@ -307,60 +307,6 @@ void RimTools::caseOptionItems(QList<caf::PdmOptionItemInfo>* options)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimTools::createTimeFormatStringFromDates(const std::vector<QDateTime>& dates)
-{
-    bool hasHoursAndMinutesInTimesteps = false;
-    bool hasSecondsInTimesteps = false;
-    bool hasMillisecondsInTimesteps = false;
-
-    for (size_t i = 0; i < dates.size(); i++)
-    {
-        if (dates[i].time().msec() != 0.0)
-        {
-            hasMillisecondsInTimesteps = true;
-            hasSecondsInTimesteps = true;
-            hasHoursAndMinutesInTimesteps = true;
-            break;
-        }
-        else if (dates[i].time().second() != 0.0)
-        {
-            hasHoursAndMinutesInTimesteps = true;
-            hasSecondsInTimesteps = true;
-        }
-        else if (dates[i].time().hour() != 0.0 || dates[i].time().minute() != 0.0)
-        {
-            hasHoursAndMinutesInTimesteps = true;
-        }
-    }
-
-    QString formatString = dateFormatString();
-    if (hasHoursAndMinutesInTimesteps)
-    {
-        formatString += " - hh:mm";
-        if (hasSecondsInTimesteps)
-        {
-            formatString += ":ss";
-            if (hasMillisecondsInTimesteps)
-            {
-                formatString += ".zzz";
-            }
-        }
-    }
-
-    return formatString;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimTools::dateFormatString()
-{
-    return "dd.MMM yyyy";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimWellPathCollection* RimTools::wellPathCollection()
 {
     RimProject* proj = RiaApplication::instance()->project();

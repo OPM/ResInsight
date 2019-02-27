@@ -21,6 +21,7 @@
 #include "RimEclipseResultDefinition.h"
 
 #include "RiaLogging.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -46,7 +47,6 @@
 #include "RimPlotCurve.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimTools.h"
 #include "RimViewLinker.h"
 #include "RimWellLogExtractionCurve.h"
 
@@ -679,7 +679,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
             std::vector<QDateTime> stepDates = baseCase->timeStepDates();
             for (size_t stepIdx = 0; stepIdx < stepDates.size(); ++stepIdx)
             {
-                QString displayString = stepDates[stepIdx].toString(RimTools::dateFormatString());
+                QString displayString = stepDates[stepIdx].toString(RiaQDateTimeTools::dateFormatString());
                 displayString += QString(" (#%1)").arg(stepIdx);
 
                 options.push_back(caf::PdmOptionItemInfo(displayString, static_cast<int>(stepIdx)));
@@ -859,7 +859,7 @@ QString RimEclipseResultDefinition::diffResultUiName() const
         {
             stepDates = gridCellResults->timeStepDates();
             diffResult += QString("<b>Base Time Step</b>: %1")
-                              .arg(stepDates[m_timeLapseBaseTimestep()].toString(RimTools::dateFormatString()));
+                              .arg(stepDates[m_timeLapseBaseTimestep()].toString(RiaQDateTimeTools::dateFormatString()));
         }
     }
     if (isCaseDiffResult())

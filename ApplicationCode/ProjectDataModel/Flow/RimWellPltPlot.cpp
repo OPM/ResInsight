@@ -43,7 +43,6 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
-#include "RimTools.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
@@ -510,7 +509,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         {
             allTimeSteps.push_back(curveDefToAdd.timeStep());
         }
-        dateFormatString = RimTools::createTimeFormatStringFromDates(allTimeSteps);
+        dateFormatString = RiaQDateTimeTools::createTimeFormatStringFromDates(allTimeSteps);
     }
 
     // Add curves

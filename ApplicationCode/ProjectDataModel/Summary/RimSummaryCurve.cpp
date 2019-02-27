@@ -991,7 +991,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                     timeSteps.push_back(first);
                     timeSteps.push_back(last);
 
-                    QString formatString = RimTools::createTimeFormatStringFromDates(timeSteps);
+                    QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates(timeSteps);
 
                     description += QString("Time step range for X : '%1' - '%2'")
                         .arg(first.toString(formatString))
@@ -1006,7 +1006,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                     timeSteps.push_back(first);
                     timeSteps.push_back(last);
 
-                    QString formatString = RimTools::createTimeFormatStringFromDates(timeSteps);
+                    QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates(timeSteps);
 
                     description += "\n";
                     description += QString("Time step range for Y : '%1' - '%2'")

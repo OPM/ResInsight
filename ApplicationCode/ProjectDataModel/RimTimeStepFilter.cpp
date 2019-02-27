@@ -28,7 +28,6 @@
 #include "RimGeoMechCase.h"
 #include "RimReloadCaseTools.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimTools.h"
 
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -103,7 +102,7 @@ void RimTimeStepFilter::clearFilteredTimeSteps()
 //--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<QDateTime>& timeSteps)
 {
-    m_dateFormat = RimTools::createTimeFormatStringFromDates(timeSteps);
+    m_dateFormat = RiaQDateTimeTools::createTimeFormatStringFromDates(timeSteps);
     
     std::vector<QString> timeStepStrings;
     for (const QDateTime& date : timeSteps)
@@ -136,7 +135,7 @@ void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<std::pair<QString
             validDates.push_back(stringDatePair.second);
         }
     }
-    m_dateFormat = RimTools::createTimeFormatStringFromDates(validDates);
+    m_dateFormat = RiaQDateTimeTools::createTimeFormatStringFromDates(validDates);
     
     std::vector<QString> timeStepStrings;
     for (auto stringDatePair : timeSteps)

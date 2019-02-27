@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RigEclipseCrossPlotDataExtractor.h"
 
+#include "RiaQDateTimeTools.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigActiveCellsResultAccessor.h"
 #include "RigCaseCellResultsData.h"
@@ -132,6 +134,7 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
     }
 
     std::vector<QDateTime> timeStepDates = resultData->timeStepDates();
+    QString timeFormatString = RiaQDateTimeTools::createTimeFormatStringFromDates(timeStepDates);
 
     for (const auto& sampleCategory : categorySamplesMap)
     {
@@ -140,7 +143,7 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
         {
             if (sampleCategory.first < timeStepDates.size())
             {
-                categoryName = timeStepDates[sampleCategory.first].toString(Qt::ISODate);
+                categoryName = RiaQDateTimeTools::toStringUsingApplicationLocale(timeStepDates[sampleCategory.first], timeFormatString);
             }
         }
         else if (categorizationType == FORMATION_CATEGORIZATION && activeFormationNames)
