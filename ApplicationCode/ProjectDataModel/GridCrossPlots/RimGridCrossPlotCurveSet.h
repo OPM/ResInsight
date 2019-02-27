@@ -43,6 +43,7 @@ public:
     caf::PdmField<bool> addCaseName;
     caf::PdmField<bool> addAxisVariables;
     caf::PdmField<bool> addTimestep;
+    caf::PdmField<bool> addCategorization;
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -61,7 +62,8 @@ public:
     {
         NO_CATEGORIZATION,
         TIME_CATEGORIZATION,
-        FORMATION_CATEGORIZATION
+        FORMATION_CATEGORIZATION,
+        RESULT_CATEGORIZATION
     };
     typedef caf::AppEnum<CurveCategorization> CurveCategorizationEnum;
 
@@ -90,6 +92,8 @@ protected:
     void triggerReplotAndTreeRebuild();
     void performAutoNameUpdate() override;
     void setDefaults();
+    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+
 private:
 
     caf::PdmPtrField<RimCase*>                      m_case;
@@ -97,6 +101,8 @@ private:
     caf::PdmField<CurveCategorizationEnum>          m_categorization;
     caf::PdmChildField<RimEclipseResultDefinition*> m_xAxisProperty;
     caf::PdmChildField<RimEclipseResultDefinition*> m_yAxisProperty;
+    caf::PdmChildField<RimEclipseResultDefinition*> m_categoryProperty;
+    caf::PdmField<int>                              m_categoryBinCount;
 
     caf::PdmChildField<RimGridCrossPlotCurveSetNameConfig*> m_nameConfig;
 

@@ -35,6 +35,7 @@
 #include "RimTools.h"
 
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiSliderEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSet, "GridCrossPlotCurveSet");
 
@@ -48,6 +49,7 @@ void AppEnum<RimGridCrossPlotCurveSet::CurveCategorization>::setUp()
     addItem(RimGridCrossPlotCurveSet::NO_CATEGORIZATION, "NONE", "None");
     addItem(RimGridCrossPlotCurveSet::TIME_CATEGORIZATION, "TIME", "Time");
     addItem(RimGridCrossPlotCurveSet::FORMATION_CATEGORIZATION, "FORMATION", "Formations");
+    addItem(RimGridCrossPlotCurveSet::RESULT_CATEGORIZATION, "RESULT", "Result Property");
     setDefault(RimGridCrossPlotCurveSet::TIME_CATEGORIZATION);
 }
 }
@@ -75,6 +77,14 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     m_yAxisProperty = new RimEclipseResultDefinition;
     m_yAxisProperty.uiCapability()->setUiHidden(true);
     m_yAxisProperty.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_categoryProperty, "CategoryProperty", "Categorisation Property", "", "", "");
+    m_categoryProperty = new RimEclipseResultDefinition;
+    m_categoryProperty.uiCapability()->setUiHidden(true);
+    m_categoryProperty.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitField(&m_categoryBinCount, "CategoryBinCount", 2, "Category Bin Count", "", "", "");
+    m_categoryBinCount.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "Name", "", "", "");
     m_nameConfig = new RimGridCrossPlotCurveSetNameConfig(this);
@@ -203,8 +213,66 @@ void RimGridCrossPlotCurveSet::initAfterRead()
     {
         m_xAxisProperty->setEclipseCase(eclipseCase);
         m_yAxisProperty->setEclipseCase(eclipseCase);
+        m_categoryProperty->setEclipseCase(eclipseCase);
     }
 }
+
+class RigEclipseResultBinSorter
+{
+public:
+    RigEclipseResultBinSorter(const std::vector<std::vector<double>>& allDataValues, int binCount)
+        : m_allDataValues(allDataValues)
+        , m_binCount(binCount)
+        , m_minValue(std::numeric_limits<double>::infinity())
+        , m_maxValue(-std::numeric_limits<double>::infinity())
+        , m_binSize(0.0)
+    {
+        calculateRange();
+    }
+
+    int binNumber(double value) const
+    {
+        double distFromMin = value - m_minValue;        
+        return std::min(m_binCount - 1, static_cast<int>(distFromMin / m_binSize));
+    }
+
+    std::pair<double, double> binRange(int binNumber)
+    {
+        double minBinValue = m_minValue + m_binSize * binNumber;
+        double maxBinBalue = minBinValue + m_binSize;
+        return std::make_pair(minBinValue, maxBinBalue);
+    }
+
+private:
+    void calculateRange()
+    {
+        for (const std::vector<double>& doubleRange : m_allDataValues)
+        {
+            if (!doubleRange.empty())
+            {
+                for (double value : doubleRange)
+                {
+                    if (value != std::numeric_limits<double>::infinity())
+                    {
+                        m_minValue = std::min(m_minValue, value);
+                        m_maxValue = std::max(m_maxValue, value);
+                    }
+                }
+            }
+        }
+
+        if (m_maxValue > m_minValue)
+        {
+            m_binSize = (m_maxValue - m_minValue) / m_binCount;
+        }
+    }
+private:
+    const std::vector<std::vector<double>>& m_allDataValues;
+    int                                     m_binCount;
+    double                                  m_minValue;
+    double                                  m_maxValue;
+    double                                  m_binSize;
+};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -236,6 +304,10 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 
             RigEclipseResultAddress xAddress(m_xAxisProperty->resultType(), m_xAxisProperty->resultVariable());
             RigEclipseResultAddress yAddress(m_yAxisProperty->resultType(), m_yAxisProperty->resultVariable());
+            RigEclipseResultAddress catAddress(m_categoryProperty->resultType(), m_categoryProperty->resultVariable());
+
+            std::unique_ptr<RigEclipseResultBinSorter> catBinSorter;
+            const std::vector<std::vector<double>>*    catValuesForAllSteps = nullptr;
 
             if (xAddress.isValid() && yAddress.isValid())
             {
@@ -247,6 +319,13 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 
                 const std::vector<std::vector<double>>& xValuesForAllSteps = resultData->cellScalarResults(xAddress);
                 const std::vector<std::vector<double>>& yValuesForAllSteps = resultData->cellScalarResults(yAddress);
+
+                if (m_categorization() == RESULT_CATEGORIZATION && catAddress.isValid())
+                {
+                    resultData->ensureKnownResultLoaded(catAddress);
+                    catValuesForAllSteps = &resultData->cellScalarResults(catAddress);
+                    catBinSorter.reset(new RigEclipseResultBinSorter(*catValuesForAllSteps, m_categoryBinCount));
+                }
 
                 std::set<int> timeStepsToInclude;
                 if (m_timeStep() == -1)
@@ -267,12 +346,22 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
                 for (int timeStep : timeStepsToInclude)
                 {
                     int xIndex = timeStep >= (int)xValuesForAllSteps.size() ? 0 : timeStep;
-                    int yIndex = timeStep >= (int)yValuesForAllSteps.size() ? 0 : timeStep;
+                    int yIndex = timeStep >= (int)yValuesForAllSteps.size() ? 0 : timeStep;                    
 
                     RigActiveCellsResultAccessor xAccessor(mainGrid, &xValuesForAllSteps[xIndex], activeCellInfo);
                     RigActiveCellsResultAccessor yAccessor(mainGrid, &yValuesForAllSteps[yIndex], activeCellInfo);
+                    std::unique_ptr<RigActiveCellsResultAccessor> catAccessor;
+                    if (catValuesForAllSteps)
+                    {
+                        int catIndex = timeStep >= (int)catValuesForAllSteps->size() ? 0 : timeStep;
+                        catAccessor.reset(new RigActiveCellsResultAccessor(mainGrid, &(catValuesForAllSteps->at(catIndex)), activeCellInfo));
+                    }
+
                     for (size_t globalCellIdx = 0; globalCellIdx < activeCellInfo->reservoirCellCount(); ++globalCellIdx)
                     {
+                        double xValue = xAccessor.cellScalarGlobIdx(globalCellIdx);
+                        double yValue = yAccessor.cellScalarGlobIdx(globalCellIdx);
+
                         int category = 0;
                         if (m_categorization() == TIME_CATEGORIZATION)
                         {
@@ -286,8 +375,11 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
                                 category = activeFormationNames->formationIndexFromKLayerIdx(k);
                             }
                         }
-                        double xValue = xAccessor.cellScalarGlobIdx(globalCellIdx);
-                        double yValue = yAccessor.cellScalarGlobIdx(globalCellIdx);
+                        else if (catAccessor && catBinSorter)
+                        {
+                            double catValue = catAccessor->cellScalarGlobIdx(globalCellIdx);
+                            category = catBinSorter->binNumber(catValue);
+                        }
                         if (xValue != HUGE_VAL && yValue != HUGE_VAL)
                         {
                             samples[category].push_back(QPointF(xValue, yValue));
@@ -315,6 +407,11 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
                 else if (m_categorization() == FORMATION_CATEGORIZATION && activeFormationNames)
                 {
                     categoryName = activeFormationNames->formationNameFromKLayerIdx(sampleCategory.first);
+                }
+                else if (catBinSorter)
+                {
+                    std::pair<double, double> binRange = catBinSorter->binRange(sampleCategory.first);
+                    categoryName = QString("%1 [%2, %3]").arg(m_categoryProperty->resultVariableUiShortName()).arg(binRange.first).arg(binRange.second);
                 }
 
                 if (categoryName.isEmpty())
@@ -353,12 +450,20 @@ void RimGridCrossPlotCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUi
         uiOrdering.add(&m_timeStep);
         uiOrdering.add(&m_categorization);
 
+        if (m_categorization() == RESULT_CATEGORIZATION)
+        {
+            caf::PdmUiGroup* categoryGroup = uiOrdering.addNewGroup("Categorization Property");
+            m_categoryProperty->uiOrdering(uiConfigName, *categoryGroup);
+            categoryGroup->add(&m_categoryBinCount);
+        }
+
         caf::PdmUiGroup* xAxisGroup = uiOrdering.addNewGroup("X-Axis Property");
         m_xAxisProperty->uiOrdering(uiConfigName, *xAxisGroup);
 
         caf::PdmUiGroup* yAxisGroup = uiOrdering.addNewGroup("Y-Axis Property");
         m_yAxisProperty->uiOrdering(uiConfigName, *yAxisGroup);
     }
+
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Name Configuration");
     m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
 
@@ -379,8 +484,12 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
         {
             m_xAxisProperty->setEclipseCase(eclipseCase);
             m_yAxisProperty->setEclipseCase(eclipseCase);
+            m_categoryProperty->setEclipseCase(eclipseCase);
+            // TODO: Do we need all these??
             m_xAxisProperty->updateConnectedEditors();
             m_yAxisProperty->updateConnectedEditors();
+            m_categoryProperty->updateConnectedEditors();
+
             loadDataAndUpdate(true);
         }
     }
@@ -388,7 +497,7 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
         loadDataAndUpdate(true);
     }
-    else if (changedField == &m_categorization)
+    else if (changedField == &m_categorization || changedField == &m_categoryBinCount)
     {
         loadDataAndUpdate(true);
     }
@@ -464,6 +573,7 @@ void RimGridCrossPlotCurveSet::setDefaults()
             m_case = eclipseCase;
             m_xAxisProperty->setEclipseCase(eclipseCase);
             m_yAxisProperty->setEclipseCase(eclipseCase);
+            m_categoryProperty->setEclipseCase(eclipseCase);
 
             m_xAxisProperty->setResultType(RiaDefines::DYNAMIC_NATIVE);
             m_xAxisProperty->setResultVariable("SOIL");
@@ -472,6 +582,24 @@ void RimGridCrossPlotCurveSet::setDefaults()
             m_yAxisProperty->setResultVariable("PRESSURE");
         }
     }    
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                     QString                    uiConfigName,
+                                                     caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_categoryBinCount)
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_minimum = 2;
+            myAttr->m_maximum = 50;
+        }
+    }
 }
 
 CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSetNameConfig, "RimGridCrossPlotCurveSetNameConfig");
@@ -487,6 +615,7 @@ RimGridCrossPlotCurveSetNameConfig::RimGridCrossPlotCurveSetNameConfig(RimNameCo
     CAF_PDM_InitField(&addCaseName, "AddCaseName", false, "Add Case Name", "", "", "");
     CAF_PDM_InitField(&addAxisVariables, "AddAxisVariables", true, "Add Axis Variables", "", "", "");
     CAF_PDM_InitField(&addTimestep, "AddTimeStep", false, "Add Time Step", "", "", "");
+    CAF_PDM_InitField(&addCategorization, "AddCategorization", false, "Add Data Categorization", "", "", "");
 
     setCustomName("");
 }
@@ -499,4 +628,5 @@ void RimGridCrossPlotCurveSetNameConfig::defineUiOrdering(QString uiConfigName, 
     uiOrdering.add(&addCaseName);
     uiOrdering.add(&addAxisVariables);
     uiOrdering.add(&addTimestep);
+    uiOrdering.add(&addCategorization);
 }
