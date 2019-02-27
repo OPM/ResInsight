@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2019- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,37 +17,29 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimPlotCurve.h"
-
-#include "cafPdmChildField.h"
-#include "cafPdmPtrField.h"
-
-#include <QPointF>
-#include <QVector>
-
-class RimCase;
-class RimEclipseResultDefinition;
-class QwtPlotCurve;
+#include <utility>
+#include <vector>
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimGridCrossPlotCurve : public RimPlotCurve
+class RigEclipseResultBinSorter
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimGridCrossPlotCurve();
-    ~RimGridCrossPlotCurve() override = default;
-    void determineColorAndSymbol(int curveSetIndex, int categoryIndex, int nCategories, bool contrastColors = false);
-    void setSamples(const std::vector<double>& xValues, const std::vector<double>& yValues);
+    RigEclipseResultBinSorter(const std::vector<std::vector<double>>& allDataValues, int binCount);
 
-protected:
-    void updateZoomInParentPlot() override;
-    void updateLegendsInPlot() override;
-    QString createCurveAutoName() override;
-    void onLoadDataAndUpdate(bool updateParentPlot) override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    int                       binNumber(double value) const;
+    std::pair<double, double> binRange(int binNumber) const;
+
+private:
+    void calculateRange();
+
+private:
+    const std::vector<std::vector<double>>& m_allDataValues;
+    int                                     m_binCount;
+    double                                  m_minValue;
+    double                                  m_maxValue;
+    double                                  m_binSize;
 };
 

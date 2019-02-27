@@ -17,25 +17,147 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RigEclipseCrossPlotDataExtractor.h"
 
-#include "RigEclipseCaseData.h"
-#include "RigCaseCellResultsData.h"
-#include "RigEclipseResultAddress.h"
 #include "RigActiveCellInfo.h"
+#include "RigActiveCellsResultAccessor.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
+#include "RigEclipseResultBinSorter.h"
+#include "RigFormationNames.h"
+#include "RigMainGrid.h"
+
+#include <memory>
+#include <set>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<double, double>> RigEclipseCrossPlotDataExtractor::extract(RigEclipseCaseData*            caseData,
-                                                                                 int                            timeStep,
-                                                                                 const RigEclipseResultAddress& xAxisProperty,
-                                                                                 const RigEclipseResultAddress& yAxisProperty)
+RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCaseData*                 caseData,
+                                                                    int                                 resultTimeStep,
+                                                                    const RigEclipseResultAddress&      xAddress,
+                                                                    const RigEclipseResultAddress&      yAddress,
+                                                                    RigGridCrossPlotCurveCategorization categorizationType,
+                                                                    const RigEclipseResultAddress&      catAddress,
+                                                                    int                                 categoryBinCount)
 {
-    RigCaseCellResultsData* resultData = caseData->results(RiaDefines::MATRIX_MODEL);
-    std::vector<double> xValues = resultData->cellScalarResults(xAxisProperty)[timeStep];
-    std::vector<double> yValues = resultData->cellScalarResults(xAxisProperty)[timeStep];
-    size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
-    size_t resultValueIndex   = m_activeCellInfo->cellResultIndex(reservoirCellIndex);
-    if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
+    RigEclipseCrossPlotResult result;
+    RigEclipseCrossPlotResult::CategorySamplesMap& categorySamplesMap = result.categorySamplesMap;
+    RigEclipseCrossPlotResult::CategoryNameMap&    categoryNameMap    = result.categoryNameMap;
 
-    if (resultValueIndex < m_reservoirResultValues->size()) return m_reservoirResultValues->at(resultValueIndex);
+    RigCaseCellResultsData* resultData           = caseData->results(RiaDefines::MATRIX_MODEL);
+    RigFormationNames*      activeFormationNames = resultData->activeFormationNames();
+
+    std::unique_ptr<RigEclipseResultBinSorter> catBinSorter;
+    const std::vector<std::vector<double>>*    catValuesForAllSteps = nullptr;
+
+    if (xAddress.isValid() && yAddress.isValid())
+    {
+        RigActiveCellInfo* activeCellInfo = resultData->activeCellInfo();
+        const RigMainGrid* mainGrid       = caseData->mainGrid();
+
+        resultData->ensureKnownResultLoaded(xAddress);
+        resultData->ensureKnownResultLoaded(yAddress);
+
+        const std::vector<std::vector<double>>& xValuesForAllSteps = resultData->cellScalarResults(xAddress);
+        const std::vector<std::vector<double>>& yValuesForAllSteps = resultData->cellScalarResults(yAddress);
+
+        if (categorizationType == RESULT_CATEGORIZATION && catAddress.isValid())
+        {
+            resultData->ensureKnownResultLoaded(catAddress);
+            catValuesForAllSteps = &resultData->cellScalarResults(catAddress);
+            catBinSorter.reset(new RigEclipseResultBinSorter(*catValuesForAllSteps, categoryBinCount));
+        }
+
+        std::set<int> timeStepsToInclude;
+        if (resultTimeStep == -1)
+        {
+            size_t nStepsInData = std::max(xValuesForAllSteps.size(), yValuesForAllSteps.size());
+            CVF_ASSERT(xValuesForAllSteps.size() == 1u || xValuesForAllSteps.size() == nStepsInData);
+            CVF_ASSERT(yValuesForAllSteps.size() == 1u || yValuesForAllSteps.size() == nStepsInData);
+            for (size_t i = 0; i < nStepsInData; ++i)
+            {
+                timeStepsToInclude.insert((int)i);
+            }
+        }
+        else
+        {
+            timeStepsToInclude.insert(static_cast<size_t>(resultTimeStep));
+        }
+
+        for (int timeStep : timeStepsToInclude)
+        {
+            int xIndex = timeStep >= (int)xValuesForAllSteps.size() ? 0 : timeStep;
+            int yIndex = timeStep >= (int)yValuesForAllSteps.size() ? 0 : timeStep;
+
+            RigActiveCellsResultAccessor                  xAccessor(mainGrid, &xValuesForAllSteps[xIndex], activeCellInfo);
+            RigActiveCellsResultAccessor                  yAccessor(mainGrid, &yValuesForAllSteps[yIndex], activeCellInfo);
+            std::unique_ptr<RigActiveCellsResultAccessor> catAccessor;
+            if (catValuesForAllSteps)
+            {
+                int catIndex = timeStep >= (int)catValuesForAllSteps->size() ? 0 : timeStep;
+                catAccessor.reset(
+                    new RigActiveCellsResultAccessor(mainGrid, &(catValuesForAllSteps->at(catIndex)), activeCellInfo));
+            }
+
+            for (size_t globalCellIdx = 0; globalCellIdx < activeCellInfo->reservoirCellCount(); ++globalCellIdx)
+            {
+                double xValue = xAccessor.cellScalarGlobIdx(globalCellIdx);
+                double yValue = yAccessor.cellScalarGlobIdx(globalCellIdx);
+
+                int category = 0;
+                if (categorizationType == TIME_CATEGORIZATION)
+                {
+                    category = timeStep;
+                }
+                else if (categorizationType == FORMATION_CATEGORIZATION && activeFormationNames)
+                {
+                    size_t i(cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
+                    if (mainGrid->ijkFromCellIndex(globalCellIdx, &i, &j, &k))
+                    {
+                        category = activeFormationNames->formationIndexFromKLayerIdx(k);
+                    }
+                }
+                else if (catAccessor && catBinSorter)
+                {
+                    double catValue = catAccessor->cellScalarGlobIdx(globalCellIdx);
+                    category        = catBinSorter->binNumber(catValue);
+                }
+                if (xValue != HUGE_VAL && yValue != HUGE_VAL)
+                {
+                    categorySamplesMap[category].first.push_back(xValue);
+                    categorySamplesMap[category].second.push_back(yValue);
+                }
+            }
+        }
+    }
+
+    std::vector<QDateTime> timeStepDates = resultData->timeStepDates();
+
+    for (const auto& sampleCategory : categorySamplesMap)
+    {
+        QString categoryName;
+        if (categorizationType == TIME_CATEGORIZATION && categorySamplesMap.size() > 1u)
+        {
+            if (sampleCategory.first < timeStepDates.size())
+            {
+                categoryName = timeStepDates[sampleCategory.first].toString(Qt::ISODate);
+            }
+        }
+        else if (categorizationType == FORMATION_CATEGORIZATION && activeFormationNames)
+        {
+            categoryName = activeFormationNames->formationNameFromKLayerIdx(sampleCategory.first);
+        }
+        else if (catBinSorter)
+        {
+            std::pair<double, double> binRange = catBinSorter->binRange(sampleCategory.first);
+
+            categoryName = QString("%1 [%2, %3]")
+                               .arg(catAddress.m_resultName)
+                               .arg(binRange.first)
+                               .arg(binRange.second);
+        }
+        categoryNameMap.insert(std::make_pair(sampleCategory.first, categoryName));
+    }
+
+    return result;
 }

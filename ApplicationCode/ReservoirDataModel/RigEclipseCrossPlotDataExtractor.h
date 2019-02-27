@@ -17,17 +17,36 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RigGridCrossPlotCurveCategorization.h"
+
+#include <map>
 #include <utility>
 #include <vector>
 
 class RigEclipseCaseData;
 class RigEclipseResultAddress;
 
-class RigEclipseCrossPlotDataExtractor
+class QString;
+
+struct RigEclipseCrossPlotResult
 {
-    static std::vector<std::pair<double, double>> extract(RigEclipseCaseData* caseData,
-                                                          int timeStep,
-                                                          const RigEclipseResultAddress& xAxisProperty,
-                                                          const RigEclipseResultAddress& yAxisProperty);
+    typedef std::pair<std::vector<double>, std::vector<double>> ResultXYValues;
+    
+    typedef std::map<int, ResultXYValues> CategorySamplesMap;
+    typedef std::map<int, QString>        CategoryNameMap;
+
+    CategorySamplesMap categorySamplesMap;
+    CategoryNameMap    categoryNameMap;
 };
 
+class RigEclipseCrossPlotDataExtractor
+{
+public:
+    static RigEclipseCrossPlotResult extract(RigEclipseCaseData*                 eclipseCase,
+                                             int                                 resultTimeStep,
+                                             const RigEclipseResultAddress&      xAddress,
+                                             const RigEclipseResultAddress&      yAddress,
+                                             RigGridCrossPlotCurveCategorization categorizationType,
+                                             const RigEclipseResultAddress&      categoryAddress,
+                                             int                                 categoryBinCount);
+};

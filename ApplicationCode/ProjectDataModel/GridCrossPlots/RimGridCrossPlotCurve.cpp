@@ -86,9 +86,11 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::setSamples(const QVector<QPointF>& samples)
+void RimGridCrossPlotCurve::setSamples(const std::vector<double>& xValues, const std::vector<double>& yValues)
 {
-    m_qwtPlotCurve->setSamples(samples);
+    CVF_ASSERT(xValues.size() == yValues.size());
+
+    m_qwtPlotCurve->setSamples(&xValues[0], &yValues[0], static_cast<int>(xValues.size()));
 }
 
 //--------------------------------------------------------------------------------------------------

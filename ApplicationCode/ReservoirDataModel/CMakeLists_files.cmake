@@ -53,6 +53,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathIntersectionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultAddress.h
+${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultBinSorter.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTofAccumulatedPhaseFractionsCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityEquations.h
 ${CMAKE_CURRENT_LIST_DIR}/RigNumberOfFloodedPoreVolumesCalculator.h
@@ -67,6 +68,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RigCaseRealizationParameters.h
 ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RigPolyLinesData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RigGridCrossPlotCurveCategorization.h
+${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor.h
+
 )
 
 
@@ -118,6 +122,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigTesselatorTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathIntersectionTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultInfo.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultBinSorter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTofAccumulatedPhaseFractionsCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityEquations.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigNumberOfFloodedPoreVolumesCalculator.cpp
@@ -132,6 +137,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigCaseRealizationParameters.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigPolyLinesData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

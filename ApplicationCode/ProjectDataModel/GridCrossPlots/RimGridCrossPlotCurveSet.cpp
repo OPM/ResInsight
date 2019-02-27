@@ -23,6 +23,8 @@
 #include "RigActiveCellInfo.h"
 #include "RigActiveCellsResultAccessor.h"
 #include "RigCaseCellResultCalculator.h"
+#include "RigEclipseCrossPlotDataExtractor.h"
+
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 
@@ -37,20 +39,20 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiSliderEditor.h"
 
+#include <QString>
+
 CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSet, "GridCrossPlotCurveSet");
-
-
 
 namespace caf
 {
 template<>
-void AppEnum<RimGridCrossPlotCurveSet::CurveCategorization>::setUp()
+void RimGridCrossPlotCurveSet::CurveCategorizationEnum::setUp()
 {
-    addItem(RimGridCrossPlotCurveSet::NO_CATEGORIZATION, "NONE", "None");
-    addItem(RimGridCrossPlotCurveSet::TIME_CATEGORIZATION, "TIME", "Time");
-    addItem(RimGridCrossPlotCurveSet::FORMATION_CATEGORIZATION, "FORMATION", "Formations");
-    addItem(RimGridCrossPlotCurveSet::RESULT_CATEGORIZATION, "RESULT", "Result Property");
-    setDefault(RimGridCrossPlotCurveSet::TIME_CATEGORIZATION);
+    addItem(RigGridCrossPlotCurveCategorization::NO_CATEGORIZATION, "NONE", "None");
+    addItem(RigGridCrossPlotCurveCategorization::TIME_CATEGORIZATION, "TIME", "Time");
+    addItem(RigGridCrossPlotCurveCategorization::FORMATION_CATEGORIZATION, "FORMATION", "Formations");
+    addItem(RigGridCrossPlotCurveCategorization::RESULT_CATEGORIZATION, "RESULT", "Result Property");
+    setDefault(RigGridCrossPlotCurveCategorization::TIME_CATEGORIZATION);
 }
 }
 
@@ -217,63 +219,6 @@ void RimGridCrossPlotCurveSet::initAfterRead()
     }
 }
 
-class RigEclipseResultBinSorter
-{
-public:
-    RigEclipseResultBinSorter(const std::vector<std::vector<double>>& allDataValues, int binCount)
-        : m_allDataValues(allDataValues)
-        , m_binCount(binCount)
-        , m_minValue(std::numeric_limits<double>::infinity())
-        , m_maxValue(-std::numeric_limits<double>::infinity())
-        , m_binSize(0.0)
-    {
-        calculateRange();
-    }
-
-    int binNumber(double value) const
-    {
-        double distFromMin = value - m_minValue;        
-        return std::min(m_binCount - 1, static_cast<int>(distFromMin / m_binSize));
-    }
-
-    std::pair<double, double> binRange(int binNumber)
-    {
-        double minBinValue = m_minValue + m_binSize * binNumber;
-        double maxBinBalue = minBinValue + m_binSize;
-        return std::make_pair(minBinValue, maxBinBalue);
-    }
-
-private:
-    void calculateRange()
-    {
-        for (const std::vector<double>& doubleRange : m_allDataValues)
-        {
-            if (!doubleRange.empty())
-            {
-                for (double value : doubleRange)
-                {
-                    if (value != std::numeric_limits<double>::infinity())
-                    {
-                        m_minValue = std::min(m_minValue, value);
-                        m_maxValue = std::max(m_maxValue, value);
-                    }
-                }
-            }
-        }
-
-        if (m_maxValue > m_minValue)
-        {
-            m_binSize = (m_maxValue - m_minValue) / m_binCount;
-        }
-    }
-private:
-    const std::vector<std::vector<double>>& m_allDataValues;
-    int                                     m_binCount;
-    double                                  m_minValue;
-    double                                  m_maxValue;
-    double                                  m_binSize;
-};
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -284,155 +229,54 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
     detachAllCurves();
     m_crossPlotCurves.deleteAllChildObjects();
 
-    std::map<int, QVector<QPointF>> samples;
-
-    if (m_case())
+    if (m_case() == nullptr)
     {
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+        return;
+    }
+        
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
 
-        if (eclipseCase)
-        {
-            if (!eclipseCase->ensureReservoirCaseIsOpen())
-            {
-                RiaLogging::warning(QString("Failed to open eclipse grid file %1").arg(eclipseCase->gridFileName()));
-
-                return;
-            }
-
-            RigCaseCellResultsData* resultData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
-            RigFormationNames* activeFormationNames = resultData->activeFormationNames();
-
-            RigEclipseResultAddress xAddress(m_xAxisProperty->resultType(), m_xAxisProperty->resultVariable());
-            RigEclipseResultAddress yAddress(m_yAxisProperty->resultType(), m_yAxisProperty->resultVariable());
-            RigEclipseResultAddress catAddress(m_categoryProperty->resultType(), m_categoryProperty->resultVariable());
-
-            std::unique_ptr<RigEclipseResultBinSorter> catBinSorter;
-            const std::vector<std::vector<double>>*    catValuesForAllSteps = nullptr;
-
-            if (xAddress.isValid() && yAddress.isValid())
-            {
-                RigActiveCellInfo* activeCellInfo = resultData->activeCellInfo();
-                const RigMainGrid*       mainGrid = eclipseCase->mainGrid();
-
-                resultData->ensureKnownResultLoaded(xAddress);
-                resultData->ensureKnownResultLoaded(yAddress);
-
-                const std::vector<std::vector<double>>& xValuesForAllSteps = resultData->cellScalarResults(xAddress);
-                const std::vector<std::vector<double>>& yValuesForAllSteps = resultData->cellScalarResults(yAddress);
-
-                if (m_categorization() == RESULT_CATEGORIZATION && catAddress.isValid())
-                {
-                    resultData->ensureKnownResultLoaded(catAddress);
-                    catValuesForAllSteps = &resultData->cellScalarResults(catAddress);
-                    catBinSorter.reset(new RigEclipseResultBinSorter(*catValuesForAllSteps, m_categoryBinCount));
-                }
-
-                std::set<int> timeStepsToInclude;
-                if (m_timeStep() == -1)
-                {
-                    size_t nStepsInData = std::max(xValuesForAllSteps.size(), yValuesForAllSteps.size());
-                    CVF_ASSERT(xValuesForAllSteps.size() == 1u || xValuesForAllSteps.size() == nStepsInData);
-                    CVF_ASSERT(yValuesForAllSteps.size() == 1u || yValuesForAllSteps.size() == nStepsInData);
-                    for (size_t i = 0; i < nStepsInData; ++i)
-                    {
-                        timeStepsToInclude.insert((int)i);
-                    }
-                }
-                else
-                {
-                    timeStepsToInclude.insert(static_cast<size_t>(m_timeStep()));
-                }
-
-                for (int timeStep : timeStepsToInclude)
-                {
-                    int xIndex = timeStep >= (int)xValuesForAllSteps.size() ? 0 : timeStep;
-                    int yIndex = timeStep >= (int)yValuesForAllSteps.size() ? 0 : timeStep;                    
-
-                    RigActiveCellsResultAccessor xAccessor(mainGrid, &xValuesForAllSteps[xIndex], activeCellInfo);
-                    RigActiveCellsResultAccessor yAccessor(mainGrid, &yValuesForAllSteps[yIndex], activeCellInfo);
-                    std::unique_ptr<RigActiveCellsResultAccessor> catAccessor;
-                    if (catValuesForAllSteps)
-                    {
-                        int catIndex = timeStep >= (int)catValuesForAllSteps->size() ? 0 : timeStep;
-                        catAccessor.reset(new RigActiveCellsResultAccessor(mainGrid, &(catValuesForAllSteps->at(catIndex)), activeCellInfo));
-                    }
-
-                    for (size_t globalCellIdx = 0; globalCellIdx < activeCellInfo->reservoirCellCount(); ++globalCellIdx)
-                    {
-                        double xValue = xAccessor.cellScalarGlobIdx(globalCellIdx);
-                        double yValue = yAccessor.cellScalarGlobIdx(globalCellIdx);
-
-                        int category = 0;
-                        if (m_categorization() == TIME_CATEGORIZATION)
-                        {
-                            category = timeStep;
-                        }
-                        else if (m_categorization() == FORMATION_CATEGORIZATION && activeFormationNames)
-                        {
-                            size_t i(cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
-                            if (mainGrid->ijkFromCellIndex(globalCellIdx, &i, &j, &k))
-                            {
-                                category = activeFormationNames->formationIndexFromKLayerIdx(k);
-                            }
-                        }
-                        else if (catAccessor && catBinSorter)
-                        {
-                            double catValue = catAccessor->cellScalarGlobIdx(globalCellIdx);
-                            category = catBinSorter->binNumber(catValue);
-                        }
-                        if (xValue != HUGE_VAL && yValue != HUGE_VAL)
-                        {
-                            samples[category].push_back(QPointF(xValue, yValue));
-                        }
-                    }
-                }
-            }
-
-            QStringList timeStepNames = m_case->timeStepStrings();
-
-            int curveSetIndex = indexInPlot();
-
-            for (const auto& sampleCategory : samples)
-            {
-                RimGridCrossPlotCurve* curve = new RimGridCrossPlotCurve();
-                QString categoryName;
-                if (m_categorization() == TIME_CATEGORIZATION)
-                {
-                    bool staticResultsOnly = staticResultsOnly = m_xAxisProperty->hasStaticResult() && m_yAxisProperty->hasStaticResult();
-                    if (!staticResultsOnly && sampleCategory.first < timeStepNames.size())
-                    {
-                        categoryName = timeStepNames[sampleCategory.first];
-                    }
-                }
-                else if (m_categorization() == FORMATION_CATEGORIZATION && activeFormationNames)
-                {
-                    categoryName = activeFormationNames->formationNameFromKLayerIdx(sampleCategory.first);
-                }
-                else if (catBinSorter)
-                {
-                    std::pair<double, double> binRange = catBinSorter->binRange(sampleCategory.first);
-                    categoryName = QString("%1 [%2, %3]").arg(m_categoryProperty->resultVariableUiShortName()).arg(binRange.first).arg(binRange.second);
-                }
-
-                if (categoryName.isEmpty())
-                {
-                    curve->setCustomName(createAutoName());
-                }
-                else
-                {
-                    curve->setCustomName(QString("%1 : %2").arg(createAutoName()).arg(categoryName));
-                }
-                curve->determineColorAndSymbol(curveSetIndex, sampleCategory.first, (int)samples.size(), m_categorization() == FORMATION_CATEGORIZATION);
-                curve->setSamples(sampleCategory.second);
-                curve->updateCurveAppearance();
-                curve->updateCurveNameAndUpdatePlotLegendAndTitle();
-                curve->updateUiIconFromPlotSymbol();
-
-                m_crossPlotCurves.push_back(curve);
-            }
-        }
+    if (eclipseCase == nullptr)
+    {
+        return;
     }
 
+    if (!eclipseCase->ensureReservoirCaseIsOpen())
+    {
+        RiaLogging::warning(QString("Failed to open eclipse grid file %1").arg(eclipseCase->gridFileName()));
+
+        return;
+    }
+
+    RigEclipseResultAddress xAddress(m_xAxisProperty->resultType(), m_xAxisProperty->resultVariable());
+    RigEclipseResultAddress yAddress(m_yAxisProperty->resultType(), m_yAxisProperty->resultVariable());
+    RigEclipseResultAddress catAddress(m_categoryProperty->resultType(), m_categoryProperty->resultVariable());
+
+    RigEclipseCrossPlotResult result = RigEclipseCrossPlotDataExtractor::extract(
+        eclipseCase->eclipseCaseData(), m_timeStep(), xAddress, yAddress, m_categorization(), catAddress, m_categoryBinCount);
+
+    for (const auto& sampleCategory : result.categorySamplesMap)
+    {
+        RimGridCrossPlotCurve* curve = new RimGridCrossPlotCurve();
+        QString categoryName = result.categoryNameMap[sampleCategory.first];
+
+        if (categoryName.isEmpty())
+        {
+            curve->setCustomName(createAutoName());
+        }
+        else
+        {
+            curve->setCustomName(QString("%1 : %2").arg(createAutoName()).arg(categoryName));
+        }
+        curve->determineColorAndSymbol(indexInPlot(), sampleCategory.first, (int)result.categorySamplesMap.size(), m_categorization() == FORMATION_CATEGORIZATION);
+        curve->setSamples(sampleCategory.second.first, sampleCategory.second.second);
+        curve->updateCurveAppearance();
+        curve->updateCurveNameAndUpdatePlotLegendAndTitle();
+        curve->updateUiIconFromPlotSymbol();
+
+        m_crossPlotCurves.push_back(curve);
+    }
+    
     if (updateParentPlot)
     {
         triggerReplotAndTreeRebuild();

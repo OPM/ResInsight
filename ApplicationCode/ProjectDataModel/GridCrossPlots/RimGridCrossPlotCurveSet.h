@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RigGridCrossPlotCurveCategorization.h"
+
 #include "RimCheckableNamedObject.h"
 #include "RimNameConfig.h"
 
@@ -27,11 +29,14 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include <QList>
+
 class RimCase;
 class RimGridCrossPlotCurve;
 class RimEclipseResultDefinition;
 class QwtPlot;
 class QwtPlotCurve;
+class QString;
 
 class RimGridCrossPlotCurveSetNameConfig : public RimNameConfig
 {
@@ -58,14 +63,8 @@ class RimGridCrossPlotCurveSet : public RimCheckableNamedObject, public RimNameC
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum CurveCategorization
-    {
-        NO_CATEGORIZATION,
-        TIME_CATEGORIZATION,
-        FORMATION_CATEGORIZATION,
-        RESULT_CATEGORIZATION
-    };
-    typedef caf::AppEnum<CurveCategorization> CurveCategorizationEnum;
+    
+    typedef caf::AppEnum<RigGridCrossPlotCurveCategorization> CurveCategorizationEnum;
 
 public:
     RimGridCrossPlotCurveSet();
