@@ -663,13 +663,12 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData,
             }
             infoText += QString("<br><b>Statistics:</b> Current Time Step and Visible Cells");
             infoText += QString("<table border=0 cellspacing=5 >"
-                                "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> <td>Sum</td> </tr>"
-                                "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> </tr>"
+                                "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> </tr>"
+                                "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> </tr>"
                                 "</table>")
                             .arg(histData.min)
                             .arg(histData.mean)
-                            .arg(histData.max)
-                            .arg(histData.sum);
+                            .arg(histData.max);                            
         }
     }
     else if (eclipseView)
@@ -810,22 +809,42 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
                 infoText += QString("<b>Cell result:</b> %1, %2, %3<br>").arg(resultPos).arg(fieldName).arg(compName);
             }
 
-            if (!diffResString.isEmpty())
+            const RimGeoMechContourMapView* contourMapView = dynamic_cast<const RimGeoMechContourMapView*>(geoMechView);
+            if (contourMapView)
             {
-                infoText += QString("%1<br>").arg(diffResString);
+                if (!diffResString.isEmpty())
+                {
+                    infoText += QString("%1<br>").arg(diffResString);
+                }
+                infoText += QString("<br><b>Statistics:</b> ") + m_statisticsTimeRange().uiText() + " and " +
+                            m_statisticsCellRange().uiText();
+                infoText += QString("<table border=0 cellspacing=5 >"
+                                    "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> </tr>"
+                                    "<tr> <td>%1</td>  <td> %2</td> <td> %3</td> </tr>"
+                                    "</table>")
+                                .arg(histData.min)
+                                .arg(histData.mean)
+                                .arg(histData.max);
             }
-            infoText += QString("<br><b>Statistics:</b> ") + m_statisticsTimeRange().uiText() + " and " +
-                        m_statisticsCellRange().uiText();
-            infoText += QString("<table border=0 cellspacing=5 >"
-                                "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
-                                "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
-                                "</table>")
-                            .arg(histData.min)
-                            .arg(histData.p10)
-                            .arg(histData.mean)
-                            .arg(histData.p90)
-                            .arg(histData.max)
-                            .arg(histData.sum);
+            else
+            {
+                if (!diffResString.isEmpty())
+                {
+                    infoText += QString("%1<br>").arg(diffResString);
+                }
+                infoText += QString("<br><b>Statistics:</b> ") + m_statisticsTimeRange().uiText() + " and " +
+                            m_statisticsCellRange().uiText();
+                infoText += QString("<table border=0 cellspacing=5 >"
+                                    "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
+                                    "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                                    "</table>")
+                                .arg(histData.min)
+                                .arg(histData.p10)
+                                .arg(histData.mean)
+                                .arg(histData.p90)
+                                .arg(histData.max)
+                                .arg(histData.sum);
+            }
         }
         else
         {
