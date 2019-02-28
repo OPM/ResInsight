@@ -156,15 +156,18 @@ void RimGridCrossPlot::calculateZoomRangeAndUpdateQwt()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::reattachCurvesToQwtAndReplot()
 {   
-    for (auto curveSet : m_crossPlotCurveSets)
+    if (m_qwtPlot)
     {
-        curveSet->detachAllCurves();
-        if (curveSet->isChecked())
+        for (auto curveSet : m_crossPlotCurveSets)
         {
-            curveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+            curveSet->detachAllCurves();
+            if (curveSet->isChecked())
+            {
+                curveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+            }
         }
+        m_qwtPlot->replot();
     }
-    m_qwtPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------

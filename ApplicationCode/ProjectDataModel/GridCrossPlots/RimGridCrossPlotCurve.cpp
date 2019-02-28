@@ -45,36 +45,10 @@ CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurve, "GridCrossPlotCurve");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::determineColorAndSymbol(int curveSetIndex, int categoryIndex, int nCategories, bool contrastColors)
-{
-    if (contrastColors)
-    {
-        const caf::ColorTable& colors = RiaColorTables::categoryPaletteColors();
-        int colorIndex = categoryIndex + curveSetIndex; // Offset cycle for each curve set
-        setColor(colors.cycledColor3f(colorIndex));
-        int numColors = (int)colors.size();
-
-        // Retain same symbol until we've gone full cycle in colors
-        int symbolIndex = categoryIndex / numColors;
-
-        RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbolStyle(curveSetIndex, symbolIndex);
-        setSymbol(symbol);
-    }
-    else
-    {
-        const caf::ColorTable& colors           = RiaColorTables::contrastCategoryPaletteColors();
-        cvf::Color3ub          cycledBaseColor  = colors.cycledColor3ub(curveSetIndex);
-        caf::ColorTable        hueConstColTable = RiaColorTables::createBrightnessBasedColorTable(cycledBaseColor, nCategories);
-        setColor(hueConstColTable.cycledColor3f(categoryIndex));
-        RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledFilledSymbolStyle(curveSetIndex);
-        setSymbol(symbol);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimGridCrossPlotCurve::RimGridCrossPlotCurve()
+    : m_curveSetIndex(0)
+    , m_categoryIndex(0)
+    , m_categoryCount(0)
 {
     CAF_PDM_InitObject("Cross Plot Points", ":/WellLogCurve16x16.png", "", "");
    
@@ -86,11 +60,75 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurve::setCategoryInformation(int curveSetIndex, int categoryIndex, int categoryCount)
+{
+    m_curveSetIndex = curveSetIndex;
+    m_categoryIndex = categoryIndex;
+    m_categoryCount = categoryCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurve::setUseContrastColors(bool useContrastColors)
+{
+    m_useContrastColors = useContrastColors;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::setSamples(const std::vector<double>& xValues, const std::vector<double>& yValues)
 {
     CVF_ASSERT(xValues.size() == yValues.size());
 
     m_qwtPlotCurve->setSamples(&xValues[0], &yValues[0], static_cast<int>(xValues.size()));
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurve::updateCurveAppearance()
+{
+    determineColorAndSymbol();
+    RimPlotCurve::updateCurveAppearance();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimGridCrossPlotCurve::categoryIndex() const
+{
+    return m_categoryIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurve::determineColorAndSymbol()
+{
+    if (m_useContrastColors)
+    {
+        const caf::ColorTable& colors     = RiaColorTables::categoryPaletteColors();
+        int                    colorIndex = m_categoryIndex + m_curveSetIndex; // Offset cycle for each curve set
+        setColor(colors.cycledColor3f(colorIndex));
+        int numColors = (int)colors.size();
+
+        // Retain same symbol until we've gone full cycle in colors
+        int symbolIndex = m_categoryIndex / numColors;
+
+        RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbolStyle(m_curveSetIndex, symbolIndex);
+        setSymbol(symbol);
+    }
+    else
+    {
+        const caf::ColorTable& colors           = RiaColorTables::contrastCategoryPaletteColors();
+        cvf::Color3ub          cycledBaseColor  = colors.cycledColor3ub(m_curveSetIndex);
+        caf::ColorTable        hueConstColTable = RiaColorTables::createBrightnessBasedColorTable(cycledBaseColor, m_categoryCount);
+        setColor(hueConstColTable.cycledColor3f(m_categoryIndex));
+        RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledFilledSymbolStyle(m_curveSetIndex);
+        setSymbol(symbol);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

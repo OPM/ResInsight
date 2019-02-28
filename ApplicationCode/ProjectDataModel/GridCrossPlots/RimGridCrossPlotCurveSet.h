@@ -82,7 +82,7 @@ public:
 
     int     indexInPlot() const;
     QString createAutoName() const override;
-    QString createShortAutoName() const;
+    QString createCurveName() const;
     void    detachAllCurves();
     void    cellFilterViewUpdated();
 
@@ -99,12 +99,13 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
     void triggerReplotAndTreeRebuild();
+    void updateCurveNames();
+    void updatePlotName();
     void performAutoNameUpdate() override;
     void setDefaults();
     void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
-
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmPtrField<RimGridView*>                  m_cellFilterView;
@@ -118,4 +119,5 @@ private:
 
     caf::PdmChildArrayField<RimGridCrossPlotCurve*> m_crossPlotCurves;
     
+    std::map<int, QString>                          m_categoryNames;
 };

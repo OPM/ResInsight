@@ -208,7 +208,7 @@ QString RimGridCrossPlotCurveSet::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlotCurveSet::createShortAutoName() const
+QString RimGridCrossPlotCurveSet::createCurveName() const
 {
     if (m_case() == nullptr)
     {
@@ -282,7 +282,7 @@ void RimGridCrossPlotCurveSet::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 {
-    performAutoNameUpdate();
+    updatePlotName();
     
     detachAllCurves();
     m_crossPlotCurves.deleteAllChildObjects();
@@ -315,29 +315,21 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
     RigEclipseCrossPlotResult result = RigEclipseCrossPlotDataExtractor::extract(
         eclipseCase->eclipseCaseData(), m_timeStep(), xAddress, yAddress, m_categorization(), catAddress, m_categoryBinCount, timeStepCellVisibilityMap);
 
+    m_categoryNames = result.categoryNameMap;
     for (const auto& sampleCategory : result.categorySamplesMap)
     {
-        RimGridCrossPlotCurve* curve = new RimGridCrossPlotCurve();
-        
-        QString categoryName = result.categoryNameMap[sampleCategory.first];
-
-        if (categoryName.isEmpty())
-        {
-            curve->setCustomName(createShortAutoName());
-        }
-        else
-        {
-            curve->setCustomName(QString("%1 : %2").arg(createShortAutoName()).arg(categoryName));
-        }
-        curve->determineColorAndSymbol(indexInPlot(), sampleCategory.first, (int)result.categorySamplesMap.size(), m_categorization() == FORMATION_CATEGORIZATION);
+        RimGridCrossPlotCurve* curve = new RimGridCrossPlotCurve();            
+        curve->setCategoryInformation(indexInPlot(), sampleCategory.first, (int)result.categorySamplesMap.size());
+        curve->setUseContrastColors(m_categorization() == FORMATION_CATEGORIZATION);
         curve->setSamples(sampleCategory.second.first, sampleCategory.second.second);
         curve->updateCurveAppearance();
-        curve->updateCurveNameAndUpdatePlotLegendAndTitle();
         curve->updateUiIconFromPlotSymbol();
 
         m_crossPlotCurves.push_back(curve);
     }
     
+    updateCurveNames();
+
     if (updateParentPlot)
     {
         triggerReplotAndTreeRebuild();
@@ -508,12 +500,43 @@ void RimGridCrossPlotCurveSet::triggerReplotAndTreeRebuild()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::performAutoNameUpdate()
+void RimGridCrossPlotCurveSet::updateCurveNames()
+{
+    for (auto curve : m_crossPlotCurves())
+    {
+        QString categoryName = m_categoryNames[curve->categoryIndex()];
+
+        if (categoryName.isEmpty())
+        {
+            curve->setCustomName(createCurveName());
+        }
+        else
+        {
+            curve->setCustomName(QString("%1 : %2").arg(createCurveName()).arg(categoryName));
+        }
+        curve->updateCurveNameAndUpdatePlotLegendAndTitle();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::updatePlotName()
 {
     this->setName(createAutoName());
     RimGridCrossPlot* parent;
     this->firstAncestorOrThisOfTypeAsserted(parent);
     parent->performAutoNameUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::performAutoNameUpdate()
+{
+    updatePlotName();
+    updateCurveNames();
+    triggerReplotAndTreeRebuild();
 }
 
 //--------------------------------------------------------------------------------------------------
