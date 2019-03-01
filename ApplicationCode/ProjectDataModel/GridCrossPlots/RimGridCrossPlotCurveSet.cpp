@@ -70,7 +70,7 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     CAF_PDM_InitField(&m_timeStep, "TimeStep", -1, "Time Step", "", "", "");
     m_timeStep.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 
-    CAF_PDM_InitFieldNoDefault(&m_cellFilterView, "VisibleCellView", "Limit to Cells Visible in View", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellFilterView, "VisibleCellView", "Filter by Cells Visible in 3d View", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_categorization, "Categorization", "Data Categorization", "", "", "");
 
@@ -101,6 +101,14 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     m_crossPlotCurves.uiCapability()->setUiTreeHidden(true);
 
     setDefaults();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::setCellFilterView(RimGridView* cellFilterView)
+{
+    m_cellFilterView = cellFilterView;
 }
 
 //--------------------------------------------------------------------------------------------------

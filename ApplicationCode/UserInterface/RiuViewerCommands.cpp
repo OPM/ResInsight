@@ -490,6 +490,11 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         menuBuilder.addSeparator();
         menuBuilder << "RicNewGridTimeHistoryCurveFeature";
         menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
+        if (dynamic_cast<RimEclipseView*>(gridView))
+        {
+            menuBuilder << "RicCreateGridCrossPlotFeature";
+        }
+        menuBuilder.addSeparator();
         menuBuilder << "RicSaveEclipseInputActiveVisibleCellsFeature";
         menuBuilder << "RicShowGridStatisticsFeature";
         menuBuilder << "RicSelectColorResult";

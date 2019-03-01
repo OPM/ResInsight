@@ -75,6 +75,7 @@ public:
     RimGridCrossPlotCurveSet();
     ~RimGridCrossPlotCurveSet() = default;
 
+    void    setCellFilterView(RimGridView* cellFilterView);
     void    loadDataAndUpdate(bool updateParentPlot);
     void    setParentQwtPlotNoReplot(QwtPlot* parent);
     QString xAxisName() const;
