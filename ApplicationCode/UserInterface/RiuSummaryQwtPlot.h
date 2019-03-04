@@ -23,15 +23,8 @@
 
 #include "cafPdmPointer.h"
 
-#include "qwt_plot.h"
-
 #include <QPointer>
 
-class QwtInterval;
-class QwtPlotZoomer;
-
-class RimGridCrossPlot;
-class RimSummaryPlot;
 class RimEnsembleCurveSet;
 class RiuCvfOverlayItemWidget;
 
@@ -59,7 +52,7 @@ protected:
     void setDefaults();
     void updateLayout() override;
 private:
-    void updateEnsembleLegendLayout();
+    void updateLegendLayout();
     std::map<caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_ensembleLegendWidgets;
 
 };

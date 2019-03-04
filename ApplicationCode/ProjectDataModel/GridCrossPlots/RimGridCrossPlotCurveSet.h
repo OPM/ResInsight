@@ -34,11 +34,13 @@
 #include <QList>
 #include <map>
 
+struct RigEclipseCrossPlotResult;
 class RimCase;
 class RimGridCrossPlotCurve;
 class RimGridView;
 class RimEclipseCase;
 class RimEclipseResultDefinition;
+class RimRegularLegendConfig;
 class QwtPlot;
 class QwtPlotCurve;
 class QString;
@@ -83,8 +85,11 @@ public:
 
     int     indexInPlot() const;
     QString createAutoName() const override;
+    QString categoryTitle() const;
     void    detachAllCurves();
     void    cellFilterViewUpdated();
+    
+    RimRegularLegendConfig* legendConfig();
 
     std::vector< RimGridCrossPlotCurve*> curves() const;
 
@@ -93,11 +98,15 @@ public:
     QString              timeStepString() const;
     std::vector<QString> categoryStrings() const;
 
-    void updateCurveNames(bool applyCaseName, bool applyAxisVariables, bool applyTimeStep, bool applyCategories);
-
+    void updateCurveNames(bool applyCaseName, bool applyAxisVariables, bool applyTimeStep, bool applyCategory);
+    void updateLegend();
+    bool hasCategoryResult() const;
+    
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);
+
+    void createCurves(const RigEclipseCrossPlotResult& result);
 
     std::map<int, cvf::UByteArray> calculateCellVisibility(RimEclipseCase* eclipseCase) const;
 
@@ -111,6 +120,8 @@ protected:
     void setDefaults();
     void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
+    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+
 private:
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
@@ -119,11 +130,9 @@ private:
     caf::PdmChildField<RimEclipseResultDefinition*> m_xAxisProperty;
     caf::PdmChildField<RimEclipseResultDefinition*> m_yAxisProperty;
     caf::PdmChildField<RimEclipseResultDefinition*> m_categoryProperty;
-    caf::PdmField<int>                              m_categoryBinCount;
 
     caf::PdmChildField<RimGridCrossPlotCurveSetNameConfig*> m_nameConfig;
 
     caf::PdmChildArrayField<RimGridCrossPlotCurve*> m_crossPlotCurves;
-    
-    std::map<int, QString>                          m_categoryNames;
+    caf::PdmChildField<RimRegularLegendConfig*>     m_legendConfig;
 };

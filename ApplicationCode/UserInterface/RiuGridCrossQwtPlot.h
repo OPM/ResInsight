@@ -17,45 +17,36 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimPlotCurve.h"
 
-#include "cafPdmChildField.h"
-#include "cafPdmPtrField.h"
+#include "RiuInterfaceToViewWindow.h"
+#include "RiuQwtPlot.h"
 
-#include <QPointF>
-#include <QVector>
+#include "cafPdmPointer.h"
 
-class RimCase;
-class RimEclipseResultDefinition;
-class QwtPlotCurve;
+#include <QPointer>
+
+class RimGridCrossPlotCurveSet;
+class RiuCvfOverlayItemWidget;
 
 //==================================================================================================
-///
-///
+//
+//
+//
 //==================================================================================================
-class RimGridCrossPlotCurve : public RimPlotCurve
+class RiuGridCrossQwtPlot : public RiuQwtPlot
 {
-    CAF_PDM_HEADER_INIT;
+    Q_OBJECT;
 
 public:
-    RimGridCrossPlotCurve();
-    ~RimGridCrossPlotCurve() override = default;
-    void setCategoryInformation(int curveSetIndex, int categoryIndex);
-    void setSamples(const std::vector<double>& xValues, const std::vector<double>& yValues);
-    void updateCurveAppearance() override;
-    int  categoryIndex() const;
+    RiuGridCrossQwtPlot(RimViewWindow* ownerViewWindow, QWidget* parent = nullptr);
+
+    void addOrUpdateCurveSetLegend(RimGridCrossPlotCurveSet* curveSetToShowLegendFor);
+    void removeCurveSetLegend(RimGridCrossPlotCurveSet* curveSetToShowLegendFor);
 
 protected:
-
-    void determineSymbol();
-    void updateZoomInParentPlot() override;
-    void updateLegendsInPlot() override;
-    QString createCurveAutoName() override;
-    void onLoadDataAndUpdate(bool updateParentPlot) override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void updateLayout() override;
+    void updateLegendLayout();
 
 private:
-    int     m_curveSetIndex;
-    int     m_categoryIndex;
+    std::map<caf::PdmPointer<RimGridCrossPlotCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_legendWidgets;
 };
-

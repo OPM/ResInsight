@@ -143,7 +143,7 @@ void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet* c
         overlayWidget->show();
     }
 
-    this->updateEnsembleLegendLayout();
+    this->updateLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,7 +159,7 @@ void RiuSummaryQwtPlot::removeEnsembleCurveSetLegend(RimEnsembleCurveSet* curveS
         m_ensembleLegendWidgets.erase(it);
     }
 
-    this->updateEnsembleLegendLayout();
+    this->updateLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,13 +215,13 @@ void RiuSummaryQwtPlot::setDefaults()
 void RiuSummaryQwtPlot::updateLayout()
 {
     QwtPlot::updateLayout();
-    updateEnsembleLegendLayout();
+    updateLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::updateEnsembleLegendLayout()
+void RiuSummaryQwtPlot::updateLegendLayout()
 {
     const int spacing      = 5;
     int       startMarginX = this->canvas()->pos().x() + spacing;

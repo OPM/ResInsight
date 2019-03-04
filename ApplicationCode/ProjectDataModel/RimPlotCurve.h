@@ -71,12 +71,15 @@ public:
     bool                            isCurveVisible() const;
     void                            setCurveVisiblity(bool visible);
 
+    void                            updateCurveName();
     void                            updateCurveNameAndUpdatePlotLegendAndTitle();
     void                            updateCurveNameNoLegendUpdate();
 
     QString                         curveName() const { return m_curveName; }
     virtual QString                 curveExportDescription(const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress()) const { return m_curveName; }
     void                            setCustomName(const QString& customName);
+    void                            setLegendEntryTitle(const QString& legendEntryTitle);
+
     void                            updateCurveVisibility(bool updateParentPlot);
     void                            updateLegendEntryVisibilityAndPlotLegend();
     void                            updateLegendEntryVisibilityNoPlotUpdate();
@@ -124,7 +127,8 @@ protected:
     caf::PdmField<bool>               m_showLegend;
     QString                           m_symbolLabel;
     caf::PdmField<int>                m_symbolSize;
-
+    caf::PdmField<QString>            m_legendEntryTitle;
+    
     caf::PdmField<bool>               m_isUsingAutoName;
     caf::PdmField<cvf::Color3f>       m_curveColor;
     caf::PdmField<int>                m_curveThickness;

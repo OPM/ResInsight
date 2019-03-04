@@ -19,7 +19,7 @@
 
 #include "RiaGridCrossPlotCurveNameHelper.h"
 
-#include "RiuSummaryQwtPlot.h"
+#include "RiuGridCrossQwtPlot.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotTools.h"
 
@@ -109,6 +109,14 @@ int RimGridCrossPlot::indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSet) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimGridCrossPlotCurveSet*> RimGridCrossPlot::curveSets() const
+{
+    return m_crossPlotCurveSets.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* RimGridCrossPlot::viewWidget()
 {
     return m_qwtPlot;
@@ -168,7 +176,7 @@ void RimGridCrossPlot::reattachCurvesToQwtAndReplot()
                 curveSet->setParentQwtPlotNoReplot(m_qwtPlot);
             }
         }
-        m_qwtPlot->replot();
+        updateAxisDisplay();
     }
 }
 
@@ -188,7 +196,10 @@ QString RimGridCrossPlot::createAutoName() const
         QStringList dataSets;
         for (auto curveSet : m_crossPlotCurveSets)
         {
-            dataSets += curveSet->createAutoName();
+            if (curveSet->isChecked())
+            {
+                dataSets += curveSet->createAutoName();
+            }
         }
         if (!dataSets.isEmpty())
         {
@@ -298,7 +309,7 @@ QWidget* RimGridCrossPlot::createViewWidget(QWidget* mainWindowParent)
 {
     if (!m_qwtPlot)
     {
-        m_qwtPlot = new RiuQwtPlot(this, mainWindowParent);
+        m_qwtPlot = new RiuGridCrossQwtPlot(this, mainWindowParent);
 
         for (auto curveSet : m_crossPlotCurveSets)
         {
@@ -471,12 +482,23 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuGridCrossQwtPlot* RimGridCrossPlot::qwtPlot() const
+{
+    return m_qwtPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlot::xAxisParameterString() const
 {
     QStringList xAxisParams;
     for (auto curveSet : m_crossPlotCurveSets)
     {
-        xAxisParams.push_back(curveSet->xAxisName());
+        if (curveSet->isChecked())
+        {
+            xAxisParams.push_back(curveSet->xAxisName());
+        }
     }
 
     xAxisParams.removeDuplicates();
@@ -497,7 +519,10 @@ QString RimGridCrossPlot::yAxisParameterString() const
     QStringList yAxisParams;
     for (auto curveSet : m_crossPlotCurveSets)
     {
-        yAxisParams.push_back(curveSet->yAxisName());
+        if (curveSet->isChecked())
+        {
+            yAxisParams.push_back(curveSet->yAxisName());
+        }
     }
 
     yAxisParams.removeDuplicates();

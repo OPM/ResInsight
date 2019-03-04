@@ -27,10 +27,11 @@ void RiaGridCrossPlotCurveNameHelper::addCurveSet(RimGridCrossPlotCurveSet* curv
     m_caseNameSet.insert(curveSet->caseNameString());
     m_axisVariablesSet.insert(curveSet->axisVariableString());
     m_timeStepSet.insert(curveSet->timeStepString());
-    for (QString categoryName : curveSet->categoryStrings())
+    for (auto category : curveSet->categoryStrings())
     {
-        m_categoryNameSet.insert(categoryName);
+        m_categoriesSet.insert(category);
     }
+
     m_curveSets.push_back(curveSet);
 }
 
@@ -41,7 +42,7 @@ void RiaGridCrossPlotCurveNameHelper::applyCurveNames()
 {
     for (auto curveSet : m_curveSets)
     {
-        curveSet->updateCurveNames(m_caseNameSet.size() > 1u, m_axisVariablesSet.size() > 1u, m_timeStepSet.size() > 1u, m_categoryNameSet.size() > 1u);
+        curveSet->updateCurveNames(m_caseNameSet.size() > 1u, m_axisVariablesSet.size() > 1u, m_timeStepSet.size() > 1u, m_categoriesSet.size() > 1u);
     }
 }
 
@@ -53,6 +54,6 @@ void RiaGridCrossPlotCurveNameHelper::reset()
     m_caseNameSet.clear();
     m_axisVariablesSet.clear();
     m_timeStepSet.clear();
-    m_categoryNameSet.clear();
+    m_categoriesSet.clear();
     m_curveSets.clear();
 }

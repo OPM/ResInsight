@@ -35,8 +35,8 @@ private:
     std::set<QString> m_caseNameSet;
     std::set<QString> m_axisVariablesSet;
     std::set<QString> m_timeStepSet;
-    std::set<QString> m_categoryNameSet;
-
+    std::set<QString> m_categoriesSet;
+    
     std::vector<RimGridCrossPlotCurveSet*> m_curveSets;
 
 };

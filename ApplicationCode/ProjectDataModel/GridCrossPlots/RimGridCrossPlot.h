@@ -31,7 +31,7 @@
 
 class RimPlotAxisProperties;
 class RimGridCrossPlotCurveSet;
-class RiuQwtPlot;
+class RiuGridCrossQwtPlot;
 
 class RimGridCrossPlotNameConfig : public RimNameConfig
 {
@@ -56,6 +56,8 @@ public:
 
     RimGridCrossPlotCurveSet* createCurveSet();
     int                       indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSet) const;
+    
+    std::vector<RimGridCrossPlotCurveSet*> curveSets() const;
 
     QWidget* viewWidget() override;
     QImage   snapshotWindowContent() override;
@@ -69,6 +71,7 @@ public:
     void                 performAutoNameUpdate() override;
     void                 updateCurveNamesAndPlotTitle();
 
+    RiuGridCrossQwtPlot* qwtPlot() const;
 public:
     // Rim2dPlotInterface overrides
     void updateAxisScaling() override;
@@ -97,7 +100,7 @@ protected:
 
     void updateAxisInQwt(RiaDefines::PlotAxis axisType);
     void updateAxisFromQwt(RiaDefines::PlotAxis axisType);
-    std::pair<double, double> getAxisRangeFromData(RiaDefines::PlotAxis axisType);
+
 private:
     caf::PdmField<bool>                                m_showLegend;
     caf::PdmField<int>                                 m_legendFontSize;
@@ -108,7 +111,7 @@ private:
 
     caf::PdmChildArrayField<RimGridCrossPlotCurveSet*> m_crossPlotCurveSets;
 
-    QPointer<RiuQwtPlot>                               m_qwtPlot;
+    QPointer<RiuGridCrossQwtPlot>                      m_qwtPlot;
     RiaGridCrossPlotCurveNameHelper                    m_curveNameHelper;
 };
 

@@ -33,13 +33,10 @@ class QString;
 
 struct RigEclipseCrossPlotResult
 {
-    typedef std::pair<std::vector<double>, std::vector<double>> ResultXYValues;
-    
-    typedef std::map<int, ResultXYValues> CategorySamplesMap;
-    typedef std::map<int, QString>        CategoryNameMap;
-
-    CategorySamplesMap categorySamplesMap;
-    CategoryNameMap    categoryNameMap;
+    std::vector<double> xValues;
+    std::vector<double> yValues;
+    std::vector<double> catValuesContinuous;
+    std::vector<int>    catValuesDiscrete;
 };
 
 class RigEclipseCrossPlotDataExtractor
@@ -51,6 +48,5 @@ public:
                                              const RigEclipseResultAddress&      yAddress,
                                              RigGridCrossPlotCurveCategorization categorizationType,
                                              const RigEclipseResultAddress&      categoryAddress,
-                                             int                                 categoryBinCount,
                                              std::map<int, cvf::UByteArray>      timeStepCellVisibilityMap);
 };

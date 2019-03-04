@@ -96,6 +96,9 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault(&m_customCurveName, "CurveDescription", "Custom Name", "", "", "");
     m_customCurveName.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_legendEntryTitle, "LegendDescription", "Legend Name", "", "", "");
+    m_legendEntryTitle.uiCapability()->setUiHidden(true);
+    
     CAF_PDM_InitField(&m_isUsingAutoName, "AutoName", true, "Auto Name", "", "", "");
 
     CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
@@ -211,6 +214,14 @@ void RimPlotCurve::setCustomName(const QString& customName)
 {
     m_isUsingAutoName = false;
     m_customCurveName = customName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setLegendEntryTitle(const QString& legendEntryTitle)
+{
+    m_legendEntryTitle = legendEntryTitle;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -354,9 +365,9 @@ void RimPlotCurve::setCurveVisiblity(bool visible)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateCurveNameAndUpdatePlotLegendAndTitle()
+void RimPlotCurve::updateCurveName()
 {
     if (m_isUsingAutoName)
     {
@@ -367,7 +378,23 @@ void RimPlotCurve::updateCurveNameAndUpdatePlotLegendAndTitle()
         m_curveName = m_customCurveName;
     }
 
-    m_qwtPlotCurve->setTitle(m_curveName);
+    if (!m_legendEntryTitle().isEmpty())
+    {
+        m_qwtPlotCurve->setTitle(m_legendEntryTitle);
+    }
+    else
+    {
+        m_qwtPlotCurve->setTitle(m_curveName);
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateCurveNameAndUpdatePlotLegendAndTitle()
+{
+    updateCurveName();
     updateLegendEntryVisibilityAndPlotLegend();
 }
 
@@ -375,17 +402,8 @@ void RimPlotCurve::updateCurveNameAndUpdatePlotLegendAndTitle()
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveNameNoLegendUpdate()
-{
-    if (m_isUsingAutoName)
-    {
-        m_curveName = this->createCurveAutoName();
-    }
-    else
-    {
-        m_curveName = m_customCurveName;
-    }
-
-    m_qwtPlotCurve->setTitle(m_curveName);
+{  
+    updateCurveName();
     updateLegendEntryVisibilityNoPlotUpdate();
 }
 
