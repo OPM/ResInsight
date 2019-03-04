@@ -83,11 +83,17 @@ public:
 
     int     indexInPlot() const;
     QString createAutoName() const override;
-    QString createCurveName() const;
     void    detachAllCurves();
     void    cellFilterViewUpdated();
 
     std::vector< RimGridCrossPlotCurve*> curves() const;
+
+    QString              caseNameString() const;
+    QString              axisVariableString() const;
+    QString              timeStepString() const;
+    std::vector<QString> categoryStrings() const;
+
+    void updateCurveNames(bool applyCaseName, bool applyAxisVariables, bool applyTimeStep, bool applyCategories);
 
 protected:
     void initAfterRead() override;
@@ -99,9 +105,8 @@ protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
-    void triggerReplotAndTreeRebuild();
-    void updateCurveNames();
-    void updatePlotName();
+    void triggerPlotNameUpdateAndReplot();
+    void updateDataSetName();
     void performAutoNameUpdate() override;
     void setDefaults();
     void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;

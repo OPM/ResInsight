@@ -70,7 +70,7 @@ void RicCreateGridCrossPlotFeature::onActionTriggered(bool isChecked)
     plot->zoomAll();
     plot->updateConnectedEditors();
 
-    RiaApplication::instance()->project()->updateConnectedEditors();
+    collection->updateAllRequiredEditors();
     RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem(plot);
 }

@@ -22,6 +22,7 @@
 #include "cafPdmObject.h"
 
 #include "RiaDefines.h"
+#include "RiaGridCrossPlotCurveNameHelper.h"
 #include "RimRiuQwtPlotOwnerInterface.h"
 #include "RimNameConfig.h"
 #include "RimViewWindow.h"
@@ -66,6 +67,7 @@ public:
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 detachAllCurves();
     void                 performAutoNameUpdate() override;
+    void                 updateCurveNamesAndPlotTitle();
 
 public:
     // Rim2dPlotInterface overrides
@@ -88,6 +90,8 @@ protected:
                                                         bool*                      useOptionsOnly) override;
 
     void updatePlot();
+    void updateCurveNames();
+
     QString xAxisParameterString() const;
     QString yAxisParameterString() const;
 
@@ -104,8 +108,8 @@ private:
 
     caf::PdmChildArrayField<RimGridCrossPlotCurveSet*> m_crossPlotCurveSets;
 
-    QPointer<RiuQwtPlot>                      m_qwtPlot;
-        
+    QPointer<RiuQwtPlot>                               m_qwtPlot;
+    RiaGridCrossPlotCurveNameHelper                    m_curveNameHelper;
 };
 
 

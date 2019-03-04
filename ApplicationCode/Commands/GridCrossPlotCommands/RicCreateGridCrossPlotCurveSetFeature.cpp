@@ -49,7 +49,6 @@ void RicCreateGridCrossPlotCurveSetFeature::onActionTriggered(bool isChecked)
     RimGridCrossPlotCurveSet* curveSet = crossPlot->createCurveSet();
     curveSet->loadDataAndUpdate(true);
     
-    RiaApplication::instance()->project()->updateConnectedEditors();
     RiaApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem(curveSet);
 }

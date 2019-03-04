@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlot.h"
 
+#include "RiaGridCrossPlotCurveNameHelper.h"
+
 #include "RiuSummaryQwtPlot.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotTools.h"
@@ -190,7 +192,7 @@ QString RimGridCrossPlot::createAutoName() const
         }
         if (!dataSets.isEmpty())
         {
-            autoName += QString("(%1)").arg(dataSets.join(", "));
+            autoName += QString("(%1)").arg(dataSets.join("; "));
         }
     }
 
@@ -333,7 +335,7 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
         curveSet->loadDataAndUpdate(false);
     }
 
-    performAutoNameUpdate();
+    updateCurveNamesAndPlotTitle();
     updateAllRequiredEditors();
     
     updatePlot();
@@ -415,10 +417,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlot::calculateValueOptions(const caf:
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::performAutoNameUpdate()
 {
-    if (m_qwtPlot)
-    {
-        m_qwtPlot->setTitle(this->createAutoName());
-    }
+    updateCurveNamesAndPlotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -453,6 +452,19 @@ void RimGridCrossPlot::updatePlot()
             m_qwtPlot->insertLegend(nullptr);
         }
         m_qwtPlot->replot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
+{
+    updateCurveNames();
+
+    if (m_qwtPlot)
+    {
+        m_qwtPlot->setTitle(this->createAutoName());
     }
 }
 
@@ -597,6 +609,21 @@ void RimGridCrossPlot::updateAxisFromQwt(RiaDefines::PlotAxis axisType)
     axisProperties->visibleRangeMax = axisRange.maxValue();
 
     axisProperties->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::updateCurveNames()
+{
+    m_curveNameHelper.reset();
+
+    for (auto curveSet : m_crossPlotCurveSets())
+    {
+        m_curveNameHelper.addCurveSet(curveSet);
+    }
+
+    m_curveNameHelper.applyCurveNames();
 }
 
 //--------------------------------------------------------------------------------------------------

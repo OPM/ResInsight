@@ -50,8 +50,8 @@ namespace caf
 template<>
 void RimGridCrossPlotCurveSet::CurveCategorizationEnum::setUp()
 {
-    addItem(RigGridCrossPlotCurveCategorization::NO_CATEGORIZATION, "NONE", "None");
-    addItem(RigGridCrossPlotCurveCategorization::TIME_CATEGORIZATION, "TIME", "Time");
+    addItem(RigGridCrossPlotCurveCategorization::NO_CATEGORIZATION, "NONE", "Nothing");
+    addItem(RigGridCrossPlotCurveCategorization::TIME_CATEGORIZATION, "TIME", "Time Step");
     addItem(RigGridCrossPlotCurveCategorization::FORMATION_CATEGORIZATION, "FORMATION", "Formations");
     addItem(RigGridCrossPlotCurveCategorization::RESULT_CATEGORIZATION, "RESULT", "Result Property");
     setDefault(RigGridCrossPlotCurveCategorization::TIME_CATEGORIZATION);
@@ -72,7 +72,7 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
 
     CAF_PDM_InitFieldNoDefault(&m_cellFilterView, "VisibleCellView", "Filter by Cells Visible in 3d View", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_categorization, "Categorization", "Data Categorization", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_categorization, "Categorization", "Group Data by", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_xAxisProperty, "XAxisProperty", "X-Axis Property", "", "", "");
     m_xAxisProperty = new RimEclipseResultDefinition;
@@ -84,12 +84,12 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     m_yAxisProperty.uiCapability()->setUiHidden(true);
     m_yAxisProperty.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_categoryProperty, "CategoryProperty", "Categorisation Property", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_categoryProperty, "CategoryProperty", "Data Grouping Property", "", "", "");
     m_categoryProperty = new RimEclipseResultDefinition;
     m_categoryProperty.uiCapability()->setUiHidden(true);
     m_categoryProperty.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitField(&m_categoryBinCount, "CategoryBinCount", 2, "Category Bin Count", "", "", "");
+    CAF_PDM_InitField(&m_categoryBinCount, "CategoryBinCount", 2, "Number of Data Groups", "", "", "");
     m_categoryBinCount.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "Name", "", "", "");
@@ -174,70 +174,35 @@ QString RimGridCrossPlotCurveSet::createAutoName() const
 
     if (m_nameConfig->addCaseName())
     {
-        nameTags += m_case->caseUserDescription();
+        nameTags += caseNameString();
     }
 
     if (m_nameConfig->addAxisVariables())
     {
-        nameTags += QString("%1 x %2").arg(xAxisName(), yAxisName());
+        nameTags += axisVariableString();
     }
 
-    if (m_nameConfig->addTimestep())
+    if (m_nameConfig->addTimestep() && !timeStepString().isEmpty())
     {
-        if (m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult())
-        {
-            if (m_timeStep() == -1)
-            {
-                nameTags += "All Time Steps";
-            }
-            else
-            {
-                QStringList timeStepNames = m_case->timeStepStrings();
-                nameTags += timeStepNames[m_timeStep()];
-            }
-        }
+        nameTags += timeStepString();        
     }
 
     if (m_nameConfig->addCategorization)
     {
-        if (m_categorization() == FORMATION_CATEGORIZATION)
+        if (m_categorization() == TIME_CATEGORIZATION)
         {
-            nameTags += QString("Categorized by formations");
+            nameTags += QString("Grouped by Time");
+        }
+        else if (m_categorization() == FORMATION_CATEGORIZATION)
+        {
+            nameTags += QString("Grouped by formations");
         }
         else if (m_categorization() == RESULT_CATEGORIZATION && m_categoryProperty->hasResult())
         {
-            nameTags += QString("Categorized by %1").arg(m_categoryProperty->resultVariableUiShortName());
+            nameTags += QString("Grouped by %1").arg(m_categoryProperty->resultVariableUiShortName());
         }
     }
 
-    return nameTags.join(", ");
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlotCurveSet::createCurveName() const
-{
-    if (m_case() == nullptr)
-    {
-        return "Undefined";
-    }
-
-    QStringList nameTags;
-    if (!m_nameConfig->customName().isEmpty())
-    {
-        nameTags += m_nameConfig->customName();
-    }
-
-    if (m_nameConfig->addCaseName())
-    {
-        nameTags += m_case->caseUserDescription();
-    }
-
-    if (m_nameConfig->addAxisVariables())
-    {
-        nameTags += QString("%1 x %2").arg(xAxisName(), yAxisName());
-    }
     return nameTags.join(", ");
 }
 
@@ -274,6 +239,59 @@ std::vector<RimGridCrossPlotCurve*> RimGridCrossPlotCurveSet::curves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlotCurveSet::caseNameString() const
+{
+    if (m_case())
+    {
+        return m_case->caseUserDescription();
+    }
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlotCurveSet::axisVariableString() const
+{
+    return QString("%1 x %2").arg(xAxisName(), yAxisName());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlotCurveSet::timeStepString() const
+{
+    // If using time categorization, the time step will be included as a category, so skip it here.
+    if (m_categorization() != RigGridCrossPlotCurveCategorization::TIME_CATEGORIZATION)
+    {
+        if (m_case() && (m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult()))
+        {
+            if (m_timeStep == -1)
+            {
+                return "All Time Steps";
+            }
+            return m_case->timeStepStrings()[m_timeStep];
+        }
+    }
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimGridCrossPlotCurveSet::categoryStrings() const
+{
+    std::vector<QString> categoryNames;
+    for (auto categoryIndexNamePair : m_categoryNames)
+    {
+        categoryNames.push_back(categoryIndexNamePair.second);
+    }
+    return categoryNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::initAfterRead()
 {
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
@@ -290,7 +308,7 @@ void RimGridCrossPlotCurveSet::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 {
-    updatePlotName();
+    updateDataSetName();
     
     detachAllCurves();
     m_crossPlotCurves.deleteAllChildObjects();
@@ -336,11 +354,9 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
         m_crossPlotCurves.push_back(curve);
     }
     
-    updateCurveNames();
-
     if (updateParentPlot)
     {
-        triggerReplotAndTreeRebuild();
+        triggerPlotNameUpdateAndReplot();
     }
 }
 
@@ -388,9 +404,15 @@ void RimGridCrossPlotCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUi
         uiOrdering.add(&m_cellFilterView);
         uiOrdering.add(&m_categorization);
 
+        if (m_categorization() == TIME_CATEGORIZATION &&
+            !(m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult()))
+        {
+            m_categorization = NO_CATEGORIZATION;
+        }
+
         if (m_categorization() == RESULT_CATEGORIZATION)
         {
-            caf::PdmUiGroup* categoryGroup = uiOrdering.addNewGroup("Categorization Property");
+            caf::PdmUiGroup* categoryGroup = uiOrdering.addNewGroup("Data Grouping Property");
             m_categoryProperty->uiOrdering(uiConfigName, *categoryGroup);
             categoryGroup->add(&m_categoryBinCount);
         }
@@ -445,7 +467,7 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
     }
     else if (changedField == &m_isChecked)
     {
-        triggerReplotAndTreeRebuild();
+        triggerPlotNameUpdateAndReplot();
     }
 }
 
@@ -491,37 +513,71 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurveSet::calculateValueOptions(co
             }
         }
     }
+    else if (fieldNeedingOptions == &m_categorization)
+    {
+        std::set<RigGridCrossPlotCurveCategorization> validOptions = { NO_CATEGORIZATION, TIME_CATEGORIZATION, FORMATION_CATEGORIZATION, RESULT_CATEGORIZATION };
+        if (m_timeStep() != -1 || !(m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult()))
+        {
+            validOptions.erase(TIME_CATEGORIZATION);
+        }
+        for (auto optionItem : validOptions)
+        {
+            options.push_back(caf::PdmOptionItemInfo(CurveCategorizationEnum::uiText(optionItem), optionItem));
+        }
+    }
+
     return options;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::triggerReplotAndTreeRebuild()
+void RimGridCrossPlotCurveSet::triggerPlotNameUpdateAndReplot()
 {
     RimGridCrossPlot* parent;
     this->firstAncestorOrThisOfTypeAsserted(parent);
+    parent->updateCurveNamesAndPlotTitle();
     parent->reattachCurvesToQwtAndReplot();
-    parent->updateAllRequiredEditors();
+    parent->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::updateCurveNames()
+void RimGridCrossPlotCurveSet::updateCurveNames(bool applyCaseName,
+                                                bool applyAxisVariables,
+                                                bool applyTimeStep,
+                                                bool applyCategories)
 {
     for (auto curve : m_crossPlotCurves())
     {
-        QString categoryName = m_categoryNames[curve->categoryIndex()];
+        QStringList nameTags;
 
-        if (categoryName.isEmpty())
+        if (applyCaseName)
         {
-            curve->setCustomName(createCurveName());
+            nameTags += caseNameString();
         }
-        else
+
+        if (applyAxisVariables)
         {
-            curve->setCustomName(QString("%1 : %2").arg(createCurveName()).arg(categoryName));
+            nameTags += axisVariableString();
         }
+
+        if (applyTimeStep && !timeStepString().isEmpty())
+        {
+            nameTags += timeStepString();
+        }
+
+        if (applyCategories)
+        {
+            QString categoryName = m_categoryNames[curve->categoryIndex()];
+            if (!categoryName.isEmpty())
+            {
+                nameTags += categoryName;
+            }
+        }
+
+        curve->setCustomName(nameTags.join(", "));
         curve->updateCurveNameAndUpdatePlotLegendAndTitle();
     }
 }
@@ -529,12 +585,9 @@ void RimGridCrossPlotCurveSet::updateCurveNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::updatePlotName()
+void RimGridCrossPlotCurveSet::updateDataSetName()
 {
     this->setName(createAutoName());
-    RimGridCrossPlot* parent;
-    this->firstAncestorOrThisOfTypeAsserted(parent);
-    parent->performAutoNameUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -542,9 +595,8 @@ void RimGridCrossPlotCurveSet::updatePlotName()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::performAutoNameUpdate()
 {
-    updatePlotName();
-    updateCurveNames();
-    triggerReplotAndTreeRebuild();
+    updateDataSetName();
+    triggerPlotNameUpdateAndReplot();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -40,6 +40,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaQIconTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaFieldHandleTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaBoundingBoxTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaGridCrossPlotCurveNameHelper.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -80,6 +81,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaQIconTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFieldHandleTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaBoundingBoxTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaGridCrossPlotCurveNameHelper.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

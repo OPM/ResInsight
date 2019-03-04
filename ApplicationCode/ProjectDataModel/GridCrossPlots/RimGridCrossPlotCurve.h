@@ -45,6 +45,7 @@ public:
     void setSamples(const std::vector<double>& xValues, const std::vector<double>& yValues);
     void updateCurveAppearance() override;
     int  categoryIndex() const;
+
 protected:
 
     void determineColorAndSymbol();
