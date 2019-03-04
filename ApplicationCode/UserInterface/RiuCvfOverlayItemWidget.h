@@ -38,7 +38,7 @@ public:
     explicit RiuCvfOverlayItemWidget(QWidget* parent = nullptr);
     ~RiuCvfOverlayItemWidget() override;
 
-    void updateFromOverlyItem( cvf::OverlayItem * item);
+    void updateFromOverlayItem( cvf::OverlayItem * item);
 
    // virtual QSize   sizeHint() const override;
    // virtual QSize   minimumSizeHint() const override;

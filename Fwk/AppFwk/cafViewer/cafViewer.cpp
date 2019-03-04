@@ -572,13 +572,13 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
         }
 
         m_overlayPaintingQImage.fill(Qt::transparent);
-        QPainter overlyPainter(&m_overlayPaintingQImage);
+        QPainter overlayPainter(&m_overlayPaintingQImage);
 
         // Call virtual method to allow subclasses to paint on the OpenGlCanvas
 
         if (m_isOverlayPaintingEnabled)
         {
-            this->paintOverlayItems(&overlyPainter); 
+            this->paintOverlayItems(&overlayPainter); 
         }
 
         // Draw performance overlay
@@ -589,7 +589,7 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
             hud.addStrings(m_renderingSequence->performanceInfo());
             hud.addStrings(*m_mainCamera);
             hud.addString(QString("PaintCount: %1").arg(m_paintCounter++));
-            hud.draw(&overlyPainter, width(), height());
+            hud.draw(&overlayPainter, width(), height());
         }
 
         // Convert the QImage into the cvf::TextureImage, 
@@ -977,7 +977,7 @@ int caf::Viewer::currentFrameIndex() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool caf::Viewer::isOverlyPaintingEnabled() const
+bool caf::Viewer::isOverlayPaintingEnabled() const
 {
     return m_isOverlayPaintingEnabled;
 }
@@ -985,7 +985,7 @@ bool caf::Viewer::isOverlyPaintingEnabled() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::enableOverlyPainting(bool val)
+void caf::Viewer::enableOverlayPainting(bool val)
 {
     m_isOverlayPaintingEnabled = val;
     updateOverlayImagePresence();

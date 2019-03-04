@@ -136,10 +136,10 @@ void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet* c
 
     if (overlayWidget)
     {
-        caf::TitledOverlayFrame* overlyItem = curveSetToShowLegendFor->legendConfig()->titledOverlayFrame();
-        overlyItem->setRenderSize(overlyItem->preferredSize());
+        caf::TitledOverlayFrame* overlayItem = curveSetToShowLegendFor->legendConfig()->titledOverlayFrame();
+        overlayItem->setRenderSize(overlayItem->preferredSize());
 
-        overlayWidget->updateFromOverlyItem(curveSetToShowLegendFor->legendConfig()->titledOverlayFrame());
+        overlayWidget->updateFromOverlayItem(curveSetToShowLegendFor->legendConfig()->titledOverlayFrame());
         overlayWidget->show();
     }
 

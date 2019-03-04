@@ -64,7 +64,7 @@ RiuCvfOverlayItemWidget::~RiuCvfOverlayItemWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuCvfOverlayItemWidget::updateFromOverlyItem( cvf::OverlayItem * item)
+void RiuCvfOverlayItemWidget::updateFromOverlayItem( cvf::OverlayItem * item)
 {
     // Use the render size of the overlayItem (sizeHint should be renamed)
 

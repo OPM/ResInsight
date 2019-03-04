@@ -64,8 +64,8 @@ using namespace cvf;
             m_renderConf = new caf::TransparentWBRenderConfiguration;
             m_renderConf->setUpRenderSequence(m_renderingSequence.p());
         
-            // Cerate overly item if needed
-            cvf::OverlyItem* overlayItem; // = new someTtem
+            // Cerate overlay item if needed
+            cvf::OverlayItem* overlayItem; // = new someTtem
             m_renderConf->overlayRendering()->addOverlayItem(overlayItem);
         }
     

@@ -140,8 +140,8 @@ public:
 
     // QPainter based drawing on top of the OpenGL graphics
 
-    bool                    isOverlyPaintingEnabled() const;
-    void                    enableOverlyPainting(bool val);
+    bool                    isOverlayPaintingEnabled() const;
+    void                    enableOverlayPainting(bool val);
 
     // Performance information for debugging etc.
     void                    enablePerfInfoHud(bool enable);

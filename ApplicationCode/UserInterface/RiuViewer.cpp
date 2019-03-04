@@ -100,7 +100,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_mainRendering->addOverlayItem(m_axisCross.p());
     m_showAxisCross = true;
 
-    this->enableOverlyPainting(true);
+    this->enableOverlayPainting(true);
     this->setReleaseOGLResourcesEachFrame(true);
 
     // Info Text
