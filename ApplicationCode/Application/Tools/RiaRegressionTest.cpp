@@ -60,6 +60,8 @@ RiaRegressionTest::RiaRegressionTest(void)
     CAF_PDM_InitField(
         &useOpenMPForGeometryCreation, "useOpenMPForGeometryCreation", true, "Use OpenMP For Geometry Creation", "", "", "");
 
+    CAF_PDM_InitField(&openReportInBrowser, "openReportInBrowser", false, "Open Generated Report in Browser", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(
         &testFilter,
         "testFilter",

@@ -151,14 +151,16 @@ void RiaRegressionTestRunner::runRegressionTest()
     }
 
     QString htmlReportFileName = generateHtmlReport(folderList, baseFolderName, generatedFolderName, diffFolderName, testDir);
-    QDesktopServices::openUrl(htmlReportFileName);
 
-
+    if (regressionTestConfig.openReportInBrowser())
+    {
+        QDesktopServices::openUrl(htmlReportFileName);
+    }
 
     RiaLogging::info("--------------------------------------------------");
     RiaLogging::info(QTime::currentTime().toString() + ": Launching regression tests");
     RiaLogging::info("--------------------------------------------------");
-    
+
     QTime timeStamp;
     timeStamp.start();
     logInfoTextWithTimeInSeconds(timeStamp, "Starting regression tests\n");
