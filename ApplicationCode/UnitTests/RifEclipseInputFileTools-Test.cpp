@@ -3,6 +3,7 @@
 #include "RiaTestDataDirectory.h"
 #include "RifEclipseInputFileTools.h"
 #include "RigEclipseCaseData.h"
+#include "RigEquil.h"
 
 #include <QDebug>
 #include <QFile>
@@ -186,7 +187,7 @@ TEST(RifEclipseInputFileToolsTest, EquilData)
         const qint64         startPositionInFile = 0;
         QStringList          keywordContent;
         std::vector<QString> fileNamesContainingKeyword;
-        bool                 isEditKeywordDetected = false;
+        bool                 isStopParsingKeywordDetected = false;
         const QString        includeStatementAbsolutePathPrefix;
 
         RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(keyword,
@@ -196,16 +197,15 @@ TEST(RifEclipseInputFileToolsTest, EquilData)
                                                                                   pathAliasDefinitions,
                                                                                   &keywordContent,
                                                                                   &fileNamesContainingKeyword,
-                                                                                  &isEditKeywordDetected,
+                                                                                  &isStopParsingKeywordDetected,
                                                                                   includeStatementAbsolutePathPrefix);
         EXPECT_EQ((int)10, keywordContent.size());
 
-        /*
-                for (const auto& s : keywordContent)
-                {
-                    qDebug() << s;
-                }
-        */
+        for (const auto& s : keywordContent)
+        {
+            RigEquil equilRec = RigEquil::parseString(s);
+            // qDebug() << s;
+        }
     }
 }
 
@@ -233,7 +233,7 @@ TEST(RifEclipseInputFileToolsTest, FaultData)
         const qint64         startPositionInFile = 0;
         QStringList          keywordContent;
         std::vector<QString> fileNamesContainingKeyword;
-        bool                 isEditKeywordDetected = false;
+        bool                 isStopParsingKeywordDetected = false;
         const QString        includeStatementAbsolutePathPrefix;
 
         RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(keyword,
@@ -243,7 +243,7 @@ TEST(RifEclipseInputFileToolsTest, FaultData)
                                                                                   pathAliasDefinitions,
                                                                                   &keywordContent,
                                                                                   &fileNamesContainingKeyword,
-                                                                                  &isEditKeywordDetected,
+                                                                                  &isStopParsingKeywordDetected,
                                                                                   includeStatementAbsolutePathPrefix);
 
         EXPECT_EQ((int)1041, keywordContent.size());
