@@ -39,6 +39,7 @@ class RimCase;
 class RimGridCrossPlotCurve;
 class RimGridView;
 class RimEclipseCase;
+class RimEclipseCellColors;
 class RimEclipseResultDefinition;
 class RimRegularLegendConfig;
 class QwtPlot;
@@ -89,7 +90,7 @@ public:
     void    detachAllCurves();
     void    cellFilterViewUpdated();
     
-    RimRegularLegendConfig* legendConfig();
+    RimRegularLegendConfig* legendConfig() const;
 
     std::vector< RimGridCrossPlotCurve*> curves() const;
 
@@ -129,10 +130,9 @@ private:
     caf::PdmField<CurveCategorizationEnum>          m_categorization;
     caf::PdmChildField<RimEclipseResultDefinition*> m_xAxisProperty;
     caf::PdmChildField<RimEclipseResultDefinition*> m_yAxisProperty;
-    caf::PdmChildField<RimEclipseResultDefinition*> m_categoryProperty;
+    caf::PdmChildField<RimEclipseCellColors*>       m_categoryProperty;
 
     caf::PdmChildField<RimGridCrossPlotCurveSetNameConfig*> m_nameConfig;
 
     caf::PdmChildArrayField<RimGridCrossPlotCurve*> m_crossPlotCurves;
-    caf::PdmChildField<RimRegularLegendConfig*>     m_legendConfig;
 };

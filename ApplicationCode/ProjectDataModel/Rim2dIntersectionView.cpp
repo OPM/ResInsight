@@ -660,7 +660,7 @@ void Rim2dIntersectionView::updateLegends()
     {
         m_legendConfig()->setUiValuesFromLegendConfig(eclView->cellResult()->legendConfig());
         m_ternaryLegendConfig()->setUiValuesFromLegendConfig(eclView->cellResult()->ternaryLegendConfig());
-        eclView->cellResult()->updateLegendData(m_currentTimeStep(), m_legendConfig(), m_ternaryLegendConfig());
+        eclView->cellResult()->updateLegendData(eclView->eclipseCase(), m_currentTimeStep(), m_legendConfig(), m_ternaryLegendConfig());
 
         if ( eclView->cellResult()->isTernarySaturationSelected() )
         {

@@ -1159,7 +1159,7 @@ void RimEclipseView::updateLegends()
         {
             if (this->cellEdgeResult()->isUsingSingleVariable())
             {
-                this->cellEdgeResult()->singleVarEdgeResultColors()->updateLegendData(m_currentTimeStep);
+                this->cellEdgeResult()->singleVarEdgeResultColors()->updateLegendData(m_eclipseCase, m_currentTimeStep);
             }
             else
             {
@@ -1226,7 +1226,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString               
                                                           RimEclipseCellColors*   resultColors,
                                                           RigCaseCellResultsData* cellResultsData)
 {
-    resultColors->updateLegendData(m_currentTimeStep);
+    resultColors->updateLegendData(m_eclipseCase, m_currentTimeStep);
 
     if (resultColors->hasResult() && resultColors->legendConfig()->showLegend())
     {

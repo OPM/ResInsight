@@ -26,6 +26,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmPtrField.h"
 
+class RimEclipseCase;
 class RimTernaryLegendConfig;
 class RimRegularLegendConfig;
 
@@ -43,10 +44,10 @@ public:
     void                                        setReservoirView(RimEclipseView* ownerReservoirView);
     RimEclipseView*                             reservoirView();
 
-    void                                        updateLegendData(size_t timestep, 
+    void                                        updateLegendData(RimEclipseCase*         rimEclipseCase,
+                                                                 int                     timestep, 
                                                                  RimRegularLegendConfig* legendConfig = nullptr,
                                                                  RimTernaryLegendConfig* ternaryLegendConfig = nullptr);
-    
     RimRegularLegendConfig*                            legendConfig();
     RimTernaryLegendConfig*                            ternaryLegendConfig();
 
@@ -55,7 +56,7 @@ public:
     void                                        updateIconState();
 
     void                                updateLegendCategorySettings() override;
-
+    void                                uiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
 protected:
     // Overridden methods
     void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
