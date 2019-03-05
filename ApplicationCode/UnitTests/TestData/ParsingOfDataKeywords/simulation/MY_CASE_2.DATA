@@ -1,0 +1,12 @@
+
+
+EDIT
+-- searching for faults stops when EDIT keyword is detected
+  INCLUDE
+'../include/grid/FAULT_JUN_05.INC'/
+
+SCHEDULE
+
+-- searching for EQUIL stops when SCHEDULE keyword is detected
+INCLUDE
+  '../include/solution/equilibiration.inc' /
