@@ -1,10 +1,11 @@
 #include "gtest/gtest.h"
 
+#include "RiaTestDataDirectory.h"
+#include "RifEclipseInputFileTools.h"
 #include "RigEclipseCaseData.h"
 
-#include "RifEclipseInputFileTools.h"
-
 #include <QDebug>
+#include <QFile>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -148,4 +149,91 @@ TEST(RifEclipseInputFileToolsTest, FaultFaces)
         }
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST(RifEclipseInputFileToolsTest, EquilData)
+{
+    static const QString testDataRootFolder = QString("%1/ParsingOfDataKeywords/").arg(TEST_DATA_DIR);
+
+    {
+        QString fileName = testDataRootFolder + "simulation/MY_CASE.DATA";
+
+        QFile data(fileName);
+        if (!data.open(QFile::ReadOnly))
+        {
+            return;
+        }
+
+        std::vector<std::pair<QString, QString>> pathAliasDefinitions;
+        RifEclipseInputFileTools::parseAndReadPathAliasKeyword(fileName, &pathAliasDefinitions);
+
+        const QString        keyword("EQUIL");
+        const QString        keywordToStopParsing;
+        const qint64         startPositionInFile = 0;
+        QStringList          keywordContent;
+        std::vector<QString> fileNamesContainingKeyword;
+        bool                 isEditKeywordDetected = false;
+        const QString        includeStatementAbsolutePathPrefix;
+
+        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(keyword,
+                                                                                  keywordToStopParsing,
+                                                                                  data,
+                                                                                  startPositionInFile,
+                                                                                  pathAliasDefinitions,
+                                                                                  &keywordContent,
+                                                                                  &fileNamesContainingKeyword,
+                                                                                  &isEditKeywordDetected,
+                                                                                  includeStatementAbsolutePathPrefix);
+
+        for (const auto& s : keywordContent)
+        {
+            qDebug() << s;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST(RifEclipseInputFileToolsTest, FaultData)
+{
+    static const QString testDataRootFolder = QString("%1/ParsingOfDataKeywords/").arg(TEST_DATA_DIR);
+
+    {
+        QString fileName = testDataRootFolder + "simulation/MY_CASE.DATA";
+
+        QFile data(fileName);
+        if (!data.open(QFile::ReadOnly))
+        {
+            return;
+        }
+
+        std::vector<std::pair<QString, QString>> pathAliasDefinitions;
+        RifEclipseInputFileTools::parseAndReadPathAliasKeyword(fileName, &pathAliasDefinitions);
+
+        const QString        keyword("FAULTS");
+        const QString        keywordToStopParsing;
+        const qint64         startPositionInFile = 0;
+        QStringList          keywordContent;
+        std::vector<QString> fileNamesContainingKeyword;
+        bool                 isEditKeywordDetected = false;
+        const QString        includeStatementAbsolutePathPrefix;
+
+        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(keyword,
+                                                                                  keywordToStopParsing,
+                                                                                  data,
+                                                                                  startPositionInFile,
+                                                                                  pathAliasDefinitions,
+                                                                                  &keywordContent,
+                                                                                  &fileNamesContainingKeyword,
+                                                                                  &isEditKeywordDetected,
+                                                                                  includeStatementAbsolutePathPrefix);
+        for (const auto& s : keywordContent)
+        {
+            qDebug() << s;
+        }
+    }
 }

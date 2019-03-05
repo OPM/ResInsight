@@ -788,6 +788,185 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(
+    const QString&                                  keyword,
+    const QString&                                  keywordToStopParsing,
+    QFile&                                          file,
+    qint64                                          startPos,
+    const std::vector<std::pair<QString, QString>>& pathAliasDefinitions,
+    QStringList*                                    keywordDataContent,
+    std::vector<QString>*                           filenamesContainingKeyword,
+    bool*                                           isStopParsingKeywordDetected,
+    const QString& faultIncludeFileAbsolutePathPrefix /* rename to includeStatementAbsolutePathPrefix */)
+{
+    QString line;
+
+    if (!file.seek(startPos))
+    {
+        return false;
+    }
+
+    bool continueParsing = true;
+
+    do
+    {
+        line = file.readLine();
+        line = line.trimmed();
+
+        if (line.startsWith("--", Qt::CaseInsensitive))
+        {
+            continue;
+        }
+
+        if (!keywordToStopParsing.isEmpty() && line.startsWith(keywordToStopParsing, Qt::CaseInsensitive))
+        {
+            if (isStopParsingKeywordDetected)
+            {
+                *isStopParsingKeywordDetected = true;
+            }
+
+            return false;
+        }
+
+        if (line.startsWith(includeKeyword, Qt::CaseInsensitive))
+        {
+            line = file.readLine();
+            line = line.trimmed();
+
+            while (line.startsWith("--", Qt::CaseInsensitive))
+            {
+                line = file.readLine();
+                line = line.trimmed();
+            }
+
+            int firstQuote = line.indexOf("'");
+            int lastQuote  = line.lastIndexOf("'");
+
+            if (!(firstQuote < 0 || lastQuote < 0 || firstQuote == lastQuote))
+            {
+                QDir currentFileFolder;
+                {
+                    QFileInfo fi(file.fileName());
+                    currentFileFolder = fi.absoluteDir();
+                }
+
+                // Read include file name, and both relative and absolute path is supported
+                QString includeFilename = line.mid(firstQuote + 1, lastQuote - firstQuote - 1);
+
+                for (auto entry : pathAliasDefinitions)
+                {
+                    QString textToReplace = "$" + entry.first;
+                    includeFilename.replace(textToReplace, entry.second);
+                }
+
+#ifdef WIN32
+                if (includeFilename.startsWith('/'))
+                {
+                    // Absolute UNIX path, prefix on Windows
+                    includeFilename = faultIncludeFileAbsolutePathPrefix + includeFilename;
+                }
+#endif
+
+                QFileInfo fi(currentFileFolder, includeFilename);
+                if (fi.exists())
+                {
+                    QString absoluteFilename = fi.canonicalFilePath();
+                    QFile   includeFile(absoluteFilename);
+                    if (includeFile.open(QFile::ReadOnly))
+                    {
+                        // qDebug() << "Found include statement, and start parsing of\n  " << absoluteFilename;
+
+                        if (!readKeywordAndParseIncludeStatementsRecursively(keyword,
+                                                                             keywordToStopParsing,
+                                                                             includeFile,
+                                                                             0,
+                                                                             pathAliasDefinitions,
+                                                                             keywordDataContent,
+                                                                             filenamesContainingKeyword,
+                                                                             isStopParsingKeywordDetected,
+                                                                             faultIncludeFileAbsolutePathPrefix))
+                        {
+                            qDebug() << "Error when parsing include file : " << absoluteFilename;
+                        }
+                    }
+                }
+            }
+        }
+        else if (line.startsWith(keyword, Qt::CaseInsensitive))
+        {
+            if (!line.contains("/"))
+            {
+                readKeywordDataContent(file, file.pos(), keywordDataContent, isStopParsingKeywordDetected);
+                filenamesContainingKeyword->push_back(file.fileName());
+            }
+        }
+
+        if (isStopParsingKeywordDetected && *isStopParsingKeywordDetected)
+        {
+            continueParsing = false;
+        }
+
+        if (file.atEnd())
+        {
+            continueParsing = false;
+        }
+
+    } while (continueParsing);
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseInputFileTools::readKeywordDataContent(QFile&       data,
+                                                      qint64       filePos,
+                                                      QStringList* textContent,
+                                                      bool*        isEditKeywordDetected)
+{
+    if (!data.seek(filePos))
+    {
+        return;
+    }
+
+    // This function assumes the keyword is read from file, and the file pointer is pointing to the first line containing data for
+    // the keyword
+
+    do
+    {
+        QString line = data.readLine();
+        line         = line.trimmed();
+
+        if (line.startsWith("--", Qt::CaseInsensitive))
+        {
+            // Skip comment lines
+            continue;
+        }
+        else if (line.startsWith("/", Qt::CaseInsensitive))
+        {
+            // Detected end of keyword data section
+            return;
+        }
+        else if (line.startsWith(editKeyword, Qt::CaseInsensitive))
+        {
+            // End parsing when edit keyword is detected
+
+            if (isEditKeywordDetected)
+            {
+                *isEditKeywordDetected = true;
+            }
+
+            return;
+        }
+
+        textContent->push_back(line);
+
+    } while (!data.atEnd());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText(const QString& faceString)
 {
     QString upperCaseText = faceString.toUpper().trimmed();

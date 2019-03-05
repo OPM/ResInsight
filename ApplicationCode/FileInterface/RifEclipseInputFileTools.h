@@ -82,6 +82,22 @@ public:
                                                                     bool* isEditKeywordDetected,
                                                                     const QString& faultIncludeFileAbsolutePathPrefix);
 
+
+
+    static bool     readKeywordAndParseIncludeStatementsRecursively(const QString& keyword,
+                                                                    const QString& keywordToStopParsing,
+                                                                    QFile& file,
+                                                                   qint64 startPos,
+                                                                   const std::vector< std::pair<QString, QString> >& pathAliasDefinitions,
+                                                                   QStringList* keywordDataContent,
+                                                                   std::vector<QString>* filenamesContainingKeyword,
+                                                                   bool* isEditKeywordDetected,
+                                                                   const QString& faultIncludeFileAbsolutePathPrefix // rename to includeStatementAbsolutePathPrefix
+                                                                    );
+
+    static void                       readKeywordDataContent(QFile &data, qint64 filePos, QStringList* textContent, bool* isEditKeywordDetected);
+
+
     static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
 
 private:
