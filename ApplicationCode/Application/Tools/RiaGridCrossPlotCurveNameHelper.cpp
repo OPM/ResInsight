@@ -27,7 +27,7 @@ void RiaGridCrossPlotCurveNameHelper::addCurveSet(RimGridCrossPlotCurveSet* curv
     m_caseNameSet.insert(curveSet->caseNameString());
     m_axisVariablesSet.insert(curveSet->axisVariableString());
     m_timeStepSet.insert(curveSet->timeStepString());
-    for (auto category : curveSet->categoryStrings())
+    for (auto category : curveSet->groupStrings())
     {
         m_categoriesSet.insert(category);
     }

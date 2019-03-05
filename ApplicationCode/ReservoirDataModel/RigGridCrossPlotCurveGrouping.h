@@ -17,11 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-enum RigGridCrossPlotCurveCategorization
+enum RigGridCrossPlotCurveGrouping
 {
-    NO_CATEGORIZATION,
-    TIME_CATEGORIZATION,
-    FORMATION_CATEGORIZATION,
-    RESULT_CATEGORIZATION
+    NO_GROUPING,
+    GROUP_BY_TIME,
+    GROUP_BY_FORMATION,
+    GROUP_BY_RESULT
 };
 

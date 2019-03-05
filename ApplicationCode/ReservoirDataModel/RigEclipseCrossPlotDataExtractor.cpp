@@ -38,8 +38,8 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
                                                                     int                                 resultTimeStep,
                                                                     const RigEclipseResultAddress&      xAddress,
                                                                     const RigEclipseResultAddress&      yAddress,
-                                                                    RigGridCrossPlotCurveCategorization categorizationType,
-                                                                    const RigEclipseResultAddress&      catAddress,
+                                                                    RigGridCrossPlotCurveGrouping       groupingType,
+                                                                    const RigEclipseResultAddress&      groupAddress,
                                                                     std::map<int, cvf::UByteArray>      timeStepCellVisibilityMap)
 {
     RigEclipseCrossPlotResult result;
@@ -61,10 +61,10 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
         const std::vector<std::vector<double>>& xValuesForAllSteps = resultData->cellScalarResults(xAddress);
         const std::vector<std::vector<double>>& yValuesForAllSteps = resultData->cellScalarResults(yAddress);
 
-        if (categorizationType == RESULT_CATEGORIZATION && catAddress.isValid())
+        if (groupingType == GROUP_BY_RESULT && groupAddress.isValid())
         {
-            resultData->ensureKnownResultLoaded(catAddress);
-            catValuesForAllSteps = &resultData->cellScalarResults(catAddress);
+            resultData->ensureKnownResultLoaded(groupAddress);
+            catValuesForAllSteps = &resultData->cellScalarResults(groupAddress);
         }
 
         std::set<int> timeStepsToInclude;
@@ -120,11 +120,11 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
                 result.xValues.push_back(xValue);
                 result.yValues.push_back(yValue);
 
-                if (categorizationType == TIME_CATEGORIZATION)
+                if (groupingType == GROUP_BY_TIME)
                 {
-                    result.catValuesDiscrete.push_back(timeStep);
+                    result.groupValuesDiscrete.push_back(timeStep);
                 }
-                else if (categorizationType == FORMATION_CATEGORIZATION)
+                else if (groupingType == GROUP_BY_FORMATION)
                 {
                     CVF_ASSERT(activeFormationNames);
                     int category = 0;
@@ -133,16 +133,16 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
                     {
                         category = activeFormationNames->formationIndexFromKLayerIdx(k);
                     }
-                    result.catValuesDiscrete.push_back(category);
+                    result.groupValuesDiscrete.push_back(category);
                 }
-                else if (categorizationType == RESULT_CATEGORIZATION)
+                else if (groupingType == GROUP_BY_RESULT)
                 {
                     double catValue = HUGE_VAL;
                     if (catAccessor)
                     {
                         catValue = catAccessor->cellScalarGlobIdx(globalCellIdx);
                     }
-                    result.catValuesContinuous.push_back(catValue);
+                    result.groupValuesContinuous.push_back(catValue);
                 }
             }
         }

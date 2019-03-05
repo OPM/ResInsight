@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RigGridCrossPlotCurveCategorization.h"
+#include "RigGridCrossPlotCurveGrouping.h"
 
 #include "RimCheckableNamedObject.h"
 #include "RimNameConfig.h"
@@ -56,7 +56,7 @@ public:
     caf::PdmField<bool> addCaseName;
     caf::PdmField<bool> addAxisVariables;
     caf::PdmField<bool> addTimestep;
-    caf::PdmField<bool> addCategorization;
+    caf::PdmField<bool> addGrouping;
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -72,7 +72,7 @@ class RimGridCrossPlotCurveSet : public RimCheckableNamedObject, public RimNameC
 
 public:
     
-    typedef caf::AppEnum<RigGridCrossPlotCurveCategorization> CurveCategorizationEnum;
+    typedef caf::AppEnum<RigGridCrossPlotCurveGrouping> CurveGroupingEnum;
 
 public:
     RimGridCrossPlotCurveSet();
@@ -86,7 +86,7 @@ public:
 
     int     indexInPlot() const;
     QString createAutoName() const override;
-    QString categoryTitle() const;
+    QString groupTitle() const;
     void    detachAllCurves();
     void    cellFilterViewUpdated();
     
@@ -97,12 +97,13 @@ public:
     QString              caseNameString() const;
     QString              axisVariableString() const;
     QString              timeStepString() const;
-    std::vector<QString> categoryStrings() const;
+    std::vector<QString> groupStrings() const;
 
     void updateCurveNames(bool applyCaseName, bool applyAxisVariables, bool applyTimeStep, bool applyCategory);
     void updateLegend();
-    bool hasCategoryResult() const;
-    
+    bool groupingByCategoryResult() const;
+    bool groupingEnabled() const;
+
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);
@@ -127,10 +128,10 @@ private:
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmPtrField<RimGridView*>                  m_cellFilterView;
-    caf::PdmField<CurveCategorizationEnum>          m_categorization;
+    caf::PdmField<CurveGroupingEnum>          m_grouping;
     caf::PdmChildField<RimEclipseResultDefinition*> m_xAxisProperty;
     caf::PdmChildField<RimEclipseResultDefinition*> m_yAxisProperty;
-    caf::PdmChildField<RimEclipseCellColors*>       m_categoryProperty;
+    caf::PdmChildField<RimEclipseCellColors*>       m_groupingProperty;
 
     caf::PdmChildField<RimGridCrossPlotCurveSetNameConfig*> m_nameConfig;
 

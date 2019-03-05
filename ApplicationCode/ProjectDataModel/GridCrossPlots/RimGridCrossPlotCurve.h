@@ -40,10 +40,10 @@ class RimGridCrossPlotCurve : public RimPlotCurve
 public:
     RimGridCrossPlotCurve();
     ~RimGridCrossPlotCurve() override = default;
-    void setCategoryInformation(int curveSetIndex, int categoryIndex);
+    void setGroupingInformation(int curveSetIndex, int groupIndex);
     void setSamples(const std::vector<double>& xValues, const std::vector<double>& yValues);
     void updateCurveAppearance() override;
-    int  categoryIndex() const;
+    int  groupIndex() const;
 
 protected:
 
@@ -56,6 +56,6 @@ protected:
 
 private:
     int     m_curveSetIndex;
-    int     m_categoryIndex;
+    int     m_groupIndex;
 };
 

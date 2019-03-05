@@ -119,7 +119,7 @@ void RiuGridCrossQwtPlot::updateLegendLayout()
         {
             RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
             // Show only one copy of each legend type
-            if (!legendTypes.count(curveSet->categoryTitle()))
+            if (!legendTypes.count(curveSet->groupTitle()))
             {
                 if (ypos + overlayWidget->height() + spacing > this->canvas()->height())
                 {
@@ -133,7 +133,7 @@ void RiuGridCrossQwtPlot::updateLegendLayout()
 
                 ypos += pairIt->second->height() + spacing;
                 maxColumnWidth = std::max(maxColumnWidth, pairIt->second->width());
-                legendTypes.insert(curveSet->categoryTitle());
+                legendTypes.insert(curveSet->groupTitle());
             }
         }
     }

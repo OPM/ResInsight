@@ -68,7 +68,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigCaseRealizationParameters.h
 ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RigPolyLinesData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultCalculator.h
-${CMAKE_CURRENT_LIST_DIR}/RigGridCrossPlotCurveCategorization.h
+${CMAKE_CURRENT_LIST_DIR}/RigGridCrossPlotCurveGrouping.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor.h
 
 )

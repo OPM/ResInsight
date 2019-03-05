@@ -47,7 +47,7 @@ CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurve, "GridCrossPlotCurve");
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlotCurve::RimGridCrossPlotCurve()
     : m_curveSetIndex(0)
-    , m_categoryIndex(0)
+    , m_groupIndex(0)
 {
     CAF_PDM_InitObject("Cross Plot Points", ":/WellLogCurve16x16.png", "", "");
    
@@ -59,10 +59,10 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::setCategoryInformation(int curveSetIndex, int categoryIndex)
+void RimGridCrossPlotCurve::setGroupingInformation(int curveSetIndex, int categoryIndex)
 {
     m_curveSetIndex = curveSetIndex;
-    m_categoryIndex = categoryIndex;    
+    m_groupIndex = categoryIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,9 +87,9 @@ void RimGridCrossPlotCurve::updateCurveAppearance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimGridCrossPlotCurve::categoryIndex() const
+int RimGridCrossPlotCurve::groupIndex() const
 {
-    return m_categoryIndex;
+    return m_groupIndex;
 }
 
 //--------------------------------------------------------------------------------------------------

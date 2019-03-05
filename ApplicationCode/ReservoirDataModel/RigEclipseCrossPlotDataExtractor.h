@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RigGridCrossPlotCurveCategorization.h"
+#include "RigGridCrossPlotCurveGrouping.h"
 
 #include "cvfBase.h"
 #include "cvfArray.h"
@@ -35,8 +35,8 @@ struct RigEclipseCrossPlotResult
 {
     std::vector<double> xValues;
     std::vector<double> yValues;
-    std::vector<double> catValuesContinuous;
-    std::vector<int>    catValuesDiscrete;
+    std::vector<double> groupValuesContinuous;
+    std::vector<int>    groupValuesDiscrete;
 };
 
 class RigEclipseCrossPlotDataExtractor
@@ -46,7 +46,7 @@ public:
                                              int                                 resultTimeStep,
                                              const RigEclipseResultAddress&      xAddress,
                                              const RigEclipseResultAddress&      yAddress,
-                                             RigGridCrossPlotCurveCategorization categorizationType,
-                                             const RigEclipseResultAddress&      categoryAddress,
+                                             RigGridCrossPlotCurveGrouping       groupingType,
+                                             const RigEclipseResultAddress&      groupAddress,
                                              std::map<int, cvf::UByteArray>      timeStepCellVisibilityMap);
 };
