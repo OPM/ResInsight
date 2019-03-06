@@ -101,7 +101,7 @@ void RiuMainWindowBase::showWindow()
 QString RiuMainWindowBase::registryFolderName()
 {
     QString versionName(STRPRODUCTVER);
-    QString regFolder = QString("%1/%2").arg(versionName).arg(mainWindowName());
+    QString regFolder = QString("%1_Qt%2/%3").arg(versionName).arg(QT_VERSION_STR).arg(mainWindowName());
     return regFolder;
 }
 
