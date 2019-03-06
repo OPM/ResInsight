@@ -264,6 +264,8 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
 
     if (app->isMainPlotWindowVisible())
     {
+        event->ignore(); // Make Qt think we don't do anything, otherwise it closes the window.
+        this->hide();    // Instead we just hide it.
         return;
     }
 
