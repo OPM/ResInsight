@@ -108,9 +108,6 @@
 ///
 //==================================================================================================
 
-
-RiuMainWindow* RiuMainWindow::sm_mainWindowInstance = nullptr;
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -123,8 +120,6 @@ RiuMainWindow::RiuMainWindow()
     m_blockSlotSubWindowActivated(false),
     m_holoLensToolBar(nullptr)
 {
-    CVF_ASSERT(sm_mainWindowInstance == nullptr);
-
     m_mdiArea = new QMdiArea;
     m_mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation, true);
     connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
@@ -139,8 +134,6 @@ RiuMainWindow::RiuMainWindow()
 
     // Store the layout so we can offer reset option
     m_initialDockAndToolbarLayout = saveState(0);
-
-    sm_mainWindowInstance = this;
 
     m_dragDropInterface = std::unique_ptr<caf::PdmUiDragDropInterface>(new RiuDragDrop());
 
@@ -175,7 +168,7 @@ RiuMainWindow::RiuMainWindow()
 //--------------------------------------------------------------------------------------------------
 RiuMainWindow* RiuMainWindow::instance()
 {
-    return sm_mainWindowInstance;
+    return RiaApplication::instance()->mainWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,6 +260,8 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
 {
     RiaApplication* app = RiaApplication::instance();
 
+    app->saveMainWinGeoAndDockToolBarLayout();
+
     if (app->isMainPlotWindowVisible())
     {
         return;
@@ -278,9 +273,7 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
         return;
     }
 
-    app->saveWinGeoAndDockToolBarLayout();
-
-    if (!app->tryClosePlotWindow()) return;
+    app->closeMainPlotWindowIfOpenButHidden();
 
     app->closeProject();
 }

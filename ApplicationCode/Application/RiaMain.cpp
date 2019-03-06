@@ -19,9 +19,6 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "RiuMainWindow.h"
-#include "RiuMessagePanel.h"
-
 int main(int argc, char *argv[])
 {
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
@@ -36,24 +33,9 @@ int main(int argc, char *argv[])
     {
         return unitTestResult;
     }
-
-    RiuMainWindow window;
-    QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
-    window.setWindowTitle("ResInsight " + platform);
-    window.setDefaultWindowSize();
-    window.setDefaultToolbarVisibility();
-    window.loadWinGeoAndDockToolBarLayout();
-    window.showWindow();
-
-    // Create plot main window to be able to set expanded state on created objects
-    // The plot window is hidden by default
-    RiaApplication::instance()->getOrCreateMainPlotWindow();
-
+     
     if (app.parseArguments())
     {
-        RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(window.messagePanel()));
-        RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
-
         int exitCode = 0;
         try
         {
@@ -70,12 +52,8 @@ int main(int argc, char *argv[])
             throw;
         }
 
-        RiaLogging::deleteLoggerInstance();
-
         return exitCode;
     }
-
-    RiaLogging::deleteLoggerInstance();
 
     return 0;
 }
