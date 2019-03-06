@@ -58,6 +58,7 @@ class RimViewWindow;
 class RimWellLogPlot;
 class RimWellAllocationPlot;
 
+class RiuMainWindow;
 class RiuMainWindowBase;
 class RiuPlotMainWindow;
 class RiuRecentFileActionProvider;
@@ -183,6 +184,9 @@ public:
     int                 launchUnitTests();
     int                 launchUnitTestsWithConsole();
 
+    RiuMainWindow*      getOrCreateAndShowMainWindow();
+    RiuMainWindow*      mainWindow();
+
     RiuPlotMainWindow*  getOrCreateMainPlotWindow();
     RiuPlotMainWindow*  getOrCreateAndShowMainPlotWindow();
     RiuPlotMainWindow*  mainPlotWindow();
@@ -193,8 +197,8 @@ public:
     bool                isMain3dWindowVisible() const;
     bool                isMainPlotWindowVisible() const;
 
-    bool                tryCloseMainWindow();
-    bool                tryClosePlotWindow();
+    void                closeMainWindowIfOpenButHidden();
+    void                closeMainPlotWindowIfOpenButHidden();
 
     void                  addToRecentFiles(const QString& fileName);
     std::vector<QAction*> recentFileActions() const;
@@ -204,7 +208,8 @@ public:
     static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
     void                waitUntilCommandObjectsHasBeenProcessed();
-    void                saveWinGeoAndDockToolBarLayout();
+    void                saveMainWinGeoAndDockToolBarLayout();
+    void                savePlotWinGeoAndDockToolBarLayout();
 
     static bool         enableDevelopmentFeatures();
     static void         clearAllSelections();
@@ -212,6 +217,9 @@ public:
 private:
     void                onProjectOpenedOrClosed();
     void                setWindowCaptionFromAppState();
+
+    void                createMainWindow();
+    void                deleteMainWindow();
 
     void                createMainPlotWindow();
     void                deleteMainPlotWindow();
@@ -258,6 +266,7 @@ private:
 
     bool                                m_runningWorkerProcess;
 
+    RiuMainWindow*                      m_mainWindow;
     RiuPlotMainWindow*                  m_mainPlotWindow;
     
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;

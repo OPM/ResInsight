@@ -165,6 +165,8 @@ void RiuPlotMainWindow::closeEvent(QCloseEvent* event)
 {
     RiaApplication* app = RiaApplication::instance();
 
+    app->savePlotWinGeoAndDockToolBarLayout();
+    
     if (app->isMain3dWindowVisible())
     {
         return;
@@ -176,9 +178,7 @@ void RiuPlotMainWindow::closeEvent(QCloseEvent* event)
         return;
     }
 
-    app->saveWinGeoAndDockToolBarLayout();
-
-    if (!app->tryCloseMainWindow()) return;
+    app->closeMainWindowIfOpenButHidden();
 
     app->closeProject();
 }
