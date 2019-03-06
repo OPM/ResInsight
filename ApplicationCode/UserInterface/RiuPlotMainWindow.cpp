@@ -169,6 +169,8 @@ void RiuPlotMainWindow::closeEvent(QCloseEvent* event)
     
     if (app->isMain3dWindowVisible())
     {
+        event->ignore();
+        this->hide();
         return;
     }
 
