@@ -96,6 +96,7 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     CAF_PDM_InitFieldNoDefault(&m_groupingProperty, "GroupingProperty", "Data Grouping Property", "", "", "");
     m_groupingProperty = new RimEclipseCellColors;
     m_groupingProperty.uiCapability()->setUiHidden(true);
+    m_groupingProperty->legendConfig()->setMappingMode(RimRegularLegendConfig::CATEGORY_INTEGER);
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "Name", "", "", "");
     m_nameConfig = new RimGridCrossPlotCurveSetNameConfig(this);
