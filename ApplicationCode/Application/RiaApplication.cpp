@@ -179,6 +179,12 @@ bool RiaApplication::notify(QObject* receiver, QEvent* event)
 //--------------------------------------------------------------------------------------------------
 RiaApplication::RiaApplication(int& argc, char** argv)
     : QApplication(argc, argv)
+    , m_socketServer(nullptr)
+    , m_workerProcess(nullptr)
+    , m_preferences(nullptr)
+    , m_runningWorkerProcess(false)
+    , m_mainWindow(nullptr)
+    , m_mainPlotWindow(nullptr)
 {
     // USed to get registry settings in the right place
     QCoreApplication::setOrganizationName(RI_COMPANY_NAME);
@@ -209,7 +215,6 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     setWindowIcon(QIcon(":/AppLogo48x48.png"));
 
     m_socketServer  = new RiaSocketServer(this);
-    m_workerProcess = nullptr;
 
 #ifdef WIN32
     m_startupDefaultDirectory = QDir::homePath();
@@ -222,12 +227,7 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
     m_standardFont = RiaFontCache::getFont(RiaFontCache::FONT_SIZE_8);
-
-    m_runningWorkerProcess = false;
-
-    m_mainWindow     = nullptr;
-    m_mainPlotWindow = nullptr;
-
+    
     m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);
 
     // Create main windows
