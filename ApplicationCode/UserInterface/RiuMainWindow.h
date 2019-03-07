@@ -143,11 +143,6 @@ private:
     void            updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectToUpdate);
 
 private:
-    static RiuMainWindow*    sm_mainWindowInstance;
-    
-    QByteArray                m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
-
-private:
     // Edit actions
     QAction*            m_newPropertyView;
 

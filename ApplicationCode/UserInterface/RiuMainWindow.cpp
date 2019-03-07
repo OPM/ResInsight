@@ -132,9 +132,6 @@ RiuMainWindow::RiuMainWindow()
     createToolBars();
     createDockPanels();
 
-    // Store the layout so we can offer reset option
-    m_initialDockAndToolbarLayout = saveState(0);
-
     m_dragDropInterface = std::unique_ptr<caf::PdmUiDragDropInterface>(new RiuDragDrop());
 
     initializeGuiNewProjectLoaded();
