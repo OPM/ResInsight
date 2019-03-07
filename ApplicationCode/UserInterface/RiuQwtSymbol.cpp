@@ -184,7 +184,9 @@ RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledFilledSymbolStyle(int indexLev
 {
     std::vector<PointSymbolEnum> contrastingSymbols =
     {
-        SYMBOL_ELLIPSE, SYMBOL_RECT };
+        SYMBOL_ELLIPSE, SYMBOL_RECT, SYMBOL_DIAMOND, SYMBOL_DOWN_TRIANGLE, SYMBOL_UP_TRIANGLE,
+        SYMBOL_LEFT_TRIANGLE, SYMBOL_RIGHT_TRIANGLE, SYMBOL_STAR2
+    };
 
     return contrastingSymbols[indexLevel % (int)contrastingSymbols.size()];
 }

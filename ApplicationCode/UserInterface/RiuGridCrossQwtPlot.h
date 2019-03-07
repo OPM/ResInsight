@@ -28,6 +28,10 @@
 class RimGridCrossPlotCurveSet;
 class RiuCvfOverlayItemWidget;
 
+namespace caf
+{
+class TitledOverlayFrame;
+}
 //==================================================================================================
 //
 //
@@ -46,7 +50,8 @@ public:
 protected:
     void updateLayout() override;
     void updateLegendLayout();
-
+    void resizeEvent(QResizeEvent *e) override;
+    bool resizeOverlayItemToFitPlot(caf::TitledOverlayFrame* overlayItem);
 private:
     std::map<caf::PdmPointer<RimGridCrossPlotCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_legendWidgets;
 };

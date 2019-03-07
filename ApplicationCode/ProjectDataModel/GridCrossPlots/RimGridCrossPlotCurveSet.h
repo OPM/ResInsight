@@ -134,6 +134,7 @@ protected:
 
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
+    bool hasMultipleTimeSteps() const;
 private:
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;

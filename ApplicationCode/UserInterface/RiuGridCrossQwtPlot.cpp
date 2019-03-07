@@ -26,6 +26,8 @@
 
 #include "cafTitledOverlayFrame.h"
 
+#include <QResizeEvent>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -37,18 +39,18 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot(RimViewWindow* ownerViewWindow, QWidget
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::addOrUpdateCurveSetLegend(RimGridCrossPlotCurveSet* curveSetToShowLegendFor)
+void RiuGridCrossQwtPlot::addOrUpdateCurveSetLegend(RimGridCrossPlotCurveSet* curveSet)
 {
     RiuCvfOverlayItemWidget* overlayWidget = nullptr;
 
-    auto it = m_legendWidgets.find(curveSetToShowLegendFor);
+    auto it = m_legendWidgets.find(curveSet);
     if (it == m_legendWidgets.end() || it->second == nullptr)
     {
         overlayWidget = new RiuCvfOverlayItemWidget(this);
 
         new RiuWidgetDragger(overlayWidget);
 
-        m_legendWidgets[curveSetToShowLegendFor] = overlayWidget;
+        m_legendWidgets[curveSet] = overlayWidget;
     }
     else
     {
@@ -57,12 +59,11 @@ void RiuGridCrossQwtPlot::addOrUpdateCurveSetLegend(RimGridCrossPlotCurveSet* cu
 
     if (overlayWidget)
     {
-        caf::TitledOverlayFrame* overlayItem = curveSetToShowLegendFor->legendConfig()->titledOverlayFrame();
-        overlayItem->setRenderSize(overlayItem->preferredSize());
+        caf::TitledOverlayFrame* overlayItem = curveSet->legendConfig()->titledOverlayFrame();
+        resizeOverlayItemToFitPlot(overlayItem);
+        overlayWidget->updateFromOverlayItem(overlayItem);
 
-        overlayWidget->updateFromOverlayItem(curveSetToShowLegendFor->legendConfig()->titledOverlayFrame());
     }
-
     this->updateLegendLayout();
 }
 
@@ -137,4 +138,65 @@ void RiuGridCrossQwtPlot::updateLegendLayout()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGridCrossQwtPlot::resizeEvent(QResizeEvent* e)
+{
+    QwtPlot::resizeEvent(e);
+
+    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>(ownerPlotDefinition());
+    if (!crossPlot) return;
+
+    bool anyLegendResized = false;
+
+    for (RimGridCrossPlotCurveSet* curveSet : crossPlot->curveSets())
+    {
+        if (!curveSet->isChecked() || !curveSet->legendConfig()->showLegend()) continue;
+
+        auto pairIt = m_legendWidgets.find(curveSet);
+        if (pairIt != m_legendWidgets.end())
+        {
+            RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
+            if (overlayWidget->isVisible())
+            {
+                caf::TitledOverlayFrame* overlayItem = curveSet->legendConfig()->titledOverlayFrame();
+                if (resizeOverlayItemToFitPlot(overlayItem))
+                {
+                    anyLegendResized = true;
+                    overlayWidget->updateFromOverlayItem(overlayItem);
+                }
+            }
+        }
+    }
+    if (anyLegendResized)
+    {
+        updateLegendLayout();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuGridCrossQwtPlot::resizeOverlayItemToFitPlot(caf::TitledOverlayFrame* overlayItem)
+{
+    QSize       plotSize   = this->canvas()->contentsRect().size();
+    cvf::Vec2ui legendSize = overlayItem->preferredSize();
+
+    bool sizeAltered = false;
+
+    if (plotSize.width() > 0 && (double) legendSize.x() > 0.9 * plotSize.width())
+    {
+        legendSize.x() = (plotSize.width() * 9) / 10;
+        sizeAltered = true;
+    }
+    if (plotSize.height() > 0 && (double) legendSize.y() > 0.9 * plotSize.height())
+    {
+        legendSize.y() = (plotSize.height() * 9) / 10;
+        sizeAltered = true;
+    }
+    overlayItem->setRenderSize(legendSize);
+    return sizeAltered;
 }

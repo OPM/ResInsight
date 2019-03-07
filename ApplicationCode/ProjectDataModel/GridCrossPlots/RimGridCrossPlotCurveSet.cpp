@@ -652,7 +652,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurveSet::calculateValueOptions(co
     else if (fieldNeedingOptions == &m_grouping)
     {
         std::set<RigGridCrossPlotCurveGrouping> validOptions = { NO_GROUPING, GROUP_BY_TIME, GROUP_BY_FORMATION, GROUP_BY_RESULT };
-        if (m_timeStep() != -1 || !(m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult()))
+        if (!hasMultipleTimeSteps())
         {
             validOptions.erase(GROUP_BY_TIME);
         }
@@ -678,6 +678,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurveSet::calculateValueOptions(co
 void RimGridCrossPlotCurveSet::updateLegend()
 {
     legendConfig()->setTitle(groupParameter());
+    legendConfig()->disableAllTimeStepsRange(!hasMultipleTimeSteps());
 
     RimGridCrossPlot* parent;
     this->firstAncestorOrThisOfTypeAsserted(parent);
@@ -887,6 +888,15 @@ void RimGridCrossPlotCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTr
     }
 
     uiTreeOrdering.skipRemainingChildren(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCrossPlotCurveSet::hasMultipleTimeSteps() const
+{
+    return m_timeStep() == -1 && (m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult());
+
 }
 
 CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSetNameConfig, "RimGridCrossPlotCurveSetNameConfig");
