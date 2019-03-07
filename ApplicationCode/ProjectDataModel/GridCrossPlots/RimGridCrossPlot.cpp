@@ -621,6 +621,7 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
                 m_qwtPlot->setAxisMaxMinor(axisProperties->qwtPlotAxisType(), 3);
             }
         }
+        m_qwtPlot->axisScaleEngine(axisProperties->qwtPlotAxisType())->setAttribute(QwtScaleEngine::Inverted, axisProperties->isAxisInverted());
 
         if (axisProperties->isAutoZoom())
         {

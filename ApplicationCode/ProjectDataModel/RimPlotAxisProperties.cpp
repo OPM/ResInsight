@@ -88,6 +88,7 @@ RimPlotAxisProperties::RimPlotAxisProperties()
 
     CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "");
     CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
+    CAF_PDM_InitField(&m_isAxisInverted, "AxisInverted", false, "Invert Axis", "", "", "");
 
     updateOptionSensitivity();
 }
@@ -185,6 +186,7 @@ void RimPlotAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 
     caf::PdmUiGroup& scaleGroup = *(uiOrdering.addNewGroup("Axis Values"));
     scaleGroup.add(&isLogarithmicScaleEnabled);
+    scaleGroup.add(&m_isAxisInverted);
     scaleGroup.add(&numberFormat);
 
     if (numberFormat() != NUMBER_FORMAT_AUTO)
@@ -277,6 +279,14 @@ bool RimPlotAxisProperties::isAutoZoom() const
 void RimPlotAxisProperties::setAutoZoom(bool enableAutoZoom)
 {
     m_isAutoZoom = enableAutoZoom;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotAxisProperties::isAxisInverted() const
+{
+    return m_isAxisInverted();
 }
 
 //--------------------------------------------------------------------------------------------------

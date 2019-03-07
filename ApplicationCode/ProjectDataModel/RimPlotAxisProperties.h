@@ -65,6 +65,7 @@ public:
     bool                 showUnitText() const;
     bool                 isAutoZoom() const;
     void                 setAutoZoom(bool enableAutoZoom);
+    bool                 isAxisInverted() const;
 
     caf::PdmField<QString>                             customTitle;
     caf::PdmField<int>                                 titleFontSize;
@@ -80,7 +81,7 @@ public:
     caf::PdmField<int>                            valuesFontSize;
 
     bool isActive() const;
-
+    
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -103,6 +104,7 @@ private:
     caf::PdmField<bool> m_displayLongName;
     caf::PdmField<bool> m_displayUnitText;
     caf::PdmField<bool> m_isAutoZoom;
+    caf::PdmField<bool> m_isAxisInverted;
 
     caf::PdmField<QString> m_name;
     QwtPlot::Axis          m_axis;
