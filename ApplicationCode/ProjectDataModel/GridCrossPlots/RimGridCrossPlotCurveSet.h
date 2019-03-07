@@ -71,8 +71,15 @@ class RimGridCrossPlotCurveSet : public RimCheckableNamedObject, public RimNameC
     CAF_PDM_HEADER_INIT;
 
 public:
-    
     typedef caf::AppEnum<RigGridCrossPlotCurveGrouping> CurveGroupingEnum;
+
+    enum NameComponents
+    {
+        CASE_NAME,
+        AXIS_VARIABLES,
+        TIME_STEP,
+        GROUP_NAME
+    };
 
 public:
     RimGridCrossPlotCurveSet();
@@ -87,6 +94,7 @@ public:
     int     indexInPlot() const;
     QString createAutoName() const override;
     QString groupTitle() const;
+    QString groupParameter() const;
     void    detachAllCurves();
     void    cellFilterViewUpdated();
     
@@ -99,7 +107,9 @@ public:
     QString              timeStepString() const;
     std::vector<QString> groupStrings() const;
 
-    void updateCurveNames(bool applyCaseName, bool applyAxisVariables, bool applyTimeStep, bool applyCategory);
+    std::map<NameComponents, QString> nameComponents() const;
+
+    void updateCurveNames(size_t curveSetIndex, size_t curveSetCount);
     void updateLegend();
     bool groupingByCategoryResult() const;
     bool groupingEnabled() const;
@@ -128,7 +138,7 @@ private:
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmPtrField<RimGridView*>                  m_cellFilterView;
-    caf::PdmField<CurveGroupingEnum>          m_grouping;
+    caf::PdmField<CurveGroupingEnum>                m_grouping;
     caf::PdmChildField<RimEclipseResultDefinition*> m_xAxisProperty;
     caf::PdmChildField<RimEclipseResultDefinition*> m_yAxisProperty;
     caf::PdmChildField<RimEclipseCellColors*>       m_groupingProperty;

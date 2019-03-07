@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlot.h"
 
-#include "RiaGridCrossPlotCurveNameHelper.h"
-
 #include "RiuGridCrossQwtPlot.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotTools.h"
@@ -157,8 +155,10 @@ void RimGridCrossPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::calculateZoomRangeAndUpdateQwt()
 {
-    // this->calculateXZoomRange();
-    m_qwtPlot->replot();
+    if (m_qwtPlot)
+    {
+        m_qwtPlot->replot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,17 +193,42 @@ QString RimGridCrossPlot::createAutoName() const
 
     if (m_nameConfig->addDataSetNames())
     {
-        QStringList dataSets;
+        QStringList dataSetStrings;
+        std::map<RimGridCrossPlotCurveSet::NameComponents, std::set<QString>> allNameComponents;
         for (auto curveSet : m_crossPlotCurveSets)
         {
             if (curveSet->isChecked())
             {
-                dataSets += curveSet->createAutoName();
+                QStringList componentList;
+                auto curveSetNameComponents =
+                    curveSet->nameComponents();
+
+                for (auto curveSetNameComponent : curveSetNameComponents)
+                {
+                    if (!curveSetNameComponent.second.isEmpty())
+                    {
+                        if (allNameComponents[curveSetNameComponent.first].count(curveSetNameComponent.second) == 0u)
+                        {
+                            componentList += curveSetNameComponent.second;
+                            allNameComponents[curveSetNameComponent.first].insert(curveSetNameComponent.second);
+                        }
+                    }
+                }
+                if (!componentList.isEmpty())
+                {
+                    dataSetStrings += componentList.join(", ");
+                }
             }
         }
-        if (!dataSets.isEmpty())
+        
+        dataSetStrings.removeDuplicates();
+        if (dataSetStrings.size() > 3)
         {
-            autoName += QString("(%1)").arg(dataSets.join("; "));
+            autoName += QString("(%1 Data Sets)").arg(dataSetStrings.size());
+        }
+        if (!dataSetStrings.isEmpty())
+        {
+            autoName += QString("(%1)").arg(dataSetStrings.join("; "));
         }
     }
 
@@ -471,7 +496,10 @@ void RimGridCrossPlot::updatePlot()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
 {
-    updateCurveNames();
+    for (size_t i = 0; i < m_crossPlotCurveSets.size(); ++i)
+    {
+        m_crossPlotCurveSets[i]->updateCurveNames(i, m_crossPlotCurveSets.size());
+    }
 
     if (m_qwtPlot)
     {
@@ -634,21 +662,6 @@ void RimGridCrossPlot::updateAxisFromQwt(RiaDefines::PlotAxis axisType)
     axisProperties->visibleRangeMax = axisRange.maxValue();
 
     axisProperties->updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateCurveNames()
-{
-    m_curveNameHelper.reset();
-
-    for (auto curveSet : m_crossPlotCurveSets())
-    {
-        m_curveNameHelper.addCurveSet(curveSet);
-    }
-
-    m_curveNameHelper.applyCurveNames();
 }
 
 //--------------------------------------------------------------------------------------------------

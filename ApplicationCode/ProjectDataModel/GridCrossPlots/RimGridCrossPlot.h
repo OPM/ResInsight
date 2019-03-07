@@ -22,7 +22,6 @@
 #include "cafPdmObject.h"
 
 #include "RiaDefines.h"
-#include "RiaGridCrossPlotCurveNameHelper.h"
 #include "RimRiuQwtPlotOwnerInterface.h"
 #include "RimNameConfig.h"
 #include "RimViewWindow.h"
@@ -112,7 +111,6 @@ private:
     caf::PdmChildArrayField<RimGridCrossPlotCurveSet*> m_crossPlotCurveSets;
 
     QPointer<RiuGridCrossQwtPlot>                      m_qwtPlot;
-    RiaGridCrossPlotCurveNameHelper                    m_curveNameHelper;
 };
 
 
