@@ -50,8 +50,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigCaseCellResultsData::RigCaseCellResultsData(RigEclipseCaseData* ownerCaseData)
+RigCaseCellResultsData::RigCaseCellResultsData(RigEclipseCaseData* ownerCaseData, RiaDefines::PorosityModelType porosityModel)
     : m_activeCellInfo(nullptr)
+    , m_porosityModel(porosityModel)
 {
     CVF_ASSERT(ownerCaseData != nullptr);
     CVF_ASSERT(ownerCaseData->mainGrid() != nullptr);
@@ -1085,7 +1086,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(const RigEclipseResul
 
     if (resVarAddr.hasDifferenceCase() || resVarAddr.isTimeLapse())
     {
-        if (!RigCaseCellResultCalculator::computeDifference(this->m_ownerCaseData, RiaDefines::MATRIX_MODEL, resVarAddr))
+        if (!RigCaseCellResultCalculator::computeDifference(this->m_ownerCaseData, m_porosityModel, resVarAddr))
         {
             return cvf::UNDEFINED_SIZE_T;
         }
@@ -1235,7 +1236,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(const RigEclipseResul
             for (i = 0; i < timeStepCount; i++)
             {
                 std::vector<double>& values = m_cellScalarResults[scalarResultIndex][i];
-                if (!m_readerInterface->dynamicResult(resultName, RiaDefines::MATRIX_MODEL, i, &values))
+                if (!m_readerInterface->dynamicResult(resultName, m_porosityModel, i, &values))
                 {
                     resultLoadingSucess = false;
                 }
@@ -1255,7 +1256,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(const RigEclipseResul
             m_cellScalarResults[scalarResultIndex].resize(1);
 
             std::vector<double>& values = m_cellScalarResults[scalarResultIndex][0];
-            if (!m_readerInterface->staticResult(resultName, RiaDefines::MATRIX_MODEL, &values))
+            if (!m_readerInterface->staticResult(resultName, m_porosityModel, &values))
             {
                 resultLoadingSucess = false;
             }
@@ -1369,7 +1370,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep(const RigE
             std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
             if (values.size() == 0)
             {
-                if (!m_readerInterface->dynamicResult(resultName, RiaDefines::MATRIX_MODEL, timeStepIndex, &values))
+                if (!m_readerInterface->dynamicResult(resultName, m_porosityModel, timeStepIndex, &values))
                 {
                     resultLoadingSucess = false;
                 }
@@ -1380,7 +1381,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep(const RigE
             m_cellScalarResults[scalarResultIndex].resize(1);
 
             std::vector<double>& values = m_cellScalarResults[scalarResultIndex][0];
-            if (!m_readerInterface->staticResult(resultName, RiaDefines::MATRIX_MODEL, &values))
+            if (!m_readerInterface->staticResult(resultName, m_porosityModel, &values))
             {
                 resultLoadingSucess = false;
             }

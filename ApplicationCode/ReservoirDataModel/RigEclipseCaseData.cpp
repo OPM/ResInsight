@@ -47,8 +47,8 @@ RigEclipseCaseData::RigEclipseCaseData(RimEclipseCase* ownerCase)
     m_mainGrid = new RigMainGrid();
     m_ownerCase = ownerCase;
 
-    m_matrixModelResults = new RigCaseCellResultsData(this);
-    m_fractureModelResults = new RigCaseCellResultsData(this);
+    m_matrixModelResults = new RigCaseCellResultsData(this, RiaDefines::MATRIX_MODEL);
+    m_fractureModelResults = new RigCaseCellResultsData(this, RiaDefines::FRACTURE_MODEL);
 
     m_activeCellInfo = new RigActiveCellInfo;
     m_fractureActiveCellInfo = new RigActiveCellInfo;

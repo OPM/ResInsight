@@ -23,13 +23,14 @@
 #include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
+#include "RigEclipseResultAddress.h"
+
 #include "cvfCollection.h"
 
 #include <QDateTime>
 
 #include <vector>
 #include <cmath>
-#include "RigEclipseResultAddress.h"
 
 
 class RifReaderInterface;
@@ -51,7 +52,7 @@ class RimEclipseCase;
 class RigCaseCellResultsData : public cvf::Object
 {
 public:
-    explicit RigCaseCellResultsData(RigEclipseCaseData* ownerCaseData);
+    explicit RigCaseCellResultsData(RigEclipseCaseData* ownerCaseData, RiaDefines::PorosityModelType porosityModel);
 
     // Initialization
 
@@ -192,4 +193,5 @@ private:
     RigMainGrid*                                       m_ownerMainGrid;
     RigEclipseCaseData*                                m_ownerCaseData;
     RigActiveCellInfo*                                 m_activeCellInfo;    
+    RiaDefines::PorosityModelType                      m_porosityModel;
 };
