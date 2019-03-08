@@ -121,6 +121,7 @@ public:
     void                            updateUiFieldsFromActiveResult();
 
     void                            setDiffResultOptionsEnabled(bool enabled);
+    void                            setLabelsOnTop(bool labelsOnTop);
 protected:
     virtual void                  updateLegendCategorySettings() {};
 
@@ -214,5 +215,6 @@ private:
 
 private:
     bool                            m_diffResultOptionsEnabled;
+    bool                            m_labelsOnTop;
 };
 

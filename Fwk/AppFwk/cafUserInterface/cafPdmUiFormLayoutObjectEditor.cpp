@@ -320,6 +320,10 @@ QMinimizePanel*
             groupBoxLayout->setContentsMargins(0, 0, 0, 0);
             groupBoxLayout->setHorizontalSpacing(0);
         }
+        else
+        {
+            groupBoxLayout->setContentsMargins(6, 6, 6, 6);
+        }
         groupBox->contentFrame()->setLayout(groupBoxLayout);
         connect(groupBox, SIGNAL(expandedChanged(bool)), this, SLOT(groupBoxExpandedStateToggled(bool)));
 

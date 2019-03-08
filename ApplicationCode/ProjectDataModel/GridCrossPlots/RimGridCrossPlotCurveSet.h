@@ -113,6 +113,7 @@ public:
     void updateLegend();
     bool groupingByCategoryResult() const;
     bool groupingEnabled() const;
+    void swapAxisProperties(bool updatePlot);
 
 protected:
     void initAfterRead() override;

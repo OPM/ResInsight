@@ -148,6 +148,7 @@
     <file>ReachCircle16x16.png</file>
     <file>2DMapProjection16x16.png</file>
     <file>Ruler24x24.png</file>
+	<file>Swap.png</file>
   </qresource>
   <qresource prefix="/Shader/">
     <file>fs_CellFace.glsl</file>

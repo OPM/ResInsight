@@ -487,6 +487,7 @@ void RimGridCrossPlot::updatePlot()
         {
             m_qwtPlot->insertLegend(nullptr);
         }
+        m_qwtPlot->updateLegendSizesToMatchPlot();
         m_qwtPlot->replot();
     }
 }
@@ -505,6 +506,18 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
     {
         m_qwtPlot->setTitle(this->createAutoName());
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::swapAllAxisProperties()
+{
+    for (auto curveSet : m_crossPlotCurveSets)
+    {
+        curveSet->swapAxisProperties(false);
+    }
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

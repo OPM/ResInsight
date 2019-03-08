@@ -86,6 +86,41 @@ void RiuGridCrossQwtPlot::removeCurveSetLegend(RimGridCrossPlotCurveSet* curveSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuGridCrossQwtPlot::updateLegendSizesToMatchPlot()
+{
+    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>(ownerPlotDefinition());
+    if (!crossPlot) return;
+
+    bool anyLegendResized = false;
+
+    for (RimGridCrossPlotCurveSet* curveSet : crossPlot->curveSets())
+    {
+        if (!curveSet->isChecked() || !curveSet->legendConfig()->showLegend()) continue;
+
+        auto pairIt = m_legendWidgets.find(curveSet);
+        if (pairIt != m_legendWidgets.end())
+        {
+            RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
+            if (overlayWidget->isVisible())
+            {
+                caf::TitledOverlayFrame* overlayItem = curveSet->legendConfig()->titledOverlayFrame();
+                if (resizeOverlayItemToFitPlot(overlayItem))
+                {
+                    anyLegendResized = true;
+                    overlayWidget->updateFromOverlayItem(overlayItem);
+                }
+            }
+        }
+    }
+    if (anyLegendResized)
+    {
+        updateLegendLayout();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::updateLayout()
 {
     QwtPlot::updateLayout();
@@ -146,35 +181,7 @@ void RiuGridCrossQwtPlot::updateLegendLayout()
 void RiuGridCrossQwtPlot::resizeEvent(QResizeEvent* e)
 {
     QwtPlot::resizeEvent(e);
-
-    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>(ownerPlotDefinition());
-    if (!crossPlot) return;
-
-    bool anyLegendResized = false;
-
-    for (RimGridCrossPlotCurveSet* curveSet : crossPlot->curveSets())
-    {
-        if (!curveSet->isChecked() || !curveSet->legendConfig()->showLegend()) continue;
-
-        auto pairIt = m_legendWidgets.find(curveSet);
-        if (pairIt != m_legendWidgets.end())
-        {
-            RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
-            if (overlayWidget->isVisible())
-            {
-                caf::TitledOverlayFrame* overlayItem = curveSet->legendConfig()->titledOverlayFrame();
-                if (resizeOverlayItemToFitPlot(overlayItem))
-                {
-                    anyLegendResized = true;
-                    overlayWidget->updateFromOverlayItem(overlayItem);
-                }
-            }
-        }
-    }
-    if (anyLegendResized)
-    {
-        updateLegendLayout();
-    }
+    updateLegendSizesToMatchPlot();
 }
 
 //--------------------------------------------------------------------------------------------------

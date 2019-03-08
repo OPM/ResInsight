@@ -60,6 +60,7 @@
 #include "RimGridCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
+#include "RimGridCrossPlotCurveSet.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
@@ -472,6 +473,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimGridCrossPlot*>(uiItem))
         {
             menuBuilder << "RicCreateGridCrossPlotCurveSetFeature";
+            menuBuilder << "RicSwapGridCrossPlotCurveSetAxesFeature";
+        }
+        else if (dynamic_cast<RimGridCrossPlotCurveSet*>(uiItem))
+        {
+            menuBuilder << "RicSwapGridCrossPlotCurveSetAxesFeature";
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))  // This is also the definition for RimSummaryCrossPlot
         {

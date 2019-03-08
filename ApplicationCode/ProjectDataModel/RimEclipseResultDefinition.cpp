@@ -76,6 +76,7 @@ CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultDefinition::RimEclipseResultDefinition()
     : m_diffResultOptionsEnabled(false)
+    , m_labelsOnTop(false)
 {
     CAF_PDM_InitObject("Result Definition", "", "", "");
 
@@ -1175,6 +1176,14 @@ void RimEclipseResultDefinition::setDiffResultOptionsEnabled(bool enabled)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::setLabelsOnTop(bool labelsOnTop)
+{
+    m_labelsOnTop = labelsOnTop;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 {
     bool isTernary = (m_resultType() == RiaDefines::DYNAMIC_NATIVE) &&
@@ -1300,6 +1309,19 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
             resultPropertyLabel += QString("<br>\n<br>\n%1").arg(diffResultUiShortNameHTML());
         }
         m_resultVariableUiField.uiCapability()->setUiName(resultPropertyLabel);
+    }
+
+    if (m_labelsOnTop)
+    {
+        std::vector<caf::PdmFieldHandle*> fields;
+        this->fields(fields);
+        for (auto field : fields)
+        {
+            if (field->uiCapability())
+            {
+                field->uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+            }
+        }
     }
 
     uiOrdering.skipRemainingFields(true);

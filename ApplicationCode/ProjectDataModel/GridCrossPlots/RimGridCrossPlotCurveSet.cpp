@@ -79,7 +79,7 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     CAF_PDM_InitField(&m_timeStep, "TimeStep", -1, "Time Step", "", "", "");
     m_timeStep.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 
-    CAF_PDM_InitFieldNoDefault(&m_cellFilterView, "VisibleCellView", "Filter by Cells Visible in 3d View", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_grouping, "Grouping", "Group Data by", "", "", "");
 
@@ -87,11 +87,13 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     m_xAxisProperty = new RimEclipseResultDefinition;
     m_xAxisProperty.uiCapability()->setUiHidden(true);
     m_xAxisProperty.uiCapability()->setUiTreeChildrenHidden(true);
+    m_xAxisProperty->setLabelsOnTop(true);
 
     CAF_PDM_InitFieldNoDefault(&m_yAxisProperty, "YAxisProperty", "Y-Axis Property", "", "", "");
     m_yAxisProperty = new RimEclipseResultDefinition;
     m_yAxisProperty.uiCapability()->setUiHidden(true);
     m_yAxisProperty.uiCapability()->setUiTreeChildrenHidden(true);
+    m_yAxisProperty->setLabelsOnTop(true);
 
     CAF_PDM_InitFieldNoDefault(&m_groupingProperty, "GroupingProperty", "Data Grouping Property", "", "", "");
     m_groupingProperty = new RimEclipseCellColors;
@@ -115,6 +117,7 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
 void RimGridCrossPlotCurveSet::setCellFilterView(RimGridView* cellFilterView)
 {
     m_cellFilterView = cellFilterView;
+    m_groupingProperty->setReservoirView(dynamic_cast<RimEclipseView*>(m_cellFilterView()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -534,7 +537,7 @@ void RimGridCrossPlotCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUi
         caf::PdmUiGroup* xAxisGroup = uiOrdering.addNewGroup("X-Axis Property");
         m_xAxisProperty->uiOrdering(uiConfigName, *xAxisGroup);
 
-        caf::PdmUiGroup* yAxisGroup = uiOrdering.addNewGroup("Y-Axis Property");
+        caf::PdmUiGroup* yAxisGroup = uiOrdering.addNewGroup("Y-Axis Property", false);
         m_yAxisProperty->uiOrdering(uiConfigName, *yAxisGroup);
     }
 
@@ -599,6 +602,7 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
     }
     else if (changedField == &m_cellFilterView)
     {
+        m_groupingProperty->setReservoirView(dynamic_cast<RimEclipseView*>(m_cellFilterView()));
         loadDataAndUpdate(true);
     }
     else if (changedField == &m_isChecked)
@@ -765,6 +769,21 @@ bool RimGridCrossPlotCurveSet::groupingEnabled() const
         return true;
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::swapAxisProperties(bool updatePlot)
+{
+    RimEclipseResultDefinition* xAxisProperties = m_xAxisProperty();
+    RimEclipseResultDefinition* yAxisProperties = m_yAxisProperty();
+
+    m_xAxisProperty.removeChildObject(xAxisProperties);
+    m_yAxisProperty.removeChildObject(yAxisProperties);
+    m_yAxisProperty = xAxisProperties;
+    m_xAxisProperty = yAxisProperties;
+    loadDataAndUpdate(updatePlot);
 }
 
 //--------------------------------------------------------------------------------------------------

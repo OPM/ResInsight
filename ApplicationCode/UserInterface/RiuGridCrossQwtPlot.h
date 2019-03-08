@@ -46,7 +46,7 @@ public:
 
     void addOrUpdateCurveSetLegend(RimGridCrossPlotCurveSet* curveSetToShowLegendFor);
     void removeCurveSetLegend(RimGridCrossPlotCurveSet* curveSetToShowLegendFor);
-
+    void updateLegendSizesToMatchPlot();
 protected:
     void updateLayout() override;
     void updateLegendLayout();

@@ -69,6 +69,7 @@ public:
     void                 detachAllCurves();
     void                 performAutoNameUpdate() override;
     void                 updateCurveNamesAndPlotTitle();
+    void                 swapAllAxisProperties();
 
     RiuGridCrossQwtPlot* qwtPlot() const;
 public:
