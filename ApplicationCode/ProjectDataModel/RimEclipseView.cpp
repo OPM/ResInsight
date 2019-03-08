@@ -1236,6 +1236,13 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString               
             title += QString("\n%1").arg(resultColors->diffResultUiShortName());
         }
 
+        if (resultColors->hasDualPorFractureResult())
+        {
+            QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText(resultColors->porosityModel());
+
+            title += QString("\nDual Por : %1").arg(porosityModelText);
+        }
+
         resultColors->legendConfig()->setTitle(title);
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->titledOverlayFrame());
     }

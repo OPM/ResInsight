@@ -122,6 +122,9 @@ public:
 
     void                            setDiffResultOptionsEnabled(bool enabled);
     void                            setLabelsOnTop(bool labelsOnTop);
+
+    bool                            hasDualPorFractureResult();
+
 protected:
     virtual void                  updateLegendCategorySettings() {};
 
@@ -179,8 +182,6 @@ private:
 
 private:
     void                            assignFlowSolutionFromCase();
-
-    bool                            hasDualPorFractureResult();
 
     QString                         flowDiagResUiText(bool shortLabel, int maxTracerStringLength = std::numeric_limits<int>::max()) const;
 

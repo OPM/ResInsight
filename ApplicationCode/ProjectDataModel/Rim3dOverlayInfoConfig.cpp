@@ -696,6 +696,14 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData,
             {
                 infoText += QString("%1<br>").arg(diffResString);
             }
+
+            if (eclipseView->cellResult()->hasDualPorFractureResult())
+            {
+                QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText(eclipseView->cellResult()->porosityModel());
+
+                infoText += QString("<b>Dual Porosity Type:</b> %1<br>").arg(porosityModelText);
+            }
+
             infoText += QString("<br><b>Statistics:</b> ") + timeRangeText + " and " + m_statisticsCellRange().uiText();
             infoText += QString("<table border=0 cellspacing=5 >"
                                 "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
