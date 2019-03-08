@@ -288,9 +288,9 @@ QStringList RiuPlotMainWindow::toolbarCommandIds(const QString& toolbarName)
 
     if (toolbarName.isEmpty() || toolbarName == "Standard")
     {
-        commandIds << "RicImportEclipseCaseFeature";
-        commandIds << "RicImportInputEclipseCaseFeature";
+        commandIds << "RicImportGeneralDataFeature";
         commandIds << "RicImportSummaryCaseFeature";
+        commandIds << "RicImportEnsembleFeature";
         commandIds << "RicOpenProjectFeature";
         commandIds << "RicSaveProjectFeature";
     }
