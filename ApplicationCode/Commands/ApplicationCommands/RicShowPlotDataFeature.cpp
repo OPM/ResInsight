@@ -127,16 +127,15 @@ void RicShowPlotDataFeature::showTabbedTextWindow(const QString& title, std::fun
     RiuPlotMainWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
     CVF_ASSERT(plotwindow);
 
-    RiuShowTabbedPlotDataDialog* textWiget = new RiuShowTabbedPlotDataDialog();
-    textWiget->setMinimumSize(800, 600);
+    RiuShowTabbedPlotDataDialog* textWidget = new RiuShowTabbedPlotDataDialog();
+    textWidget->setMinimumSize(800, 600);
 
-    textWiget->setWindowTitle(title);
-    textWiget->setDescription(title);
-    textWiget->setTextProvider(textProvider);
+    textWidget->setWindowTitle(title);
+    textWidget->setDescription(title);
+    textWidget->setTextProvider(textProvider);    
+    textWidget->show();
 
-    textWiget->show();
-
-    plotwindow->addToTemporaryWidgets(textWiget);
+    plotwindow->addToTemporaryWidgets(textWidget);
 }
 
 //--------------------------------------------------------------------------------------------------

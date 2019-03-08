@@ -23,7 +23,7 @@
 //--------------------------------------------------------------------------------------------------
 Qt::WindowFlags RiuTools::defaultDialogFlags()
 {
-    Qt::WindowFlags f = Qt::WindowTitleHint | Qt::WindowSystemMenuHint;
+    Qt::WindowFlags f = Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint;
 
     return f;
 }
