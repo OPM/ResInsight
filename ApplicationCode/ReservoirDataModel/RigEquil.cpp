@@ -24,7 +24,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigEquil::RigEquil(double datumDepth,
-                   double datuDepthPressure,
+                   double datumDepthPressure,
                    double waterOilContactDepth,
                    double waterOilContactCapillaryPressure,
                    double gasOilContactDepth,
@@ -33,12 +33,12 @@ RigEquil::RigEquil(double datumDepth,
                    bool   wetGasInitConstantRv,
                    int    initializationTargetAccuracy)
     : datum_depth(datumDepth)
-    , datum_depth_ps(datuDepthPressure)
-    , water_oil_contact_depth(water_oil_contact_depth)
-    , water_oil_contact_capillary_pressure(water_oil_contact_capillary_pressure)
-    , gas_oil_contact_depth(gas_oil_contact_depth)
-    , gas_oil_contact_capillary_pressure(gas_oil_contact_capillary_pressure)
-    , live_oil_init_proc(live_oil_init_proc)
+    , datum_depth_ps(datumDepthPressure)
+    , water_oil_contact_depth(waterOilContactDepth)
+    , water_oil_contact_capillary_pressure(waterOilContactCapillaryPressure)
+    , gas_oil_contact_depth(gasOilContactDepth)
+    , gas_oil_contact_capillary_pressure(gasOilContactCapillaryPressure)
+    , live_oil_init_proc(liveOilInitConstantRs)
     , wet_gas_init_proc(wetGasInitConstantRv)
     , init_target_accuracy(initializationTargetAccuracy)
 {
