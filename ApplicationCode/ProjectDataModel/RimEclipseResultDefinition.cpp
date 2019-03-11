@@ -1607,6 +1607,10 @@ QString RimEclipseResultDefinition::timeOfFlightString(bool shorter) const
     {
         tofString += " (Average)";
     }
+
+    tofString += " [days]";
+    // Conversion from seconds in flow module to days is done in RigFlowDiagTimeStepResult::setTracerTOF()
+
     return tofString;
 }
 
