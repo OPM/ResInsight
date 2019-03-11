@@ -289,7 +289,10 @@ std::vector<double> RimSummaryCurve::errorValuesY() const
     if (!reader) return values;
 
     RifEclipseSummaryAddress addr = errorSummaryAddressY();
-    reader->values(addr, &values);
+    if (reader->hasAddress(addr))
+    {
+        reader->values(addr, &values);
+    }
 
     return values;
 }
