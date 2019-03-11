@@ -96,8 +96,8 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault(&m_customCurveName, "CurveDescription", "Custom Name", "", "", "");
     m_customCurveName.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_legendEntryTitle, "LegendDescription", "Legend Name", "", "", "");
-    m_legendEntryTitle.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_legendEntryText, "LegendDescription", "Legend Name", "", "", "");
+    m_legendEntryText.uiCapability()->setUiHidden(true);
     
     CAF_PDM_InitField(&m_isUsingAutoName, "AutoName", true, "Auto Name", "", "", "");
 
@@ -219,9 +219,21 @@ void RimPlotCurve::setCustomName(const QString& customName)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setLegendEntryTitle(const QString& legendEntryTitle)
+QString RimPlotCurve::legendEntryText() const
 {
-    m_legendEntryTitle = legendEntryTitle;
+    if (!m_legendEntryText().isEmpty())
+    {
+        return m_legendEntryText;
+    }
+    return m_customCurveName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setLegendEntryText(const QString& legendEntryText)
+{
+    m_legendEntryText = legendEntryText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,9 +390,9 @@ void RimPlotCurve::updateCurveName()
         m_curveName = m_customCurveName;
     }
 
-    if (!m_legendEntryTitle().isEmpty())
+    if (!m_legendEntryText().isEmpty())
     {
-        m_qwtPlotCurve->setTitle(m_legendEntryTitle);
+        m_qwtPlotCurve->setTitle(m_legendEntryText);
     }
     else
     {

@@ -21,6 +21,8 @@
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 
+#include "RifEclipseDataTableFormatter.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigActiveCellsResultAccessor.h"
 #include "RigCaseCellResultCalculator.h"
@@ -44,11 +46,14 @@
 #include "RimRegularLegendConfig.h"
 #include "RimTools.h"
 
+#include "cafCategoryMapper.h"
 #include "cafColorTable.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafProgressInfo.h"
 #include "cvfScalarMapper.h"
+#include "cvfqtUtils.h"
 
 #include <QString>
 
@@ -210,7 +215,11 @@ QString RimGridCrossPlotCurveSet::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlotCurveSet::groupTitle() const
 {
-    return QString("Grouping by %1").arg(groupParameter());
+    if (m_grouping != NO_GROUPING)
+    {
+        return QString("Grouped by %1").arg(groupParameter());
+    }
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -410,6 +419,7 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& result)
 {
+    m_groupedResults.clear();
     if (!groupingEnabled())
     {
         const caf::ColorTable& colors     = RiaColorTables::contrastCategoryPaletteColors();
@@ -422,11 +432,10 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
         curve->updateCurveAppearance();
         curve->updateUiIconFromPlotSymbol();
         m_crossPlotCurves.push_back(curve);
+        m_groupedResults[0] = result;
     }
     else
     {
-        std::map<int, std::pair<std::vector<double>, std::vector<double>>> groupedResults;
-
         std::vector<double> tickValues;
 
         if (groupingByCategoryResult())
@@ -438,8 +447,13 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
                     ? static_cast<int>(result.groupValuesContinuous[i])
                     : result.groupValuesDiscrete[i];
 
-                groupedResults[categoryNum].first.push_back(result.xValues[i]);
-                groupedResults[categoryNum].second.push_back(result.yValues[i]);
+                m_groupedResults[categoryNum].xValues.push_back(result.xValues[i]);
+                m_groupedResults[categoryNum].yValues.push_back(result.yValues[i]);
+                if (!result.groupValuesContinuous.empty())
+                    m_groupedResults[categoryNum].groupValuesContinuous.push_back(result.groupValuesContinuous[i]);
+                if (!result.groupValuesDiscrete.empty())
+                    m_groupedResults[categoryNum].groupValuesDiscrete.push_back(result.groupValuesDiscrete[i]);
+
             }
         }
         else
@@ -450,13 +464,17 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
             {
                 auto upperBoundIt = std::lower_bound(tickValues.begin(), tickValues.end(), result.groupValuesContinuous[i]);
                 int  upperBoundIndex = static_cast<int>(upperBoundIt - tickValues.begin());
-                int  lowerBoundIndex = std::min((int) tickValues.size() - 2, std::max(0, upperBoundIndex - 1));
-                groupedResults[lowerBoundIndex].first.push_back(result.xValues[i]);
-                groupedResults[lowerBoundIndex].second.push_back(result.yValues[i]);
+                int  categoryNum = std::min((int) tickValues.size() - 2, std::max(0, upperBoundIndex - 1));
+                m_groupedResults[categoryNum].xValues.push_back(result.xValues[i]);
+                m_groupedResults[categoryNum].yValues.push_back(result.yValues[i]);
+                if (!result.groupValuesContinuous.empty())
+                    m_groupedResults[categoryNum].groupValuesContinuous.push_back(result.groupValuesContinuous[i]);
+                if (!result.groupValuesDiscrete.empty())
+                    m_groupedResults[categoryNum].groupValuesDiscrete.push_back(result.groupValuesDiscrete[i]);
             }
         }
 
-        for (auto it = groupedResults.rbegin(); it != groupedResults.rend(); ++it)
+        for (auto it = m_groupedResults.rbegin(); it != m_groupedResults.rend(); ++it)
         {
             RimGridCrossPlotCurve* curve = new RimGridCrossPlotCurve();
             curve->setGroupingInformation(indexInPlot(), it->first);
@@ -468,13 +486,33 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
             {
                 curve->setColor(cvf::Color3f(legendConfig()->scalarMapper()->mapToColor(tickValues[it->first])));
             }
-            curve->setSamples(it->second.first, it->second.second);
+            curve->setSamples(it->second.xValues, it->second.yValues);
             curve->showLegend(m_crossPlotCurves.empty());
-            curve->setLegendEntryTitle(createAutoName());
+            curve->setLegendEntryText(createAutoName());
             curve->updateCurveAppearance();
             curve->updateUiIconFromPlotSymbol();
             m_crossPlotCurves.push_back(curve);
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlotCurveSet::createGroupName(size_t groupIndex) const
+{
+    if (groupingByCategoryResult())
+    {
+        return legendConfig()->categoryNameFromCategoryValue(groupIndex);
+    }
+    else
+    {
+        std::vector<double> tickValues;
+        legendConfig()->scalarMapper()->majorTickValues(&tickValues);
+        double lowerLimit = tickValues[groupIndex];
+        double upperLimit =
+            groupIndex + 1u < tickValues.size() ? tickValues[groupIndex + 1u] : std::numeric_limits<double>::infinity();
+        return QString("%1 [%2, %3]").arg(groupParameter()).arg(lowerLimit).arg(upperLimit);
     }
 }
 
@@ -789,6 +827,56 @@ void RimGridCrossPlotCurveSet::swapAxisProperties(bool updatePlot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::exportFormattedData(RifEclipseDataTableFormatter& formatter) const
+{
+    if (m_groupedResults.empty())
+        return;
+
+    if (m_grouping != NO_GROUPING)
+    {
+        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn("X"),
+                                                           RifEclipseOutputTableColumn("Y"),
+                                                           RifEclipseOutputTableColumn("Group Index"),
+                                                           RifEclipseOutputTableColumn("Group Description")};
+
+        formatter.header(header);
+    }
+    else
+    {
+        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn("X"), RifEclipseOutputTableColumn("Y")};
+        formatter.header(header);
+    }
+
+    caf::ProgressInfo progress(m_groupedResults.size(), "Gathering Data Points");
+    for (auto it = m_groupedResults.begin(); it != m_groupedResults.end(); ++it)
+    {
+        int                       groupIndex = it->first;
+        RigEclipseCrossPlotResult res        = it->second;
+
+        for (size_t i = 0; i < it->second.xValues.size(); ++i)
+        {
+            if (m_grouping() == NO_GROUPING)
+            {
+                formatter.add(res.xValues[i]);
+                formatter.add(res.yValues[i]);
+            }
+            else
+            {
+                QString groupName = createGroupName(groupIndex);
+                formatter.add(res.xValues[i]);
+                formatter.add(res.yValues[i]);
+                formatter.add(groupIndex);
+                formatter.add(groupName);
+            }
+            formatter.rowCompleted();
+        }
+        progress.incrementProgress();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::triggerPlotNameUpdateAndReplot()
 {
     RimGridCrossPlot* parent;
@@ -809,29 +897,17 @@ void RimGridCrossPlotCurveSet::updateCurveNames(size_t curveSetIndex, size_t cur
         if (curveSetName.isEmpty())
         {
             if (curveSetCount > 1u)
-                curveSetName = QString("Curve #%1").arg(curveSetIndex + 1);
+                curveSetName = QString("Curve Set #%1").arg(curveSetIndex + 1);
             else
-                curveSetName = "Curve";
+                curveSetName = "Curve Set";
         }
 
         auto curve = m_crossPlotCurves[i];
         if (groupingEnabled())
         {
-            if (groupingByCategoryResult())
-            {
-                curve->setCustomName(legendConfig()->categoryNameFromCategoryValue(curve->groupIndex()));
-            }
-            else
-            {
-                std::vector<double> tickValues;
-                legendConfig()->scalarMapper()->majorTickValues(&tickValues);
-                size_t catIndex = (size_t) curve->groupIndex();
-                double lowerLimit = tickValues[catIndex];
-                double upperLimit = catIndex + 1u < tickValues.size()
-                    ? tickValues[catIndex + 1u] : std::numeric_limits<double>::infinity();
-                curve->setCustomName(QString("%1 [%2, %3]").arg(groupParameter()).arg(lowerLimit).arg(upperLimit));
-            }
-            curve->setLegendEntryTitle(curveSetName);
+            QString curveGroupName = createGroupName(curve->groupIndex());
+            curve->setCustomName(curveGroupName);
+            curve->setLegendEntryText(curveSetName);
         }
         else
         {

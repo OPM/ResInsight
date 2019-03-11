@@ -52,6 +52,7 @@ protected:
     void updateLegendLayout();
     void resizeEvent(QResizeEvent *e) override;
     bool resizeOverlayItemToFitPlot(caf::TitledOverlayFrame* overlayItem);
+    void contextMenuEvent(QContextMenuEvent*) override;
 private:
     std::map<caf::PdmPointer<RimGridCrossPlotCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_legendWidgets;
 };

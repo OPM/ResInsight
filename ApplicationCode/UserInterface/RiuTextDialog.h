@@ -22,6 +22,7 @@
 
 #include <QDialog>
 #include <QPlainTextEdit>
+#include <QPointer>
 
 #include <functional>
 
@@ -67,28 +68,38 @@ protected:
 
 };
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class RiuShowTabbedPlotDataDialog : public QDialog
+class RiuTabbedTextProvider : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit RiuShowTabbedPlotDataDialog(QWidget* parent = nullptr);
+    virtual bool    isValid() const              = 0;
+    virtual QString description() const          = 0;
+    virtual QString tabTitle(int tabIndex) const = 0;
+    virtual QString tabText(int tabIndex) const  = 0;
+    virtual int     tabCount() const             = 0;
+};
 
-    void setDescription(const QString& description);
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class RiuTabbedTextDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit RiuTabbedTextDialog(RiuTabbedTextProvider* textProvider, QWidget* parent = nullptr);
+
     QString description() const;
-    void setTextProvider(std::function<QString (DateTimePeriod)> textProvider);
+    void    redrawText();
 
 private:
-    RiuQPlainTextEdit * currentTextEdit() const;
-    DateTimePeriod      indexToPeriod(int index);
-    void                updateText();
+    RiuQPlainTextEdit* currentTextEdit() const;
+    void               updateTabText();
 
-    QTabWidget* m_tabWidget;
-    QString     m_description;
-    std::function<QString(DateTimePeriod)> m_textProvider;
+    QTabWidget*                           m_tabWidget;
+    QPointer<RiuTabbedTextProvider>       m_textProvider;
+    std::vector<QString>                  m_tabTexts;
 
 private slots:
     void slotTabChanged(int index);

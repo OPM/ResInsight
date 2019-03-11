@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RigGridCrossPlotCurveGrouping.h"
+#include "RigEclipseCrossPlotDataExtractor.h"
 
 #include "RimCheckableNamedObject.h"
 #include "RimNameConfig.h"
@@ -34,7 +35,7 @@
 #include <QList>
 #include <map>
 
-struct RigEclipseCrossPlotResult;
+class RifEclipseDataTableFormatter;
 class RimCase;
 class RimGridCrossPlotCurve;
 class RimGridView;
@@ -114,12 +115,14 @@ public:
     bool groupingByCategoryResult() const;
     bool groupingEnabled() const;
     void swapAxisProperties(bool updatePlot);
+    void exportFormattedData(RifEclipseDataTableFormatter& formatter) const;
 
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);
 
     void createCurves(const RigEclipseCrossPlotResult& result);
+    QString createGroupName(size_t curveIndex) const;
 
     std::map<int, cvf::UByteArray> calculateCellVisibility(RimEclipseCase* eclipseCase) const;
 
@@ -137,6 +140,7 @@ protected:
 
     bool hasMultipleTimeSteps() const;
 private:
+    
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmPtrField<RimGridView*>                  m_cellFilterView;
@@ -148,4 +152,6 @@ private:
     caf::PdmChildField<RimGridCrossPlotCurveSetNameConfig*> m_nameConfig;
 
     caf::PdmChildArrayField<RimGridCrossPlotCurve*> m_crossPlotCurves;
+
+    std::map<int, RigEclipseCrossPlotResult>        m_groupedResults;
 };

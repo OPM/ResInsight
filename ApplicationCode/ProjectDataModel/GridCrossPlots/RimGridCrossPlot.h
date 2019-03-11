@@ -70,8 +70,10 @@ public:
     void                 performAutoNameUpdate() override;
     void                 updateCurveNamesAndPlotTitle();
     void                 swapAllAxisProperties();
-
+    QString              asciiTitleForPlotExport(int curveSetIndex) const;
+    QString              asciiDataForPlotExport(int curveSetIndex) const;
     RiuGridCrossQwtPlot* qwtPlot() const;
+
 public:
     // Rim2dPlotInterface overrides
     void updateAxisScaling() override;
@@ -112,6 +114,7 @@ private:
     caf::PdmChildArrayField<RimGridCrossPlotCurveSet*> m_crossPlotCurveSets;
 
     QPointer<RiuGridCrossQwtPlot>                      m_qwtPlot;
+    
 };
 
 

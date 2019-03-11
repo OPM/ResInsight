@@ -24,8 +24,11 @@
 #include "RimGridCrossPlotCurveSet.h"
 #include "RimRegularLegendConfig.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
+#include "cafSelectionManager.h"
 #include "cafTitledOverlayFrame.h"
 
+#include <QMenu>
 #include <QResizeEvent>
 
 //--------------------------------------------------------------------------------------------------
@@ -206,4 +209,25 @@ bool RiuGridCrossQwtPlot::resizeOverlayItemToFitPlot(caf::TitledOverlayFrame* ov
     }
     overlayItem->setRenderSize(legendSize);
     return sizeAltered;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGridCrossQwtPlot::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu                      menu;
+    caf::CmdFeatureMenuBuilder menuBuilder;
+
+    caf::SelectionManager::instance()->setSelectedItem(ownerViewWindow());
+
+    menuBuilder << "RicShowPlotDataFeature";
+
+    menuBuilder.appendToMenu(&menu);
+
+    if (menu.actions().size() > 0)
+    {
+        menu.exec(event->globalPos());
+    }
 }

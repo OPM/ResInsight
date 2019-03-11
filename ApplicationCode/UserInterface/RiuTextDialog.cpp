@@ -101,12 +101,12 @@ void RiuQPlainTextEdit::slotSelectAll()
 void RiuQPlainTextEdit::slotExportToFile()
 {
     // Get dialog
-    RiuShowTabbedPlotDataDialog* dialog = nullptr;
+    RiuTabbedTextDialog* dialog = nullptr;
     auto curr = parent();
     while (dialog == nullptr)
     {
         if (!curr) break;
-        dialog = dynamic_cast<RiuShowTabbedPlotDataDialog*>(curr);
+        dialog = dynamic_cast<RiuTabbedTextDialog*>(curr);
         if (dialog) break;
         curr = curr->parent();
     }
@@ -190,21 +190,19 @@ void RiuTextDialog::contextMenuEvent(QContextMenuEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuShowTabbedPlotDataDialog::RiuShowTabbedPlotDataDialog(QWidget* parent /*= nullptr*/)
-    : QDialog(parent, RiuTools::defaultDialogFlags())
+RiuTabbedTextDialog::RiuTabbedTextDialog(RiuTabbedTextProvider* textProvider, QWidget* parent /*= nullptr*/)
+    : m_textProvider(textProvider), QDialog(parent, RiuTools::defaultDialogFlags())
 {
     m_tabWidget = new QTabWidget(this);
 
     connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(slotTabChanged(int)));
 
-    for(auto timePeriod : RiaQDateTimeTools::dateTimePeriods())
+    CVF_ASSERT(m_textProvider->isValid());
+    this->setWindowTitle(m_textProvider->description());
+
+    for (int tabIndex = 0; tabIndex < m_textProvider->tabCount(); ++tabIndex)
     {
-        if(timePeriod == DateTimePeriod::DECADE) continue;
-
-        QString tabTitle =
-            timePeriod == DateTimePeriod::NONE ? "No Resampling" :
-            QString("Plot Data, %1").arg(RiaQDateTimeTools::dateTimePeriodName(timePeriod));
-
+        QString tabTitle = m_textProvider->tabTitle(tabIndex);
         RiuQPlainTextEdit* textEdit = new RiuQPlainTextEdit();
         textEdit->setReadOnly(true);
         textEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
@@ -218,43 +216,56 @@ RiuShowTabbedPlotDataDialog::RiuShowTabbedPlotDataDialog(QWidget* parent /*= nul
 
         m_tabWidget->addTab(textEdit, tabTitle);
     }
+    m_tabTexts.resize(m_textProvider->tabCount());
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(m_tabWidget);
     setLayout(layout);
+
+    updateTabText();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuShowTabbedPlotDataDialog::setDescription(const QString& description)
+QString RiuTabbedTextDialog::description() const
 {
-    m_description = description;
+    if (m_textProvider && m_textProvider->isValid())
+    {
+        return m_textProvider->description();
+    }
+    else
+    {
+        return "Data Invalid";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString RiuShowTabbedPlotDataDialog::description() const
+void RiuTabbedTextDialog::redrawText()
 {
-    if (m_description.isEmpty()) return "Plot Data";
-    return m_description;
+    auto textEdit = currentTextEdit();
+    auto currIndex = m_tabWidget->currentIndex();
+
+    textEdit->setPlainText("Populating Text View...");
+    textEdit->repaint();
+
+    if (currIndex < (int)m_tabTexts.size())
+    {
+        if (m_tabTexts[currIndex].isEmpty())
+        {
+            updateTabText();
+        }
+        textEdit->setPlainText(m_tabTexts[currIndex]);
+        textEdit->repaint();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuShowTabbedPlotDataDialog::setTextProvider(std::function<QString(DateTimePeriod)> textProvider)
-{
-    m_textProvider = textProvider;
-
-    updateText();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RiuQPlainTextEdit * RiuShowTabbedPlotDataDialog::currentTextEdit() const
+RiuQPlainTextEdit * RiuTabbedTextDialog::currentTextEdit() const
 {
     return dynamic_cast<RiuQPlainTextEdit*>(m_tabWidget->currentWidget());
 }
@@ -262,44 +273,32 @@ RiuQPlainTextEdit * RiuShowTabbedPlotDataDialog::currentTextEdit() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-DateTimePeriod RiuShowTabbedPlotDataDialog::indexToPeriod(int index)
-{
-    auto currTabTitle = m_tabWidget->tabText(index);
-    if (currTabTitle.contains(RiaQDateTimeTools::TIMESPAN_DAY_NAME)) return DateTimePeriod::DAY;
-    if (currTabTitle.contains(RiaQDateTimeTools::TIMESPAN_WEEK_NAME)) return DateTimePeriod::WEEK;
-    if (currTabTitle.contains(RiaQDateTimeTools::TIMESPAN_MONTH_NAME)) return DateTimePeriod::MONTH;
-    if (currTabTitle.contains(RiaQDateTimeTools::TIMESPAN_QUARTER_NAME)) return DateTimePeriod::QUARTER;
-    if (currTabTitle.contains(RiaQDateTimeTools::TIMESPAN_HALFYEAR_NAME)) return DateTimePeriod::HALFYEAR;
-    if (currTabTitle.contains(RiaQDateTimeTools::TIMESPAN_YEAR_NAME)) return DateTimePeriod::YEAR;
-    if (currTabTitle.contains(RiaQDateTimeTools::TIMESPAN_DECADE_NAME)) return DateTimePeriod::DECADE;
-    return DateTimePeriod::NONE;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuShowTabbedPlotDataDialog::updateText()
-{
-    auto textEdit = currentTextEdit();
+void RiuTabbedTextDialog::updateTabText()
+{    
     auto currIndex = m_tabWidget->currentIndex();
-    if (textEdit && textEdit->toPlainText().isEmpty() && m_textProvider)
+    if (m_textProvider && m_textProvider->isValid() &&
+        m_tabWidget->tabText(currIndex) == m_textProvider->tabTitle(currIndex))
     {
-        textEdit->setPlainText(m_textProvider(indexToPeriod(currIndex)));
+        m_tabTexts[currIndex] = m_textProvider->tabText(currIndex);
+    }
+    else
+    {
+        m_tabTexts[currIndex] = "Data Source No Longer Valid";
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuShowTabbedPlotDataDialog::slotTabChanged(int index)
+void RiuTabbedTextDialog::slotTabChanged(int index)
 {
-    updateText();
+    redrawText();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuShowTabbedPlotDataDialog::contextMenuEvent(QContextMenuEvent* event)
+void RiuTabbedTextDialog::contextMenuEvent(QContextMenuEvent* event)
 {
     QMenu menu;
     RiuQPlainTextEdit* textEdit = dynamic_cast<RiuQPlainTextEdit*>(m_tabWidget->currentWidget());

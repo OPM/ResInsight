@@ -32,7 +32,7 @@ RifEclipseDataTableFormatter::RifEclipseDataTableFormatter(QTextStream& out)
     , m_colSpacing(5)
     , m_tableRowPrependText("   ")
     , m_tableRowAppendText(" /")
-    , m_commentPrefix("--")
+    , m_commentPrefix("-- ")
     , m_maxDataRowWidth(MAX_ECLIPSE_DATA_ROW_WIDTH)
 {
 }
@@ -154,7 +154,7 @@ void RifEclipseDataTableFormatter::outputBuffer()
 {
     if (!m_columns.empty() && !isAllHeadersEmpty(m_columns))
     {
-        m_out << m_commentPrefix << " ";
+        m_out << m_commentPrefix;
         for (size_t i = 0u; i < m_columns.size(); ++i)
         {       
             m_out << formatColumn(m_columns[i].title, i);
@@ -206,7 +206,7 @@ void RifEclipseDataTableFormatter::outputBuffer()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseDataTableFormatter::outputComment(RifEclipseOutputTableLine& comment)
 {
-    m_out << m_commentPrefix << " " << comment.data[0] << "\n";
+    m_out << m_commentPrefix << comment.data[0] << "\n";
 }
 
 //--------------------------------------------------------------------------------------------------

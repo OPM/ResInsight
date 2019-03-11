@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlot.h"
 
+#include "RifEclipseDataTableFormatter.h"
 #include "RiuGridCrossQwtPlot.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotTools.h"
@@ -28,6 +29,7 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
+#include "cafProgressInfo.h"
 #include "cvfAssert.h"
 
 #include "qwt_legend.h"
@@ -518,6 +520,45 @@ void RimGridCrossPlot::swapAllAxisProperties()
         curveSet->swapAxisProperties(false);
     }
     loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlot::asciiTitleForPlotExport(int curveSetIndex) const
+{
+    if ((size_t)curveSetIndex < m_crossPlotCurveSets.size())
+    {
+        return m_crossPlotCurveSets[curveSetIndex]->createAutoName();
+    }
+    return "Data invalid";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlot::asciiDataForPlotExport(int curveSetIndex) const
+{
+    if ((size_t)curveSetIndex < m_crossPlotCurveSets.size())
+    {
+        QString     asciiData;
+        QTextStream stringStream(&asciiData);
+
+        RifEclipseDataTableFormatter formatter(stringStream);
+        formatter.setCommentPrefix("");
+        formatter.setTableRowPrependText("");
+        formatter.setTableRowLineAppendText("");
+        formatter.setColumnSpacing(3);
+
+
+        m_crossPlotCurveSets[curveSetIndex]->exportFormattedData(formatter);
+        formatter.tableCompleted();
+        return asciiData;
+    }
+    else
+    {
+        return "Data invalid and may have been deleted.";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
