@@ -1,0 +1,83 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2019- Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RimPlotAxisAnnotation.h"
+
+CAF_PDM_SOURCE_INIT(RimPlotAxisAnnotation, "RimPlotAxisAnnotation");
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotAxisAnnotation::RimPlotAxisAnnotation()
+{
+    CAF_PDM_InitObject("Plot Axis Annotation", ":/LeftAxis16x16.png", "", "");
+
+    CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
+    m_isActive.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_name, "Name", "Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_value, "Value", "Value", "", "", "");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisAnnotation::setName(const QString& name)
+{
+    m_name = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisAnnotation::setValue(double value)
+{
+    m_value = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPlotAxisAnnotation::name() const
+{
+    return m_name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimPlotAxisAnnotation::value() const
+{
+    return m_value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimPlotAxisAnnotation::userDescriptionField()
+{
+    return &m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimPlotAxisAnnotation::objectToggleField()
+{
+    return &m_isActive;
+}

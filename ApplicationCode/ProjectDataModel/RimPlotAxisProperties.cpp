@@ -22,6 +22,7 @@
 #include "RiaDefines.h"
 
 #include "RimRiuQwtPlotOwnerInterface.h"
+#include "RimPlotAxisAnnotation.h"
 
 #include "cafPdmUiSliderEditor.h"
 
@@ -89,6 +90,11 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "");
     CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
     CAF_PDM_InitField(&m_isAxisInverted, "AxisInverted", false, "Invert Axis", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "", "", "", "");
+
+    m_annotations.uiCapability()->setUiHidden(true);
+    m_annotations.push_back(new RimPlotAxisAnnotation);
 
     updateOptionSensitivity();
 }
@@ -287,6 +293,14 @@ void RimPlotAxisProperties::setAutoZoom(bool enableAutoZoom)
 bool RimPlotAxisProperties::isAxisInverted() const
 {
     return m_isAxisInverted();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotAxisAnnotation*> RimPlotAxisProperties::annotations() const
+{
+    return m_annotations.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -279,6 +279,10 @@ void RimGridCrossPlot::updateAxisDisplay()
 {
     updateAxisInQwt(RiaDefines::PLOT_AXIS_BOTTOM);
     updateAxisInQwt(RiaDefines::PLOT_AXIS_LEFT);
+    
+    m_qwtPlot->updateAnnotationObjects(m_xAxisProperties);
+    m_qwtPlot->updateAnnotationObjects(m_yAxisProperties);
+
     m_qwtPlot->replot();
 }
 

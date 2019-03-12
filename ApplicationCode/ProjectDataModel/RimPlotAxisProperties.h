@@ -30,6 +30,8 @@
 
 #include <QString>
 
+class RimPlotAxisAnnotation;
+
 //==================================================================================================
 ///
 ///
@@ -66,6 +68,8 @@ public:
     bool                 isAutoZoom() const;
     void                 setAutoZoom(bool enableAutoZoom);
     bool                 isAxisInverted() const;
+
+    std::vector<RimPlotAxisAnnotation*> annotations() const;
 
     caf::PdmField<QString>                             customTitle;
     caf::PdmField<int>                                 titleFontSize;
@@ -110,4 +114,6 @@ private:
     QwtPlot::Axis          m_axis;
 
     bool                   m_enableTitleTextSettings;
+
+    caf::PdmChildArrayField<RimPlotAxisAnnotation*> m_annotations;
 };
