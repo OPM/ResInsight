@@ -100,7 +100,8 @@ public:
     static std::set < RiaRftPltCurveDefinition >    curveDefsFromTimesteps(const QString& simWellName, 
                                                                            const std::vector<QDateTime>& selectedTimeStepVector, 
                                                                            bool firstReportTimeStepIsValid, 
-                                                                           const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded);
+                                                                           const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded,
+                                                                           const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults);
 
     static QString                                  flowPlotAxisTitle(RimWellLogFile::WellFlowCondition condition, 
                                                                       RiaEclipseUnitTools::UnitSystem unitSystem);

@@ -582,7 +582,8 @@ std::set<RiaRftPltCurveDefinition>
     RimWellPlotTools::curveDefsFromTimesteps(const QString&                             simWellName,
                                              const std::vector<QDateTime>&              selectedTimeSteps,
                                              bool                                       firstSimWellTimeStepIsValid,
-                                             const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded)
+                                             const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded,
+                                             const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults)
 {
     std::set<RiaRftPltCurveDefinition> curveDefs;
 
@@ -592,8 +593,7 @@ std::set<RiaRftPltCurveDefinition>
     {
         if (addr.rftReader())
         {
-            std::set<QDateTime> rftTimes = addr.rftReader()->availableTimeSteps(
-                simWellName, {RifEclipseRftAddress::ORAT, RifEclipseRftAddress::WRAT, RifEclipseRftAddress::GRAT});
+            std::set<QDateTime> rftTimes = addr.rftReader()->availableTimeSteps(simWellName, interestingRFTResults);
             for (const QDateTime& time : rftTimes)
             {
                 if (selectedTimeStepSet.count(time))

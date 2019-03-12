@@ -411,6 +411,8 @@ void RimWellRftPlot::syncCurvesFromUiSelection()
 //--------------------------------------------------------------------------------------------------
 std::set<RiaRftPltCurveDefinition> RimWellRftPlot::selectedCurveDefs() const
 {
+    std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse{RifEclipseRftAddress::PRESSURE};
+
     return RimWellPlotTools::curveDefsFromTimesteps(
         associatedSimWellName(), m_selectedTimeSteps.v(), true, selectedSourcesExpanded());
 }

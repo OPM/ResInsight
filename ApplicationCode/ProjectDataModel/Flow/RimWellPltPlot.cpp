@@ -279,10 +279,14 @@ void RimWellPltPlot::updateWidgetTitleWindowTitle()
 //--------------------------------------------------------------------------------------------------
 std::set < RiaRftPltCurveDefinition > RimWellPltPlot::selectedCurveDefs() const
 {
+    std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse{
+        RifEclipseRftAddress::ORAT, RifEclipseRftAddress::WRAT, RifEclipseRftAddress::GRAT};
+
     return RimWellPlotTools::curveDefsFromTimesteps(RimWellPlotTools::simWellName(m_wellPathName),
                                                     m_selectedTimeSteps.v(),
                                                     false,
-                                                    selectedSourcesExpanded());
+                                                    selectedSourcesExpanded(),
+                                                    channelTypesToUse);
 }
 
 //--------------------------------------------------------------------------------------------------
