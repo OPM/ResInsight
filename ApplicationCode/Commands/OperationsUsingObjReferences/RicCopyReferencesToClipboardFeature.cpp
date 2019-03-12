@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimFractureTemplate.h"
 #include "RimGeoMechView.h"
+#include "RimGridCrossPlotCurveSet.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimMimeData.h"
@@ -42,13 +43,10 @@
 #include <QApplication>
 #include <QClipboard>
 
-
-
 CAF_CMD_SOURCE_INIT(RicCopyReferencesToClipboardFeature, "RicCopyReferencesToClipboardFeature");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCopyReferencesToClipboardFeature::isCommandEnabled()
 {
@@ -56,7 +54,7 @@ bool RicCopyReferencesToClipboardFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCopyReferencesToClipboardFeature::onActionTriggered(bool isChecked)
 {
@@ -73,8 +71,9 @@ void RicCopyReferencesToClipboardFeature::onActionTriggered(bool isChecked)
     {
         if (RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(pdmObject))
         {
-            QString itemRef = caf::PdmReferenceHelper::referenceFromRootToObject(caf::SelectionManager::instance()->pdmRootObject(), pdmObject);
-            
+            QString itemRef =
+                caf::PdmReferenceHelper::referenceFromRootToObject(caf::SelectionManager::instance()->pdmRootObject(), pdmObject);
+
             referenceList.push_back(itemRef);
         }
     }
@@ -90,7 +89,7 @@ void RicCopyReferencesToClipboardFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCopyReferencesToClipboardFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -100,7 +99,7 @@ void RicCopyReferencesToClipboardFeature::setupActionLook(QAction* actionToSetup
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCopyReferencesToClipboardFeature::isAnyCopyableObjectSelected()
 {
@@ -119,12 +118,12 @@ bool RicCopyReferencesToClipboardFeature::isAnyCopyableObjectSelected()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(caf::PdmObject* pdmObject)
 {
     RimWellAllocationPlot* wellAllocPlot = nullptr;
-    RimWellRftPlot* rftPlot = nullptr;
+    RimWellRftPlot*        rftPlot       = nullptr;
     pdmObject->firstAncestorOrThisOfType(wellAllocPlot);
     pdmObject->firstAncestorOrThisOfType(rftPlot);
 
@@ -154,7 +153,7 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(caf::PdmObject
     }
     else if (dynamic_cast<RimPlotCurve*>(pdmObject))
     {
-        if(!rftPlot) return true;
+        if (!rftPlot) return true;
     }
     else if (dynamic_cast<RimWellLogTrack*>(pdmObject))
     {
@@ -169,6 +168,10 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(caf::PdmObject
         return true;
     }
     else if (dynamic_cast<RimEnsembleCurveSet*>(pdmObject))
+    {
+        return true;
+    }
+    else if (dynamic_cast<RimGridCrossPlotCurveSet*>(pdmObject))
     {
         return true;
     }

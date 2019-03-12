@@ -107,6 +107,14 @@ int RimGridCrossPlot::indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSet) 
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::addCurveSet(RimGridCrossPlotCurveSet* curveSet)
+{
+    m_crossPlotCurveSets.push_back(curveSet);
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridCrossPlotCurveSet*> RimGridCrossPlot::curveSets() const

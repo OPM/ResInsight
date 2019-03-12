@@ -55,6 +55,7 @@ public:
 
     RimGridCrossPlotCurveSet* createCurveSet();
     int                       indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSet) const;
+    void                      addCurveSet(RimGridCrossPlotCurveSet* curveSet);
     
     std::vector<RimGridCrossPlotCurveSet*> curveSets() const;
 
