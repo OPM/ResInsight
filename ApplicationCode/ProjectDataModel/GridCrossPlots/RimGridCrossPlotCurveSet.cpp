@@ -341,13 +341,13 @@ RimGridCrossPlotCurveSet::nameComponents() const
 {
     std::map<RimGridCrossPlotCurveSet::NameComponents, QString> componentNames;
     if (m_nameConfig->addCaseName())
-        componentNames[CASE_NAME] = caseNameString();
+        componentNames[GCP_CASE_NAME] = caseNameString();
     if (m_nameConfig->addAxisVariables())
-        componentNames[AXIS_VARIABLES] = axisVariableString();
+        componentNames[GCP_AXIS_VARIABLES] = axisVariableString();
     if (m_nameConfig->addTimestep())
-        componentNames[TIME_STEP] = timeStepString();
+        componentNames[GCP_TIME_STEP] = timeStepString();
     if (m_nameConfig->addGrouping())
-        componentNames[GROUP_NAME] = groupTitle();
+        componentNames[GCP_GROUP_NAME] = groupTitle();
 
     return componentNames;
 }

@@ -76,10 +76,10 @@ public:
 
     enum NameComponents
     {
-        CASE_NAME,
-        AXIS_VARIABLES,
-        TIME_STEP,
-        GROUP_NAME
+        GCP_CASE_NAME,
+        GCP_AXIS_VARIABLES,
+        GCP_TIME_STEP,
+        GCP_GROUP_NAME
     };
 
 public:
