@@ -43,6 +43,17 @@ class QString;
 
 namespace caf {
 
+class ProgressInfo;
+
+class ProgressTask
+{
+public:
+    ProgressTask(ProgressInfo& parentTask);
+    ~ProgressTask();
+private:
+    ProgressInfo& m_parentTask;
+};
+
 class ProgressInfo
 {
 public:
@@ -52,9 +63,10 @@ public:
     void setProgressDescription(const QString& description);
     void setProgress(size_t progressValue);
     void incrementProgress();
-    void incrementProgressAndUpdateNextStep(size_t nextStepSize, const QString& nextDescription);
     void setNextProgressIncrement(size_t nextStepSize);
 
+    ProgressTask  task(const QString& description, int stepSize);
+ 
 };
 
 
