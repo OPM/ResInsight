@@ -125,8 +125,9 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
     mainGrid->nodes().resize(nodeStartIndex + cellCount*8, cvf::Vec3d(0,0,0));
 
     int progTicks = 100;
-    double cellsPrProgressTick = cellCount/(float)progTicks;
+    int cellsPrProgressTick = std::max(1, cellCount/progTicks);
     caf::ProgressInfo progInfo(progTicks, "");
+
     size_t computedCellCount = 0;
     // Loop over cells and fill them with data
 
@@ -187,10 +188,11 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         //if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() && !cell.isActiveInFractureModel()) ) )
         cell.setInvalid(cell.isLongPyramidCell());
 
-#pragma omp atomic
-        computedCellCount++;
-
-        progInfo.setProgress((int)(computedCellCount/cellsPrProgressTick));
+#pragma omp critical
+        {
+            computedCellCount++;
+            if (computedCellCount % cellsPrProgressTick == 0) progInfo.incrementProgress();
+        }
     }
     return true;
 }
@@ -303,12 +305,11 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
     mainGrid->nodes().reserve(8*totalCellCount);
 
     caf::ProgressInfo progInfo(3 + numLGRs, "");
-    progInfo.setProgressDescription("Main Grid");
-    progInfo.setNextProgressIncrement(3);
 
-    transferGridCellData(mainGrid, activeCellInfo, fractureActiveCellInfo, mainGrid, mainEclGrid, 0, 0);
-
-    progInfo.setProgress(3);
+    {
+        auto task = progInfo.task("Loading Main Grid Data", 3);
+        transferGridCellData(mainGrid, activeCellInfo, fractureActiveCellInfo, mainGrid, mainEclGrid, 0, 0);
+    }
 
     size_t globalMatrixActiveSize = ecl_grid_get_nactive(mainEclGrid);
     size_t globalFractureActiveSize = ecl_grid_get_nactive_fracture(mainEclGrid);
@@ -324,7 +325,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 
     for (lgrIdx = 0; lgrIdx < numLGRs; ++lgrIdx)
     {
-        progInfo.setProgressDescription("LGR number " + QString::number(lgrIdx+1));
+        auto task = progInfo.task("LGR number " + QString::number(lgrIdx + 1), 1);        
 
         ecl_grid_type* localEclGrid = ecl_grid_iget_lgr(mainEclGrid, lgrIdx);
         RigLocalGrid* localGrid = static_cast<RigLocalGrid*>(mainGrid->gridByIndex(lgrIdx+1));
@@ -341,8 +342,6 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         fractureActiveCellInfo->setGridActiveCellCounts(lgrIdx + 1, fractureActiveCellCount);
 
         transferCoarseningInfo(localEclGrid, localGrid);
-
-        progInfo.setProgress(3 + lgrIdx);
     }
 
     mainGrid->initAllSubGridsParentGridPointer();
@@ -358,9 +357,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
-    caf::ProgressInfo progInfo(100, "");
-
-    progInfo.setProgressDescription("Reading Grid");
+    caf::ProgressInfo progress(100, "Reading Grid");    
 
     if (!RifEclipseOutputFileTools::isValidEclipseFileName(fileName))
     {
@@ -370,102 +367,102 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
         return false;
     }
 
-    // Get set of files
     QStringList fileSet;
-    if (!RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(fileName, &fileSet)) return false;
+    {
+        auto task = progress.task("Get set of files");
+        
+        if (!RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(fileName, &fileSet)) return false;
 
-    m_fileName = fileName;
+        m_fileName = fileName;
+    }
     
-    progInfo.incrementProgress();
-
-    progInfo.setNextProgressIncrement(20);
-    // Keep the set of files of interest
-    m_filesWithSameBaseName = fileSet;
-
-    openInitFile();
-
-    // Read geometry
-    // Todo: Needs to check existence of file before calling ert, else it will abort
-    ecl_grid_type* mainEclGrid = createMainGrid();
-    if (!mainEclGrid)
+    ecl_grid_type* mainEclGrid = nullptr;
     {
-        QString errorMessage = QString(" Failed to create a main grid from file\n%1").arg(m_fileName);
-        RiaLogging::error(errorMessage);
+        auto task = progress.task("Open Init File and Load Main Grid", 19);
+        // Keep the set of files of interest
+        m_filesWithSameBaseName = fileSet;
 
-        return false;
+        openInitFile();
+
+        // Read geometry
+        // Todo: Needs to check existence of file before calling ert, else it will abort
+        mainEclGrid = loadMainGrid();
+        if (!mainEclGrid)
+        {
+            QString errorMessage = QString(" Failed to create a main grid from file\n%1").arg(m_fileName);
+            RiaLogging::error(errorMessage);
+
+            return false;
+        }
     }
 
-    progInfo.incrementProgress();
-
-    progInfo.setNextProgressIncrement(10);
-    progInfo.setProgressDescription("Transferring grid geometry");
-
-    if (!transferGeometry(mainEclGrid, eclipseCase)) return false;
-
-    progInfo.incrementProgress();
-    progInfo.setProgressDescription("Reading faults");
-    progInfo.setNextProgressIncrement(10);
-
-    if (isFaultImportEnabled())
     {
-        cvf::Collection<RigFault> faults;
-
-        importFaults(fileSet, &faults);
-
-        RigMainGrid* mainGrid = eclipseCase->mainGrid();
-        mainGrid->setFaults(faults);
+        auto task = progress.task("Transferring grid geometry", 10);
+        if (!transferGeometry(mainEclGrid, eclipseCase)) return false;
     }
 
-    progInfo.incrementProgress();
+    {
+        auto task = progress.task("Reading faults", 10);
+
+        if (isFaultImportEnabled())
+        {
+            cvf::Collection<RigFault> faults;
+
+            importFaults(fileSet, &faults);
+
+            RigMainGrid* mainGrid = eclipseCase->mainGrid();
+            mainGrid->setFaults(faults);
+        }
+    }
 
     m_eclipseCase = eclipseCase;
 
-    // Build results meta data
-    progInfo.setProgressDescription("Reading Result index");
-    progInfo.setNextProgressIncrement(25);
-    buildMetaData(mainEclGrid);
-    progInfo.incrementProgress();
-
-    if (isNNCsEnabled())
     {
-        progInfo.setProgressDescription("Reading NNC data");
-        progInfo.setNextProgressIncrement(4);
-        transferStaticNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
-        progInfo.incrementProgress();
+        auto task = progress.task("Reading Results Meta data", 25);
+        buildMetaData(mainEclGrid);
+    }
 
-        // This test should probably be improved to test more directly for presence of NNC data
-        if (m_eclipseCase->results(RiaDefines::MATRIX_MODEL)->hasFlowDiagUsableFluxes())
+    {
+        auto task = progress.task("Handling NCC data", 20);
+        if (isNNCsEnabled())
         {
-            transferDynamicNNCData(mainEclGrid, eclipseCase->mainGrid());
+            caf::ProgressInfo nncProgress(10, "");
+           
+            {
+                auto subNncTask = nncProgress.task("Reading static NNC data");
+                transferStaticNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
+            }
+
+            // This test should probably be improved to test more directly for presence of NNC data
+            if (m_eclipseCase->results(RiaDefines::MATRIX_MODEL)->hasFlowDiagUsableFluxes())
+            {
+                auto subNncTask = nncProgress.task("Reading dynamic NNC data");
+                transferDynamicNNCData(mainEclGrid, eclipseCase->mainGrid());
+            }
+            
+            {
+                auto subNncTask = nncProgress.task("Processing connections", 8);
+                eclipseCase->mainGrid()->nncData()->processConnections(*(eclipseCase->mainGrid()));
+            }
         }
-        progInfo.incrementProgress();
-
-        progInfo.setProgressDescription("Processing NNC data");
-        progInfo.setNextProgressIncrement(20);
-        eclipseCase->mainGrid()->nncData()->processConnections( *(eclipseCase->mainGrid()));
-        progInfo.incrementProgress();
     }
-    else
+    
     {
-        progInfo.setNextProgressIncrement(25);
-        progInfo.incrementProgress();
+        auto task = progress.task("Handling well information", 10);
+        if (!RiaApplication::instance()->preferences()->readerSettings()->skipWellData())
+        {
+            readWellCells(mainEclGrid, isImportOfCompleteMswDataEnabled());
+        }
+        else
+        {
+            RiaLogging::info("Skipping import of simulation well data");
+        }
     }
 
-    progInfo.setNextProgressIncrement(8);
-    if (!RiaApplication::instance()->preferences()->readerSettings()->skipWellData())
     {
-        progInfo.setProgressDescription("Reading Well information");
-        readWellCells(mainEclGrid, isImportOfCompleteMswDataEnabled());
+        auto task = progress.task("Releasing reader memory", 5);
+        ecl_grid_free(mainEclGrid);
     }
-    else
-    {
-        RiaLogging::info("Skipping import of simulation well data");
-    }
-    progInfo.incrementProgress();
-
-    progInfo.setProgressDescription("Releasing reader memory");
-    ecl_grid_free( mainEclGrid );
-    progInfo.incrementProgress();
 
     return true;
 }
@@ -2200,7 +2197,7 @@ bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual(const QDateTime& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ecl_grid_type* RifReaderEclipseOutput::createMainGrid() const
+ecl_grid_type* RifReaderEclipseOutput::loadMainGrid() const
 {
     ecl_grid_type* mainEclGrid = nullptr;
 

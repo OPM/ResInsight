@@ -95,7 +95,7 @@ private:
 
     static bool             isEclipseAndSoursimTimeStepsEqual(const QDateTime& eclipseDateTime, const QDateTime& sourSimDateTime);
 
-    ecl_grid_type*          createMainGrid() const;
+    ecl_grid_type*          loadMainGrid() const;
 
 private:
     QString                                 m_fileName;                 // Name of file used to start accessing Eclipse output files

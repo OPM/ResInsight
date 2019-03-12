@@ -518,31 +518,33 @@ void RimEclipseCase::computeCachedData()
     if (rigEclipseCase)
     {
         caf::ProgressInfo pInf(30, "");
-        pInf.setNextProgressIncrement(1);
-        rigEclipseCase->computeActiveCellBoundingBoxes();
-        pInf.incrementProgress();
-
-        pInf.setNextProgressIncrement(10);
-        pInf.setProgressDescription("Calculating Cell Search Tree");
-        rigEclipseCase->mainGrid()->computeCachedData();
-        pInf.incrementProgress();
-
-        pInf.setNextProgressIncrement(17);
-        pInf.setProgressDescription("Calculating faults");
-        rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL));
-        pInf.incrementProgress();
-
-        pInf.setProgressDescription("Calculating Formation Names Result");
-        if (activeFormationNames())
+        
         {
-            rigEclipseCase->setActiveFormationNames(activeFormationNames()->formationNamesData());
-        }
-        else
-        {
-            rigEclipseCase->setActiveFormationNames(nullptr);
+            auto task = pInf.task("", 1);
+            rigEclipseCase->computeActiveCellBoundingBoxes();
         }
 
-        pInf.incrementProgress();
+        {
+            auto task = pInf.task("Calculating Cell Search Tree", 10);
+            rigEclipseCase->mainGrid()->computeCachedData();
+        }
+
+        {
+            auto task = pInf.task("Calculating faults", 17);
+            rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL));
+        }
+
+        {
+            auto task = pInf.task("Calculating Formation Names Result", 2);
+            if (activeFormationNames())
+            {
+                rigEclipseCase->setActiveFormationNames(activeFormationNames()->formationNamesData());
+            }
+            else
+            {
+                rigEclipseCase->setActiveFormationNames(nullptr);
+            }
+        }
     }
 }
 

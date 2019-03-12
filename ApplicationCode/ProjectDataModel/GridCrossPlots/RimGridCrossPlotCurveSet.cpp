@@ -850,8 +850,9 @@ void RimGridCrossPlotCurveSet::exportFormattedData(RifEclipseDataTableFormatter&
     caf::ProgressInfo progress(m_groupedResults.size(), "Gathering Data Points");
     for (auto it = m_groupedResults.begin(); it != m_groupedResults.end(); ++it)
     {
-        int                       groupIndex = it->first;
-        RigEclipseCrossPlotResult res        = it->second;
+        auto task = progress.task(QString("Exporting Group %1").arg(it->first));
+
+        RigEclipseCrossPlotResult res = it->second;
 
         for (size_t i = 0; i < it->second.xValues.size(); ++i)
         {
@@ -862,6 +863,7 @@ void RimGridCrossPlotCurveSet::exportFormattedData(RifEclipseDataTableFormatter&
             }
             else
             {
+                int groupIndex = it->first;
                 QString groupName = createGroupName(groupIndex);
                 formatter.add(res.xValues[i]);
                 formatter.add(res.yValues[i]);
@@ -870,7 +872,6 @@ void RimGridCrossPlotCurveSet::exportFormattedData(RifEclipseDataTableFormatter&
             }
             formatter.rowCompleted();
         }
-        progress.incrementProgress();
     }
 }
 

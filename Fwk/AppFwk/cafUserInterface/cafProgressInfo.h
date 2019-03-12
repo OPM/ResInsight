@@ -65,7 +65,7 @@ public:
     void incrementProgress();
     void setNextProgressIncrement(size_t nextStepSize);
 
-    ProgressTask  task(const QString& description, int stepSize);
+    ProgressTask task(const QString& description, int stepSize = 1);
  
 };
 
