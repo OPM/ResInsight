@@ -21,6 +21,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 #include <QDateTime>
 
@@ -51,6 +52,16 @@ public:
     const QString&                wellName() const { return m_wellName; }
     QDateTime                     timeStep() const { return m_timeStep; }
     const RftWellLogChannelType&  wellLogChannel() const  { return m_wellLogChannel; }
+
+    static std::set<RftWellLogChannelType> rftPlotChannelTypes()
+    {
+        return {RifEclipseRftAddress::PRESSURE};
+    }
+
+    static std::set<RftWellLogChannelType> pltPlotChannelTypes()
+    {
+        return {RifEclipseRftAddress::ORAT, RifEclipseRftAddress::WRAT, RifEclipseRftAddress::GRAT};
+    }
 
 private:
     QString                 m_wellName;

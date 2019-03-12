@@ -301,8 +301,10 @@ void RimWellRftPlot::applyInitialSelections()
     m_selectedSources = sourcesToSelect;
 
     {
-        auto relevantTimeSteps = RimWellPlotTools::calculateRelevantTimeStepsFromCases(
-            associatedSimWellName(), m_selectedSources, {RifEclipseRftAddress::PRESSURE});
+        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
+
+        auto relevantTimeSteps =
+            RimWellPlotTools::calculateRelevantTimeStepsFromCases(associatedSimWellName(), m_selectedSources, channelTypesToUse);
 
         std::vector<QDateTime> timeStepVector;
         for (const auto& item : relevantTimeSteps)
@@ -411,10 +413,10 @@ void RimWellRftPlot::syncCurvesFromUiSelection()
 //--------------------------------------------------------------------------------------------------
 std::set<RiaRftPltCurveDefinition> RimWellRftPlot::selectedCurveDefs() const
 {
-    std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse{RifEclipseRftAddress::PRESSURE};
+    std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
 
     return RimWellPlotTools::curveDefsFromTimesteps(
-        associatedSimWellName(), m_selectedTimeSteps.v(), true, selectedSourcesExpanded());
+        associatedSimWellName(), m_selectedTimeSteps.v(), true, selectedSourcesExpanded(), channelTypesToUse);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -660,8 +662,10 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_selectedTimeSteps)
     {
+        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
+
         RimWellPlotTools::calculateValueOptionsForTimeSteps(
-            associatedSimWellName(), selectedSourcesExpanded(), {RifEclipseRftAddress::PRESSURE}, options);
+            associatedSimWellName(), selectedSourcesExpanded(), channelTypesToUse, options);
     }
     else if (fieldNeedingOptions == &m_branchIndex)
     {

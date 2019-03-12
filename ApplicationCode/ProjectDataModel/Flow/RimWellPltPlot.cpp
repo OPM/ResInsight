@@ -279,8 +279,7 @@ void RimWellPltPlot::updateWidgetTitleWindowTitle()
 //--------------------------------------------------------------------------------------------------
 std::set < RiaRftPltCurveDefinition > RimWellPltPlot::selectedCurveDefs() const
 {
-    std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse{
-        RifEclipseRftAddress::ORAT, RifEclipseRftAddress::WRAT, RifEclipseRftAddress::GRAT};
+    std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::pltPlotChannelTypes();
 
     return RimWellPlotTools::curveDefsFromTimesteps(RimWellPlotTools::simWellName(m_wellPathName),
                                                     m_selectedTimeSteps.v(),
@@ -820,9 +819,9 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
 
         for (const auto& rftCase : rftCases)
         {
-            std::set<QDateTime> rftTimes = rftCase->rftReader()->availableTimeSteps(simWellName, { RifEclipseRftAddress::ORAT,
-                                                                                                   RifEclipseRftAddress::WRAT,
-                                                                                                   RifEclipseRftAddress::GRAT });
+            std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::pltPlotChannelTypes();
+
+            std::set<QDateTime> rftTimes = rftCase->rftReader()->availableTimeSteps(simWellName, channelTypesToUse);
             if (rftTimes.size())
             {
                 availableRftSources.insert(RifDataSourceForRftPlt(RifDataSourceForRftPlt::RFT, rftCase));
@@ -868,11 +867,11 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_selectedTimeSteps)
     {
+        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::pltPlotChannelTypes();
+
         RimWellPlotTools::calculateValueOptionsForTimeSteps(RimWellPlotTools::simWellName(m_wellPathName),
                                                             selectedSourcesExpanded(),
-                                                            { RifEclipseRftAddress::ORAT,
-                                                              RifEclipseRftAddress::WRAT,
-                                                              RifEclipseRftAddress::GRAT },
+                                                            channelTypesToUse,
                                                             options);
     }
 
