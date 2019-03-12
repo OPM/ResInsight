@@ -66,7 +66,8 @@ public:
     PdmUiFormLayoutObjectEditor();
     ~PdmUiFormLayoutObjectEditor() override;
 
-    void scrollToSelectedItemsInFieldEditors() const;
+public slots:
+    void slotScrollToSelectedItemsInFieldEditors() const;
 
 protected:
     /// When overriding this function, use findOrCreateGroupBox() or findOrCreateFieldEditor() for detailed control

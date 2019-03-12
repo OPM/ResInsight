@@ -17,6 +17,7 @@ include_directories (
 
 # These headers need to go through Qt's MOC compiler
 set (MOC_HEADER_FILES    
+    cafPdmUiEditorHandle.h
     cafPdmUiFieldEditorHandle.h
 	cafPdmUiSelection3dEditorVisualizer.h
 )

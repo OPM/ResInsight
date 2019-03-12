@@ -82,14 +82,13 @@ public:
 
 public slots:
     void                showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
-    void                slotScrollToSelectedItemsInFieldEditors();
+    void                slotScheduleScrollToSelectedItemsInFieldEditors();
 
 private:
     PdmUiDefaultObjectEditor* m_defaultObjectEditor;
     QString                   m_uiConfigName;
     QPointer<QVBoxLayout>     m_placeHolderLayout;
     QPointer<QWidget>         m_placeholder;
-    QTimer*                   m_scrollToSelectedItemTimer;
 };
 
 } // End of namespace caf

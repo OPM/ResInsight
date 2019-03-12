@@ -222,6 +222,8 @@ void RiuGridCrossQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 
     caf::SelectionManager::instance()->setSelectedItem(ownerViewWindow());
 
+    menuBuilder << "RicSwapGridCrossPlotCurveSetAxesFeature";
+    menuBuilder << "Separator";
     menuBuilder << "RicShowPlotDataFeature";
 
     menuBuilder.appendToMenu(&menu);

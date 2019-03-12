@@ -821,6 +821,8 @@ void RimGridCrossPlotCurveSet::swapAxisProperties(bool updatePlot)
     m_yAxisProperty.removeChildObject(yAxisProperties);
     m_yAxisProperty = xAxisProperties;
     m_xAxisProperty = yAxisProperties;
+    
+    updateConnectedEditors();
     loadDataAndUpdate(updatePlot);
 }
 

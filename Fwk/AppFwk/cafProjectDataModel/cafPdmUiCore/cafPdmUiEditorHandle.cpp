@@ -68,6 +68,8 @@ void PdmUiEditorHandle::updateUi(const QString& uiConfigName)
     m_currentConfigName = uiConfigName;
     this->configureAndUpdateUi(uiConfigName);
     m_isConfiguringUi = false;
+
+    emit uiUpdated();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,6 +81,8 @@ void PdmUiEditorHandle::updateUi()
     m_isConfiguringUi = true;
     this->configureAndUpdateUi(m_currentConfigName);
     m_isConfiguringUi = false;
+
+    emit uiUpdated();
 }
 
 //--------------------------------------------------------------------------------------------------

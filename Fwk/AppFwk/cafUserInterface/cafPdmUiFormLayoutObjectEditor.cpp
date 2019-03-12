@@ -71,7 +71,7 @@ caf::PdmUiFormLayoutObjectEditor::~PdmUiFormLayoutObjectEditor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiFormLayoutObjectEditor::scrollToSelectedItemsInFieldEditors() const
+void caf::PdmUiFormLayoutObjectEditor::slotScrollToSelectedItemsInFieldEditors() const
 {
     for (auto fieldView : m_fieldViews)
     {

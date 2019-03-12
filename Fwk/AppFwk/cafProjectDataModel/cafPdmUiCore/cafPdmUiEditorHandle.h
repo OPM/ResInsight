@@ -52,6 +52,7 @@ class PdmUiItem;
 
 class PdmUiEditorHandle : public QObject
 {
+    Q_OBJECT
 public:
     PdmUiEditorHandle();
     ~PdmUiEditorHandle() override;
@@ -59,6 +60,9 @@ public:
 public:
     void        updateUi(const QString& uiConfigName);;
     void        updateUi();
+
+signals:
+    void uiUpdated();
 
 protected:
     // Interface to override:

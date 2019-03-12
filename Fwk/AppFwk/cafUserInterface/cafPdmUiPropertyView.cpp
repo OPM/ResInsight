@@ -43,7 +43,7 @@
 #include <QHBoxLayout>
 #include <QScrollArea>
 #include <QScrollBar>
-#include "QTimer"
+#include <QTimer>
 
 
 
@@ -99,9 +99,6 @@ PdmUiPropertyView::PdmUiPropertyView(QWidget* parent, Qt::WindowFlags f)
     dummy->addWidget(scrollArea);
 
     m_defaultObjectEditor = nullptr;
-
-    m_scrollToSelectedItemTimer = new QTimer(this);
-    connect(m_scrollToSelectedItemTimer, SIGNAL(timeout()), this, SLOT(slotScrollToSelectedItemsInFieldEditors()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,26 +183,20 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
     }
 
     m_defaultObjectEditor->setPdmObject(object);
-    m_defaultObjectEditor->updateUi(m_uiConfigName);
 
-    if (object)
-    {
-        if (!m_scrollToSelectedItemTimer->isActive())
-        {
-            m_scrollToSelectedItemTimer->setSingleShot(true);
-            m_scrollToSelectedItemTimer->start(150);
-        }
-    }
+    QObject::connect(m_defaultObjectEditor, SIGNAL(uiUpdated()), this, SLOT(slotScheduleScrollToSelectedItemsInFieldEditors()));
+
+    m_defaultObjectEditor->updateUi(m_uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyView::slotScrollToSelectedItemsInFieldEditors()
+void PdmUiPropertyView::slotScheduleScrollToSelectedItemsInFieldEditors()
 {
     if (m_defaultObjectEditor)
     {
-        m_defaultObjectEditor->scrollToSelectedItemsInFieldEditors();
+        QTimer::singleShot(150, m_defaultObjectEditor, SLOT(slotScrollToSelectedItemsInFieldEditors()));
     }
 }
 
