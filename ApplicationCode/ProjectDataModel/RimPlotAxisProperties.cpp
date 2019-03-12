@@ -95,6 +95,7 @@ RimPlotAxisProperties::RimPlotAxisProperties()
 
     m_annotations.uiCapability()->setUiHidden(true);
     m_annotations.push_back(new RimPlotAxisAnnotation);
+    m_annotations.push_back(new RimPlotAxisAnnotation);
 
     updateOptionSensitivity();
 }

@@ -21,8 +21,12 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 #include <QString>
+
+class RimEclipseCase;
+class RigEquil;
 
 //==================================================================================================
 ///
@@ -33,20 +37,45 @@ class RimPlotAxisAnnotation : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum PlotAxisAnnotationType
+    {
+        PL_USER_DEFINED,
+        PL_EQUIL_WATER_OIL_CONTACT,
+        PL_EQUIL_GAS_OIL_CONTACT
+    };
+    typedef caf::AppEnum<PlotAxisAnnotationType> ExportKeywordEnum;
+
     RimPlotAxisAnnotation();
 
     void setName(const QString& name);
     void setValue(double value);
 
     QString name() const;
-    double value() const;
+    double  value() const;
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
 
-private:
-    caf::PdmField<bool> m_isActive;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                        bool*                      useOptionsOnly) override;
+
+protected:
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+private:
+    RigEquil selectedItem() const;
+    std::vector<RigEquil> equilItems() const;
+
+private:
+    caf::PdmField<ExportKeywordEnum> m_annotationType;
+    
+    caf::PdmField<bool> m_isActive;
     caf::PdmField<QString> m_name;
-    caf::PdmField<double> m_value;
+    caf::PdmField<double>  m_value;
+
+    caf::PdmPtrField<RimEclipseCase*> m_sourceCase;
+    caf::PdmField<int> m_equilNum;
+
 };

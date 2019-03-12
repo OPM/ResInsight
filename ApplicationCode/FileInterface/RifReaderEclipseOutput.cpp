@@ -403,7 +403,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     }
 
     {
-        auto task = progress.task("Reading faults", 10);
+        auto task = progress.task("Reading faults", 5);
 
         if (isFaultImportEnabled())
         {
@@ -417,9 +417,9 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     }
 
     {
-        auto task = progress.task("Reading EQUIL", 10);
+        auto task = progress.task("Reading EQUIL", 5);
 
-        importEquilData(fileSet);
+        importEquilData(fileSet, eclipseCase);
     }
 
     m_eclipseCase = eclipseCase;
@@ -632,7 +632,7 @@ void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Colle
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::importEquilData(const QStringList& fileSet)
+void RifReaderEclipseOutput::importEquilData(const QStringList& fileSet, RigEclipseCaseData* eclipseCase)
 {
     QString dataFileName;
 
@@ -675,7 +675,7 @@ void RifReaderEclipseOutput::importEquilData(const QStringList& fileSet)
                 equilItems.push_back(equilRec);
             }
 
-            m_eclipseCase->setEquilData(equilItems);
+            eclipseCase->setEquilData(equilItems);
         }
     }
 }

@@ -34,8 +34,8 @@ public:
                       double waterOilContactCapillaryPressure,
                       double gasOilContactDepth,
                       double gasOilContactCapillaryPressure,
-                      bool   liveOilInitConstantRs,
-                      bool   wetGasInitConstantRv,
+                      int    liveOilInitConstantRs,
+                      int    wetGasInitConstantRv,
                       int    initializationTargetAccuracy);
 
     double datumDepth() const;
@@ -45,10 +45,11 @@ public:
     double gasOilContactDepth() const;
     double gasOilContactCapillaryPressure() const;
 
-    bool liveOilInitConstantRs() const;
-    bool wetGasInitConstantRv() const;
-    int  initializationTargetAccuracy() const;
+    int liveOilInitConstantRs() const;
+    int wetGasInitConstantRv() const;
+    int initializationTargetAccuracy() const;
 
+    static RigEquil defaultObject();
     static RigEquil parseString(const QString& keywordData);
 
 private:
@@ -59,7 +60,7 @@ private:
     double gas_oil_contact_depth;
     double gas_oil_contact_capillary_pressure;
 
-    bool live_oil_init_proc;
-    bool wet_gas_init_proc;
-    int  init_target_accuracy;
+    int live_oil_init_proc;
+    int wet_gas_init_proc;
+    int init_target_accuracy;
 };
