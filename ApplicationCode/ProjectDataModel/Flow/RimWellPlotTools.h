@@ -75,9 +75,6 @@ public:
     static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMapFromGridCase(RimEclipseCase* gridCase);
     static RiaRftPltCurveDefinition                 curveDefFromCurve(const RimWellLogCurve* curve);
 
-    template<typename T>
-    static void appendSet(std::set<T>& destSet, const std::set<T>& setToAppend);
-
 // others
     static bool                                     hasFlowData(const RimWellLogFile* wellLogFile);
     static bool                                     hasAssociatedWellPath(const QString& wellName);
@@ -137,13 +134,4 @@ private:
     static std::set<QDateTime>                      availableSimWellTimesteps(RimEclipseCase * eclCase, const QString& simWellName, bool addFirstReportTimeStep);
 
 };
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-template<typename T>
-void RimWellPlotTools::appendSet(std::set<T>& destSet, const std::set<T>& setToAppend)
-{
-    destSet.insert(setToAppend.begin(), setToAppend.end());
-}
 

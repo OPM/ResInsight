@@ -105,7 +105,7 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue(false);
 
     this->setAsPlotMdiWindow();
-    m_isOnLoad                                = true;
+    m_isOnLoad = true;
 }
 
 //--------------------------------------------------------------------------------------------------

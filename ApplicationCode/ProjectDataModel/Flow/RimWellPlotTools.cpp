@@ -111,7 +111,7 @@ std::pair<RigEclipseResultAddress, QString> RimWellPlotTools::pressureResultData
         for (const auto& pressureDataName : PRESSURE_DATA_NAMES)
         {
             if (eclipseCaseData->results(RiaDefines::MATRIX_MODEL)
-                ->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, pressureDataName)))
+                    ->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, pressureDataName)))
             {
                 return std::make_pair(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, pressureDataName), pressureDataName);
             }
@@ -226,8 +226,8 @@ bool RimWellPlotTools::hasFlowData(RimEclipseResultCase* gridCase)
 
     for (const QString& channelName : FLOW_DATA_NAMES)
     {
-        if (eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, 
-                                                                                                       channelName)) )
+        if (eclipseCaseData->results(RiaDefines::MATRIX_MODEL)
+                ->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, channelName)))
         {
             return true;
         }
@@ -411,7 +411,7 @@ std::vector<RimEclipseResultCase*> RimWellPlotTools::rftCasesForWell(const QStri
 //--------------------------------------------------------------------------------------------------
 std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::timeStepsMapFromGridCase(RimEclipseCase* gridCase)
 {
-    const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
+    const RigEclipseCaseData* const             eclipseCaseData = gridCase->eclipseCaseData();
     std::pair<RigEclipseResultAddress, QString> resultDataInfo  = pressureResultDataInfo(eclipseCaseData);
 
     std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMap;
@@ -521,7 +521,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve(const RimWellLogCur
     }
     else if (wellLogFileCurve != nullptr)
     {
-        RimWellLogFile* const    wellLogFile = wellLogFileCurve->wellLogFile();
+        RimWellLogFile* const wellLogFile = wellLogFileCurve->wellLogFile();
 
         if (wellLogFile != nullptr)
         {
@@ -943,9 +943,9 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(
     {
         QString optionText = RiaQDateTimeTools::toStringUsingApplicationLocale(timeStepPair.first, dateFormatString);
 
-        bool    hasObs     = false;
-        bool    hasRft     = false;
-        bool    hasGrid    = false;
+        bool hasObs  = false;
+        bool hasRft  = false;
+        bool hasGrid = false;
 
         for (const auto& source : timeStepPair.second)
         {
