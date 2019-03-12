@@ -196,7 +196,7 @@ void RimWellPltPlot::setPlotXAxisTitles(RimWellLogTrack* plotTrack)
         QMessageBox::warning(nullptr, "ResInsight PLT Plot", "Inconsistent units in PLT plot");
     }
 
-    if (presentUnitSystems.size() <= 0) return;
+    if (presentUnitSystems.empty()) return;
 
     RiaEclipseUnitTools::UnitSystem unitSet = *presentUnitSystems.begin();
 
@@ -566,7 +566,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
         if (resultPointCalc != nullptr)
         {
-            if (resultPointCalc->pipeBranchCLCoords().size())
+            if (!resultPointCalc->pipeBranchCLCoords().empty())
             {
                 if (selectedPhases.count(FLOW_PHASE_TOTAL) && m_useReservoirConditionCurves() &&
                     sourceDef.sourceType() == RifDataSourceForRftPlt::GRID)
@@ -623,7 +623,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                             QString curveUnitText =
                                 RimWellPlotTools::curveUnitText(RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet, flowPhase);
 
-                            const std::vector<double> accFlow =
+                            const std::vector<double>& accFlow =
                                 wfPhaseAccumulator.accumulatedTracerFlowPrPseudoLength(tracerName, 0);
                             addStackedCurve(curveName + ", " + tracerName + " " + curveUnitText,
                                             depthValues,
@@ -660,7 +660,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                     {
                         QString channelName = channelNames[chIdx];
                         channelData[chIdx]  = wellLogFileData->values(channelName);
-                        if (channelData[chIdx].size())
+                        if (!channelData[chIdx].empty())
                         {
                             sortedChannels.insert(ChannelValNameIdxTuple(-fabs(channelData[chIdx].front()), channelName, chIdx));
                         }
@@ -838,13 +838,13 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
             std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::pltPlotChannelTypes();
 
             std::set<QDateTime> rftTimes = rftCase->rftReader()->availableTimeSteps(simWellName, channelTypesToUse);
-            if (rftTimes.size())
+            if (!rftTimes.empty())
             {
                 availableRftSources.insert(RifDataSourceForRftPlt(RifDataSourceForRftPlt::RFT, rftCase));
             }
         }
 
-        if (availableRftSources.size())
+        if (!availableRftSources.empty())
         {
             options.push_back(caf::PdmOptionItemInfo::createHeader(
                 RifDataSourceForRftPlt::sourceTypeUiText(RifDataSourceForRftPlt::RFT), true));
@@ -858,7 +858,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
         }
 
         const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell(simWellName);
-        if (gridCases.size() > 0)
+        if (!gridCases.empty())
         {
             options.push_back(caf::PdmOptionItemInfo::createHeader(
                 RifDataSourceForRftPlt::sourceTypeUiText(RifDataSourceForRftPlt::GRID), true));
@@ -872,7 +872,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
             options.push_back(item);
         }
 
-        if (RimWellPlotTools::wellLogFilesContainingFlow(m_wellPathName).size() > 0)
+        if (!RimWellPlotTools::wellLogFilesContainingFlow(m_wellPathName).empty())
         {
             options.push_back(caf::PdmOptionItemInfo::createHeader(
                 RifDataSourceForRftPlt::sourceTypeUiText(RifDataSourceForRftPlt::OBSERVED), true));
@@ -929,7 +929,7 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         RimWellPath* wellPath = project->wellPathByName(m_wellPathName());
         if (wellPath && !wellPath->wellPathGeometry())
         {
-            for (RifDataSourceForRftPlt address : m_selectedSources())
+            for (const RifDataSourceForRftPlt& address : m_selectedSources())
             {
                 if (address.sourceType() == RifDataSourceForRftPlt::RFT || address.sourceType() == RifDataSourceForRftPlt::GRID)
                 {
