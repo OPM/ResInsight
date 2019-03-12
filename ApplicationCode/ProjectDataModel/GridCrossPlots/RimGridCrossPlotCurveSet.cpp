@@ -883,10 +883,13 @@ void RimGridCrossPlotCurveSet::exportFormattedData(RifEclipseDataTableFormatter&
 void RimGridCrossPlotCurveSet::triggerPlotNameUpdateAndReplot()
 {
     RimGridCrossPlot* parent;
-    this->firstAncestorOrThisOfTypeAsserted(parent);
-    parent->updateCurveNamesAndPlotTitle();
-    parent->reattachCurvesToQwtAndReplot();
-    parent->updateConnectedEditors();
+    this->firstAncestorOrThisOfType(parent);
+    if (parent)
+    {
+        parent->updateCurveNamesAndPlotTitle();
+        parent->reattachCurvesToQwtAndReplot();
+        parent->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
