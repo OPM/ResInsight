@@ -37,9 +37,10 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultInfo.h"
+#include "RigEquil.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
-#include "RigEclipseResultInfo.h"
 
 #include "cafProgressInfo.h"
 
@@ -415,6 +416,12 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
         }
     }
 
+    {
+        auto task = progress.task("Reading EQUIL", 10);
+
+        importEquilData(fileSet);
+    }
+
     m_eclipseCase = eclipseCase;
 
     {
@@ -618,6 +625,57 @@ void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Colle
 
                 this->setFilenamesWithFaults(filenamesWithFaults);
             }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::importEquilData(const QStringList& fileSet)
+{
+    QString dataFileName;
+
+    for (const QString& fileName : fileSet)
+    {
+        if (fileName.endsWith(".DATA"))
+        {
+            dataFileName = fileName;
+        }
+    }
+
+    if (!dataFileName.isEmpty())
+    {
+        QFile data(dataFileName);
+        if (data.open(QFile::ReadOnly))
+        {
+            const QString                            keyword("EQUIL");
+            const QString                            keywordToStopParsing("SCHEDULE");
+            const qint64                             startPositionInFile = 0;
+            std::vector<std::pair<QString, QString>> pathAliasDefinitions;
+            QStringList                              keywordContent;
+            std::vector<QString>                     fileNamesContainingKeyword;
+            bool                                     isStopParsingKeywordDetected = false;
+            const QString                            includeStatementAbsolutePathPrefix = faultIncludeFileAbsolutePathPrefix();
+
+            RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(keyword,
+                                                                                      keywordToStopParsing,
+                                                                                      data,
+                                                                                      startPositionInFile,
+                                                                                      pathAliasDefinitions,
+                                                                                      &keywordContent,
+                                                                                      &fileNamesContainingKeyword,
+                                                                                      &isStopParsingKeywordDetected,
+                                                                                      includeStatementAbsolutePathPrefix);
+            std::vector<RigEquil> equilItems;
+            for (const auto& s : keywordContent)
+            {
+                RigEquil equilRec = RigEquil::parseString(s);
+
+                equilItems.push_back(equilRec);
+            }
+
+            m_eclipseCase->setEquilData(equilItems);
         }
     }
 }
