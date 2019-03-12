@@ -164,7 +164,11 @@ private:
         QRect r = rect();
         QPalette pal = palette();
 
+#if QT_VERSION_MAJOR > 4
+        QStyleOptionFrame panel;
+#else
         QStyleOptionFrameV2 panel;
+#endif
         initStyleOption(&panel);
         style()->drawPrimitive(QStyle::PE_PanelLineEdit, &panel, &p, this);
         r = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);

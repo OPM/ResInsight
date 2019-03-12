@@ -117,7 +117,11 @@ bool PdmUiTableViewDelegate::isEditorOpen() const
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+#if QT_VERSION_MAJOR > 4
+    QStyleOptionViewItem viewItemOption(option);
+#else
     QStyleOptionViewItemV4 viewItemOption(option);
+#endif    
 
     QVariant fgText = index.data(Qt::ForegroundRole);
 
