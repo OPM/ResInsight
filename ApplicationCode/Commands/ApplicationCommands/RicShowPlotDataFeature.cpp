@@ -22,7 +22,6 @@
 
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
-#include "RimGridCrossPlotCurveSet.h"
 #include "RimProject.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"
