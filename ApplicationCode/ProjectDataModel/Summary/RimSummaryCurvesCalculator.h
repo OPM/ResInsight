@@ -22,6 +22,8 @@
 #include <vector>
 #include <set>
 
+#include <qwt_plot.h>
+
 class RimAsciiDataCurve;
 class RimSummaryCurve;
 class RimPlotAxisProperties;
@@ -46,26 +48,9 @@ private:
     static std::string shortCalculationName(const std::string& calculationName);
 
 private:
-    RimPlotAxisProperties*             m_axisProperties;
+    RimPlotAxisProperties*                m_axisProperties;
     const std::vector<RimSummaryCurve*>   m_summaryCurves;
     const std::vector<RimAsciiDataCurve*> m_asciiDataCurves;
     const std::set<QString>               m_timeHistoryCurveQuantities;
-};
-
-
-class RimSummaryPlotYAxisRangeCalculator
-{
-public:
-    RimSummaryPlotYAxisRangeCalculator( const std::vector<QwtPlotCurve*>& qwtCurves,
-                                        const std::vector<double>& yValuesForAllCurves);
-
-    void    computeYRange(double* min, double* max) const;
-
-private:
-    bool    curveValueRangeY(const QwtPlotCurve* qwtCurve, double* min, double* max) const;
-
-private:
-    const std::vector<QwtPlotCurve*>    m_singleCurves;
-    const std::vector<double>           m_yValuesForAllCurves;
 };
 

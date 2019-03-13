@@ -521,13 +521,29 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::swapAllAxisProperties()
+void RimGridCrossPlot::swapAxes()
 {
+    RimPlotAxisProperties* xAxisProperties = m_xAxisProperties();
+    RimPlotAxisProperties* yAxisProperties = m_yAxisProperties();
+
+    QString tmpName       = xAxisProperties->name();
+    QwtPlot::Axis tmpAxis = xAxisProperties->qwtPlotAxisType();
+    xAxisProperties->setNameAndAxis(yAxisProperties->name(), yAxisProperties->qwtPlotAxisType());
+    yAxisProperties->setNameAndAxis(tmpName, tmpAxis);
+
+    m_xAxisProperties.removeChildObject(xAxisProperties);
+    m_yAxisProperties.removeChildObject(yAxisProperties);
+    m_yAxisProperties = xAxisProperties;
+    m_xAxisProperties = yAxisProperties;
+
     for (auto curveSet : m_crossPlotCurveSets)
     {
         curveSet->swapAxisProperties(false);
     }
+
     loadDataAndUpdate();
+
+    updateAxisDisplay();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -672,6 +688,15 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
                 m_qwtPlot->setAxisScaleEngine(axisProperties->qwtPlotAxisType(), new QwtLogScaleEngine);
                 m_qwtPlot->setAxisMaxMinor(axisProperties->qwtPlotAxisType(), 5);
             }
+
+            if (axisProperties->isAutoZoom())
+            {
+                m_qwtPlot->setAxisAutoScale(qwtAxisId);
+            }
+            else
+            {
+                m_qwtPlot->setAxisScale(qwtAxisId, axisProperties->visibleRangeMin, axisProperties->visibleRangeMax);
+            }
         }
         else
         {
@@ -682,19 +707,17 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
                 m_qwtPlot->setAxisScaleEngine(axisProperties->qwtPlotAxisType(), new QwtLinearScaleEngine);
                 m_qwtPlot->setAxisMaxMinor(axisProperties->qwtPlotAxisType(), 3);
             }
+
+            if (axisProperties->isAutoZoom())
+            {
+                m_qwtPlot->setAxisAutoScale(qwtAxisId);
+            }
+            else
+            {
+                m_qwtPlot->setAxisScale(qwtAxisId, axisProperties->visibleRangeMin, axisProperties->visibleRangeMax);
+            }
         }
         m_qwtPlot->axisScaleEngine(axisProperties->qwtPlotAxisType())->setAttribute(QwtScaleEngine::Inverted, axisProperties->isAxisInverted());
-
-        if (axisProperties->isAutoZoom())
-        {
-            m_qwtPlot->setAxisAutoScale(qwtAxisId);
-        }
-        else
-        {
-            m_qwtPlot->setAxisScale(qwtAxisId, axisProperties->visibleRangeMin, axisProperties->visibleRangeMax);
-        }
-
-
     }
     else
     {

@@ -54,6 +54,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_renderer.h"
 #include "qwt_plot_textlabel.h"
+#include "qwt_scale_engine.h"
 
 #include <QDateTime>
 #include <QString>
@@ -659,8 +660,13 @@ void RimSummaryPlot::updateZoomForAxis(RiaDefines::PlotAxis plotAxis)
                 }
 
                 double min, max;
-                RimSummaryPlotYAxisRangeCalculator calc(plotCurves, yValues);
-                calc.computeYRange(&min, &max);
+                RimPlotAxisRangeCalculator calc(QwtPlot::yLeft, plotCurves, yValues);
+                calc.computeAxisRange(&min, &max);
+
+                if (yAxisProps->isAxisInverted())
+                {
+                    std::swap(min, max);
+                }
 
                 m_qwtPlot->setAxisScale(yAxisProps->qwtPlotAxisType(), min, max);
             }
@@ -673,6 +679,8 @@ void RimSummaryPlot::updateZoomForAxis(RiaDefines::PlotAxis plotAxis)
         {
             m_qwtPlot->setAxisScale(yAxisProps->qwtPlotAxisType(), yAxisProps->visibleRangeMin(), yAxisProps->visibleRangeMax());
         }
+
+        m_qwtPlot->axisScaleEngine(yAxisProps->qwtPlotAxisType())->setAttribute(QwtScaleEngine::Inverted, yAxisProps->isAxisInverted());
     }
 }
 

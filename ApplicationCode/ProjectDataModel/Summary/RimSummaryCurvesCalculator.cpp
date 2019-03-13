@@ -18,8 +18,6 @@
 
 #include "RimSummaryCurvesCalculator.h"
 
-#include "RigStatisticsCalculator.h"
-
 #include "RiaDefines.h"
 #include "RimSummaryCurve.h"
 #include "RimPlotAxisProperties.h"
@@ -317,88 +315,5 @@ std::string RimSummaryPlotYAxisFormatter::shortCalculationName(const std::string
     }
 
     return calculationShortName.toStdString();
-}
-
-
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryPlotYAxisRangeCalculator::RimSummaryPlotYAxisRangeCalculator(
-    const std::vector<QwtPlotCurve*>& qwtCurves,
-    const std::vector<double>& yValuesForAllCurves)
-    : 
-    m_singleCurves(qwtCurves),
-    m_yValuesForAllCurves(yValuesForAllCurves)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotYAxisRangeCalculator::computeYRange(double* min, double* max) const
-{
-    double minValue = HUGE_VAL;
-    double maxValue = -HUGE_VAL;
-
-    for (QwtPlotCurve* curve : m_singleCurves)
-    {
-        double minCurveValue = HUGE_VAL;
-        double maxCurveValue = -HUGE_VAL;
-
-        if (curveValueRangeY(curve, &minCurveValue, &maxCurveValue))
-        {
-            if (minCurveValue < minValue)
-            {
-                minValue = minCurveValue;
-            }
-
-            if (maxCurveValue > maxValue)
-            {
-                maxValue = maxCurveValue;
-            }
-        }
-    }
-
-    if (minValue == HUGE_VAL)
-    {
-        minValue = RiaDefines::minimumDefaultValuePlot();
-        maxValue = RiaDefines::maximumDefaultValuePlot();
-    }
-
-    // For logarithmic auto scaling, compute positive curve value closest to zero and use
-    // this value as the plot visible minimum
-
-    double pos = HUGE_VAL;
-    double neg = -HUGE_VAL;
-
-    RigStatisticsCalculator::posNegClosestToZero(m_yValuesForAllCurves, pos, neg);
-
-    if (pos != HUGE_VAL)
-    {
-        minValue = pos;
-    }
-
-    *min = minValue;
-    *max = maxValue;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotYAxisRangeCalculator::curveValueRangeY(const QwtPlotCurve* qwtCurve, double* min, double* max) const
-{
-    if (!qwtCurve) return false;
-
-    if (qwtCurve->data()->size() < 1)
-    {
-        return false;
-    }
-
-    *min = qwtCurve->minYValue();
-    *max = qwtCurve->maxYValue();
-
-    return true;
 }
 

@@ -20,12 +20,15 @@
 #include "RimPlotAxisProperties.h"
 
 #include "RiaDefines.h"
+#include "RigStatisticsCalculator.h"
 
 #include "RimRiuQwtPlotOwnerInterface.h"
 
 #include "cafPdmUiSliderEditor.h"
 
 #include <cmath>
+
+#include <qwt_plot_curve.h>
 
 // clang-format off
 namespace caf
@@ -225,6 +228,14 @@ QwtPlot::Axis RimPlotAxisProperties::qwtPlotAxisType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimPlotAxisProperties::name() const
+{
+    return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::PlotAxis RimPlotAxisProperties::plotAxisType() const
 {
     if (m_axis == QwtPlot::yRight) return RiaDefines::PLOT_AXIS_RIGHT;
@@ -357,4 +368,90 @@ void RimPlotAxisProperties::initAfterRead()
 caf::PdmFieldHandle* RimPlotAxisProperties::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotAxisRangeCalculator::RimPlotAxisRangeCalculator(QwtPlot::Axis                     axis,
+                                                       const std::vector<QwtPlotCurve*>& qwtCurves,
+                                                       const std::vector<double>&        axisValuesForAllCurves)
+    : m_singleCurves(qwtCurves)
+    , m_axisValuesForAllCurves(axisValuesForAllCurves)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisRangeCalculator::computeAxisRange(double* min, double* max) const
+{
+    double minValue = HUGE_VAL;
+    double maxValue = -HUGE_VAL;
+
+    for (QwtPlotCurve* curve : m_singleCurves)
+    {
+        double minCurveValue = HUGE_VAL;
+        double maxCurveValue = -HUGE_VAL;
+
+        if (curveValueRange(curve, &minCurveValue, &maxCurveValue))
+        {
+            if (minCurveValue < minValue)
+            {
+                minValue = minCurveValue;
+            }
+
+            if (maxCurveValue > maxValue)
+            {
+                maxValue = maxCurveValue;
+            }
+        }
+    }
+
+    if (minValue == HUGE_VAL)
+    {
+        minValue = RiaDefines::minimumDefaultValuePlot();
+        maxValue = RiaDefines::maximumDefaultValuePlot();
+    }
+
+    // For logarithmic auto scaling, compute positive curve value closest to zero and use
+    // this value as the plot visible minimum
+
+    double pos = HUGE_VAL;
+    double neg = -HUGE_VAL;
+
+    RigStatisticsCalculator::posNegClosestToZero(m_axisValuesForAllCurves, pos, neg);
+
+    if (pos != HUGE_VAL)
+    {
+        minValue = pos;
+    }
+
+    *min = minValue;
+    *max = maxValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotAxisRangeCalculator::curveValueRange(const QwtPlotCurve* qwtCurve, double* min, double* max) const
+{
+    if (!qwtCurve) return false;
+
+    if (qwtCurve->data()->size() < 1)
+    {
+        return false;
+    }
+
+    if (m_axis == QwtPlot::xBottom || m_axis == QwtPlot::xTop)
+    {
+        *min = qwtCurve->minXValue();
+        *max = qwtCurve->maxXValue();
+    }
+    else
+    {
+        *min = qwtCurve->minYValue();
+        *max = qwtCurve->maxYValue();
+    }
+    return true;
 }

@@ -70,7 +70,7 @@ public:
     void                 detachAllCurves();
     void                 performAutoNameUpdate() override;
     void                 updateCurveNamesAndPlotTitle();
-    void                 swapAllAxisProperties();
+    void                 swapAxes();
     QString              asciiTitleForPlotExport(int curveSetIndex) const;
     QString              asciiDataForPlotExport(int curveSetIndex) const;
     RiuGridCrossQwtPlot* qwtPlot() const;
