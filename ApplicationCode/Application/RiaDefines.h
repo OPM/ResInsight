@@ -135,6 +135,7 @@ namespace RiaDefines
     };
 
     double minimumDefaultValuePlot();
+    double minimumDefaultLogValuePlot();
     double maximumDefaultValuePlot();
 
     enum PhaseType {

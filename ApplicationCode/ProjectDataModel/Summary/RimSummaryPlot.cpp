@@ -635,32 +635,25 @@ void RimSummaryPlot::updateZoomForAxis(RiaDefines::PlotAxis plotAxis)
         {
             if (yAxisProps->isLogarithmicScaleEnabled)
             {
-                std::vector<double> yValues;
-                std::vector<QwtPlotCurve*> plotCurves;
+                std::vector<const QwtPlotCurve*> plotCurves;
 
                 for (RimSummaryCurve* c : visibleSummaryCurvesForAxis(plotAxis))
                 {
-                    std::vector<double> curveValues = c->valuesY();
-                    yValues.insert(yValues.end(), curveValues.begin(), curveValues.end());
                     plotCurves.push_back(c->qwtPlotCurve());
                 }
 
                 for (RimGridTimeHistoryCurve* c : visibleTimeHistoryCurvesForAxis(plotAxis))
                 {
-                    std::vector<double> curveValues = c->yValues();
-                    yValues.insert(yValues.end(), curveValues.begin(), curveValues.end());
                     plotCurves.push_back(c->qwtPlotCurve());
                 }
 
                 for (RimAsciiDataCurve* c : visibleAsciiDataCurvesForAxis(plotAxis))
                 {
-                    std::vector<double> curveValues = c->yValues();
-                    yValues.insert(yValues.end(), curveValues.begin(), curveValues.end());
                     plotCurves.push_back(c->qwtPlotCurve());
                 }
 
                 double min, max;
-                RimPlotAxisRangeCalculator calc(QwtPlot::yLeft, plotCurves, yValues);
+                RimPlotAxisLogRangeCalculator calc(QwtPlot::yLeft, plotCurves);
                 calc.computeAxisRange(&min, &max);
 
                 if (yAxisProps->isAxisInverted())

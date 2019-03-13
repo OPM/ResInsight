@@ -26,6 +26,8 @@
 
 #include "cafPdmUiSliderEditor.h"
 
+#include "cvfVector2.h"
+
 #include <cmath>
 
 #include <qwt_plot_curve.h>
@@ -373,32 +375,32 @@ caf::PdmFieldHandle* RimPlotAxisProperties::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotAxisRangeCalculator::RimPlotAxisRangeCalculator(QwtPlot::Axis                     axis,
-                                                       const std::vector<QwtPlotCurve*>& qwtCurves,
-                                                       const std::vector<double>&        axisValuesForAllCurves)
-    : m_singleCurves(qwtCurves)
-    , m_axisValuesForAllCurves(axisValuesForAllCurves)
+RimPlotAxisLogRangeCalculator::RimPlotAxisLogRangeCalculator(QwtPlot::Axis                     axis,
+                                                             const std::vector<const QwtPlotCurve*>& qwtCurves)
+    : m_axis(axis)
+    , m_curves(qwtCurves)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisRangeCalculator::computeAxisRange(double* min, double* max) const
+void RimPlotAxisLogRangeCalculator::computeAxisRange(double* minPositive, double* max) const
 {
-    double minValue = HUGE_VAL;
-    double maxValue = -HUGE_VAL;
+    double minPosValue    = HUGE_VAL;
+    double maxValue       = -HUGE_VAL;
 
-    for (QwtPlotCurve* curve : m_singleCurves)
+    for (const QwtPlotCurve* curve : m_curves)
     {
-        double minCurveValue = HUGE_VAL;
-        double maxCurveValue = -HUGE_VAL;
+        double minPosCurveValue    = HUGE_VAL;
+        double maxCurveValue       = -HUGE_VAL;
 
-        if (curveValueRange(curve, &minCurveValue, &maxCurveValue))
+        if (curveValueRange(curve, &minPosCurveValue, &maxCurveValue))
         {
-            if (minCurveValue < minValue)
+            if (minPosCurveValue < minPosValue)
             {
-                minValue = minCurveValue;
+                CVF_ASSERT(minPosCurveValue > 0.0);
+                minPosValue = minPosCurveValue;
             }
 
             if (maxCurveValue > maxValue)
@@ -408,33 +410,20 @@ void RimPlotAxisRangeCalculator::computeAxisRange(double* min, double* max) cons
         }
     }
 
-    if (minValue == HUGE_VAL)
+    if (minPosValue == HUGE_VAL)
     {
-        minValue = RiaDefines::minimumDefaultValuePlot();
-        maxValue = RiaDefines::maximumDefaultValuePlot();
+        minPosValue = RiaDefines::minimumDefaultLogValuePlot();
+        maxValue    = RiaDefines::maximumDefaultValuePlot();
     }
-
-    // For logarithmic auto scaling, compute positive curve value closest to zero and use
-    // this value as the plot visible minimum
-
-    double pos = HUGE_VAL;
-    double neg = -HUGE_VAL;
-
-    RigStatisticsCalculator::posNegClosestToZero(m_axisValuesForAllCurves, pos, neg);
-
-    if (pos != HUGE_VAL)
-    {
-        minValue = pos;
-    }
-
-    *min = minValue;
-    *max = maxValue;
+  
+    *minPositive = minPosValue;
+    *max         = maxValue;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotAxisRangeCalculator::curveValueRange(const QwtPlotCurve* qwtCurve, double* min, double* max) const
+bool RimPlotAxisLogRangeCalculator::curveValueRange(const QwtPlotCurve* qwtCurve, double* minPositive, double* max) const
 {
     if (!qwtCurve) return false;
 
@@ -443,15 +432,31 @@ bool RimPlotAxisRangeCalculator::curveValueRange(const QwtPlotCurve* qwtCurve, d
         return false;
     }
 
-    if (m_axis == QwtPlot::xBottom || m_axis == QwtPlot::xTop)
+    float minPosF = std::numeric_limits<float>::infinity();
+    float maxF    = -std::numeric_limits<float>::infinity();
+
+    int axisValueIndex = 0;
+    if (m_axis == QwtPlot::yLeft || m_axis == QwtPlot::yRight)
     {
-        *min = qwtCurve->minXValue();
-        *max = qwtCurve->maxXValue();
+        axisValueIndex = 1;
     }
-    else
+
+    for (size_t i = 0; i < qwtCurve->dataSize(); ++i)
     {
-        *min = qwtCurve->minYValue();
-        *max = qwtCurve->maxYValue();
+        QPointF sample = qwtCurve->sample((int) i);
+        cvf::Vec2f vec(sample.x(), sample.y());
+        float value = vec[axisValueIndex];
+        if (value == HUGE_VALF) continue;
+
+        maxF = std::max(maxF, value);
+        if (value > 0.0f && value < minPosF)
+        {
+            minPosF = value;
+        }
     }
+
+    *minPositive = minPosF;
+    *max = maxF;
+
     return true;
 }

@@ -120,20 +120,18 @@ class QwtPlotCurve;
 ///
 ///
 //==================================================================================================
-class RimPlotAxisRangeCalculator
+class RimPlotAxisLogRangeCalculator
 {
 public:
-    RimPlotAxisRangeCalculator(QwtPlot::Axis                     axis,
-                               const std::vector<QwtPlotCurve*>& qwtCurves,
-                               const std::vector<double>&        axisValuesForAllCurves);
+    RimPlotAxisLogRangeCalculator(QwtPlot::Axis                           axis,
+                                  const std::vector<const QwtPlotCurve*>& qwtCurves);
 
-    void computeAxisRange(double* min, double* max) const;
-
-private:
-    bool curveValueRange(const QwtPlotCurve* qwtCurve, double* min, double* max) const;
+    void computeAxisRange(double* minPositive, double* max) const;
 
 private:
-    QwtPlot::Axis                    m_axis;
-    const std::vector<QwtPlotCurve*> m_singleCurves;
-    const std::vector<double>        m_axisValuesForAllCurves;
+    bool curveValueRange(const QwtPlotCurve* qwtCurve, double* minPositive, double* max) const;
+
+private:
+    QwtPlot::Axis                          m_axis;
+    const std::vector<const QwtPlotCurve*> m_curves;
 };

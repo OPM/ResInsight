@@ -117,6 +117,9 @@ public:
     void swapAxisProperties(bool updatePlot);
     void exportFormattedData(RifEclipseDataTableFormatter& formatter) const;
 
+    bool isXAxisLogarithmic() const;
+    bool isYAxisLogarithmic() const;
+
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);
@@ -139,6 +142,7 @@ protected:
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     bool hasMultipleTimeSteps() const;
+    void filterInvalidCurveValues(RigEclipseCrossPlotResult* result);
 private:
     
     caf::PdmPtrField<RimCase*>                      m_case;
@@ -154,4 +158,5 @@ private:
     caf::PdmChildArrayField<RimGridCrossPlotCurve*> m_crossPlotCurves;
 
     std::map<int, RigEclipseCrossPlotResult>        m_groupedResults;
+    
 };
