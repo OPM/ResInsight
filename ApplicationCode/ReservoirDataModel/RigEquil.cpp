@@ -29,8 +29,8 @@ RigEquil::RigEquil(double datumDepth,
                    double waterOilContactCapillaryPressure,
                    double gasOilContactDepth,
                    double gasOilContactCapillaryPressure,
-                   int    liveOilInitConstantRs,
-                   int    wetGasInitConstantRv,
+                   bool   liveOilInitConstantRs,
+                   bool   wetGasInitConstantRv,
                    int    initializationTargetAccuracy)
     : datum_depth(datumDepth)
     , datum_depth_ps(datumDepthPressure)
@@ -74,12 +74,12 @@ double RigEquil::gasOilContactCapillaryPressure() const
     return this->gas_oil_contact_capillary_pressure;
 }
 
-int RigEquil::liveOilInitConstantRs() const
+bool RigEquil::liveOilInitConstantRs() const
 {
     return this->live_oil_init_proc;
 }
 
-int RigEquil::wetGasInitConstantRv() const
+bool RigEquil::wetGasInitConstantRv() const
 {
     return this->wet_gas_init_proc;
 }
@@ -126,8 +126,8 @@ RigEquil RigEquil::parseString(const QString& keywordData)
     double waterOilContactCapillaryPressure = 0.0;
     double gasOilContactDepth               = 0.0;
     double gasOilContactCapillaryPressure   = 0.0;
-    int    liveOilInitConstantRs            = 0;
-    int    wetGasInitConstantRv             = 0;
+    bool   liveOilInitConstantRs            = false;
+    bool   wetGasInitConstantRv             = false;
     int    initializationTargetAccuracy     = -5;
 
     QString line(keywordData);
@@ -161,11 +161,11 @@ RigEquil RigEquil::parseString(const QString& keywordData)
     }
     if (items.size() > 6)
     {
-        liveOilInitConstantRs = items.at(6).toInt();
+        liveOilInitConstantRs = items.at(6).toInt() > 0 ? true : false;
     }
     if (items.size() > 7)
     {
-        wetGasInitConstantRv = items.at(7).toInt();
+        wetGasInitConstantRv = items.at(7).toInt() > 0 ? true : false;
     }
     if (items.size() > 8)
     {

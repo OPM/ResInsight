@@ -164,10 +164,10 @@ QList<caf::PdmOptionItemInfo> RimPlotAxisAnnotation::calculateValueOptions(const
     }
     else if (fieldNeedingOptions == &m_equilNum)
     {
-        for (const auto& eq : equilItems())
+        for (int i = 0; i < equilItems().size(); i++)
         {
-            QString uiText = QString("%1").arg(eq.liveOilInitConstantRs());
-            options.push_back(caf::PdmOptionItemInfo(uiText, eq.liveOilInitConstantRs()));
+            QString uiText = QString("%1").arg(i+1);
+            options.push_back(caf::PdmOptionItemInfo(uiText, i));
         }
     }
 
@@ -200,12 +200,11 @@ void RimPlotAxisAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 RigEquil RimPlotAxisAnnotation::selectedItem() const
 {
-    for (auto eq : equilItems())
+    int index = m_equilNum() -1;
+
+    if (index < equilItems().size())
     {
-        if (eq.liveOilInitConstantRs() == m_equilNum())
-        {
-            return eq;
-        }
+        return equilItems()[index];
     }
 
     return RigEquil::defaultObject();
