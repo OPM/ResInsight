@@ -208,7 +208,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         // If the user are seeing the list with the actually selected result,
         // select that result in the list. Otherwise select nothing.
 
-        QStringList varList = getResultNamesForCurrentUiResultType();
+        QStringList varList = getResultNamesForResultType(m_resultTypeUiField(), this->currentGridCellResults());
 
         bool isFlowDiagFieldsRelevant = (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS);
 
@@ -635,7 +635,10 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     {
         if (fieldNeedingOptions == &m_resultVariableUiField)
         {
-            options = calcOptionsForVariableUiFieldStandard();
+            options = calcOptionsForVariableUiFieldStandard(m_resultTypeUiField(),
+                                                            this->currentGridCellResults(),
+                                                            showDerivedResultsFirstInVariableUiField(),
+                                                            addPerCellFaceOptionsForVariableUiField());
         }
         else if (fieldNeedingOptions == &m_differenceCase)
         {
@@ -1445,20 +1448,22 @@ QString RimEclipseResultDefinition::flowDiagResUiText(bool shortLabel, int maxTr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard()
+QList<caf::PdmOptionItemInfo>
+RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::ResultCatType     resultCatType,
+                                                                  const RigCaseCellResultsData* results,
+                                                                  bool                          showDerivedResultsFirst,
+                                                                  bool                          addPerCellFaceOptionItems)
 {
-    CVF_ASSERT(m_resultTypeUiField() != RiaDefines::FLOW_DIAGNOSTICS && m_resultTypeUiField() != RiaDefines::INJECTION_FLOODING);
+    CVF_ASSERT(resultCatType != RiaDefines::FLOW_DIAGNOSTICS && resultCatType != RiaDefines::INJECTION_FLOODING);
 
-    if (this->currentGridCellResults())
+    if (results)
     {
         QList<caf::PdmOptionItemInfo> optionList;
 
         QStringList cellCenterResultNames;
         QStringList cellFaceResultNames;
 
-        RigCaseCellResultsData* results = this->currentGridCellResults();
-
-        foreach (QString s, getResultNamesForCurrentUiResultType())
+        for (QString s :  getResultNamesForResultType(resultCatType, results))
         {
             if (s == RiaDefines::completionTypeResultName())
             {
@@ -1479,7 +1484,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         cellFaceResultNames.sort();
 
         // Cell Center result names
-        foreach (QString s, cellCenterResultNames)
+        for (QString s : cellCenterResultNames)
         {
             optionList.push_back(caf::PdmOptionItemInfo(s, s));
         }
@@ -1493,51 +1498,28 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         else if (cellCenterResultNames.contains("SWAT"))
             hasAtLeastOneTernaryComponent = true;
 
-        if (m_resultTypeUiField == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
+        if (resultCatType == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
         {
             optionList.push_front(
                 caf::PdmOptionItemInfo(RiaDefines::ternarySaturationResultName(), RiaDefines::ternarySaturationResultName()));
         }
 
-        // Cell Face result names
-        bool showDerivedResultsFirstInList = false;
+        if (addPerCellFaceOptionItems)
         {
-            RimEclipseFaultColors* rimEclipseFaultColors = nullptr;
-            this->firstAncestorOrThisOfType(rimEclipseFaultColors);
-
-            if (rimEclipseFaultColors) showDerivedResultsFirstInList = true;
-        }
-
-        foreach (QString s, cellFaceResultNames)
-        {
-            if (showDerivedResultsFirstInList)
+            for (QString s : cellFaceResultNames)
             {
-                optionList.push_front(caf::PdmOptionItemInfo(s, s));
-            }
-            else
-            {
-                optionList.push_back(caf::PdmOptionItemInfo(s, s));
+                if (showDerivedResultsFirst)
+                {
+                    optionList.push_front(caf::PdmOptionItemInfo(s, s));
+                }
+                else
+                {
+                    optionList.push_back(caf::PdmOptionItemInfo(s, s));
+                }
             }
         }
 
         optionList.push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), RiaDefines::undefinedResultName()));
-
-        // Remove Per Cell Face options
-        {
-            RimPlotCurve* curve = nullptr;
-            this->firstAncestorOrThisOfType(curve);
-
-            RimEclipsePropertyFilter* propFilter = nullptr;
-            this->firstAncestorOrThisOfType(propFilter);
-
-            RimCellEdgeColors* cellEdge = nullptr;
-            this->firstAncestorOrThisOfType(cellEdge);
-
-            if (propFilter || curve || cellEdge)
-            {
-                removePerCellFaceOptionItems(optionList);
-            }
-        }
 
         return optionList;
     }
@@ -1701,15 +1683,13 @@ QString RimEclipseResultDefinition::selectedTracersString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimEclipseResultDefinition::getResultNamesForCurrentUiResultType()
+QStringList RimEclipseResultDefinition::getResultNamesForResultType(RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results)
 {
-    if (m_resultTypeUiField() != RiaDefines::FLOW_DIAGNOSTICS)
+    if (resultCatType != RiaDefines::FLOW_DIAGNOSTICS)
     {
-        RigCaseCellResultsData* cellResultsStorage = currentGridCellResults();
+        if (!results) return QStringList();
 
-        if (!cellResultsStorage) return QStringList();
-
-        return cellResultsStorage->resultNames(m_resultTypeUiField());
+        return results->resultNames(resultCatType);
     }
     else
     {
@@ -1719,31 +1699,6 @@ QStringList RimEclipseResultDefinition::getResultNamesForCurrentUiResultType()
         flowVars.push_back(RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
         flowVars.push_back(RIG_FLD_COMMUNICATION_RESNAME);
         return flowVars;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems)
-{
-    std::vector<int> indicesToRemove;
-    for (int i = 0; i < optionItems.size(); i++)
-    {
-        QString text = optionItems[i].value().toString();
-
-        if (RiaDefines::isPerCellFaceResult(text))
-        {
-            indicesToRemove.push_back(i);
-        }
-    }
-
-    std::sort(indicesToRemove.begin(), indicesToRemove.end());
-
-    std::vector<int>::reverse_iterator rit;
-    for (rit = indicesToRemove.rbegin(); rit != indicesToRemove.rend(); ++rit)
-    {
-        optionItems.takeAt(*rit);
     }
 }
 
@@ -1972,6 +1927,43 @@ bool RimEclipseResultDefinition::isCaseDiffResultAvailable() const
 bool RimEclipseResultDefinition::isCaseDiffResult() const
 {
     return isCaseDiffResultAvailable() && m_differenceCase() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::showDerivedResultsFirstInVariableUiField() const
+{
+    // Cell Face result names
+    bool showDerivedResultsFirstInList = false;
+    RimEclipseFaultColors* rimEclipseFaultColors = nullptr;
+    this->firstAncestorOrThisOfType(rimEclipseFaultColors);
+
+    if (rimEclipseFaultColors) showDerivedResultsFirstInList = true;
+    
+    return showDerivedResultsFirstInList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::addPerCellFaceOptionsForVariableUiField() const
+{
+    RimPlotCurve* curve = nullptr;
+    this->firstAncestorOrThisOfType(curve);
+
+    RimEclipsePropertyFilter* propFilter = nullptr;
+    this->firstAncestorOrThisOfType(propFilter);
+
+    RimCellEdgeColors* cellEdge = nullptr;
+    this->firstAncestorOrThisOfType(cellEdge);
+
+    if (propFilter || curve || cellEdge)
+    {
+        return false;
+    }
+    
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

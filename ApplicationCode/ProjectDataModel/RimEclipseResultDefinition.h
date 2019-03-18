@@ -125,6 +125,11 @@ public:
 
     bool                            hasDualPorFractureResult();
 
+    static QList<caf::PdmOptionItemInfo> calcOptionsForVariableUiFieldStandard(RiaDefines::ResultCatType     resultCatType,
+                                                                               const RigCaseCellResultsData* results,
+                                                                               bool showDerivedResultsFirst   = false,
+                                                                               bool addPerCellFaceOptionItems = false);
+
 protected:
     virtual void                  updateLegendCategorySettings() {};
 
@@ -185,7 +190,6 @@ private:
 
     QString                         flowDiagResUiText(bool shortLabel, int maxTracerStringLength = std::numeric_limits<int>::max()) const;
 
-    QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
     QList<caf::PdmOptionItemInfo>   calcOptionsForSelectedTracerField(bool injector);
     
     QString                         timeOfFlightString(bool shorter) const;
@@ -194,8 +198,7 @@ private:
     QString                         selectedTracersString() const;
 
     void                            changedTracerSelectionField(bool injector);
-    QStringList                     getResultNamesForCurrentUiResultType();
-    static void                     removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
+    static QStringList              getResultNamesForResultType(RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results);
 
     std::vector<QString>            allTracerNames() const;
     std::set<QString, TracerComp>   setOfTracersOfType(bool injector) const;
@@ -211,6 +214,9 @@ private:
     bool                            isTimeDiffResult() const;
     bool                            isCaseDiffResultAvailable() const;
     bool                            isCaseDiffResult() const;
+
+    bool                            showDerivedResultsFirstInVariableUiField() const;
+    bool                            addPerCellFaceOptionsForVariableUiField() const;
 
     void                            ensureProcessingOfObsoleteFields();
 

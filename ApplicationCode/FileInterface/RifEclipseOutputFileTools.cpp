@@ -35,6 +35,7 @@
 
 #include "cvfMath.h"
 
+#include <QCryptographicHash>
 #include <QFileInfo>
 #include <QDebug>
 
@@ -283,6 +284,25 @@ bool RifEclipseOutputFileTools::isValidEclipseFileName(const QString& fileName)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QByteArray RifEclipseOutputFileTools::md5sum(const QString& fileName)
+{
+    QFile file(fileName);
+    if (file.open(QFile::ReadOnly))
+    {
+        QCryptographicHash hash(QCryptographicHash::Md5);
+        QByteArray fileContent = file.readAll();
+        if (!fileContent.isEmpty())
+        {
+            hash.addData(fileContent);
+            return hash.result();
+        }
+    }
+    return QByteArray();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Get set of Eclipse files based on an input file and its path
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(const QString& fullPathFileName, QStringList* baseNameFiles)
@@ -522,6 +542,26 @@ ecl_kw_type* RifEclipseOutputFileTools::createActnumFromPorv(ecl_file_type* ecl_
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Convenience method to hide C fopen calls in #pragma declarations to avoid warnings on Windows
+//--------------------------------------------------------------------------------------------------
+FILE* RifEclipseOutputFileTools::fopen(const QString& filePath, const QString& mode)
+{
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#endif
+
+    FILE* filePtr = std::fopen(RiaStringEncodingTools::toNativeEncoded(filePath).data(), RiaStringEncodingTools::toNativeEncoded(mode).data());
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+    return filePtr;
+
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -352,6 +352,182 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderEclipseOutput::saveEclipseGrid(const QString& fileName, RigEclipseCaseData* eclipseCase, const cvf::Vec3st* min, const cvf::Vec3st* max)
+{
+    if (!eclipseCase)
+    {
+        return false;
+    }
+
+    const RigActiveCellInfo* activeCellInfo         = eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    const RigActiveCellInfo* fractureActiveCellInfo = eclipseCase->activeCellInfo(RiaDefines::FRACTURE_MODEL);
+
+    CVF_ASSERT(activeCellInfo && fractureActiveCellInfo);
+
+    const RigMainGrid* mainGrid = eclipseCase->mainGrid();    
+
+    int ecl_nx = (int) mainGrid->cellCountI();
+    int ecl_ny = (int) mainGrid->cellCountJ();
+    int ecl_nz = (int) mainGrid->cellCountK();
+
+    if (min && max)
+    {
+        ecl_nx = (int) (max->x() - min->x()) + 1;
+        ecl_ny = (int) (max->y() - min->y()) + 1;
+        ecl_nz = (int) (max->z() - min->z()) + 1;
+    }
+
+    int ecl_cell_count = (int) mainGrid->cellCount();
+
+    caf::ProgressInfo progress(ecl_cell_count * 2, "Save Eclipse Grid");
+    int cellProgressInterval = 1000;
+
+    std::vector<float*> ecl_corners; ecl_corners.reserve(ecl_cell_count);
+    std::vector<int*> ecl_coords; ecl_coords.reserve(ecl_cell_count);
+
+    int incrementalIndex = 0;
+    for (int index = 0; index < ecl_cell_count; ++index)
+    {
+        size_t i, j, k;
+        mainGrid->ijkFromCellIndex(index, &i, &j, &k);
+
+        if (i < min->x() || i > max->x() ||
+            j < min->y() || j > max->y() ||
+            k < min->z() || k > max->z())
+        {
+            continue;
+        }
+
+        int active = activeCellInfo->isActive(index) ? 1 : 0;
+
+        int* ecl_cell_coords = new int[5];
+        ecl_cell_coords[0] = (int) (i + 1 - min->x());
+        ecl_cell_coords[1] = (int) (j + 1 - min->y());
+        ecl_cell_coords[2] = (int) (k + 1 - min->z());
+        ecl_cell_coords[3] = incrementalIndex++;
+        ecl_cell_coords[4] = active;
+        ecl_coords.push_back(ecl_cell_coords);
+
+        cvf::Vec3d cellCorners[8];
+        mainGrid->cellCornerVertices(index, cellCorners);
+
+        float* ecl_cell_corners = new float[24];
+        for (size_t corner = 0; corner < 8; ++corner)
+        {
+            ecl_cell_corners[cellMappingECLRi[corner] * 3    ] =  cellCorners[corner][0];
+            ecl_cell_corners[cellMappingECLRi[corner] * 3 + 1] =  cellCorners[corner][1];
+            ecl_cell_corners[cellMappingECLRi[corner] * 3 + 2] = -cellCorners[corner][2];
+        }
+        ecl_corners.push_back(ecl_cell_corners);
+
+        if (index % cellProgressInterval == 0)
+        {
+            progress.setProgress(index);
+        }
+    }
+
+    ecl_grid_type* mainEclGrid = ecl_grid_alloc_GRID_data((int) ecl_coords.size(), ecl_nx, ecl_ny, ecl_nz, 5, &ecl_coords[0], &ecl_corners[0], false, NULL);
+    progress.setProgress(ecl_cell_count * 2);
+
+    for (float* floatArray : ecl_corners)
+    {
+        delete floatArray;
+    }
+
+    for (int* intArray : ecl_coords)
+    {
+        delete intArray;
+    }
+
+    FILE* filePtr = RifEclipseOutputFileTools::fopen(fileName, "w");
+
+    if (!filePtr)
+    {
+        return false;
+    }
+
+    ecl_grid_fprintf_grdecl(mainEclGrid, filePtr);
+    ecl_grid_free(mainEclGrid);
+    fclose(filePtr);
+        
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderEclipseOutput::saveEclipseResults(const QString&                                resultFileName,
+                                                RigEclipseCaseData*                           eclipseCase,
+                                                const std::vector<QString>&                   keywords,
+                                                const QString&                                fileWriteMode,
+                                                const cvf::Vec3st*                            min,
+                                                const cvf::Vec3st*                            max)
+{
+    FILE* filePtr = RifEclipseOutputFileTools::fopen(resultFileName, fileWriteMode);
+    if (!filePtr)
+    {
+        return false;
+    }
+    RigCaseCellResultsData* cellResultsData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
+    RigActiveCellInfo*      activeCells     = cellResultsData->activeCellInfo();
+    RigMainGrid*            mainGrid        = eclipseCase->mainGrid();
+
+    caf::ProgressInfo progress(keywords.size(), "Saving Keywords");
+
+    for (const QString& keyword : keywords)
+    {
+        std::vector<double> resultValues;
+
+        RigEclipseResultAddress resAddr(RiaDefines::STATIC_NATIVE, keyword);
+        cellResultsData->ensureKnownResultLoaded(resAddr);
+        resultValues = cellResultsData->cellScalarResults(resAddr)[0];
+        CVF_ASSERT(!resultValues.empty());
+            
+        std::vector<double> filteredResults;
+        filteredResults.reserve(resultValues.size());
+        for (size_t index = 0; index < mainGrid->cellCount(); ++index)
+        {
+            size_t i, j, k;
+            mainGrid->ijkFromCellIndex(index, &i, &j, &k);
+            if (i < min->x() || i > max->x() || j < min->y() || j > max->y() || k < min->z() || k > max->z())
+            {
+                continue;
+            }
+            size_t resIndex = activeCells->cellResultIndex(index);
+            if (resIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                filteredResults.push_back(resultValues[resIndex]);
+            }
+        }
+
+        ecl_kw_type* ecl_kw = nullptr;
+
+        if (keyword.endsWith("NUM"))
+        {
+            std::vector<int> resultValuesInt; resultValuesInt.reserve(filteredResults.size());
+            for (double val : filteredResults)
+            {
+                resultValuesInt.push_back(static_cast<int>(val));
+            }
+            ecl_kw = ecl_kw_alloc_new(keyword.toLatin1().data(), (int) resultValuesInt.size(), ECL_INT, resultValuesInt.data());
+        }
+        else
+        {
+            ecl_kw = ecl_kw_alloc_new(keyword.toLatin1().data(), (int) filteredResults.size(), ECL_DOUBLE, filteredResults.data());
+        }
+         
+        ecl_kw_fprintf_grdecl(ecl_kw, filePtr);
+        ecl_kw_free(ecl_kw);
+        progress.incrementProgress();        
+    }
+   
+    fclose(filePtr);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Open file and read geometry into given reservoir object
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* eclipseCase)

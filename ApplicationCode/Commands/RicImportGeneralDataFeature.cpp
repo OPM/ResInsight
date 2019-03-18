@@ -74,15 +74,15 @@ void RicImportGeneralDataFeature::onActionTriggered(bool isChecked)
 
     for (const QString& fileName : fileNames)
     {
-        if (fileName.endsWith("GRID"))
+        if (fileName.endsWith("GRID", Qt::CaseInsensitive))
         {
             eclipseCaseFiles.push_back(fileName);
         }
-        else if (fileName.endsWith("GRDECL"))
+        else if (fileName.endsWith("GRDECL", Qt::CaseInsensitive))
         {
             eclipseInputFiles.push_back(fileName);
         }
-        else if (fileName.endsWith("SMSPEC"))
+        else if (fileName.endsWith("SMSPEC", Qt::CaseInsensitive))
         {
             eclipseSummaryFiles.push_back(fileName);
         }

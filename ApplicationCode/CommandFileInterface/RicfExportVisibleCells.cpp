@@ -21,8 +21,8 @@
 #include "RiaFilePathTools.h"
 #include "RiaViewRedrawScheduler.h"
 
-#include "ExportCommands/RicSaveEclipseInputVisibleCellsFeature.h"
-#include "ExportCommands/RicSaveEclipseInputVisibleCellsUi.h"
+#include "ExportCommands/RicExportEclipseInputGridFeature.h"
+#include "ExportCommands/RicExportEclipseInputGridUi.h"
 #include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
 
@@ -98,25 +98,26 @@ void RicfExportVisibleCells::execute()
 
     RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
 
-    RicSaveEclipseInputVisibleCellsUi exportSettings;
+    RicExportEclipseInputGridUi exportSettings(eclipseView->eclipseCase()->eclipseCaseData());
     buildExportSettings(exportFolder, &exportSettings);
-    RicSaveEclipseInputVisibleCellsFeature::executeCommand(eclipseView, exportSettings, "exportVisibleCells");
+    RicExportEclipseInputGridFeature::executeCommand(eclipseView, exportSettings, "exportVisibleCells");
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfExportVisibleCells::buildExportSettings(const QString& exportFolder, RicSaveEclipseInputVisibleCellsUi* exportSettings)
+void RicfExportVisibleCells::buildExportSettings(const QString& exportFolder, RicExportEclipseInputGridUi* exportSettings)
 {
     QDir baseDir(exportFolder);
-    exportSettings->exportFilename = baseDir.absoluteFilePath(QString("%1.grdecl").arg(m_exportKeyword().text()));
+    exportSettings->exportResultsFilename = baseDir.absoluteFilePath(QString("%1.grdecl").arg(m_exportKeyword().text()));
 
-    if (m_exportKeyword == ExportKeyword::FLUXNUM)
+/*
+if (m_exportKeyword == ExportKeyword::FLUXNUM)
         exportSettings->exportKeyword = RicSaveEclipseInputVisibleCellsUi::FLUXNUM;
     else if (m_exportKeyword == ExportKeyword::MULTNUM)
         exportSettings->exportKeyword = RicSaveEclipseInputVisibleCellsUi::MULTNUM;
 
     exportSettings->visibleActiveCellsValue = m_visibleActiveCellsValue;
     exportSettings->hiddenActiveCellsValue  = m_hiddenActiveCellsValue;
-    exportSettings->inactiveCellsValue      = m_inactiveCellsValue;
+    exportSettings->inactiveCellsValue      = m_inactiveCellsValue; */
 }

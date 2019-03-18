@@ -171,6 +171,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicCreateGridCrossPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
+            menuBuilder << "RicExportEclipseInputGridFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
         }
         else if (dynamic_cast<RimEclipseContourMapViewCollection*>(uiItem))
@@ -231,6 +232,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipseCellColors*>(uiItem))
         {
             menuBuilder << "RicSaveEclipseResultAsInputPropertyFeature";
+            menuBuilder << "RicExportEclipseInputGridFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
             menuBuilder << "RicCreateGridCrossPlotFeature";
         }
