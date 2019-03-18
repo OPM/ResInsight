@@ -19,8 +19,10 @@
 #include "RicExitApplicationFeature.h"
 
 #include "RiaApplication.h"
+#include "RiuMainWindow.h"
 
 #include <QAction>
+#include <QDebug>
 
 CAF_CMD_SOURCE_INIT(RicExitApplicationFeature, "RicExitApplicationFeature");
 
@@ -42,7 +44,13 @@ void RicExitApplicationFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     if (!app->askUserToSaveModifiedProject()) return;
 
-    app->closeAllWindows();
+    // Hide all windows first to make sure they get closed properly
+    for (QWidget* topLevelWidget : app->topLevelWidgets())
+    {
+        topLevelWidget->hide();
+    }
+    // Close just the main window, it'll take care of closing the plot window
+    app->mainWindow()->close();
 }
 
 //--------------------------------------------------------------------------------------------------

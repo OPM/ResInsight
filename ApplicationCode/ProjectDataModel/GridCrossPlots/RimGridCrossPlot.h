@@ -70,10 +70,12 @@ public:
     void                 detachAllCurves();
     void                 performAutoNameUpdate() override;
     void                 updateCurveNamesAndPlotTitle();
-    void                 swapAllAxisProperties();
+    void                 swapAxes();
     QString              asciiTitleForPlotExport(int curveSetIndex) const;
     QString              asciiDataForPlotExport(int curveSetIndex) const;
     RiuGridCrossQwtPlot* qwtPlot() const;
+    bool                 isXAxisLogarithmic() const;
+    bool                 isYAxisLogarithmic() const;
 
 public:
     // Rim2dPlotInterface overrides
@@ -96,13 +98,13 @@ protected:
                                                         bool*                      useOptionsOnly) override;
 
     void updatePlot();
-    void updateCurveNames();
 
     QString xAxisParameterString() const;
     QString yAxisParameterString() const;
 
     void updateAxisInQwt(RiaDefines::PlotAxis axisType);
     void updateAxisFromQwt(RiaDefines::PlotAxis axisType);
+    std::vector<const QwtPlotCurve*> visibleQwtCurves() const;
 
 private:
     caf::PdmField<bool>                                m_showLegend;
@@ -115,7 +117,7 @@ private:
     caf::PdmChildArrayField<RimGridCrossPlotCurveSet*> m_crossPlotCurveSets;
 
     QPointer<RiuGridCrossQwtPlot>                      m_qwtPlot;
-    
+        
 };
 
 

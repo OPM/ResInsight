@@ -269,7 +269,7 @@ void RimGridCrossPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::updateAxisScaling()
 {
-    updateAxisDisplay();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -383,13 +383,11 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
     for (auto curveSet : m_crossPlotCurveSets)
     {
         curveSet->loadDataAndUpdate(false);
+        curveSet->updateConnectedEditors();
     }
 
     updateCurveNamesAndPlotTitle();
-    updateAllRequiredEditors();
-    
-    updatePlot();
-    
+    updatePlot();    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -525,13 +523,29 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::swapAllAxisProperties()
+void RimGridCrossPlot::swapAxes()
 {
+    RimPlotAxisProperties* xAxisProperties = m_xAxisProperties();
+    RimPlotAxisProperties* yAxisProperties = m_yAxisProperties();
+
+    QString tmpName       = xAxisProperties->name();
+    QwtPlot::Axis tmpAxis = xAxisProperties->qwtPlotAxisType();
+    xAxisProperties->setNameAndAxis(yAxisProperties->name(), yAxisProperties->qwtPlotAxisType());
+    yAxisProperties->setNameAndAxis(tmpName, tmpAxis);
+
+    m_xAxisProperties.removeChildObject(xAxisProperties);
+    m_yAxisProperties.removeChildObject(yAxisProperties);
+    m_yAxisProperties = xAxisProperties;
+    m_xAxisProperties = yAxisProperties;
+
     for (auto curveSet : m_crossPlotCurveSets)
     {
         curveSet->swapAxisProperties(false);
     }
+
     loadDataAndUpdate();
+    
+    updateAxisDisplay();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -562,7 +576,6 @@ QString RimGridCrossPlot::asciiDataForPlotExport(int curveSetIndex) const
         formatter.setTableRowLineAppendText("");
         formatter.setColumnSpacing(3);
 
-
         m_crossPlotCurveSets[curveSetIndex]->exportFormattedData(formatter);
         formatter.tableCompleted();
         return asciiData;
@@ -579,6 +592,22 @@ QString RimGridCrossPlot::asciiDataForPlotExport(int curveSetIndex) const
 RiuGridCrossQwtPlot* RimGridCrossPlot::qwtPlot() const
 {
     return m_qwtPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCrossPlot::isXAxisLogarithmic() const
+{
+    return m_xAxisProperties->isLogarithmicScaleEnabled();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCrossPlot::isYAxisLogarithmic() const
+{
+    return m_yAxisProperties->isLogarithmicScaleEnabled();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -676,6 +705,25 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
                 m_qwtPlot->setAxisScaleEngine(axisProperties->qwtPlotAxisType(), new QwtLogScaleEngine);
                 m_qwtPlot->setAxisMaxMinor(axisProperties->qwtPlotAxisType(), 5);
             }
+
+            if (axisProperties->isAutoZoom())
+            {
+                std::vector<const QwtPlotCurve*> plotCurves = visibleQwtCurves();
+
+                double min, max;
+                RimPlotAxisLogRangeCalculator logRangeCalculator(qwtAxisId, plotCurves);
+                logRangeCalculator.computeAxisRange(&min, &max);
+                if (axisProperties->isAxisInverted())
+                {
+                    std::swap(min, max);
+                }
+
+                m_qwtPlot->setAxisScale(qwtAxisId, min, max);
+            }
+            else
+            {
+                m_qwtPlot->setAxisScale(qwtAxisId, axisProperties->visibleRangeMin, axisProperties->visibleRangeMax);
+            }
         }
         else
         {
@@ -686,19 +734,17 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
                 m_qwtPlot->setAxisScaleEngine(axisProperties->qwtPlotAxisType(), new QwtLinearScaleEngine);
                 m_qwtPlot->setAxisMaxMinor(axisProperties->qwtPlotAxisType(), 3);
             }
+
+            if (axisProperties->isAutoZoom())
+            {
+                m_qwtPlot->setAxisAutoScale(qwtAxisId);
+            }
+            else
+            {
+                m_qwtPlot->setAxisScale(qwtAxisId, axisProperties->visibleRangeMin, axisProperties->visibleRangeMax);
+            }
         }
         m_qwtPlot->axisScaleEngine(axisProperties->qwtPlotAxisType())->setAttribute(QwtScaleEngine::Inverted, axisProperties->isAxisInverted());
-
-        if (axisProperties->isAutoZoom())
-        {
-            m_qwtPlot->setAxisAutoScale(qwtAxisId);
-        }
-        else
-        {
-            m_qwtPlot->setAxisScale(qwtAxisId, axisProperties->visibleRangeMin, axisProperties->visibleRangeMax);
-        }
-
-
     }
     else
     {
@@ -729,6 +775,28 @@ void RimGridCrossPlot::updateAxisFromQwt(RiaDefines::PlotAxis axisType)
     axisProperties->visibleRangeMax = axisRange.maxValue();
 
     axisProperties->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<const QwtPlotCurve*> RimGridCrossPlot::visibleQwtCurves() const
+{
+    std::vector<const QwtPlotCurve*> plotCurves;
+    for (auto curveSet : m_crossPlotCurveSets)
+    {
+        if (curveSet->isChecked())
+        {
+            for (auto curve : curveSet->curves())
+            {
+                if (curve->isCurveVisible())
+                {
+                    plotCurves.push_back(curve->qwtPlotCurve());
+                }
+            }
+        }
+    }
+    return plotCurves;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -239,12 +239,11 @@ void RimEclipseCellColors::uiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::setReservoirView(RimEclipseView* ownerReservoirView)
 {
+    m_reservoirView = ownerReservoirView;
     if (ownerReservoirView)
     {
         this->setEclipseCase(ownerReservoirView->eclipseCase());
     }
-
-    m_reservoirView = ownerReservoirView;
 }
 
 //--------------------------------------------------------------------------------------------------

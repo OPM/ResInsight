@@ -40,7 +40,7 @@ void RicSwapGridCrossPlotCurveSetAxesFeature::onActionTriggered(bool isChecked)
     else if (caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlot>())
     {
         auto plot = caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlot>();
-        plot->swapAllAxisProperties();
+        plot->swapAxes();
     }
 }
 

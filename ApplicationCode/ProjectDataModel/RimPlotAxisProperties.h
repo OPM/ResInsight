@@ -59,7 +59,9 @@ public:
 
     void                 setEnableTitleTextSettings(bool enable);
     void                 setNameAndAxis(const QString& name, QwtPlot::Axis axis);
+    
     QwtPlot::Axis        qwtPlotAxisType() const;
+    QString              name() const;
     RiaDefines::PlotAxis plotAxisType() const;
     bool                 useAutoTitle() const;
     bool                 showDescription() const;
@@ -116,4 +118,26 @@ private:
     bool                   m_enableTitleTextSettings;
 
     caf::PdmChildArrayField<RimPlotAxisAnnotation*> m_annotations;
+};
+
+class QwtPlotCurve;
+
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RimPlotAxisLogRangeCalculator
+{
+public:
+    RimPlotAxisLogRangeCalculator(QwtPlot::Axis                           axis,
+                                  const std::vector<const QwtPlotCurve*>& qwtCurves);
+
+    void computeAxisRange(double* minPositive, double* max) const;
+
+private:
+    bool curveValueRange(const QwtPlotCurve* qwtCurve, double* minPositive, double* max) const;
+
+private:
+    QwtPlot::Axis                          m_axis;
+    const std::vector<const QwtPlotCurve*> m_curves;
 };

@@ -406,6 +406,10 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
     RigEclipseCrossPlotResult result = RigEclipseCrossPlotDataExtractor::extract(
         eclipseCase->eclipseCaseData(), m_timeStep(), xAddress, yAddress, m_grouping(), groupAddress, timeStepCellVisibilityMap);
 
+    if (isXAxisLogarithmic() || isYAxisLogarithmic())
+    {
+        filterInvalidCurveValues(&result);
+    }
     createCurves(result);
 
     if (updateParentPlot)
@@ -880,6 +884,26 @@ void RimGridCrossPlotCurveSet::exportFormattedData(RifEclipseDataTableFormatter&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimGridCrossPlotCurveSet::isXAxisLogarithmic() const
+{
+    RimGridCrossPlot* parent = nullptr;
+    firstAncestorOrThisOfTypeAsserted(parent);
+    return parent->isXAxisLogarithmic();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCrossPlotCurveSet::isYAxisLogarithmic() const
+{
+    RimGridCrossPlot* parent = nullptr;
+    firstAncestorOrThisOfTypeAsserted(parent);
+    return parent->isYAxisLogarithmic();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::triggerPlotNameUpdateAndReplot()
 {
     RimGridCrossPlot* parent;
@@ -999,6 +1023,42 @@ bool RimGridCrossPlotCurveSet::hasMultipleTimeSteps() const
 {
     return m_timeStep() == -1 && (m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult());
 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::filterInvalidCurveValues(RigEclipseCrossPlotResult* result)
+{
+    bool xLog = isXAxisLogarithmic();
+    bool yLog = isYAxisLogarithmic();
+
+    if (xLog || yLog)
+    {
+
+        RigEclipseCrossPlotResult validResult;
+        for (size_t i = 0; i < result->xValues.size(); ++i)
+        {
+            double xValue = result->xValues[i];
+            double yValue = result->yValues[i];
+            bool invalid = (xLog && xValue <= 0.0) || (yLog && yValue <= 0.0);
+            if (!invalid)
+            {
+                validResult.xValues.push_back(xValue);
+                validResult.yValues.push_back(yValue);
+                if (i < result->groupValuesContinuous.size())
+                {
+                    validResult.groupValuesContinuous.push_back(result->groupValuesContinuous[i]);
+                }
+                if (i < result->groupValuesDiscrete.size())
+                {
+                    validResult.groupValuesDiscrete.push_back(result->groupValuesDiscrete[i]);
+                }
+            }
+        }
+
+        *result = validResult;
+    }
 }
 
 CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSetNameConfig, "RimGridCrossPlotCurveSetNameConfig");
