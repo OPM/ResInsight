@@ -30,6 +30,9 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
+
 #include <cvfArray.h>
 
 #include <QList>
@@ -122,6 +125,7 @@ public:
     bool isYAxisLogarithmic() const;
 
     void setFromCaseAndEquilibriumRegion(RimEclipseResultCase* eclipseResultCase, const QString& dynamicResultName);
+    void setCustomColor(const cvf::Color3f color);
 
 protected:
     void initAfterRead() override;
@@ -162,4 +166,6 @@ private:
 
     std::map<int, RigEclipseCrossPlotResult>        m_groupedResults;
     
+    caf::PdmField<bool>                             m_useCustomColor;
+    caf::PdmField<cvf::Color3f>                     m_customColor;
 };

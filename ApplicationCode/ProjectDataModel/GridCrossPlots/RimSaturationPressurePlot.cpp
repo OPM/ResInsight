@@ -38,17 +38,27 @@ RimSaturationPressurePlot::RimSaturationPressurePlot()
 //--------------------------------------------------------------------------------------------------
 void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RimEclipseResultCase* eclipseResultCase, int equilibriumRegion)
 {
+    nameConfig()->addDataSetNames = false;
+    
+    QString caseName = eclipseResultCase->caseUserDescription();
+    QString plotTitle = QString("%1 - EQLNUM %2").arg(caseName).arg(equilibriumRegion);
+
+    nameConfig()->setCustomName(plotTitle);
+
     {
         RimGridCrossPlotCurveSet* curveSet = createCurveSet();
         curveSet->setFromCaseAndEquilibriumRegion(eclipseResultCase, "PRESSURE");
+        curveSet->setCustomColor(cvf::Color3::BLUE);
     }
     {
         RimGridCrossPlotCurveSet* curveSet = createCurveSet();
         curveSet->setFromCaseAndEquilibriumRegion(eclipseResultCase, "PDEW");
+        curveSet->setCustomColor(cvf::Color3::RED);
     }
     {
         RimGridCrossPlotCurveSet* curveSet = createCurveSet();
         curveSet->setFromCaseAndEquilibriumRegion(eclipseResultCase, "PBUB");
+        curveSet->setCustomColor(cvf::Color3::GREEN);
     }
 
     RimPlotAxisProperties* yAxisProps = yAxisProperties();

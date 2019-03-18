@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimGridCrossPlotCurveSet.h"
 
 #include "RiaApplication.h"
@@ -113,6 +114,9 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
 
     CAF_PDM_InitFieldNoDefault(&m_crossPlotCurves, "CrossPlotCurves", "Curves", "", "", "");
     m_crossPlotCurves.uiCapability()->setUiTreeHidden(true);
+
+    CAF_PDM_InitField(&m_useCustomColor, "UseCustomColor", false, "Use Custom Color", "", "", "");
+    CAF_PDM_InitField(&m_customColor, "CustomColor", cvf::Color3f(cvf::Color3f::BLACK), "Custom Color", "", "", "");
 
     setDefaults();
 }
@@ -427,11 +431,18 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
     m_groupedResults.clear();
     if (!groupingEnabled())
     {
-        const caf::ColorTable& colors     = RiaColorTables::contrastCategoryPaletteColors();
-        int                    colorIndex = indexInPlot();
 
         RimGridCrossPlotCurve* curve = new RimGridCrossPlotCurve();
-        curve->setColor(colors.cycledColor3f(colorIndex));
+        if (m_useCustomColor)
+        {
+            curve->setColor(m_customColor());
+        }
+        else
+        {
+            const caf::ColorTable& colors     = RiaColorTables::contrastCategoryPaletteColors();
+            int                    colorIndex = indexInPlot();
+            curve->setColor(colors.cycledColor3f(colorIndex));
+        }
         curve->setGroupingInformation(indexInPlot(), 0);
         curve->setSamples(result.xValues, result.yValues);
         curve->updateCurveAppearance();
@@ -916,6 +927,18 @@ void RimGridCrossPlotCurveSet::setFromCaseAndEquilibriumRegion(RimEclipseResultC
     m_yAxisProperty->setEclipseCase(eclipseCase);
     m_yAxisProperty->setResultType(RiaDefines::STATIC_NATIVE);
     m_yAxisProperty->setResultVariable("DEPTH");
+
+    m_grouping = NO_GROUPING;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::setCustomColor(const cvf::Color3f color)
+{
+    m_useCustomColor = true;
+    m_customColor = color;
+
 }
 
 //--------------------------------------------------------------------------------------------------
