@@ -151,6 +151,8 @@ QImage RimGridCrossPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::zoomAll()
 {
+    if (!m_qwtPlot) return;
+
     setAutoZoomForAllAxes(true);
     updateAxisInQwt(RiaDefines::PLOT_AXIS_LEFT);
     updateAxisInQwt(RiaDefines::PLOT_AXIS_BOTTOM);
@@ -277,6 +279,8 @@ void RimGridCrossPlot::updateAxisScaling()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::updateAxisDisplay()
 {
+    if (!m_qwtPlot) return;
+
     updateAxisInQwt(RiaDefines::PLOT_AXIS_BOTTOM);
     updateAxisInQwt(RiaDefines::PLOT_AXIS_LEFT);
     
@@ -663,6 +667,8 @@ QString RimGridCrossPlot::yAxisParameterString() const
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
 {
+    if (!m_qwtPlot) return;
+
     RimPlotAxisProperties* axisProperties      = m_xAxisProperties();
     QString                axisParameterString = xAxisParameterString();
 
@@ -797,6 +803,22 @@ std::vector<const QwtPlotCurve*> RimGridCrossPlot::visibleQwtCurves() const
         }
     }
     return plotCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimPlotAxisProperties* RimGridCrossPlot::xAxisProperties()
+{
+    return m_xAxisProperties();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimPlotAxisProperties* RimGridCrossPlot::yAxisProperties()
+{
+    return m_yAxisProperties();
 }
 
 //--------------------------------------------------------------------------------------------------

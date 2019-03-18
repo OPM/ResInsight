@@ -78,6 +78,18 @@ void RimPlotAxisAnnotation::setValue(double value)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotAxisAnnotation::setEquilibriumData(RimEclipseCase*        eclipseCase,
+                                               int                    equilibriumRegion,
+                                               PlotAxisAnnotationType annotationType)
+{
+    m_sourceCase     = eclipseCase;
+    m_equilNum       = equilibriumRegion;
+    m_annotationType = annotationType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimPlotAxisAnnotation::name() const
 {
     if (m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT)
@@ -166,7 +178,7 @@ QList<caf::PdmOptionItemInfo> RimPlotAxisAnnotation::calculateValueOptions(const
     {
         for (int i = 0; i < equilItems().size(); i++)
         {
-            QString uiText = QString("%1").arg(i+1);
+            QString uiText = QString("%1").arg(i + 1);
             options.push_back(caf::PdmOptionItemInfo(uiText, i));
         }
     }
@@ -200,7 +212,7 @@ void RimPlotAxisAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 RigEquil RimPlotAxisAnnotation::selectedItem() const
 {
-    int index = m_equilNum() -1;
+    int index = m_equilNum() - 1;
 
     if (index < equilItems().size())
     {

@@ -95,6 +95,7 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
+#include "RimSaturationPressurePlotCollection.h"
 
 #include "RimEllipseFractureTemplate.h"
 #include "RimStimPlanFractureTemplate.h"
@@ -469,6 +470,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimGridCrossPlotCollection*>(uiItem))
         {
             menuBuilder << "RicCreateGridCrossPlotFeature";
+        }
+        else if (dynamic_cast<RimSaturationPressurePlotCollection*>(uiItem))
+        {
+            menuBuilder << "RicCreateSaturationPressurePlotsFeature";
         }
         else if (dynamic_cast<RimGridCrossPlot*>(uiItem))
         {

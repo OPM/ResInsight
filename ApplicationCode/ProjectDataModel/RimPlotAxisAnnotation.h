@@ -50,6 +50,8 @@ public:
     void setName(const QString& name);
     void setValue(double value);
 
+    void setEquilibriumData(RimEclipseCase* eclipseCase, int equilibriumRegion, PlotAxisAnnotationType annotationType);
+
     QString name() const;
     double  value() const;
 
@@ -65,17 +67,16 @@ protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    RigEquil selectedItem() const;
+    RigEquil              selectedItem() const;
     std::vector<RigEquil> equilItems() const;
 
 private:
     caf::PdmField<ExportKeywordEnum> m_annotationType;
-    
-    caf::PdmField<bool> m_isActive;
+
+    caf::PdmField<bool>    m_isActive;
     caf::PdmField<QString> m_name;
     caf::PdmField<double>  m_value;
 
     caf::PdmPtrField<RimEclipseCase*> m_sourceCase;
-    caf::PdmField<int> m_equilNum;
-
+    caf::PdmField<int>                m_equilNum;
 };

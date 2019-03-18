@@ -99,7 +99,7 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "", "", "", "");
 
     m_annotations.uiCapability()->setUiHidden(true);
-    m_annotations.uiCapability()->setUiTreeChildrenHidden(true);
+//     m_annotations.uiCapability()->setUiTreeChildrenHidden(true);
 
     updateOptionSensitivity();
 }
@@ -317,11 +317,35 @@ std::vector<RimPlotAxisAnnotation*> RimPlotAxisProperties::annotations() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::appendAnnotation(RimPlotAxisAnnotation* annotation)
+{
+    m_annotations.push_back(annotation);
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimPlotAxisProperties::isActive() const
 {
     return m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setInvertedAxis(bool enable)
+{
+    m_isAxisInverted = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::showAnnotationObjectsInProjectTree()
+{
+    m_annotations.uiCapability()->setUiTreeChildrenHidden(false);
 }
 
 //--------------------------------------------------------------------------------------------------

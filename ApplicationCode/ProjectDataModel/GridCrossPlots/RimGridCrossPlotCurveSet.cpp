@@ -56,6 +56,7 @@
 #include "cvfqtUtils.h"
 
 #include <QString>
+#include "RimEclipseResultCase.h"
 
 CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSet, "GridCrossPlotCurveSet");
 
@@ -899,6 +900,22 @@ bool RimGridCrossPlotCurveSet::isYAxisLogarithmic() const
     RimGridCrossPlot* parent = nullptr;
     firstAncestorOrThisOfTypeAsserted(parent);
     return parent->isYAxisLogarithmic();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::setFromCaseAndEquilibriumRegion(RimEclipseResultCase* eclipseCase, const QString& dynamicResultName)
+{
+    m_case = eclipseCase;
+
+    m_xAxisProperty->setEclipseCase(eclipseCase);
+    m_xAxisProperty->setResultType(RiaDefines::DYNAMIC_NATIVE);
+    m_xAxisProperty->setResultVariable(dynamicResultName);
+
+    m_yAxisProperty->setEclipseCase(eclipseCase);
+    m_yAxisProperty->setResultType(RiaDefines::STATIC_NATIVE);
+    m_yAxisProperty->setResultVariable("DEPTH");
 }
 
 //--------------------------------------------------------------------------------------------------

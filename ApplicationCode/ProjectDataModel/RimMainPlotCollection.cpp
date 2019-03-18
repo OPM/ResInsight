@@ -19,13 +19,14 @@
 
 #include "RimMainPlotCollection.h"
 
-#include "RimGridCrossPlot.h"
-#include "RimGridCrossPlotCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
+#include "RimGridCrossPlot.h"
+#include "RimGridCrossPlotCollection.h"
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
+#include "RimSaturationPressurePlotCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimViewWindow.h"
@@ -70,6 +71,9 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault(&m_gridCrossPlotCollection, "Rim3dCrossPlotCollection", "3d Cross Plots", "", "", "");
     m_gridCrossPlotCollection.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_saturationPressurePlotCollection, "RimSaturationPressurePlotCollection", "Saturation Pressure Plots", "", "", "");
+    m_saturationPressurePlotCollection.uiCapability()->setUiHidden(true);
+
     m_wellLogPlotCollection         = new RimWellLogPlotCollection();
     m_rftPlotCollection             = new RimRftPlotCollection();
     m_pltPlotCollection             = new RimPltPlotCollection();
@@ -77,6 +81,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_summaryCrossPlotCollection    = new RimSummaryCrossPlotCollection();
     m_flowPlotCollection            = new RimFlowPlotCollection();
     m_gridCrossPlotCollection       = new RimGridCrossPlotCollection;
+    m_saturationPressurePlotCollection = new RimSaturationPressurePlotCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,6 +166,14 @@ RimGridCrossPlotCollection* RimMainPlotCollection::gridCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimSaturationPressurePlotCollection* RimMainPlotCollection::saturationPressurePlotCollection()
+{
+    return m_saturationPressurePlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::deleteAllContainedObjects()
 {
     m_wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
@@ -170,6 +183,7 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_summaryCrossPlotCollection()->deleteAllChildObjects();
     m_gridCrossPlotCollection->deleteAllChildObjects();
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
+    m_saturationPressurePlotCollection()->deleteAllChildObjects();
 }
 
 

@@ -72,6 +72,7 @@ public:
     bool                 isAxisInverted() const;
 
     std::vector<RimPlotAxisAnnotation*> annotations() const;
+    void appendAnnotation(RimPlotAxisAnnotation* annotation);
 
     caf::PdmField<QString>                             customTitle;
     caf::PdmField<int>                                 titleFontSize;
@@ -87,6 +88,9 @@ public:
     caf::PdmField<int>                            valuesFontSize;
 
     bool isActive() const;
+
+    void setInvertedAxis(bool enable);
+    void showAnnotationObjectsInProjectTree();
     
 protected:
     void                 initAfterRead() override;

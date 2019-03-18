@@ -15,31 +15,25 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "RimGridCrossPlot.h"
 
-class RimGridCrossPlot;
+class RimEclipseResultCase;
 
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 ///
-///
-//==================================================================================================
-class RimGridCrossPlotCollection : public caf::PdmObject
+//--------------------------------------------------------------------------------------------------
+class RimSaturationPressurePlot : public RimGridCrossPlot
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGridCrossPlotCollection();
-    ~RimGridCrossPlotCollection() override;
+    RimSaturationPressurePlot();
 
-    void deleteAllChildObjects();
+    void assignCaseAndEquilibriumRegion(RimEclipseResultCase* eclipseResultCase, int equilibriumRegion);
 
-    std::vector<RimGridCrossPlot*> gridCrossPlots() const;
-    RimGridCrossPlot*              createGridCrossPlot();
-    void                           addGridCrossPlot(RimGridCrossPlot* plot);
-
-private:
-    caf::PdmChildArrayField<RimGridCrossPlot*> m_gridCrossPlots;
+protected:
+    void initAfterRead() override;
 };

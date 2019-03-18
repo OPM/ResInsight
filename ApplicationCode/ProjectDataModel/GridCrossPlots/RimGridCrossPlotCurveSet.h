@@ -40,6 +40,7 @@ class RimCase;
 class RimGridCrossPlotCurve;
 class RimGridView;
 class RimEclipseCase;
+class RimEclipseResultCase;
 class RimEclipseCellColors;
 class RimEclipseResultDefinition;
 class RimRegularLegendConfig;
@@ -119,6 +120,8 @@ public:
 
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;
+
+    void setFromCaseAndEquilibriumRegion(RimEclipseResultCase* eclipseResultCase, const QString& dynamicResultName);
 
 protected:
     void initAfterRead() override;
