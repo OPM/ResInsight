@@ -99,8 +99,7 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "", "", "", "");
 
     m_annotations.uiCapability()->setUiHidden(true);
-    m_annotations.push_back(new RimPlotAxisAnnotation);
-    m_annotations.push_back(new RimPlotAxisAnnotation);
+    m_annotations.uiCapability()->setUiTreeChildrenHidden(true);
 
     updateOptionSensitivity();
 }
