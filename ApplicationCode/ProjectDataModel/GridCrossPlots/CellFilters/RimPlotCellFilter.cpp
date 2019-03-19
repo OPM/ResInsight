@@ -44,7 +44,10 @@ RimPlotCellFilter::RimPlotCellFilter()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCellFilter::updateCellVisibility(size_t timeStepIndex, cvf::UByteArray* cellVisibility)
 {
-    updateCellVisibilityFromFilter(timeStepIndex, cellVisibility);
+    if (isChecked())
+    {
+        updateCellVisibilityFromFilter(timeStepIndex, cellVisibility);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

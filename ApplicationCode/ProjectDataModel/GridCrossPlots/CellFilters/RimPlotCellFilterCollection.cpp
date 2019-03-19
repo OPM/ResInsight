@@ -18,6 +18,9 @@
 
 #include "RimPlotCellFilterCollection.h"
 
+#include "RimEclipseResultCase.h"
+#include "RimEclipseResultDefinition.h"
+
 CAF_PDM_SOURCE_INIT(RimPlotCellFilterCollection, "RimPlotCellFilterCollection");
 
 //--------------------------------------------------------------------------------------------------
@@ -40,7 +43,7 @@ void RimPlotCellFilterCollection::addCellFilter(RimPlotCellFilter* cellFilter)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RimPlotCellFilterCollection::cellFilterCount() const
 {
@@ -48,11 +51,32 @@ size_t RimPlotCellFilterCollection::cellFilterCount() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotCellFilterCollection::computeCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility)
 {
-    updateCellVisibilityFromFilter(timeStepIndex, cellVisibility);
+    if (isChecked())
+    {
+        updateCellVisibilityFromFilter(timeStepIndex, cellVisibility);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCellFilterCollection::setCase(RimCase* gridCase)
+{
+    RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(gridCase);
+    if (eclipseResultCase)
+    {
+        std::vector<RimEclipseResultDefinition*> resultDefinitions;
+
+        this->descendantsIncludingThisOfType(resultDefinitions);
+        for (auto r : resultDefinitions)
+        {
+            r->setEclipseCase(eclipseResultCase);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,7 +86,9 @@ void RimPlotCellFilterCollection::updateCellVisibilityFromFilter(size_t timeStep
 {
     for (RimPlotCellFilter* f : m_cellFilters())
     {
-        f->updateCellVisibility(timeStepIndex, cellVisibility);
+        if (f->isChecked())
+        {
+            f->updateCellVisibility(timeStepIndex, cellVisibility);
+        }
     }
 }
-

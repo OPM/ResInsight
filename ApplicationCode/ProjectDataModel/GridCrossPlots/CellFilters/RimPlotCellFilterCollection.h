@@ -22,6 +22,8 @@
 
 #include "cafPdmChildArrayField.h"
 
+class RimCase;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -36,6 +38,8 @@ public:
     size_t cellFilterCount() const;
 
     void computeCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility);
+
+    void setCase(RimCase* gridCase);
 
 protected:
     void updateCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility) override;

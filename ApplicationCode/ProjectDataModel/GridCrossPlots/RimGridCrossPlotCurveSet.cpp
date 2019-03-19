@@ -368,6 +368,7 @@ void RimGridCrossPlotCurveSet::initAfterRead()
         m_xAxisProperty->setEclipseCase(eclipseCase);
         m_yAxisProperty->setEclipseCase(eclipseCase);
         m_groupingProperty->setEclipseCase(eclipseCase);
+        m_plotCellFilterCollection->setCase(eclipseCase);
     }
 }
 
