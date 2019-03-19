@@ -609,6 +609,14 @@ bool RimGridCrossPlot::isYAxisLogarithmic() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::setYAxisInverted(bool inverted)
+{
+    m_yAxisProperties->setAxisInverted(inverted);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlot::xAxisParameterString() const
 {
     QStringList xAxisParams;

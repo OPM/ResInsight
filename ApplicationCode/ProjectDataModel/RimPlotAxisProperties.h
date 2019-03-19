@@ -68,6 +68,7 @@ public:
     bool                 isAutoZoom() const;
     void                 setAutoZoom(bool enableAutoZoom);
     bool                 isAxisInverted() const;
+    void                 setAxisInverted(bool inverted);
 
     caf::PdmField<QString>                             customTitle;
     caf::PdmField<int>                                 titleFontSize;

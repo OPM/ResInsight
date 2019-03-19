@@ -122,7 +122,29 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
 void RimGridCrossPlotCurveSet::setCellFilterView(RimGridView* cellFilterView)
 {
     m_cellFilterView = cellFilterView;
-    m_groupingProperty->setReservoirView(dynamic_cast<RimEclipseView*>(m_cellFilterView()));
+    auto eclipseView = dynamic_cast<RimEclipseView*>(m_cellFilterView());
+
+    if (eclipseView)
+    {
+        m_groupingProperty->setReservoirView(eclipseView);
+        RigEclipseResultAddress resAddr = eclipseView->cellResult()->eclipseResultAddress();
+        if (resAddr.isValid())
+        {
+            m_xAxisProperty->setResultType(resAddr.m_resultCatType);
+            m_xAxisProperty->setResultVariable(resAddr.m_resultName);
+            m_yAxisProperty->setResultType(RiaDefines::STATIC_NATIVE);
+            m_yAxisProperty->setResultVariable("DEPTH");            
+            m_timeStep = eclipseView->currentTimeStep();
+            m_grouping = NO_GROUPING;
+
+            RimGridCrossPlot* parentPlot = nullptr;
+            firstAncestorOrThisOfType(parentPlot);
+            if (parentPlot)
+            {
+                parentPlot->setYAxisInverted(true);
+            }
+        }
+    }    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -980,11 +1002,11 @@ void RimGridCrossPlotCurveSet::setDefaults()
             m_yAxisProperty->setEclipseCase(eclipseCase);
             m_groupingProperty->setEclipseCase(eclipseCase);
 
-            m_xAxisProperty->setResultType(RiaDefines::DYNAMIC_NATIVE);
-            m_xAxisProperty->setResultVariable("SOIL");
+            m_xAxisProperty->setResultType(RiaDefines::STATIC_NATIVE);
+            m_xAxisProperty->setResultVariable("PORO");
 
-            m_yAxisProperty->setResultType(RiaDefines::DYNAMIC_NATIVE);
-            m_yAxisProperty->setResultVariable("PRESSURE");
+            m_yAxisProperty->setResultType(RiaDefines::STATIC_NATIVE);
+            m_yAxisProperty->setResultVariable("PERMX");
         }
     }    
 }

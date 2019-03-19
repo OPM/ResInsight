@@ -76,7 +76,7 @@ public:
     RiuGridCrossQwtPlot* qwtPlot() const;
     bool                 isXAxisLogarithmic() const;
     bool                 isYAxisLogarithmic() const;
-
+    void                 setYAxisInverted(bool inverted);
 public:
     // Rim2dPlotInterface overrides
     void updateAxisScaling() override;
