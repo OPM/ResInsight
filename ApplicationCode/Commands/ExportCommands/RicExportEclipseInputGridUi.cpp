@@ -205,7 +205,7 @@ QList<caf::PdmOptionItemInfo>
         std::set<QString> mainKeywords = this->mainKeywords();
         for (caf::PdmOptionItemInfo option : allOptions)
         {
-            if (!mainKeywords.count(option.optionUiText()))
+            if (!mainKeywords.count(option.optionUiText()) && option.optionUiText() != "None")
             {
                 if (option.optionUiText() == "ACTNUM" && exportGrid())
                 {

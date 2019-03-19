@@ -531,7 +531,13 @@ bool RifReaderEclipseOutput::saveEclipseResults(const QString&              resu
         }
         else
         {
-            ecl_kw = ecl_kw_alloc_new(keyword.toLatin1().data(), (int) filteredResults.size(), ECL_DOUBLE, filteredResults.data());
+            std::vector<float> resultValuesFloat;
+            resultValuesFloat.reserve(filteredResults.size());
+            for (double val : filteredResults)
+            {
+                resultValuesFloat.push_back(static_cast<float>(val));
+            }
+            ecl_kw = ecl_kw_alloc_new(keyword.toLatin1().data(), (int) resultValuesFloat.size(), ECL_FLOAT, resultValuesFloat.data());
         }
          
         ecl_kw_fprintf_grdecl(ecl_kw, filePtr);
