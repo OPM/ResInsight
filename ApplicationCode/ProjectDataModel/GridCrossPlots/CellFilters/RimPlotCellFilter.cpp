@@ -36,7 +36,7 @@ CAF_PDM_ABSTRACT_SOURCE_INIT(RimPlotCellFilter, "RimPlotCellFilter");
 //--------------------------------------------------------------------------------------------------
 RimPlotCellFilter::RimPlotCellFilter()
 {
-    CAF_PDM_InitFieldNoDefault(&m_filterType, "FilterType", "Filter Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_filterMode, "FilterMode", "Filter Mode", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ void RimPlotCellFilter::updateCellVisibility(size_t timeStepIndex, cvf::UByteArr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotCellFilter::FilterModeType RimPlotCellFilter::filterType() const
+RimPlotCellFilter::FilterModeType RimPlotCellFilter::filterMode() const
 {
-    return m_filterType();
+    return m_filterMode();
 }

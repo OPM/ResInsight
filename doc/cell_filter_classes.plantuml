@@ -1,13 +1,27 @@
 @startuml
-package Rim {
 
 PdmObject <|-- RimPlotCellFilter
-RimPlotCellFilter <|-- RimPlotCellRangeFilter
-RimPlotCellFilter <|-- RimPlotCellPropertyFilter
-RimPlotCellFilter <|-- RimPlotCellRegionFilter
+
 
 class RimPlotCellFilter
 {
- bool isCellAcceptedByFilter(size_t reservoirCellIndex);
+    void updateCellVisibilityFromFilter(size_t timeStepIndex,
+    cvf::UByteArray* cellVisibility)
+    
+    FilterModeType filterMode() const;
 }
+
+RimPlotCellFilter <|-- RimPlotCellPropertyFilter
+RimPlotCellFilter <|-- RimPlotCellFilterCollection
+
+RimPlotCellFilterCollection -> RimPlotCellFilter
+class RimPlotCellFilterCollection
+{
+  std::vector<RimCellFilter*> m_filters
+}
+
+RimPlotCellFilter <|-- RimPlotCellRegionFilter_planned
+RimPlotCellFilter <|-- RimPlotCellRangeFilter_planned
+
+
 @enduml

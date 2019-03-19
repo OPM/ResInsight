@@ -128,14 +128,14 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter(size_t timeStepIn
                     double scalarValue = cellResultValues[cellResultIndex];
                     if (lowerBound <= scalarValue && scalarValue <= upperBound)
                     {
-                        if (filterType() == RimPlotCellFilter::EXCLUDE)
+                        if (filterMode() == RimPlotCellFilter::EXCLUDE)
                         {
                             (*visibleCells)[reservoirCellIndex] = false;
                         }
                     }
                     else
                     {
-                        if (filterType() == RimPlotCellFilter::INCLUDE)
+                        if (filterMode() == RimPlotCellFilter::INCLUDE)
                         {
                             (*visibleCells)[reservoirCellIndex] = false;
                         }
