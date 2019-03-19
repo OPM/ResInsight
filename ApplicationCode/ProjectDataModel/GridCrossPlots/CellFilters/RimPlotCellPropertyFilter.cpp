@@ -59,6 +59,8 @@ RimPlotCellPropertyFilter::RimPlotCellPropertyFilter()
 void RimPlotCellPropertyFilter::setResultDefinition(caf::PdmObject* resultDefinition)
 {
     m_resultDefinition = resultDefinition;
+
+    updateName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,6 +80,45 @@ RimEclipseResultDefinition* RimPlotCellPropertyFilter::eclipseResultDefinition()
     caf::PdmObject* pdmObj = m_resultDefinition;
 
     return dynamic_cast<RimEclipseResultDefinition*>(pdmObj);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCellPropertyFilter::findOrComputeMinMaxResultValues(double& minimumValue, double& maximumValue)
+{
+    RimEclipseResultDefinition* resDef = eclipseResultDefinition();
+    if (resDef)
+    {
+        RimEclipseCase* eclCase = resDef->eclipseCase();
+        if (!eclCase) return;
+
+        RigEclipseCaseData* eclipseCaseData = eclCase->eclipseCaseData();
+        if (!eclipseCaseData) return;
+
+        resDef->loadResult();
+
+        RigCaseCellResultsData* cellResultsData = resDef->currentGridCellResults();
+        if (!cellResultsData) return;
+
+        cellResultsData->minMaxCellScalarValues(resDef->eclipseResultAddress(), minimumValue, maximumValue);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCellPropertyFilter::updateName()
+{
+    QString name = "Property filter - ";
+
+    RimEclipseResultDefinition* resDef = eclipseResultDefinition();
+    if (resDef)
+    {
+        name += resDef->resultVariableUiName();
+    }
+
+    setName(name);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,5 +199,30 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter(size_t timeStepIn
                 }
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCellPropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                      QString                    uiConfigName,
+                                                      caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_lowerBound || field == &m_upperBound)
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+        if (!myAttr)
+        {
+            return;
+        }
+
+        double minimumValue = 0.0;
+        double maximumValue = 0.0;
+
+        findOrComputeMinMaxResultValues(minimumValue, maximumValue);
+
+        myAttr->m_minimum = minimumValue;
+        myAttr->m_maximum = maximumValue;
     }
 }

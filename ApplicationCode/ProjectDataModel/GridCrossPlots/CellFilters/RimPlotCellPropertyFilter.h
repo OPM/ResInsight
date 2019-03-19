@@ -38,20 +38,25 @@ class RimPlotCellPropertyFilter : public RimPlotCellFilter
 public:
     RimPlotCellPropertyFilter();
 
+    // Currently supported result definition is RimEclipseResultDefinition, but the interface is designed to also support
+    // RimGeoMechResultDefinition
     void setResultDefinition(caf::PdmObject* resultDefinition);
 
     void setValueRange(double lowerBound, double upperBound);
 
 protected:
     void updateCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* visibleCells) override;
+    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+                               QString                    uiConfigName,
+                               caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     RimEclipseResultDefinition* eclipseResultDefinition();
+    void                        findOrComputeMinMaxResultValues(double& minimumValue, double& maximumValue);
+    void                        updateName();
 
 private:
     caf::PdmChildField<caf::PdmObject*> m_resultDefinition;
     caf::PdmField<double>               m_lowerBound;
     caf::PdmField<double>               m_upperBound;
-
-    cvf::ref<cvf::UByteArray> m_visibleCells;
 };
