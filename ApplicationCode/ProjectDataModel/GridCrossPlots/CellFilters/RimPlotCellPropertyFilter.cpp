@@ -18,13 +18,16 @@
 
 #include "RimPlotCellPropertyFilter.h"
 
-#include "RimEclipseResultDefinition.h"
-#include "RimGeoMechResultDefinition.h"
+#include "RiaLogging.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
+
 #include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
+#include "RimGeoMechResultDefinition.h"
+
 #include "cafPdmUiDoubleSliderEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimPlotCellPropertyFilter, "RimPlotCellPropertyFilter");
@@ -87,35 +90,47 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter(size_t timeStepIn
     RimEclipseResultDefinition* resDef = eclipseResultDefinition();
     if (resDef)
     {
-        resDef->loadResult();
-
         RimEclipseCase* eclCase = resDef->eclipseCase();
         if (!eclCase) return;
 
-        eclCase->ensureReservoirCaseIsOpen();
         RigEclipseCaseData* eclipseCaseData = eclCase->eclipseCaseData();
         if (!eclipseCaseData) return;
+
+        resDef->loadResult();
 
         RigCaseCellResultsData* cellResultsData = resDef->currentGridCellResults();
         if (!cellResultsData) return;
 
-        const std::vector<double>& cellResultValues = cellResultsData->cellScalarResults(resDef->eclipseResultAddress(), timeStepIndex);
-
+        const std::vector<double>& cellResultValues =
+            cellResultsData->cellScalarResults(resDef->eclipseResultAddress(), timeStepIndex);
         if (cellResultValues.empty()) return;
 
-        const RigActiveCellInfo* actCellInfo = cellResultsData->activeCellInfo();
-        size_t                   cellCount   = actCellInfo->reservoirCellCount();
+        const RigActiveCellInfo* actCellInfo             = cellResultsData->activeCellInfo();
+        size_t                   totalReservoirCellCount = actCellInfo->reservoirCellCount();
 
-        bool isUsingGlobalActiveIndex = cellResultsData->isUsingGlobalActiveIndex(resDef->eclipseResultAddress());
+        if (visibleCells->size() < totalReservoirCellCount)
+        {
+            QString message = QString("Size of visible Cells (%1) is less than total cell count (%2)")
+                                  .arg(visibleCells->size())
+                                  .arg(totalReservoirCellCount);
 
-        double lowerBound = m_lowerBound;
-        double upperBound = m_upperBound;
+            RiaLogging::error(message);
 
-        for (size_t reservoirCellIndex = 0; reservoirCellIndex < cellCount; ++reservoirCellIndex)
+            return;
+        }
+
+        bool           isUsingGlobalActiveIndex = cellResultsData->isUsingGlobalActiveIndex(resDef->eclipseResultAddress());
+        double         lowerBound               = m_lowerBound;
+        double         upperBound               = m_upperBound;
+        size_t         cellResultIndex          = 0;
+        double         scalarValue              = 0.0;
+        FilterModeType currentFilterMode        = filterMode();
+
+        for (size_t reservoirCellIndex = 0; reservoirCellIndex < totalReservoirCellCount; ++reservoirCellIndex)
         {
             if (!actCellInfo->isActive(reservoirCellIndex)) continue;
 
-            size_t cellResultIndex = reservoirCellIndex;
+            cellResultIndex = reservoirCellIndex;
             if (isUsingGlobalActiveIndex)
             {
                 cellResultIndex = actCellInfo->cellResultIndex(reservoirCellIndex);
@@ -125,17 +140,17 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter(size_t timeStepIn
             {
                 if ((*visibleCells)[reservoirCellIndex])
                 {
-                    double scalarValue = cellResultValues[cellResultIndex];
+                    scalarValue = cellResultValues[cellResultIndex];
                     if (lowerBound <= scalarValue && scalarValue <= upperBound)
                     {
-                        if (filterMode() == RimPlotCellFilter::EXCLUDE)
+                        if (currentFilterMode == RimPlotCellFilter::EXCLUDE)
                         {
                             (*visibleCells)[reservoirCellIndex] = false;
                         }
                     }
                     else
                     {
-                        if (filterMode() == RimPlotCellFilter::INCLUDE)
+                        if (currentFilterMode == RimPlotCellFilter::INCLUDE)
                         {
                             (*visibleCells)[reservoirCellIndex] = false;
                         }
