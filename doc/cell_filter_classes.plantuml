@@ -1,0 +1,13 @@
+@startuml
+package Rim {
+
+PdmObject <|-- RimPlotCellFilter
+RimPlotCellFilter <|-- RimPlotCellRangeFilter
+RimPlotCellFilter <|-- RimPlotCellPropertyFilter
+RimPlotCellFilter <|-- RimPlotCellRegionFilter
+
+class RimPlotCellFilter
+{
+ bool isCellAcceptedByFilter(size_t reservoirCellIndex);
+}
+@enduml

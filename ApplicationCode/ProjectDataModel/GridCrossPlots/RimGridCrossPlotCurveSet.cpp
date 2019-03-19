@@ -37,15 +37,18 @@
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTools.h"
+
+#include "CellFilters/RimPlotCellFilterCollection.h"
 
 #include "cafCategoryMapper.h"
 #include "cafColorTable.h"
@@ -57,7 +60,6 @@
 #include "cvfqtUtils.h"
 
 #include <QString>
-#include "RimEclipseResultCase.h"
 
 CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSet, "GridCrossPlotCurveSet");
 
@@ -72,7 +74,7 @@ void RimGridCrossPlotCurveSet::CurveGroupingEnum::setUp()
     addItem(RigGridCrossPlotCurveGrouping::GROUP_BY_RESULT, "RESULT", "Result Property");
     setDefault(RigGridCrossPlotCurveGrouping::GROUP_BY_TIME);
 }
-}
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -117,6 +119,9 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
 
     CAF_PDM_InitField(&m_useCustomColor, "UseCustomColor", false, "Use Custom Color", "", "", "");
     CAF_PDM_InitField(&m_customColor, "CustomColor", cvf::Color3f(cvf::Color3f::BLACK), "Custom Color", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_plotCellFilterCollection, "PlotCellFilterCollection", "Cell Filters", "", "", "");
+    m_plotCellFilterCollection = new RimPlotCellFilterCollection;
 
     setDefaults();
 }
@@ -203,7 +208,7 @@ QString RimGridCrossPlotCurveSet::createAutoName() const
 
     if (m_nameConfig->addTimestep() && !timeStepString().isEmpty())
     {
-        nameTags += timeStepString();        
+        nameTags += timeStepString();
     }
 
     if (m_nameConfig->addGrouping() && groupParameter() != "None")
@@ -302,7 +307,7 @@ QString RimGridCrossPlotCurveSet::caseNameString() const
 //--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlotCurveSet::axisVariableString() const
 {
-    return QString("%1 x %2").arg(xAxisName(), yAxisName());    
+    return QString("%1 x %2").arg(xAxisName(), yAxisName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -341,18 +346,13 @@ std::vector<QString> RimGridCrossPlotCurveSet::groupStrings() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<RimGridCrossPlotCurveSet::NameComponents, QString>
-RimGridCrossPlotCurveSet::nameComponents() const
+std::map<RimGridCrossPlotCurveSet::NameComponents, QString> RimGridCrossPlotCurveSet::nameComponents() const
 {
     std::map<RimGridCrossPlotCurveSet::NameComponents, QString> componentNames;
-    if (m_nameConfig->addCaseName())
-        componentNames[GCP_CASE_NAME] = caseNameString();
-    if (m_nameConfig->addAxisVariables())
-        componentNames[GCP_AXIS_VARIABLES] = axisVariableString();
-    if (m_nameConfig->addTimestep())
-        componentNames[GCP_TIME_STEP] = timeStepString();
-    if (m_nameConfig->addGrouping())
-        componentNames[GCP_GROUP_NAME] = groupTitle();
+    if (m_nameConfig->addCaseName()) componentNames[GCP_CASE_NAME] = caseNameString();
+    if (m_nameConfig->addAxisVariables()) componentNames[GCP_AXIS_VARIABLES] = axisVariableString();
+    if (m_nameConfig->addTimestep()) componentNames[GCP_TIME_STEP] = timeStepString();
+    if (m_nameConfig->addGrouping()) componentNames[GCP_GROUP_NAME] = groupTitle();
 
     return componentNames;
 }
@@ -377,7 +377,7 @@ void RimGridCrossPlotCurveSet::initAfterRead()
 void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 {
     updateDataSetName();
-    
+
     detachAllCurves();
     m_crossPlotCurves.deleteAllChildObjects();
 
@@ -385,7 +385,7 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
     {
         return;
     }
-        
+
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
 
     if (eclipseCase == nullptr)
@@ -431,7 +431,6 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
     m_groupedResults.clear();
     if (!groupingEnabled())
     {
-
         RimGridCrossPlotCurve* curve = new RimGridCrossPlotCurve();
         if (m_useCustomColor)
         {
@@ -458,10 +457,8 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
         {
             for (size_t i = 0; i < result.xValues.size(); ++i)
             {
-                int categoryNum =
-                    m_grouping == GROUP_BY_RESULT
-                    ? static_cast<int>(result.groupValuesContinuous[i])
-                    : result.groupValuesDiscrete[i];
+                int categoryNum = m_grouping == GROUP_BY_RESULT ? static_cast<int>(result.groupValuesContinuous[i])
+                                                                : result.groupValuesDiscrete[i];
 
                 m_groupedResults[categoryNum].xValues.push_back(result.xValues[i]);
                 m_groupedResults[categoryNum].yValues.push_back(result.yValues[i]);
@@ -469,7 +466,6 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
                     m_groupedResults[categoryNum].groupValuesContinuous.push_back(result.groupValuesContinuous[i]);
                 if (!result.groupValuesDiscrete.empty())
                     m_groupedResults[categoryNum].groupValuesDiscrete.push_back(result.groupValuesDiscrete[i]);
-
             }
         }
         else
@@ -478,9 +474,9 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
 
             for (size_t i = 0; i < result.xValues.size(); ++i)
             {
-                auto upperBoundIt = std::lower_bound(tickValues.begin(), tickValues.end(), result.groupValuesContinuous[i]);
+                auto upperBoundIt    = std::lower_bound(tickValues.begin(), tickValues.end(), result.groupValuesContinuous[i]);
                 int  upperBoundIndex = static_cast<int>(upperBoundIt - tickValues.begin());
-                int  categoryNum = std::min((int) tickValues.size() - 2, std::max(0, upperBoundIndex - 1));
+                int  categoryNum     = std::min((int)tickValues.size() - 2, std::max(0, upperBoundIndex - 1));
                 m_groupedResults[categoryNum].xValues.push_back(result.xValues[i]);
                 m_groupedResults[categoryNum].yValues.push_back(result.yValues[i]);
                 if (!result.groupValuesContinuous.empty())
@@ -496,7 +492,7 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
             curve->setGroupingInformation(indexInPlot(), it->first);
             if (groupingByCategoryResult())
             {
-                curve->setColor(cvf::Color3f(legendConfig()->scalarMapper()->mapToColor(it->first)));                
+                curve->setColor(cvf::Color3f(legendConfig()->scalarMapper()->mapToColor(it->first)));
             }
             else
             {
@@ -561,6 +557,44 @@ std::map<int, cvf::UByteArray> RimGridCrossPlotCurveSet::calculateCellVisibility
             }
         }
     }
+    else if (m_plotCellFilterCollection->cellFilterCount() > 0)
+    {
+        std::set<int> timeSteps;
+        if (m_timeStep() == -1)
+        {
+            for (int i = 0; i < (int)eclipseCase->timeStepDates().size(); ++i)
+            {
+                timeSteps.insert(i);
+            }
+        }
+        else
+        {
+            timeSteps.insert(m_timeStep());
+        }
+
+        RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+        if (eclipseCaseData)
+        {
+            RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
+
+            RigCaseCellResultsData* cellResultsData = eclipseCaseData->results(porosityModel);
+            if (cellResultsData)
+            {
+                const RigActiveCellInfo* actCellInfo = cellResultsData->activeCellInfo();
+                size_t                   cellCount   = actCellInfo->reservoirCellCount();
+
+                for (int i : timeSteps)
+                {
+                    cvf::UByteArray* cellVisibility = &timeStepCellVisibilityMap[i];
+                    cellVisibility->resize(cellCount);
+                    cellVisibility->setAll(true);
+
+                    m_plotCellFilterCollection->computeCellVisibilityFromFilter(i, cellVisibility);
+                }
+            }
+        }
+    }
+
     return timeStepCellVisibilityMap;
 }
 
@@ -576,8 +610,7 @@ void RimGridCrossPlotCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUi
         uiOrdering.add(&m_cellFilterView);
         uiOrdering.add(&m_grouping);
 
-        if (m_grouping() == GROUP_BY_TIME &&
-            !(m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult()))
+        if (m_grouping() == GROUP_BY_TIME && !(m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult()))
         {
             m_grouping = NO_GROUPING;
         }
@@ -649,9 +682,8 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
         {
             legendConfig()->setColorRange(RimRegularLegendConfig::NORMAL);
             legendConfig()->setMappingMode(RimRegularLegendConfig::LINEAR_DISCRETE);
-
         }
-       
+
         loadDataAndUpdate(true);
     }
     else if (changedField == &m_cellFilterView)
@@ -710,7 +742,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurveSet::calculateValueOptions(co
     }
     else if (fieldNeedingOptions == &m_grouping)
     {
-        std::set<RigGridCrossPlotCurveGrouping> validOptions = { NO_GROUPING, GROUP_BY_TIME, GROUP_BY_FORMATION, GROUP_BY_RESULT };
+        std::set<RigGridCrossPlotCurveGrouping> validOptions = {NO_GROUPING, GROUP_BY_TIME, GROUP_BY_FORMATION, GROUP_BY_RESULT};
         if (!hasMultipleTimeSteps())
         {
             validOptions.erase(GROUP_BY_TIME);
@@ -762,9 +794,9 @@ void RimGridCrossPlotCurveSet::updateLegend()
                     }
                 }
             }
-            else if (m_grouping() == GROUP_BY_TIME)                
+            else if (m_grouping() == GROUP_BY_TIME)
             {
-                QStringList timeStepNames = m_case->timeStepStrings();
+                QStringList          timeStepNames = m_case->timeStepStrings();
                 std::vector<QString> categoryNames;
                 for (auto name : timeStepNames)
                 {
@@ -837,7 +869,7 @@ void RimGridCrossPlotCurveSet::swapAxisProperties(bool updatePlot)
     m_yAxisProperty.removeChildObject(yAxisProperties);
     m_yAxisProperty = xAxisProperties;
     m_xAxisProperty = yAxisProperties;
-    
+
     updateConnectedEditors();
     loadDataAndUpdate(updatePlot);
 }
@@ -847,8 +879,7 @@ void RimGridCrossPlotCurveSet::swapAxisProperties(bool updatePlot)
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::exportFormattedData(RifEclipseDataTableFormatter& formatter) const
 {
-    if (m_groupedResults.empty())
-        return;
+    if (m_groupedResults.empty()) return;
 
     if (m_grouping != NO_GROUPING)
     {
@@ -881,8 +912,8 @@ void RimGridCrossPlotCurveSet::exportFormattedData(RifEclipseDataTableFormatter&
             }
             else
             {
-                int groupIndex = it->first;
-                QString groupName = createGroupName(groupIndex);
+                int     groupIndex = it->first;
+                QString groupName  = createGroupName(groupIndex);
                 formatter.add(res.xValues[i]);
                 formatter.add(res.yValues[i]);
                 formatter.add(groupIndex);
@@ -914,9 +945,10 @@ bool RimGridCrossPlotCurveSet::isYAxisLogarithmic() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::setFromCaseAndEquilibriumRegion(RimEclipseResultCase* eclipseCase, const QString& dynamicResultName)
+void RimGridCrossPlotCurveSet::setFromCaseAndEquilibriumRegion(RimEclipseResultCase* eclipseCase,
+                                                               const QString&        dynamicResultName)
 {
     m_case = eclipseCase;
 
@@ -932,13 +964,20 @@ void RimGridCrossPlotCurveSet::setFromCaseAndEquilibriumRegion(RimEclipseResultC
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::addCellFilter(RimPlotCellFilter* cellFilter)
+{
+    m_plotCellFilterCollection->addCellFilter(cellFilter);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurveSet::setCustomColor(const cvf::Color3f color)
 {
     m_useCustomColor = true;
-    m_customColor = color;
-
+    m_customColor    = color;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1015,7 +1054,7 @@ void RimGridCrossPlotCurveSet::setDefaults()
         if (!project->eclipseCases().empty())
         {
             RimEclipseCase* eclipseCase = project->eclipseCases().front();
-            m_case = eclipseCase;
+            m_case                      = eclipseCase;
             m_xAxisProperty->setEclipseCase(eclipseCase);
             m_yAxisProperty->setEclipseCase(eclipseCase);
             m_groupingProperty->setEclipseCase(eclipseCase);
@@ -1026,7 +1065,7 @@ void RimGridCrossPlotCurveSet::setDefaults()
             m_yAxisProperty->setResultType(RiaDefines::DYNAMIC_NATIVE);
             m_yAxisProperty->setResultVariable("PRESSURE");
         }
-    }    
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1053,6 +1092,8 @@ void RimGridCrossPlotCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTr
         uiTreeOrdering.add(curve);
     }
 
+    uiTreeOrdering.add(&m_plotCellFilterCollection);
+
     uiTreeOrdering.skipRemainingChildren(true);
 }
 
@@ -1062,7 +1103,6 @@ void RimGridCrossPlotCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTr
 bool RimGridCrossPlotCurveSet::hasMultipleTimeSteps() const
 {
     return m_timeStep() == -1 && (m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult());
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1075,13 +1115,12 @@ void RimGridCrossPlotCurveSet::filterInvalidCurveValues(RigEclipseCrossPlotResul
 
     if (xLog || yLog)
     {
-
         RigEclipseCrossPlotResult validResult;
         for (size_t i = 0; i < result->xValues.size(); ++i)
         {
-            double xValue = result->xValues[i];
-            double yValue = result->yValues[i];
-            bool invalid = (xLog && xValue <= 0.0) || (yLog && yValue <= 0.0);
+            double xValue  = result->xValues[i];
+            double yValue  = result->yValues[i];
+            bool   invalid = (xLog && xValue <= 0.0) || (yLog && yValue <= 0.0);
             if (!invalid)
             {
                 validResult.xValues.push_back(xValue);

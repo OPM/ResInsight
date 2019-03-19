@@ -50,6 +50,8 @@ class RimRegularLegendConfig;
 class QwtPlot;
 class QwtPlotCurve;
 class QString;
+class RimPlotCellFilterCollection;
+class RimPlotCellFilter;
 
 class RimGridCrossPlotCurveSetNameConfig : public RimNameConfig
 {
@@ -125,7 +127,9 @@ public:
     bool isYAxisLogarithmic() const;
 
     void setFromCaseAndEquilibriumRegion(RimEclipseResultCase* eclipseResultCase, const QString& dynamicResultName);
+    void addCellFilter(RimPlotCellFilter* cellFilter);
     void setCustomColor(const cvf::Color3f color);
+
 
 protected:
     void initAfterRead() override;
@@ -168,4 +172,6 @@ private:
     
     caf::PdmField<bool>                             m_useCustomColor;
     caf::PdmField<cvf::Color3f>                     m_customColor;
+    caf::PdmChildField<RimPlotCellFilterCollection*> m_plotCellFilterCollection;;
+
 };

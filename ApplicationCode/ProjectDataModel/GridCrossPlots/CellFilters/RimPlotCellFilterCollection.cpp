@@ -16,67 +16,53 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSaturationPressurePlotCollection.h"
+#include "RimPlotCellFilterCollection.h"
 
-#include "RigEclipseCaseData.h"
-#include "RigEquil.h"
-
-#include "RimEclipseResultCase.h"
-#include "RimSaturationPressurePlot.h"
-
-CAF_PDM_SOURCE_INIT(RimSaturationPressurePlotCollection, "RimSaturationPressurePlotCollection");
+CAF_PDM_SOURCE_INIT(RimPlotCellFilterCollection, "RimPlotCellFilterCollection");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSaturationPressurePlotCollection::RimSaturationPressurePlotCollection()
+RimPlotCellFilterCollection::RimPlotCellFilterCollection()
 {
-    CAF_PDM_InitObject("Saturation Pressure Plots", ":/SummaryXPlotsLight16x16.png", "", "");
+    CAF_PDM_InitObject("Plot Cell Filters", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_saturationPressurePlots, "SaturationPressurePlots", "Saturation Pressure Plots", "", "", "");
-    m_saturationPressurePlots.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_cellFilters, "CellFilters", "Cell Filters", "", "", "");
+    // m_crossPlotCurveSets.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSaturationPressurePlotCollection::~RimSaturationPressurePlotCollection() {}
+void RimPlotCellFilterCollection::addCellFilter(RimPlotCellFilter* cellFilter)
+{
+    m_cellFilters.push_back(cellFilter);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimPlotCellFilterCollection::cellFilterCount() const
+{
+    return m_cellFilters.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCellFilterCollection::computeCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility)
+{
+    updateCellVisibilityFromFilter(timeStepIndex, cellVisibility);
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSaturationPressurePlotCollection::createSaturationPressurePlots(RimEclipseResultCase* eclipseResultCase)
+void RimPlotCellFilterCollection::updateCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility)
 {
-    if (!eclipseResultCase) return;
-
-    RigEclipseCaseData* eclipseCaseData = eclipseResultCase->eclipseCaseData();
-    if (!eclipseCaseData) return;
-
-    std::vector<RigEquil> equilData = eclipseCaseData->equilData();
-    for (size_t i = 0; i < equilData.size(); i++)
+    for (RimPlotCellFilter* f : m_cellFilters())
     {
-        RimSaturationPressurePlot* plot = new RimSaturationPressurePlot();
-        plot->setAsPlotMdiWindow();
-
-        int equilibriumRegion = static_cast<int>(i);
-        plot->assignCaseAndEquilibriumRegion(RiaDefines::MATRIX_MODEL, eclipseResultCase, equilibriumRegion);
-
-        m_saturationPressurePlots.push_back(plot);
+        f->updateCellVisibility(timeStepIndex, cellVisibility);
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSaturationPressurePlot*> RimSaturationPressurePlotCollection::plots()
-{
-    return m_saturationPressurePlots.childObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSaturationPressurePlotCollection::deleteAllChildObjects()
-{
-    m_saturationPressurePlots.deleteAllChildObjects();
-}

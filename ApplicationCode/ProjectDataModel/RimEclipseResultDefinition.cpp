@@ -187,6 +187,14 @@ void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimEclipseResultDefinition::eclipseCase()
+{
+    return m_eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RigCaseCellResultsData* RimEclipseResultDefinition::currentGridCellResults() const

@@ -18,25 +18,28 @@
 
 #pragma once
 
-#include "RimGridCrossPlot.h"
-#include "RiaPorosityModel.h"
+#include "RimPlotCellFilter.h"
 
-class RimEclipseResultCase;
+#include "cafPdmChildArrayField.h"
 
-//--------------------------------------------------------------------------------------------------
+//==================================================================================================
 ///
-//--------------------------------------------------------------------------------------------------
-class RimSaturationPressurePlot : public RimGridCrossPlot
+//==================================================================================================
+class RimPlotCellFilterCollection : public RimPlotCellFilter
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSaturationPressurePlot();
+    RimPlotCellFilterCollection();
 
-    void assignCaseAndEquilibriumRegion(RiaDefines::PorosityModelType porosityType,
-                                        RimEclipseResultCase*         eclipseResultCase,
-                                        int                           zeroBasedEquilRegionIndex);
+    void addCellFilter(RimPlotCellFilter* cellFilter);
+    size_t cellFilterCount() const;
+
+    void computeCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility);
 
 protected:
-    void initAfterRead() override;
+    void updateCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility) override;
+
+private:
+    caf::PdmChildArrayField<RimPlotCellFilter*> m_cellFilters;
 };
