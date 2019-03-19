@@ -94,17 +94,6 @@ void RimPlotAxisAnnotation::setEquilibriumData(RimEclipseCase*        eclipseCas
 //--------------------------------------------------------------------------------------------------
 QString RimPlotAxisAnnotation::name() const
 {
-    if (m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT)
-    {
-        QString text = QString("WOC %1").arg(value());
-        return text;
-    }
-    else if (m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT)
-    {
-        QString text = QString("GOC %1").arg(value());
-        return text;
-    }
-
     return m_name();
 }
 
@@ -236,14 +225,24 @@ void RimPlotAxisAnnotation::updateName()
 {
     QString text;
 
-    if (m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT)
+    if (m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT || m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT)
     {
-        text = QString("WOC %1").arg(value());
-    }
-    else if (m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT)
-    {
-        text = QString("GOC %1").arg(value());
-    }
+        double diffBetweenTwoContactDepths =
+            std::fabs(selectedItem().gasOilContactDepth() - selectedItem().waterOilContactDepth());
 
-    m_name = text;
+        if (diffBetweenTwoContactDepths < 0.1)
+        {
+            text = QString("GWC %1").arg(selectedItem().gasOilContactDepth());
+        }
+        else if (m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT)
+        {
+            text = QString("WOC %1").arg(value());
+        }
+        else if (m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT)
+        {
+            text = QString("GOC %1").arg(value());
+        }
+
+        m_name = text;
+    }
 }
