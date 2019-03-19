@@ -126,10 +126,9 @@ public:
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;
 
-    void setFromCaseAndEquilibriumRegion(RimEclipseResultCase* eclipseResultCase, const QString& dynamicResultName);
+    void configureForPressureSaturationCurves(RimEclipseResultCase* eclipseResultCase, const QString& dynamicResultName);
     void addCellFilter(RimPlotCellFilter* cellFilter);
     void setCustomColor(const cvf::Color3f color);
-
 
 protected:
     void initAfterRead() override;

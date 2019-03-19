@@ -949,8 +949,8 @@ bool RimGridCrossPlotCurveSet::isYAxisLogarithmic() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::setFromCaseAndEquilibriumRegion(RimEclipseResultCase* eclipseCase,
-                                                               const QString&        dynamicResultName)
+void RimGridCrossPlotCurveSet::configureForPressureSaturationCurves(RimEclipseResultCase* eclipseCase,
+                                                                    const QString&        dynamicResultName)
 {
     m_case = eclipseCase;
 

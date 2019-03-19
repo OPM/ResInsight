@@ -18,10 +18,12 @@
 
 #pragma once
 
-#include "RimGridCrossPlot.h"
 #include "RiaPorosityModel.h"
 
+#include "RimGridCrossPlot.h"
+
 class RimEclipseResultCase;
+class RimPlotCellPropertyFilter;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -39,4 +41,11 @@ public:
 
 protected:
     void initAfterRead() override;
+
+private:
+    RimPlotCellPropertyFilter* createEquilibriumRegionPropertyFilter(RimEclipseResultCase* eclipseResultCase,
+                                                                     int                   zeroBasedEquilRegionIndex);
+
+    RimPlotCellPropertyFilter*
+        createDepthPropertyFilter(RimEclipseResultCase* eclipseResultCase, double minDepth, double maxDepth);
 };
