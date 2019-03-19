@@ -24,6 +24,7 @@
 #include "RicExportFeatureImpl.h"
 #include "RicExportEclipseInputGridUi.h"
 
+#include "RifEclipseInputFileTools.h"
 #include "RifReaderEclipseOutput.h"
 
 #include "RimEclipseCase.h"
@@ -85,7 +86,7 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
     if (exportSettings.exportGrid())
     {
         auto task = progress.task("Export Input Grid", gridProgressPercentage);
-        bool worked = RifReaderEclipseOutput::saveEclipseGrid(exportSettings.exportGridFilename(), view->eclipseCase()->eclipseCaseData(), min, max, refinement);
+        bool worked = RifEclipseInputFileTools::exportGrid(exportSettings.exportGridFilename(), view->eclipseCase()->eclipseCaseData(), min, max, refinement);
         if (!worked)
         {
             RiaLogging::error(
@@ -106,7 +107,7 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
             for (QString keyword : keywords)
             {
                 QString fileName = dirPath.absoluteFilePath(keyword + ".GRDECL");
-                bool worked = RifReaderEclipseOutput::saveEclipseResults(fileName,
+                bool worked = RifEclipseInputFileTools::exportKeywords(fileName,
                                                                          view->eclipseCase()->eclipseCaseData(),
                                                                          {keyword},
                                                                          fileWriteMode,
@@ -129,7 +130,7 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
                 fileName = exportSettings.exportGridFilename();
             }
 
-            bool worked = RifReaderEclipseOutput::saveEclipseResults(fileName,
+            bool worked = RifEclipseInputFileTools::exportKeywords(fileName,
                 view->eclipseCase()->eclipseCaseData(),
                 keywords,
                 fileWriteMode,

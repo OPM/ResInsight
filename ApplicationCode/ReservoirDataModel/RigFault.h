@@ -28,8 +28,9 @@
 
 #include <QString>
 
-#include <vector>
 #include <array>
+#include <utility>
+#include <vector>
 
 class RigMainGrid;
 
@@ -75,7 +76,8 @@ private:
 class RigFault : public cvf::Object
 {
 public:
-   
+    typedef std::tuple<size_t, size_t, size_t, cvf::StructGridInterface::FaceType> FaultCellAndFace;
+
     struct FaultFace
     {
         FaultFace(size_t nativeReservoirCellIndex, cvf::StructGridInterface::FaceType nativeFace, size_t oppositeReservoirCellIndex) :
@@ -105,6 +107,8 @@ public:
 
     std::vector<size_t>&            connectionIndices();
     const std::vector<size_t>&      connectionIndices() const;
+
+    static bool faultOrdering(RigFault::FaultCellAndFace first, RigFault::FaultCellAndFace second);
 
 private:
     QString m_name;

@@ -354,203 +354,6 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::saveEclipseGrid(const QString& fileName, RigEclipseCaseData* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max, const cvf::Vec3st& refinement)
-{
-    if (!eclipseCase)
-    {
-        return false;
-    }
-
-    const RigActiveCellInfo* activeCellInfo         = eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL);
-    const RigActiveCellInfo* fractureActiveCellInfo = eclipseCase->activeCellInfo(RiaDefines::FRACTURE_MODEL);
-
-    CVF_ASSERT(activeCellInfo && fractureActiveCellInfo);
-
-    const RigMainGrid* mainGrid = eclipseCase->mainGrid();    
-
-    int ecl_nx = static_cast<int>((max.x() - min.x()) * refinement.x() + 1);
-    int ecl_ny = static_cast<int>((max.y() - min.y()) * refinement.y() + 1);
-    int ecl_nz = static_cast<int>((max.z() - min.z()) * refinement.z() + 1);
-    
-
-    size_t cellsPerOriginal = refinement.x() * refinement.y() * refinement.z();
-
-    caf::ProgressInfo progress(mainGrid->cellCount() * 2, "Save Eclipse Grid");
-    int cellProgressInterval = 1000;
-
-    std::vector<float*> ecl_corners; ecl_corners.reserve(mainGrid->cellCount() * cellsPerOriginal);
-    std::vector<int*> ecl_coords; ecl_coords.reserve(mainGrid->cellCount() * cellsPerOriginal);
-
-    int incrementalIndex = 0;
-    for (size_t k = min.z() * refinement.z(); k <= max.z() * refinement.z(); ++k)
-    {
-        size_t mainK = k / refinement.z();
-        size_t k0 = k - min.z() * refinement.z();
-        for (size_t j = min.y() * refinement.y(); j <= max.y() * refinement.y(); ++j)
-        {
-            size_t mainJ = j / refinement.y();
-            size_t j0 = j - min.y() * refinement.y();
-            for (size_t i = min.x() * refinement.x(); i <= max.x() * refinement.x(); ++i)
-            {
-                size_t mainI = i / refinement.x();
-                size_t i0 = i - min.x() * refinement.x();
-
-                size_t mainIndex = mainGrid->cellIndexFromIJK(mainI, mainJ, mainK);
-
-                int active = activeCellInfo->isActive(mainIndex) ? 1 : 0;
-
-                int* ecl_cell_coords = new int[5];
-                ecl_cell_coords[0] = (int)(i0 + 1);
-                ecl_cell_coords[1] = (int)(j0 + 1);
-                ecl_cell_coords[2] = (int)(k0 + 1);
-                ecl_cell_coords[3] = incrementalIndex++;
-                ecl_cell_coords[4] = active;
-                ecl_coords.push_back(ecl_cell_coords);
-
-                std::array<cvf::Vec3d, 8> cellCorners;
-                mainGrid->cellCornerVertices(mainIndex, cellCorners.data());
-
-                auto refinedCoords = RiaCellDividingTools::createHexCornerCoords(
-                    cellCorners, refinement.x(), refinement.y(), refinement.z());
-
-                size_t subI = i % refinement.x();
-                size_t subJ = j % refinement.y();
-                size_t subK = k % refinement.z();
-                size_t subIndex = subI + subJ * refinement.x() + subK * refinement.x() * refinement.y();
-
-                float* ecl_cell_corners = new float[24];
-                for (size_t cIdx = 0; cIdx < 8; ++cIdx)
-                {
-                    cvf::Vec3d cellCorner                            = refinedCoords[subIndex * 8 + cIdx];
-                    ecl_cell_corners[cellMappingECLRi[cIdx] * 3]     = cellCorner[0];
-                    ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 1] = cellCorner[1];
-                    ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 2] = -cellCorner[2];
-                }
-                ecl_corners.push_back(ecl_cell_corners);
-            }
-        }
-        if (incrementalIndex % cellProgressInterval == 0)
-        {
-            progress.setProgress(incrementalIndex);
-        }
-    }
-
-    ecl_grid_type* mainEclGrid = ecl_grid_alloc_GRID_data((int) ecl_coords.size(), ecl_nx, ecl_ny, ecl_nz, 5, &ecl_coords[0], &ecl_corners[0], false, NULL);
-    progress.setProgress(mainGrid->cellCount());
-
-    for (float* floatArray : ecl_corners)
-    {
-        delete floatArray;
-    }
-
-    for (int* intArray : ecl_coords)
-    {
-        delete intArray;
-    }
-
-    FILE* filePtr = RifEclipseOutputFileTools::fopen(fileName, "w");
-
-    if (!filePtr)
-    {
-        return false;
-    }
-
-    ecl_grid_fprintf_grdecl(mainEclGrid, filePtr);
-    ecl_grid_free(mainEclGrid);
-    fclose(filePtr);
-        
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::saveEclipseResults(const QString&              resultFileName,
-                                                RigEclipseCaseData*         eclipseCase,
-                                                const std::vector<QString>& keywords,
-                                                const QString&              fileWriteMode,
-                                                const cvf::Vec3st&          min,
-                                                const cvf::Vec3st&          max,
-                                                const cvf::Vec3st&          refinement)
-{
-    FILE* filePtr = RifEclipseOutputFileTools::fopen(resultFileName, fileWriteMode);
-    if (!filePtr)
-    {
-        return false;
-    }
-    RigCaseCellResultsData* cellResultsData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
-    RigActiveCellInfo*      activeCells     = cellResultsData->activeCellInfo();
-    RigMainGrid*            mainGrid        = eclipseCase->mainGrid();
-
-    caf::ProgressInfo progress(keywords.size(), "Saving Keywords");
-
-    for (const QString& keyword : keywords)
-    {
-        std::vector<double> resultValues;
-
-        RigEclipseResultAddress resAddr(RiaDefines::STATIC_NATIVE, keyword);
-        cellResultsData->ensureKnownResultLoaded(resAddr);
-        resultValues = cellResultsData->cellScalarResults(resAddr)[0];
-        CVF_ASSERT(!resultValues.empty());
-            
-        std::vector<double> filteredResults;
-        filteredResults.reserve(resultValues.size());
-
-        for (size_t k = min.z() * refinement.z(); k <= max.z() * refinement.z(); ++k)
-        {
-            size_t mainK = k / refinement.z();
-            for (size_t j = min.y() * refinement.y(); j <= max.y() * refinement.y(); ++j)
-            {
-                size_t mainJ = j / refinement.y();
-                for (size_t i = min.x() * refinement.x(); i <= max.x() * refinement.x(); ++i)
-                {
-                    size_t mainI = i / refinement.x();
-
-                    size_t mainIndex = mainGrid->cellIndexFromIJK(mainI, mainJ, mainK);
-
-                    size_t resIndex = activeCells->cellResultIndex(mainIndex);
-                    if (resIndex != cvf::UNDEFINED_SIZE_T)
-                    {
-                        filteredResults.push_back(resultValues[resIndex]);
-                    }
-                }
-            }
-        }
-
-        ecl_kw_type* ecl_kw = nullptr;
-
-        if (keyword.endsWith("NUM"))
-        {
-            std::vector<int> resultValuesInt; resultValuesInt.reserve(filteredResults.size());
-            for (double val : filteredResults)
-            {
-                resultValuesInt.push_back(static_cast<int>(val));
-            }
-            ecl_kw = ecl_kw_alloc_new(keyword.toLatin1().data(), (int) resultValuesInt.size(), ECL_INT, resultValuesInt.data());
-        }
-        else
-        {
-            std::vector<float> resultValuesFloat;
-            resultValuesFloat.reserve(filteredResults.size());
-            for (double val : filteredResults)
-            {
-                resultValuesFloat.push_back(static_cast<float>(val));
-            }
-            ecl_kw = ecl_kw_alloc_new(keyword.toLatin1().data(), (int) resultValuesFloat.size(), ECL_FLOAT, resultValuesFloat.data());
-        }
-         
-        ecl_kw_fprintf_grdecl(ecl_kw, filePtr);
-        ecl_kw_free(ecl_kw);
-        progress.incrementProgress();        
-    }
-   
-    fclose(filePtr);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Open file and read geometry into given reservoir object
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* eclipseCase)
@@ -792,6 +595,14 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
 void RifReaderEclipseOutput::setFileDataAccess(RifEclipseRestartDataAccess* restartDataAccess)
 {
     m_dynamicResultsAccess = restartDataAccess;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const size_t* RifReaderEclipseOutput::eclipseCellIndexMapping()
+{
+    return cellMappingECLRi;
 }
 
 //--------------------------------------------------------------------------------------------------

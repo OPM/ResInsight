@@ -60,6 +60,25 @@ public:
 
     static bool openGridFile(const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData);
     
+    static bool exportGrid(const QString&      gridFileName,
+                           RigEclipseCaseData* eclipseCase,
+                           const cvf::Vec3st&  min,
+                           const cvf::Vec3st&  max,
+                           const cvf::Vec3st&  refinement);
+
+    static bool exportKeywords(const QString&              resultFileName,
+                               RigEclipseCaseData*         eclipseCase,
+                               const std::vector<QString>& keywords,
+                               const QString&              fileWriteMode,
+                               const cvf::Vec3st&          min,
+                               const cvf::Vec3st&          max,
+                               const cvf::Vec3st&          refinement);
+
+    static void saveFault(QString                                 completeFilename,
+                          const RigMainGrid*                      mainGrid,
+                          const std::vector<RigFault::FaultFace>& faultFaces,
+                          QString                                 faultName);
+    
     // Returns map of assigned resultName and Eclipse Keyword.
     static std::map<QString, QString> readProperties(const QString& fileName, RigEclipseCaseData* eclipseCase);
     static bool                       readProperty  (const QString& fileName, RigEclipseCaseData* eclipseCase, const QString& eclipseKeyWord, const QString& resultName );
@@ -108,6 +127,16 @@ private:
 
     static qint64   findKeyword(const QString& keyword, QFile& file, qint64 startPos);
     static bool     isValidDataKeyword(const QString& keyword);
+
+    static void writeFaultLine(QTextStream&                       stream,
+                               QString                            faultName,
+                               size_t                             i,
+                               size_t                             j,
+                               size_t                             startK,
+                               size_t                             endK,
+                               cvf::StructGridInterface::FaceType faceType);
+    
+    static QString faultFaceText(cvf::StructGridInterface::FaceType faceType);
     
 private:
     static const std::vector<QString>& invalidPropertyDataKeywords(); 
