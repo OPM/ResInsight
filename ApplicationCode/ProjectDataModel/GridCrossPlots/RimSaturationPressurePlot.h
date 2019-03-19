@@ -35,7 +35,7 @@ class RimSaturationPressurePlot : public RimGridCrossPlot
 public:
     RimSaturationPressurePlot();
 
-    void assignCaseAndEquilibriumRegion(RiaDefines::PorosityModelType porosityType,
+    void assignCaseAndEquilibriumRegion(RiaDefines::PorosityModelType porosityModel,
                                         RimEclipseResultCase*         eclipseResultCase,
                                         int                           zeroBasedEquilRegionIndex);
 

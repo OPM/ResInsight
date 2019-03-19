@@ -52,6 +52,8 @@ void RimSaturationPressurePlotCollection::createSaturationPressurePlots(RimEclip
     RigEclipseCaseData* eclipseCaseData = eclipseResultCase->eclipseCaseData();
     if (!eclipseCaseData) return;
 
+    m_saturationPressurePlots.deleteAllChildObjects();
+
     std::vector<RigEquil> equilData = eclipseCaseData->equilData();
     for (size_t i = 0; i < equilData.size(); i++)
     {

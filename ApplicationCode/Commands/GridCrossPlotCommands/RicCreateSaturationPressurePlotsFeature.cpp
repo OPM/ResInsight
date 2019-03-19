@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicCreateSaturationPressurePlotsFeature.h"
+#include "RicSaturationPressureUi.h"
 
 #include "RiaApplication.h"
 
@@ -26,8 +27,10 @@
 #include "RimSaturationPressurePlot.h"
 #include "RimSaturationPressurePlotCollection.h"
 
+#include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
+#include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -75,9 +78,28 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
     }
 
     RimEclipseResultCase* eclipseResultCase = nullptr;
-    if (eclipseCases.size() == 1)
+
+    if (!eclipseCases.empty())
     {
-        eclipseResultCase = eclipseCases[0];
+        if (eclipseCases.size() == 1)
+        {
+            eclipseResultCase = eclipseCases[0];
+        }
+        else
+        {
+            RicSaturationPressureUi saturationPressureUi;
+            saturationPressureUi.setSelectedCase(eclipseCases[0]);
+
+            RiuPlotMainWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
+
+            caf::PdmUiPropertyViewDialog propertyDialog(
+                plotwindow, &saturationPressureUi, "Select Case to create Pressure Saturation plots", "");
+
+            if (propertyDialog.exec() == QDialog::Accepted)
+            {
+                eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(saturationPressureUi.selectedCase());
+            }
+        }
     }
 
     if (eclipseResultCase)

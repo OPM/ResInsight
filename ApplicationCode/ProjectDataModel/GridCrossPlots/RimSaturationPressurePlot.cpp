@@ -43,7 +43,7 @@ RimSaturationPressurePlot::RimSaturationPressurePlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::PorosityModelType porosityType,
+void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::PorosityModelType porosityModel,
                                                                RimEclipseResultCase*         eclipseResultCase,
                                                                int                           zeroBasedEquilRegionIndex)
 {
@@ -85,7 +85,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::Poros
         curveSet->addCellFilter(cellFilter);
 
         {
-            RigCaseCellResultsData* caseCellResultsData = eclipseResultCase->eclipseCaseData()->results(porosityType);
+            RigCaseCellResultsData* caseCellResultsData = eclipseResultCase->eclipseCaseData()->results(porosityModel);
             if (caseCellResultsData)
             {
                 RigEclipseResultAddress depthResultAddress(RiaDefines::STATIC_NATIVE, "DEPTH");
@@ -128,7 +128,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::Poros
         }
 
         {
-            RigCaseCellResultsData* caseCellResultsData = eclipseResultCase->eclipseCaseData()->results(porosityType);
+            RigCaseCellResultsData* caseCellResultsData = eclipseResultCase->eclipseCaseData()->results(porosityModel);
             if (caseCellResultsData)
             {
                 RigEclipseResultAddress depthResultAddress(RiaDefines::STATIC_NATIVE, "DEPTH");
