@@ -15,31 +15,20 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
-
-class RimGridCrossPlot;
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimGridCrossPlotCollection : public caf::PdmObject
+class RicCreateSaturationPressurePlotsFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimGridCrossPlotCollection();
-    ~RimGridCrossPlotCollection() override;
-
-    void deleteAllChildObjects();
-
-    std::vector<RimGridCrossPlot*> gridCrossPlots() const;
-    RimGridCrossPlot*              createGridCrossPlot();
-    void                           addGridCrossPlot(RimGridCrossPlot* plot);
-
-private:
-    caf::PdmChildArrayField<RimGridCrossPlot*> m_gridCrossPlots;
+protected:
+    bool isCommandEnabled() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
 };

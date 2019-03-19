@@ -27,6 +27,8 @@
 
 class RimGridCrossPlotCurveSet;
 class RiuCvfOverlayItemWidget;
+class RiuPlotAnnotationTool;
+class RimPlotAxisProperties;
 
 namespace caf
 {
@@ -47,12 +49,16 @@ public:
     void addOrUpdateCurveSetLegend(RimGridCrossPlotCurveSet* curveSetToShowLegendFor);
     void removeCurveSetLegend(RimGridCrossPlotCurveSet* curveSetToShowLegendFor);
     void updateLegendSizesToMatchPlot();
+    void updateAnnotationObjects(RimPlotAxisProperties* axisProperties);
+
 protected:
     void updateLayout() override;
     void updateLegendLayout();
     void resizeEvent(QResizeEvent *e) override;
     bool resizeOverlayItemToFitPlot(caf::TitledOverlayFrame* overlayItem);
     void contextMenuEvent(QContextMenuEvent*) override;
+
 private:
     std::map<caf::PdmPointer<RimGridCrossPlotCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_legendWidgets;
+    std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
 };

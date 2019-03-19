@@ -30,6 +30,9 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
+
 #include <cvfArray.h>
 
 #include <QList>
@@ -40,12 +43,15 @@ class RimCase;
 class RimGridCrossPlotCurve;
 class RimGridView;
 class RimEclipseCase;
+class RimEclipseResultCase;
 class RimEclipseCellColors;
 class RimEclipseResultDefinition;
 class RimRegularLegendConfig;
 class QwtPlot;
 class QwtPlotCurve;
 class QString;
+class RimPlotCellFilterCollection;
+class RimPlotCellFilter;
 
 class RimGridCrossPlotCurveSetNameConfig : public RimNameConfig
 {
@@ -120,6 +126,10 @@ public:
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;
 
+    void configureForPressureSaturationCurves(RimEclipseResultCase* eclipseResultCase, const QString& dynamicResultName);
+    void addCellFilter(RimPlotCellFilter* cellFilter);
+    void setCustomColor(const cvf::Color3f color);
+
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);
@@ -159,4 +169,8 @@ private:
 
     std::map<int, RigEclipseCrossPlotResult>        m_groupedResults;
     
+    caf::PdmField<bool>                             m_useCustomColor;
+    caf::PdmField<cvf::Color3f>                     m_customColor;
+    caf::PdmChildField<RimPlotCellFilterCollection*> m_plotCellFilterCollection;;
+
 };

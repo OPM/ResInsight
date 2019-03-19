@@ -106,6 +106,11 @@ protected:
     void updateAxisFromQwt(RiaDefines::PlotAxis axisType);
     std::vector<const QwtPlotCurve*> visibleQwtCurves() const;
 
+    RimPlotAxisProperties* xAxisProperties();
+    RimPlotAxisProperties* yAxisProperties();
+
+    RimGridCrossPlotNameConfig* nameConfig();
+
 private:
     caf::PdmField<bool>                                m_showLegend;
     caf::PdmField<int>                                 m_legendFontSize;

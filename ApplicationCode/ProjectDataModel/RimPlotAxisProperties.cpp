@@ -23,6 +23,7 @@
 #include "RigStatisticsCalculator.h"
 
 #include "RimRiuQwtPlotOwnerInterface.h"
+#include "RimPlotAxisAnnotation.h"
 
 #include "cafPdmUiSliderEditor.h"
 
@@ -94,6 +95,11 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "");
     CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
     CAF_PDM_InitField(&m_isAxisInverted, "AxisInverted", false, "Invert Axis", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "", "", "", "");
+
+    m_annotations.uiCapability()->setUiHidden(true);
+//     m_annotations.uiCapability()->setUiTreeChildrenHidden(true);
 
     updateOptionSensitivity();
 }
@@ -303,6 +309,22 @@ bool RimPlotAxisProperties::isAxisInverted() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotAxisAnnotation*> RimPlotAxisProperties::annotations() const
+{
+    return m_annotations.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::appendAnnotation(RimPlotAxisAnnotation* annotation)
+{
+    m_annotations.push_back(annotation);
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::setAxisInverted(bool inverted)
@@ -316,6 +338,22 @@ void RimPlotAxisProperties::setAxisInverted(bool inverted)
 bool RimPlotAxisProperties::isActive() const
 {
     return m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setInvertedAxis(bool enable)
+{
+    m_isAxisInverted = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::showAnnotationObjectsInProjectTree()
+{
+    m_annotations.uiCapability()->setUiTreeChildrenHidden(false);
 }
 
 //--------------------------------------------------------------------------------------------------

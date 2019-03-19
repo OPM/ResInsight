@@ -28,6 +28,10 @@
 #include "cafSelectionManager.h"
 #include "cafTitledOverlayFrame.h"
 
+#include "RimPlotAxisProperties.h"
+#include "RimPlotAxisAnnotation.h"
+#include "RiuPlotAnnotationTool.h"
+
 #include <QMenu>
 #include <QResizeEvent>
 
@@ -36,7 +40,8 @@
 //--------------------------------------------------------------------------------------------------
 RiuGridCrossQwtPlot::RiuGridCrossQwtPlot(RimViewWindow* ownerViewWindow, QWidget* parent /*= nullptr*/)
     : RiuQwtPlot(ownerViewWindow, parent)
-{    
+{
+    m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>(new RiuPlotAnnotationTool());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +70,6 @@ void RiuGridCrossQwtPlot::addOrUpdateCurveSetLegend(RimGridCrossPlotCurveSet* cu
         caf::TitledOverlayFrame* overlayItem = curveSet->legendConfig()->titledOverlayFrame();
         resizeOverlayItemToFitPlot(overlayItem);
         overlayWidget->updateFromOverlayItem(overlayItem);
-
     }
     this->updateLegendLayout();
 }
@@ -124,6 +128,26 @@ void RiuGridCrossQwtPlot::updateLegendSizesToMatchPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuGridCrossQwtPlot::updateAnnotationObjects(RimPlotAxisProperties* axisProperties)
+{
+    std::vector<QString> names;
+    std::vector<double>  positions;
+
+    for (auto a : axisProperties->annotations())
+    {
+        names.push_back(a->name());
+        positions.push_back(a->value());
+    }
+
+    if (!names.empty())
+    {
+        m_annotationTool->attachWellPicks(this, names, positions);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::updateLayout()
 {
     QwtPlot::updateLayout();
@@ -163,7 +187,7 @@ void RiuGridCrossQwtPlot::updateLegendLayout()
                 if (ypos + overlayWidget->height() + spacing > this->canvas()->height())
                 {
                     xpos += spacing + maxColumnWidth;
-                    ypos = startMarginY;
+                    ypos           = startMarginY;
                     maxColumnWidth = 0;
                 }
 
@@ -197,20 +221,19 @@ bool RiuGridCrossQwtPlot::resizeOverlayItemToFitPlot(caf::TitledOverlayFrame* ov
 
     bool sizeAltered = false;
 
-    if (plotSize.width() > 0 && (double) legendSize.x() > 0.9 * plotSize.width())
+    if (plotSize.width() > 0 && (double)legendSize.x() > 0.9 * plotSize.width())
     {
         legendSize.x() = (plotSize.width() * 9) / 10;
-        sizeAltered = true;
+        sizeAltered    = true;
     }
-    if (plotSize.height() > 0 && (double) legendSize.y() > 0.9 * plotSize.height())
+    if (plotSize.height() > 0 && (double)legendSize.y() > 0.9 * plotSize.height())
     {
         legendSize.y() = (plotSize.height() * 9) / 10;
-        sizeAltered = true;
+        sizeAltered    = true;
     }
     overlayItem->setRenderSize(legendSize);
     return sizeAltered;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

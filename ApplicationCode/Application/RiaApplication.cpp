@@ -60,6 +60,8 @@
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
+#include "RimSaturationPressurePlot.h"
+#include "RimSaturationPressurePlotCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -214,7 +216,7 @@ RiaApplication::RiaApplication(int& argc, char** argv)
 
     setWindowIcon(QIcon(":/AppLogo48x48.png"));
 
-    m_socketServer  = new RiaSocketServer(this);
+    m_socketServer = new RiaSocketServer(this);
 
 #ifdef WIN32
     m_startupDefaultDirectory = QDir::homePath();
@@ -227,7 +229,7 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
     m_standardFont = RiaFontCache::getFont(RiaFontCache::FONT_SIZE_8);
-    
+
     m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);
 
     // Create main windows
@@ -660,13 +662,14 @@ bool RiaApplication::loadProject(const QString& projectFileName)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::loadAndUpdatePlotData()
 {
-    RimWellLogPlotCollection*      wlpColl  = nullptr;
-    RimSummaryPlotCollection*      spColl   = nullptr;
-    RimSummaryCrossPlotCollection* scpColl  = nullptr;
-    RimFlowPlotCollection*         flowColl = nullptr;
-    RimRftPlotCollection*          rftColl  = nullptr;
-    RimPltPlotCollection*          pltColl  = nullptr;
-    RimGridCrossPlotCollection*    gcpColl  = nullptr;
+    RimWellLogPlotCollection*            wlpColl  = nullptr;
+    RimSummaryPlotCollection*            spColl   = nullptr;
+    RimSummaryCrossPlotCollection*       scpColl  = nullptr;
+    RimFlowPlotCollection*               flowColl = nullptr;
+    RimRftPlotCollection*                rftColl  = nullptr;
+    RimPltPlotCollection*                pltColl  = nullptr;
+    RimGridCrossPlotCollection*          gcpColl  = nullptr;
+    RimSaturationPressurePlotCollection* sppColl  = nullptr;
 
     if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
     {
@@ -696,6 +699,10 @@ void RiaApplication::loadAndUpdatePlotData()
     {
         gcpColl = m_project->mainPlotCollection()->gridCrossPlotCollection();
     }
+    if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->saturationPressurePlotCollection())
+    {
+        sppColl = m_project->mainPlotCollection()->saturationPressurePlotCollection();
+    }
 
     size_t plotCount = 0;
     plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
@@ -705,6 +712,7 @@ void RiaApplication::loadAndUpdatePlotData()
     plotCount += rftColl ? rftColl->rftPlots().size() : 0;
     plotCount += pltColl ? pltColl->pltPlots().size() : 0;
     plotCount += gcpColl ? gcpColl->gridCrossPlots().size() : 0;
+    plotCount += sppColl ? sppColl->plots().size() : 0;
 
     if (plotCount > 0)
     {
@@ -766,6 +774,15 @@ void RiaApplication::loadAndUpdatePlotData()
             for (const auto& gcpPlot : gcpColl->gridCrossPlots())
             {
                 gcpPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if (sppColl)
+        {
+            for (const auto& sppPlot : sppColl->plots())
+            {
+                sppPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
@@ -1420,7 +1437,7 @@ void RiaApplication::createMainWindow()
     m_mainWindow->setDefaultWindowSize();
     m_mainWindow->setDefaultToolbarVisibility();
     m_mainWindow->loadWinGeoAndDockToolBarLayout();
-    m_mainWindow->showWindow();    
+    m_mainWindow->showWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1579,7 +1596,8 @@ void RiaApplication::closeMainPlotWindowIfOpenButHidden()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::addToRecentFiles(const QString& fileName)
 {
-    CVF_ASSERT(m_recentFileActionProvider && "The provider needs to be created before any attempts to use the recent file actions");
+    CVF_ASSERT(m_recentFileActionProvider &&
+               "The provider needs to be created before any attempts to use the recent file actions");
     m_recentFileActionProvider->addFileName(fileName);
 }
 
@@ -1588,7 +1606,8 @@ void RiaApplication::addToRecentFiles(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 std::vector<QAction*> RiaApplication::recentFileActions() const
 {
-    CVF_ASSERT(m_recentFileActionProvider && "The provider needs to be created before any attempts to use the recent file actions");
+    CVF_ASSERT(m_recentFileActionProvider &&
+               "The provider needs to be created before any attempts to use the recent file actions");
     return m_recentFileActionProvider->actions();
 }
 
@@ -1852,8 +1871,7 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
 
             m_mainWindow->processMonitor()->stopMonitorWorkProcess();
 
-            QMessageBox::warning(
-                m_mainWindow, "Script execution", "Failed to start script executable located at\n" + program);
+            QMessageBox::warning(m_mainWindow, "Script execution", "Failed to start script executable located at\n" + program);
 
             return false;
         }
@@ -1915,8 +1933,7 @@ void RiaApplication::applyPreferences()
 
     if (m_mainWindow && m_mainWindow->projectTreeView())
     {
-        m_mainWindow->projectTreeView()->enableAppendOfClassNameToUiItemText(
-            m_preferences->appendClassNameToUiText());
+        m_mainWindow->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
         if (mainPlotWindow())
             mainPlotWindow()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
     }

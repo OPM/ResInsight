@@ -24,6 +24,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEquil.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
@@ -558,6 +559,22 @@ void RigEclipseCaseData::setVirtualPerforationTransmissibilities(RigVirtualPerfo
 const RigVirtualPerforationTransmissibilities* RigEclipseCaseData::virtualPerforationTransmissibilities() const
 {
     return m_virtualPerforationTransmissibilities.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigEquil> RigEclipseCaseData::equilData() const
+{
+    return m_equil;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigEclipseCaseData::setEquilData(const std::vector<RigEquil>& equilObjects)
+{
+    m_equil = equilObjects;
 }
 
 //--------------------------------------------------------------------------------------------------

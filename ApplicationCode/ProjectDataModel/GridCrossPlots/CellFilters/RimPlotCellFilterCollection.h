@@ -15,31 +15,35 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
+#include "RimPlotCellFilter.h"
+
 #include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
 
-class RimGridCrossPlot;
+class RimCase;
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimGridCrossPlotCollection : public caf::PdmObject
+class RimPlotCellFilterCollection : public RimPlotCellFilter
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGridCrossPlotCollection();
-    ~RimGridCrossPlotCollection() override;
+    RimPlotCellFilterCollection();
 
-    void deleteAllChildObjects();
+    void addCellFilter(RimPlotCellFilter* cellFilter);
+    size_t cellFilterCount() const;
 
-    std::vector<RimGridCrossPlot*> gridCrossPlots() const;
-    RimGridCrossPlot*              createGridCrossPlot();
-    void                           addGridCrossPlot(RimGridCrossPlot* plot);
+    void computeCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility);
+
+    void setCase(RimCase* gridCase);
+
+protected:
+    void updateCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility) override;
 
 private:
-    caf::PdmChildArrayField<RimGridCrossPlot*> m_gridCrossPlots;
+    caf::PdmChildArrayField<RimPlotCellFilter*> m_cellFilters;
 };

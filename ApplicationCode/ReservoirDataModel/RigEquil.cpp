@@ -92,6 +92,32 @@ int RigEquil::initializationTargetAccuracy() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigEquil RigEquil::defaultObject()
+{
+    double datumDepth                       = 0.0;
+    double datuDepthPressure                = 0.0;
+    double waterOilContactDepth             = 0.0;
+    double waterOilContactCapillaryPressure = 0.0;
+    double gasOilContactDepth               = 0.0;
+    double gasOilContactCapillaryPressure   = 0.0;
+    int    liveOilInitConstantRs            = -1;
+    int    wetGasInitConstantRv             = -1;
+    int    initializationTargetAccuracy     = -5;
+
+    return RigEquil(datumDepth,
+                    datuDepthPressure,
+                    waterOilContactDepth,
+                    waterOilContactCapillaryPressure,
+                    gasOilContactDepth,
+                    gasOilContactCapillaryPressure,
+                    liveOilInitConstantRs,
+                    wetGasInitConstantRv,
+                    initializationTargetAccuracy);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigEquil RigEquil::parseString(const QString& keywordData)
 {
     double datumDepth                       = 0.0;

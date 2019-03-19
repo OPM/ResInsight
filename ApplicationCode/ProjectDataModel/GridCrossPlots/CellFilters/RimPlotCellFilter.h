@@ -15,31 +15,37 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "RimCheckableNamedObject.h"
 
-class RimGridCrossPlot;
+#include "cvfArray.h"
+#include "cvfBase.h"
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimGridCrossPlotCollection : public caf::PdmObject
+class RimPlotCellFilter : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGridCrossPlotCollection();
-    ~RimGridCrossPlotCollection() override;
+    enum FilterModeType
+    {
+        INCLUDE,
+        EXCLUDE
+    };
 
-    void deleteAllChildObjects();
+public:
+    RimPlotCellFilter();
 
-    std::vector<RimGridCrossPlot*> gridCrossPlots() const;
-    RimGridCrossPlot*              createGridCrossPlot();
-    void                           addGridCrossPlot(RimGridCrossPlot* plot);
+    void           updateCellVisibility(size_t timeStepIndex, cvf::UByteArray* cellVisibility);
+    FilterModeType filterMode() const;
+
+protected:
+    virtual void updateCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility) = 0;
 
 private:
-    caf::PdmChildArrayField<RimGridCrossPlot*> m_gridCrossPlots;
+    caf::PdmField<caf::AppEnum<FilterModeType>> m_filterMode;
 };

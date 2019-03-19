@@ -48,6 +48,7 @@ class RigCell;
 class RigWellPath;
 class RimEclipseCase;
 class RigVirtualPerforationTransmissibilities;
+class RigEquil;
 
 struct RigWellResultPoint;
 
@@ -118,6 +119,9 @@ public:
 
     void                                        clearWellCellsInGridCache() { m_wellCellsInGrid.clear(); }
 
+    std::vector<RigEquil>                       equilData() const;
+    void                                        setEquilData(const std::vector<RigEquil>& equilObjects);
+
 private:
     void                                        computeActiveCellIJKBBox();
     void                                        computeWellCellsPrGrid();
@@ -140,6 +144,8 @@ private:
     cvf::Collection<cvf::UIntArray>             m_gridCellToResultWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
 
     RiaEclipseUnitTools::UnitSystem             m_unitsType;
+
+    std::vector<RigEquil>                       m_equil;
 
     mutable std::map<std::tuple<QString, bool, bool>, cvf::Collection<RigWellPath>> m_simWellBranchCache;
 };

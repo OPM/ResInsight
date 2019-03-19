@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019- Equinor ASA
+//  Copyright (C) 2017-     Statoil ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,31 +15,33 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmChildArrayField.h"
+#include "RimEclipseCase.h"
+
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
-
-class RimGridCrossPlot;
+#include "cafPdmPtrField.h"
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimGridCrossPlotCollection : public caf::PdmObject
+class RicSaturationPressureUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGridCrossPlotCollection();
-    ~RimGridCrossPlotCollection() override;
+    RicSaturationPressureUi();
 
-    void deleteAllChildObjects();
+    void            setSelectedCase(RimEclipseCase* eclipseCase);
+    RimEclipseCase* selectedCase() const;
 
-    std::vector<RimGridCrossPlot*> gridCrossPlots() const;
-    RimGridCrossPlot*              createGridCrossPlot();
-    void                           addGridCrossPlot(RimGridCrossPlot* plot);
+protected:
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                        bool*                      useOptionsOnly) override;
 
 private:
-    caf::PdmChildArrayField<RimGridCrossPlot*> m_gridCrossPlots;
+    caf::PdmPtrField<RimEclipseCase*> m_caseToApply;
 };

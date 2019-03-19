@@ -20,26 +20,26 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-class RimGridCrossPlot;
+class RimSaturationPressurePlot;
+class RimEclipseResultCase;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimGridCrossPlotCollection : public caf::PdmObject
+class RimSaturationPressurePlotCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGridCrossPlotCollection();
-    ~RimGridCrossPlotCollection() override;
+    RimSaturationPressurePlotCollection();
+    ~RimSaturationPressurePlotCollection() override;
 
-    void deleteAllChildObjects();
+    void createSaturationPressurePlots(RimEclipseResultCase* eclipseResultCase);
 
-    std::vector<RimGridCrossPlot*> gridCrossPlots() const;
-    RimGridCrossPlot*              createGridCrossPlot();
-    void                           addGridCrossPlot(RimGridCrossPlot* plot);
+    std::vector<RimSaturationPressurePlot*> plots();
+    void                                    deleteAllChildObjects();
 
 private:
-    caf::PdmChildArrayField<RimGridCrossPlot*> m_gridCrossPlots;
+    caf::PdmChildArrayField<RimSaturationPressurePlot*> m_saturationPressurePlots;
 };

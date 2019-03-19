@@ -76,6 +76,7 @@ public:
     void                            simpleCopy(const RimEclipseResultDefinition* other);
 
     void                            setEclipseCase(RimEclipseCase* eclipseCase);
+    RimEclipseCase*                 eclipseCase();
 
     RiaDefines::ResultCatType       resultType() const { return m_resultType(); }
     void                            setResultType(RiaDefines::ResultCatType val);

@@ -30,6 +30,8 @@
 
 #include <QString>
 
+class RimPlotAxisAnnotation;
+
 //==================================================================================================
 ///
 ///
@@ -70,6 +72,9 @@ public:
     bool                 isAxisInverted() const;
     void                 setAxisInverted(bool inverted);
 
+    std::vector<RimPlotAxisAnnotation*> annotations() const;
+    void appendAnnotation(RimPlotAxisAnnotation* annotation);
+
     caf::PdmField<QString>                             customTitle;
     caf::PdmField<int>                                 titleFontSize;
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> titlePositionEnum;
@@ -84,6 +89,9 @@ public:
     caf::PdmField<int>                            valuesFontSize;
 
     bool isActive() const;
+
+    void setInvertedAxis(bool enable);
+    void showAnnotationObjectsInProjectTree();
     
 protected:
     void                 initAfterRead() override;
@@ -113,6 +121,8 @@ private:
     QwtPlot::Axis          m_axis;
 
     bool                   m_enableTitleTextSettings;
+
+    caf::PdmChildArrayField<RimPlotAxisAnnotation*> m_annotations;
 };
 
 class QwtPlotCurve;

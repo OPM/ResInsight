@@ -49,6 +49,7 @@ public:
     bool wetGasInitConstantRv() const;
     int  initializationTargetAccuracy() const;
 
+    static RigEquil defaultObject();
     static RigEquil parseString(const QString& keywordData);
 
 private:

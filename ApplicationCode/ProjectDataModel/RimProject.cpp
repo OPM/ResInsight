@@ -48,6 +48,7 @@
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGridCrossPlotCollection.h"
+#include "RimSaturationPressurePlotCollection.h"
 #include "RimValveTemplate.h"
 #include "RimValveTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -1245,6 +1246,11 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             if (mainPlotCollection->gridCrossPlotCollection())
             {
                 itemCollection->add(mainPlotCollection->gridCrossPlotCollection());
+            }
+
+            if (mainPlotCollection->saturationPressurePlotCollection())
+            {
+                itemCollection->add(mainPlotCollection->saturationPressurePlotCollection());
             }
         }
     }
