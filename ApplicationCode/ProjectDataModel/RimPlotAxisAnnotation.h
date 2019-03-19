@@ -69,6 +69,7 @@ protected:
 private:
     RigEquil              selectedItem() const;
     std::vector<RigEquil> equilItems() const;
+    void                  updateName();
 
 private:
     caf::PdmField<ExportKeywordEnum> m_annotationType;

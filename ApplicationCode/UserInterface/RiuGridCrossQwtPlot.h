@@ -17,13 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-
 #include "RiuInterfaceToViewWindow.h"
+#include "RiuPlotAnnotationTool.h"
 #include "RiuQwtPlot.h"
 
 #include "cafPdmPointer.h"
 
 #include <QPointer>
+
+#include <memory>
 
 class RimGridCrossPlotCurveSet;
 class RiuCvfOverlayItemWidget;
@@ -54,11 +56,11 @@ public:
 protected:
     void updateLayout() override;
     void updateLegendLayout();
-    void resizeEvent(QResizeEvent *e) override;
+    void resizeEvent(QResizeEvent* e) override;
     bool resizeOverlayItemToFitPlot(caf::TitledOverlayFrame* overlayItem);
     void contextMenuEvent(QContextMenuEvent*) override;
 
 private:
     std::map<caf::PdmPointer<RimGridCrossPlotCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_legendWidgets;
-    std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
+    std::unique_ptr<RiuPlotAnnotationTool>                                                 m_annotationTool;
 };

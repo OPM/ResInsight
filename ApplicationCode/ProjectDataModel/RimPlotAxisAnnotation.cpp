@@ -85,6 +85,8 @@ void RimPlotAxisAnnotation::setEquilibriumData(RimEclipseCase*        eclipseCas
     m_sourceCase     = eclipseCase;
     m_equilNum       = zeroBasedEquilRegionIndex + 1;
     m_annotationType = annotationType;
+
+    updateName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,14 +148,6 @@ void RimPlotAxisAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedF
                                              const QVariant&            oldValue,
                                              const QVariant&            newValue)
 {
-    /*
-        RimViewWindow* viewWindow = nullptr;
-        this->firstAncestorOrThisOfType(viewWindow);
-        if (viewWindow)
-        {
-            viewWindow->loadDataAndUpdate();
-        }
-    */
     RimRiuQwtPlotOwnerInterface* parentPlot = nullptr;
     this->firstAncestorOrThisOfType(parentPlot);
     if (parentPlot)
@@ -176,7 +170,7 @@ QList<caf::PdmOptionItemInfo> RimPlotAxisAnnotation::calculateValueOptions(const
     }
     else if (fieldNeedingOptions == &m_equilNum)
     {
-        for (int i = 0; i < equilItems().size(); i++)
+        for (int i = 0; i < static_cast<int>(equilItems().size()); i++)
         {
             QString uiText = QString("%1").arg(i + 1);
             options.push_back(caf::PdmOptionItemInfo(uiText, i));
@@ -214,7 +208,7 @@ RigEquil RimPlotAxisAnnotation::selectedItem() const
 {
     int index = m_equilNum() - 1;
 
-    if (index < equilItems().size())
+    if (index < static_cast<int>(equilItems().size()))
     {
         return equilItems()[index];
     }
@@ -233,4 +227,23 @@ std::vector<RigEquil> RimPlotAxisAnnotation::equilItems() const
     }
 
     return std::vector<RigEquil>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisAnnotation::updateName()
+{
+    QString text;
+
+    if (m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT)
+    {
+        text = QString("WOC %1").arg(value());
+    }
+    else if (m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT)
+    {
+        text = QString("GOC %1").arg(value());
+    }
+
+    m_name = text;
 }
