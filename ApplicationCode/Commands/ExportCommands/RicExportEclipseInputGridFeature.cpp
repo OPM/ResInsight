@@ -78,12 +78,14 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
     int gridProgressPercentage = 100 - resultProgressPercentage;
     caf::ProgressInfo progress(gridProgressPercentage + resultProgressPercentage, "Export Eclipse Data");
     
+    cvf::Vec3st refinement(exportSettings.cellCountI(), exportSettings.cellCountJ(), exportSettings.cellCountK());
+
     cvf::Vec3st min, max;
     std::tie(min, max) = getVisibleCellRange(view);
     if (exportSettings.exportGrid())
     {
         auto task = progress.task("Export Input Grid", gridProgressPercentage);
-        bool worked = RifReaderEclipseOutput::saveEclipseGrid(exportSettings.exportGridFilename(), view->eclipseCase()->eclipseCaseData(), &min, &max);
+        bool worked = RifReaderEclipseOutput::saveEclipseGrid(exportSettings.exportGridFilename(), view->eclipseCase()->eclipseCaseData(), min, max, refinement);
         if (!worked)
         {
             RiaLogging::error(
@@ -108,8 +110,9 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
                                                                          view->eclipseCase()->eclipseCaseData(),
                                                                          {keyword},
                                                                          fileWriteMode,
-                                                                         &min,
-                                                                         &max);
+                                                                         min,
+                                                                         max,
+                                                                         refinement);
                 if (!worked)
                 {
                     RiaLogging::error(QString("Unable to write results to '%1'").arg(fileName));
@@ -130,8 +133,9 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
                 view->eclipseCase()->eclipseCaseData(),
                 keywords,
                 fileWriteMode,
-                &min,
-                &max);
+                min,
+                max,
+                refinement);
 
             if (!worked)
             {

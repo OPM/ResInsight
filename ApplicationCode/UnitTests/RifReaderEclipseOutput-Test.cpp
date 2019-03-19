@@ -192,7 +192,7 @@ TEST(RigReservoirTest, Test10k_ReadThenWriteToECL)
     dataDir.cd(subDir);
     QString outFilePath = dataDir.absoluteFilePath("TEST10K_FLT_LGR_NNC_OUT_FROM_RES.GRDECL");
 
-    bool worked = RifReaderEclipseOutput::saveEclipseGrid(outFilePath, resultCase->eclipseCaseData());
+    /* bool worked = RifReaderEclipseOutput::saveEclipseGrid(outFilePath, resultCase->eclipseCaseData());
     EXPECT_TRUE(worked);
     EXPECT_TRUE(QFile::exists(outFilePath));
 
@@ -208,7 +208,7 @@ TEST(RigReservoirTest, Test10k_ReadThenWriteToECL)
 
     worked = RifReaderEclipseOutput::saveEclipseResults(dataFilePath, resultCase->eclipseCaseData(), keywords);
     EXPECT_TRUE(worked);
-    EXPECT_TRUE(QFile::exists(dataFilePath));
+    EXPECT_TRUE(QFile::exists(dataFilePath)); */
 }
 #if 0
 

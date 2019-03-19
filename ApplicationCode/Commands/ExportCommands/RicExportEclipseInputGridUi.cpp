@@ -65,6 +65,11 @@ RicExportEclipseInputGridUi::RicExportEclipseInputGridUi(RigEclipseCaseData* cas
     CAF_PDM_InitFieldNoDefault(&exportMainKeywords, "ExportMainKeywords", "Main Keywords", "", "", "");
     CAF_PDM_InitFieldNoDefault(&exportAdditionalKeywords, "ExportAdditionalKeywords", "Additional Keywords", "", "", "");
 
+    QString ijkLabel = "Cell Count I, J, K";
+    CAF_PDM_InitField(&cellCountI, "CellCountI", 1, ijkLabel, "", "", "");
+    CAF_PDM_InitField(&cellCountJ, "CellCountJ", 1, "", "", "", "");
+    CAF_PDM_InitField(&cellCountK, "CellCountK", 1, "", "", "", "");
+
     exportGridFilename    = defaultGridFileName();
     exportResultsFilename = defaultResultsFileName();
 
@@ -135,6 +140,12 @@ void RicExportEclipseInputGridUi::defineUiOrdering(QString uiConfigName, caf::Pd
         resultsGroup->add(&exportMainKeywords);
         resultsGroup->add(&exportAdditionalKeywords);
     }
+
+    caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup("Grid Refinement");
+    gridRefinement->add(&cellCountI, { true, 2, 1 });
+    gridRefinement->add(&cellCountJ, { false });
+    gridRefinement->add(&cellCountK, { false });
+
     uiOrdering.skipRemainingFields(true);
 }
 

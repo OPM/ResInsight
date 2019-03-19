@@ -67,13 +67,18 @@ public:
     std::vector<QDateTime>  allTimeSteps() const;
 
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase);
-    static bool             saveEclipseGrid(const QString& gridFileName, RigEclipseCaseData* eclipseCase, const cvf::Vec3st* min = nullptr, const cvf::Vec3st* max = nullptr);
+    static bool             saveEclipseGrid(const QString&      gridFileName,
+                                            RigEclipseCaseData* eclipseCase,
+                                            const cvf::Vec3st&  min,
+                                            const cvf::Vec3st&  max,
+                                            const cvf::Vec3st&  refinement);
     static bool             saveEclipseResults(const QString&                                resultFileName,
                                                RigEclipseCaseData*                           eclipseCase,
                                                const std::vector<QString>&                   keywords,
-                                               const QString&                                fileWriteMode = "w",
-                                               const cvf::Vec3st*                            min = nullptr,
-                                               const cvf::Vec3st*                            max = nullptr);
+                                               const QString&                                fileWriteMode,
+                                               const cvf::Vec3st&                            min,
+                                               const cvf::Vec3st&                            max,
+                                               const cvf::Vec3st&                            refinement);
 
     static void             transferCoarseningInfo(const ecl_grid_type* eclGrid, RigGridBase* grid);
 

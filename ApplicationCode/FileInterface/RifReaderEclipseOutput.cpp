@@ -21,6 +21,7 @@
 #include "RifReaderEclipseOutput.h"
 
 #include "RiaApplication.h"
+#include "RiaCellDividingTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
@@ -354,7 +355,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::saveEclipseGrid(const QString& fileName, RigEclipseCaseData* eclipseCase, const cvf::Vec3st* min, const cvf::Vec3st* max)
+bool RifReaderEclipseOutput::saveEclipseGrid(const QString& fileName, RigEclipseCaseData* eclipseCase, const cvf::Vec3st& min, const cvf::Vec3st& max, const cvf::Vec3st& refinement)
 {
     if (!eclipseCase)
     {
@@ -368,68 +369,75 @@ bool RifReaderEclipseOutput::saveEclipseGrid(const QString& fileName, RigEclipse
 
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();    
 
-    int ecl_nx = (int) mainGrid->cellCountI();
-    int ecl_ny = (int) mainGrid->cellCountJ();
-    int ecl_nz = (int) mainGrid->cellCountK();
+    int ecl_nx = static_cast<int>((max.x() - min.x()) * refinement.x() + 1);
+    int ecl_ny = static_cast<int>((max.y() - min.y()) * refinement.y() + 1);
+    int ecl_nz = static_cast<int>((max.z() - min.z()) * refinement.z() + 1);
+    
 
-    if (min && max)
-    {
-        ecl_nx = (int) (max->x() - min->x()) + 1;
-        ecl_ny = (int) (max->y() - min->y()) + 1;
-        ecl_nz = (int) (max->z() - min->z()) + 1;
-    }
+    size_t cellsPerOriginal = refinement.x() * refinement.y() * refinement.z();
 
-    int ecl_cell_count = (int) mainGrid->cellCount();
-
-    caf::ProgressInfo progress(ecl_cell_count * 2, "Save Eclipse Grid");
+    caf::ProgressInfo progress(mainGrid->cellCount() * 2, "Save Eclipse Grid");
     int cellProgressInterval = 1000;
 
-    std::vector<float*> ecl_corners; ecl_corners.reserve(ecl_cell_count);
-    std::vector<int*> ecl_coords; ecl_coords.reserve(ecl_cell_count);
+    std::vector<float*> ecl_corners; ecl_corners.reserve(mainGrid->cellCount() * cellsPerOriginal);
+    std::vector<int*> ecl_coords; ecl_coords.reserve(mainGrid->cellCount() * cellsPerOriginal);
 
     int incrementalIndex = 0;
-    for (int index = 0; index < ecl_cell_count; ++index)
+    for (size_t k = min.z() * refinement.z(); k <= max.z() * refinement.z(); ++k)
     {
-        size_t i, j, k;
-        mainGrid->ijkFromCellIndex(index, &i, &j, &k);
-
-        if (i < min->x() || i > max->x() ||
-            j < min->y() || j > max->y() ||
-            k < min->z() || k > max->z())
+        size_t mainK = k / refinement.z();
+        size_t k0 = k - min.z() * refinement.z();
+        for (size_t j = min.y() * refinement.y(); j <= max.y() * refinement.y(); ++j)
         {
-            continue;
+            size_t mainJ = j / refinement.y();
+            size_t j0 = j - min.y() * refinement.y();
+            for (size_t i = min.x() * refinement.x(); i <= max.x() * refinement.x(); ++i)
+            {
+                size_t mainI = i / refinement.x();
+                size_t i0 = i - min.x() * refinement.x();
+
+                size_t mainIndex = mainGrid->cellIndexFromIJK(mainI, mainJ, mainK);
+
+                int active = activeCellInfo->isActive(mainIndex) ? 1 : 0;
+
+                int* ecl_cell_coords = new int[5];
+                ecl_cell_coords[0] = (int)(i0 + 1);
+                ecl_cell_coords[1] = (int)(j0 + 1);
+                ecl_cell_coords[2] = (int)(k0 + 1);
+                ecl_cell_coords[3] = incrementalIndex++;
+                ecl_cell_coords[4] = active;
+                ecl_coords.push_back(ecl_cell_coords);
+
+                std::array<cvf::Vec3d, 8> cellCorners;
+                mainGrid->cellCornerVertices(mainIndex, cellCorners.data());
+
+                auto refinedCoords = RiaCellDividingTools::createHexCornerCoords(
+                    cellCorners, refinement.x(), refinement.y(), refinement.z());
+
+                size_t subI = i % refinement.x();
+                size_t subJ = j % refinement.y();
+                size_t subK = k % refinement.z();
+                size_t subIndex = subI + subJ * refinement.x() + subK * refinement.x() * refinement.y();
+
+                float* ecl_cell_corners = new float[24];
+                for (size_t cIdx = 0; cIdx < 8; ++cIdx)
+                {
+                    cvf::Vec3d cellCorner                            = refinedCoords[subIndex * 8 + cIdx];
+                    ecl_cell_corners[cellMappingECLRi[cIdx] * 3]     = cellCorner[0];
+                    ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 1] = cellCorner[1];
+                    ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 2] = -cellCorner[2];
+                }
+                ecl_corners.push_back(ecl_cell_corners);
+            }
         }
-
-        int active = activeCellInfo->isActive(index) ? 1 : 0;
-
-        int* ecl_cell_coords = new int[5];
-        ecl_cell_coords[0] = (int) (i + 1 - min->x());
-        ecl_cell_coords[1] = (int) (j + 1 - min->y());
-        ecl_cell_coords[2] = (int) (k + 1 - min->z());
-        ecl_cell_coords[3] = incrementalIndex++;
-        ecl_cell_coords[4] = active;
-        ecl_coords.push_back(ecl_cell_coords);
-
-        cvf::Vec3d cellCorners[8];
-        mainGrid->cellCornerVertices(index, cellCorners);
-
-        float* ecl_cell_corners = new float[24];
-        for (size_t corner = 0; corner < 8; ++corner)
+        if (incrementalIndex % cellProgressInterval == 0)
         {
-            ecl_cell_corners[cellMappingECLRi[corner] * 3    ] =  cellCorners[corner][0];
-            ecl_cell_corners[cellMappingECLRi[corner] * 3 + 1] =  cellCorners[corner][1];
-            ecl_cell_corners[cellMappingECLRi[corner] * 3 + 2] = -cellCorners[corner][2];
-        }
-        ecl_corners.push_back(ecl_cell_corners);
-
-        if (index % cellProgressInterval == 0)
-        {
-            progress.setProgress(index);
+            progress.setProgress(incrementalIndex);
         }
     }
 
     ecl_grid_type* mainEclGrid = ecl_grid_alloc_GRID_data((int) ecl_coords.size(), ecl_nx, ecl_ny, ecl_nz, 5, &ecl_coords[0], &ecl_corners[0], false, NULL);
-    progress.setProgress(ecl_cell_count * 2);
+    progress.setProgress(mainGrid->cellCount());
 
     for (float* floatArray : ecl_corners)
     {
@@ -458,12 +466,13 @@ bool RifReaderEclipseOutput::saveEclipseGrid(const QString& fileName, RigEclipse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::saveEclipseResults(const QString&                                resultFileName,
-                                                RigEclipseCaseData*                           eclipseCase,
-                                                const std::vector<QString>&                   keywords,
-                                                const QString&                                fileWriteMode,
-                                                const cvf::Vec3st*                            min,
-                                                const cvf::Vec3st*                            max)
+bool RifReaderEclipseOutput::saveEclipseResults(const QString&              resultFileName,
+                                                RigEclipseCaseData*         eclipseCase,
+                                                const std::vector<QString>& keywords,
+                                                const QString&              fileWriteMode,
+                                                const cvf::Vec3st&          min,
+                                                const cvf::Vec3st&          max,
+                                                const cvf::Vec3st&          refinement)
 {
     FILE* filePtr = RifEclipseOutputFileTools::fopen(resultFileName, fileWriteMode);
     if (!filePtr)
@@ -487,18 +496,25 @@ bool RifReaderEclipseOutput::saveEclipseResults(const QString&                  
             
         std::vector<double> filteredResults;
         filteredResults.reserve(resultValues.size());
-        for (size_t index = 0; index < mainGrid->cellCount(); ++index)
+
+        for (size_t k = min.z() * refinement.z(); k <= max.z() * refinement.z(); ++k)
         {
-            size_t i, j, k;
-            mainGrid->ijkFromCellIndex(index, &i, &j, &k);
-            if (i < min->x() || i > max->x() || j < min->y() || j > max->y() || k < min->z() || k > max->z())
+            size_t mainK = k / refinement.z();
+            for (size_t j = min.y() * refinement.y(); j <= max.y() * refinement.y(); ++j)
             {
-                continue;
-            }
-            size_t resIndex = activeCells->cellResultIndex(index);
-            if (resIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                filteredResults.push_back(resultValues[resIndex]);
+                size_t mainJ = j / refinement.y();
+                for (size_t i = min.x() * refinement.x(); i <= max.x() * refinement.x(); ++i)
+                {
+                    size_t mainI = i / refinement.x();
+
+                    size_t mainIndex = mainGrid->cellIndexFromIJK(mainI, mainJ, mainK);
+
+                    size_t resIndex = activeCells->cellResultIndex(mainIndex);
+                    if (resIndex != cvf::UNDEFINED_SIZE_T)
+                    {
+                        filteredResults.push_back(resultValues[resIndex]);
+                    }
+                }
             }
         }
 

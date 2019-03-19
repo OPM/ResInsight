@@ -60,6 +60,10 @@ public:
     caf::PdmField<std::vector<QString>>    exportMainKeywords;
     caf::PdmField<std::vector<QString>>    exportAdditionalKeywords;
 
+    caf::PdmField<int> cellCountI;
+    caf::PdmField<int> cellCountJ;
+    caf::PdmField<int> cellCountK;
+
 protected:
     void            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
     void            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
