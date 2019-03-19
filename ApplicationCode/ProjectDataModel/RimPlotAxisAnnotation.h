@@ -50,7 +50,7 @@ public:
     void setName(const QString& name);
     void setValue(double value);
 
-    void setEquilibriumData(RimEclipseCase* eclipseCase, int equilibriumRegion, PlotAxisAnnotationType annotationType);
+    void setEquilibriumData(RimEclipseCase* eclipseCase, int zeroBasedEquilRegionIndex, PlotAxisAnnotationType annotationType);
 
     QString name() const;
     double  value() const;

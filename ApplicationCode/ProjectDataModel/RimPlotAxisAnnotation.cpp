@@ -79,11 +79,11 @@ void RimPlotAxisAnnotation::setValue(double value)
 ///
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisAnnotation::setEquilibriumData(RimEclipseCase*        eclipseCase,
-                                               int                    equilibriumRegion,
+                                               int                    zeroBasedEquilRegionIndex,
                                                PlotAxisAnnotationType annotationType)
 {
     m_sourceCase     = eclipseCase;
-    m_equilNum       = equilibriumRegion;
+    m_equilNum       = zeroBasedEquilRegionIndex + 1;
     m_annotationType = annotationType;
 }
 
