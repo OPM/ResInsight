@@ -522,6 +522,7 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
     {
         m_qwtPlot->setTitle(this->createAutoName());
     }
+    updateMdiWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -145,6 +145,4 @@ void RimNameConfig::initAfterRead()
     {
         enableAllAutoNameTags(false);
     }
-
-    updateAllSettings();
 }

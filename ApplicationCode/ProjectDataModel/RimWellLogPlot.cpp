@@ -1151,8 +1151,8 @@ void RimWellLogPlot::updatePlotTitle()
 {
     if (m_viewer)
     {
-        m_viewer->setPlotTitle(this->createAutoName());
-        
+        m_viewer->setPlotTitle(this->createAutoName());        
     }
+    updateMdiWindowTitle();
 }
 
