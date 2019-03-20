@@ -19,6 +19,7 @@
 #include "RimMdiWindowController.h"
 
 #include "RiaApplication.h"
+#include "RimProject.h"
 #include "RimViewWindow.h"
 #include "RiuMainWindowBase.h"
 
@@ -84,6 +85,7 @@ void RimMdiWindowController::handleViewerDeletion()
 
     uiCapability()->updateUiIconFromToggleField();
     updateConnectedEditors();
+    RiaApplication::instance()->project()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
