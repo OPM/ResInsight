@@ -53,7 +53,7 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
    
     setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
     setSymbol(RiuQwtSymbol::SYMBOL_NONE);
-    setSymbolSize(6);
+    setSymbolSize(4);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,7 +97,7 @@ int RimGridCrossPlotCurve::groupIndex() const
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::determineSymbol()
 {
-    RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledFilledSymbolStyle(m_curveSetIndex);
+    RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbolStyle(m_curveSetIndex);
     setSymbol(symbol);
 }
 
