@@ -62,6 +62,8 @@ public:
     void                            setLineStyle(RiuQwtPlotCurve::LineStyleEnum lineStyle);
     void                            setSymbol(RiuQwtSymbol::PointSymbolEnum symbolStyle);
     RiuQwtSymbol::PointSymbolEnum   symbol();
+    cvf::Color3f                    symbolEdgeColor() const;
+    void                            setSymbolEdgeColor(const cvf::Color3f& edgeColor);
     void                            setSymbolSkipDistance(float distance);
     void                            setSymbolLabel(const QString& label);
     void                            setSymbolSize(int sizeInPixels);
@@ -140,6 +142,7 @@ protected:
     caf::PdmField<LineStyle>          m_lineStyle;
     caf::PdmField<CurveInterpolation> m_curveInterpolation;
     RiuQwtSymbol::LabelPosition       m_symbolLabelPosition;
+    caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;
 };
 
 

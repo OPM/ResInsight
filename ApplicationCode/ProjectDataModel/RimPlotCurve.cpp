@@ -109,6 +109,7 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault(&m_curveInterpolation, "CurveInterpolation", "Interpolation", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_lineStyle, "LineStyle", "Line Style", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_pointSymbol, "PointSymbol", "Symbol", "", "", "");
+    CAF_PDM_InitField(&m_symbolEdgeColor, "SymbolEdgeColor", cvf::Color3f(cvf::Color3::BLACK), "Symbol Edge Color", "", "", "");
 
     CAF_PDM_InitField(&m_symbolSkipPixelDistance, "SymbolSkipPxDist", 0.0f, "Symbol Skip Distance", "", "Minimum pixel distance between symbols", "");
 
@@ -162,7 +163,8 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
              || &m_lineStyle == changedField
              || &m_symbolSkipPixelDistance == changedField
              || &m_curveInterpolation == changedField
-             || &m_symbolSize == changedField)
+             || &m_symbolSize == changedField
+             || &m_symbolEdgeColor == changedField)
     {
         updateCurveAppearance();
 
@@ -467,6 +469,7 @@ void RimPlotCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_curveColor);
     uiOrdering.add(&m_pointSymbol);
+    uiOrdering.add(&m_symbolEdgeColor);
     uiOrdering.add(&m_symbolSize);
     uiOrdering.add(&m_symbolSkipPixelDistance);
     uiOrdering.add(&m_lineStyle);
@@ -537,8 +540,7 @@ void RimPlotCurve::updateCurveAppearance()
 {
     CVF_ASSERT(m_qwtPlotCurve);
 
-    QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
-
+    QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());    
     QwtSymbol* symbol = nullptr;
 
     if (m_pointSymbol() != RiuQwtSymbol::SYMBOL_NONE)
@@ -547,6 +549,10 @@ void RimPlotCurve::updateCurveAppearance()
         symbol = new RiuQwtSymbol(m_pointSymbol(), m_symbolLabel, m_symbolLabelPosition);
         symbol->setSize(m_symbolSize, m_symbolSize);
         symbol->setColor(curveColor);
+
+        QColor symbolEdgeColor(m_symbolEdgeColor.value().rByte(), m_symbolEdgeColor.value().gByte(), m_symbolEdgeColor.value().bByte());
+
+        symbol->setPen(symbolEdgeColor);
     }
 
     m_qwtPlotCurve->setAppearance(m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor);
@@ -676,6 +682,22 @@ RiuQwtSymbol::PointSymbolEnum RimPlotCurve::symbol()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimPlotCurve::symbolEdgeColor() const
+{
+    return m_symbolEdgeColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSymbolEdgeColor(const cvf::Color3f& edgeColor)
+{
+    m_symbolEdgeColor = edgeColor;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setSymbolSkipDistance(float distance)
@@ -713,6 +735,7 @@ void RimPlotCurve::setLineThickness(int thickness)
 void RimPlotCurve::resetAppearance()
 {
     setColor(cvf::Color3f(cvf::Color3::BLACK));
+    setSymbolEdgeColor(cvf::Color3f(cvf::Color3::BLACK));
     setLineThickness(2);
     setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
     setSymbol(RiuQwtSymbol::SYMBOL_NONE);

@@ -466,6 +466,7 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
             int                    colorIndex = indexInPlot();
             curve->setColor(colors.cycledColor3f(colorIndex));
         }
+        curve->setSymbolEdgeColor(curve->color());
         curve->setGroupingInformation(indexInPlot(), 0);
         curve->setSamples(result.xValues, result.yValues);
         curve->updateCurveAppearance();
@@ -522,6 +523,7 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
             {
                 curve->setColor(cvf::Color3f(legendConfig()->scalarMapper()->mapToColor(tickValues[it->first])));
             }
+            curve->setSymbolEdgeColor(curve->color());
             curve->setSamples(it->second.xValues, it->second.yValues);
             curve->showLegend(m_crossPlotCurves.empty());
             curve->setLegendEntryText(createAutoName());
