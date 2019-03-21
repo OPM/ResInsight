@@ -26,6 +26,8 @@
 #include "RimTools.h"
 #include "RimViewWindow.h"
 
+#include <cmath>
+
 namespace caf
 {
 template<>
