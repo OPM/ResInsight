@@ -91,14 +91,17 @@ void RicImportGeneralDataFeature::onActionTriggered(bool isChecked)
     if (!eclipseCaseFiles.empty())
     {
         RicImportEclipseCaseFeature::openEclipseCaseFromFileNames(eclipseCaseFiles);
+        app->setLastUsedDialogDirectory("BINARY_GRID", defaultDir);
     }
     if (!eclipseInputFiles.empty())
     {
         RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(eclipseInputFiles);
+        app->setLastUsedDialogDirectory("INPUT_FILES", defaultDir);
     }
     if (!eclipseSummaryFiles.empty())
     {
         RicImportSummaryCaseFeature::openSummaryCaseFromFileNames(eclipseSummaryFiles);
+        app->setLastUsedDialogDirectory("INPUT_FILES", defaultDir);
     }
 }
 

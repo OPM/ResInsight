@@ -238,9 +238,9 @@ bool RifEclipseInputFileTools::exportGrid(const QString&      fileName,
         max = cvf::Vec3st(mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1);
     }
 
-    int ecl_nx = static_cast<int>((max.x() - min.x() + 1) * refinement.x());
-    int ecl_ny = static_cast<int>((max.y() - min.y() + 1) * refinement.y());
-    int ecl_nz = static_cast<int>((max.z() - min.z() + 1) * refinement.z());
+    int ecl_nx = static_cast<int>((max.x() - min.x()) * refinement.x() + 1);
+    int ecl_ny = static_cast<int>((max.y() - min.y()) * refinement.y() + 1);
+    int ecl_nz = static_cast<int>((max.z() - min.z()) * refinement.z() + 1);
 
     CVF_ASSERT(ecl_nx > 0 && ecl_ny > 0 && ecl_nz > 0);
 

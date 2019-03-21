@@ -78,6 +78,7 @@ protected:
                                                         bool*                      useOptionsOnly) override;
 
     static std::set<QString> mainKeywords();
+    QString defaultFolder() const;
     QString defaultGridFileName() const;
     QString defaultResultsFileName() const;
     QString defaultFaultsFileName() const;

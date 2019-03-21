@@ -34,6 +34,8 @@
 #include <QFileInfo>
 #include <QIntValidator>
 
+#include <set>
+
 CAF_PDM_SOURCE_INIT(RicExportEclipseInputGridUi, "RicExportEclipseInputGridUi");
 
 namespace caf
@@ -41,9 +43,9 @@ namespace caf
 template<>
 void RicExportEclipseInputGridUi::ResultExportOptionsEnum::setUp()
 {
-    addItem(RicExportEclipseInputGridUi::EXPORT_NO_RESULTS, "NO_RESULTS", "Do not export results");
-    addItem(RicExportEclipseInputGridUi::EXPORT_TO_GRID_FILE, "TO_GRID_FILE", "Export to grid file");
-    addItem(RicExportEclipseInputGridUi::EXPORT_TO_SINGLE_SEPARATE_FILE, "TO_SINGLE_RESULT_FILE", "Export to single results file");
+    addItem(RicExportEclipseInputGridUi::EXPORT_NO_RESULTS, "NO_RESULTS", "Do not export");
+    addItem(RicExportEclipseInputGridUi::EXPORT_TO_GRID_FILE, "TO_GRID_FILE", "Append to grid file");
+    addItem(RicExportEclipseInputGridUi::EXPORT_TO_SINGLE_SEPARATE_FILE, "TO_SINGLE_RESULT_FILE", "Export to single file");
     addItem(RicExportEclipseInputGridUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT, "TO_SEPARATE_RESULT_FILES", "Export to a separate file per result");
 
     setDefault(RicExportEclipseInputGridUi::EXPORT_TO_GRID_FILE);
@@ -149,22 +151,29 @@ void RicExportEclipseInputGridUi::defineUiOrdering(QString uiConfigName, caf::Pd
     exportGridFilename.uiCapability()->setUiReadOnly(!exportGrid());        
 
     caf::PdmUiGroup* resultsGroup = uiOrdering.addNewGroup("Results and Faults Export");
+
     resultsGroup->add(&exportResults);
-    resultsGroup->add(&exportFaults);
     if (exportResults() != EXPORT_NO_RESULTS)
     {
         if (exportResults() == EXPORT_TO_SINGLE_SEPARATE_FILE)
+        {
             resultsGroup->add(&exportResultsFilename);
-
-        resultsGroup->add(&exportMainKeywords);
-        resultsGroup->add(&exportAdditionalKeywords);
+        }
     }
+
+    resultsGroup->add(&exportFaults);
     if (exportFaults() != EXPORT_NO_RESULTS)
     {
         if (exportFaults() == EXPORT_TO_SINGLE_SEPARATE_FILE)
         {
             resultsGroup->add(&exportFaultsFilename);
         }
+    }
+
+    if (exportResults() != EXPORT_NO_RESULTS)
+    {
+        resultsGroup->add(&exportMainKeywords);
+        resultsGroup->add(&exportAdditionalKeywords);
     }
 
     caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup("Grid Refinement");
@@ -269,6 +278,14 @@ QList<caf::PdmOptionItemInfo>
             }
         }
     }
+    else if (fieldNeedingOptions == &exportFaults)
+    {
+        std::set<ResultExportOptions> validFaultOptions = { EXPORT_NO_RESULTS, EXPORT_TO_GRID_FILE, EXPORT_TO_SINGLE_SEPARATE_FILE };
+        for (ResultExportOptions option : validFaultOptions)
+        {
+            options.push_back(caf::PdmOptionItemInfo(ResultExportOptionsEnum::uiText(option), option));
+        }
+    }
     return options;
 }
 
@@ -283,9 +300,26 @@ std::set<QString> RicExportEclipseInputGridUi::mainKeywords()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RicExportEclipseInputGridUi::defaultFolder() const
+{
+    QString projectDirectory    = RiaApplication::instance()->currentProjectPath();
+    QString fallbackDirectory   = projectDirectory;
+    if (fallbackDirectory.isEmpty())
+    {
+        QString generalFallback = RiaApplication::instance()->lastUsedDialogDirectory("GENERAL_DATA");
+        fallbackDirectory = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("BINARY_GRID", generalFallback);
+    }
+    return RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("EXPORT_INPUT_GRID", fallbackDirectory);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RicExportEclipseInputGridUi::defaultGridFileName() const
 {
-    QDir    baseDir(RiaApplication::instance()->currentProjectPath());
+    
+    QDir baseDir(defaultFolder());
     return baseDir.absoluteFilePath("GRID.GRDECL");    
 }
 
@@ -294,7 +328,7 @@ QString RicExportEclipseInputGridUi::defaultGridFileName() const
 //--------------------------------------------------------------------------------------------------
 QString RicExportEclipseInputGridUi::defaultResultsFileName() const
 {
-    QDir    baseDir(RiaApplication::instance()->currentProjectPath());
+    QDir baseDir(defaultFolder());
     return baseDir.absoluteFilePath("RESULTS.GRDECL");
 }
 
@@ -303,6 +337,6 @@ QString RicExportEclipseInputGridUi::defaultResultsFileName() const
 //--------------------------------------------------------------------------------------------------
 QString RicExportEclipseInputGridUi::defaultFaultsFileName() const
 {
-    QDir baseDir(RiaApplication::instance()->currentProjectPath());
+    QDir baseDir(defaultFolder());
     return baseDir.absoluteFilePath("FAULTS.GRDECL");
 }

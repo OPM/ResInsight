@@ -2054,6 +2054,7 @@ bool RiaApplication::openFile(const QString& fileName)
 
     bool loadingSucceded = false;
 
+    QString lastUsedDialogTag;
     if (RiaApplication::hasValidProjectFileExtension(fileName))
     {
         loadingSucceded = loadProject(fileName);
@@ -2061,14 +2062,18 @@ bool RiaApplication::openFile(const QString& fileName)
     else if (fileName.contains(".egrid", Qt::CaseInsensitive) || fileName.contains(".grid", Qt::CaseInsensitive))
     {
         loadingSucceded = RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({fileName}));
+        if (loadingSucceded) lastUsedDialogTag = "BINARY_GRID";
     }
     else if (fileName.contains(".grdecl", Qt::CaseInsensitive))
     {
         loadingSucceded = RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(QStringList(fileName));
+        if (loadingSucceded) lastUsedDialogTag = "INPUT_FILES";
     }
     else if (fileName.contains(".odb", Qt::CaseInsensitive))
     {
         loadingSucceded = openOdbCaseFromFile(fileName);
+        if (loadingSucceded) lastUsedDialogTag = "GEOMECH_MODEL";            
+
     }
     else if (fileName.contains(".smspec", Qt::CaseInsensitive))
     {
@@ -2076,12 +2081,20 @@ bool RiaApplication::openFile(const QString& fileName)
         if (loadingSucceded)
         {
             getOrCreateAndShowMainPlotWindow();
+            lastUsedDialogTag = "INPUT_FILES";
         }
     }
 
-    if (loadingSucceded && !RiaApplication::hasValidProjectFileExtension(fileName))
+    if (loadingSucceded)
     {
-        caf::PdmUiModelChangeDetector::instance()->setModelChanged();
+        if (!lastUsedDialogTag.isEmpty())
+        {
+            RiaApplication::instance()->setLastUsedDialogDirectory(lastUsedDialogTag, QFileInfo(fileName).absolutePath());
+        }
+        if (!RiaApplication::hasValidProjectFileExtension(fileName))
+        {
+            caf::PdmUiModelChangeDetector::instance()->setModelChanged();
+        }
     }
 
     return loadingSucceded;

@@ -99,6 +99,16 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
             RiaLogging::error(
                 QString("Unable to write grid to '%1'").arg(exportSettings.exportGridFilename));
         }
+        else
+        {
+            if (view->eclipseCase()->eclipseCaseData()->gridCount() > 1u)
+            {
+                RiaLogging::warning("Grid has LGRs but ResInsight only supports exporting the Main Grid");
+            }
+
+            QFileInfo info(exportSettings.exportGridFilename());
+            RiaApplication::instance()->setLastUsedDialogDirectory("EXPORT_INPUT_GRID", info.absolutePath());
+        }
     }
 
     if (exportSettings.exportResults() != RicExportEclipseInputGridUi::EXPORT_NO_RESULTS)
@@ -115,12 +125,12 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
             {
                 QString fileName = dirPath.absoluteFilePath(keyword + ".GRDECL");
                 bool worked = RifEclipseInputFileTools::exportKeywords(fileName,
-                                                                         view->eclipseCase()->eclipseCaseData(),
-                                                                         {keyword},
-                                                                         fileWriteMode,
-                                                                         min,
-                                                                         max,
-                                                                         refinement);
+                                                                       view->eclipseCase()->eclipseCaseData(),
+                                                                       {keyword},
+                                                                       fileWriteMode,
+                                                                       min,
+                                                                       max,
+                                                                       refinement);
                 if (!worked)
                 {
                     RiaLogging::error(QString("Unable to write results to '%1'").arg(fileName));
