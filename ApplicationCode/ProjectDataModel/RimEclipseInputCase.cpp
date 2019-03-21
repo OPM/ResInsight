@@ -21,6 +21,7 @@
 #include "RimEclipseInputCase.h"
 
 #include "RiaFieldHandleTools.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 
 #include "RifEclipseInputFileTools.h"
@@ -109,14 +110,17 @@ bool RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
         this->setReservoirData(new RigEclipseCaseData(this));
     }
 
+    bool importFaults = RiaApplication::instance()->preferences()->readerSettings()->importFaults();
+
+    std::vector<QString> allErrorMessages;
+
     // First find and read the grid data 
     if (this->eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
     {
-        RiaPreferences* prefs = RiaApplication::instance()->preferences();
-
         for (int i = 0; i < fileNames.size(); i++)
         {
-            if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->eclipseCaseData(), prefs->readerSettings()->importFaults()))
+            QString errorMessages;
+            if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->eclipseCaseData(), importFaults, &errorMessages))
             {
                 m_gridFileName = fileNames[i];
 
@@ -131,11 +135,22 @@ bool RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 
                 break;
             }
+            else
+            {
+                allErrorMessages.push_back(errorMessages);
+            }
         }
     }
 
     if (this->eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
     {
+        if (!allErrorMessages.empty())
+        {
+            for (QString errorMessages : allErrorMessages)
+            {
+                RiaLogging::error(errorMessages);
+            }
+        }
         return false; // No grid present
     }
 
@@ -170,6 +185,17 @@ bool RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
             inputProperty->fileName = propertyFileName;
             inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
             m_inputPropertyCollection->inputProperties.push_back(inputProperty);
+        }
+
+        if (importFaults)
+        {
+            cvf::Collection<RigFault> faultCollection;
+            RifEclipseInputFileTools::parseAndReadFaults(propertyFileName, &faultCollection);
+
+            if (!faultCollection.empty())
+            {
+                this->eclipseCaseData()->mainGrid()->setFaults(faultCollection);
+            }
         }
     }
     return true;

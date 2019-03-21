@@ -90,7 +90,7 @@ const std::vector<size_t>& RigFault::connectionIndices() const
 //--------------------------------------------------------------------------------------------------
 /// Order FaultCellAndFace by i, j, face then k.
 //--------------------------------------------------------------------------------------------------
-bool RigFault::faultOrdering(FaultCellAndFace first, FaultCellAndFace second)
+bool RigFault::ordering(CellAndFace first, CellAndFace second)
 {
     size_t                             i1, i2, j1, j2, k1, k2;
     cvf::StructGridInterface::FaceType f1, f2;

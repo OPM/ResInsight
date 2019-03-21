@@ -76,7 +76,7 @@ private:
 class RigFault : public cvf::Object
 {
 public:
-    typedef std::tuple<size_t, size_t, size_t, cvf::StructGridInterface::FaceType> FaultCellAndFace;
+    typedef std::tuple<size_t, size_t, size_t, cvf::StructGridInterface::FaceType> CellAndFace;
 
     struct FaultFace
     {
@@ -108,7 +108,7 @@ public:
     std::vector<size_t>&            connectionIndices();
     const std::vector<size_t>&      connectionIndices() const;
 
-    static bool faultOrdering(RigFault::FaultCellAndFace first, RigFault::FaultCellAndFace second);
+    static bool ordering(CellAndFace first, CellAndFace second);
 
 private:
     QString m_name;

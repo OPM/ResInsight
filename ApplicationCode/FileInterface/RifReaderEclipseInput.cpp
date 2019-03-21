@@ -20,6 +20,7 @@
 
 #include "RifReaderEclipseInput.h"
 
+#include "RiaLogging.h"
 #include "RifEclipseInputFileTools.h"
 
 #include "RigEclipseCaseData.h"
@@ -74,7 +75,12 @@ bool RifReaderEclipseInput::open(const QString& fileName, RigEclipseCaseData* ec
     bool isOk = false;
     if (eclipseCase->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
     {
-        isOk = RifEclipseInputFileTools::openGridFile(fileName,  eclipseCase, isFaultImportEnabled());
+        QString errorMesssages;
+        isOk = RifEclipseInputFileTools::openGridFile(fileName,  eclipseCase, isFaultImportEnabled(), &errorMesssages);
+        if (!isOk)
+        {
+            RiaLogging::error(errorMesssages);
+        }
     }
     
     return isOk;

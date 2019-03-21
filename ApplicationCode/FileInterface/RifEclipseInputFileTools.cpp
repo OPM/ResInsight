@@ -29,6 +29,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigFault.h"
 #include "RigMainGrid.h"
 
 #include "cafProgressInfo.h"
@@ -66,9 +67,9 @@ RifEclipseInputFileTools::~RifEclipseInputFileTools() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData)
+bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData, QString* errorMessages)
 {
-    CVF_ASSERT(eclipseCase);
+    CVF_ASSERT(eclipseCase && errorMessages);
 
     std::vector<RifKeywordAndFilePos> keywordsAndFilePos;
     findKeywordsOnFile(fileName, &keywordsAndFilePos);
@@ -100,7 +101,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
             errorText += "  Missing required keyword SPECGRID";
         }
 
-        RiaLogging::error(errorText);
+        *errorMessages += errorText;
 
         return false;
     }
@@ -216,7 +217,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
 bool RifEclipseInputFileTools::exportGrid(const QString&      fileName,
                                           RigEclipseCaseData* eclipseCase,
                                           const cvf::Vec3st&  min,
-                                          const cvf::Vec3st&  max,
+                                          const cvf::Vec3st&  maxIn,
                                           const cvf::Vec3st&  refinement)
 {
     if (!eclipseCase)
@@ -231,9 +232,17 @@ bool RifEclipseInputFileTools::exportGrid(const QString&      fileName,
 
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
-    int ecl_nx = static_cast<int>((max.x() - min.x()) * refinement.x() + 1);
-    int ecl_ny = static_cast<int>((max.y() - min.y()) * refinement.y() + 1);
-    int ecl_nz = static_cast<int>((max.z() - min.z()) * refinement.z() + 1);
+    cvf::Vec3st max = maxIn;
+    if (max == cvf::Vec3st::UNDEFINED)
+    {
+        max = cvf::Vec3st(mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1);
+    }
+
+    int ecl_nx = static_cast<int>((max.x() - min.x() + 1) * refinement.x());
+    int ecl_ny = static_cast<int>((max.y() - min.y() + 1) * refinement.y());
+    int ecl_nz = static_cast<int>((max.z() - min.z() + 1) * refinement.z());
+
+    CVF_ASSERT(ecl_nx > 0 && ecl_ny > 0 && ecl_nz > 0);
 
     size_t cellsPerOriginal = refinement.x() * refinement.y() * refinement.z();
 
@@ -337,7 +346,7 @@ bool RifEclipseInputFileTools::exportKeywords(const QString&              result
                                               const std::vector<QString>& keywords,
                                               const QString&              fileWriteMode,
                                               const cvf::Vec3st&          min,
-                                              const cvf::Vec3st&          max,
+                                              const cvf::Vec3st&          maxIn,
                                               const cvf::Vec3st&          refinement)
 {
     FILE* filePtr = util_fopen(RiaStringEncodingTools::toNativeEncoded(resultFileName).data(),
@@ -349,6 +358,12 @@ bool RifEclipseInputFileTools::exportKeywords(const QString&              result
     RigCaseCellResultsData* cellResultsData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
     RigActiveCellInfo*      activeCells     = cellResultsData->activeCellInfo();
     RigMainGrid*            mainGrid        = eclipseCase->mainGrid();
+
+    cvf::Vec3st max = maxIn;
+    if (max == cvf::Vec3st::UNDEFINED)
+    {
+        max = cvf::Vec3st(mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1);
+    }
 
     caf::ProgressInfo progress(keywords.size(), "Saving Keywords");
 
@@ -418,13 +433,17 @@ bool RifEclipseInputFileTools::exportKeywords(const QString&              result
     return true;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RifEclipseInputFileTools::saveFault(QString                                 completeFilename,
                                          const RigMainGrid*                      mainGrid,
                                          const std::vector<RigFault::FaultFace>& faultFaces,
-                                         QString                                 faultName)
+                                         QString                                 faultName,
+                                         const cvf::Vec3st&                      min,
+                                         const cvf::Vec3st&                      maxIn,
+                                         const cvf::Vec3st&                      refinement)
 {
     QFile exportFile(completeFilename);
 
@@ -434,14 +453,34 @@ void RifEclipseInputFileTools::saveFault(QString                                
     }
 
     QTextStream stream(&exportFile);
-
     stream << "FAULTS" << endl;
 
     stream << "-- Name  I1  I2  J1  J2  K1  K2  Face ( I/J/K )" << endl;
 
+    saveFault(stream, mainGrid, faultFaces, faultName, min, maxIn, refinement);
+    stream << "/" << endl;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseInputFileTools::saveFault(QTextStream&                            stream,
+                                         const RigMainGrid*                      mainGrid,
+                                         const std::vector<RigFault::FaultFace>& faultFaces,
+                                         QString                                 faultName,
+                                         const cvf::Vec3st&                      min,
+                                         const cvf::Vec3st&                      maxIn,
+                                         const cvf::Vec3st&                      refinement)
+{
     // 'NAME'     1   1      1    1     1     2      J             /
 
-    std::vector<RigFault::FaultCellAndFace> faultCellAndFaces;
+    std::vector<RigFault::CellAndFace> faultCellAndFaces;
+
+    cvf::Vec3st max = maxIn;
+    if (max == cvf::Vec3st::UNDEFINED)
+    {
+        max = cvf::Vec3st(mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1);
+    }
 
     for (const RigFault::FaultFace& faultCellAndFace : faultFaces)
     {
@@ -449,11 +488,89 @@ void RifEclipseInputFileTools::saveFault(QString                                
         bool   ok = mainGrid->ijkFromCellIndex(faultCellAndFace.m_nativeReservoirCellIndex, &i, &j, &k);
         if (!ok) continue;
 
-        faultCellAndFaces.push_back(std::make_tuple(i, j, k, faultCellAndFace.m_nativeFace));
+        if (i < min.x() || i > max.x() || j < min.y() || j > max.y() || k < min.z() || k > max.z())
+            continue;
+
+        size_t shifted_i = (i - min.x()) * refinement.x();
+        size_t shifted_j = (j - min.y()) * refinement.y();
+        size_t shifted_k = (k - min.z()) * refinement.z();
+
+        //  2x2 Refinement of Original Cell 0, 0
+        // Y/J  POS_J boundary
+        // ^  _______________
+        // | |       |       |
+        // | |  0,1  |  1,1  |
+        // | |_______|_______|   POS_I boundary
+        // | |       |       |
+        // | |  0,0  |  1,0  |
+        // | |_______|_______|
+        // ---------------------> X/I
+        //       NEG_J boundary
+        //
+        //  POS_J gets shifted 1 index in J direction, NEG_J stays the same in J but spans two I.
+        //  POS_I gets shifted 1 index in I direction, NEG_I stays the same in I but spans two J.
+
+        if (refinement != cvf::Vec3st(1, 1, 1))
+        {
+            if (faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_I ||
+                faultCellAndFace.m_nativeFace == cvf::StructGridInterface::NEG_I)
+            {
+                if (faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_I)
+                {
+                    shifted_i += refinement.x() - 1;
+                }
+                for (size_t refineK = 0; refineK < refinement.z(); ++refineK)
+                {
+                    for (size_t refineJ = 0; refineJ < refinement.y(); ++refineJ)
+                    {
+                        faultCellAndFaces.push_back(
+                            std::make_tuple(shifted_i, shifted_j + refineJ, shifted_k + refineK, faultCellAndFace.m_nativeFace));
+                    }
+                }
+            }
+            else if (faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_J ||
+                     faultCellAndFace.m_nativeFace == cvf::StructGridInterface::NEG_J)
+            {
+                if (faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_J)
+                {
+                    shifted_j += refinement.y() - 1;
+                }
+
+                for (size_t refineK = 0; refineK < refinement.z(); ++refineK)
+                {
+                    for (size_t refineI = 0; refineI < refinement.x(); ++refineI)
+                    {
+                        faultCellAndFaces.push_back(std::make_tuple(
+                            shifted_i + refineI, shifted_j, shifted_k + refineK, faultCellAndFace.m_nativeFace));
+                    }
+                }
+            }
+            else if (faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_K ||
+                     faultCellAndFace.m_nativeFace == cvf::StructGridInterface::NEG_K)
+            {
+                if (faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_K)
+                {
+                    shifted_k += refinement.z() - 1;
+                }
+
+                for (size_t refineJ = 0; refineJ < refinement.y(); ++refineJ)
+                {
+                    for (size_t refineI = 0; refineI < refinement.x(); ++refineI)
+                    {
+                        faultCellAndFaces.push_back(std::make_tuple(
+                            shifted_i + refineI, shifted_j + refineJ, shifted_k, faultCellAndFace.m_nativeFace));
+                    }
+                }
+            }
+        }
+        else
+        {
+            faultCellAndFaces.push_back(std::make_tuple(shifted_i, shifted_j, shifted_k, faultCellAndFace.m_nativeFace));
+        }
     }
 
     // Sort order: i, j, face then k.
-    std::sort(faultCellAndFaces.begin(), faultCellAndFaces.end(), RigFault::faultOrdering);
+    std::sort(faultCellAndFaces.begin(), faultCellAndFaces.end(), RigFault::ordering);
 
     size_t                             lastI        = std::numeric_limits<size_t>::max();
     size_t                             lastJ        = std::numeric_limits<size_t>::max();
@@ -461,7 +578,7 @@ void RifEclipseInputFileTools::saveFault(QString                                
     size_t                             startK       = std::numeric_limits<size_t>::max();
     cvf::StructGridInterface::FaceType lastFaceType = cvf::StructGridInterface::FaceType::NO_FACE;
 
-    for (const RigFault::FaultCellAndFace& faultCellAndFace : faultCellAndFaces)
+    for (const RigFault::CellAndFace& faultCellAndFace : faultCellAndFaces)
     {
         size_t                             i, j, k;
         cvf::StructGridInterface::FaceType faceType;
@@ -490,8 +607,27 @@ void RifEclipseInputFileTools::saveFault(QString                                
     {
         writeFaultLine(stream, faultName, lastI, lastJ, startK, lastK, lastFaceType);
     }
-    stream << "/" << endl;
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseInputFileTools::saveFaults(QTextStream&       stream,
+                                          const RigMainGrid* mainGrid,
+                                          const cvf::Vec3st& min /*= cvf::Vec3st::ZERO*/,
+                                          const cvf::Vec3st& max /*= cvf::Vec3st::UNDEFINED*/,
+                                          const cvf::Vec3st& refinement /*= cvf::Vec3st(1, 1, 1)*/)
+{
+    stream << "FAULTS" << endl;
+
+    stream << "-- Name  I1  I2  J1  J2  K1  K2  Face ( I/J/K )" << endl;
+
+    const cvf::Collection<RigFault>& faults = mainGrid->faults();
+    for (const auto fault : faults)
+    {
+        saveFault(stream, mainGrid, fault->faultFaces(), fault->name(), min, max, refinement);
+    }
+    stream << "/" << endl;
 }
 
 //--------------------------------------------------------------------------------------------------

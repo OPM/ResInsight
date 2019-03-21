@@ -406,7 +406,15 @@ void RigMainGrid::setFaults(const cvf::Collection<RigFault>& faults)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const cvf::Collection<RigFault>& RigMainGrid::faults()
+const cvf::Collection<RigFault>& RigMainGrid::faults() const
+{
+    return m_faults;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Collection<RigFault>& RigMainGrid::faults()
 {
     return m_faults;
 }

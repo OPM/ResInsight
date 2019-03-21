@@ -27,10 +27,12 @@
 #include "RifEclipseInputFileTools.h"
 #include "RifReaderEclipseOutput.h"
 
+#include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "Rim3dView.h"
+#include "RimFaultInView.h"
+#include "RimFaultInViewCollection.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -74,12 +76,17 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
                                                       const QString& logPrefix)
 {
     int resultProgressPercentage = exportSettings.exportResults() ?
-        std::min((int) exportSettings.exportMainKeywords().size(), 30) : 0;
+        std::min((int) exportSettings.exportMainKeywords().size(), 20) : 0;
 
-    int gridProgressPercentage = 100 - resultProgressPercentage;
-    caf::ProgressInfo progress(gridProgressPercentage + resultProgressPercentage, "Export Eclipse Data");
-    
+    int faultsProgressPercentage = exportSettings.exportFaults() ? 10 : 0;
+
+    int gridProgressPercentage = 100 - resultProgressPercentage - faultsProgressPercentage;
+    caf::ProgressInfo progress(gridProgressPercentage + resultProgressPercentage + faultsProgressPercentage,
+                               "Export Eclipse Data");
+
     cvf::Vec3st refinement(exportSettings.cellCountI(), exportSettings.cellCountJ(), exportSettings.cellCountK());
+
+    CVF_ASSERT(refinement.x() > 0u && refinement.y() > 0u && refinement.z() > 0u);
 
     cvf::Vec3st min, max;
     std::tie(min, max) = getVisibleCellRange(view);
@@ -142,6 +149,43 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
             {
                 RiaLogging::error(QString("Unable to write results to '%1'").arg(fileName));
             }
+        }
+    }
+
+    if (exportSettings.exportFaults() != RicExportEclipseInputGridUi::EXPORT_NO_RESULTS)
+    {
+        auto task = progress.task("Export Faults", faultsProgressPercentage);
+        if (exportSettings.exportFaults == RicExportEclipseInputGridUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT)
+        {
+            QFileInfo info(exportSettings.exportGridFilename());
+            QDir      dirPath       = info.absoluteDir();
+
+            for (auto faultInView : view->faultCollection()->faults())
+            {
+                auto rigFault = faultInView->faultGeometry();
+                QString fileName = QString("%1.GRDECL").arg(rigFault->name());
+                RifEclipseInputFileTools::saveFault(
+                    fileName, view->eclipseCase()->mainGrid(), rigFault->faultFaces(), rigFault->name(), min, max, refinement);
+            }
+        }
+        else
+        {            
+            QString fileName      = exportSettings.exportFaultsFilename();
+            QIODevice::OpenMode openFlag = QIODevice::Truncate;
+            if (exportSettings.exportResults() == RicExportEclipseInputGridUi::EXPORT_TO_GRID_FILE)
+            {
+                openFlag = QIODevice::Append;
+                fileName = exportSettings.exportGridFilename();
+            }
+            QFile exportFile(fileName);
+
+            if (!exportFile.open(QIODevice::Text | QIODevice::WriteOnly | openFlag))
+            {
+                RiaLogging::error("Could not open the file : " + fileName);
+            }
+
+            QTextStream stream(&exportFile);
+            RifEclipseInputFileTools::saveFaults(stream, view->eclipseCase()->mainGrid(), min, max, refinement);
         }
     }
 }

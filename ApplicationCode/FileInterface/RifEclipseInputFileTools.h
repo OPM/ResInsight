@@ -58,27 +58,44 @@ public:
     RifEclipseInputFileTools();
     ~RifEclipseInputFileTools() override;
 
-    static bool openGridFile(const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData);
+    static bool openGridFile(const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData, QString* errorMessages);
     
     static bool exportGrid(const QString&      gridFileName,
                            RigEclipseCaseData* eclipseCase,
-                           const cvf::Vec3st&  min,
-                           const cvf::Vec3st&  max,
-                           const cvf::Vec3st&  refinement);
+                           const cvf::Vec3st&  min        = cvf::Vec3st::ZERO,
+                           const cvf::Vec3st&  max        = cvf::Vec3st::UNDEFINED,
+                           const cvf::Vec3st&  refinement = cvf::Vec3st(1, 1, 1));
 
     static bool exportKeywords(const QString&              resultFileName,
                                RigEclipseCaseData*         eclipseCase,
                                const std::vector<QString>& keywords,
                                const QString&              fileWriteMode,
-                               const cvf::Vec3st&          min,
-                               const cvf::Vec3st&          max,
-                               const cvf::Vec3st&          refinement);
+                               const cvf::Vec3st&          min        = cvf::Vec3st::ZERO,
+                               const cvf::Vec3st&          max        = cvf::Vec3st::UNDEFINED,
+                               const cvf::Vec3st&          refinement = cvf::Vec3st(1, 1, 1));
 
     static void saveFault(QString                                 completeFilename,
                           const RigMainGrid*                      mainGrid,
                           const std::vector<RigFault::FaultFace>& faultFaces,
-                          QString                                 faultName);
-    
+                          QString                                 faultName,
+                          const cvf::Vec3st&                      min        = cvf::Vec3st::ZERO,
+                          const cvf::Vec3st&                      max        = cvf::Vec3st::UNDEFINED,
+                          const cvf::Vec3st&                      refinement = cvf::Vec3st(1, 1, 1));
+
+    static void saveFault(QTextStream&                            stream,
+                          const RigMainGrid*                      mainGrid,
+                          const std::vector<RigFault::FaultFace>& faultFaces,
+                          QString                                 faultName,
+                          const cvf::Vec3st&                      min = cvf::Vec3st::ZERO,
+                          const cvf::Vec3st&                      max = cvf::Vec3st::UNDEFINED,
+                          const cvf::Vec3st&                      refinement = cvf::Vec3st(1, 1, 1));
+
+    static void saveFaults(QTextStream&       stream,
+                           const RigMainGrid* mainGrid,
+                           const cvf::Vec3st& min        = cvf::Vec3st::ZERO,
+                           const cvf::Vec3st& max        = cvf::Vec3st::UNDEFINED,
+                           const cvf::Vec3st& refinement = cvf::Vec3st(1, 1, 1));
+
     // Returns map of assigned resultName and Eclipse Keyword.
     static std::map<QString, QString> readProperties(const QString& fileName, RigEclipseCaseData* eclipseCase);
     static bool                       readProperty  (const QString& fileName, RigEclipseCaseData* eclipseCase, const QString& eclipseKeyWord, const QString& resultName );
@@ -106,12 +123,12 @@ public:
     static bool     readKeywordAndParseIncludeStatementsRecursively(const QString& keyword,
                                                                     const QString& keywordToStopParsing,
                                                                     QFile& file,
-                                                                   qint64 startPos,
-                                                                   const std::vector< std::pair<QString, QString> >& pathAliasDefinitions,
-                                                                   QStringList* keywordDataContent,
-                                                                   std::vector<QString>* filenamesContainingKeyword,
-                                                                   bool* isEditKeywordDetected,
-                                                                   const QString& faultIncludeFileAbsolutePathPrefix // rename to includeStatementAbsolutePathPrefix
+                                                                    qint64 startPos,
+                                                                    const std::vector< std::pair<QString, QString> >& pathAliasDefinitions,
+                                                                    QStringList* keywordDataContent,
+                                                                    std::vector<QString>* filenamesContainingKeyword,
+                                                                    bool* isEditKeywordDetected,
+                                                                    const QString& faultIncludeFileAbsolutePathPrefix // rename to includeStatementAbsolutePathPrefix
                                                                     );
 
     static void                       readKeywordDataContent(QFile &data, qint64 filePos, QStringList* textContent, bool* isEditKeywordDetected);
@@ -139,5 +156,5 @@ private:
     static QString faultFaceText(cvf::StructGridInterface::FaceType faceType);
     
 private:
-    static const std::vector<QString>& invalidPropertyDataKeywords(); 
+    static const std::vector<QString>& invalidPropertyDataKeywords();
 };

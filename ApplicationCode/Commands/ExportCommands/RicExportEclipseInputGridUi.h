@@ -45,6 +45,7 @@ class RicExportEclipseInputGridUi : public caf::PdmObject
         EXPORT_TO_SINGLE_SEPARATE_FILE,
         EXPORT_TO_SEPARATE_FILE_PER_RESULT
     };
+
     typedef caf::AppEnum<ResultExportOptions> ResultExportOptionsEnum;
 
 public:
@@ -54,9 +55,14 @@ public:
     std::vector<QString> allSelectedKeywords() const;
 
     caf::PdmField<bool>                    exportGrid;
+    caf::PdmField<QString>                 exportGridFilename;
+
     caf::PdmField<ResultExportOptionsEnum> exportResults;
-    caf::PdmField<QString>                 exportGridFilename;    
     caf::PdmField<QString>                 exportResultsFilename;
+
+    caf::PdmField<ResultExportOptionsEnum> exportFaults;
+    caf::PdmField<QString>                 exportFaultsFilename;
+
     caf::PdmField<std::vector<QString>>    exportMainKeywords;
     caf::PdmField<std::vector<QString>>    exportAdditionalKeywords;
 
@@ -74,6 +80,7 @@ protected:
     static std::set<QString> mainKeywords();
     QString defaultGridFileName() const;
     QString defaultResultsFileName() const;
+    QString defaultFaultsFileName() const;
 private:
     RigEclipseCaseData* m_caseData;
 };
