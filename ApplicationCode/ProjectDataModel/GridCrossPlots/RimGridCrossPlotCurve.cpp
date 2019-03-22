@@ -78,10 +78,10 @@ void RimGridCrossPlotCurve::setSamples(const std::vector<double>& xValues, const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::updateCurveAppearance()
+void RimGridCrossPlotCurve::setCurveAutoAppearance()
 {
     determineSymbol();
-    RimPlotCurve::updateCurveAppearance();
+    updateCurveAppearance();
 }
 
 //--------------------------------------------------------------------------------------------------

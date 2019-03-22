@@ -469,7 +469,7 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
         curve->setSymbolEdgeColor(curve->color());
         curve->setGroupingInformation(indexInPlot(), 0);
         curve->setSamples(result.xValues, result.yValues);
-        curve->updateCurveAppearance();
+        curve->setCurveAutoAppearance();
         curve->updateUiIconFromPlotSymbol();
         m_crossPlotCurves.push_back(curve);
         m_groupedResults[0] = result;
@@ -527,7 +527,7 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
             curve->setSamples(it->second.xValues, it->second.yValues);
             curve->showLegend(m_crossPlotCurves.empty());
             curve->setLegendEntryText(createAutoName());
-            curve->updateCurveAppearance();
+            curve->setCurveAutoAppearance();
             curve->updateUiIconFromPlotSymbol();
             m_crossPlotCurves.push_back(curve);
         }

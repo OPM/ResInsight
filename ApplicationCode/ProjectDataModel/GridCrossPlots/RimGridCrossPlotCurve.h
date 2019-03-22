@@ -43,7 +43,7 @@ public:
     void setGroupingInformation(int curveSetIndex, int groupIndex);
     void setSamples(const std::vector<double>& xValues, const std::vector<double>& yValues);
     
-    void updateCurveAppearance() override;
+    void setCurveAutoAppearance();
     int  groupIndex() const;
 
 protected:
