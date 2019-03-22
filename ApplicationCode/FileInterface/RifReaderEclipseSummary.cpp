@@ -431,11 +431,10 @@ bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddre
 
         if (dataValues)
         {
-            for (int i = 0; i < double_vector_size(dataValues); i++)
-            {
-                values->push_back(double_vector_iget(dataValues, i));
-            }
-            free(dataValues);
+            int dataSize = double_vector_size(dataValues);
+            const double* dataPtr = double_vector_get_const_ptr(dataValues);
+            values->insert(values->end(), dataPtr, dataPtr + dataSize);
+            double_vector_free(dataValues);
 
             m_valuesCache->insertValues(resultAddress, *values);
         }
