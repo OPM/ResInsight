@@ -20,6 +20,7 @@
 #include "RicSaturationPressureUi.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimMainPlotCollection.h"
@@ -34,6 +35,7 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicCreateSaturationPressurePlotsFeature, "RicCreateSaturationPressurePlotsFeature");
 
@@ -115,7 +117,21 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
             plot->updateConnectedEditors();
         }
 
-        if (!plots.empty())
+        if (plots.empty())
+        {
+            QString text = "No plots generated.\n\n";
+            text += "Data required to generate saturation/pressure plots:\n";
+            text += " - EQLNUM property defining at least one region\n";
+            text += " - Properties PRESSURE, PBUG and PDEW\n\n";
+            text += "Make sure to add 'PBPD' to the RPTRST keyword in the SOLUTION selection.\n";
+            text += "If this is a two phase run (Oil/water or Gas/Water) or if both VAPOIL \n";
+            text += "and DISGAS are disabled, saturation pressure are not valid.";
+
+            QMessageBox::warning(nullptr, "Saturation Pressure Plots", text);
+
+            RiaLogging::warning(text);
+        }
+        else
         {
             objectToSelect = plots.front();
         }
