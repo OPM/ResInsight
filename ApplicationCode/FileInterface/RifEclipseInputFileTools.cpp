@@ -79,8 +79,9 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
     qint64 specgridPos = -1;
     qint64 actnumPos   = -1;
     qint64 mapaxesPos  = -1;
+    qint64 gridunitPos = -1;
 
-    findGridKeywordPositions(keywordsAndFilePos, &coordPos, &zcornPos, &specgridPos, &actnumPos, &mapaxesPos);
+    findGridKeywordPositions(keywordsAndFilePos, &coordPos, &zcornPos, &specgridPos, &actnumPos, &mapaxesPos, &gridunitPos);
 
     if (coordPos < 0 || zcornPos < 0 || specgridPos < 0)
     {
@@ -104,6 +105,20 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
         *errorMessages += errorText;
 
         return false;
+    }
+
+
+    if (gridunitPos >= 0)
+    {
+        QFile gridFile(fileName);
+        if (gridFile.open(QFile::ReadOnly))
+        {
+            RiaEclipseUnitTools::UnitSystem units = readUnitSystem(gridFile, gridunitPos);
+            if (units != RiaEclipseUnitTools::UNITS_UNKNOWN)
+            {
+                eclipseCase->setUnitsType(units);
+            }
+        }
     }
 
     FILE* gridFilePointer = util_fopen(fileName.toLatin1().data(), "r");
@@ -178,7 +193,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
     int nz = ecl_kw_iget_int(specGridKw, 2);
 
     ecl_grid_type* inputGrid = ecl_grid_alloc_GRDECL_kw(nx, ny, nz, zCornKw, coordKw, actNumKw, mapAxesKw);
-
+    
     progress.setProgress(6);
 
     RifReaderEclipseOutput::transferGeometry(inputGrid, eclipseCase);
@@ -899,37 +914,42 @@ const std::vector<QString>& RifEclipseInputFileTools::invalidPropertyDataKeyword
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::findGridKeywordPositions(const std::vector<RifKeywordAndFilePos>& keywordsAndFilePos,
-                                                        qint64*                                  coordPos,
-                                                        qint64*                                  zcornPos,
-                                                        qint64*                                  specgridPos,
-                                                        qint64*                                  actnumPos,
-                                                        qint64*                                  mapaxesPos)
+void RifEclipseInputFileTools::findGridKeywordPositions(const std::vector< RifKeywordAndFilePos >& keywords,
+                                                        qint64* coordPos,
+                                                        qint64* zcornPos,
+                                                        qint64* specgridPos,
+                                                        qint64* actnumPos,
+                                                        qint64* mapaxesPos,
+                                                        qint64* gridunitPos)
 {
-    CVF_ASSERT(coordPos && zcornPos && specgridPos && actnumPos && mapaxesPos);
+    CVF_ASSERT(coordPos && zcornPos && specgridPos && actnumPos && mapaxesPos && gridunitPos);
 
     size_t i;
-    for (i = 0; i < keywordsAndFilePos.size(); i++)
+    for (i = 0; i < keywords.size(); i++)
     {
-        if (keywordsAndFilePos[i].keyword == "COORD")
+        if (keywords[i].keyword == "COORD")
         {
-            *coordPos = keywordsAndFilePos[i].filePos;
+            *coordPos = keywords[i].filePos;
         }
-        else if (keywordsAndFilePos[i].keyword == "ZCORN")
+        else if (keywords[i].keyword == "ZCORN")
         {
-            *zcornPos = keywordsAndFilePos[i].filePos;
+            *zcornPos = keywords[i].filePos;
         }
-        else if (keywordsAndFilePos[i].keyword == "SPECGRID")
+        else if (keywords[i].keyword == "SPECGRID")
         {
-            *specgridPos = keywordsAndFilePos[i].filePos;
+            *specgridPos = keywords[i].filePos;
         }
-        else if (keywordsAndFilePos[i].keyword == "ACTNUM")
+        else if (keywords[i].keyword == "ACTNUM")
         {
-            *actnumPos = keywordsAndFilePos[i].filePos;
+            *actnumPos = keywords[i].filePos;
         }
-        else if (keywordsAndFilePos[i].keyword == "MAPAXES")
+        else if (keywords[i].keyword == "MAPAXES")
         {
-            *mapaxesPos = keywordsAndFilePos[i].filePos;
+            *mapaxesPos = keywords[i].filePos;
+        }
+        else if (keywords[i].keyword == "GRIDUNIT")
+        {
+            *gridunitPos = keywords[i].filePos;
         }
     }
 }
@@ -1438,6 +1458,32 @@ void RifEclipseInputFileTools::readKeywordDataContent(QFile&       data,
         textContent->push_back(line);
 
     } while (!data.atEnd());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RifEclipseInputFileTools::readUnitSystem(QFile& file, qint64 gridunitPos)
+{
+    bool        stopParsing = false;
+    QStringList unitText;
+    readKeywordDataContent(file, gridunitPos, &unitText, &stopParsing);
+    for (QString unitString : unitText)
+    {
+        if (unitString.contains("FEET", Qt::CaseInsensitive))
+        {
+            return RiaEclipseUnitTools::UNITS_FIELD;
+        }
+        else if (unitString.contains("CM", Qt::CaseInsensitive))
+        {
+            return RiaEclipseUnitTools::UNITS_LAB;
+        }
+        else if (unitString.contains("MET", Qt::CaseInsensitive))
+        {
+            return RiaEclipseUnitTools::UNITS_METRIC;
+        }
+    }
+    return RiaEclipseUnitTools::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

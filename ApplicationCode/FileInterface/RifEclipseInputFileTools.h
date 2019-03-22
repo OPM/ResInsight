@@ -24,6 +24,7 @@
 #include "cvfObject.h"
 #include "cvfCollection.h"
 
+#include "RiaEclipseUnitTools.h"
 #include "RifReaderInterface.h"
 #include "RigFault.h"
 
@@ -118,8 +119,6 @@ public:
                                                                     bool* isEditKeywordDetected,
                                                                     const QString& faultIncludeFileAbsolutePathPrefix);
 
-
-
     static bool     readKeywordAndParseIncludeStatementsRecursively(const QString& keyword,
                                                                     const QString& keywordToStopParsing,
                                                                     QFile& file,
@@ -131,14 +130,14 @@ public:
                                                                     const QString& faultIncludeFileAbsolutePathPrefix // rename to includeStatementAbsolutePathPrefix
                                                                     );
 
-    static void                       readKeywordDataContent(QFile &data, qint64 filePos, QStringList* textContent, bool* isEditKeywordDetected);
-
+    static void     readKeywordDataContent(QFile &data, qint64 filePos, QStringList* textContent, bool* isEditKeywordDetected);
+    static RiaEclipseUnitTools::UnitSystem readUnitSystem(QFile& file, qint64 gridunitPos);
 
     static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
 
 private:
     static bool     readDataFromKeyword(ecl_kw_type* eclipseKeywordData, RigEclipseCaseData* caseData, const QString& resultName);
-    static void     findGridKeywordPositions(const std::vector< RifKeywordAndFilePos >& keywords, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos);
+    static void     findGridKeywordPositions(const std::vector< RifKeywordAndFilePos >& keywords, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos, qint64* gridunitPos);
 
     static size_t   findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name);
 
