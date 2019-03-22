@@ -50,8 +50,10 @@ std::vector<time_t> getTimeSteps(ecl_sum_type* ecl_sum)
             {
                 timeSteps.push_back(time_t_vector_iget(steps, i));
             }
-            free(steps);
+        
+            time_t_vector_free(steps);
         }
+        
     }
     return timeSteps;
 }
