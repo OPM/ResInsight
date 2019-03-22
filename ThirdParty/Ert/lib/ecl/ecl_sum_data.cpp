@@ -1087,8 +1087,11 @@ static void ecl_sum_data_init_double_vector__(const ecl_sum_data_type * data, in
         data_file->get_data(params_index, index_node.length, &output_data[offset]);
       else {
         const smspec_node_type * smspec_node = ecl_smspec_iget_node(data->smspec, main_params_index);
-        for (int i=0; i < index_node.length; i++)
-          output_data[offset + i] = smspec_node_get_default(smspec_node);
+        if (smspec_node)
+        {
+          for (int i=0; i < index_node.length; i++)
+            output_data[offset + i] = smspec_node_get_default(smspec_node);
+        }
       }
       offset += index_node.length;
     }

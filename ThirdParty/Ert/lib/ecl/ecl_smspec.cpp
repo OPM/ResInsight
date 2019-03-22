@@ -325,7 +325,7 @@ int * ecl_smspec_alloc_mapping( const ecl_smspec_type * self, const ecl_smspec_t
 
 
 const smspec_node_type * ecl_smspec_iget_node( const ecl_smspec_type * smspec , int index ) {
-  return (const smspec_node_type*)vector_iget_const( smspec->smspec_nodes , index );
+  return (const smspec_node_type*)vector_safe_iget_const( smspec->smspec_nodes , index );
 }
 
 int ecl_smspec_num_nodes( const ecl_smspec_type * smspec) {
