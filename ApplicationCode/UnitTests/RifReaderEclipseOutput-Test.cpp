@@ -118,7 +118,7 @@ TEST(RigReservoirTest, BasicTest10kRestart)
 
     unrstAccess.resultNames(&resultNames, &dataItemCount);
 
-    EXPECT_EQ(resultNames.size(), dataItemCount.size());
+    EXPECT_EQ(resultNames.size(), (int) dataItemCount.size());
     EXPECT_EQ(83, resultNames.size());
 
     /* for (int i = 0; i < resultNames.size(); i++)
@@ -163,8 +163,16 @@ TEST(RigReservoirTest, BasicTest10k_NativeECL)
     fclose(filePtr);
     EXPECT_TRUE(QFile::exists(outFilePath));
 
-    QString expectedMd5("\xE9\x93\xB8Q@V\x8F\x13\xF4\xC3\x84\x96\x04p\n\x0F");
+#ifdef _WIN32
+    QString expectedMd5(QByteArray::fromHex("e993b85140568f13f4c3849604700a0f"));
+#else
+    QString expectedMd5(QByteArray::fromHex("274e44fe51299c1f9ca6645c384e237d"));
+#endif
     QByteArray generatedMd5 = RifEclipseOutputFileTools::md5sum(outFilePath);
+
+    // Enable to produce text string so expectedMd5 can be updated
+    // Qt4 doesn't take a parameter for toHex()
+    //qDebug() << expectedMd5.toLatin1().toHex(0) << "     " << generatedMd5.toHex(0);
     EXPECT_TRUE(generatedMd5 == expectedMd5);
 
 #ifdef _MSC_VER
