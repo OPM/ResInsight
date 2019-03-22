@@ -129,8 +129,10 @@ public:
     static QList<caf::PdmOptionItemInfo> calcOptionsForVariableUiFieldStandard(RiaDefines::ResultCatType     resultCatType,
                                                                                const RigCaseCellResultsData* results,
                                                                                bool showDerivedResultsFirst   = false,
-                                                                               bool addPerCellFaceOptionItems = false);
+                                                                               bool addPerCellFaceOptionItems = false,
+                                                                               bool enableTernary             = false);
 
+    void                            setTernaryEnabled(bool enabled);
 protected:
     virtual void                  updateLegendCategorySettings() {};
 
@@ -220,9 +222,10 @@ private:
     bool                            addPerCellFaceOptionsForVariableUiField() const;
 
     void                            ensureProcessingOfObsoleteFields();
-
+    bool                            isTernaryEnabled() const;
 private:
     bool                            m_diffResultOptionsEnabled;
     bool                            m_labelsOnTop;
+    bool                            m_ternaryEnabled;
 };
 

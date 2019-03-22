@@ -97,17 +97,20 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     m_xAxisProperty.uiCapability()->setUiHidden(true);
     m_xAxisProperty.uiCapability()->setUiTreeChildrenHidden(true);
     m_xAxisProperty->setLabelsOnTop(true);
+    m_xAxisProperty->setTernaryEnabled(false);
 
     CAF_PDM_InitFieldNoDefault(&m_yAxisProperty, "YAxisProperty", "Y-Axis Property", "", "", "");
     m_yAxisProperty = new RimEclipseResultDefinition;
     m_yAxisProperty.uiCapability()->setUiHidden(true);
     m_yAxisProperty.uiCapability()->setUiTreeChildrenHidden(true);
     m_yAxisProperty->setLabelsOnTop(true);
+    m_yAxisProperty->setTernaryEnabled(false);
 
     CAF_PDM_InitFieldNoDefault(&m_groupingProperty, "GroupingProperty", "Data Grouping Property", "", "", "");
     m_groupingProperty = new RimEclipseCellColors;
     m_groupingProperty.uiCapability()->setUiHidden(true);
     m_groupingProperty->legendConfig()->setMappingMode(RimRegularLegendConfig::CATEGORY_INTEGER);
+    m_groupingProperty->setTernaryEnabled(false);
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "Name", "", "", "");
     m_nameConfig = new RimGridCrossPlotCurveSetNameConfig(this);
@@ -402,9 +405,6 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 {
     updateDataSetName();
 
-    detachAllCurves();
-    m_crossPlotCurves.deleteAllChildObjects();
-
     if (m_case() == nullptr)
     {
         return;
@@ -439,7 +439,22 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
     {
         filterInvalidCurveValues(&result);
     }
-    createCurves(result);
+
+    assignCurveDataGroups(result);
+
+    if (m_crossPlotCurves.size() != m_groupedResults.size())
+    {
+        destroyCurves();
+    }
+
+    if (m_crossPlotCurves.empty())
+    {
+        createCurves(result);
+    }
+    else
+    {
+        fillCurveDataInExistingCurves(result);
+    }
 
     if (updateParentPlot)
     {
@@ -450,28 +465,11 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& result)
+void RimGridCrossPlotCurveSet::assignCurveDataGroups(const RigEclipseCrossPlotResult& result)
 {
     m_groupedResults.clear();
     if (!groupingEnabled())
     {
-        RimGridCrossPlotCurve* curve = new RimGridCrossPlotCurve();
-        if (m_useCustomColor)
-        {
-            curve->setColor(m_customColor());
-        }
-        else
-        {
-            const caf::ColorTable& colors     = RiaColorTables::contrastCategoryPaletteColors();
-            int                    colorIndex = indexInPlot();
-            curve->setColor(colors.cycledColor3f(colorIndex));
-        }
-        curve->setSymbolEdgeColor(curve->color());
-        curve->setGroupingInformation(indexInPlot(), 0);
-        curve->setSamples(result.xValues, result.yValues);
-        curve->setCurveAutoAppearance();
-        curve->updateUiIconFromPlotSymbol();
-        m_crossPlotCurves.push_back(curve);
         m_groupedResults[0] = result;
     }
     else
@@ -509,6 +507,42 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
                 if (!result.groupValuesDiscrete.empty())
                     m_groupedResults[categoryNum].groupValuesDiscrete.push_back(result.groupValuesDiscrete[i]);
             }
+        }    
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& result)
+{
+    if (!groupingEnabled())
+    {
+        RimGridCrossPlotCurve* curve = new RimGridCrossPlotCurve();
+        if (m_useCustomColor)
+        {
+            curve->setColor(m_customColor());
+        }
+        else
+        {
+            const caf::ColorTable& colors     = RiaColorTables::contrastCategoryPaletteColors();
+            int                    colorIndex = indexInPlot();
+            curve->setColor(colors.cycledColor3f(colorIndex));
+        }
+        curve->setSymbolEdgeColor(curve->color());
+        curve->setGroupingInformation(indexInPlot(), 0);
+        curve->setSamples(result.xValues, result.yValues);
+        curve->setCurveAutoAppearance();
+        curve->updateUiIconFromPlotSymbol();
+        m_crossPlotCurves.push_back(curve);     
+    }
+    else
+    {
+        std::vector<double> tickValues;
+
+        if (!groupingByCategoryResult())
+        {
+            legendConfig()->scalarMapper()->majorTickValues(&tickValues);
         }
 
         for (auto it = m_groupedResults.rbegin(); it != m_groupedResults.rend(); ++it)
@@ -532,6 +566,42 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
             m_crossPlotCurves.push_back(curve);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::fillCurveDataInExistingCurves(const RigEclipseCrossPlotResult& result)
+{
+    if (!groupingEnabled())
+    {
+        CVF_ASSERT(m_crossPlotCurves.size() == 1u);
+        RimGridCrossPlotCurve* curve = m_crossPlotCurves[0];
+        curve->setSamples(result.xValues, result.yValues);
+        curve->updateCurveAppearance();
+        curve->updateUiIconFromPlotSymbol();
+    }
+    else
+    {
+        auto curveIt = m_crossPlotCurves.begin();
+        auto groupIt = m_groupedResults.begin();
+        for (; curveIt != m_crossPlotCurves.end() && groupIt != m_groupedResults.end(); ++curveIt, ++groupIt)
+        {
+            RimGridCrossPlotCurve* curve = *curveIt;
+            curve->setSamples(groupIt->second.xValues, groupIt->second.yValues);
+            curve->updateCurveAppearance();
+            curve->updateUiIconFromPlotSymbol();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::destroyCurves()
+{
+    detachAllCurves();
+    m_crossPlotCurves.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -680,6 +750,7 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
             m_yAxisProperty->updateConnectedEditors();
             m_groupingProperty->updateConnectedEditors();
 
+            destroyCurves();
             loadDataAndUpdate(true);
         }
     }
@@ -690,6 +761,7 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
             m_grouping = NO_GROUPING;
         }
 
+        destroyCurves();
         loadDataAndUpdate(true);
     }
     else if (changedField == &m_grouping)
@@ -710,11 +782,13 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
             legendConfig()->setMappingMode(RimRegularLegendConfig::LINEAR_DISCRETE);
         }
 
+        destroyCurves();
         loadDataAndUpdate(true);
     }
     else if (changedField == &m_cellFilterView)
     {
         m_groupingProperty->setReservoirView(dynamic_cast<RimEclipseView*>(m_cellFilterView()));
+
         loadDataAndUpdate(true);
     }
     else if (changedField == &m_isChecked)

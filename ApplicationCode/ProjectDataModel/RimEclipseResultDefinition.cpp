@@ -77,6 +77,7 @@ CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 RimEclipseResultDefinition::RimEclipseResultDefinition()
     : m_diffResultOptionsEnabled(false)
     , m_labelsOnTop(false)
+    , m_ternaryEnabled(true)
 {
     CAF_PDM_InitObject("Result Definition", "", "", "");
 
@@ -491,11 +492,12 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
         }
     }
 
-    RimGridCrossPlot* crossPlot = nullptr;
-    this->firstAncestorOrThisOfType(crossPlot);
-    if (crossPlot)
+    RimGridCrossPlotCurveSet* crossPlotCurveSet = nullptr;
+    this->firstAncestorOrThisOfType(crossPlotCurveSet);
+    if (crossPlotCurveSet)
     {
-        crossPlot->loadDataAndUpdate();
+        crossPlotCurveSet->destroyCurves();
+        crossPlotCurveSet->loadDataAndUpdate(true);
     }
 
     RimPlotCurve* curve = nullptr;
@@ -646,7 +648,8 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
             options = calcOptionsForVariableUiFieldStandard(m_resultTypeUiField(),
                                                             this->currentGridCellResults(),
                                                             showDerivedResultsFirstInVariableUiField(),
-                                                            addPerCellFaceOptionsForVariableUiField());
+                                                            addPerCellFaceOptionsForVariableUiField(),
+                                                            m_ternaryEnabled);
         }
         else if (fieldNeedingOptions == &m_differenceCase)
         {
@@ -1460,7 +1463,8 @@ QList<caf::PdmOptionItemInfo>
 RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::ResultCatType     resultCatType,
                                                                   const RigCaseCellResultsData* results,
                                                                   bool                          showDerivedResultsFirst,
-                                                                  bool                          addPerCellFaceOptionItems)
+                                                                  bool                          addPerCellFaceOptionItems,
+                                                                  bool                          ternaryEnabled)
 {
     CVF_ASSERT(resultCatType != RiaDefines::FLOW_DIAGNOSTICS && resultCatType != RiaDefines::INJECTION_FLOODING);
 
@@ -1498,20 +1502,23 @@ RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::Re
         }
 
         // Ternary Result
-        bool hasAtLeastOneTernaryComponent = false;
-        if (cellCenterResultNames.contains("SOIL"))
-            hasAtLeastOneTernaryComponent = true;
-        else if (cellCenterResultNames.contains("SGAS"))
-            hasAtLeastOneTernaryComponent = true;
-        else if (cellCenterResultNames.contains("SWAT"))
-            hasAtLeastOneTernaryComponent = true;
-
-        if (resultCatType == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
+        if (ternaryEnabled)
         {
-            optionList.push_front(
-                caf::PdmOptionItemInfo(RiaDefines::ternarySaturationResultName(), RiaDefines::ternarySaturationResultName()));
-        }
+            bool hasAtLeastOneTernaryComponent = false;
+            if (cellCenterResultNames.contains("SOIL"))
+                hasAtLeastOneTernaryComponent = true;
+            else if (cellCenterResultNames.contains("SGAS"))
+                hasAtLeastOneTernaryComponent = true;
+            else if (cellCenterResultNames.contains("SWAT"))
+                hasAtLeastOneTernaryComponent = true;
 
+            if (resultCatType == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
+            {
+                optionList.push_front(
+                    caf::PdmOptionItemInfo(RiaDefines::ternarySaturationResultName(),
+                        RiaDefines::ternarySaturationResultName()));
+            }
+        }
         if (addPerCellFaceOptionItems)
         {
             for (QString s : cellFaceResultNames)
@@ -1533,6 +1540,14 @@ RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::Re
     }
 
     return QList<caf::PdmOptionItemInfo>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::setTernaryEnabled(bool enabled)
+{
+    m_ternaryEnabled = enabled;
 }
 
 //--------------------------------------------------------------------------------------------------

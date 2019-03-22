@@ -129,12 +129,15 @@ public:
     void configureForPressureSaturationCurves(RimEclipseResultCase* eclipseResultCase, const QString& dynamicResultName);
     void addCellFilter(RimPlotCellFilter* cellFilter);
     void setCustomColor(const cvf::Color3f color);
+    void destroyCurves();
 
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);
 
+    void assignCurveDataGroups(const RigEclipseCrossPlotResult& result);
     void createCurves(const RigEclipseCrossPlotResult& result);
+    void fillCurveDataInExistingCurves(const RigEclipseCrossPlotResult& result);
     QString createGroupName(size_t curveIndex) const;
 
     std::map<int, cvf::UByteArray> calculateCellVisibility(RimEclipseCase* eclipseCase) const;

@@ -70,6 +70,8 @@ RimEclipseContourMapView::RimEclipseContourMapView()
     m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr(contourMapProjection(), this);
 
     ((RiuViewerToViewInterface*)this)->setCameraPosition(sm_defaultViewMatrix);
+
+    cellResult()->setTernaryEnabled(false);
 }
 
 //--------------------------------------------------------------------------------------------------
