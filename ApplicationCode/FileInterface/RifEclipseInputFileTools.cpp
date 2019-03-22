@@ -331,7 +331,13 @@ bool RifEclipseInputFileTools::exportGrid(const QString&      fileName,
         return false;
     }
 
-    ecl_grid_fprintf_grdecl(mainEclGrid, filePtr);
+    ert_ecl_unit_enum ecl_units = ECL_METRIC_UNITS;
+    if (eclipseCase->unitsType() == RiaEclipseUnitTools::UNITS_FIELD)
+        ecl_units = ECL_FIELD_UNITS;
+    else if (eclipseCase->unitsType() == RiaEclipseUnitTools::UNITS_LAB)
+        ecl_units = ECL_LAB_UNITS;
+    
+    ecl_grid_fprintf_grdecl2(mainEclGrid, filePtr, ecl_units);
     ecl_grid_free(mainEclGrid);
     fclose(filePtr);
 
