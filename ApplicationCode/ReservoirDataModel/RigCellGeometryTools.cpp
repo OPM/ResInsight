@@ -85,16 +85,30 @@ double RigCellGeometryTools::calculateCellVolume(const std::array<cvf::Vec3d, 8>
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// A reasonable approximation to the overlap volume
 //--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3d, 8> RigCellGeometryTools::estimateHexOverlapWithBoundingBox(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::BoundingBox& boundingBox, cvf::BoundingBox* overlapBoundingBox)
+bool RigCellGeometryTools::estimateHexOverlapWithBoundingBox(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::BoundingBox& boundingBox, std::array<cvf::Vec3d, 8>* overlapElement, cvf::BoundingBox* overlapBoundingBox)
 {
-    CVF_ASSERT(overlapBoundingBox);
+    CVF_ASSERT(overlapElement && overlapBoundingBox);
     *overlapBoundingBox = cvf::BoundingBox();
+
     std::array<cvf::Vec3d, 8> overlapCorners = hexCorners;
-    // A reasonable approximation to the overlap volume
-    cvf::Plane topPlane;    topPlane.setFromPoints(hexCorners[0], hexCorners[1], hexCorners[2]);
-    cvf::Plane bottomPlane; bottomPlane.setFromPoints(hexCorners[4], hexCorners[5], hexCorners[6]);
+
+    std::vector<cvf::Vec3d> uniqueTopPoints = { hexCorners[0], hexCorners[1], hexCorners[2], hexCorners[3] };
+    uniqueTopPoints.erase(std::unique(uniqueTopPoints.begin(), uniqueTopPoints.end()), uniqueTopPoints.end());
+    if (uniqueTopPoints.size() < 3) return false;
+    
+    cvf::Plane topPlane;
+    if (!topPlane.setFromPoints(uniqueTopPoints[0], uniqueTopPoints[1], uniqueTopPoints[2]))
+        return false;
+    
+    std::vector<cvf::Vec3d> uniqueBottomPoints = {hexCorners[4], hexCorners[5], hexCorners[6], hexCorners[7]};
+    uniqueBottomPoints.erase(std::unique(uniqueBottomPoints.begin(), uniqueBottomPoints.end()), uniqueBottomPoints.end());
+    if (uniqueBottomPoints.size() < 3) return false;
+    
+    cvf::Plane bottomPlane;
+    if (!bottomPlane.setFromPoints(uniqueBottomPoints[0], uniqueBottomPoints[1], uniqueBottomPoints[2]))
+        return false;
 
     for (size_t i = 0; i < 4; ++i)
     {
@@ -104,8 +118,8 @@ std::array<cvf::Vec3d, 8> RigCellGeometryTools::estimateHexOverlapWithBoundingBo
         corner.z() = cvf::Math::clamp(corner.z(), boundingBox.min().z(), boundingBox.max().z());
         cvf::Vec3d maxZCorner = corner; maxZCorner.z() = boundingBox.max().z();
         cvf::Vec3d minZCorner = corner; minZCorner.z() = boundingBox.min().z();
-        topPlane.intersect(minZCorner, maxZCorner, &corner);
-        overlapBoundingBox->add(corner);
+        if (topPlane.intersect(minZCorner, maxZCorner, &corner))
+            overlapBoundingBox->add(corner);
     }
     for (size_t i = 4; i < 8; ++i)
     {
@@ -115,10 +129,12 @@ std::array<cvf::Vec3d, 8> RigCellGeometryTools::estimateHexOverlapWithBoundingBo
         corner.z() = cvf::Math::clamp(corner.z(), boundingBox.min().z(), boundingBox.max().z());
         cvf::Vec3d maxZCorner = corner; maxZCorner.z() = boundingBox.max().z();
         cvf::Vec3d minZCorner = corner; minZCorner.z() = boundingBox.min().z();
-        bottomPlane.intersect(minZCorner, maxZCorner, &corner);
-        overlapBoundingBox->add(corner);
+        if (bottomPlane.intersect(minZCorner, maxZCorner, &corner))
+            overlapBoundingBox->add(corner);
     }
-    return overlapCorners;
+
+    *overlapElement = overlapCorners;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

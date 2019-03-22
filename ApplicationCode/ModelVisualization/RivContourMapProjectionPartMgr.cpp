@@ -13,6 +13,7 @@
 
 #include "cafEffectGenerator.h"
 #include "cafFixedAtlasFont.h"
+#include "cafCategoryMapper.h"
 
 #include "cvfCamera.h"
 #include "cvfDrawableText.h"
@@ -365,13 +366,17 @@ std::vector<cvf::ref<cvf::Drawable>>
 {
     CVF_ASSERT(camera && displayCoordTransform && labelBBoxes);
 
+    std::vector<cvf::ref<cvf::Drawable>> labelDrawables;
+    labelBBoxes->clear();
+    labelBBoxes->resize(m_contourLinePolygons.size());
+
     const cvf::ScalarMapper* mapper = m_contourMapProjection->legendConfig()->scalarMapper();
+    if (dynamic_cast<const caf::CategoryMapper*>(mapper) != nullptr)
+        return labelDrawables;
+
     std::vector<double>      tickValues;
     mapper->majorTickValues(&tickValues);
 
-    std::vector<cvf::ref<cvf::Drawable>>              labelDrawables;
-    labelBBoxes->clear();
-    labelBBoxes->resize(m_contourLinePolygons.size());
     const RimContourMapProjection::ContourPolygons* previousLevel = nullptr;
     for (int64_t i = (int64_t)m_contourLinePolygons.size() - 1; i > 0; --i)
     {

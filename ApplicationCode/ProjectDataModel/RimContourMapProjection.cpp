@@ -724,14 +724,12 @@ std::pair<double, double> RimContourMapProjection::minmaxValuesAllTimeSteps()
     {
         clearTimeStepRange();
 
+        m_minResultAllTimeSteps = std::min(m_minResultAllTimeSteps, minValue(m_aggregatedResults));
+        m_maxResultAllTimeSteps = std::max(m_maxResultAllTimeSteps, maxValue(m_aggregatedResults));
+
         for (int i = 0; i < (int)baseView()->ownerCase()->timeStepStrings().size() - 1; ++i)
         {
-            if (i == m_currentResultTimestep)
-            {
-                m_minResultAllTimeSteps = std::min(m_minResultAllTimeSteps, minValue(m_aggregatedResults));
-                m_maxResultAllTimeSteps = std::max(m_maxResultAllTimeSteps, maxValue(m_aggregatedResults));
-            }
-            else
+            if (i != m_currentResultTimestep)
             {
                 std::vector<double> aggregatedResults = generateResults(i);
                 m_minResultAllTimeSteps = std::min(m_minResultAllTimeSteps, minValue(aggregatedResults));
@@ -1078,8 +1076,6 @@ void RimContourMapProjection::generateContourPolygons()
 {
     std::vector<ContourPolygons> contourPolygons;
 
-    const double simplifyEpsilon = m_smoothContourLines() ? 5.0e-2 * m_sampleSpacing : 1.0e-3 * m_sampleSpacing;
-
     std::vector<double> contourLevels;
     if (resultRangeIsValid() && legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER)
     {
@@ -1099,6 +1095,17 @@ void RimContourMapProjection::generateContourPolygons()
                 else
                 {
                     contourLevels.front() *= 0.5;
+                }
+
+                double simplifyEpsilon = m_smoothContourLines() ? 5.0e-2 * m_sampleSpacing : 1.0e-3 * m_sampleSpacing;
+
+                if (nContourLevels >= 10)
+                {
+                    simplifyEpsilon *= 2.0;
+                }
+                if (numberOfCells() > 100000)
+                {
+                    simplifyEpsilon *= 2.0;
                 }
 
                 std::vector<caf::ContourLines::ListOfLineSegments> unorderedLineSegmentsPerLevel =

@@ -32,8 +32,9 @@ class RigCellGeometryTools
 {
 public:
     static double                    calculateCellVolume(const std::array<cvf::Vec3d, 8>& hexCorners);
-    static std::array<cvf::Vec3d, 8> estimateHexOverlapWithBoundingBox(const std::array<cvf::Vec3d, 8>& hexCorners,
+    static bool                      estimateHexOverlapWithBoundingBox(const std::array<cvf::Vec3d, 8>& hexCorners,
                                                                        const cvf::BoundingBox&          boundingBox2dExtrusion,
+                                                                       std::array<cvf::Vec3d, 8>*       overlapCorners,
                                                                        cvf::BoundingBox*                overlapBoundingBox);
 
     static void createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments,

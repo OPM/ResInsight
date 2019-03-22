@@ -202,7 +202,11 @@ std::vector<double> RimEclipseContourMapProjection::generateResults(int timeStep
             else
             {
                 m_currentResultName = cellColors->resultVariable();
-                gridResultValues = resultData->cellScalarResults(RigEclipseResultAddress( cellColors->resultType(), cellColors->resultVariable()), timeStep);                
+                RigEclipseResultAddress resAddr(cellColors->resultType(), cellColors->resultVariable());
+                if (resAddr.isValid() && resultData->hasResultEntry(resAddr))
+                {
+                    gridResultValues = resultData->cellScalarResults(resAddr, timeStep);
+                }
             }
 
             if (!gridResultValues.empty())
@@ -393,11 +397,13 @@ double RimEclipseContourMapProjection::calculateOverlapVolume(size_t globalCellI
     localGrid->cellCornerVertices(localCellIdx, hexCorners.data());
 
     cvf::BoundingBox          overlapBBox;
-    std::array<cvf::Vec3d, 8> overlapCorners =
-        RigCellGeometryTools::estimateHexOverlapWithBoundingBox(hexCorners, bbox, &overlapBBox);
-
-    double overlapVolume = RigCellGeometryTools::calculateCellVolume(overlapCorners);
-    return overlapVolume;
+    std::array<cvf::Vec3d, 8> overlapCorners;
+    if (RigCellGeometryTools::estimateHexOverlapWithBoundingBox(hexCorners, bbox, &overlapCorners, &overlapBBox))
+    {
+        double overlapVolume = RigCellGeometryTools::calculateCellVolume(overlapCorners);
+        return overlapVolume;
+    }
+    return 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
