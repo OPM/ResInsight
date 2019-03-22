@@ -21,15 +21,17 @@
 #pragma once
 
 #include "RiuViewerToViewInterface.h"
-#include "cafViewer.h"
+#include "RiuInterfaceToViewWindow.h"
 
+#include "cafMouseState.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafPdmInterfacePointer.h"
+#include "cafViewer.h"
 
-#include "cafMouseState.h"
 #include "cvfStructGrid.h"
-#include "RiuInterfaceToViewWindow.h"
+
+#include <memory>
 
 class RicCommandFeature;
 class Rim3dView;
@@ -127,6 +129,9 @@ public:
 
     void            showScaleLegend(bool show);
 
+    static void     setHoverCursor(const QCursor& cursor);
+    static void     clearHoverCursor();
+
 public slots:
     void            slotSetCurrentFrame(int frameIndex) override;
     void            slotEndAnimation() override;
@@ -135,7 +140,8 @@ protected:
     void            optimizeClippingPlanes() override;
     void            resizeGL(int width, int height) override;
     void    mouseMoveEvent(QMouseEvent* e) override;
-    void    leaveEvent(QEvent *) override;
+    void    enterEvent(QEvent*) override;
+    void    leaveEvent(QEvent*) override;
 
 private:
     void            updateLegendLayout();
@@ -191,5 +197,7 @@ private:
     bool                        m_isNavigationRotationEnabled;
 
     cvf::ref<caf::OverlayScaleLegend> m_scaleLegend;
+
+    static std::unique_ptr<QCursor>    s_hoverCursor;
 };
 

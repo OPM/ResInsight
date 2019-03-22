@@ -29,6 +29,7 @@
 #include "RimUserDefinedPolylinesAnnotation.h"
 
 #include "RiuViewerCommands.h"
+#include "RiuViewer.h"
 
 #include "RivPolylinesAnnotationSourceInfo.h"
 
@@ -55,7 +56,7 @@ RicPolylineTargetsPickEventHandler::~RicPolylineTargetsPickEventHandler() {}
 //--------------------------------------------------------------------------------------------------
 void RicPolylineTargetsPickEventHandler::registerAsPickEventHandler()
 {
-    RiaApplication::instance()->setOverrideCursor(Qt::CrossCursor);
+    RiuViewer::setHoverCursor(Qt::CrossCursor);
     Ric3dViewPickEventHandler::registerAsPickEventHandler();
 }
 
@@ -64,7 +65,7 @@ void RicPolylineTargetsPickEventHandler::registerAsPickEventHandler()
 //--------------------------------------------------------------------------------------------------
 void RicPolylineTargetsPickEventHandler::notifyUnregistered()
 {
-    RiaApplication::instance()->restoreOverrideCursor();
+    RiuViewer::clearHoverCursor();
 }
 
 //--------------------------------------------------------------------------------------------------

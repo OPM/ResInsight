@@ -77,6 +77,8 @@ using cvf::ManipulatorTrackball;
 
 const double RI_MIN_NEARPLANE_DISTANCE = 0.1;
 
+std::unique_ptr<QCursor> RiuViewer::s_hoverCursor;
+
 //==================================================================================================
 ///
 /// \class RiuViewer
@@ -844,8 +846,21 @@ void RiuViewer::mouseMoveEvent(QMouseEvent* mouseEvent)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuViewer::enterEvent(QEvent*)
+{
+    if (s_hoverCursor)
+    {
+        QApplication::setOverrideCursor(*s_hoverCursor);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuViewer::leaveEvent(QEvent*)
 {
+    QApplication::restoreOverrideCursor();
+
     if (m_rimView && m_rimView->assosiatedViewLinker())
     {
         RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
@@ -1024,6 +1039,22 @@ void RiuViewer::showScaleLegend(bool show)
     }
 
     updateLegendLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::setHoverCursor(const QCursor& cursor)
+{
+    s_hoverCursor.reset(new QCursor(cursor));
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::clearHoverCursor()
+{
+    s_hoverCursor.reset();
 }
 
 //--------------------------------------------------------------------------------------------------

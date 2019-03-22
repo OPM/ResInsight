@@ -19,6 +19,7 @@
 
 #include "RiaApplication.h"
 #include "Rim3dView.h"
+#include "RiuViewer.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
@@ -52,7 +53,7 @@ bool RicVec3dPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObje
 void RicVec3dPickEventHandler::registerAsPickEventHandler()
 {
     Ric3dViewPickEventHandler::registerAsPickEventHandler();
-    RiaApplication::instance()->setOverrideCursor(Qt::CrossCursor);
+    RiuViewer::setHoverCursor(Qt::CrossCursor);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,5 +61,5 @@ void RicVec3dPickEventHandler::registerAsPickEventHandler()
 //--------------------------------------------------------------------------------------------------
 void RicVec3dPickEventHandler::notifyUnregistered()
 {
-    RiaApplication::instance()->restoreOverrideCursor();
+    RiuViewer::clearHoverCursor();
 }
