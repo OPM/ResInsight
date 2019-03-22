@@ -29,8 +29,9 @@
 
 #include "cvfMath.h"
 
-#include <vector>
+#include <algorithm>
 #include <array>
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 /// Efficient Computation of Volume of Hexahedral Cells
