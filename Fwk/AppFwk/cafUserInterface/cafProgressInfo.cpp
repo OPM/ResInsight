@@ -351,18 +351,6 @@ namespace caf {
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    static bool isUpdatePossible()
-    {
-        if (!qApp) return false;
-
-        if (!progressDialog()) return false;
-
-        return progressDialog()->thread() == QThread::currentThread();
-    }
-
-    //--------------------------------------------------------------------------------------------------
-    /// 
-    //--------------------------------------------------------------------------------------------------
     bool ProgressState::isActive()
     {
         return !maxProgressStack().empty();
@@ -440,6 +428,23 @@ namespace caf {
         }
     }
 
+    //==================================================================================================
+    ///
+    /// \class caf::ProgressInfoBlocker
+    ///
+    /// Used to disable progress info on a temporary basis
+    ///
+    //==================================================================================================
+
+    ProgressInfoBlocker::ProgressInfoBlocker()
+    {
+        ProgressInfoStatic::s_disabled = true;
+    }
+
+    ProgressInfoBlocker::~ProgressInfoBlocker()
+    {
+        ProgressInfoStatic::s_disabled = false;
+    }
 
     //==================================================================================================
     ///
@@ -449,6 +454,7 @@ namespace caf {
     /// 
     //==================================================================================================
 
+    bool ProgressInfoStatic::s_disabled = false;
 
     //--------------------------------------------------------------------------------------------------
     /// 
@@ -490,7 +496,6 @@ namespace caf {
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         //if (progressDialog()) progressDialog()->repaint();
     }
-
 
     //--------------------------------------------------------------------------------------------------
     /// 
@@ -636,4 +641,19 @@ namespace caf {
             //if (progressDialog()) progressDialog()->repaint();
         }
     }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    bool ProgressInfoStatic::isUpdatePossible()
+    {
+        if (s_disabled) return false;
+
+        if (!qApp) return false;
+
+        if (!progressDialog()) return false;
+
+        return progressDialog()->thread() == QThread::currentThread();
+    }
+
 } // namespace caf 

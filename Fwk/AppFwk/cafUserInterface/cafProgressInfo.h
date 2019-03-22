@@ -69,6 +69,12 @@ public:
  
 };
 
+class ProgressInfoBlocker
+{
+public:
+    ProgressInfoBlocker();
+    ~ProgressInfoBlocker();
+};
 
 class ProgressInfoStatic 
 {
@@ -81,6 +87,13 @@ public:
     static void setNextProgressIncrement(size_t nextStepSize);
 
     static void finished();
+
+private:
+    static bool isUpdatePossible();
+private:
+    friend class ProgressInfoBlocker;
+
+    static bool s_disabled;
 };
 
 }

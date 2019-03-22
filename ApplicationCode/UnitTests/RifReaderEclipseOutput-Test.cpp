@@ -35,6 +35,8 @@
 #include "RifReaderSettings.h"
 #include "RimEclipseResultCase.h"
 
+#include <cafProgressInfo.h>
+
 #include <QDebug>
 #include <QDir>
 
@@ -47,6 +49,8 @@ using namespace RiaDefines;
 //--------------------------------------------------------------------------------------------------
 TEST(RigReservoirTest, BasicTest10k)
 {
+    caf::ProgressInfoBlocker progressBlocker;
+
     QDir baseFolder(TEST_MODEL_DIR);
     bool subFolderExists = baseFolder.cd("TEST10K_FLT_LGR_NNC");
     EXPECT_TRUE(subFolderExists);
@@ -99,6 +103,8 @@ TEST(RigReservoirTest, BasicTest10k)
 
 TEST(RigReservoirTest, BasicTest10kRestart)
 {
+    caf::ProgressInfoBlocker progressBlocker;
+
     RifEclipseUnifiedRestartFileAccess unrstAccess;
 
     QDir baseFolder(TEST_MODEL_DIR);
@@ -137,6 +143,8 @@ TEST(RigReservoirTest, BasicTest10kRestart)
 
 TEST(RigReservoirTest, BasicTest10k_NativeECL)
 {
+    caf::ProgressInfoBlocker progressBlocker;
+
     QDir baseFolder(TEST_MODEL_DIR);
     bool subFolderExists = baseFolder.cd("TEST10K_FLT_LGR_NNC");
     EXPECT_TRUE(subFolderExists);
@@ -183,6 +191,8 @@ TEST(RigReservoirTest, BasicTest10k_NativeECL)
 
 TEST(RigReservoirTest, Test10k_ReadThenWriteToECL)
 {
+    caf::ProgressInfoBlocker progressBlocker;
+
     QDir baseFolder(TEST_MODEL_DIR);
     bool subFolderExists = baseFolder.cd("TEST10K_FLT_LGR_NNC");
     EXPECT_TRUE(subFolderExists);
