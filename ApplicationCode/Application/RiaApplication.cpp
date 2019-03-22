@@ -1330,6 +1330,8 @@ bool RiaApplication::parseArguments()
 int RiaApplication::launchUnitTests()
 {
 #ifdef USE_UNIT_TESTS
+
+    caf::ProgressInfoBlocker progressBlocker;
     cvf::Assert::setReportMode(cvf::Assert::CONSOLE);
 
 #if QT_VERSION < 0x050000
