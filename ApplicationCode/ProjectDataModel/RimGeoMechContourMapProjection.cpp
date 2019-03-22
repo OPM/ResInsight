@@ -427,11 +427,13 @@ double RimGeoMechContourMapProjection::calculateOverlapVolume(size_t            
     m_femPartGrid->cellCornerVertices(globalCellIdx, hexCorners.data());
 
     cvf::BoundingBox          overlapBBox;
-    std::array<cvf::Vec3d, 8> overlapCorners =
-        RigCellGeometryTools::estimateHexOverlapWithBoundingBox(hexCorners, bbox, &overlapBBox);
-
-    double overlapVolume = RigCellGeometryTools::calculateCellVolume(overlapCorners);
-    return overlapVolume;
+    std::array<cvf::Vec3d, 8> overlapCorners;
+    if (RigCellGeometryTools::estimateHexOverlapWithBoundingBox(hexCorners, bbox, &overlapCorners, &overlapBBox))
+    {
+        double overlapVolume = RigCellGeometryTools::calculateCellVolume(overlapCorners);
+        return overlapVolume;
+    }
+    return 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------

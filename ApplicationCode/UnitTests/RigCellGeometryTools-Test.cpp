@@ -46,7 +46,8 @@ TEST(RigCellGeometryTools, calculateCellVolumeTest)
 
     // The overlap with the original bounding box should just yield the original bounding box
     cvf::BoundingBox overlapBoundingBox;
-    std::array<cvf::Vec3d, 8> overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, bbox, &overlapBoundingBox);
+    std::array<cvf::Vec3d, 8> overlapVertices;
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, bbox, &overlapVertices, &overlapBoundingBox);
 
     EXPECT_DOUBLE_EQ(bboxVolume, RigCellGeometryTools::calculateCellVolume(overlapVertices));
 
@@ -64,7 +65,8 @@ TEST(RigCellGeometryTools, calculateCellVolumeTest)
         corner.x() += 0.5 * bbox.extent().x();
         tetrahedronBBox.add(corner);
     }
-    overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, tetrahedronBBox, &overlapBoundingBox);
+    overlapVertices;
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, tetrahedronBBox, &overlapVertices, &overlapBoundingBox);
 
     EXPECT_DOUBLE_EQ(bboxVolume * 0.5 + extraVolume, RigCellGeometryTools::calculateCellVolume(overlapVertices));
 
@@ -76,13 +78,13 @@ TEST(RigCellGeometryTools, calculateCellVolumeTest)
         corner.x() += 0.5 * bbox.extent().x();
         tetrahedronBBox.add(corner);
     }
-    overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, tetrahedronBBox, &overlapBoundingBox);
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, tetrahedronBBox, &overlapVertices, &overlapBoundingBox);
 
     EXPECT_DOUBLE_EQ(extraVolume, RigCellGeometryTools::calculateCellVolume(overlapVertices));
 
     // Expand original bounding box to be much larger than the hex
     bbox.expand(2000);
-    overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, bbox, &overlapBoundingBox);
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, bbox, &overlapVertices, &overlapBoundingBox);
     EXPECT_DOUBLE_EQ(bboxVolume + extraVolume, RigCellGeometryTools::calculateCellVolume(overlapVertices));    
 }
 
@@ -105,20 +107,21 @@ TEST(RigCellGeometryTools, calculateCellVolumeTest2)
     double expectedOverlap = 50 * 50 * 25 + 0.5 * 50 * 50 * 50;
 
     cvf::BoundingBox overlapBoundingBox;
-    std::array<cvf::Vec3d, 8> overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, innerBBox, &overlapBoundingBox);
+    std::array<cvf::Vec3d, 8> overlapVertices;
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, innerBBox, &overlapVertices, &overlapBoundingBox);
     EXPECT_DOUBLE_EQ(expectedOverlap, RigCellGeometryTools::calculateCellVolume(overlapVertices));
 
     cvf::BoundingBox smallerInnerBBox(cvf::Vec3d(25.0, 25.0, -10.0), cvf::Vec3d(75.0, 75.0, 25.0));
-    overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, smallerInnerBBox, &overlapBoundingBox);
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, smallerInnerBBox, &overlapVertices, &overlapBoundingBox);
     EXPECT_DOUBLE_EQ(50 * 50 * 25, RigCellGeometryTools::calculateCellVolume(overlapVertices));
 
     cvf::BoundingBox smallerBBox(cvf::Vec3d(50.0, 50.0, 0.0), cvf::Vec3d(100.0, 100.0, 100.0));
-    overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, smallerBBox, &overlapBoundingBox);
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, smallerBBox, &overlapVertices, &overlapBoundingBox);
     double tipVolume = 50 * 50 * 50 * 0.5;
     EXPECT_DOUBLE_EQ(tipVolume, RigCellGeometryTools::calculateCellVolume(overlapVertices));
 
     cvf::BoundingBox smallerBBox2(cvf::Vec3d(0.0, 0.0, 0.0), cvf::Vec3d(50.0, 50.0, 100.0));
-    overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, smallerBBox2, &overlapBoundingBox);
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, smallerBBox2, &overlapVertices, &overlapBoundingBox);
     double expectedVolume = (totalCellVolume - 2*tipVolume) * 0.5;
     EXPECT_DOUBLE_EQ(expectedVolume, RigCellGeometryTools::calculateCellVolume(overlapVertices));
 }
