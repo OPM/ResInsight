@@ -28,8 +28,8 @@
 #include "cafSelectionManager.h"
 #include "cafTitledOverlayFrame.h"
 
-#include "RimPlotAxisProperties.h"
 #include "RimPlotAxisAnnotation.h"
+#include "RimPlotAxisProperties.h"
 #include "RiuPlotAnnotationTool.h"
 
 #include <QMenu>
@@ -130,18 +130,11 @@ void RiuGridCrossQwtPlot::updateLegendSizesToMatchPlot()
 //--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::updateAnnotationObjects(RimPlotAxisProperties* axisProperties)
 {
-    std::vector<QString> names;
-    std::vector<double>  positions;
+    m_annotationTool->detachAllAnnotations();
 
-    for (auto a : axisProperties->annotations())
+    for (auto annotation : axisProperties->annotations())
     {
-        names.push_back(a->name());
-        positions.push_back(a->value());
-    }
-
-    if (!names.empty())
-    {
-        m_annotationTool->attachWellPicks(this, names, positions);
+        m_annotationTool->attachAnnotationLine(this, annotation->color(), annotation->name(), annotation->value());
     }
 }
 

@@ -147,7 +147,7 @@ void RimGridCrossPlotCurveSet::setCellFilterView(RimGridView* cellFilterView)
             m_xAxisProperty->setResultType(resAddr.m_resultCatType);
             m_xAxisProperty->setResultVariable(resAddr.m_resultName);
             m_yAxisProperty->setResultType(RiaDefines::STATIC_NATIVE);
-            m_yAxisProperty->setResultVariable("DEPTH");            
+            m_yAxisProperty->setResultVariable("DEPTH");
             m_timeStep = eclipseView->currentTimeStep();
             m_grouping = NO_GROUPING;
 
@@ -158,7 +158,7 @@ void RimGridCrossPlotCurveSet::setCellFilterView(RimGridView* cellFilterView)
                 parentPlot->setYAxisInverted(true);
             }
         }
-    }    
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -507,7 +507,7 @@ void RimGridCrossPlotCurveSet::assignCurveDataGroups(const RigEclipseCrossPlotRe
                 if (!result.groupValuesDiscrete.empty())
                     m_groupedResults[categoryNum].groupValuesDiscrete.push_back(result.groupValuesDiscrete[i]);
             }
-        }    
+        }
     }
 }
 
@@ -534,7 +534,7 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
         curve->setSamples(result.xValues, result.yValues);
         curve->setCurveAutoAppearance();
         curve->updateUiIconFromPlotSymbol();
-        m_crossPlotCurves.push_back(curve);     
+        m_crossPlotCurves.push_back(curve);
     }
     else
     {
@@ -1061,6 +1061,13 @@ void RimGridCrossPlotCurveSet::configureForPressureSaturationCurves(RimEclipseRe
     m_yAxisProperty->setResultVariable("DEPTH");
 
     m_grouping = NO_GROUPING;
+
+    m_nameConfig->setCustomName(dynamicResultName);
+
+    m_nameConfig->addCaseName      = false;
+    m_nameConfig->addAxisVariables = false;
+    m_nameConfig->addTimestep      = false;
+    m_nameConfig->addGrouping      = false;
 }
 
 //--------------------------------------------------------------------------------------------------

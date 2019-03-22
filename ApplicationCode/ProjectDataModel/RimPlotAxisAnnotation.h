@@ -54,6 +54,7 @@ public:
 
     QString name() const;
     double  value() const;
+    QColor color() const;
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;

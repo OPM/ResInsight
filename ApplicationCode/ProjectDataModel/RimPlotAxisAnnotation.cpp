@@ -119,6 +119,23 @@ double RimPlotAxisAnnotation::value() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QColor RimPlotAxisAnnotation::color() const
+{
+    if (m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT)
+    {
+        return QColor(0, 0, 0);
+    }
+    else if (m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT)
+    {
+        return QColor(220, 0, 0);
+    }
+
+    return QColor(0, 0, 100);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimPlotAxisAnnotation::userDescriptionField()
 {
     return &m_name;

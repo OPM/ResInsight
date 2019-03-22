@@ -61,6 +61,9 @@ void RimSaturationPressurePlotCollection::createSaturationPressurePlots(RimEclip
         plot->setAsPlotMdiWindow();
 
         int equilibriumRegion = static_cast<int>(i);
+
+        // As discussed with Liv Merete, it is not any use for creation of different plots for matrix/fracture. For now, use
+        // hardcoded value for MATRIX
         plot->assignCaseAndEquilibriumRegion(RiaDefines::MATRIX_MODEL, eclipseResultCase, equilibriumRegion);
 
         m_saturationPressurePlots.push_back(plot);

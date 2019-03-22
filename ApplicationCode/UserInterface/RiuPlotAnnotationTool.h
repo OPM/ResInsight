@@ -36,10 +36,14 @@ public:
 
     void attachFormationNames(QwtPlot* plot, const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions, bool showNames = true);
     void attachWellPicks(QwtPlot* plot, const std::vector<QString>& names, const std::vector<double> yPositions);
+    
+    void attachAnnotationLine(QwtPlot* plot, const QColor& color, const QString& annotationText, const double yPosition);
+
     void detachAllAnnotations();
 
 private:
     static void horizontalDashedLine(QwtPlotMarker* line, const QString& name, double yValue);
+    static void horizontalDashedLineWithColor(QwtPlotMarker* line, const QColor& color, const QString& name, double yValue);
 
 private:
     QPointer<QwtPlot> m_plot;

@@ -95,6 +95,22 @@ void RiuPlotAnnotationTool::attachWellPicks(QwtPlot* plot, const std::vector<QSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuPlotAnnotationTool::attachAnnotationLine(QwtPlot*       plot,
+                                                 const QColor&  color,
+                                                 const QString& annotationText,
+                                                 const double   yPosition)
+{
+    m_plot = plot;
+
+    QwtPlotMarker* line(new QwtPlotMarker());
+    RiuPlotAnnotationTool::horizontalDashedLineWithColor(line, color, annotationText, yPosition);
+    line->attach(m_plot);
+    m_markers.push_back(std::move(line));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuPlotAnnotationTool::detachAllAnnotations()
 {
     if (m_plot)
@@ -113,9 +129,17 @@ void RiuPlotAnnotationTool::detachAllAnnotations()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotAnnotationTool::horizontalDashedLine(QwtPlotMarker* line, const QString& name, double yValue)
 {
+    horizontalDashedLineWithColor(line, QColor(0, 0, 100), name, yValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuPlotAnnotationTool::horizontalDashedLineWithColor(QwtPlotMarker* line, const QColor& color, const QString& name, double yValue)
+{
     QPen curvePen;
     curvePen.setStyle(Qt::DashLine);
-    curvePen.setColor(QColor(0, 0, 100));
+    curvePen.setColor(color);
     curvePen.setWidth(1);
 
     line->setLineStyle(QwtPlotMarker::HLine);
