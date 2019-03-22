@@ -102,22 +102,32 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
         }
     }
 
+    caf::PdmObject* objectToSelect = nullptr;
+
     if (eclipseResultCase)
     {
         eclipseResultCase->ensureReservoirCaseIsOpen();
-        collection->createSaturationPressurePlots(eclipseResultCase);
-
-        std::vector<RimSaturationPressurePlot*> plots = collection->plots();
+        std::vector<RimSaturationPressurePlot*> plots = collection->createSaturationPressurePlots(eclipseResultCase);
         for (auto plot : plots)
         {
             plot->loadDataAndUpdate();
             plot->zoomAll();
             plot->updateConnectedEditors();
         }
+
+        if (!plots.empty())
+        {
+            objectToSelect = plots.front();
+        }
     }
 
     collection->updateAllRequiredEditors();
     RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+
+    if (objectToSelect)
+    {
+        RiuPlotMainWindowTools::selectAsCurrentItem(objectToSelect);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -45,14 +45,15 @@ RimSaturationPressurePlotCollection::~RimSaturationPressurePlotCollection() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSaturationPressurePlotCollection::createSaturationPressurePlots(RimEclipseResultCase* eclipseResultCase)
+std::vector<RimSaturationPressurePlot*>
+    RimSaturationPressurePlotCollection::createSaturationPressurePlots(RimEclipseResultCase* eclipseResultCase)
 {
-    if (!eclipseResultCase) return;
+    std::vector<RimSaturationPressurePlot*> generatedPlots;
+
+    if (!eclipseResultCase) return generatedPlots;
 
     RigEclipseCaseData* eclipseCaseData = eclipseResultCase->eclipseCaseData();
-    if (!eclipseCaseData) return;
-
-    m_saturationPressurePlots.deleteAllChildObjects();
+    if (!eclipseCaseData) return generatedPlots;
 
     std::vector<RigEquil> equilData = eclipseCaseData->equilData();
     for (size_t i = 0; i < equilData.size(); i++)
@@ -67,7 +68,11 @@ void RimSaturationPressurePlotCollection::createSaturationPressurePlots(RimEclip
         plot->assignCaseAndEquilibriumRegion(RiaDefines::MATRIX_MODEL, eclipseResultCase, equilibriumRegion);
 
         m_saturationPressurePlots.push_back(plot);
+
+        generatedPlots.push_back(plot);
     }
+
+    return generatedPlots;
 }
 
 //--------------------------------------------------------------------------------------------------

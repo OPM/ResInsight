@@ -124,7 +124,9 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     CAF_PDM_InitField(&m_customColor, "CustomColor", cvf::Color3f(cvf::Color3f::BLACK), "Custom Color", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_plotCellFilterCollection, "PlotCellFilterCollection", "Cell Filters", "", "", "");
+    m_plotCellFilterCollection.uiCapability()->setUiHidden(true);
     m_plotCellFilterCollection.uiCapability()->setUiTreeHidden(true);
+    m_plotCellFilterCollection.uiCapability()->setUiTreeChildrenHidden(true);
     m_plotCellFilterCollection = new RimPlotCellFilterCollection;
 
     setDefaults();

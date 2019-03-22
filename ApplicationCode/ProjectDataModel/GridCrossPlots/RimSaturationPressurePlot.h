@@ -40,7 +40,8 @@ public:
                                         int                           zeroBasedEquilRegionIndex);
 
 protected:
-    void initAfterRead() override;
+    void    initAfterRead() override;
+    QString xAxisParameterString() const override;
 
 private:
     RimPlotCellPropertyFilter* createEquilibriumRegionPropertyFilter(RimEclipseResultCase* eclipseResultCase,

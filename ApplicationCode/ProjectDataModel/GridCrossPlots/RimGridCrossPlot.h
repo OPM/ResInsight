@@ -99,7 +99,7 @@ protected:
 
     void updatePlot();
 
-    QString xAxisParameterString() const;
+    virtual QString xAxisParameterString() const;
     QString yAxisParameterString() const;
 
     void updateAxisInQwt(RiaDefines::PlotAxis axisType);
