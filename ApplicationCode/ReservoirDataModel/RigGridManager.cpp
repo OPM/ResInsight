@@ -121,6 +121,22 @@ bool RigGridManager::isGridDimensionsEqual(const std::vector< std::vector<int> >
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RigGridManager::isMainGridDimensionsEqual(RigMainGrid* gridA, RigMainGrid* gridB)
+{
+    if (gridA == nullptr || gridB == nullptr) return false;
+
+    if (gridA == gridB) return true;
+
+    if( gridA->cellCountI() != gridB->cellCountI()) return false;
+    if( gridA->cellCountJ() != gridB->cellCountJ()) return false;
+    if( gridA->cellCountK() != gridB->cellCountK()) return false;
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigGridManager::CaseToGridMap::CaseToGridMap(RigEclipseCaseData* eclipseCase, RigMainGrid* mainGrid) :
 m_eclipseCase(eclipseCase),
     m_mainGrid(mainGrid)

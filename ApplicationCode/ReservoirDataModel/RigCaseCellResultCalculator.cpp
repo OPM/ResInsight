@@ -59,7 +59,7 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
             {
                 if (c && c->caseId() == address.m_differenceCaseId && c->eclipseCaseData())
                 {
-                	baseCase = c->eclipseCaseData();
+                    baseCase = c->eclipseCaseData();
                 }
             }
         }
@@ -73,9 +73,9 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
     }
 
     RigMainGrid* sourceMainGrid = sourceCase->mainGrid();
-    RigMainGrid* baseMainGrid  = baseCase->mainGrid();
+    RigMainGrid* baseMainGrid   = baseCase->mainGrid();
 
-    if (!RigGridManager::isEqual(sourceMainGrid, baseMainGrid))
+    if (!RigGridManager::isMainGridDimensionsEqual(sourceMainGrid, baseMainGrid))
     {
         RiaLogging::error("Case difference : Grid cases do not match");
 
@@ -126,8 +126,9 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
     size_t baseFrameCount   = baseCaseResults->cellScalarResults(nativeAddress).size();
     size_t sourceFrameCount = sourceCaseResults->cellScalarResults(nativeAddress).size();
     size_t maxFrameCount    = std::min(baseFrameCount, sourceFrameCount);
+    size_t maxGridCount     = std::min(baseMainGrid->gridCount(), sourceMainGrid->gridCount());
 
-    for (size_t gridIdx = 0; gridIdx < sourceMainGrid->gridCount(); ++gridIdx)
+    for (size_t gridIdx = 0; gridIdx < maxGridCount; ++gridIdx)
     {
         auto                     grid           = sourceMainGrid->gridByIndex(gridIdx);
         const RigActiveCellInfo* activeCellInfo = sourceCaseResults->activeCellInfo();
@@ -155,7 +156,7 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
                 if (activeCellInfo->isActive(reservoirCellIndex))
                 {
                     double sourceVal = sourceResultAccessor->cellScalar(localGridCellIdx);
-                    double baseVal  = baseResultAccessor->cellScalar(localGridCellIdx);
+                    double baseVal   = baseResultAccessor->cellScalar(localGridCellIdx);
 
                     double difference = sourceVal - baseVal;
 
