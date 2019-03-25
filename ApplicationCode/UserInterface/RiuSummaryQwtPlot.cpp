@@ -123,10 +123,7 @@ void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet* c
     auto it = m_ensembleLegendWidgets.find(curveSetToShowLegendFor);
     if (it == m_ensembleLegendWidgets.end() || it->second == nullptr)
     {
-        overlayWidget = new RiuCvfOverlayItemWidget(this);
-
-        new RiuWidgetDragger(overlayWidget);
-
+        overlayWidget = new RiuCvfOverlayItemWidget(this, canvas());
         m_ensembleLegendWidgets[curveSetToShowLegendFor] = overlayWidget;
     }
     else

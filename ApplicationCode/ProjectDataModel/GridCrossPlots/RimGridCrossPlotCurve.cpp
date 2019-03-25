@@ -95,6 +95,14 @@ int RimGridCrossPlotCurve::groupIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RimGridCrossPlotCurve::sampleCount() const
+{
+    return m_qwtPlotCurve->dataSize();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::determineSymbol()
 {
     RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbolStyle(m_curveSetIndex);

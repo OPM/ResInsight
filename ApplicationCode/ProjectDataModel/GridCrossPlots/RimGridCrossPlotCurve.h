@@ -43,9 +43,9 @@ public:
     void setGroupingInformation(int curveSetIndex, int groupIndex);
     void setSamples(const std::vector<double>& xValues, const std::vector<double>& yValues);
     
-    void setCurveAutoAppearance();
-    int  groupIndex() const;
-
+    void   setCurveAutoAppearance();
+    int    groupIndex() const;
+    size_t sampleCount() const;
 protected:
 
     void determineSymbol();

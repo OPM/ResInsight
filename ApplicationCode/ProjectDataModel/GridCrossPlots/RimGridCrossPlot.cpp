@@ -48,6 +48,7 @@ RimGridCrossPlot::RimGridCrossPlot()
 {
     CAF_PDM_InitObject("Grid Cross Plot", ":/SummaryXPlotLight16x16.png", "", "");
 
+    CAF_PDM_InitField(&m_showInfoBox, "ShowInfoBox", true, "Show Info Box", "", "", "");
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Show Legend", "", "", "");
     CAF_PDM_InitField(&m_legendFontSize, "LegendFontSize", 10, "Legend Font Size", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "Name Config", "", "", "");
@@ -94,13 +95,18 @@ RimGridCrossPlotCurveSet* RimGridCrossPlot::createCurveSet()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimGridCrossPlot::indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSet) const
+int RimGridCrossPlot::indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSetToCheck) const
 {
-    for (size_t i = 0; i < m_crossPlotCurveSets.size(); ++i)
+    int index = 0;
+    for (auto curveSet : m_crossPlotCurveSets())
     {
-        if (curveSet == m_crossPlotCurveSets[i])
+        if (curveSet == curveSetToCheck)
         {
-            return static_cast<int>(i);
+            return index;
+        }
+        if (curveSet->isChecked() && curveSet->visibleCurveCount() > 0u)
+        {
+            index++;
         }
     }
     return -1;
@@ -245,6 +251,14 @@ QString RimGridCrossPlot::createAutoName() const
     }
 
     return autoName.join(" ");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCrossPlot::showInfoBox() const
+{
+    return m_showInfoBox();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,6 +413,7 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_showInfoBox);
     uiOrdering.add(&m_showLegend);
 
     if (m_showLegend())

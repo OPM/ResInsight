@@ -41,16 +41,11 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuCvfOverlayItemWidget::RiuCvfOverlayItemWidget(QWidget* parent/*=0*/)
-: QWidget(parent)
+RiuCvfOverlayItemWidget::RiuCvfOverlayItemWidget(QWidget* parent/*=0*/, QWidget* widgetToSnapTo)
+: RiuDraggableOverlayFrame(parent, widgetToSnapTo)
 {
-    auto hblayout = new QHBoxLayout(this);
-    hblayout->setMargin(0);
-    hblayout->setSpacing(0);
-
-    this->setLayout(hblayout);
-    m_overlayItemLabel = new QLabel(this);
-    this->layout()->addWidget(m_overlayItemLabel);
+    this->layout()->setMargin(0);
+    this->layout()->setSpacing(0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,7 +121,7 @@ void RiuCvfOverlayItemWidget::updateFromOverlayItem( cvf::OverlayItem * item)
     QPixmap pixmap = QPixmap::fromImage(image);
 
     delete viewer;
-
+    
     m_overlayItemLabel->setPixmap(pixmap);
     this->setMinimumSize(QSize(width, height));
     this->resize(QSize(width, height));

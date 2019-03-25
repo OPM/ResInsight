@@ -32,8 +32,10 @@
 #include "RimPlotAxisProperties.h"
 #include "RiuPlotAnnotationTool.h"
 
+#include <QLabel>
 #include <QMenu>
 #include <QResizeEvent>
+#include <QVBoxLayout>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -42,6 +44,7 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot(RimViewWindow* ownerViewWindow, QWidget
     : RiuQwtPlot(ownerViewWindow, parent)
 {
     m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>(new RiuPlotAnnotationTool());
+    m_infoBox = new RiuDraggableOverlayFrame(this, canvas());    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,10 +57,7 @@ void RiuGridCrossQwtPlot::addOrUpdateCurveSetLegend(RimGridCrossPlotCurveSet* cu
     auto it = m_legendWidgets.find(curveSet);
     if (it == m_legendWidgets.end() || it->second == nullptr)
     {
-        overlayWidget = new RiuCvfOverlayItemWidget(this);
-
-        new RiuWidgetDragger(overlayWidget);
-
+        overlayWidget = new RiuCvfOverlayItemWidget(this, canvas());
         m_legendWidgets[curveSet] = overlayWidget;
     }
     else
@@ -144,7 +144,64 @@ void RiuGridCrossQwtPlot::updateAnnotationObjects(RimPlotAxisProperties* axisPro
 void RiuGridCrossQwtPlot::updateLayout()
 {
     QwtPlot::updateLayout();
+    updateInfoBoxLayout();
     updateLegendLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGridCrossQwtPlot::updateInfoBoxLayout()
+{
+    RimGridCrossPlot* crossPlot = dynamic_cast<RimGridCrossPlot*>(ownerPlotDefinition());
+    if (!crossPlot) return;
+    
+    bool showInfo = false;
+    if (crossPlot->showInfoBox())
+    {
+        QStringList curveInfoTexts;
+        for (auto curveSet : crossPlot->curveSets())
+        {
+            QString curveInfoText = curveSet->infoText();
+            if (curveSet->isChecked() && !curveInfoText.isEmpty())
+            {
+                curveInfoTexts += curveInfoText;
+            }
+        }
+        QStringList infoText;
+        if (curveInfoTexts.size() > 1)
+        {
+            infoText += QString("<ol style=\"margin-top: 0px; margin-left: 15px; -qt-list-indent:0;\">");
+            for (QString curveInfoText : curveInfoTexts)
+            {
+                infoText += QString("<li>%1</li>").arg(curveInfoText);
+            }
+            infoText += QString("</ol>");
+        }
+        else if (curveInfoTexts.size() > 0)
+        {
+            infoText += curveInfoTexts.front();
+        }
+        if (!infoText.empty())
+        {
+            m_infoBox->label()->setText(infoText.join("\n"));
+            m_infoBox->adjustSize();
+            QRect infoRect = m_infoBox->frameGeometry();
+            QRect canvasRect = canvas()->frameGeometry();
+            infoRect.moveTop(canvasRect.top() + 4);
+            infoRect.moveRight(canvasRect.right() - 4);
+            m_infoBox->move(infoRect.topLeft());
+            showInfo = true;
+        }
+    }
+    if (showInfo)
+    {
+        m_infoBox->show();
+    }
+    else
+    {
+        m_infoBox->hide();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -97,6 +97,7 @@ public:
     void    setParentQwtPlotNoReplot(QwtPlot* parent);
     QString xAxisName() const;
     QString yAxisName() const;
+    QString infoText() const;
 
     int     indexInPlot() const;
     QString createAutoName() const override;
@@ -131,6 +132,8 @@ public:
     void setCustomColor(const cvf::Color3f color);
     void destroyCurves();
 
+    size_t visibleCurveCount() const;
+    size_t sampleCount() const;
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);
@@ -175,5 +178,5 @@ private:
     caf::PdmField<bool>                             m_useCustomColor;
     caf::PdmField<cvf::Color3f>                     m_customColor;
     caf::PdmChildField<RimPlotCellFilterCollection*> m_plotCellFilterCollection;;
-
+    
 };

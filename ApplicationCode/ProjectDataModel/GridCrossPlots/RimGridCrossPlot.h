@@ -66,6 +66,7 @@ public:
     void     reattachCurvesToQwtAndReplot();
     QString  createAutoName() const override;
     
+    bool                 showInfoBox() const;
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 detachAllCurves();
     void                 performAutoNameUpdate() override;
@@ -112,6 +113,7 @@ protected:
     RimGridCrossPlotNameConfig* nameConfig();
 
 private:
+    caf::PdmField<bool>                                m_showInfoBox;
     caf::PdmField<bool>                                m_showLegend;
     caf::PdmField<int>                                 m_legendFontSize;
     caf::PdmChildField<RimGridCrossPlotNameConfig*>    m_nameConfig;

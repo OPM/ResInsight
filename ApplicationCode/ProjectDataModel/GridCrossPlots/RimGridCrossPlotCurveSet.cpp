@@ -201,6 +201,36 @@ QString RimGridCrossPlotCurveSet::yAxisName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimGridCrossPlotCurveSet::infoText() const
+{
+    if (!m_case()) return "";
+
+    if (visibleCurveCount() == 0u) return "";
+
+    QStringList textLines;
+    textLines += QString("<b>Case:</b> %1").arg(m_case()->caseUserDescription());
+    textLines += QString("<b>Parameters:</b>: %1 x %2")
+                     .arg(m_xAxisProperty->resultVariableUiShortName())
+                     .arg(m_yAxisProperty->resultVariableUiShortName());
+    if (m_timeStep != -1)
+    {
+        textLines += QString("<b>Time step:</b> %1").arg(timeStepString());
+    }
+    if (m_grouping != NO_GROUPING)
+    {
+        textLines += QString("<b>Grouped By:</b> %1").arg(groupParameter());
+    }
+    if (m_cellFilterView())
+    {
+        textLines += QString("<b>Filter view:</b> %1").arg(m_cellFilterView->name());
+    }
+    textLines += QString("<b>Sample Count:</b> %1").arg(sampleCount());
+    return textLines.join("<br/>\n");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimGridCrossPlotCurveSet::indexInPlot() const
 {
     RimGridCrossPlot* parent;
@@ -604,6 +634,32 @@ void RimGridCrossPlotCurveSet::destroyCurves()
 {
     detachAllCurves();
     m_crossPlotCurves.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimGridCrossPlotCurveSet::visibleCurveCount() const
+{
+    size_t visibleCurves = 0;
+    for (auto curve : m_crossPlotCurves)
+    {
+        if (curve->isCurveVisible()) visibleCurves++;
+    }
+    return visibleCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimGridCrossPlotCurveSet::sampleCount() const
+{
+    size_t sampleCount = 0;
+    for (auto curve : m_crossPlotCurves)
+    {
+        if (curve->isCurveVisible()) sampleCount += curve->sampleCount();
+    }
+    return sampleCount;
 }
 
 //--------------------------------------------------------------------------------------------------
