@@ -82,10 +82,9 @@ RimMdiWindowGeometry RimMdiWindowController::mdiWindowGeometry()
 void RimMdiWindowController::handleViewerDeletion()
 {
     viewPdmObject()->m_showWindow = false;
-
+    viewPdmObject()->updateConnectedEditors();
     uiCapability()->updateUiIconFromToggleField();
     updateConnectedEditors();
-    RiaApplication::instance()->project()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
