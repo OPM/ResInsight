@@ -39,7 +39,7 @@
 #include "RimProject.h"
 #include "Rim3dView.h"
 
-#include "RiuExportMultipleSnapshotsWidget.h"
+#include "RiuAdvancedSnapshotExportWidget.h"
 #include "RiuViewer.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -78,7 +78,7 @@ void RicAdvancedSnapshotExportFeature::onActionTriggered(bool isChecked)
         // Enable the command system to be able to assign a value to multiple fields at the same time
         caf::CmdExecCommandSystemActivator activator;
 
-        RiuExportMultipleSnapshotsWidget dlg(nullptr, proj);
+        RiuAdvancedSnapshotExportWidget dlg(nullptr, proj);
 
         Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
         if (activeView && proj->multiSnapshotDefinitions.size() == 0)

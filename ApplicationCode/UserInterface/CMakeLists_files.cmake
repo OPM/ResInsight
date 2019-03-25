@@ -54,7 +54,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuGeoMechXfTensorResultAccessor.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuFemTimeHistoryResultAccessor.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuEditPerforationCollectionWidget.h
-${CMAKE_CURRENT_LIST_DIR}/RiuExportMultipleSnapshotsWidget.h
+${CMAKE_CURRENT_LIST_DIR}/RiuAdvancedSnapshotExportWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellAllocationPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellRftPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellPltPlot.h
@@ -136,7 +136,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuGeoMechXfTensorResultAccessor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuFemTimeHistoryResultAccessor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuEditPerforationCollectionWidget.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuExportMultipleSnapshotsWidget.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuAdvancedSnapshotExportWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellAllocationPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellRftPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellPltPlot.cpp
@@ -197,7 +197,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWheelZoomer.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWidgetDragger.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuCvfOverlayItemWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuEditPerforationCollectionWidget.h
-${CMAKE_CURRENT_LIST_DIR}/RiuExportMultipleSnapshotsWidget.h
+${CMAKE_CURRENT_LIST_DIR}/RiuAdvancedSnapshotExportWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellAllocationPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellRftPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellPltPlot.h

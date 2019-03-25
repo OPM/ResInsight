@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuExportMultipleSnapshotsWidget.h"
+#include "RiuAdvancedSnapshotExportWidget.h"
 
 #include "RiaApplication.h"
 
@@ -52,11 +52,11 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* parent, RimProject* project)
+RiuAdvancedSnapshotExportWidget::RiuAdvancedSnapshotExportWidget(QWidget* parent, RimProject* project)
     : QDialog(parent, RiuTools::defaultDialogFlags()),
     m_rimProject(project)
 {
-    setWindowTitle("Export Multiple Snapshots");
+    setWindowTitle("Advanced Snapshot Export");
 
     int nWidth = 1000;
     int nHeight = 300;
@@ -127,7 +127,7 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuExportMultipleSnapshotsWidget::~RiuExportMultipleSnapshotsWidget()
+RiuAdvancedSnapshotExportWidget::~RiuAdvancedSnapshotExportWidget()
 {
     m_pdmTableView->setChildArrayField(nullptr);
 
@@ -137,7 +137,7 @@ RiuExportMultipleSnapshotsWidget::~RiuExportMultipleSnapshotsWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuExportMultipleSnapshotsWidget::addSnapshotItemFromActiveView()
+void RiuAdvancedSnapshotExportWidget::addSnapshotItemFromActiveView()
 {
     if (!m_rimProject) return;
 
@@ -172,7 +172,7 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItemFromActiveView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuExportMultipleSnapshotsWidget::addEmptySnapshotItems(size_t itemCount)
+void RiuAdvancedSnapshotExportWidget::addEmptySnapshotItems(size_t itemCount)
 {
     if (!m_rimProject) return;
 
@@ -190,7 +190,7 @@ void RiuExportMultipleSnapshotsWidget::addEmptySnapshotItems(size_t itemCount)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuExportMultipleSnapshotsWidget::customMenuRequested(QPoint pos)
+void RiuAdvancedSnapshotExportWidget::customMenuRequested(QPoint pos)
 {
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
 
@@ -215,7 +215,7 @@ void RiuExportMultipleSnapshotsWidget::customMenuRequested(QPoint pos)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuExportMultipleSnapshotsWidget::deleteAllSnapshotItems()
+void RiuAdvancedSnapshotExportWidget::deleteAllSnapshotItems()
 {
     if (!m_rimProject) return;
 
@@ -227,7 +227,7 @@ void RiuExportMultipleSnapshotsWidget::deleteAllSnapshotItems()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuExportMultipleSnapshotsWidget::exportSnapshots()
+void RiuAdvancedSnapshotExportWidget::exportSnapshots()
 {
     RicAdvancedSnapshotExportFeature::exportMultipleSnapshots(m_exportFolderLineEdit->text(), m_rimProject);
 }
@@ -235,7 +235,7 @@ void RiuExportMultipleSnapshotsWidget::exportSnapshots()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuExportMultipleSnapshotsWidget::folderSelectionClicked()
+void RiuAdvancedSnapshotExportWidget::folderSelectionClicked()
 {
     QString defaultPath = m_exportFolderLineEdit->text();
 
@@ -253,7 +253,7 @@ void RiuExportMultipleSnapshotsWidget::folderSelectionClicked()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuExportMultipleSnapshotsWidget::addSnapshotItem()
+void RiuAdvancedSnapshotExportWidget::addSnapshotItem()
 {
     addSnapshotItemFromActiveView();
 }

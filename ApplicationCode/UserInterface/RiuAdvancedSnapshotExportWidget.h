@@ -29,12 +29,12 @@ namespace caf {
 class QWidget;
 class QLineEdit;
 
-class RiuExportMultipleSnapshotsWidget : public QDialog
+class RiuAdvancedSnapshotExportWidget : public QDialog
 {
     Q_OBJECT
 public:
-    RiuExportMultipleSnapshotsWidget(QWidget* parent, RimProject* project);
-    ~RiuExportMultipleSnapshotsWidget() override;
+    RiuAdvancedSnapshotExportWidget(QWidget* parent, RimProject* project);
+    ~RiuAdvancedSnapshotExportWidget() override;
 
     void addSnapshotItemFromActiveView();
     void addEmptySnapshotItems(size_t itemCount);
