@@ -121,7 +121,6 @@ RiuMainWindow::RiuMainWindow()
     m_holoLensToolBar(nullptr)
 {
     m_mdiArea = new QMdiArea;
-    m_mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation, true);
     connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
     setCentralWidget(m_mdiArea);
 
