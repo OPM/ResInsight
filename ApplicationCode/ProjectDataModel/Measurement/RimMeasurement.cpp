@@ -195,6 +195,6 @@ void RimMeasurement::updateView() const
 {
     if (m_sourceView)
     {
-        m_sourceView->createDisplayModelAndRedraw();
+        m_sourceView->updateMeasurement();
     }
 }
