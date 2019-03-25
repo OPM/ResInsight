@@ -25,7 +25,7 @@
 #include "RimCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimMultiSnapshotDefinition.h"
+#include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimProject.h"
 #include "Rim3dView.h"
 
@@ -144,7 +144,7 @@ void RiuAdvancedSnapshotExportWidget::addSnapshotItemFromActiveView()
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (activeView)
     {
-        RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
+        RimAdvancedSnapshotExportDefinition* multiSnapshot = new RimAdvancedSnapshotExportDefinition();
         multiSnapshot->view = activeView;
 
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(activeView);
@@ -178,7 +178,7 @@ void RiuAdvancedSnapshotExportWidget::addEmptySnapshotItems(size_t itemCount)
 
     for (size_t i = 0; i < itemCount; i++)
     {
-        RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
+        RimAdvancedSnapshotExportDefinition* multiSnapshot = new RimAdvancedSnapshotExportDefinition();
         multiSnapshot->isActive = false;
 
         m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);

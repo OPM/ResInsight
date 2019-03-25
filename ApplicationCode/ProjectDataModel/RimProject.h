@@ -48,7 +48,7 @@ class RimGeoMechCase;
 class RimIdenticalGridCaseGroup;
 class RimMainPlotCollection;
 class RimMeasurement;
-class RimMultiSnapshotDefinition; 
+class RimAdvancedSnapshotExportDefinition; 
 class RimObservedData;
 class RimOilField;
 class RimScriptCollection;
@@ -96,7 +96,7 @@ public:
     caf::PdmChildField<RimSummaryCalculationCollection*>       calculationCollection;
     caf::PdmChildArrayField<RimCommandObject*>          commandObjects;
     
-    caf::PdmChildArrayField<RimMultiSnapshotDefinition*> multiSnapshotDefinitions;
+    caf::PdmChildArrayField<RimAdvancedSnapshotExportDefinition*> multiSnapshotDefinitions;
 
     caf::PdmField<QString>                              mainWindowTreeViewState;
     caf::PdmField<QString>                              mainWindowCurrentModelIndexPath;

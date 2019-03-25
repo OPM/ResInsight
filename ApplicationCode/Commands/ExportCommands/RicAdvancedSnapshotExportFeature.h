@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimMultiSnapshotDefinition;
+class RimAdvancedSnapshotExportDefinition;
 class RimProject;
 class Rim3dView;
 class RimGridView;
@@ -40,10 +40,10 @@ protected:
 public:
     static void exportMultipleSnapshots(const QString& folder, RimProject* project);
 
-    static void exportViewVariations(Rim3dView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
+    static void exportViewVariations(Rim3dView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder);
 
 private:
-    static void exportViewVariationsToFolder(RimGridView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
+    static void exportViewVariationsToFolder(RimGridView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder);
     static QString resultName(Rim3dView* rimView);
 };
 

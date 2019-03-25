@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimMultiSnapshotDefinition.h"
+#include "RimAdvancedSnapshotExportDefinition.h"
 
 #include "RiaApplication.h"
 #include "RiaOptionItemFactory.h"
@@ -39,23 +39,23 @@
 namespace caf
 {
     template<>
-    void caf::AppEnum< RimMultiSnapshotDefinition::SnapShotDirectionEnum >::setUp()
+    void caf::AppEnum< RimAdvancedSnapshotExportDefinition::SnapShotDirectionEnum >::setUp()
     {
-        addItem(RimMultiSnapshotDefinition::NO_RANGEFILTER, "None", "None");
-        addItem(RimMultiSnapshotDefinition::RANGEFILTER_I, "I", "I");
-        addItem(RimMultiSnapshotDefinition::RANGEFILTER_J, "J", "J");
-        addItem(RimMultiSnapshotDefinition::RANGEFILTER_K, "K", "K");
+        addItem(RimAdvancedSnapshotExportDefinition::NO_RANGEFILTER, "None", "None");
+        addItem(RimAdvancedSnapshotExportDefinition::RANGEFILTER_I, "I", "I");
+        addItem(RimAdvancedSnapshotExportDefinition::RANGEFILTER_J, "J", "J");
+        addItem(RimAdvancedSnapshotExportDefinition::RANGEFILTER_K, "K", "K");
 
-        setDefault(RimMultiSnapshotDefinition::RANGEFILTER_K);
+        setDefault(RimAdvancedSnapshotExportDefinition::RANGEFILTER_K);
     }
 }
 
-CAF_PDM_SOURCE_INIT(RimMultiSnapshotDefinition, "MultiSnapshotDefinition");
+CAF_PDM_SOURCE_INIT(RimAdvancedSnapshotExportDefinition, "MultiSnapshotDefinition");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
+RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
 {
     //CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.png", "", "");
     CAF_PDM_InitObject("MultiSnapshotDefinition", "", "", "");
@@ -82,12 +82,12 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiSnapshotDefinition::~RimMultiSnapshotDefinition() {}
+RimAdvancedSnapshotExportDefinition::~RimAdvancedSnapshotExportDefinition() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+QList<caf::PdmOptionItemInfo> RimAdvancedSnapshotExportDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                                 bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -154,7 +154,7 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo>& options)
+void RimAdvancedSnapshotExportDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo>& options)
 {
     if (!view()) return;
 
@@ -171,7 +171,7 @@ void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+void RimAdvancedSnapshotExportDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                   const QVariant&            oldValue,
                                                   const QVariant&            newValue)
 {
@@ -211,17 +211,17 @@ void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             int maxInt = 0;
             int minInt = 0;
 
-            if (newValue == RimMultiSnapshotDefinition::RANGEFILTER_I)
+            if (newValue == RimAdvancedSnapshotExportDefinition::RANGEFILTER_I)
             {
                 maxInt = static_cast<int>(max.x());
                 minInt = static_cast<int>(min.x());
             }
-            else if (newValue == RimMultiSnapshotDefinition::RANGEFILTER_J)
+            else if (newValue == RimAdvancedSnapshotExportDefinition::RANGEFILTER_J)
             {
                 maxInt = static_cast<int>(max.y());
                 minInt = static_cast<int>(min.y());
             }
-            else if (newValue == RimMultiSnapshotDefinition::RANGEFILTER_K)
+            else if (newValue == RimAdvancedSnapshotExportDefinition::RANGEFILTER_K)
             {
                 maxInt = static_cast<int>(max.z());
                 minInt = static_cast<int>(min.z());
@@ -238,7 +238,7 @@ void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::toOptionList(const QStringList& varList)
+QList<caf::PdmOptionItemInfo> RimAdvancedSnapshotExportDefinition::toOptionList(const QStringList& varList)
 {
     QList<caf::PdmOptionItemInfo> optionList;
     int                           i;
@@ -252,7 +252,7 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::toOptionList(const QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSnapshotDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimAdvancedSnapshotExportDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     if (!isActive())
     {

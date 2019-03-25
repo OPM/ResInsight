@@ -58,7 +58,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimMeasurement.h"
-#include "RimMultiSnapshotDefinition.h"
+#include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimPltPlotCollection.h"

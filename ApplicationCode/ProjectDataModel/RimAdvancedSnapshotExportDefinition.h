@@ -33,12 +33,12 @@ class Rim3dView;
 ///  
 ///  
 //==================================================================================================
-class RimMultiSnapshotDefinition : public caf::PdmObject
+class RimAdvancedSnapshotExportDefinition : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimMultiSnapshotDefinition();
-    ~RimMultiSnapshotDefinition() override;
+    RimAdvancedSnapshotExportDefinition();
+    ~RimAdvancedSnapshotExportDefinition() override;
 
     caf::PdmField<bool>      isActive;
 

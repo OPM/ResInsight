@@ -35,7 +35,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "RimMultiSnapshotDefinition.h"
+#include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimProject.h"
 #include "Rim3dView.h"
 
@@ -113,7 +113,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots(const QString& fo
         if (!snapshotPath.mkpath(".")) return;
     }
     
-    for (RimMultiSnapshotDefinition* msd : project->multiSnapshotDefinitions())
+    for (RimAdvancedSnapshotExportDefinition* msd : project->multiSnapshotDefinitions())
     {
         if (!msd->isActive()) continue;
 
@@ -179,7 +179,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots(const QString& fo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicAdvancedSnapshotExportFeature::exportViewVariations(Rim3dView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
+void RicAdvancedSnapshotExportFeature::exportViewVariations(Rim3dView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder)
 {
     if (msd->selectedEclipseResults().size() > 0)
     {
@@ -207,7 +207,7 @@ void RicAdvancedSnapshotExportFeature::exportViewVariations(Rim3dView* rimView, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder(RimGridView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
+void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder(RimGridView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder)
 {
     RimCase* rimCase = rimView->ownerCase();
     CVF_ASSERT(rimCase);
@@ -236,7 +236,7 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder(RimGridView*
             viewer->animationControl()->setCurrentFrameOnly(i);
         }
 
-        if (msd->sliceDirection == RimMultiSnapshotDefinition::NO_RANGEFILTER)
+        if (msd->sliceDirection == RimAdvancedSnapshotExportDefinition::NO_RANGEFILTER)
         {
             QString fileName = viewCaseResultString + "_" + timeStepString;
             fileName.replace(" ", "_");
@@ -259,17 +259,17 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder(RimGridView*
                 QString fileName = viewCaseResultString + "_" + timeStepString + "_" + rangeFilterString;
 
                 rangeFilter->setDefaultValues();
-                if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_I)
+                if (msd->sliceDirection == RimAdvancedSnapshotExportDefinition::RANGEFILTER_I)
                 {
                     rangeFilter->cellCountI = 1;
                     rangeFilter->startIndexI = sliceIndex;
                 }
-                else if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_J)
+                else if (msd->sliceDirection == RimAdvancedSnapshotExportDefinition::RANGEFILTER_J)
                 {
                     rangeFilter->cellCountJ = 1;
                     rangeFilter->startIndexJ = sliceIndex;
                 }
-                else if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_K)
+                else if (msd->sliceDirection == RimAdvancedSnapshotExportDefinition::RANGEFILTER_K)
                 {
                     rangeFilter->cellCountK = 1;
                     rangeFilter->startIndexK = sliceIndex;
