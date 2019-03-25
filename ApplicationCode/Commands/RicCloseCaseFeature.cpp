@@ -21,18 +21,19 @@
 
 #include "RiaApplication.h"
 
+#include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseResultCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
+#include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimMainPlotCollection.h"
-#include "RimGridSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimWellLogPlotCollection.h"
 
@@ -203,6 +204,25 @@ void RicCloseCaseFeature::deleteEclipseCase(RimEclipseCase* eclipseCase)
     }
 
     delete eclipseCase;
+
+    {
+        RimProject* project = RiaApplication::instance()->project();
+
+		std::vector<RimCase*> cases;
+        project->allCases(cases);
+
+		if (cases.empty())
+		{
+            project->multiSnapshotDefinitions.deleteAllChildObjects();
+		}
+		else
+        {
+            for (RimAdvancedSnapshotExportDefinition* msd : project->multiSnapshotDefinitions())
+            {
+                msd->additionalCases.removePtr(nullptr);
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
