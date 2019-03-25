@@ -29,6 +29,7 @@
 #include "RimPlotAxisProperties.h"
 
 #include "CellFilters/RimPlotCellPropertyFilter.h"
+#include "RiaColorTables.h"
 
 CAF_PDM_SOURCE_INIT(RimSaturationPressurePlot, "RimSaturationPressurePlot");
 
@@ -65,7 +66,9 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::Poros
 
         RimGridCrossPlotCurveSet* curveSet = createCurveSet();
         curveSet->configureForPressureSaturationCurves(eclipseResultCase, "PRESSURE");
-        curveSet->setCustomColor(cvf::Color3::BLUE);
+
+        cvf::Color3f curveColor = RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f(0);
+        curveSet->setCustomColor(curveColor);
 
         RimPlotCellPropertyFilter* cellFilter =
             createEquilibriumRegionPropertyFilter(eclipseResultCase, zeroBasedEquilRegionIndex);
@@ -78,7 +81,9 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::Poros
 
         RimGridCrossPlotCurveSet* curveSet = createCurveSet();
         curveSet->configureForPressureSaturationCurves(eclipseResultCase, "PDEW");
-        curveSet->setCustomColor(cvf::Color3::RED);
+
+        cvf::Color3f curveColor = RiaColorTables::summaryCurveRedPaletteColors().cycledColor3f(0);
+        curveSet->setCustomColor(curveColor);
 
         RimPlotCellPropertyFilter* cellFilter =
             createEquilibriumRegionPropertyFilter(eclipseResultCase, zeroBasedEquilRegionIndex);
@@ -109,7 +114,9 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::Poros
 
         RimGridCrossPlotCurveSet* curveSet = createCurveSet();
         curveSet->configureForPressureSaturationCurves(eclipseResultCase, "PBUB");
-        curveSet->setCustomColor(cvf::Color3::GREEN);
+
+        cvf::Color3f curveColor = RiaColorTables::summaryCurveGreenPaletteColors().cycledColor3f(0);
+        curveSet->setCustomColor(curveColor);
 
         {
             RimPlotCellPropertyFilter* cellFilter = new RimPlotCellPropertyFilter();
@@ -178,7 +185,7 @@ void RimSaturationPressurePlot::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimSaturationPressurePlot::xAxisParameterString() const
 {
