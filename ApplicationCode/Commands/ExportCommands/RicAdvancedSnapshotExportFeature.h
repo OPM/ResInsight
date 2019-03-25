@@ -28,7 +28,7 @@ class RimGridView;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicExportMultipleSnapshotsFeature : public caf::CmdFeature
+class RicAdvancedSnapshotExportFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

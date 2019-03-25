@@ -3,7 +3,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCellRangeUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCarfin.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCarfinUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFaultsFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicExportMultipleSnapshotsFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicAdvancedSnapshotExportFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportToLasFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportToLasFileResampleUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseInputPropertyFeature.h
@@ -32,7 +32,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCellRangeUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCarfin.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCarfinUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFaultsFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicExportMultipleSnapshotsFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicAdvancedSnapshotExportFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportToLasFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportToLasFileResampleUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseInputPropertyFeature.cpp

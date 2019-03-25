@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicExportMultipleSnapshotsFeature.h"
+#include "RicAdvancedSnapshotExportFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaViewRedrawScheduler.h"
@@ -51,13 +51,13 @@
 #include <QDir>
 
 
-CAF_CMD_SOURCE_INIT(RicExportMultipleSnapshotsFeature, "RicExportMultipleSnapshotsFeature");
+CAF_CMD_SOURCE_INIT(RicAdvancedSnapshotExportFeature, "RicAdvancedSnapshotExportFeature");
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicExportMultipleSnapshotsFeature::isCommandEnabled()
+bool RicAdvancedSnapshotExportFeature::isCommandEnabled()
 {
     RimProject* proj = RiaApplication::instance()->project();
     
@@ -67,7 +67,7 @@ bool RicExportMultipleSnapshotsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportMultipleSnapshotsFeature::onActionTriggered(bool isChecked)
+void RicAdvancedSnapshotExportFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
@@ -94,7 +94,7 @@ void RicExportMultipleSnapshotsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportMultipleSnapshotsFeature::setupActionLook(QAction* actionToSetup)
+void RicAdvancedSnapshotExportFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Advanced Snapshot Export ...");
     actionToSetup->setIcon(QIcon(":/SnapShotSaveViews.png"));
@@ -103,7 +103,7 @@ void RicExportMultipleSnapshotsFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& folder, RimProject* project)
+void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots(const QString& folder, RimProject* project)
 {
     if (!project) return;
 
@@ -179,7 +179,7 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportMultipleSnapshotsFeature::exportViewVariations(Rim3dView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
+void RicAdvancedSnapshotExportFeature::exportViewVariations(Rim3dView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
 {
     if (msd->selectedEclipseResults().size() > 0)
     {
@@ -207,7 +207,7 @@ void RicExportMultipleSnapshotsFeature::exportViewVariations(Rim3dView* rimView,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimGridView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
+void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder(RimGridView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder)
 {
     RimCase* rimCase = rimView->ownerCase();
     CVF_ASSERT(rimCase);
@@ -294,7 +294,7 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimGridView
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicExportMultipleSnapshotsFeature::resultName(Rim3dView* rimView)
+QString RicAdvancedSnapshotExportFeature::resultName(Rim3dView* rimView)
 {
     if (dynamic_cast<RimEclipseView*>(rimView))
     {

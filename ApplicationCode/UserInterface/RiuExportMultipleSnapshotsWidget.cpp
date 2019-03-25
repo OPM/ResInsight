@@ -20,7 +20,7 @@
 
 #include "RiaApplication.h"
 
-#include "ExportCommands/RicExportMultipleSnapshotsFeature.h"
+#include "ExportCommands/RicAdvancedSnapshotExportFeature.h"
 
 #include "RimCase.h"
 #include "RimEclipseCellColors.h"
@@ -229,7 +229,7 @@ void RiuExportMultipleSnapshotsWidget::deleteAllSnapshotItems()
 //--------------------------------------------------------------------------------------------------
 void RiuExportMultipleSnapshotsWidget::exportSnapshots()
 {
-    RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(m_exportFolderLineEdit->text(), m_rimProject);
+    RicAdvancedSnapshotExportFeature::exportMultipleSnapshots(m_exportFolderLineEdit->text(), m_rimProject);
 }
 
 //--------------------------------------------------------------------------------------------------
