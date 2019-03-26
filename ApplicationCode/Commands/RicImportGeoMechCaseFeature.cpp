@@ -62,6 +62,6 @@ void RicImportGeoMechCaseFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicImportGeoMechCaseFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/GeoMechCase48x48.png"));
+    actionToSetup->setIcon(QIcon(":/GeoMechCase24x24.png"));
     actionToSetup->setText("Import &Geo Mechanical Model");
 }

@@ -414,7 +414,7 @@ void RiuMainWindow::createMenus()
 
 #ifdef USE_ODB_API
     importMenu->addSeparator();
-    QMenu* importGeoMechMenu = importMenu->addMenu(QIcon(":/GeoMechCase48x48.png"), "Geo Mechanical Cases");
+    QMenu* importGeoMechMenu = importMenu->addMenu(QIcon(":/GeoMechCase24x24.png"), "Geo Mechanical Cases");
     importGeoMechMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
     importGeoMechMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseTimeStepFilterFeature"));
     importGeoMechMenu->addAction(cmdFeatureMgr->action("RicImportElementPropertyFeature"));

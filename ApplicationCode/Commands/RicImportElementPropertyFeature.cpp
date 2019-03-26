@@ -80,6 +80,6 @@ void RicImportElementPropertyFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicImportElementPropertyFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/GeoMechCase48x48.png"));
+    actionToSetup->setIcon(QIcon(":/GeoMechCasePropTable24x24.png"));
     actionToSetup->setText("Import &Element Property Table");
 }

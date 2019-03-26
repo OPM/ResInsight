@@ -51,6 +51,9 @@
     <file>draw_style_surface_w_fault_mesh_24x24.png</file>
     <file>InfoBox16x16.png</file>
     <file>GeoMechCase48x48.png</file>
+	<file>GeoMechCase24x24.png</file>
+	<file>GeoMechCaseTime24x24.png</file>
+	<file>GeoMechCasePropTable24x24.png</file>
     <file>GeoMechCases48x48.png</file>
     <file>chain.png</file>
     <file>TileWindows24x24.png</file>
