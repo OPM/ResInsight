@@ -111,6 +111,7 @@ protected:
     RimPlotAxisProperties* yAxisProperties();
 
     RimGridCrossPlotNameConfig* nameConfig();
+    void                        setShowInfoBox(bool enable);
 
 private:
     caf::PdmField<bool>                                m_showInfoBox;

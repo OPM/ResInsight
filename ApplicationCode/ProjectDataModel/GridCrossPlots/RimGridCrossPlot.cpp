@@ -33,9 +33,9 @@
 #include "cvfAssert.h"
 
 #include "qwt_legend.h"
-#include "qwt_scale_engine.h"
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
+#include "qwt_scale_engine.h"
 
 #include <QDebug>
 
@@ -70,7 +70,7 @@ RimGridCrossPlot::RimGridCrossPlot()
     CAF_PDM_InitFieldNoDefault(&m_crossPlotCurveSets, "CrossPlotCurve", "Cross Plot Data Set", "", "", "");
     m_crossPlotCurveSets.uiCapability()->setUiHidden(true);
 
-    m_nameConfig        = new RimGridCrossPlotNameConfig(this);    
+    m_nameConfig = new RimGridCrossPlotNameConfig(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ int RimGridCrossPlot::indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSetTo
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::addCurveSet(RimGridCrossPlotCurveSet* curveSet)
 {
@@ -162,10 +162,10 @@ void RimGridCrossPlot::zoomAll()
     setAutoZoomForAllAxes(true);
     updateAxisInQwt(RiaDefines::PLOT_AXIS_LEFT);
     updateAxisInQwt(RiaDefines::PLOT_AXIS_BOTTOM);
-    
+
     m_qwtPlot->replot();
-    
-    updateZoomWindowFromQwt();    
+
+    updateZoomWindowFromQwt();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ void RimGridCrossPlot::calculateZoomRangeAndUpdateQwt()
 ///
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::reattachCurvesToQwtAndReplot()
-{   
+{
     if (m_qwtPlot)
     {
         for (auto curveSet : m_crossPlotCurveSets)
@@ -211,15 +211,14 @@ QString RimGridCrossPlot::createAutoName() const
 
     if (m_nameConfig->addDataSetNames())
     {
-        QStringList dataSetStrings;
+        QStringList                                                           dataSetStrings;
         std::map<RimGridCrossPlotCurveSet::NameComponents, std::set<QString>> allNameComponents;
         for (auto curveSet : m_crossPlotCurveSets)
         {
             if (curveSet->isChecked())
             {
                 QStringList componentList;
-                auto curveSetNameComponents =
-                    curveSet->nameComponents();
+                auto        curveSetNameComponents = curveSet->nameComponents();
 
                 for (auto curveSetNameComponent : curveSetNameComponents)
                 {
@@ -238,7 +237,7 @@ QString RimGridCrossPlot::createAutoName() const
                 }
             }
         }
-        
+
         dataSetStrings.removeDuplicates();
         if (dataSetStrings.size() > 3)
         {
@@ -297,7 +296,7 @@ void RimGridCrossPlot::updateAxisDisplay()
 
     updateAxisInQwt(RiaDefines::PLOT_AXIS_BOTTOM);
     updateAxisInQwt(RiaDefines::PLOT_AXIS_LEFT);
-    
+
     m_qwtPlot->updateAnnotationObjects(m_xAxisProperties);
     m_qwtPlot->updateAnnotationObjects(m_yAxisProperties);
 
@@ -310,7 +309,7 @@ void RimGridCrossPlot::updateAxisDisplay()
 void RimGridCrossPlot::updateZoomWindowFromQwt()
 {
     if (!m_qwtPlot) return;
-    
+
     updateAxisFromQwt(RiaDefines::PLOT_AXIS_LEFT);
     updateAxisFromQwt(RiaDefines::PLOT_AXIS_BOTTOM);
     this->updateConnectedEditors();
@@ -405,7 +404,7 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
     }
 
     updateCurveNamesAndPlotTitle();
-    updatePlot();    
+    updatePlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -468,7 +467,6 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlot::calculateValueOptions(const caf:
         fontSizes.push_back(12);
         fontSizes.push_back(14);
         fontSizes.push_back(16);
-        
 
         for (int value : fontSizes)
         {
@@ -548,7 +546,7 @@ void RimGridCrossPlot::swapAxes()
     RimPlotAxisProperties* xAxisProperties = m_xAxisProperties();
     RimPlotAxisProperties* yAxisProperties = m_yAxisProperties();
 
-    QString tmpName       = xAxisProperties->name();
+    QString       tmpName = xAxisProperties->name();
     QwtPlot::Axis tmpAxis = xAxisProperties->qwtPlotAxisType();
     xAxisProperties->setNameAndAxis(yAxisProperties->name(), yAxisProperties->qwtPlotAxisType());
     yAxisProperties->setNameAndAxis(tmpName, tmpAxis);
@@ -564,7 +562,7 @@ void RimGridCrossPlot::swapAxes()
     }
 
     loadDataAndUpdate();
-    
+
     updateAxisDisplay();
 }
 
@@ -707,9 +705,9 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
     if (axisProperties->isActive())
     {
         m_qwtPlot->enableAxis(qwtAxisId, true);
-        
+
         QwtText axisTitle(axisParameterString);
-        QFont font = m_qwtPlot->axisFont(qwtAxisId);
+        QFont   font = m_qwtPlot->axisFont(qwtAxisId);
         font.setBold(true);
         font.setPixelSize(axisProperties->titleFontSize);
         axisTitle.setFont(font);
@@ -740,7 +738,7 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
             {
                 std::vector<const QwtPlotCurve*> plotCurves = visibleQwtCurves();
 
-                double min, max;
+                double                        min, max;
                 RimPlotAxisLogRangeCalculator logRangeCalculator(qwtAxisId, plotCurves);
                 logRangeCalculator.computeAxisRange(&min, &max);
                 if (axisProperties->isAxisInverted())
@@ -774,7 +772,8 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
                 m_qwtPlot->setAxisScale(qwtAxisId, axisProperties->visibleRangeMin, axisProperties->visibleRangeMax);
             }
         }
-        m_qwtPlot->axisScaleEngine(axisProperties->qwtPlotAxisType())->setAttribute(QwtScaleEngine::Inverted, axisProperties->isAxisInverted());
+        m_qwtPlot->axisScaleEngine(axisProperties->qwtPlotAxisType())
+            ->setAttribute(QwtScaleEngine::Inverted, axisProperties->isAxisInverted());
     }
     else
     {
@@ -788,7 +787,7 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
 void RimGridCrossPlot::updateAxisFromQwt(RiaDefines::PlotAxis axisType)
 {
     CVF_ASSERT(m_qwtPlot);
-    
+
     QwtInterval xAxisRange = m_qwtPlot->currentAxisRange(QwtPlot::xBottom);
     QwtInterval yAxisRange = m_qwtPlot->currentAxisRange(QwtPlot::yLeft);
 
@@ -830,7 +829,7 @@ std::vector<const QwtPlotCurve*> RimGridCrossPlot::visibleQwtCurves() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimPlotAxisProperties* RimGridCrossPlot::xAxisProperties()
 {
@@ -838,7 +837,7 @@ RimPlotAxisProperties* RimGridCrossPlot::xAxisProperties()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimPlotAxisProperties* RimGridCrossPlot::yAxisProperties()
 {
@@ -846,7 +845,7 @@ RimPlotAxisProperties* RimGridCrossPlot::yAxisProperties()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlotNameConfig* RimGridCrossPlot::nameConfig()
 {
@@ -854,8 +853,16 @@ RimGridCrossPlotNameConfig* RimGridCrossPlot::nameConfig()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::setShowInfoBox(bool enable)
+{
+    m_showInfoBox = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Name Configuration
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 
 CAF_PDM_SOURCE_INIT(RimGridCrossPlotNameConfig, "RimGridCrossPlotNameConfig");

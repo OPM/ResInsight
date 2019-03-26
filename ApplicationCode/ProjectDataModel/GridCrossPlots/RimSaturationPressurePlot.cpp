@@ -48,6 +48,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::Poros
                                                                RimEclipseResultCase*         eclipseResultCase,
                                                                int                           zeroBasedEquilRegionIndex)
 {
+    setShowInfoBox(false);
     nameConfig()->addDataSetNames = false;
 
     QString caseName  = eclipseResultCase->caseUserDescription();
