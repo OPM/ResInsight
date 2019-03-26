@@ -610,6 +610,7 @@ void RimGridCrossPlotCurveSet::fillCurveDataInExistingCurves(const RigEclipseCro
         CVF_ASSERT(m_crossPlotCurves.size() == 1u);
         RimGridCrossPlotCurve* curve = m_crossPlotCurves[0];
         curve->setSamples(result.xValues, result.yValues);
+        curve->setGroupingInformation(indexInPlot(), 0);
         curve->updateCurveAppearance();
         curve->updateUiIconFromPlotSymbol();
     }
@@ -621,6 +622,7 @@ void RimGridCrossPlotCurveSet::fillCurveDataInExistingCurves(const RigEclipseCro
         {
             RimGridCrossPlotCurve* curve = *curveIt;
             curve->setSamples(groupIt->second.xValues, groupIt->second.yValues);
+            curve->setGroupingInformation(indexInPlot(), groupIt->first);
             curve->updateCurveAppearance();
             curve->updateUiIconFromPlotSymbol();
         }
