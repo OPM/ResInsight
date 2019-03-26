@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,25 +20,25 @@
 
 #include "RiaApplication.h"
 
-#include "RimSummaryPlot.h"
 #include "Rim3dView.h"
+#include "RimSummaryPlot.h"
 #include "RimWellLogPlot.h"
 
-#include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuViewer.h"
 #include "RiuWellLogPlot.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuMdiSubWindow::RiuMdiSubWindow(QWidget* parent /*= 0*/, Qt::WindowFlags flags /*= 0*/) : QMdiSubWindow(parent, flags)
+RiuMdiSubWindow::RiuMdiSubWindow(QWidget* parent /*= 0*/, Qt::WindowFlags flags /*= 0*/)
+    : QMdiSubWindow(parent, flags)
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuMdiSubWindow::~RiuMdiSubWindow()
 {
@@ -46,14 +46,14 @@ RiuMdiSubWindow::~RiuMdiSubWindow()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMdiSubWindow::closeEvent(QCloseEvent* event)
 {
     QWidget* mainWidget = widget();
 
     RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(mainWidget);
-    if ( viewWindow )
+    if (viewWindow)
     {
         viewWindow->setMdiWindowGeometry(windowGeometryForWidget(this));
     }
@@ -68,9 +68,8 @@ void RiuMdiSubWindow::closeEvent(QCloseEvent* event)
     QMdiSubWindow::closeEvent(event);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimMdiWindowGeometry RiuMdiSubWindow::windowGeometryForWidget(QWidget* widget)
 {
@@ -98,12 +97,24 @@ RimMdiWindowGeometry RiuMdiSubWindow::windowGeometryForWidget(QWidget* widget)
         }
 
         geo.mainWindowID = mainWinID;
-        geo.x            = widget->pos().x();
-        geo.y            = widget->pos().y();
-        geo.width        = widget->size().width();
-        geo.height       = widget->size().height();
-        geo.isMaximized  = widget->isMaximized();
-    }
+        bool isMaximized = widget->isMaximized();
 
+        if (isMaximized)
+        {
+            // Temporarily set to normal to be able to store normal window size
+            widget->showNormal();
+        }
+
+        geo.x           = widget->pos().x();
+        geo.y           = widget->pos().y();
+        geo.width       = widget->size().width();
+        geo.height      = widget->size().height();
+        geo.isMaximized = isMaximized;
+
+        if (isMaximized)
+        {
+            widget->showMaximized();
+        }
+    }
     return geo;
 }

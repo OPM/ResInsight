@@ -120,6 +120,18 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
         }
     }
 
+    if (m_activePlotViewWindow && m_activePlotViewWindow->viewWidget())
+    {
+        if (m_activePlotViewWindow->mdiWindowGeometry().isMaximized)
+        {
+            auto subWin = findMdiSubWindow(m_activePlotViewWindow->viewWidget());
+            if (subWin)
+            {
+                subWin->showMaximized();
+            }
+        }
+    }
+
     refreshToolbars();
 }
 
@@ -165,7 +177,7 @@ void RiuPlotMainWindow::closeEvent(QCloseEvent* event)
     RiaApplication* app = RiaApplication::instance();
 
     app->savePlotWinGeoAndDockToolBarLayout();
-    
+
     if (app->isMain3dWindowVisible())
     {
         event->ignore();
@@ -595,8 +607,6 @@ void RiuPlotMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
     {
         subWindowPos  = QPoint(windowsGeometry.x, windowsGeometry.y);
         subWindowSize = QSize(windowsGeometry.width, windowsGeometry.height);
-
-        initialStateMaximized = windowsGeometry.isMaximized;
     }
     else
     {

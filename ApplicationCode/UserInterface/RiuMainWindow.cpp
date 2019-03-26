@@ -199,6 +199,16 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     {
         statusBar()->showMessage("Ready ...");        
     }
+
+    QMdiSubWindow* activeSubWindow = m_mdiArea->activeSubWindow();
+    if (activeSubWindow)
+    {
+        auto w = findViewWindowFromSubWindow(activeSubWindow);
+        if (w && w->mdiWindowGeometry().isMaximized)
+        {
+            activeSubWindow->showMaximized();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1122,8 +1132,6 @@ void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windo
     {
         subWindowPos = QPoint(windowsGeometry.x, windowsGeometry.y);
         subWindowSize = QSize(windowsGeometry.width, windowsGeometry.height);
-
-        initialStateMaximized = windowsGeometry.isMaximized;
     }
     else
     {
