@@ -126,14 +126,16 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
                 }
                 else if (groupingType == GROUP_BY_FORMATION)
                 {
-                    CVF_ASSERT(activeFormationNames);
-                    int category = 0;
-                    size_t i(cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
-                    if (mainGrid->ijkFromCellIndex(globalCellIdx, &i, &j, &k))
+                    if (activeFormationNames)
                     {
-                        category = activeFormationNames->formationIndexFromKLayerIdx(k);
+                        int category = 0;
+                        size_t i(cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
+                        if (mainGrid->ijkFromCellIndex(globalCellIdx, &i, &j, &k))
+                        {
+                            category = activeFormationNames->formationIndexFromKLayerIdx(k);
+                        }
+                        result.groupValuesDiscrete.push_back(category);
                     }
-                    result.groupValuesDiscrete.push_back(category);
                 }
                 else if (groupingType == GROUP_BY_RESULT)
                 {

@@ -44,6 +44,7 @@
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridView.h"
+#include "RimFormationNames.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTools.h"
@@ -809,6 +810,11 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
             m_xAxisProperty->updateConnectedEditors();
             m_yAxisProperty->updateConnectedEditors();
             m_groupingProperty->updateConnectedEditors();
+
+            if (m_grouping == GROUP_BY_FORMATION && !eclipseCase->activeFormationNames())
+            {
+                m_grouping = NO_GROUPING;
+            }
 
             destroyCurves();
             loadDataAndUpdate(true);
