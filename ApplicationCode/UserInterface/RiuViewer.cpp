@@ -846,12 +846,13 @@ void RiuViewer::mouseMoveEvent(QMouseEvent* mouseEvent)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::enterEvent(QEvent*)
+void RiuViewer::enterEvent(QEvent* e)
 {
     if (s_hoverCursor)
     {
         QApplication::setOverrideCursor(*s_hoverCursor);
     }
+    caf::Viewer::enterEvent(e);
 }
 
 //--------------------------------------------------------------------------------------------------

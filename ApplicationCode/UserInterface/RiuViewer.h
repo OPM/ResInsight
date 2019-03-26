@@ -139,9 +139,9 @@ public slots:
 protected:
     void            optimizeClippingPlanes() override;
     void            resizeGL(int width, int height) override;
-    void    mouseMoveEvent(QMouseEvent* e) override;
-    void    enterEvent(QEvent*) override;
-    void    leaveEvent(QEvent*) override;
+    void            mouseMoveEvent(QMouseEvent* e) override;
+    void            enterEvent(QEvent* e) override;
+    void            leaveEvent(QEvent*) override;
 
 private:
     void            updateLegendLayout();
