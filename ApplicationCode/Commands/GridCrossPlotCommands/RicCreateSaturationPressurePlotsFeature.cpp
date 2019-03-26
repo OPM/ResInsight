@@ -21,6 +21,12 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaPorosityModel.h"
+
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
+#include "RigEquil.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimMainPlotCollection.h"
@@ -109,12 +115,33 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
     if (eclipseResultCase)
     {
         eclipseResultCase->ensureReservoirCaseIsOpen();
-        std::vector<RimSaturationPressurePlot*> plots = collection->createSaturationPressurePlots(eclipseResultCase);
-        for (auto plot : plots)
+
+        bool requiredInputDataPresent = false;
+        if (!eclipseResultCase->eclipseCaseData()->equilData().empty())
         {
-            plot->loadDataAndUpdate();
-            plot->zoomAll();
-            plot->updateConnectedEditors();
+            if (eclipseResultCase->eclipseCaseData() && eclipseResultCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL))
+            {
+                RigCaseCellResultsData* resultData = eclipseResultCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL);
+
+                if (resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PRESSURE")) &&
+                    resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PDEW")) &&
+                    resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PBUB")))
+                {
+                    requiredInputDataPresent = true;
+                }
+            }
+        }
+
+        std::vector<RimSaturationPressurePlot*> plots;
+        if (requiredInputDataPresent)
+        {
+            plots = collection->createSaturationPressurePlots(eclipseResultCase);
+            for (auto plot : plots)
+            {
+                plot->loadDataAndUpdate();
+                plot->zoomAll();
+                plot->updateConnectedEditors();
+            }
         }
 
         if (plots.empty())
@@ -122,9 +149,9 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
             QString text = "No plots generated.\n\n";
             text += "Data required to generate saturation/pressure plots:\n";
             text += " - EQLNUM property defining at least one region\n";
-            text += " - Properties PRESSURE, PBUG and PDEW\n\n";
-            text += "Make sure to add 'PBPD' to the RPTRST keyword in the SOLUTION selection.\n";
-            text += "If this is a two phase run (Oil/water or Gas/Water) or if both VAPOIL \n";
+            text += " - Dynamic properties PRESSURE, PBUB and PDEW\n\n";
+            text += "Make sure to add 'PBPD' to the RPTRST keyword in the SOLUTION selection. ";
+            text += "If this is a two phase run (Oil/water or Gas/Water) or if both VAPOIL ";
             text += "and DISGAS are disabled, saturation pressure are not valid.";
 
             QMessageBox::warning(nullptr, "Saturation Pressure Plots", text);
