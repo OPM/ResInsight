@@ -34,9 +34,11 @@
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
 #include "qwt_plot_magnifier.h"
+#include "qwt_plot_marker.h"
 #include "qwt_plot_panner.h"
 #include "qwt_plot_zoomer.h"
 #include "qwt_scale_engine.h"
+#include "qwt_symbol.h"
 
 #include <QEvent>
 #include <QMenu>
@@ -123,6 +125,20 @@ QSize RiuQwtPlot::minimumSizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Empty default implementation
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlot::selectSample(QwtPlotCurve* curve, int sampleNumber)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Empty default implementation
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlot::clearSampleSelection()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QSize RiuQwtPlot::sizeHint() const
@@ -165,7 +181,7 @@ void RiuQwtPlot::selectClosestCurve(const QPoint& pos)
 {
     QwtPlotCurve* closestCurve = nullptr;
     double distMin = DBL_MAX;
-
+    int closestCurvePoint = -1;
     const QwtPlotItemList& itmList = itemList();
     for(QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++)
     {
@@ -173,17 +189,19 @@ void RiuQwtPlot::selectClosestCurve(const QPoint& pos)
         {
             QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>(*it);
             double dist = DBL_MAX;
-            candidateCurve->closestPoint(pos, &dist);
+            int curvePoint = candidateCurve->closestPoint(pos, &dist);
             if(dist < distMin)
             {
                 closestCurve = candidateCurve;
                 distMin = dist;
+                closestCurvePoint = curvePoint;
             }
         }
     }
 
     if (closestCurve && distMin < 20)
     {
+        CVF_ASSERT(closestCurvePoint >= 0);
         caf::PdmObject* selectedPlotObject = ownerPlotDefinition()->findRimPlotObjectFromQwtCurve(closestCurve);
 
         if (selectedPlotObject)
@@ -195,8 +213,17 @@ void RiuQwtPlot::selectClosestCurve(const QPoint& pos)
             {
                 RiuPlotMainWindowTools::showPlotMainWindow();
                 RiuPlotMainWindowTools::selectAsCurrentItem(selectedPlotObject);
-            }
+            }        
         }
+    }
+
+    if (closestCurve && distMin < 10)
+    {
+        selectSample(closestCurve, closestCurvePoint);
+    }
+    else
+    {
+        clearSampleSelection();
     }
 }
 

@@ -151,6 +151,14 @@ void RiuQwtSymbol::renderSymbolLabel(QPainter *painter, const QPointF& position)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtSymbol::setLabel(const QString& label)
+{
+    m_label = label;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtSymbol::setLabelPosition(LabelPosition labelPosition)
 {
     m_labelPosition = labelPosition;

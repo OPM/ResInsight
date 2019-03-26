@@ -36,3 +36,11 @@ RimPlotCurve * RiuRimQwtPlotCurve::ownerRimCurve()
 {
     return m_ownerRimCurve;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimPlotCurve* RiuRimQwtPlotCurve::ownerRimCurve() const
+{
+    return m_ownerRimCurve;
+}

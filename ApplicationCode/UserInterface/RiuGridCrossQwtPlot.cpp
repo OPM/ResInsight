@@ -18,10 +18,13 @@
 #include "RiuGridCrossQwtPlot.h"
 
 #include "RiuCvfOverlayItemWidget.h"
+#include "RiuRimQwtPlotCurve.h"
+#include "RiuQwtCurvePointTracker.h"
 #include "RiuWidgetDragger.h"
 
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurveSet.h"
+#include "RimGridCrossPlotCurve.h"
 #include "RimRegularLegendConfig.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -31,6 +34,9 @@
 #include "RimPlotAxisAnnotation.h"
 #include "RimPlotAxisProperties.h"
 #include "RiuPlotAnnotationTool.h"
+
+#include "qwt_text.h"
+#include "qwt_text_engine.h"
 
 #include <QLabel>
 #include <QMenu>
@@ -45,6 +51,26 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot(RimViewWindow* ownerViewWindow, QWidget
 {
     m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>(new RiuPlotAnnotationTool());
     m_infoBox = new RiuDraggableOverlayFrame(this, canvas());    
+    
+    m_selectedPointMarker = new QwtPlotMarker;
+
+    // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
+    QwtSymbol* mySymbol = new QwtSymbol(QwtSymbol::Ellipse, QBrush(QColor(255, 255, 255, 50)), QPen(Qt::black, 2.0), QSize(10, 10));
+    m_selectedPointMarker->setSymbol(mySymbol);
+    m_selectedPointMarker->setLabelAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    m_selectedPointMarker->setSpacing(3);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuGridCrossQwtPlot::~RiuGridCrossQwtPlot()
+{
+    if (m_selectedPointMarker->plot())
+    {
+        m_selectedPointMarker->detach();
+    }
+    delete m_selectedPointMarker;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,4 +331,49 @@ void RiuGridCrossQwtPlot::contextMenuEvent(QContextMenuEvent* event)
     {
         menu.exec(event->globalPos());
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGridCrossQwtPlot::selectSample(QwtPlotCurve* curve, int sampleNumber)
+{
+    QPointF sample = curve->sample(sampleNumber);
+    m_selectedPointMarker->setValue(sample);
+    m_selectedPointMarker->setAxes(QwtPlot::xBottom, QwtPlot::yLeft);
+    m_selectedPointMarker->attach(this);
+    QString curveName = curveText(curve);
+    QwtText curveLabel(QString("<div style=\"margin: 4px;\"><b>%1:</b><br/>%2, %3</div>").arg(curveName).arg(sample.x()).arg(sample.y()), QwtText::RichText);
+    curveLabel.setBackgroundBrush(QBrush(QColor(250, 250, 250, 220)));
+    curveLabel.setPaintAttribute(QwtText::PaintBackground);
+    curveLabel.setBorderPen(QPen(Qt::black, 1.0));
+    curveLabel.setBorderRadius(2.0);
+    m_selectedPointMarker->setLabel(curveLabel);
+    replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGridCrossQwtPlot::clearSampleSelection()
+{
+    m_selectedPointMarker->detach();
+    replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuGridCrossQwtPlot::curveText(const QwtPlotCurve* curve) const
+{
+    auto riuCurve = dynamic_cast<const RiuRimQwtPlotCurve*>(curve);
+    if (riuCurve)
+    {
+        auto crossPlotCurve = dynamic_cast<const RimGridCrossPlotCurve*>(riuCurve->ownerRimCurve());
+        if (crossPlotCurve)
+        {
+            return crossPlotCurve->curveName();
+        }
+    }
+    return "";
 }

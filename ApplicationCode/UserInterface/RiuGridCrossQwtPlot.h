@@ -28,15 +28,16 @@
 #include <memory>
 
 class RimGridCrossPlotCurveSet;
+class RimPlotAxisProperties;
 class RiuCvfOverlayItemWidget;
 class RiuDraggableOverlayFrame;
 class RiuPlotAnnotationTool;
-class RimPlotAxisProperties;
 
 namespace caf
 {
 class TitledOverlayFrame;
 }
+
 //==================================================================================================
 //
 //
@@ -48,7 +49,7 @@ class RiuGridCrossQwtPlot : public RiuQwtPlot
 
 public:
     RiuGridCrossQwtPlot(RimViewWindow* ownerViewWindow, QWidget* parent = nullptr);
-
+    ~RiuGridCrossQwtPlot();
     void addOrUpdateCurveSetLegend(RimGridCrossPlotCurveSet* curveSetToShowLegendFor);
     void removeCurveSetLegend(RimGridCrossPlotCurveSet* curveSetToShowLegendFor);
     void updateLegendSizesToMatchPlot();
@@ -62,6 +63,9 @@ protected:
     bool resizeOverlayItemToFitPlot(caf::TitledOverlayFrame* overlayItem);
     void contextMenuEvent(QContextMenuEvent*) override;
 
+    void    selectSample(QwtPlotCurve* curve, int sampleNumber) override;
+    void    clearSampleSelection() override;
+    QString curveText(const QwtPlotCurve* curves) const;
 private:
     typedef caf::PdmPointer<RimGridCrossPlotCurveSet> CurveSetPtr;
     typedef QPointer<RiuCvfOverlayItemWidget> LegendPtr;
@@ -70,4 +74,6 @@ private:
     InfoBoxPtr                             m_infoBox;
     std::map<CurveSetPtr, LegendPtr>       m_legendWidgets;
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
+    QwtPlotMarker*                         m_selectedPointMarker;
+
 };

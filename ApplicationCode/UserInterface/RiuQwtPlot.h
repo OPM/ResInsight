@@ -57,8 +57,10 @@ protected:
     bool                    eventFilter(QObject* watched, QEvent* event) override;
 
     QSize                   sizeHint() const override;
-    QSize                   minimumSizeHint() const override;    
+    QSize                   minimumSizeHint() const override;
 
+    virtual void            selectSample(QwtPlotCurve* curve, int sampleNumber);
+    virtual void            clearSampleSelection();
 private:
     void                    selectClosestCurve(const QPoint& pos);
 

@@ -29,6 +29,7 @@ public:
     explicit RiuRimQwtPlotCurve(RimPlotCurve* ownerRimCurve, const QString &title = QString::null);
 
     RimPlotCurve * ownerRimCurve();
+    const RimPlotCurve * ownerRimCurve() const;
 
 private:
     caf::PdmPointer<RimPlotCurve> m_ownerRimCurve;
