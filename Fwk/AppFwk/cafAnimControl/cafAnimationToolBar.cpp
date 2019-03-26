@@ -94,17 +94,17 @@ void AnimationToolBar::init()
     m_animRepeatFromStartAction->setCheckable(true);
    
     m_animSpeedButton = new PopupMenuButton(this);
-    m_animSpeedButton->setIcon(QIcon(":/cafAnimControl/Fast.png"));
+    m_animSpeedButton->setIcon(QIcon(":/cafAnimControl/Speed.png"));
     m_animSpeedButton->setToolTip("Adjust Animation Speed");
 
     m_frameRateSlowLabel = new QLabel(this);
-    m_frameRateSlowLabel->setPixmap(QPixmap(":/cafAnimControl/Slow.png"));
+    m_frameRateSlowLabel->setPixmap(QPixmap(":/cafAnimControl/SlowHorizontal.png"));
     m_frameRateSlowLabel->setToolTip(tr("Slow"));
 
     m_frameRateFastLabel = new QLabel(this);
-    m_frameRateFastLabel->setPixmap(QPixmap(":/cafAnimControl/Fast.png"));
+    m_frameRateFastLabel->setPixmap(QPixmap(":/cafAnimControl/FastHorizontal.png"));
     m_frameRateFastLabel->setToolTip(tr("Fast"));
-    m_frameRateFastLabel->setAlignment(Qt::AlignRight);
+    m_frameRateFastLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
     m_frameRateSlider = new QSlider(Qt::Horizontal, this);
     m_frameRateSlider->setToolTip(tr("Animation speed"));

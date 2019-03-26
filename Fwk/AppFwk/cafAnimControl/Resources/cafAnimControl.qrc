@@ -12,5 +12,8 @@
         <file>PlayBwd.png</file>
         <file>Slow.png</file>
         <file>Fast.png</file> 
+        <file>SlowHorizontal.png</file>
+        <file>FastHorizontal.png</file> 
+		<file>Speed.png</file> 
     </qresource>
 </RCC>
