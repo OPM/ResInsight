@@ -67,7 +67,7 @@ bool RiuMeasurementEventFilter::eventFilter(QObject* obj, QEvent* event)
 
             if (m_parent)
             {
-                m_parent->setMeasurementMode(false);
+                m_parent->setMeasurementMode(RimMeasurement::MEASURE_DISABLED);
             }
 
             return true;

@@ -613,8 +613,11 @@ void RiuMainWindow::createToolBars()
     {
         QToolBar* toolbar = addToolBar(tr("Measurement"));
         toolbar->setObjectName(toolbar->windowTitle());
-        auto action = cmdFeatureMgr->action("RicToggleMeasurementModeFeature");
-        toolbar->addAction(action);
+        auto measureAction = cmdFeatureMgr->action("RicToggleMeasurementModeFeature");
+        toolbar->addAction(measureAction);
+        auto polyMeasureAction = cmdFeatureMgr->action("RicTogglePolyMeasurementModeFeature");
+        toolbar->addAction(polyMeasureAction);
+
     }
 
     RiaApplication* app = RiaApplication::instance();
@@ -895,6 +898,7 @@ void RiuMainWindow::slotRefreshViewActions()
     {
         QStringList commandIds;
         commandIds << "RicToggleMeasurementModeFeature";
+        commandIds << "RicTogglePolyMeasurementModeFeature";
 
         caf::CmdFeatureManager::instance()->refreshCheckedState(commandIds);
     }

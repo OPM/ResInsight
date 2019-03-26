@@ -38,6 +38,13 @@ class RimMeasurement : public caf::PdmObject
     using Vec3d = cvf::Vec3d;
 
 public:
+    enum MeasurementMode
+    {
+        MEASURE_DISABLED = 0,
+        MEASURE_REGULAR,
+        MEASURE_POLYLINE
+    };
+
     class Lengths
     {
     public:
@@ -60,8 +67,8 @@ public:
     RimMeasurement();
     ~RimMeasurement() override;
 
-    void setMeasurementMode(bool measurementMode);
-    bool isInMeasurementMode() const;
+    void            setMeasurementMode(MeasurementMode measureMode);
+    MeasurementMode measurementMode() const;
 
     void               addPointInDomainCoords(const Vec3d& pointInDomainCoord);
     std::vector<Vec3d> pointsInDomainCoords() const;
@@ -76,7 +83,7 @@ private:
     void updateView() const;
 
 private:
-    bool                       m_isInMeasurementMode;
+    MeasurementMode            m_measurementMode;
     std::vector<Vec3d>         m_pointsInDomainCoords;
     caf::PdmPointer<Rim3dView> m_sourceView;
     

@@ -69,6 +69,15 @@ void RicMeasurementPickEventHandler::unregisterAsPickEventHandler()
 RicMeasurementPickEventHandler::RicMeasurementPickEventHandler()
 {}
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMeasurementPickEventHandler::enablePolyLineMode(bool polyLineModeEnabled)
+{
+    m_polyLineModeEnabled = polyLineModeEnabled;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +85,7 @@ bool RicMeasurementPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eve
 {
     auto measurement = RiaApplication::instance()->project()->measurement();
 
-    if (measurement && measurement->isInMeasurementMode())
+    if (measurement && measurement->measurementMode())
     {
         const RiuPickItemInfo* firstGeometryPickInfo = nullptr;
         for (const auto& info : eventObject.m_pickItemInfos)
@@ -98,7 +107,9 @@ bool RicMeasurementPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eve
 
             bool isControlButtonDown = QApplication::keyboardModifiers() & Qt::ControlModifier;
 
-            if (!isControlButtonDown)
+            bool isPolyLineMode = m_polyLineModeEnabled != isControlButtonDown;
+
+            if (!isPolyLineMode)
             {
                 if (measurement->pointsInDomainCoords().size() > 1)
                 {

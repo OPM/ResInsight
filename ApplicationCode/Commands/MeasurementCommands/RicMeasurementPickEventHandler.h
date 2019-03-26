@@ -28,13 +28,17 @@ class RicMeasurementPickEventHandler : public Ric3dViewPickEventHandler
 public:
     static RicMeasurementPickEventHandler* instance();
 
-
     void registerAsPickEventHandler() override;
     void unregisterAsPickEventHandler() override;
+
+    void enablePolyLineMode(bool polyLineModeEnabled);
 
 protected:
     RicMeasurementPickEventHandler();
     bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;
     void notifyUnregistered() override;
+
+private:
+    bool m_polyLineModeEnabled;
 };
 

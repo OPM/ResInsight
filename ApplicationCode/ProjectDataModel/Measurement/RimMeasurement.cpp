@@ -36,7 +36,7 @@ CAF_PDM_SOURCE_INIT(RimMeasurement, "RimMeasurement");
 ///
 //--------------------------------------------------------------------------------------------------
 RimMeasurement::RimMeasurement()
-    : m_isInMeasurementMode(false)
+    : m_measurementMode(MEASURE_DISABLED)
 {
     CAF_PDM_InitObject("Measurement", ":/TextAnnotation16x16.png", "", "");
 }
@@ -49,13 +49,14 @@ RimMeasurement::~RimMeasurement() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMeasurement::setMeasurementMode(bool measurementMode)
+void RimMeasurement::setMeasurementMode(MeasurementMode measurementMode)
 {
-    m_isInMeasurementMode = measurementMode;
+    m_measurementMode = measurementMode;
 
-    if (m_isInMeasurementMode)
+    if (m_measurementMode != MEASURE_DISABLED)
     {
         RicMeasurementPickEventHandler::instance()->registerAsPickEventHandler();
+        RicMeasurementPickEventHandler::instance()->enablePolyLineMode(m_measurementMode == MEASURE_POLYLINE);
         m_eventFilter = new RiuMeasurementEventFilter(this);
         m_eventFilter->registerFilter();
     }
@@ -78,9 +79,9 @@ void RimMeasurement::setMeasurementMode(bool measurementMode)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimMeasurement::isInMeasurementMode() const
+RimMeasurement::MeasurementMode RimMeasurement::measurementMode() const
 {
-    return m_isInMeasurementMode;
+    return m_measurementMode;
 }
 
 //--------------------------------------------------------------------------------------------------

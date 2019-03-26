@@ -39,10 +39,22 @@ protected:
     void setupActionLook(QAction* actionToSetup) override;
     bool isCommandChecked() override;
 
-private:
+protected:
     void refreshActionLook();
-
-private:
     RimMeasurement* measurement() const;
     Rim3dView* activeView() const;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicTogglePolyMeasurementModeFeature : public RicToggleMeasurementModeFeature
+{
+    CAF_CMD_HEADER_INIT;
+
+protected:
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandChecked() override;
+
 };

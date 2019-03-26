@@ -354,6 +354,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             }
             
             menuBuilder << "RicToggleMeasurementModeFeature";
+            menuBuilder << "RicTogglePolyMeasurementModeFeature";
         }
     }
 
