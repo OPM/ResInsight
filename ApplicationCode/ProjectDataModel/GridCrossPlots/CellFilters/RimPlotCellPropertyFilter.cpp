@@ -139,6 +139,8 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter(size_t timeStepIn
 
         resDef->loadResult();
 
+        if (resDef->currentGridCellResults()->hasResultEntry(resDef->eclipseResultAddress())) return;
+
         RigCaseCellResultsData* cellResultsData = resDef->currentGridCellResults();
         if (!cellResultsData) return;
 
