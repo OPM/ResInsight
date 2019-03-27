@@ -457,7 +457,8 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
         {
             if (m_cellFilter() != RigFlowDiagResults::CELLS_ACTIVE)
             {
-                RimEclipseView* view = RicSelectOrCreateViewFeatureImpl::showViewSelection(m_case, "FlowCharacteristicsLastUsedView", "Show Region in View");
+                RimEclipseView* view = RicSelectOrCreateViewFeatureImpl::showViewSelection(
+                    m_case, "FlowCharacteristicsLastUsedView", "RegionView", "Show Region in View");
 
                 if (view != nullptr)
                 {

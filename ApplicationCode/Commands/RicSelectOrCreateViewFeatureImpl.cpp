@@ -33,11 +33,15 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseResultCase* resultCase, const QString& lastUsedViewKey, const QString& dialogTitle)
+RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseResultCase* resultCase,
+                                                                    const QString&        lastUsedViewKey,
+                                                                    const QString&        newViewName,
+                                                                    const QString&        dialogTitle)
 {
     RimEclipseView* defaultSelectedView = getDefaultSelectedView(resultCase, lastUsedViewKey);
 
     RicSelectViewUI featureUi;
+    featureUi.setNewViewName(newViewName);
     if (defaultSelectedView)
     {
         featureUi.setView(defaultSelectedView);

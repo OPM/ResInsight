@@ -56,7 +56,7 @@ void RicShowContributingWellsFromPlotFeature::onActionTriggered(bool isChecked)
 
     RimEclipseResultCase* wellAllocationResultCase = wellAllocationPlot->rimCase();
 
-    RicShowContributingWellsFeatureImpl::maniuplateSelectedView(wellAllocationResultCase, wellName, timeStep);
+    RicShowContributingWellsFeatureImpl::manipulateSelectedView(wellAllocationResultCase, wellName, timeStep);
 }
 
 //--------------------------------------------------------------------------------------------------

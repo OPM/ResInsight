@@ -45,12 +45,12 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RicShowContributingWellsFeatureImpl::maniuplateSelectedView(RimEclipseResultCase* eclipseResultCase, QString wellName, int timeStep)
+RimEclipseView* RicShowContributingWellsFeatureImpl::manipulateSelectedView(RimEclipseResultCase* eclipseResultCase, QString wellName, int timeStep)
 {
-    RimEclipseView* viewToManipulate = RicSelectOrCreateViewFeatureImpl::showViewSelection(eclipseResultCase, "lastUsedWellAllocationView", "Show Contributing Wells in View");
+    RimEclipseView* viewToManipulate = RicSelectOrCreateViewFeatureImpl::showViewSelection(
+        eclipseResultCase, "lastUsedWellAllocationView", "ContributingWells_" + wellName, "Show Contributing Wells in View");
 
-   if (!viewToManipulate) return nullptr;
-
+	if (!viewToManipulate) return nullptr;
 
     RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(viewToManipulate, wellName, timeStep);
 
