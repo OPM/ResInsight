@@ -66,6 +66,7 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     , m_blockSlotSubWindowActivated(false)
 {
     m_mdiArea = new QMdiArea;
+    m_mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation, true);
     connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
     setCentralWidget(m_mdiArea);
 
@@ -650,6 +651,7 @@ void RiuPlotMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
     {
         subWin->showMaximized();
     }
+    subWin->repaint();
 
     refreshToolbars();
 }
