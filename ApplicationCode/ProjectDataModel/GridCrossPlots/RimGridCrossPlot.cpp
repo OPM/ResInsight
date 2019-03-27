@@ -239,7 +239,7 @@ QString RimGridCrossPlot::createAutoName() const
         }
 
         dataSetStrings.removeDuplicates();
-        if (dataSetStrings.size() > 3)
+        if (dataSetStrings.size() > 2)
         {
             autoName += QString("(%1 Data Sets)").arg(dataSetStrings.size());
         }
@@ -644,7 +644,7 @@ QString RimGridCrossPlot::xAxisParameterString() const
     QStringList xAxisParams;
     for (auto curveSet : m_crossPlotCurveSets)
     {
-        if (curveSet->isChecked())
+        if (curveSet->isChecked() && curveSet->sampleCount() > 0u)
         {
             xAxisParams.push_back(curveSet->xAxisName());
         }
@@ -652,7 +652,7 @@ QString RimGridCrossPlot::xAxisParameterString() const
 
     xAxisParams.removeDuplicates();
 
-    if (xAxisParams.size() > 5)
+    if (xAxisParams.size() > 4)
     {
         return QString("%1 parameters").arg(xAxisParams.size());
     }
@@ -668,7 +668,7 @@ QString RimGridCrossPlot::yAxisParameterString() const
     QStringList yAxisParams;
     for (auto curveSet : m_crossPlotCurveSets)
     {
-        if (curveSet->isChecked())
+        if (curveSet->isChecked() && curveSet->sampleCount() > 0u)
         {
             yAxisParams.push_back(curveSet->yAxisName());
         }
@@ -676,7 +676,7 @@ QString RimGridCrossPlot::yAxisParameterString() const
 
     yAxisParams.removeDuplicates();
 
-    if (yAxisParams.size() > 5)
+    if (yAxisParams.size() > 4)
     {
         return QString("%1 parameters").arg(yAxisParams.size());
     }
