@@ -84,8 +84,8 @@ void RicPasteGridCrossPlotCurveSetFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicPasteGridCrossPlotCurveSetFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Paste Grid Cross Plot Curve Set");
-    // actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
+    actionToSetup->setText("Paste Cross Plot Curve Set");
+    RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
 
 //--------------------------------------------------------------------------------------------------

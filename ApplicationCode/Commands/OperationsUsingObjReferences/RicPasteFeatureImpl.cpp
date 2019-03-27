@@ -147,6 +147,7 @@ void RicPasteFeatureImpl::setIconAndShortcuts(QAction* action)
     {
         action->setIcon(QIcon(":/clipboard.png"));
         action->setShortcuts(QKeySequence::Paste);
+        action->setShortcutVisibleInContextMenu(true);
     }
 }
 
