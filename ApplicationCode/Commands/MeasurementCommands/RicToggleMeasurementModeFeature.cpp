@@ -82,7 +82,7 @@ void RicToggleMeasurementModeFeature::setupActionLook(QAction* actionToSetup)
     auto* meas = measurement();
     if (meas && meas->measurementMode() == RimMeasurement::MEASURE_REGULAR)
     {
-        applyShortcutWithHintToAction(actionToSetup, QKeySequence::Cancel);
+        applyShortcutWithHintToAction(actionToSetup, QKeySequence(Qt::Key_Escape));
         applyShortcutWithHintToAction(actionToSetup, QKeySequence(tr("Ctrl+M")));
     }
     else
@@ -163,7 +163,7 @@ void RicTogglePolyMeasurementModeFeature::setupActionLook(QAction* actionToSetup
     auto* meas = measurement();
     if (meas && meas->measurementMode() == RimMeasurement::MEASURE_POLYLINE)
     {
-        applyShortcutWithHintToAction(actionToSetup, QKeySequence::Cancel);        
+        applyShortcutWithHintToAction(actionToSetup, QKeySequence(Qt::Key_Escape));
         applyShortcutWithHintToAction(actionToSetup, QKeySequence(tr("Ctrl+Shift+M")));
     }
     else
