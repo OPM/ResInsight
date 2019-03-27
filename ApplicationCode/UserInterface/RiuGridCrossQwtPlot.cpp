@@ -347,13 +347,18 @@ void RiuGridCrossQwtPlot::selectSample(QwtPlotCurve* curve, int sampleNumber)
     m_selectedPointMarker->setValue(sample);
     m_selectedPointMarker->setAxes(QwtPlot::xBottom, QwtPlot::yLeft);
     m_selectedPointMarker->attach(this);
-    QString curveName = curveText(curve);
-    QwtText curveLabel(QString("<div style=\"margin: 4px;\"><b>%1:</b><br/>%2, %3</div>").arg(curveName).arg(sample.x()).arg(sample.y()), QwtText::RichText);
-    curveLabel.setBackgroundBrush(QBrush(QColor(250, 250, 250, 220)));
-    curveLabel.setPaintAttribute(QwtText::PaintBackground);
-    curveLabel.setBorderPen(QPen(Qt::black, 1.0));
-    curveLabel.setBorderRadius(2.0);
-    m_selectedPointMarker->setLabel(curveLabel);
+    QString curveName, xAxisName, yAxisName;
+    if (curveText(curve, &curveName, &xAxisName, &yAxisName))
+    {
+        QString labelFormat("<div style=\"margin: 4px;\"><b>%1:</b><br/>%2 = %3, %4 = %5</div>");
+        QString labelString = labelFormat.arg(curveName).arg(xAxisName).arg(sample.x()).arg(yAxisName).arg(sample.y());
+        QwtText curveLabel(labelString, QwtText::RichText);
+        curveLabel.setBackgroundBrush(QBrush(QColor(250, 250, 250, 220)));
+        curveLabel.setPaintAttribute(QwtText::PaintBackground);
+        curveLabel.setBorderPen(QPen(Qt::black, 1.0));
+        curveLabel.setBorderRadius(2.0);
+        m_selectedPointMarker->setLabel(curveLabel);
+    }
     replot();
 }
 
@@ -369,16 +374,30 @@ void RiuGridCrossQwtPlot::clearSampleSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuGridCrossQwtPlot::curveText(const QwtPlotCurve* curve) const
+bool RiuGridCrossQwtPlot::curveText(const QwtPlotCurve* curve,
+                                    QString*            curveTitle,
+                                    QString*            xParamName,
+                                    QString*            yParamName) const
 {
+    CVF_ASSERT(curveTitle && xParamName && yParamName);
+
     auto riuCurve = dynamic_cast<const RiuRimQwtPlotCurve*>(curve);
     if (riuCurve)
     {
         auto crossPlotCurve = dynamic_cast<const RimGridCrossPlotCurve*>(riuCurve->ownerRimCurve());
         if (crossPlotCurve)
         {
-            return crossPlotCurve->curveName();
+            *curveTitle = crossPlotCurve->curveName();
+
+            RimGridCrossPlotCurveSet* curveSet = nullptr;
+            crossPlotCurve->firstAncestorOrThisOfType(curveSet);
+            if (curveSet)
+            {
+                *xParamName = curveSet->xAxisName();
+                *yParamName = curveSet->yAxisName();
+                return true;
+            }
         }
     }
-    return "";
+    return false;
 }

@@ -63,9 +63,9 @@ protected:
     bool resizeOverlayItemToFitPlot(caf::TitledOverlayFrame* overlayItem);
     void contextMenuEvent(QContextMenuEvent*) override;
 
-    void    selectSample(QwtPlotCurve* curve, int sampleNumber) override;
-    void    clearSampleSelection() override;
-    QString curveText(const QwtPlotCurve* curves) const;
+    void selectSample(QwtPlotCurve* curve, int sampleNumber) override;
+    void clearSampleSelection() override;
+    bool curveText(const QwtPlotCurve* curve, QString* curveTitle, QString* xParamName, QString* yParamName) const;
 private:
     typedef caf::PdmPointer<RimGridCrossPlotCurveSet> CurveSetPtr;
     typedef QPointer<RiuCvfOverlayItemWidget> LegendPtr;
