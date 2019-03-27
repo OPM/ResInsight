@@ -80,6 +80,10 @@ bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
                     matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingSubString("Paste");
                 }
             }
+            else if (keyEvent->matches(QKeySequence::Delete))
+            {
+                matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingKeyboardShortcut(QKeySequence::Delete);
+            }
 
             for (caf::CmdFeature* feature : matches)
             {

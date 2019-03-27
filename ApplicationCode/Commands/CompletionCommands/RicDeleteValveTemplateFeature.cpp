@@ -78,5 +78,7 @@ void RicDeleteValveTemplateFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete Valve Template");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
+    actionToSetup->setShortcut(QKeySequence::Delete);
+    actionToSetup->setShortcutVisibleInContextMenu(true);
 }
 

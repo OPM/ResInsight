@@ -133,6 +133,8 @@ void RicDeleteSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSet
 {
     actionToSetup->setText("Delete Summary Case Group/Ensemble");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
+    actionToSetup->setShortcut(QKeySequence::Delete);
+    actionToSetup->setShortcutVisibleInContextMenu(true);
 }
 
 //--------------------------------------------------------------------------------------------------

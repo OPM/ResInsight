@@ -109,6 +109,8 @@ void RicCloseCaseFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Close");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
+    actionToSetup->setShortcut(QKeySequence::Delete);
+    actionToSetup->setShortcutVisibleInContextMenu(true);
 }
 
 //--------------------------------------------------------------------------------------------------
