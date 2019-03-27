@@ -86,6 +86,5 @@ void RicWellPathDeleteFeature::setupActionLook(QAction* actionToSetup)
         actionToSetup->setText("Delete Well Path");
     }
     actionToSetup->setIcon(QIcon(":/Erase.png"));
-    actionToSetup->setShortcut(QKeySequence::Delete);
-    actionToSetup->setShortcutVisibleInContextMenu(true);
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
 }

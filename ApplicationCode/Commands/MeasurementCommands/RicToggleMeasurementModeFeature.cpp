@@ -79,11 +79,11 @@ void RicToggleMeasurementModeFeature::setupActionLook(QAction* actionToSetup)
     auto* meas = measurement();
     if (meas && meas->measurementMode() == RimMeasurement::MEASURE_REGULAR)
     {
-        actionToSetup->setShortcut(QKeySequence(Qt::Key_Escape));
+        applyShortcutWithHintToAction(actionToSetup, QKeySequence(Qt::Key_Escape));
     }
     else
     {
-        actionToSetup->setShortcut(QKeySequence());
+        applyShortcutWithHintToAction(actionToSetup, QKeySequence());
     }
 }
 
@@ -148,11 +148,11 @@ void RicTogglePolyMeasurementModeFeature::setupActionLook(QAction* actionToSetup
     auto* meas = measurement();
     if (meas && meas->measurementMode() == RimMeasurement::MEASURE_POLYLINE)
     {
-        actionToSetup->setShortcut(QKeySequence(Qt::Key_Escape));
+        applyShortcutWithHintToAction(actionToSetup, QKeySequence(Qt::Key_Escape));
     }
     else
     {
-        actionToSetup->setShortcut(QKeySequence());
+        applyShortcutWithHintToAction(actionToSetup, QKeySequence());
     }
 }
 

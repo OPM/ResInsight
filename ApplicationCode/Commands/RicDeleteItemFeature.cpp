@@ -216,6 +216,5 @@ void RicDeleteItemFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
-    actionToSetup->setShortcut(QKeySequence::Delete);
-    actionToSetup->setShortcutVisibleInContextMenu(true);
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
 }

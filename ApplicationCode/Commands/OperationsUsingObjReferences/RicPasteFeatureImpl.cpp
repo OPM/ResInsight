@@ -30,6 +30,7 @@
 #include "RimMimeData.h"
 #include "RimProject.h"
 
+#include "cafCmdFeature.h"
 #include "cafPdmObjectGroup.h"
 #include "cafPdmObjectHandle.h"
 
@@ -146,8 +147,7 @@ void RicPasteFeatureImpl::setIconAndShortcuts(QAction* action)
     if (action)
     {
         action->setIcon(QIcon(":/clipboard.png"));
-        action->setShortcuts(QKeySequence::Paste);
-        action->setShortcutVisibleInContextMenu(true);
+        caf::CmdFeature::applyShortcutWithHintToAction(action, QKeySequence::Paste);
     }
 }
 

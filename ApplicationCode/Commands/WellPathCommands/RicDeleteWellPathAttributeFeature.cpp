@@ -109,12 +109,12 @@ void RicDeleteWellPathAttributeFeature::setupActionLook(QAction* actionToSetup)
     {
         actionToSetup->setText("Delete Attribute");
         actionToSetup->setIcon(QIcon(":/Erase.png"));
-        actionToSetup->setShortcut(QKeySequence::Delete);
+        applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
     }
     else if (caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>())
     {
         actionToSetup->setText("Delete Casing Design");
         actionToSetup->setIcon(QIcon(":/Erase.png"));
-        actionToSetup->setShortcut(QKeySequence::Delete);
+        applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
     }
 }

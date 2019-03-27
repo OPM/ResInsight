@@ -116,11 +116,11 @@ void RicPasteSummaryCaseFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicPasteSummaryCaseFeature::setupActionLook(QAction* action)
+void RicPasteSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
 {
-    action->setText("Paste Summary Case");
-    action->setIcon(QIcon(":/clipboard.png"));
-    action->setShortcut(QKeySequence::Paste);
+    actionToSetup->setText("Paste Summary Case");
+    actionToSetup->setIcon(QIcon(":/clipboard.png"));
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Paste);
 }
 
 //--------------------------------------------------------------------------------------------------

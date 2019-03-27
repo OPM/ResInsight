@@ -25,6 +25,8 @@
 
 #include "SummaryPlotCommands/RicAsciiExportSummaryPlotFeature.h"
 
+#include "cafCmdFeature.h"
+
 #include <QAction>
 #include <QApplication>
 #include <QBoxLayout>
@@ -164,7 +166,7 @@ void RiuTextDialog::contextMenuEvent(QContextMenuEvent* event)
 
         actionToSetup->setText("Copy");
         actionToSetup->setIcon(QIcon(":/Copy.png"));
-        actionToSetup->setShortcuts(QKeySequence::Copy);
+        caf::CmdFeature::applyShortcutWithHintToAction(actionToSetup, QKeySequence::Copy);
 
         connect(actionToSetup, SIGNAL(triggered()), m_textEdit, SLOT(slotCopyContentToClipboard()));
 
@@ -175,7 +177,7 @@ void RiuTextDialog::contextMenuEvent(QContextMenuEvent* event)
         QAction* actionToSetup = new QAction(this);
 
         actionToSetup->setText("Select All");
-        actionToSetup->setShortcuts(QKeySequence::SelectAll);
+        caf::CmdFeature::applyShortcutWithHintToAction(actionToSetup, QKeySequence::SelectAll);
 
         connect(actionToSetup, SIGNAL(triggered()), m_textEdit, SLOT(slotSelectAll()));
 
@@ -309,7 +311,7 @@ void RiuTabbedTextDialog::contextMenuEvent(QContextMenuEvent* event)
 
         actionToSetup->setText("Copy");
         actionToSetup->setIcon(QIcon(":/Copy.png"));
-        actionToSetup->setShortcuts(QKeySequence::Copy);
+        caf::CmdFeature::applyShortcutWithHintToAction(actionToSetup, QKeySequence::Copy);
 
         connect(actionToSetup, SIGNAL(triggered()), textEdit, SLOT(slotCopyContentToClipboard()));
 
@@ -320,7 +322,7 @@ void RiuTabbedTextDialog::contextMenuEvent(QContextMenuEvent* event)
         QAction* actionToSetup = new QAction(this);
 
         actionToSetup->setText("Select All");
-        actionToSetup->setShortcuts(QKeySequence::SelectAll);
+        caf::CmdFeature::applyShortcutWithHintToAction(actionToSetup, QKeySequence::SelectAll);
 
         connect(actionToSetup, SIGNAL(triggered()), textEdit, SLOT(slotSelectAll()));
 
@@ -331,7 +333,6 @@ void RiuTabbedTextDialog::contextMenuEvent(QContextMenuEvent* event)
         QAction* actionToSetup = new QAction(this);
 
         actionToSetup->setText("Export to File...");
-        //actionToSetup->setShortcuts(QKeySequence::);
 
         connect(actionToSetup, SIGNAL(triggered()), textEdit, SLOT(slotExportToFile()));
 
