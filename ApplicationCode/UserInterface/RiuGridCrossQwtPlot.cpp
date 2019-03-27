@@ -134,14 +134,11 @@ void RiuGridCrossQwtPlot::updateLegendSizesToMatchPlot()
         if (pairIt != m_legendWidgets.end())
         {
             RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
-            if (overlayWidget->isVisible())
+            caf::TitledOverlayFrame* overlayItem = curveSet->legendConfig()->titledOverlayFrame();
+            if (resizeOverlayItemToFitPlot(overlayItem))
             {
-                caf::TitledOverlayFrame* overlayItem = curveSet->legendConfig()->titledOverlayFrame();
-                if (resizeOverlayItemToFitPlot(overlayItem))
-                {
-                    anyLegendResized = true;
-                    overlayWidget->updateFromOverlayItem(overlayItem);
-                }
+                anyLegendResized = true;
+                overlayWidget->updateFromOverlayItem(overlayItem);
             }
         }
     }
@@ -257,6 +254,7 @@ void RiuGridCrossQwtPlot::updateLegendLayout()
         if (pairIt != m_legendWidgets.end())
         {
             RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
+
             // Show only one copy of each legend type
             if (!legendTypes.count(curveSet->groupParameter()))
             {
@@ -293,6 +291,7 @@ void RiuGridCrossQwtPlot::resizeEvent(QResizeEvent* e)
 bool RiuGridCrossQwtPlot::resizeOverlayItemToFitPlot(caf::TitledOverlayFrame* overlayItem)
 {
     QSize       plotSize   = this->canvas()->contentsRect().size();
+    cvf::Vec2ui existingRenderSize = overlayItem->renderSize();
     cvf::Vec2ui legendSize = overlayItem->preferredSize();
 
     bool sizeAltered = false;
@@ -308,6 +307,12 @@ bool RiuGridCrossQwtPlot::resizeOverlayItemToFitPlot(caf::TitledOverlayFrame* ov
         sizeAltered    = true;
     }
     overlayItem->setRenderSize(legendSize);
+
+    if (legendSize.x() != existingRenderSize.x() || legendSize.y() != existingRenderSize.y())
+    {
+        sizeAltered = true;
+    }
+
     return sizeAltered;
 }
 

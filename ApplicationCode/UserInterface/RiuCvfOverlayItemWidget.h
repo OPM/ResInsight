@@ -23,9 +23,9 @@
 #include <QWidget>
 
 class QLabel;
-namespace cvf
+namespace caf
 {
-    class OverlayItem;
+class TitledOverlayFrame;
 }
 
 //==================================================================================================
@@ -40,7 +40,7 @@ public:
     explicit RiuCvfOverlayItemWidget(QWidget* parent = nullptr, QWidget* widgetToSnapTo = nullptr);
     ~RiuCvfOverlayItemWidget() override;
 
-    void updateFromOverlayItem( cvf::OverlayItem * item);
+    void updateFromOverlayItem( caf::TitledOverlayFrame* item);
 
    // virtual QSize   sizeHint() const override;
    // virtual QSize   minimumSizeHint() const override;

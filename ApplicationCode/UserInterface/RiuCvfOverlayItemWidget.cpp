@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "cafTitledOverlayFrame.h"
 #include "cafViewer.h"
 
 #include "cvfqtUtils.h"
@@ -59,15 +60,16 @@ RiuCvfOverlayItemWidget::~RiuCvfOverlayItemWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuCvfOverlayItemWidget::updateFromOverlayItem( cvf::OverlayItem * item)
+void RiuCvfOverlayItemWidget::updateFromOverlayItem( caf::TitledOverlayFrame * item)
 {
-    // Use the render size of the overlayItem (sizeHint should be renamed)
-
-    unsigned int width  = item->sizeHint().x();
-    unsigned int height = item->sizeHint().y();
+    unsigned int width  = item->renderSize().x();
+    unsigned int height = item->renderSize().y();
 
     QGLFormat glFormat;
     glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
+
+    // Enforce no border to avoid
+    item->setBackgroundFrameColor(cvf::Color4f(0, 0, 0, 0));
 
     caf::Viewer*  viewer = new caf::Viewer(glFormat, nullptr);
     cvf::OpenGLContext* cvfOglContext = viewer->cvfOpenGLContext();
