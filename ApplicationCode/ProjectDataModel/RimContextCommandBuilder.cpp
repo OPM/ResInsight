@@ -83,6 +83,7 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogFile.h"
@@ -410,7 +411,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicShowAllLinkedViewsFeature";
         }
-        else if (dynamic_cast<RimViewLinker*>(uiItem))
+        else if (dynamic_cast<RimViewLinker*>(uiItem) || dynamic_cast<RimViewLinkerCollection*>(uiItem))
         {
             menuBuilder << "RicShowAllLinkedViewsFeature";
             menuBuilder << "Separator";
