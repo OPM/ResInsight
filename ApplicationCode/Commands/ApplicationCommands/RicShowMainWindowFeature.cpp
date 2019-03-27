@@ -62,5 +62,7 @@ void RicShowMainWindowFeature::onActionTriggered(bool isChecked)
 void RicShowMainWindowFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Open 3D Window");
+    actionToSetup->setToolTip("Open 3D Window (Ctrl+Shift+3)");
     actionToSetup->setIcon(QIcon(":/3DWindow24x24.png"));
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence(tr("Ctrl+Shift+3")));
 }
