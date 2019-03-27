@@ -97,7 +97,7 @@ int RimGridCrossPlotCurve::groupIndex() const
 //--------------------------------------------------------------------------------------------------
 size_t RimGridCrossPlotCurve::sampleCount() const
 {
-    return m_qwtPlotCurve->dataSize();
+    return m_qwtPlotCurve ? m_qwtPlotCurve->dataSize() : 0;
 }
 
 //--------------------------------------------------------------------------------------------------

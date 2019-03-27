@@ -501,6 +501,14 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 void RimGridCrossPlotCurveSet::assignCurveDataGroups(const RigEclipseCrossPlotResult& result)
 {
     m_groupedResults.clear();
+
+    if (groupingEnabled() &&
+        (result.groupValuesContinuous.empty() && result.groupValuesDiscrete.empty()))
+    {
+        // Basis for group determination (i.e. formation list) may have been deleted since the grouping was assigned.
+        m_grouping = NO_GROUPING;
+    }
+
     if (!groupingEnabled())
     {
         m_groupedResults[0] = result;
@@ -647,7 +655,7 @@ size_t RimGridCrossPlotCurveSet::visibleCurveCount() const
     size_t visibleCurves = 0;
     for (auto curve : m_crossPlotCurves)
     {
-        if (curve->isCurveVisible()) visibleCurves++;
+        if (curve && curve->isCurveVisible()) visibleCurves++;
     }
     return visibleCurves;
 }
@@ -660,7 +668,7 @@ size_t RimGridCrossPlotCurveSet::sampleCount() const
     size_t sampleCount = 0;
     for (auto curve : m_crossPlotCurves)
     {
-        if (curve->isCurveVisible()) sampleCount += curve->sampleCount();
+        if (curve && curve->isCurveVisible()) sampleCount += curve->sampleCount();
     }
     return sampleCount;
 }
