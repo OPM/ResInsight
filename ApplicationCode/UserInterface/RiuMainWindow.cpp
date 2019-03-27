@@ -315,17 +315,28 @@ void RiuMainWindow::createActions()
 
     // View actions
     m_viewFromNorth = new QAction(QIcon(":/SouthViewArrow.png"), "Look South", this);
-    m_viewFromNorth->setToolTip("Look South");
+    m_viewFromNorth->setToolTip("Look South (Ctrl+Alt+S)");
+    m_viewFromNorth->setShortcut(QKeySequence(tr("Ctrl+Alt+S")));
+    
     m_viewFromSouth = new QAction(QIcon(":/NorthViewArrow.png"), "Look North", this);
-    m_viewFromSouth->setToolTip("Look North");
+    m_viewFromSouth->setToolTip("Look North (Ctrl+Alt+N)");
+    m_viewFromSouth->setShortcut(QKeySequence(tr("Ctrl+Alt+N")));
+
     m_viewFromEast = new QAction(QIcon(":/WestViewArrow.png"), "Look West", this);
-    m_viewFromEast->setToolTip("Look West");
+    m_viewFromEast->setToolTip("Look West (Ctrl+Alt+W)");
+    m_viewFromEast->setShortcut(QKeySequence(tr("Ctrl+Alt+W")));
+
     m_viewFromWest = new QAction(QIcon(":/EastViewArrow.png"), "Look East", this);
-    m_viewFromWest->setToolTip("Look East");
+    m_viewFromWest->setToolTip("Look East (Ctrl+Alt+E)");
+    m_viewFromWest->setShortcut(QKeySequence(tr("Ctrl+Alt+E")));
+
     m_viewFromAbove = new QAction(QIcon(":/DownViewArrow.png"), "Look Down", this);
-    m_viewFromAbove->setToolTip("Look Down");
+    m_viewFromAbove->setToolTip("Look Down (Ctrl+Alt+D)");
+    m_viewFromAbove->setShortcut(QKeySequence(tr("Ctrl+Alt+D")));
+
     m_viewFromBelow = new QAction(QIcon(":/UpViewArrow.png"), "Look Up", this);
-    m_viewFromBelow->setToolTip("Look Up");
+    m_viewFromBelow->setToolTip("Look Up (Ctrl+Alt+U)");
+    m_viewFromBelow->setShortcut(QKeySequence(tr("Ctrl+Alt+U")));
 
     connect(m_viewFromNorth, SIGNAL(triggered()), SLOT(slotViewFromNorth()));
     connect(m_viewFromSouth, SIGNAL(triggered()), SLOT(slotViewFromSouth()));
