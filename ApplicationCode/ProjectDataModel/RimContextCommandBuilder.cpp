@@ -481,12 +481,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimGridCrossPlot*>(uiItem))
         {
             menuBuilder << "RicPasteGridCrossPlotCurveSetFeature";
+            menuBuilder << "Separator";
             menuBuilder << "RicCreateGridCrossPlotCurveSetFeature";
             menuBuilder << "RicSwapGridCrossPlotCurveSetAxesFeature";
         }
         else if (dynamic_cast<RimGridCrossPlotCurveSet*>(uiItem))
         {
             menuBuilder << "RicPasteGridCrossPlotCurveSetFeature";
+            menuBuilder << "Separator";
             menuBuilder << "RicSwapGridCrossPlotCurveSetAxesFeature";
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))  // This is also the definition for RimSummaryCrossPlot
