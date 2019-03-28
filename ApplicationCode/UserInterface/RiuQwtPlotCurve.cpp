@@ -20,6 +20,7 @@
 #include "RiuQwtPlotCurve.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaImageTools.h"
 #include "RiuQwtSymbol.h"
 
 #include "qwt_symbol.h"
@@ -59,6 +60,7 @@ RiuQwtPlotCurve::RiuQwtPlotCurve(const QString &title)
 
     m_showErrorBars = true;
     m_attachedToPlot = nullptr;
+    m_blackAndWhiteLegendIcon = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,6 +371,31 @@ void RiuQwtPlotCurve::setAppearance(LineStyleEnum          lineStyle,
 
     setPen(curvePen);
     setStyle(curveStyle);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setBlackAndWhiteLegendIcon(bool blackAndWhite)
+{
+    m_blackAndWhiteLegendIcon = blackAndWhite;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QwtGraphic RiuQwtPlotCurve::legendIcon(int index, const QSizeF& size) const
+{
+    QwtGraphic icon = QwtPlotCurve::legendIcon(index, size);
+    if (m_blackAndWhiteLegendIcon)
+    {
+        QImage image = icon.toImage();
+        RiaImageTools::makeGrayScale(image);
+        
+        QPainter painter(&icon);
+        painter.drawImage(QPoint(0, 0), image);        
+    }
+    return icon;
 }
 
 //--------------------------------------------------------------------------------------------------

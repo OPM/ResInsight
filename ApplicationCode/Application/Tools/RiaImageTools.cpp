@@ -2,6 +2,9 @@
 
 #include "cvfAssert.h"
 
+#include <QColor>
+#include <QImage>
+
 #include <algorithm>
 #include <limits>
 
@@ -113,4 +116,21 @@ void RiaImageTools::distanceTransform2d(std::vector<std::vector<unsigned int>>& 
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaImageTools::makeGrayScale(QImage& image)
+{
+    for (int i = 0; i < image.height(); i++)
+    {
+        uchar* scanLine = image.scanLine(i);
+        for (int j = 0; j < image.width(); j++)
+        {
+            QRgb* pixel = reinterpret_cast<QRgb*>(scanLine + j * 4);
+            int   gray  = qGray(*pixel);
+            int   alpha = qAlpha(*pixel);
+            *pixel      = QColor(gray, gray, gray, alpha).rgba();
+        }
+    }
+}
 

@@ -46,6 +46,8 @@ public:
     void   setCurveAutoAppearance();
     int    groupIndex() const;
     size_t sampleCount() const;
+    void   determineLegendIcon();
+    void   setBlackAndWhiteLegendIcons(bool blackAndWhite);
 protected:
 
     void determineSymbol();

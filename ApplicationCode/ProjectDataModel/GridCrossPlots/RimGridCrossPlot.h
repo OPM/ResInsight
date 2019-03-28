@@ -78,6 +78,7 @@ public:
     bool                 isXAxisLogarithmic() const;
     bool                 isYAxisLogarithmic() const;
     void                 setYAxisInverted(bool inverted);
+    int                  legendFontSize() const;
 public:
     // Rim2dPlotInterface overrides
     void updateAxisScaling() override;

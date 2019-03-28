@@ -448,6 +448,13 @@ void RimGridCrossPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                         const QVariant&            oldValue,
                                         const QVariant&            newValue)
 {
+    if (changedField == &m_legendFontSize)
+    {
+        for (auto curveSet : m_crossPlotCurveSets)
+        {
+            curveSet->updateLegendIcons();
+        }
+    }
     onLoadDataAndUpdate();
 }
 
@@ -634,6 +641,14 @@ bool RimGridCrossPlot::isYAxisLogarithmic() const
 void RimGridCrossPlot::setYAxisInverted(bool inverted)
 {
     m_yAxisProperties->setAxisInverted(inverted);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimGridCrossPlot::legendFontSize() const
+{
+    return m_legendFontSize;
 }
 
 //--------------------------------------------------------------------------------------------------

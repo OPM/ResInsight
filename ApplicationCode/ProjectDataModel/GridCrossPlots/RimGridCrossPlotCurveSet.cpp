@@ -463,7 +463,7 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 
     std::map<int, cvf::UByteArray> timeStepCellVisibilityMap = calculateCellVisibility(eclipseCase);
 
-    updateLegend();
+    updateLegendRange();
 
     RigEclipseCrossPlotResult result = RigEclipseCrossPlotDataExtractor::extract(
         eclipseCase->eclipseCaseData(), m_timeStep(), xAddress, yAddress, m_grouping(), groupAddress, timeStepCellVisibilityMap);
@@ -488,6 +488,8 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
     {
         fillCurveDataInExistingCurves(result);
     }
+
+    updateLegendIcons();
 
     if (updateParentPlot)
     {
@@ -867,7 +869,7 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
     }
     else if (changedField == &m_isChecked)
     {
-        updateLegend();
+        updateLegendRange();
         triggerPlotNameUpdateAndReplot();
     }
 }
@@ -940,7 +942,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurveSet::calculateValueOptions(co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::updateLegend()
+void RimGridCrossPlotCurveSet::updateLegendRange()
 {
     legendConfig()->setTitle(groupParameter());
     legendConfig()->disableAllTimeStepsRange(!hasMultipleTimeSteps());
@@ -996,6 +998,18 @@ void RimGridCrossPlotCurveSet::updateLegend()
         {
             parent->qwtPlot()->removeCurveSetLegend(this);
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurveSet::updateLegendIcons()
+{
+    for (auto curve : m_crossPlotCurves)
+    {
+        curve->determineLegendIcon();
+        curve->setBlackAndWhiteLegendIcons(groupingEnabled());
     }
 }
 

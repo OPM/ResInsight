@@ -118,7 +118,8 @@ public:
     std::map<NameComponents, QString> nameComponents() const;
 
     void updateCurveNames(size_t curveSetIndex, size_t curveSetCount);
-    void updateLegend();
+    void updateLegendRange();
+    void updateLegendIcons();
     bool groupingByCategoryResult() const;
     bool groupingEnabled() const;
     void swapAxisProperties(bool updatePlot);
@@ -133,7 +134,8 @@ public:
     void destroyCurves();
 
     size_t visibleCurveCount() const;
-    size_t sampleCount() const;
+    size_t sampleCount() const;    
+
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);
@@ -159,8 +161,9 @@ protected:
 
     bool hasMultipleTimeSteps() const;
     void filterInvalidCurveValues(RigEclipseCrossPlotResult* result);
+
 private:
-    
+   
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmPtrField<RimGridView*>                  m_cellFilterView;

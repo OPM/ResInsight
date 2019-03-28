@@ -103,6 +103,25 @@ size_t RimGridCrossPlotCurve::sampleCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurve::determineLegendIcon()
+{
+    RimGridCrossPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
+    int fontSize = plot->legendFontSize();
+    m_qwtPlotCurve->setLegendIconSize(QSize(fontSize, fontSize));
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurve::setBlackAndWhiteLegendIcons(bool blackAndWhite)
+{
+    m_qwtPlotCurve->setBlackAndWhiteLegendIcon(blackAndWhite);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::determineSymbol()
 {
     RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbolStyle(m_curveSetIndex);
