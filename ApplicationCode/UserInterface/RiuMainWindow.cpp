@@ -447,6 +447,7 @@ void RiuMainWindow::createMenus()
     exportMenu->addAction(m_snapshotAllViewsToFile);
     exportMenu->addAction(cmdFeatureMgr->action("RicAdvancedSnapshotExportFeature"));
     exportMenu->addSeparator();
+    exportMenu->addAction(cmdFeatureMgr->action("RicExportEclipseInputGridFeature"));
     exportMenu->addAction(cmdFeatureMgr->action("RicSaveEclipseInputActiveVisibleCellsFeature"));
     exportMenu->addAction(cmdFeatureMgr->action("RicExportCompletionsForVisibleWellPathsFeature"));
     exportMenu->addAction(cmdFeatureMgr->action("RicExportVisibleWellPathsFeature"));
