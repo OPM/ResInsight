@@ -317,7 +317,7 @@ void RiuMainWindow::createActions()
     m_viewFromNorth = new QAction(QIcon(":/SouthViewArrow.png"), "Look South", this);
     m_viewFromNorth->setToolTip("Look South (Ctrl+Alt+S)");
     m_viewFromNorth->setShortcut(QKeySequence(tr("Ctrl+Alt+S")));
-    
+
     m_viewFromSouth = new QAction(QIcon(":/NorthViewArrow.png"), "Look North", this);
     m_viewFromSouth->setToolTip("Look North (Ctrl+Alt+N)");
     m_viewFromSouth->setShortcut(QKeySequence(tr("Ctrl+Alt+N")));
@@ -1120,13 +1120,8 @@ void RiuMainWindow::removeViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)
 {
-    RiuMdiSubWindow* subWin = new RiuMdiSubWindow;
-    subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
-    subWin->setWidget(viewer);
-
     QSize  subWindowSize;
     QPoint subWindowPos(-1, -1);
-    bool   initialStateMaximized = false;
 
     if (windowsGeometry.isValid())
     {
@@ -1136,35 +1131,9 @@ void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windo
     else
     {
         subWindowSize = QSize(400, 400);
-
-        if (m_mdiArea->subWindowList().size() < 1)
-        {
-            // Show first 3D view maximized
-            initialStateMaximized = true;
-        }
     }
 
-    if (m_mdiArea->currentSubWindow() && m_mdiArea->currentSubWindow()->isMaximized())
-    {
-        initialStateMaximized = true;
-    }
-
-    m_mdiArea->addSubWindow(subWin);
-
-    if (subWindowPos.x() > -1)
-    {
-        subWin->move(subWindowPos);
-    }
-    subWin->resize(subWindowSize);
-
-    if (initialStateMaximized)
-    {
-        subWin->showMaximized();
-    }
-    else
-    {
-        subWin->showNormal();
-    }
+    addViewerToMdiArea(m_mdiArea, viewer, subWindowPos, subWindowSize);
 
     slotRefreshViewActions();
 }

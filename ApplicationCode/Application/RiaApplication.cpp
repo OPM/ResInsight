@@ -354,6 +354,51 @@ const char* RiaApplication::getVersionStringApp(bool includeCrtInfo)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+class RiaMdiMaximizeWindowGuard
+{
+public:
+    RiaMdiMaximizeWindowGuard()
+    {
+        {
+            RiuMainWindow* mainWindow = RiaApplication::instance()->mainWindow();
+            if (mainWindow)
+            {
+                mainWindow->enableShowFirstVisibleMdiWindowMaximized(false);
+            }
+        }
+
+        {
+            RiuPlotMainWindow* plotMainWindow = RiaApplication::instance()->mainPlotWindow();
+            if (plotMainWindow)
+            {
+                plotMainWindow->enableShowFirstVisibleMdiWindowMaximized(false);
+            }
+        }
+    }
+
+    ~RiaMdiMaximizeWindowGuard()
+    {
+        {
+            RiuMainWindow* mainWindow = RiaApplication::instance()->mainWindow();
+            if (mainWindow)
+            {
+                mainWindow->enableShowFirstVisibleMdiWindowMaximized(true);
+            }
+        }
+
+        {
+            RiuPlotMainWindow* plotMainWindow = RiaApplication::instance()->mainPlotWindow();
+            if (plotMainWindow)
+            {
+                plotMainWindow->enableShowFirstVisibleMdiWindowMaximized(true);
+            }
+        }
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaApplication::loadProject(const QString&      projectFileName,
                                  ProjectLoadAction   loadAction,
                                  RiaProjectModifier* projectModifier)
@@ -361,6 +406,9 @@ bool RiaApplication::loadProject(const QString&      projectFileName,
     // First Close the current project
 
     closeProject();
+
+    // When importing a project, do not maximize the first MDI window to be created
+    RiaMdiMaximizeWindowGuard maximizeWindowGuard;
 
     RiaLogging::info(QString("Starting to open project file : '%1'").arg(projectFileName));
 

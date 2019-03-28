@@ -29,6 +29,9 @@ namespace caf
     class PdmUiItem;
 }
 
+class QMdiArea;
+
+
 //==================================================================================================
 ///  
 //==================================================================================================
@@ -55,9 +58,12 @@ public:
     void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
 
     void                selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange = true);
+    
+    void                enableShowFirstVisibleMdiWindowMaximized(bool enable);
 
 protected slots:
     void                slotDockWidgetToggleViewActionTriggered();
+    void			    addViewerToMdiArea(QMdiArea* mdiArea, QWidget* viewer, const QPoint& subWindowPos, const QSize& subWindowSize);
 
 protected:
     caf::PdmUiTreeView* m_projectTreeView;
@@ -67,4 +73,7 @@ protected:
 
 private:
     QString             registryFolderName();
+
+private:
+    bool                m_showFirstVisibleWindowMaximized;
 };

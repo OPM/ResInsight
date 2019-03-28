@@ -66,7 +66,6 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     , m_blockSlotSubWindowActivated(false)
 {
     m_mdiArea = new QMdiArea;
-    m_mdiArea->setOption(QMdiArea::DontMaximizeSubWindowOnActivation, true);
     connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
     setCentralWidget(m_mdiArea);
 
@@ -596,13 +595,8 @@ void RiuPlotMainWindow::removeViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)
 {
-    RiuMdiSubWindow* subWin = new RiuMdiSubWindow(m_mdiArea);
-    subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
-    subWin->setWidget(viewer);
-
     QSize  subWindowSize;
     QPoint subWindowPos(-1, -1);
-    bool   initialStateMaximized = false;
 
     if (windowsGeometry.isValid())
     {
@@ -611,7 +605,7 @@ void RiuPlotMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
     }
     else
     {
-        RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subWin->widget());
+        RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(viewer);
         if (wellLogPlot)
         {
             QSize preferredSize = wellLogPlot->preferredSize();
@@ -620,38 +614,10 @@ void RiuPlotMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
         else
         {
             subWindowSize = QSize(400, 400);
-
-            if (m_mdiArea->subWindowList().size() < 1)
-            {
-                // Show first 3D view maximized
-                initialStateMaximized = true;
-            }
         }
     }
 
-    if (m_mdiArea->currentSubWindow() && m_mdiArea->currentSubWindow()->isMaximized())
-    {
-        initialStateMaximized = true;
-    }
-
-    // Qt5: Using show() causes a update issue in MDI area
-    // https://github.com/OPM/ResInsight/issues/4131
-    subWin->showNormal();
-
-    // Move and resize must be done after window is visible
-    // If not, the position and size of the window is different to specification (Windows 7)
-    // Might be a Qt bug, must be tested on Linux
-    if (subWindowPos.x() > -1)
-    {
-        subWin->move(subWindowPos);
-    }
-    subWin->resize(subWindowSize);
-
-    if (initialStateMaximized)
-    {
-        subWin->showMaximized();
-    }
-    subWin->repaint();
+    addViewerToMdiArea(m_mdiArea, viewer, subWindowPos, subWindowSize);
 
     refreshToolbars();
 }

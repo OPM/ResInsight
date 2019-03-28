@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,25 +21,28 @@
 #include "RiaVersionInfo.h"
 
 #include "RiuDockWidgetTools.h"
+#include "RiuMdiSubWindow.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiTreeView.h"
 
-#include <QSettings>
 #include <QDockWidget>
+#include <QMdiArea>
+#include <QSettings>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuMainWindowBase::RiuMainWindowBase()
     : m_projectTreeView(nullptr)
     , m_allowActiveViewChangeFromSelection(true)
+    , m_showFirstVisibleWindowMaximized(true)
 {
     setDockNestingEnabled(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
 {
@@ -62,7 +65,7 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
 {
@@ -79,7 +82,7 @@ void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::showWindow()
 {
@@ -96,7 +99,7 @@ void RiuMainWindowBase::showWindow()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiuMainWindowBase::registryFolderName()
 {
@@ -118,15 +121,23 @@ void RiuMainWindowBase::selectAsCurrentItem(const caf::PdmObject* object, bool a
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::enableShowFirstVisibleMdiWindowMaximized(bool enable)
+{
+    m_showFirstVisibleWindowMaximized = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 {
     m_projectTreeView->setExpanded(uiItem, expanded);
 }
 
-//-------------------------------------------------------------------------------------------------- 
-///  
-/// 
-//-------------------------------------------------------------------------------------------------- 
+//--------------------------------------------------------------------------------------------------
+///
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 {
     if (!sender()) return;
@@ -136,10 +147,53 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
     {
         if (dockWidget->isVisible())
         {
-            // Raise the dock widget to make it visible if the widget is part of a tab widget 
+            // Raise the dock widget to make it visible if the widget is part of a tab widget
             dockWidget->raise();
         }
 
         RiuDockWidgetTools::instance()->setDockWidgetVisibility(dockWidget->objectName(), dockWidget->isVisible());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::addViewerToMdiArea(QMdiArea*     mdiArea,
+                                           QWidget*      viewer,
+                                           const QPoint& subWindowPos,
+                                           const QSize&  subWindowSize)
+{
+    RiuMdiSubWindow* subWin = new RiuMdiSubWindow;
+    subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
+    subWin->setWidget(viewer);
+
+    bool initialStateMaximized = false;
+
+    if (m_showFirstVisibleWindowMaximized && mdiArea->subWindowList().empty())
+    {
+        // Show first 3D view maximized
+        initialStateMaximized = true;
+    }
+
+    if (mdiArea->currentSubWindow() && mdiArea->currentSubWindow()->isMaximized())
+    {
+        initialStateMaximized = true;
+    }
+
+    mdiArea->addSubWindow(subWin);
+
+    if (subWindowPos.x() > -1)
+    {
+        subWin->move(subWindowPos);
+    }
+    subWin->resize(subWindowSize);
+
+    if (initialStateMaximized)
+    {
+        subWin->showMaximized();
+    }
+    else
+    {
+        subWin->showNormal();
     }
 }
