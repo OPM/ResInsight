@@ -34,6 +34,7 @@
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseInputCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFileSummaryCase.h"
@@ -51,6 +52,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
+#include "Riu3DMainWindowTools.h"
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -195,6 +197,53 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilter(const QString&
     if (!caf::Utils::fileExists(fileName)) return false;
 
     return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(fileName, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames(const QStringList& fileNames, QString* fileContainingGrid/*=nullptr*/)
+{
+    RimEclipseInputCase* rimInputReservoir = new RimEclipseInputCase();
+
+    RiaApplication* app     = RiaApplication::instance();
+    RimProject*     project = app->project();
+
+    project->assignCaseIdToCase(rimInputReservoir);
+
+    bool gridImportSuccess = rimInputReservoir->openDataFileSet(fileNames);
+    if (!gridImportSuccess)
+    {
+        RiaLogging::error("Failed to import grid");
+        return false;
+    }
+
+    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
+    if (analysisModels == nullptr) return false;
+
+    analysisModels->cases.push_back(rimInputReservoir);
+
+    RimEclipseView* riv = rimInputReservoir->createAndAddReservoirView();
+
+    riv->cellResult()->setResultType(RiaDefines::INPUT_PROPERTY);
+
+    riv->loadDataAndUpdate();
+
+    if (!riv->cellResult()->hasResult())
+    {
+        riv->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
+    }
+
+    analysisModels->updateConnectedEditors();
+
+    Riu3DMainWindowTools::selectAsCurrentItem(riv->cellResult());
+
+    if (fileContainingGrid)
+    {
+        *fileContainingGrid = rimInputReservoir->gridFileName();
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

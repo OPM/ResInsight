@@ -34,8 +34,7 @@
 
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
-#include "RicImportInputEclipseCaseFeature.h"
-#include "RicImportSummaryCasesFeature.h"
+#include "RicImportGeneralDataFeature.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
@@ -1224,7 +1223,7 @@ void RiaApplication::createMockModelCustomized()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createInputMockModel()
 {
-    RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(QStringList(RiaDefines::mockModelBasicInputCase()));
+    RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames(QStringList(RiaDefines::mockModelBasicInputCase()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2057,33 +2056,29 @@ bool RiaApplication::openFile(const QString& fileName)
     bool loadingSucceded = false;
 
     QString lastUsedDialogTag;
-    if (RiaApplication::hasValidProjectFileExtension(fileName))
+
+    RiaDefines::ImportFileType fileType = RiaDefines::obtainFileTypeFromFileName(fileName);
+
+    if (fileType == RiaDefines::RESINSIGHT_PROJECT_FILE)
     {
         loadingSucceded = loadProject(fileName);
     }
-    else if (fileName.contains(".egrid", Qt::CaseInsensitive) || fileName.contains(".grid", Qt::CaseInsensitive))
-    {
-        loadingSucceded = RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({fileName}));
-        if (loadingSucceded) lastUsedDialogTag = "BINARY_GRID";
-    }
-    else if (fileName.contains(".grdecl", Qt::CaseInsensitive))
-    {
-        loadingSucceded = RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(QStringList(fileName));
-        if (loadingSucceded) lastUsedDialogTag = "INPUT_FILES";
-    }
-    else if (fileName.contains(".odb", Qt::CaseInsensitive))
+    else if (fileType == RiaDefines::GEOMECH_ODB_FILE)
     {
         loadingSucceded = openOdbCaseFromFile(fileName);
-        if (loadingSucceded) lastUsedDialogTag = "GEOMECH_MODEL";            
-
+        if (loadingSucceded) lastUsedDialogTag = "GEOMECH_MODEL";
     }
-    else if (fileName.contains(".smspec", Qt::CaseInsensitive))
+    else if ( fileType & RiaDefines::ANY_ECLIPSE_FILE)
     {
-        loadingSucceded = RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(QStringList({fileName}));
+        loadingSucceded = RicImportGeneralDataFeature::openEclipseFilesFromFileNames({ fileName });
         if (loadingSucceded)
         {
-            getOrCreateAndShowMainPlotWindow();
-            lastUsedDialogTag = "INPUT_FILES";
+            lastUsedDialogTag = RiaDefines::defaultDirectoryLabel(fileType);
+
+            if (fileType & RiaDefines::ECLIPSE_SUMMARY_FILE)
+            {
+                getOrCreateAndShowMainPlotWindow();
+            }
         }
     }
 

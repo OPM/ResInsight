@@ -19,8 +19,6 @@
 
 #include "RicImportEclipseCaseFeature.h"
 
-#include "RiaImportEclipseCaseTools.h"
-
 #include "RiaApplication.h"
 
 #include "RimEclipseCaseCollection.h"
@@ -33,23 +31,6 @@
 #include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT(RicImportEclipseCaseFeature, "RicImportEclipseCaseFeature");
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicImportEclipseCaseFeature::openEclipseCaseFromFileNames(const QStringList& fileNames)
-{
-    QStringList newCaseFiles;
-    if (RiaImportEclipseCaseTools::openEclipseCasesFromFile(fileNames, &newCaseFiles))
-    {
-        for (const auto newCaseFile : newCaseFiles)
-        {
-            RiaApplication::instance()->addToRecentFiles(newCaseFile);
-        }
-        return true;
-    }
-    return false;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -479,3 +479,68 @@ double RiaDefines::maximumDefaultValuePlot()
 {
     return 100.0;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName(const QString& fileName)
+{
+    if (fileName.endsWith("EGRID", Qt::CaseInsensitive))
+    {
+        return ECLIPSE_EGRID_FILE;
+    }
+    else if (fileName.endsWith("GRID", Qt::CaseInsensitive))
+    {
+        return ECLIPSE_GRID_FILE;
+    }
+    else if (fileName.endsWith("GRDECL", Qt::CaseInsensitive))
+    {
+        return ECLIPSE_INPUT_FILE;
+    }
+    else if (fileName.endsWith("SMSPEC", Qt::CaseInsensitive))
+    {
+        return ECLIPSE_SUMMARY_FILE;
+    }
+    else if (fileName.endsWith("ODB", Qt::CaseInsensitive))
+    {
+        return GEOMECH_ODB_FILE;
+    }
+    else if (fileName.endsWith(".rsp", Qt::CaseInsensitive) || fileName.endsWith(".rip", Qt::CaseInsensitive))
+    {
+        return RESINSIGHT_PROJECT_FILE;
+    }
+    return NOT_A_VALID_IMPORT_FILE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::defaultDirectoryLabel(RiaDefines::ImportFileType fileType)
+{
+    QString defaultDirLabel;
+
+    if (fileType == ANY_ECLIPSE_FILE)
+    {
+        defaultDirLabel = "GENERAL_DATA";
+    }
+    else if (fileType & (ECLIPSE_GRID_FILE | fileType & ECLIPSE_EGRID_FILE))
+    {
+        defaultDirLabel = "BINARY_GRID";
+    }
+    else if (fileType & ECLIPSE_INPUT_FILE)
+    {
+        defaultDirLabel = "INPUT_FILES";
+    }
+    else if (fileType & ECLIPSE_SUMMARY_FILE)
+    {
+        // TODO: Summary files used "INPUT_FILES" as last used directory.
+        // Check if this is correct.
+        defaultDirLabel = "INPUT_FILES";
+    }
+    else if (fileType & GEOMECH_ODB_FILE)
+    {
+        defaultDirLabel = "GEOMECH_MODEL";
+    }
+
+    return defaultDirLabel;
+}

@@ -42,53 +42,6 @@ CAF_CMD_SOURCE_INIT(RicImportInputEclipseCaseFeature, "RicImportInputEclipseCase
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(const QStringList& fileNames)
-{
-    RimEclipseInputCase* rimInputReservoir = new RimEclipseInputCase();
-
-    RiaApplication* app = RiaApplication::instance();
-    RimProject* project = app->project();
-
-    project->assignCaseIdToCase(rimInputReservoir);
-
-    bool gridImportSuccess = rimInputReservoir->openDataFileSet(fileNames);
-    if (!gridImportSuccess)
-    {
-        RiaLogging::error("Failed to import grid");
-        return false;
-    }
-
-    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
-    if (analysisModels == nullptr) return false;
-
-    analysisModels->cases.push_back(rimInputReservoir);
-
-    RimEclipseView* riv = rimInputReservoir->createAndAddReservoirView();
-
-    riv->cellResult()->setResultType(RiaDefines::INPUT_PROPERTY);
-
-    riv->loadDataAndUpdate();
-
-    if (!riv->cellResult()->hasResult())
-    {
-        riv->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
-    }
-
-    analysisModels->updateConnectedEditors();
-
-    Riu3DMainWindowTools::selectAsCurrentItem(riv->cellResult());
-
-    if (fileNames.size() == 1)
-    {
-        app->addToRecentFiles(fileNames[0]);
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RicImportInputEclipseCaseFeature::isCommandEnabled()
 {
     return true;
@@ -99,16 +52,7 @@ bool RicImportInputEclipseCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportInputEclipseCaseFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
-    QStringList fileNames = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties (*.GRDECL);;All Files (*.*)");
-
-    if (fileNames.isEmpty()) return;
-
-    // Remember the path to next time
-    app->setLastUsedDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
-
-    RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(fileNames);
+    RicImportGeneralDataFeature::openFileDialog(RiaDefines::ECLIPSE_INPUT_FILE);
 }
 
 //--------------------------------------------------------------------------------------------------

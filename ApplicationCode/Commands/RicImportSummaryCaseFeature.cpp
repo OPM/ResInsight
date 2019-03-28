@@ -22,8 +22,6 @@
 #include "RiaPreferences.h"
 #include "RiaFilePathTools.h"
 
-#include "RicImportSummaryCasesFeature.h"
-
 #include "RimGridSummaryCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -41,24 +39,6 @@
 CAF_CMD_SOURCE_INIT(RicImportSummaryCaseFeature, "RicImportSummaryCaseFeature");
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicImportSummaryCaseFeature::openSummaryCaseFromFileNames(const QStringList& fileNames)
-{
-    std::vector<RimSummaryCase*> newCases;
-    if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames, &newCases))
-    {
-        RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(newCases);
-        for (const RimSummaryCase* newCase : newCases)
-        {
-            RiaApplication::instance()->addToRecentFiles(newCase->summaryHeaderFilename());
-        }
-        return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryCaseFeature::isCommandEnabled()
@@ -71,26 +51,7 @@ bool RicImportSummaryCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
-    QStringList fileNames_ = QFileDialog::getOpenFileNames(nullptr, "Import Summary Case", defaultDir, "Eclipse Summary File (*.SMSPEC);;All Files (*.*)");
-
-    if (fileNames_.isEmpty()) return;
-
-    QStringList fileNames;
-
-    // Convert to internal path separator
-    for (QString s : fileNames_)
-    {
-        fileNames.push_back(RiaFilePathTools::toInternalSeparator(s));
-    }
-
-    if (fileNames.isEmpty()) return;
-
-    // Remember the path to next time
-    app->setLastUsedDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
-
-    openSummaryCaseFromFileNames(fileNames);
+    RicImportGeneralDataFeature::openFileDialog(RiaDefines::ECLIPSE_SUMMARY_FILE);
 }
 
 //--------------------------------------------------------------------------------------------------

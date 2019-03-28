@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "cafCmdFeature.h"
 
 #include <vector>
@@ -29,9 +31,20 @@ class RicImportGeneralDataFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static bool openEclipseFilesFromFileNames(const QStringList& fileNames);
+
 protected:
+
     // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered(bool isChecked) override;
     void setupActionLook(QAction* actionToSetup) override;
+
+    static void openFileDialog(RiaDefines::ImportFileType fileTypes);
+
+    static bool openEclipseCaseFromFileNames(const QStringList& fileNames);
+    static bool openInputEclipseCaseFromFileNames(const QStringList& fileNames);
+    static bool openSummaryCaseFromFileNames(const QStringList& fileNames);
+
 };
