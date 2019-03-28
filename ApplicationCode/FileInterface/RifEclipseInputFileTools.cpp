@@ -495,6 +495,18 @@ void RifEclipseInputFileTools::saveFault(QTextStream&                           
 {
     // 'NAME'     1   1      1    1     1     2      J             /
 
+    if (faultName.contains(' '))
+    {
+        RiaLogging::error(QString("Fault name '%1' contains spaces").arg(faultName));
+        return;
+    }
+    else if (faultName.length() > 8)
+    {
+        // Keep going anyway, eclipse files sometimes have longer than
+        // the specified 8 characters in the name without Eclipse complaining
+        RiaLogging::warning(QString("Fault name '%1' is longer than 8 characters").arg(faultName));
+    }
+
     std::vector<RigFault::CellAndFace> faultCellAndFaces;
 
     cvf::Vec3st max = maxIn;
@@ -623,6 +635,7 @@ void RifEclipseInputFileTools::saveFault(QTextStream&                           
             lastK = k;
         }
     }
+
     // No fault should have no face
     if (lastFaceType != cvf::StructGridInterface::FaceType::NO_FACE)
     {
@@ -646,7 +659,11 @@ void RifEclipseInputFileTools::saveFaults(QTextStream&       stream,
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
     for (const auto fault : faults)
     {
-        saveFault(stream, mainGrid, fault->faultFaces(), fault->name(), min, max, refinement);
+        if (fault->name() != RiaDefines::undefinedGridFaultName() &&
+            fault->name() != RiaDefines::undefinedGridFaultWithInactiveName())
+        {
+            saveFault(stream, mainGrid, fault->faultFaces(), fault->name(), min, max, refinement);
+        }
     }
     stream << "/" << endl;
 }
@@ -1567,16 +1584,47 @@ void RifEclipseInputFileTools::readFaults(QFile&                     data,
         // Replace tab with space to be able to split the string using space as splitter
         line.replace("\t", " ");
 
-        // Remove character ' used to mark start and end of fault name, possibly also around face definition; 'I+'
-        line.remove("'");
+        QStringList entries;
+        bool insideQuotes = false;
+        QString column;
+        for (int i = 0; i < line.length(); ++i)
+        {
+            if (line[i] == '\'')
+            {
+                insideQuotes = !insideQuotes;                
+            }
+            else if (line[i] == ' ' && !insideQuotes)
+            {
+                if (column.length() > 0)
+                {
+                    entries.push_back(column);
+                }
+                column.clear();
+            }
+            else
+            {
+                column += line[i];
+            }
+        }
 
-        QStringList entries = line.split(" ", QString::SkipEmptyParts);
         if (entries.size() < 8)
         {
             continue;
         }
 
-        QString name = entries[0];
+        QString faultName = entries[0];
+
+        if (faultName.contains(' '))
+        {
+            RiaLogging::error(QString("Fault name '%1' contains spaces").arg(faultName));
+            continue;
+        }
+        else if (faultName.length() > 8)
+        {
+            // Keep going anyway, eclipse files sometimes have longer than
+            // the specified 8 characters in the name without Eclipse complaining
+            RiaLogging::warning(QString("Fault name '%1' is longer than 8 characters").arg(faultName));
+        }
 
         int i1, i2, j1, j2, k1, k2;
         i1 = entries[1].toInt();
@@ -1599,17 +1647,17 @@ void RifEclipseInputFileTools::readFaults(QFile&                     data,
                                  CVF_MAX(j2 - 1, 0),
                                  CVF_MAX(k2 - 1, 0));
 
-        if (!(fault && fault->name() == name))
+        if (!(fault && fault->name() == faultName))
         {
-            if (findFaultByName(*faults, name) == cvf::UNDEFINED_SIZE_T)
+            if (findFaultByName(*faults, faultName) == cvf::UNDEFINED_SIZE_T)
             {
                 RigFault* newFault = new RigFault;
-                newFault->setName(name);
+                newFault->setName(faultName);
 
                 faults->push_back(newFault);
             }
 
-            size_t faultIndex = findFaultByName(*faults, name);
+            size_t faultIndex = findFaultByName(*faults, faultName);
             if (faultIndex == cvf::UNDEFINED_SIZE_T)
             {
                 CVF_ASSERT(faultIndex != cvf::UNDEFINED_SIZE_T);
