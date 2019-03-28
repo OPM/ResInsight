@@ -866,6 +866,9 @@ void RiuMainWindow::slotRefreshFileActions()
     cmdFeatureMgr->action("RicWellPathsImportSsihubFeature")->setEnabled(projectFileExists);
 
     QStringList commandIdList;
+    commandIdList << "RicExportEclipseInputGridFeature";
+    commandIdList << "RicSaveEclipseInputVisibleCellsFeature";
+    commandIdList << "RicSaveEclipseInputActiveVisibleCellsFeature";
     commandIdList << "RicExportCompletionsForVisibleWellPathsFeature";
     commandIdList << "RicExportVisibleWellPathsFeature";
     cmdFeatureMgr->refreshStates(commandIdList);

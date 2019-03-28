@@ -58,5 +58,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimEclipseView* getEclipseActiveView();
+    static RimEclipseView* selectedView();
 };

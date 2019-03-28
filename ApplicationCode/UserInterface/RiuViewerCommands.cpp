@@ -496,6 +496,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             menuBuilder << "RicCreateGridCrossPlotFeature";
         }
         menuBuilder.addSeparator();
+        menuBuilder << "RicExportEclipseInputGridFeature";
         menuBuilder << "RicSaveEclipseInputActiveVisibleCellsFeature";
         menuBuilder << "RicShowGridStatisticsFeature";
         menuBuilder << "RicSelectColorResult";

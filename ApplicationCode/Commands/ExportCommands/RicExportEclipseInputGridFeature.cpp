@@ -59,7 +59,7 @@ void RicExportEclipseInputGridFeature::openDialogAndExecuteCommand(RimEclipseVie
     RigEclipseCaseData* caseData = view->eclipseCase()->eclipseCaseData();
 
     RicExportEclipseInputGridUi exportSettings(caseData);
-    caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export Input Grid", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export Eclipse Sector Model", "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);
 
     if (propertyDialog.exec() == QDialog::Accepted)
@@ -82,7 +82,7 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
 
     int gridProgressPercentage = 100 - resultProgressPercentage - faultsProgressPercentage;
     caf::ProgressInfo progress(gridProgressPercentage + resultProgressPercentage + faultsProgressPercentage,
-                               "Export Eclipse Data");
+                               "Export Eclipse Sector Model");
 
     cvf::Vec3st refinement(exportSettings.cellCountI(), exportSettings.cellCountJ(), exportSettings.cellCountK());
 
@@ -92,7 +92,7 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
     std::tie(min, max) = getVisibleCellRange(view);
     if (exportSettings.exportGrid())
     {
-        auto task = progress.task("Export Input Grid", gridProgressPercentage);
+        auto task = progress.task("Export Grid", gridProgressPercentage);
         bool worked = RifEclipseInputFileTools::exportGrid(exportSettings.exportGridFilename(), view->eclipseCase()->eclipseCaseData(), min, max, refinement);
         if (!worked)
         {
@@ -113,7 +113,7 @@ void RicExportEclipseInputGridFeature::executeCommand(RimEclipseView* view,
 
     if (exportSettings.exportResults() != RicExportEclipseInputGridUi::EXPORT_NO_RESULTS)
     {
-        auto                 task     = progress.task("Export Results", resultProgressPercentage);
+        auto                 task     = progress.task("Export Properties", resultProgressPercentage);
         std::vector<QString> keywords = exportSettings.allSelectedKeywords();
 
         if (exportSettings.exportResults == RicExportEclipseInputGridUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT)
@@ -253,7 +253,7 @@ void RicExportEclipseInputGridFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseInputGridFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Export Visible Cells as Eclipse Input Grid");
+    actionToSetup->setText("Export Visible Cells as Eclipse Sector Model");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -261,17 +261,12 @@ void RicExportEclipseInputGridFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicExportEclipseInputGridFeature::selectedView() const
 {
-    RimEclipseView* view = dynamic_cast<RimEclipseView*>(caf::SelectionManager::instance()->selectedItem());
+    RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
     if (view)
     {
         return view;
     }
 
-    RimEclipseCellColors* cellResultItem = dynamic_cast<RimEclipseCellColors*>(caf::SelectionManager::instance()->selectedItem());
-    if (cellResultItem)
-    {
-        cellResultItem->firstAncestorOrThisOfType(view);
-    }
-
-    return view;
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    return dynamic_cast<RimEclipseView*>(activeView);
 }

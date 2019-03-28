@@ -57,11 +57,11 @@ public:
     caf::PdmField<bool>                    exportGrid;
     caf::PdmField<QString>                 exportGridFilename;
 
-    caf::PdmField<ResultExportOptionsEnum> exportResults;
-    caf::PdmField<QString>                 exportResultsFilename;
-
     caf::PdmField<ResultExportOptionsEnum> exportFaults;
     caf::PdmField<QString>                 exportFaultsFilename;
+
+    caf::PdmField<ResultExportOptionsEnum> exportResults;
+    caf::PdmField<QString>                 exportResultsFilename;
 
     caf::PdmField<std::vector<QString>>    exportMainKeywords;
     caf::PdmField<std::vector<QString>>    exportAdditionalKeywords;

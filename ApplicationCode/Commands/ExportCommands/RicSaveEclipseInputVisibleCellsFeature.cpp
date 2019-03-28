@@ -131,33 +131,22 @@ void RicSaveEclipseInputVisibleCellsFeature::setupActionLook(QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicSaveEclipseInputVisibleCellsFeature::selectedView() const
 {
-    RimEclipseView* view = dynamic_cast<RimEclipseView*>(caf::SelectionManager::instance()->selectedItem());
+    RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
     if (view)
     {
         return view;
     }
 
-    RimEclipseCellColors* cellResultItem = dynamic_cast<RimEclipseCellColors*>(caf::SelectionManager::instance()->selectedItem());
-    if (cellResultItem)
-    {
-        cellResultItem->firstAncestorOrThisOfType(view);
-    }
-
-    return view;
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    return dynamic_cast<RimEclipseView*>(activeView);
 }
-
-
-
-
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicSaveEclipseInputActiveVisibleCellsFeature::isCommandEnabled()
 {
-    return true;
+    return selectedView() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,7 +154,7 @@ bool RicSaveEclipseInputActiveVisibleCellsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseInputActiveVisibleCellsFeature::onActionTriggered(bool isChecked)
 {
-    RimEclipseView* view = RicSaveEclipseInputActiveVisibleCellsFeature::getEclipseActiveView();
+    RimEclipseView* view = RicSaveEclipseInputActiveVisibleCellsFeature::selectedView();
     RicSaveEclipseInputVisibleCellsFeature::openDialogAndExecuteCommand(view);
 }
 
@@ -180,10 +169,15 @@ void RicSaveEclipseInputActiveVisibleCellsFeature::setupActionLook(QAction* acti
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RicSaveEclipseInputActiveVisibleCellsFeature::getEclipseActiveView()
+RimEclipseView* RicSaveEclipseInputActiveVisibleCellsFeature::selectedView()
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
+    if (view)
+    {
+        return view;
+    }
 
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     return dynamic_cast<RimEclipseView*>(activeView);
 }
 

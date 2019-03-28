@@ -46,9 +46,9 @@ void RicExportEclipseInputGridUi::ResultExportOptionsEnum::setUp()
     addItem(RicExportEclipseInputGridUi::EXPORT_NO_RESULTS, "NO_RESULTS", "Do not export");
     addItem(RicExportEclipseInputGridUi::EXPORT_TO_GRID_FILE, "TO_GRID_FILE", "Append to grid file");
     addItem(RicExportEclipseInputGridUi::EXPORT_TO_SINGLE_SEPARATE_FILE, "TO_SINGLE_RESULT_FILE", "Export to single file");
-    addItem(RicExportEclipseInputGridUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT, "TO_SEPARATE_RESULT_FILES", "Export to a separate file per result");
+    addItem(RicExportEclipseInputGridUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT, "TO_SEPARATE_RESULT_FILES", "Export to a separate file per property");
 
-    setDefault(RicExportEclipseInputGridUi::EXPORT_TO_GRID_FILE);
+    setDefault(RicExportEclipseInputGridUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT);
 }
 } // namespace caf
 
@@ -64,14 +64,16 @@ RicExportEclipseInputGridUi::RicExportEclipseInputGridUi(RigEclipseCaseData* cas
     CAF_PDM_InitField(&exportGridFilename, "ExportGridFilename", QString(), "Grid File Name", "", "", "");
     exportGridFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
-    CAF_PDM_InitFieldNoDefault(&exportResults, "ExportResults", "Export Results", "", "", "");
-    CAF_PDM_InitField(&exportResultsFilename, "ExportResultsFilename", QString(), "Results File Name", "", "", "");
-    exportResultsFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-
     CAF_PDM_InitFieldNoDefault(&exportFaults, "ExportFaults", "Export Faults", "", "", "");
+    exportFaults = EXPORT_TO_SINGLE_SEPARATE_FILE;
+
     CAF_PDM_InitField(&exportFaultsFilename, "ExportFaultsFilename", QString(), "Faults File Name", "", "", "");
     exportFaultsFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
+    CAF_PDM_InitFieldNoDefault(&exportResults, "ExportResults", "Export Properties", "", "", "");
+    CAF_PDM_InitField(&exportResultsFilename, "ExportResultsFilename", QString(), "Properties File Name", "", "", "");
+    exportResultsFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    
     CAF_PDM_InitFieldNoDefault(&exportMainKeywords, "ExportMainKeywords", "Main Keywords", "", "", "");
     CAF_PDM_InitFieldNoDefault(&exportAdditionalKeywords, "ExportAdditionalKeywords", "Additional Keywords", "", "", "");
 
@@ -150,6 +152,16 @@ void RicExportEclipseInputGridUi::defineUiOrdering(QString uiConfigName, caf::Pd
     gridGroup->add(&exportGridFilename);
     exportGridFilename.uiCapability()->setUiReadOnly(!exportGrid());        
 
+    gridGroup->add(&exportFaults);
+    if (exportFaults() != EXPORT_NO_RESULTS)
+    {
+        if (exportFaults() == EXPORT_TO_SINGLE_SEPARATE_FILE)
+        {
+            gridGroup->add(&exportFaultsFilename);
+        }
+    }
+
+
     caf::PdmUiGroup* resultsGroup = uiOrdering.addNewGroup("Results and Faults Export");
 
     resultsGroup->add(&exportResults);
@@ -160,16 +172,7 @@ void RicExportEclipseInputGridUi::defineUiOrdering(QString uiConfigName, caf::Pd
             resultsGroup->add(&exportResultsFilename);
         }
     }
-
-    resultsGroup->add(&exportFaults);
-    if (exportFaults() != EXPORT_NO_RESULTS)
-    {
-        if (exportFaults() == EXPORT_TO_SINGLE_SEPARATE_FILE)
-        {
-            resultsGroup->add(&exportFaultsFilename);
-        }
-    }
-
+    
     if (exportResults() != EXPORT_NO_RESULTS)
     {
         resultsGroup->add(&exportMainKeywords);
