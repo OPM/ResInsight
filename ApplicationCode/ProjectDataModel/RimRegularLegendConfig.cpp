@@ -126,7 +126,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
         m_localAutoNegClosestToZero(0),
         m_isAllTimeStepsRangeDisabled(false)
 {
-    CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
+    CAF_PDM_InitObject("Color Legend", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Show Legend", "", "", "");    
     m_showLegend.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.","");

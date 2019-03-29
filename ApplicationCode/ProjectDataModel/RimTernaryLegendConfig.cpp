@@ -46,7 +46,7 @@ CAF_PDM_SOURCE_INIT(RimTernaryLegendConfig, "RimTernaryLegendConfig");
 //--------------------------------------------------------------------------------------------------
 RimTernaryLegendConfig::RimTernaryLegendConfig() 
 {
-    CAF_PDM_InitObject("Ternary Legend Definition", ":/Legend.png", "", "");
+    CAF_PDM_InitObject("Ternary Color Legend", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_showLegend, "ShowTernaryLegend", true, "Show Ternary Legend", "", "", "");
     m_showLegend.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&precision, "Precision", 2, "Significant digits", "", "The number of significant digits displayed in the legend numbers","");

@@ -76,7 +76,7 @@ RimViewController::RimViewController()
     CAF_PDM_InitField(&m_showCursor,            "ShowCursor", true,             "   Show Cursor", "", "", "");
     CAF_PDM_InitField(&m_syncTimeStep,          "SyncTimeStep", true,           "Time Step", "", "", "");
     CAF_PDM_InitField(&m_syncCellResult,        "SyncCellResult", false,        "Cell Result", "", "", "");
-    CAF_PDM_InitField(&m_syncLegendDefinitions, "SyncLegendDefinitions", true,  "   Legend Definition", "", "", "");
+    CAF_PDM_InitField(&m_syncLegendDefinitions, "SyncLegendDefinitions", true,  "   Color Legend", "", "", "");
     
     CAF_PDM_InitField(&m_syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells", "", "", "");
     /// We do not support this. Consider to remove sometime
