@@ -32,7 +32,7 @@ RicSelectViewUI::RicSelectViewUI()
     CAF_PDM_InitObject("RicSelectViewUI", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_selectedView, "MasterView",           "Select view", "", "", "");
-    CAF_PDM_InitField(&m_createNewView,         "CreateNewView", false, "Create New View", "", "", "");
+    CAF_PDM_InitField(&m_createNewView,         "CreateNewView", true, "Create New View", "", "", "");
     CAF_PDM_InitField(&m_newViewName,           "NewViewName",   QString("ShowContributingWells"), "New View Name", "", "", "");
 
     m_currentView = nullptr;
