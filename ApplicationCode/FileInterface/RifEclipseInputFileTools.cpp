@@ -67,7 +67,10 @@ RifEclipseInputFileTools::~RifEclipseInputFileTools() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData, QString* errorMessages)
+bool RifEclipseInputFileTools::openGridFile(const QString&      fileName,
+                                            RigEclipseCaseData* eclipseCase,
+                                            bool                readFaultData,
+                                            QString*            errorMessages)
 {
     CVF_ASSERT(eclipseCase && errorMessages);
 
@@ -106,7 +109,6 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
 
         return false;
     }
-
 
     if (gridunitPos >= 0)
     {
@@ -193,7 +195,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
     int nz = ecl_kw_iget_int(specGridKw, 2);
 
     ecl_grid_type* inputGrid = ecl_grid_alloc_GRDECL_kw(nx, ny, nz, zCornKw, coordKw, actNumKw, mapAxesKw);
-    
+
     progress.setProgress(6);
 
     RifReaderEclipseOutput::transferGeometry(inputGrid, eclipseCase);
@@ -350,7 +352,7 @@ bool RifEclipseInputFileTools::exportGrid(const QString&      fileName,
         ecl_units = ECL_FIELD_UNITS;
     else if (eclipseCase->unitsType() == RiaEclipseUnitTools::UNITS_LAB)
         ecl_units = ECL_LAB_UNITS;
-    
+
     ecl_grid_fprintf_grdecl2(mainEclGrid, filePtr, ecl_units);
     ecl_grid_free(mainEclGrid);
     fclose(filePtr);
@@ -453,7 +455,6 @@ bool RifEclipseInputFileTools::exportKeywords(const QString&              result
     return true;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -520,8 +521,7 @@ void RifEclipseInputFileTools::saveFault(QTextStream&                           
         bool   ok = mainGrid->ijkFromCellIndex(faultCellAndFace.m_nativeReservoirCellIndex, &i, &j, &k);
         if (!ok) continue;
 
-        if (i < min.x() || i > max.x() || j < min.y() || j > max.y() || k < min.z() || k > max.z())
-            continue;
+        if (i < min.x() || i > max.x() || j < min.y() || j > max.y() || k < min.z() || k > max.z()) continue;
 
         size_t shifted_i = (i - min.x()) * refinement.x();
         size_t shifted_j = (j - min.y()) * refinement.y();
@@ -572,8 +572,8 @@ void RifEclipseInputFileTools::saveFault(QTextStream&                           
                 {
                     for (size_t refineI = 0; refineI < refinement.x(); ++refineI)
                     {
-                        faultCellAndFaces.push_back(std::make_tuple(
-                            shifted_i + refineI, shifted_j, shifted_k + refineK, faultCellAndFace.m_nativeFace));
+                        faultCellAndFaces.push_back(
+                            std::make_tuple(shifted_i + refineI, shifted_j, shifted_k + refineK, faultCellAndFace.m_nativeFace));
                     }
                 }
             }
@@ -589,8 +589,8 @@ void RifEclipseInputFileTools::saveFault(QTextStream&                           
                 {
                     for (size_t refineI = 0; refineI < refinement.x(); ++refineI)
                     {
-                        faultCellAndFaces.push_back(std::make_tuple(
-                            shifted_i + refineI, shifted_j + refineJ, shifted_k, faultCellAndFace.m_nativeFace));
+                        faultCellAndFaces.push_back(
+                            std::make_tuple(shifted_i + refineI, shifted_j + refineJ, shifted_k, faultCellAndFace.m_nativeFace));
                     }
                 }
             }
@@ -930,13 +930,13 @@ const std::vector<QString>& RifEclipseInputFileTools::invalidPropertyDataKeyword
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::findGridKeywordPositions(const std::vector< RifKeywordAndFilePos >& keywords,
-                                                        qint64* coordPos,
-                                                        qint64* zcornPos,
-                                                        qint64* specgridPos,
-                                                        qint64* actnumPos,
-                                                        qint64* mapaxesPos,
-                                                        qint64* gridunitPos)
+void RifEclipseInputFileTools::findGridKeywordPositions(const std::vector<RifKeywordAndFilePos>& keywords,
+                                                        qint64*                                  coordPos,
+                                                        qint64*                                  zcornPos,
+                                                        qint64*                                  specgridPos,
+                                                        qint64*                                  actnumPos,
+                                                        qint64*                                  mapaxesPos,
+                                                        qint64*                                  gridunitPos)
 {
     CVF_ASSERT(coordPos && zcornPos && specgridPos && actnumPos && mapaxesPos && gridunitPos);
 
@@ -1584,13 +1584,13 @@ void RifEclipseInputFileTools::readFaults(QFile&                     data,
         line.replace("\t", " ");
 
         QStringList entries;
-        bool insideQuotes = false;
-        QString column;
+        bool        insideQuotes = false;
+        QString     column;
         for (int i = 0; i < line.length(); ++i)
         {
             if (line[i] == '\'')
             {
-                insideQuotes = !insideQuotes;                
+                insideQuotes = !insideQuotes;
             }
             else if (line[i] == ' ' && !insideQuotes)
             {
