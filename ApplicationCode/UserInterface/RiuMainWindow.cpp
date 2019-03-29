@@ -1240,12 +1240,6 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     RimProject* proj = RiaApplication::instance()->project();
     if (!proj) return;
 
-    if (!caf::SelectionManager::instance()->selectedItemAncestorOfType<Rim3dView>())
-    {
-        // Do not try to manipulate the tree selection if no object part of a 3D view is currently selected
-        return;
-    }
-
     // Find the activated 3D view
 
     Rim3dView* activatedView = nullptr;
@@ -1276,12 +1270,21 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
         Rim3dView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
         RiaApplication::instance()->setActiveReservoirView(activatedView);
 
-        if (previousActiveReservoirView != activatedView)
+        bool is3dViewCurrentlySelected = false;
+        if (caf::SelectionManager::instance()->selectedItem())
+        {
+            if (caf::SelectionManager::instance()->selectedItemAncestorOfType<Rim3dView>())
+            {
+                is3dViewCurrentlySelected = true;
+            }
+        }
+
+        if (is3dViewCurrentlySelected && (previousActiveReservoirView != activatedView))
         {
             QModelIndex newViewModelIndex = m_projectTreeView->findModelIndex(activatedView);
             QModelIndex newSelectionIndex = newViewModelIndex;
 
-            if (previousActiveReservoirView)
+            if (previousActiveReservoirView && is3dViewCurrentlySelected)
             {
                 // Try to select the same entry in the new View, as was selected in the previous
 
