@@ -74,7 +74,7 @@ void RicToggleMeasurementModeFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicToggleMeasurementModeFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Measurement Mode");
+    actionToSetup->setText("Measurement");
     actionToSetup->setToolTip("Single Line Measurement (Ctrl+M)");
     actionToSetup->setIcon(QIcon(":/Ruler24x24.png"));
     actionToSetup->setCheckable(true);
@@ -155,7 +155,7 @@ void RicTogglePolyMeasurementModeFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicTogglePolyMeasurementModeFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Poly Line Measurement Mode");
+    actionToSetup->setText("Poly Line Measurement");
     actionToSetup->setToolTip("Poly Line Measurement (Ctrl+Shift+M)");
     actionToSetup->setIcon(QIcon(":/RulerPoly24x24.png"));
     actionToSetup->setCheckable(true);
