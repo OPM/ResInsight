@@ -1253,9 +1253,8 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     std::vector<RimCase*> allCases;
     proj->allCases(allCases);
 
-    for (size_t caseIdx = 0; caseIdx < allCases.size(); ++caseIdx)
+    for (RimCase* reservoirCase : allCases)
     {
-        RimCase* reservoirCase = allCases[caseIdx];
         if (reservoirCase == nullptr) continue;
 
         std::vector<Rim3dView*> views = reservoirCase->views();
@@ -1522,9 +1521,9 @@ void RiuMainWindow::hideAllDockWindows()
 {
     QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
 
-    for (int i = 0; i < dockWidgets.size(); i++)
+    for (auto* dockWidget : dockWidgets)
     {
-        dockWidgets[i]->close();
+        dockWidget->close();
     }
 }
 
@@ -1859,23 +1858,23 @@ void RiuMainWindow::slotCreateCommandObject()
     m_projectTreeView->selectedUiItems(selectedUiItems);
 
     caf::PdmObjectGroup selectedObjects;
-    for (size_t i = 0; i < selectedUiItems.size(); ++i)
+    for (auto* selectedUiItem : selectedUiItems)
     {
-        caf::PdmUiObjectHandle* uiObj = dynamic_cast<caf::PdmUiObjectHandle*>(selectedUiItems[i]);
+        caf::PdmUiObjectHandle* uiObj = dynamic_cast<caf::PdmUiObjectHandle*>(selectedUiItem);
         if (uiObj)
         {
             selectedObjects.addObject(uiObj->objectHandle());
         }
     }
 
-    if (selectedObjects.objects.size())
+    if (!selectedObjects.objects.empty())
     {
         std::vector<RimCommandObject*> commandObjects;
         RimCommandFactory::createCommandObjects(selectedObjects, &commandObjects);
 
-        for (size_t i = 0; i < commandObjects.size(); i++)
+        for (auto* commandObject : commandObjects)
         {
-            app->project()->commandObjects.push_back(commandObjects[i]);
+            app->project()->commandObjects.push_back(commandObject);
         }
 
         app->project()->updateConnectedEditors();
@@ -2062,5 +2061,5 @@ void RiuMainWindow::tileWindows()
 //--------------------------------------------------------------------------------------------------
 bool RiuMainWindow::isAnyMdiSubWindowVisible()
 {
-    return m_mdiArea->subWindowList().size() > 0;
+    return !m_mdiArea->subWindowList().empty();
 }
