@@ -297,7 +297,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 std::set<QString> RicExportEclipseInputGridUi::mainKeywords()
 {
-    return { "EQLNUM", "FIPNUM", "NTG", "PERMX", "PERMY", "PERMZ", "PORO", "PVTNUM", "SATNUM", "SWATINIT" };
+    return { RiaDefines::eqlnumResultName(), "FIPNUM", "NTG", "PERMX", "PERMY", "PERMZ", "PORO", "PVTNUM", "SATNUM", "SWATINIT" };
 }
 
 //--------------------------------------------------------------------------------------------------

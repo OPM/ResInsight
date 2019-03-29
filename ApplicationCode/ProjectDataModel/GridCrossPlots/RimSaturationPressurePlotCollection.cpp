@@ -18,7 +18,9 @@
 
 #include "RimSaturationPressurePlotCollection.h"
 
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigEquil.h"
 
 #include "RimEclipseResultCase.h"
@@ -55,21 +57,39 @@ std::vector<RimSaturationPressurePlot*>
     RigEclipseCaseData* eclipseCaseData = eclipseResultCase->eclipseCaseData();
     if (!eclipseCaseData) return generatedPlots;
 
+    auto results = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
+
+    std::set<int> eqlnumRegionIdsFound;
+    {
+        RigEclipseResultAddress resAdr(RiaDefines::STATIC_NATIVE, RiaDefines::eqlnumResultName());
+        if (results->hasResultEntry(resAdr))
+        {
+            auto vals = results->uniqueCellScalarValues(resAdr);
+            for (auto v : vals)
+            {
+                eqlnumRegionIdsFound.insert(v);
+            }
+        }
+    }
+
     std::vector<RigEquil> equilData = eclipseCaseData->equilData();
     for (size_t i = 0; i < equilData.size(); i++)
     {
-        RimSaturationPressurePlot* plot = new RimSaturationPressurePlot();
-        plot->setAsPlotMdiWindow();
+        int zeroBasedEquilibriumRegion = static_cast<int>(i);
 
-        int equilibriumRegion = static_cast<int>(i);
+        if (eqlnumRegionIdsFound.find(zeroBasedEquilibriumRegion + 1) != eqlnumRegionIdsFound.end())
+        {
+            RimSaturationPressurePlot* plot = new RimSaturationPressurePlot();
+            plot->setAsPlotMdiWindow();
 
-        // As discussed with Liv Merete, it is not any use for creation of different plots for matrix/fracture. For now, use
-        // hardcoded value for MATRIX
-        plot->assignCaseAndEquilibriumRegion(RiaDefines::MATRIX_MODEL, eclipseResultCase, equilibriumRegion);
+            // As discussed with Liv Merete, it is not any use for creation of different plots for matrix/fracture. For now, use
+            // hardcoded value for MATRIX
+            plot->assignCaseAndEquilibriumRegion(RiaDefines::MATRIX_MODEL, eclipseResultCase, zeroBasedEquilibriumRegion);
 
-        m_saturationPressurePlots.push_back(plot);
+            m_saturationPressurePlots.push_back(plot);
 
-        generatedPlots.push_back(plot);
+            generatedPlots.push_back(plot);
+        }
     }
 
     return generatedPlots;

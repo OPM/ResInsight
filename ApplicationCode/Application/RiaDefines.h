@@ -73,6 +73,8 @@ namespace RiaDefines
     QString ternarySaturationResultName();
     QString combinedMultResultName();
 
+    QString eqlnumResultName();
+
     QString riTranXResultName();
     QString riTranYResultName();
     QString riTranZResultName();
