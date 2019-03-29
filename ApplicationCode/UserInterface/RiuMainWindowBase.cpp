@@ -44,6 +44,21 @@ RiuMainWindowBase::RiuMainWindowBase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimMdiWindowGeometry RiuMainWindowBase::windowGeometryForViewer(QWidget* viewer)
+{
+    RiuMdiSubWindow* mdiWindow = dynamic_cast<RiuMdiSubWindow*>(findMdiSubWindow(viewer));
+    if (mdiWindow)
+    {
+        return mdiWindow->windowGeometry();
+    }
+
+    RimMdiWindowGeometry geo;
+    return geo;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
 {
     // Company and appname set through QCoreApplication

@@ -1985,21 +1985,6 @@ void RiuMainWindow::customMenuRequested(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RiuMainWindow::windowGeometryForViewer(QWidget* viewer)
-{
-    QMdiSubWindow* mdiWindow = findMdiSubWindow(viewer);
-    if (mdiWindow)
-    {
-        return RiuMdiSubWindow::windowGeometryForWidget(mdiWindow);
-    }
-
-    RimMdiWindowGeometry geo;
-    return geo;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::tileWindows()
 {
     QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();

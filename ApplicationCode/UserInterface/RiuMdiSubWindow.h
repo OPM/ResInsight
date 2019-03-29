@@ -29,9 +29,14 @@ public:
 
     ~RiuMdiSubWindow() override;
 
-    static RimMdiWindowGeometry windowGeometryForWidget(QWidget* widget);
+    RimMdiWindowGeometry windowGeometry() const;
 
 protected:
     void closeEvent(QCloseEvent* event) override;
+    void resizeEvent(QResizeEvent* resizeEvent) override;
+    void moveEvent(QMoveEvent *moveEvent) override;
+
+private:
+    QRect m_normalWindowGeometry;
 };
 

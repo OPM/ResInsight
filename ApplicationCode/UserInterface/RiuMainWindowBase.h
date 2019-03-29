@@ -30,6 +30,7 @@ namespace caf
 }
 
 class QMdiArea;
+class QMdiSubWindow;
 
 
 //==================================================================================================
@@ -48,8 +49,9 @@ public:
     virtual void        addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)= 0;
     virtual void        setActiveViewer(QWidget* subWindow) = 0;
 
-    virtual RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer) = 0;
+    virtual QMdiSubWindow* findMdiSubWindow(QWidget* viewer) = 0;
 
+    RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer);
     void                loadWinGeoAndDockToolBarLayout();
     void                saveWinGeoAndDockToolBarLayout();
     void                showWindow();

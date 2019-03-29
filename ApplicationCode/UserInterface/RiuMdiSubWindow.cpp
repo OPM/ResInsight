@@ -29,11 +29,16 @@
 #include "RiuViewer.h"
 #include "RiuWellLogPlot.h"
 
+#include <QWindowStateChangeEvent>
+
+#include <QDebug>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiuMdiSubWindow::RiuMdiSubWindow(QWidget* parent /*= 0*/, Qt::WindowFlags flags /*= 0*/)
     : QMdiSubWindow(parent, flags)
+    , m_normalWindowGeometry(QRect())
 {
 }
 
@@ -48,6 +53,38 @@ RiuMdiSubWindow::~RiuMdiSubWindow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimMdiWindowGeometry RiuMdiSubWindow::windowGeometry() const
+{
+    RimMdiWindowGeometry geo;
+
+    int mainWinID = 0;
+    if (window() == RiaApplication::instance()->mainPlotWindow())
+    {
+        mainWinID = 1;
+    }
+
+    geo.mainWindowID = mainWinID;
+    geo.isMaximized  = isMaximized();
+
+    // Save normal/non-maximized size and position so this can be restored
+    QRect currentGeometry = frameGeometry();
+    if (isMaximized() && !m_normalWindowGeometry.isNull())
+    {
+        currentGeometry = m_normalWindowGeometry;
+    }
+
+    geo.x      = currentGeometry.topLeft().x();
+    geo.y      = currentGeometry.topLeft().y();
+    geo.width  = currentGeometry.width();
+    geo.height = currentGeometry.height();
+
+    return geo;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMdiSubWindow::closeEvent(QCloseEvent* event)
 {
     QWidget* mainWidget = widget();
@@ -55,14 +92,14 @@ void RiuMdiSubWindow::closeEvent(QCloseEvent* event)
     RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(mainWidget);
     if (viewWindow)
     {
-        viewWindow->setMdiWindowGeometry(windowGeometryForWidget(this));
+        viewWindow->setMdiWindowGeometry(windowGeometry());
     }
     else
     {
         RiuViewer* viewer = mainWidget->findChild<RiuViewer*>();
         if (viewer)
         {
-            viewer->ownerReservoirView()->setMdiWindowGeometry(windowGeometryForWidget(this));
+            viewer->ownerReservoirView()->setMdiWindowGeometry(windowGeometry());
         }
     }
     QMdiSubWindow::closeEvent(event);
@@ -71,50 +108,23 @@ void RiuMdiSubWindow::closeEvent(QCloseEvent* event)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RiuMdiSubWindow::windowGeometryForWidget(QWidget* widget)
+void RiuMdiSubWindow::resizeEvent(QResizeEvent* resizeEvent)
 {
-    RimMdiWindowGeometry geo;
-
-    if (widget)
+    if (!isMaximized())
     {
-        // Find topmost parent
-
-        QWidget* nextParent = widget->parentWidget();
-        QWidget* parent     = nullptr;
-        while (nextParent)
-        {
-            parent     = nextParent;
-            nextParent = nextParent->parentWidget();
-        }
-
-        int mainWinID = 0;
-        if (parent)
-        {
-            if (parent == RiaApplication::instance()->mainPlotWindow())
-            {
-                mainWinID = 1;
-            }
-        }
-
-        geo.mainWindowID = mainWinID;
-        bool isMaximized = widget->isMaximized();
-
-        if (isMaximized)
-        {
-            // Temporarily set to normal to be able to store normal window size
-            widget->showNormal();
-        }
-
-        geo.x           = widget->pos().x();
-        geo.y           = widget->pos().y();
-        geo.width       = widget->size().width();
-        geo.height      = widget->size().height();
-        geo.isMaximized = isMaximized;
-
-        if (isMaximized)
-        {
-            widget->showMaximized();
-        }
+        m_normalWindowGeometry = frameGeometry();
     }
-    return geo;
+    QMdiSubWindow::resizeEvent(resizeEvent);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMdiSubWindow::moveEvent(QMoveEvent* moveEvent)
+{
+    if (!isMaximized())
+    {
+        m_normalWindowGeometry = frameGeometry();
+    }
+    QMdiSubWindow::moveEvent(moveEvent);
 }

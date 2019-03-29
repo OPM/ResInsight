@@ -69,12 +69,9 @@ public:
 
     void                setDefaultWindowSize();
 
-
-    RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer) override;
-
     void                tileWindows();
     bool                isAnyMdiSubWindowVisible();
-    QMdiSubWindow*      findMdiSubWindow(QWidget* viewer);
+    QMdiSubWindow*      findMdiSubWindow(QWidget* viewer) override;
     QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
     void                setWidthOfMdiWindow(QWidget* mdiWindowWidget, int newWidth);

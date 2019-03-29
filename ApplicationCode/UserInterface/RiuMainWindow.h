@@ -110,11 +110,9 @@ public:
     
     void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
 
-    RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer) override;
-
     void            tileWindows();
     bool            isAnyMdiSubWindowVisible();
-    QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
+    QMdiSubWindow*  findMdiSubWindow(QWidget* viewer) override;
     RimViewWindow*  findViewWindowFromSubWindow(QMdiSubWindow* lhs);
     QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
