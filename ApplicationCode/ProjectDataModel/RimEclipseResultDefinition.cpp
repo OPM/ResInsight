@@ -188,7 +188,7 @@ void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimEclipseResultDefinition::eclipseCase()
 {
@@ -1461,11 +1461,11 @@ QString RimEclipseResultDefinition::flowDiagResUiText(bool shortLabel, int maxTr
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::ResultCatType     resultCatType,
-                                                                  const RigCaseCellResultsData* results,
-                                                                  bool                          showDerivedResultsFirst,
-                                                                  bool                          addPerCellFaceOptionItems,
-                                                                  bool                          ternaryEnabled)
+    RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::ResultCatType     resultCatType,
+                                                                      const RigCaseCellResultsData* results,
+                                                                      bool                          showDerivedResultsFirst,
+                                                                      bool                          addPerCellFaceOptionItems,
+                                                                      bool                          ternaryEnabled)
 {
     CVF_ASSERT(resultCatType != RiaDefines::FLOW_DIAGNOSTICS && resultCatType != RiaDefines::INJECTION_FLOODING);
 
@@ -1476,7 +1476,7 @@ RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::Re
         QStringList cellCenterResultNames;
         QStringList cellFaceResultNames;
 
-        for (QString s :  getResultNamesForResultType(resultCatType, results))
+        for (const QString& s : getResultNamesForResultType(resultCatType, results))
         {
             if (s == RiaDefines::completionTypeResultName())
             {
@@ -1497,7 +1497,7 @@ RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::Re
         cellFaceResultNames.sort();
 
         // Cell Center result names
-        for (QString s : cellCenterResultNames)
+        for (const QString& s : cellCenterResultNames)
         {
             optionList.push_back(caf::PdmOptionItemInfo(s, s));
         }
@@ -1516,13 +1516,12 @@ RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::Re
             if (resultCatType == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
             {
                 optionList.push_front(
-                    caf::PdmOptionItemInfo(RiaDefines::ternarySaturationResultName(),
-                        RiaDefines::ternarySaturationResultName()));
+                    caf::PdmOptionItemInfo(RiaDefines::ternarySaturationResultName(), RiaDefines::ternarySaturationResultName()));
             }
         }
         if (addPerCellFaceOptionItems)
         {
-            for (QString s : cellFaceResultNames)
+            for (const QString& s : cellFaceResultNames)
             {
                 if (showDerivedResultsFirst)
                 {
@@ -1707,7 +1706,8 @@ QString RimEclipseResultDefinition::selectedTracersString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimEclipseResultDefinition::getResultNamesForResultType(RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results)
+QStringList RimEclipseResultDefinition::getResultNamesForResultType(RiaDefines::ResultCatType     resultCatType,
+                                                                    const RigCaseCellResultsData* results)
 {
     if (resultCatType != RiaDefines::FLOW_DIAGNOSTICS)
     {
@@ -1959,12 +1959,12 @@ bool RimEclipseResultDefinition::isCaseDiffResult() const
 bool RimEclipseResultDefinition::showDerivedResultsFirstInVariableUiField() const
 {
     // Cell Face result names
-    bool showDerivedResultsFirstInList = false;
-    RimEclipseFaultColors* rimEclipseFaultColors = nullptr;
+    bool                   showDerivedResultsFirstInList = false;
+    RimEclipseFaultColors* rimEclipseFaultColors         = nullptr;
     this->firstAncestorOrThisOfType(rimEclipseFaultColors);
 
     if (rimEclipseFaultColors) showDerivedResultsFirstInList = true;
-    
+
     return showDerivedResultsFirstInList;
 }
 
@@ -1986,12 +1986,12 @@ bool RimEclipseResultDefinition::addPerCellFaceOptionsForVariableUiField() const
     {
         return false;
     }
-    
+
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::ensureProcessingOfObsoleteFields()
 {
