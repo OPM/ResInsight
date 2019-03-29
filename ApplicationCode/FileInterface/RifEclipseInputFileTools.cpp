@@ -240,10 +240,9 @@ bool RifEclipseInputFileTools::exportGrid(const QString&      fileName,
         return false;
     }
 
-    const RigActiveCellInfo* activeCellInfo         = eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL);
-    const RigActiveCellInfo* fractureActiveCellInfo = eclipseCase->activeCellInfo(RiaDefines::FRACTURE_MODEL);
+    const RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
-    CVF_ASSERT(activeCellInfo && fractureActiveCellInfo);
+    CVF_ASSERT(activeCellInfo);
 
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
