@@ -2070,7 +2070,7 @@ bool RiaApplication::openFile(const QString& fileName)
     }
     else if ( fileType & RiaDefines::ANY_ECLIPSE_FILE)
     {
-        loadingSucceded = RicImportGeneralDataFeature::openEclipseFilesFromFileNames({ fileName });
+        loadingSucceded = RicImportGeneralDataFeature::openEclipseFilesFromFileNames(QStringList{ fileName });
         if (loadingSucceded)
         {
             lastUsedDialogTag = RiaDefines::defaultDirectoryLabel(fileType);
