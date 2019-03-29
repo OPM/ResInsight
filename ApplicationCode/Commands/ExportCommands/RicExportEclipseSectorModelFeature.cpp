@@ -88,12 +88,23 @@ void RicExportEclipseSectorModelFeature::executeCommand(RimEclipseView* view,
 
     CVF_ASSERT(refinement.x() > 0u && refinement.y() > 0u && refinement.z() > 0u);
 
+    cvf::UByteArray cellVisibility;
+    view->calculateCurrentTotalCellVisibility(&cellVisibility, view->currentTimeStep());
+
     cvf::Vec3st min, max;
-    std::tie(min, max) = getVisibleCellRange(view);
+    std::tie(min, max) = getVisibleCellRange(view, cellVisibility);
     if (exportSettings.exportGrid())
     {
+        const cvf::UByteArray* cellVisibilityForActnum = exportSettings.makeInvisibleCellsInactive() ? &cellVisibility : nullptr;
         auto task = progress.task("Export Grid", gridProgressPercentage);
-        bool worked = RifEclipseInputFileTools::exportGrid(exportSettings.exportGridFilename(), view->eclipseCase()->eclipseCaseData(), min, max, refinement);
+
+        bool worked = RifEclipseInputFileTools::exportGrid(exportSettings.exportGridFilename(),
+                                                           view->eclipseCase()->eclipseCaseData(),
+                                                           cellVisibilityForActnum,
+                                                           min,
+                                                           max,
+                                                           refinement);
+
         if (!worked)
         {
             RiaLogging::error(
@@ -203,10 +214,8 @@ void RicExportEclipseSectorModelFeature::executeCommand(RimEclipseView* view,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3st, cvf::Vec3st> RicExportEclipseSectorModelFeature::getVisibleCellRange(RimEclipseView* view)
+std::pair<cvf::Vec3st, cvf::Vec3st> RicExportEclipseSectorModelFeature::getVisibleCellRange(RimEclipseView* view, const cvf::UByteArray& cellVisibillity)
 {
-    cvf::UByteArray visibleCells;
-    view->calculateCurrentTotalCellVisibility(&visibleCells, view->currentTimeStep());
 
     const RigMainGrid* mainGrid = view->eclipseCase()->mainGrid();
     cvf::Vec3st max = cvf::Vec3st::ZERO;
@@ -217,7 +226,7 @@ std::pair<cvf::Vec3st, cvf::Vec3st> RicExportEclipseSectorModelFeature::getVisib
     size_t cellCount = mainGrid->cellCount();
     for (size_t index = 0; index < cellCount; ++index)
     {
-        if (visibleCells[index])
+        if (cellVisibillity[index])
         {
             cvf::Vec3st ijk;
             mainGrid->ijkFromCellIndex(index, &ijk[0], &ijk[1], &ijk[2]);

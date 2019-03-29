@@ -231,11 +231,12 @@ bool RifEclipseInputFileTools::openGridFile(const QString&      fileName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::exportGrid(const QString&      fileName,
-                                          RigEclipseCaseData* eclipseCase,
-                                          const cvf::Vec3st&  min,
-                                          const cvf::Vec3st&  maxIn,
-                                          const cvf::Vec3st&  refinement)
+bool RifEclipseInputFileTools::exportGrid(const QString&         fileName,
+                                          RigEclipseCaseData*    eclipseCase,
+                                          const cvf::UByteArray* cellVisibilityOverrideForActnum,
+                                          const cvf::Vec3st&     min,
+                                          const cvf::Vec3st&     maxIn,
+                                          const cvf::Vec3st&     refinement)
 {
     if (!eclipseCase)
     {
@@ -289,6 +290,10 @@ bool RifEclipseInputFileTools::exportGrid(const QString&      fileName,
                 size_t mainIndex = mainGrid->cellIndexFromIJK(mainI, mainJ, mainK);
 
                 int active = activeCellInfo->isActive(mainIndex) ? 1 : 0;
+                if (active && cellVisibilityOverrideForActnum)
+                {
+                    active = (*cellVisibilityOverrideForActnum)[mainIndex];
+                }
 
                 int* ecl_cell_coords = new int[5];
                 ecl_cell_coords[0]   = (int)(i0 + 1);
@@ -322,7 +327,7 @@ bool RifEclipseInputFileTools::exportGrid(const QString&      fileName,
         }
         if (incrementalIndex % cellProgressInterval == 0)
         {
-            progress.setProgress(incrementalIndex);
+            progress.setProgress(incrementalIndex / cellsPerOriginal);
         }
     }
 

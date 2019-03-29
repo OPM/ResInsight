@@ -50,6 +50,7 @@ void RicExportEclipseSectorModelUi::ResultExportOptionsEnum::setUp()
 
     setDefault(RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT);
 }
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -63,6 +64,8 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi(RigEclipseCaseData*
     CAF_PDM_InitField(&exportGrid, "ExportGrid", true, "Export Grid", "", "Includes COORD, ZCORN and ACTNUM", "");
     CAF_PDM_InitField(&exportGridFilename, "ExportGridFilename", QString(), "Grid File Name", "", "", "");
     exportGridFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&makeInvisibleCellsInactive, "InvisibleCellActnum", false, "Make Invisible Cells Inactive", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&exportFaults, "ExportFaults", "Export Faults", "", "", "");
     exportFaults = EXPORT_TO_SINGLE_SEPARATE_FILE;
@@ -151,6 +154,7 @@ void RicExportEclipseSectorModelUi::defineUiOrdering(QString uiConfigName, caf::
     gridGroup->add(&exportGrid);
     gridGroup->add(&exportGridFilename);
     exportGridFilename.uiCapability()->setUiReadOnly(!exportGrid());        
+    gridGroup->add(&makeInvisibleCellsInactive);
 
     gridGroup->add(&exportFaults);
     if (exportFaults() != EXPORT_NO_RESULTS)

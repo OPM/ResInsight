@@ -45,7 +45,6 @@ class RicExportEclipseSectorModelUi : public caf::PdmObject
         EXPORT_TO_SINGLE_SEPARATE_FILE,
         EXPORT_TO_SEPARATE_FILE_PER_RESULT
     };
-
     typedef caf::AppEnum<ResultExportOptions> ResultExportOptionsEnum;
 
 public:
@@ -56,6 +55,8 @@ public:
 
     caf::PdmField<bool>                    exportGrid;
     caf::PdmField<QString>                 exportGridFilename;
+
+    caf::PdmField<bool>                    makeInvisibleCellsInactive;
 
     caf::PdmField<ResultExportOptionsEnum> exportFaults;
     caf::PdmField<QString>                 exportFaultsFilename;

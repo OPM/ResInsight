@@ -39,7 +39,7 @@ public :
                                const RicExportEclipseSectorModelUi& exportSettings,
                                const QString& logPrefix);
 
-    static std::pair<cvf::Vec3st, cvf::Vec3st> getVisibleCellRange(RimEclipseView* view);
+    static std::pair<cvf::Vec3st, cvf::Vec3st> getVisibleCellRange(RimEclipseView* view, const cvf::UByteArray& cellVisibility);
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered(bool isChecked) override;

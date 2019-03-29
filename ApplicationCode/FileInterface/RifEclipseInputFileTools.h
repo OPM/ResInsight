@@ -60,12 +60,13 @@ public:
     ~RifEclipseInputFileTools() override;
 
     static bool openGridFile(const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData, QString* errorMessages);
-    
-    static bool exportGrid(const QString&      gridFileName,
-                           RigEclipseCaseData* eclipseCase,
-                           const cvf::Vec3st&  min        = cvf::Vec3st::ZERO,
-                           const cvf::Vec3st&  max        = cvf::Vec3st::UNDEFINED,
-                           const cvf::Vec3st&  refinement = cvf::Vec3st(1, 1, 1));
+
+    static bool exportGrid(const QString&         gridFileName,
+                           RigEclipseCaseData*    eclipseCase,
+                           const cvf::UByteArray* cellVisibilityOverrideForActnum = nullptr,
+                           const cvf::Vec3st&     min                             = cvf::Vec3st::ZERO,
+                           const cvf::Vec3st&     max                             = cvf::Vec3st::UNDEFINED,
+                           const cvf::Vec3st&     refinement                      = cvf::Vec3st(1, 1, 1));
 
     static bool exportKeywords(const QString&              resultFileName,
                                RigEclipseCaseData*         eclipseCase,
