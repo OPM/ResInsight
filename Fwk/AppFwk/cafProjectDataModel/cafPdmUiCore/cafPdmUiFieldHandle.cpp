@@ -81,7 +81,7 @@ void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const Q
             }
         }
 
-        // Update field editors
+        // Update connected field editors or their parent editors, to make  the ui reflect the change
         this->updateConnectedEditors();
 
         PdmUiModelChangeDetector::instance()->setModelChanged();

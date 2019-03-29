@@ -613,7 +613,9 @@ void PdmUiItem::updateConnectedEditors() const
     std::set<PdmUiEditorHandle*>::iterator it;
     for (it = m_editors.begin(); it != m_editors.end(); ++it)
     {
-        (*it)->updateUi();
+        (*it)->updateUiIncludingParent();
+        //(*it)->updateUi();
+
     }
 }
 

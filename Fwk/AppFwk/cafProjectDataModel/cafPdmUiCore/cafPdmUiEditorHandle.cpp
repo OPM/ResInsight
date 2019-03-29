@@ -88,6 +88,21 @@ void PdmUiEditorHandle::updateUi()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void PdmUiEditorHandle::updateUiIncludingParent()
+{
+    if (m_parentEditor)
+    {
+        m_parentEditor->updateUiIncludingParent();
+    }
+    else
+    {
+        this->updateUi();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmUiEditorHandle::bindToPdmItem(PdmUiItem* item)
 {
     if (m_pdmItem) m_pdmItem->removeFieldEditor(this);

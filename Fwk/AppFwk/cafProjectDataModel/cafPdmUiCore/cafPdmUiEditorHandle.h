@@ -40,6 +40,7 @@
 #include "cafPdmUiItem.h"
 
 #include <QObject>
+#include <QPointer>
 
 namespace caf 
 {
@@ -61,6 +62,8 @@ public:
     void        updateUi(const QString& uiConfigName);;
     void        updateUi();
 
+    void        updateUiIncludingParent();
+
 signals:
     void uiUpdated();
 
@@ -76,11 +79,15 @@ protected:
     void                bindToPdmItem(PdmUiItem* item);
     PdmUiItem*          pdmItem()       { return m_pdmItem; }
     const PdmUiItem*    pdmItem() const { return m_pdmItem; }
+public: // PDM Internal
+    void                setParentEditor(PdmUiEditorHandle* parentEditor) { m_parentEditor = parentEditor; }
 
 private:
     friend PdmUiItem::~PdmUiItem();
     PdmUiItem*          m_pdmItem;
     QString             m_currentConfigName;
+
+    QPointer<PdmUiEditorHandle> m_parentEditor; // Editor containing this editor. Will be asked to updateUi (instead of this) if it exists
 
     bool m_isConfiguringUi; 
 };
