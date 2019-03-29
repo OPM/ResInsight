@@ -266,7 +266,7 @@ private:
 
     QToolBar*                   m_holoLensToolBar;
 
-    std::vector<QPointer<QDockWidget> > additionalProjectViews;
+    std::vector<QPointer<QDockWidget> > m_additionalProjectViews;
 
     bool                        m_blockSlotSubWindowActivated;
 };

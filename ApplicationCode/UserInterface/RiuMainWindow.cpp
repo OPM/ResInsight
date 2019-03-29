@@ -226,9 +226,9 @@ void RiuMainWindow::cleanupGuiCaseClose()
         m_pdmUiPropertyView->showProperties(nullptr);
     }
 
-    for (size_t i = 0; i < additionalProjectViews.size(); i++)
+    for (auto& additionalProjectView : m_additionalProjectViews)
     {
-        RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>(additionalProjectViews[i]->widget());
+        RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>(additionalProjectView->widget());
         if (projPropView)
         {
             projPropView->showProperties(nullptr);
@@ -1149,11 +1149,11 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
     // For debug only : m_projectTreeView->treeView()->expandAll();
     m_projectTreeView->setDragDropInterface(m_dragDropInterface.get());
 
-    for (size_t i = 0; i < additionalProjectViews.size(); i++)
+    for (auto& additionalProjectView : m_additionalProjectViews)
     {
-        if (!additionalProjectViews[i]) continue;
+        if (!additionalProjectView) continue;
 
-        RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>(additionalProjectViews[i]->widget());
+        RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>(additionalProjectView->widget());
         if (projPropView)
         {
             projPropView->setPdmItem(pdmRoot);
@@ -1489,7 +1489,7 @@ void RiuMainWindow::selectedObjectsChanged()
 void RiuMainWindow::slotNewObjectPropertyView()
 {
     QDockWidget* dockWidget =
-        new QDockWidget(QString("Additional Project Tree (%1)").arg(additionalProjectViews.size() + 1), this);
+        new QDockWidget(QString("Additional Project Tree (%1)").arg(m_additionalProjectViews.size() + 1), this);
     dockWidget->setObjectName("dockWidget");
     dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
@@ -1499,7 +1499,7 @@ void RiuMainWindow::slotNewObjectPropertyView()
 
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
-    additionalProjectViews.push_back(dockWidget);
+    m_additionalProjectViews.push_back(dockWidget);
 }
 
 //--------------------------------------------------------------------------------------------------
