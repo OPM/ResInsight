@@ -40,7 +40,7 @@ class RimGridCrossPlotCurve : public RimPlotCurve
 public:
     RimGridCrossPlotCurve();
     ~RimGridCrossPlotCurve() override = default;
-    void setGroupingInformation(int curveSetIndex, int groupIndex);
+    void setGroupingInformation(int dataSetIndex, int groupIndex);
     void setSamples(const std::vector<double>& xValues, const std::vector<double>& yValues);
     
     void   setCurveAutoAppearance();
@@ -58,7 +58,7 @@ protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    int     m_curveSetIndex;
+    int     m_dataSetIndex;
     int     m_groupIndex;
 };
 

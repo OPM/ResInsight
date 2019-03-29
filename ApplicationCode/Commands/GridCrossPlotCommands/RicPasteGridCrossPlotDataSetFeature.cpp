@@ -16,11 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicPasteGridCrossPlotCurveSetFeature.h"
+#include "RicPasteGridCrossPlotDataSetFeature.h"
 
 #include "RiaApplication.h"
 #include "RimGridCrossPlot.h"
-#include "RimGridCrossPlotCurveSet.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
@@ -30,14 +30,14 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicPasteGridCrossPlotCurveSetFeature, "RicPasteGridCrossPlotCurveSetFeature");
+CAF_CMD_SOURCE_INIT(RicPasteGridCrossPlotDataSetFeature, "RicPasteGridCrossPlotDataSetFeature");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteGridCrossPlotCurveSetFeature::isCommandEnabled()
+bool RicPasteGridCrossPlotDataSetFeature::isCommandEnabled()
 {
-    auto curvesOnClipboard = gridCrossPlotCurveSetsOnClipboard();
+    auto curvesOnClipboard = gridCrossPlotDataSetsOnClipboard();
     if (curvesOnClipboard.empty()) return false;
 
     return caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGridCrossPlot>() != nullptr;
@@ -46,27 +46,27 @@ bool RicPasteGridCrossPlotCurveSetFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteGridCrossPlotCurveSetFeature::onActionTriggered(bool isChecked)
+void RicPasteGridCrossPlotDataSetFeature::onActionTriggered(bool isChecked)
 {
     RimGridCrossPlot* crossPlot = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGridCrossPlot>();
 
     if (crossPlot)
     {
-        auto curvesOnClipboard = gridCrossPlotCurveSetsOnClipboard();
+        auto curvesOnClipboard = gridCrossPlotDataSetsOnClipboard();
         if (!curvesOnClipboard.empty())
         {
-            RimGridCrossPlotCurveSet* objectToSelect = nullptr;
+            RimGridCrossPlotDataSet* objectToSelect = nullptr;
 
-            for (RimGridCrossPlotCurveSet* crossPlotCurveSet : gridCrossPlotCurveSetsOnClipboard())
+            for (RimGridCrossPlotDataSet* dataSet : gridCrossPlotDataSetsOnClipboard())
             {
-                RimGridCrossPlotCurveSet* newCurveSet = dynamic_cast<RimGridCrossPlotCurveSet*>(
-                    crossPlotCurveSet->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+                RimGridCrossPlotDataSet* newDataSet = dynamic_cast<RimGridCrossPlotDataSet*>(
+                    dataSet->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
 
-                crossPlot->addCurveSet(newCurveSet);
-                newCurveSet->resolveReferencesRecursively();
-                newCurveSet->initAfterReadRecursively();
+                crossPlot->addDataSet(newDataSet);
+                newDataSet->resolveReferencesRecursively();
+                newDataSet->initAfterReadRecursively();
 
-                objectToSelect = newCurveSet;
+                objectToSelect = newDataSet;
             }
 
 
@@ -82,21 +82,21 @@ void RicPasteGridCrossPlotCurveSetFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteGridCrossPlotCurveSetFeature::setupActionLook(QAction* actionToSetup)
+void RicPasteGridCrossPlotDataSetFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Paste Cross Plot Curve Set");
+    actionToSetup->setText("Paste Data Set");
     RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmPointer<RimGridCrossPlotCurveSet>> RicPasteGridCrossPlotCurveSetFeature::gridCrossPlotCurveSetsOnClipboard()
+std::vector<caf::PdmPointer<RimGridCrossPlotDataSet>> RicPasteGridCrossPlotDataSetFeature::gridCrossPlotDataSetsOnClipboard()
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
 
-    std::vector<caf::PdmPointer<RimGridCrossPlotCurveSet>> typedObjects;
+    std::vector<caf::PdmPointer<RimGridCrossPlotDataSet>> typedObjects;
     objectGroup.objectsByType(&typedObjects);
 
     return typedObjects;

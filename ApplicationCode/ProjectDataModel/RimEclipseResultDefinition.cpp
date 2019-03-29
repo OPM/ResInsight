@@ -41,7 +41,7 @@
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
 #include "RimGridCrossPlot.h"
-#include "RimGridCrossPlotCurveSet.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimIntersectionCollection.h"
 #include "RimPlotCurve.h"
@@ -377,7 +377,7 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
         cellColors->updateConnectedEditors();
     }
 
-    RimGridCrossPlotCurveSet* crossPlotCurveSet = nullptr;
+    RimGridCrossPlotDataSet* crossPlotCurveSet = nullptr;
     this->firstAncestorOrThisOfType(crossPlotCurveSet);
     if (crossPlotCurveSet)
     {
@@ -493,7 +493,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
         }
     }
 
-    RimGridCrossPlotCurveSet* crossPlotCurveSet = nullptr;
+    RimGridCrossPlotDataSet* crossPlotCurveSet = nullptr;
     this->firstAncestorOrThisOfType(crossPlotCurveSet);
     if (crossPlotCurveSet)
     {

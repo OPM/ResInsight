@@ -15,14 +15,18 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
 #include "cafCmdFeature.h"
+#include "cafPdmPointer.h"
+
+class RimGridCrossPlotDataSet;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicCreateGridCrossPlotCurveSetFeature : public caf::CmdFeature
+class RicPasteGridCrossPlotDataSetFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -30,6 +34,10 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered(bool isChecked) override;
     void setupActionLook(QAction* actionToSetup) override;
+
+private:
+    static std::vector<caf::PdmPointer<RimGridCrossPlotDataSet>> gridCrossPlotDataSetsOnClipboard();
+
 };
 
 

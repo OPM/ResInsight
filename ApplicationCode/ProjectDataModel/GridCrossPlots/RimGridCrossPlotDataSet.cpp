@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimGridCrossPlotCurveSet.h"
+#include "RimGridCrossPlotDataSet.h"
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
@@ -62,12 +62,12 @@
 
 #include <QString>
 
-CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSet, "GridCrossPlotCurveSet");
+CAF_PDM_SOURCE_INIT(RimGridCrossPlotDataSet, "GridCrossPlotCurveSet");
 
 namespace caf
 {
 template<>
-void RimGridCrossPlotCurveSet::CurveGroupingEnum::setUp()
+void RimGridCrossPlotDataSet::CurveGroupingEnum::setUp()
 {
     addItem(RigGridCrossPlotCurveGrouping::NO_GROUPING, "NONE", "Nothing");
     addItem(RigGridCrossPlotCurveGrouping::GROUP_BY_TIME, "TIME", "Time Step");
@@ -80,7 +80,7 @@ void RimGridCrossPlotCurveSet::CurveGroupingEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
+RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
 {
     CAF_PDM_InitObject("Cross Plot Data Set", ":/WellLogCurve16x16.png", "", "");
 
@@ -114,7 +114,7 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
     m_groupingProperty->setTernaryEnabled(false);
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "Name", "", "", "");
-    m_nameConfig = new RimGridCrossPlotCurveSetNameConfig(this);
+    m_nameConfig = new RimGridCrossPlotDataSetNameConfig(this);
     m_nameConfig.uiCapability()->setUiTreeHidden(true);
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden(true);
 
@@ -136,7 +136,7 @@ RimGridCrossPlotCurveSet::RimGridCrossPlotCurveSet()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::setCellFilterView(RimGridView* cellFilterView)
+void RimGridCrossPlotDataSet::setCellFilterView(RimGridView* cellFilterView)
 {
     m_cellFilterView = cellFilterView;
     auto eclipseView = dynamic_cast<RimEclipseView*>(m_cellFilterView());
@@ -167,7 +167,7 @@ void RimGridCrossPlotCurveSet::setCellFilterView(RimGridView* cellFilterView)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::loadDataAndUpdate(bool updateParentPlot)
+void RimGridCrossPlotDataSet::loadDataAndUpdate(bool updateParentPlot)
 {
     onLoadDataAndUpdate(updateParentPlot);
 }
@@ -175,7 +175,7 @@ void RimGridCrossPlotCurveSet::loadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::setParentQwtPlotNoReplot(QwtPlot* parent)
+void RimGridCrossPlotDataSet::setParentQwtPlotNoReplot(QwtPlot* parent)
 {
     for (auto& curve : m_crossPlotCurves())
     {
@@ -186,7 +186,7 @@ void RimGridCrossPlotCurveSet::setParentQwtPlotNoReplot(QwtPlot* parent)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlotCurveSet::xAxisName() const
+QString RimGridCrossPlotDataSet::xAxisName() const
 {
     return m_xAxisProperty->resultVariableUiShortName();
 }
@@ -194,7 +194,7 @@ QString RimGridCrossPlotCurveSet::xAxisName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlotCurveSet::yAxisName() const
+QString RimGridCrossPlotDataSet::yAxisName() const
 {
     return m_yAxisProperty->resultVariableUiShortName();
 }
@@ -202,7 +202,7 @@ QString RimGridCrossPlotCurveSet::yAxisName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlotCurveSet::infoText() const
+QString RimGridCrossPlotDataSet::infoText() const
 {
     if (!m_case()) return "";
 
@@ -232,17 +232,17 @@ QString RimGridCrossPlotCurveSet::infoText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimGridCrossPlotCurveSet::indexInPlot() const
+int RimGridCrossPlotDataSet::indexInPlot() const
 {
     RimGridCrossPlot* parent;
     this->firstAncestorOrThisOfTypeAsserted(parent);
-    return parent->indexOfCurveSet(this);
+    return parent->indexOfDataSet(this);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlotCurveSet::createAutoName() const
+QString RimGridCrossPlotDataSet::createAutoName() const
 {
     if (m_case() == nullptr)
     {
@@ -282,7 +282,7 @@ QString RimGridCrossPlotCurveSet::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlotCurveSet::groupTitle() const
+QString RimGridCrossPlotDataSet::groupTitle() const
 {
     if (m_grouping != NO_GROUPING)
     {
@@ -294,7 +294,7 @@ QString RimGridCrossPlotCurveSet::groupTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlotCurveSet::groupParameter() const
+QString RimGridCrossPlotDataSet::groupParameter() const
 {
     if (m_grouping() == GROUP_BY_TIME)
     {
@@ -314,7 +314,7 @@ QString RimGridCrossPlotCurveSet::groupParameter() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::detachAllCurves()
+void RimGridCrossPlotDataSet::detachAllCurves()
 {
     for (auto curve : m_crossPlotCurves())
     {
@@ -325,7 +325,7 @@ void RimGridCrossPlotCurveSet::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::cellFilterViewUpdated()
+void RimGridCrossPlotDataSet::cellFilterViewUpdated()
 {
     if (m_cellFilterView())
     {
@@ -336,7 +336,7 @@ void RimGridCrossPlotCurveSet::cellFilterViewUpdated()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig* RimGridCrossPlotCurveSet::legendConfig() const
+RimRegularLegendConfig* RimGridCrossPlotDataSet::legendConfig() const
 {
     return m_groupingProperty->legendConfig();
 }
@@ -344,7 +344,7 @@ RimRegularLegendConfig* RimGridCrossPlotCurveSet::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimGridCrossPlotCurve*> RimGridCrossPlotCurveSet::curves() const
+std::vector<RimGridCrossPlotCurve*> RimGridCrossPlotDataSet::curves() const
 {
     return m_crossPlotCurves.childObjects();
 }
@@ -352,7 +352,7 @@ std::vector<RimGridCrossPlotCurve*> RimGridCrossPlotCurveSet::curves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlotCurveSet::caseNameString() const
+QString RimGridCrossPlotDataSet::caseNameString() const
 {
     if (m_case())
     {
@@ -364,7 +364,7 @@ QString RimGridCrossPlotCurveSet::caseNameString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlotCurveSet::axisVariableString() const
+QString RimGridCrossPlotDataSet::axisVariableString() const
 {
     return QString("%1 x %2").arg(xAxisName(), yAxisName());
 }
@@ -372,7 +372,7 @@ QString RimGridCrossPlotCurveSet::axisVariableString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlotCurveSet::timeStepString() const
+QString RimGridCrossPlotDataSet::timeStepString() const
 {
     // If using time categorization, the time step will be included as a category, so skip it here.
     if (m_grouping() != RigGridCrossPlotCurveGrouping::GROUP_BY_TIME)
@@ -392,7 +392,7 @@ QString RimGridCrossPlotCurveSet::timeStepString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimGridCrossPlotCurveSet::groupStrings() const
+std::vector<QString> RimGridCrossPlotDataSet::groupStrings() const
 {
     std::vector<QString> groupStrings;
     for (auto curve : m_crossPlotCurves())
@@ -405,9 +405,9 @@ std::vector<QString> RimGridCrossPlotCurveSet::groupStrings() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<RimGridCrossPlotCurveSet::NameComponents, QString> RimGridCrossPlotCurveSet::nameComponents() const
+std::map<RimGridCrossPlotDataSet::NameComponents, QString> RimGridCrossPlotDataSet::nameComponents() const
 {
-    std::map<RimGridCrossPlotCurveSet::NameComponents, QString> componentNames;
+    std::map<RimGridCrossPlotDataSet::NameComponents, QString> componentNames;
     if (m_nameConfig->addCaseName()) componentNames[GCP_CASE_NAME] = caseNameString();
     if (m_nameConfig->addAxisVariables()) componentNames[GCP_AXIS_VARIABLES] = axisVariableString();
     if (m_nameConfig->addTimestep()) componentNames[GCP_TIME_STEP] = timeStepString();
@@ -419,7 +419,7 @@ std::map<RimGridCrossPlotCurveSet::NameComponents, QString> RimGridCrossPlotCurv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::initAfterRead()
+void RimGridCrossPlotDataSet::initAfterRead()
 {
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
     if (eclipseCase)
@@ -434,7 +434,7 @@ void RimGridCrossPlotCurveSet::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
+void RimGridCrossPlotDataSet::onLoadDataAndUpdate(bool updateParentPlot)
 {
     updateDataSetName();
 
@@ -500,7 +500,7 @@ void RimGridCrossPlotCurveSet::onLoadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::assignCurveDataGroups(const RigEclipseCrossPlotResult& result)
+void RimGridCrossPlotDataSet::assignCurveDataGroups(const RigEclipseCrossPlotResult& result)
 {
     m_groupedResults.clear();
 
@@ -557,7 +557,7 @@ void RimGridCrossPlotCurveSet::assignCurveDataGroups(const RigEclipseCrossPlotRe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& result)
+void RimGridCrossPlotDataSet::createCurves(const RigEclipseCrossPlotResult& result)
 {
     if (!groupingEnabled())
     {
@@ -614,7 +614,7 @@ void RimGridCrossPlotCurveSet::createCurves(const RigEclipseCrossPlotResult& res
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::fillCurveDataInExistingCurves(const RigEclipseCrossPlotResult& result)
+void RimGridCrossPlotDataSet::fillCurveDataInExistingCurves(const RigEclipseCrossPlotResult& result)
 {
     if (!groupingEnabled())
     {
@@ -643,7 +643,7 @@ void RimGridCrossPlotCurveSet::fillCurveDataInExistingCurves(const RigEclipseCro
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::destroyCurves()
+void RimGridCrossPlotDataSet::destroyCurves()
 {
     detachAllCurves();
     m_crossPlotCurves.deleteAllChildObjects();
@@ -652,7 +652,7 @@ void RimGridCrossPlotCurveSet::destroyCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimGridCrossPlotCurveSet::visibleCurveCount() const
+size_t RimGridCrossPlotDataSet::visibleCurveCount() const
 {
     size_t visibleCurves = 0;
     for (auto curve : m_crossPlotCurves)
@@ -665,7 +665,7 @@ size_t RimGridCrossPlotCurveSet::visibleCurveCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimGridCrossPlotCurveSet::sampleCount() const
+size_t RimGridCrossPlotDataSet::sampleCount() const
 {
     size_t sampleCount = 0;
     for (auto curve : m_crossPlotCurves)
@@ -678,7 +678,7 @@ size_t RimGridCrossPlotCurveSet::sampleCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlotCurveSet::createGroupName(size_t groupIndex) const
+QString RimGridCrossPlotDataSet::createGroupName(size_t groupIndex) const
 {
     if (groupingByCategoryResult())
     {
@@ -698,7 +698,7 @@ QString RimGridCrossPlotCurveSet::createGroupName(size_t groupIndex) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, cvf::UByteArray> RimGridCrossPlotCurveSet::calculateCellVisibility(RimEclipseCase* eclipseCase) const
+std::map<int, cvf::UByteArray> RimGridCrossPlotDataSet::calculateCellVisibility(RimEclipseCase* eclipseCase) const
 {
     std::map<int, cvf::UByteArray> timeStepCellVisibilityMap;
     if (m_cellFilterView)
@@ -768,7 +768,7 @@ std::map<int, cvf::UByteArray> RimGridCrossPlotCurveSet::calculateCellVisibility
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimGridCrossPlotDataSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_case);
     if (m_case)
@@ -804,7 +804,7 @@ void RimGridCrossPlotCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+void RimGridCrossPlotDataSet::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                 const QVariant&            oldValue,
                                                 const QVariant&            newValue)
 {
@@ -877,7 +877,7 @@ void RimGridCrossPlotCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurveSet::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+QList<caf::PdmOptionItemInfo> RimGridCrossPlotDataSet::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                               bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -942,7 +942,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotCurveSet::calculateValueOptions(co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::updateLegendRange()
+void RimGridCrossPlotDataSet::updateLegendRange()
 {
     legendConfig()->setTitle(groupParameter());
     legendConfig()->disableAllTimeStepsRange(!hasMultipleTimeSteps());
@@ -992,11 +992,11 @@ void RimGridCrossPlotCurveSet::updateLegendRange()
                     m_groupingProperty->updateLegendData(eclipseCase, m_timeStep());
                 }
             }
-            parent->qwtPlot()->addOrUpdateCurveSetLegend(this);
+            parent->qwtPlot()->addOrUpdateDataSetLegend(this);
         }
         else
         {
-            parent->qwtPlot()->removeCurveSetLegend(this);
+            parent->qwtPlot()->removeDataSetLegend(this);
         }
     }
 }
@@ -1004,7 +1004,7 @@ void RimGridCrossPlotCurveSet::updateLegendRange()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::updateLegendIcons()
+void RimGridCrossPlotDataSet::updateLegendIcons()
 {
     for (auto curve : m_crossPlotCurves)
     {
@@ -1016,7 +1016,7 @@ void RimGridCrossPlotCurveSet::updateLegendIcons()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCrossPlotCurveSet::groupingByCategoryResult() const
+bool RimGridCrossPlotDataSet::groupingByCategoryResult() const
 {
     if (m_grouping == GROUP_BY_FORMATION || m_grouping == GROUP_BY_TIME)
     {
@@ -1032,7 +1032,7 @@ bool RimGridCrossPlotCurveSet::groupingByCategoryResult() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCrossPlotCurveSet::groupingEnabled() const
+bool RimGridCrossPlotDataSet::groupingEnabled() const
 {
     if (m_grouping != NO_GROUPING)
     {
@@ -1048,7 +1048,7 @@ bool RimGridCrossPlotCurveSet::groupingEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::swapAxisProperties(bool updatePlot)
+void RimGridCrossPlotDataSet::swapAxisProperties(bool updatePlot)
 {
     RimEclipseResultDefinition* xAxisProperties = m_xAxisProperty();
     RimEclipseResultDefinition* yAxisProperties = m_yAxisProperty();
@@ -1065,7 +1065,7 @@ void RimGridCrossPlotCurveSet::swapAxisProperties(bool updatePlot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::exportFormattedData(RifEclipseDataTableFormatter& formatter) const
+void RimGridCrossPlotDataSet::exportFormattedData(RifEclipseDataTableFormatter& formatter) const
 {
     if (m_groupedResults.empty()) return;
 
@@ -1115,7 +1115,7 @@ void RimGridCrossPlotCurveSet::exportFormattedData(RifEclipseDataTableFormatter&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCrossPlotCurveSet::isXAxisLogarithmic() const
+bool RimGridCrossPlotDataSet::isXAxisLogarithmic() const
 {
     RimGridCrossPlot* parent = nullptr;
     firstAncestorOrThisOfTypeAsserted(parent);
@@ -1125,7 +1125,7 @@ bool RimGridCrossPlotCurveSet::isXAxisLogarithmic() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCrossPlotCurveSet::isYAxisLogarithmic() const
+bool RimGridCrossPlotDataSet::isYAxisLogarithmic() const
 {
     RimGridCrossPlot* parent = nullptr;
     firstAncestorOrThisOfTypeAsserted(parent);
@@ -1135,7 +1135,7 @@ bool RimGridCrossPlotCurveSet::isYAxisLogarithmic() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::configureForPressureSaturationCurves(RimEclipseResultCase* eclipseCase,
+void RimGridCrossPlotDataSet::configureForPressureSaturationCurves(RimEclipseResultCase* eclipseCase,
                                                                     const QString&        dynamicResultName)
 {
     m_case = eclipseCase;
@@ -1161,7 +1161,7 @@ void RimGridCrossPlotCurveSet::configureForPressureSaturationCurves(RimEclipseRe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::addCellFilter(RimPlotCellFilter* cellFilter)
+void RimGridCrossPlotDataSet::addCellFilter(RimPlotCellFilter* cellFilter)
 {
     m_plotCellFilterCollection->addCellFilter(cellFilter);
 }
@@ -1169,7 +1169,7 @@ void RimGridCrossPlotCurveSet::addCellFilter(RimPlotCellFilter* cellFilter)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::setCustomColor(const cvf::Color3f color)
+void RimGridCrossPlotDataSet::setCustomColor(const cvf::Color3f color)
 {
     m_useCustomColor = true;
     m_customColor    = color;
@@ -1178,7 +1178,7 @@ void RimGridCrossPlotCurveSet::setCustomColor(const cvf::Color3f color)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::triggerPlotNameUpdateAndReplot()
+void RimGridCrossPlotDataSet::triggerPlotNameUpdateAndReplot()
 {
     RimGridCrossPlot* parent;
     this->firstAncestorOrThisOfType(parent);
@@ -1193,17 +1193,17 @@ void RimGridCrossPlotCurveSet::triggerPlotNameUpdateAndReplot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::updateCurveNames(size_t curveSetIndex, size_t curveSetCount)
+void RimGridCrossPlotDataSet::updateCurveNames(size_t dataSetIndex, size_t dataSetCount)
 {
     for (size_t i = 0; i < m_crossPlotCurves.size(); ++i)
     {
-        QString curveSetName = createAutoName();
-        if (curveSetName.isEmpty())
+        QString dataSetName = createAutoName();
+        if (dataSetName.isEmpty())
         {
-            if (curveSetCount > 1u)
-                curveSetName = QString("Curve Set #%1").arg(curveSetIndex + 1);
+            if (dataSetCount > 1u)
+                dataSetName = QString("DataSet #%1").arg(dataSetIndex + 1);
             else
-                curveSetName = "Curve Set";
+                dataSetName = "Data Set";
         }
 
         auto curve = m_crossPlotCurves[i];
@@ -1211,11 +1211,11 @@ void RimGridCrossPlotCurveSet::updateCurveNames(size_t curveSetIndex, size_t cur
         {
             QString curveGroupName = createGroupName(curve->groupIndex());
             curve->setCustomName(curveGroupName);
-            curve->setLegendEntryText(curveSetName);
+            curve->setLegendEntryText(dataSetName);
         }
         else
         {
-            curve->setCustomName(curveSetName);
+            curve->setCustomName(dataSetName);
         }
         curve->updateCurveNameAndUpdatePlotLegendAndTitle();
     }
@@ -1224,7 +1224,7 @@ void RimGridCrossPlotCurveSet::updateCurveNames(size_t curveSetIndex, size_t cur
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::updateDataSetName()
+void RimGridCrossPlotDataSet::updateDataSetName()
 {
     this->setName(createAutoName());
 }
@@ -1232,7 +1232,7 @@ void RimGridCrossPlotCurveSet::updateDataSetName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::performAutoNameUpdate()
+void RimGridCrossPlotDataSet::performAutoNameUpdate()
 {
     updateDataSetName();
     triggerPlotNameUpdateAndReplot();
@@ -1241,7 +1241,7 @@ void RimGridCrossPlotCurveSet::performAutoNameUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::setDefaults()
+void RimGridCrossPlotDataSet::setDefaults()
 {
     RimProject* project = RiaApplication::instance()->project();
     if (project)
@@ -1266,7 +1266,7 @@ void RimGridCrossPlotCurveSet::setDefaults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::defineEditorAttribute(const caf::PdmFieldHandle* field,
+void RimGridCrossPlotDataSet::defineEditorAttribute(const caf::PdmFieldHandle* field,
                                                      QString                    uiConfigName,
                                                      caf::PdmUiEditorAttribute* attribute)
 {
@@ -1275,7 +1275,7 @@ void RimGridCrossPlotCurveSet::defineEditorAttribute(const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimGridCrossPlotDataSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     if (groupingEnabled())
     {
@@ -1295,7 +1295,7 @@ void RimGridCrossPlotCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCrossPlotCurveSet::hasMultipleTimeSteps() const
+bool RimGridCrossPlotDataSet::hasMultipleTimeSteps() const
 {
     return m_timeStep() == -1 && (m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult());
 }
@@ -1303,7 +1303,7 @@ bool RimGridCrossPlotCurveSet::hasMultipleTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSet::filterInvalidCurveValues(RigEclipseCrossPlotResult* result)
+void RimGridCrossPlotDataSet::filterInvalidCurveValues(RigEclipseCrossPlotResult* result)
 {
     bool xLog = isXAxisLogarithmic();
     bool yLog = isYAxisLogarithmic();
@@ -1335,15 +1335,15 @@ void RimGridCrossPlotCurveSet::filterInvalidCurveValues(RigEclipseCrossPlotResul
     }
 }
 
-CAF_PDM_SOURCE_INIT(RimGridCrossPlotCurveSetNameConfig, "RimGridCrossPlotCurveSetNameConfig");
+CAF_PDM_SOURCE_INIT(RimGridCrossPlotDataSetNameConfig, "RimGridCrossPlotCurveSetNameConfig");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridCrossPlotCurveSetNameConfig::RimGridCrossPlotCurveSetNameConfig(RimNameConfigHolderInterface* parent)
+RimGridCrossPlotDataSetNameConfig::RimGridCrossPlotDataSetNameConfig(RimNameConfigHolderInterface* parent)
     : RimNameConfig(parent)
 {
-    CAF_PDM_InitObject("Cross Plot Curve Set NameGenerator", "", "", "");
+    CAF_PDM_InitObject("Cross Plot Data Set NameGenerator", "", "", "");
 
     CAF_PDM_InitField(&addCaseName, "AddCaseName", true, "Add Case Name", "", "", "");
     CAF_PDM_InitField(&addAxisVariables, "AddAxisVariables", true, "Add Axis Variables", "", "", "");
@@ -1356,7 +1356,7 @@ RimGridCrossPlotCurveSetNameConfig::RimGridCrossPlotCurveSetNameConfig(RimNameCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurveSetNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimGridCrossPlotDataSetNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&addCaseName);
     uiOrdering.add(&addAxisVariables);

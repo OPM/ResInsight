@@ -15,12 +15,12 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RicCreateGridCrossPlotCurveSetFeature.h"
+#include "RicCreateGridCrossPlotDataSetFeature.h"
 
 #include "RiaApplication.h"
 
 #include "RimGridCrossPlot.h"
-#include "RimGridCrossPlotCurveSet.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RimProject.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -29,12 +29,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicCreateGridCrossPlotCurveSetFeature, "RicCreateGridCrossPlotCurveSetFeature");
+CAF_CMD_SOURCE_INIT(RicCreateGridCrossPlotDataSetFeature, "RicCreateGridCrossPlotDataSetFeature");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateGridCrossPlotCurveSetFeature::isCommandEnabled()
+bool RicCreateGridCrossPlotDataSetFeature::isCommandEnabled()
 {
     return caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlot>() != nullptr;
 }
@@ -42,22 +42,22 @@ bool RicCreateGridCrossPlotCurveSetFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateGridCrossPlotCurveSetFeature::onActionTriggered(bool isChecked)
+void RicCreateGridCrossPlotDataSetFeature::onActionTriggered(bool isChecked)
 {
     RimGridCrossPlot* crossPlot = caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlot>();
 
-    RimGridCrossPlotCurveSet* curveSet = crossPlot->createCurveSet();
-    curveSet->loadDataAndUpdate(true);
+    RimGridCrossPlotDataSet* dataSet = crossPlot->createDataSet();
+    dataSet->loadDataAndUpdate(true);
     
     RiaApplication::instance()->getOrCreateMainPlotWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem(curveSet);
+    RiuPlotMainWindowTools::selectAsCurrentItem(dataSet);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateGridCrossPlotCurveSetFeature::setupActionLook(QAction* actionToSetup)
+void RicCreateGridCrossPlotDataSetFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("New Cross Plot Curve Set");
+    actionToSetup->setText("New Data Set");
     actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
 }

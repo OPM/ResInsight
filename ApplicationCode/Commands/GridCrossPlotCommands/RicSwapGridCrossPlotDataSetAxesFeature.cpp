@@ -1,27 +1,27 @@
-#include "RicSwapGridCrossPlotCurveSetAxesFeature.h"
+#include "RicSwapGridCrossPlotDataSetAxesFeature.h"
 
 #include "RimGridCrossPlot.h"
-#include "RimGridCrossPlotCurveSet.h"
+#include "RimGridCrossPlotDataSet.h"
 
 #include <cafSelectionManager.h>
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicSwapGridCrossPlotCurveSetAxesFeature, "RicSwapGridCrossPlotCurveSetAxesFeature");
+CAF_CMD_SOURCE_INIT(RicSwapGridCrossPlotDataSetAxesFeature, "RicSwapGridCrossPlotDataSetAxesFeature");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSwapGridCrossPlotCurveSetAxesFeature::isCommandEnabled()
+bool RicSwapGridCrossPlotDataSetAxesFeature::isCommandEnabled()
 {
-    if (caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlotCurveSet>())
+    if (caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlotDataSet>())
     {
         return true;
     }
     else if (caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlot>())
     {
         auto plot = caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlot>();
-        if (!plot->curveSets().empty())
+        if (!plot->dataSets().empty())
             return true;
     }
     return false;
@@ -30,12 +30,12 @@ bool RicSwapGridCrossPlotCurveSetAxesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSwapGridCrossPlotCurveSetAxesFeature::onActionTriggered(bool isChecked)
+void RicSwapGridCrossPlotDataSetAxesFeature::onActionTriggered(bool isChecked)
 {
-    if (caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlotCurveSet>())
+    if (caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlotDataSet>())
     {
-        auto curveSet = caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlotCurveSet>();
-        curveSet->swapAxisProperties(true);
+        auto dataSet = caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlotDataSet>();
+        dataSet->swapAxisProperties(true);
     }
     else if (caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlot>())
     {
@@ -47,9 +47,9 @@ void RicSwapGridCrossPlotCurveSetAxesFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSwapGridCrossPlotCurveSetAxesFeature::setupActionLook(QAction* actionToSetup)
+void RicSwapGridCrossPlotDataSetAxesFeature::setupActionLook(QAction* actionToSetup)
 {
-    if (caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlotCurveSet>())
+    if (caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlotDataSet>())
     {
         actionToSetup->setText("Swap Axis Properties");
     }

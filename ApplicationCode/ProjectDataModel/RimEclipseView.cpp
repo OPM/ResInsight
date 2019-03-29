@@ -56,7 +56,7 @@
 #include "RimFracture.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGridCollection.h"
-#include "RimGridCrossPlotCurveSet.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimOilField.h"
@@ -563,7 +563,7 @@ void RimEclipseView::createDisplayModel()
         }
     }
 
-    std::vector<RimGridCrossPlotCurveSet*> curveSets;
+    std::vector<RimGridCrossPlotDataSet*> curveSets;
     this->objectsWithReferringPtrFieldsOfType(curveSets);
     for (auto curveSet : curveSets)
     {

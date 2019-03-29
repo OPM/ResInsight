@@ -23,7 +23,7 @@
 #include "RiuQwtPlotTools.h"
 
 #include "RimGridCrossPlotCurve.h"
-#include "RimGridCrossPlotCurveSet.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RimPlotAxisProperties.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
@@ -67,8 +67,8 @@ RimGridCrossPlot::RimGridCrossPlot()
     m_yAxisProperties->setNameAndAxis("Y-Axis", QwtPlot::yLeft);
     m_yAxisProperties->setEnableTitleTextSettings(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_crossPlotCurveSets, "CrossPlotCurve", "Cross Plot Data Set", "", "", "");
-    m_crossPlotCurveSets.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_crossPlotDataSets, "CrossPlotCurve", "Cross Plot Data Set", "", "", "");
+    m_crossPlotDataSets.uiCapability()->setUiHidden(true);
 
     m_nameConfig = new RimGridCrossPlotNameConfig(this);
 }
@@ -85,26 +85,26 @@ RimGridCrossPlot::~RimGridCrossPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridCrossPlotCurveSet* RimGridCrossPlot::createCurveSet()
+RimGridCrossPlotDataSet* RimGridCrossPlot::createDataSet()
 {
-    RimGridCrossPlotCurveSet* curveSet = new RimGridCrossPlotCurveSet();
-    m_crossPlotCurveSets.push_back(curveSet);
-    return curveSet;
+    RimGridCrossPlotDataSet* dataSet = new RimGridCrossPlotDataSet();
+    m_crossPlotDataSets.push_back(dataSet);
+    return dataSet;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimGridCrossPlot::indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSetToCheck) const
+int RimGridCrossPlot::indexOfDataSet(const RimGridCrossPlotDataSet* dataSetToCheck) const
 {
     int index = 0;
-    for (auto curveSet : m_crossPlotCurveSets())
+    for (auto dataSet : m_crossPlotDataSets())
     {
-        if (curveSet == curveSetToCheck)
+        if (dataSet == dataSetToCheck)
         {
             return index;
         }
-        if (curveSet->isChecked() && curveSet->visibleCurveCount() > 0u)
+        if (dataSet->isChecked() && dataSet->visibleCurveCount() > 0u)
         {
             index++;
         }
@@ -115,17 +115,17 @@ int RimGridCrossPlot::indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSetTo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::addCurveSet(RimGridCrossPlotCurveSet* curveSet)
+void RimGridCrossPlot::addDataSet(RimGridCrossPlotDataSet* dataSet)
 {
-    m_crossPlotCurveSets.push_back(curveSet);
+    m_crossPlotDataSets.push_back(dataSet);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimGridCrossPlotCurveSet*> RimGridCrossPlot::curveSets() const
+std::vector<RimGridCrossPlotDataSet*> RimGridCrossPlot::dataSets() const
 {
-    return m_crossPlotCurveSets.childObjects();
+    return m_crossPlotDataSets.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,12 +186,12 @@ void RimGridCrossPlot::reattachCurvesToQwtAndReplot()
 {
     if (m_qwtPlot)
     {
-        for (auto curveSet : m_crossPlotCurveSets)
+        for (auto dataSet : m_crossPlotDataSets)
         {
-            curveSet->detachAllCurves();
-            if (curveSet->isChecked())
+            dataSet->detachAllCurves();
+            if (dataSet->isChecked())
             {
-                curveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+                dataSet->setParentQwtPlotNoReplot(m_qwtPlot);
             }
         }
         updateAxisDisplay();
@@ -212,22 +212,22 @@ QString RimGridCrossPlot::createAutoName() const
     if (m_nameConfig->addDataSetNames())
     {
         QStringList                                                           dataSetStrings;
-        std::map<RimGridCrossPlotCurveSet::NameComponents, std::set<QString>> allNameComponents;
-        for (auto curveSet : m_crossPlotCurveSets)
+        std::map<RimGridCrossPlotDataSet::NameComponents, std::set<QString>> allNameComponents;
+        for (auto dataSet : m_crossPlotDataSets)
         {
-            if (curveSet->isChecked())
+            if (dataSet->isChecked())
             {
                 QStringList componentList;
-                auto        curveSetNameComponents = curveSet->nameComponents();
+                auto dataSetNameComponents = dataSet->nameComponents();
 
-                for (auto curveSetNameComponent : curveSetNameComponents)
+                for (auto dataSetNameComponent : dataSetNameComponents)
                 {
-                    if (!curveSetNameComponent.second.isEmpty())
+                    if (!dataSetNameComponent.second.isEmpty())
                     {
-                        if (allNameComponents[curveSetNameComponent.first].count(curveSetNameComponent.second) == 0u)
+                        if (allNameComponents[dataSetNameComponent.first].count(dataSetNameComponent.second) == 0u)
                         {
-                            componentList += curveSetNameComponent.second;
-                            allNameComponents[curveSetNameComponent.first].insert(curveSetNameComponent.second);
+                            componentList += dataSetNameComponent.second;
+                            allNameComponents[dataSetNameComponent.first].insert(dataSetNameComponent.second);
                         }
                     }
                 }
@@ -273,9 +273,9 @@ caf::PdmFieldHandle* RimGridCrossPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::detachAllCurves()
 {
-    for (auto curveSet : m_crossPlotCurveSets())
+    for (auto dataSet : m_crossPlotDataSets())
     {
-        curveSet->detachAllCurves();
+        dataSet->detachAllCurves();
     }
 }
 
@@ -345,9 +345,9 @@ void RimGridCrossPlot::setAutoZoomForAllAxes(bool enableAutoZoom)
 //--------------------------------------------------------------------------------------------------
 caf::PdmObject* RimGridCrossPlot::findRimPlotObjectFromQwtCurve(const QwtPlotCurve* qwtCurve) const
 {
-    for (auto curveSet : m_crossPlotCurveSets)
+    for (auto dataSet : m_crossPlotDataSets)
     {
-        for (auto curve : curveSet->curves())
+        for (auto curve : dataSet->curves())
         {
             if (curve->qwtPlotCurve() == qwtCurve)
             {
@@ -367,9 +367,9 @@ QWidget* RimGridCrossPlot::createViewWidget(QWidget* mainWindowParent)
     {
         m_qwtPlot = new RiuGridCrossQwtPlot(this, mainWindowParent);
 
-        for (auto curveSet : m_crossPlotCurveSets)
+        for (auto dataSet : m_crossPlotDataSets)
         {
-            curveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+            dataSet->setParentQwtPlotNoReplot(m_qwtPlot);
         }
         m_qwtPlot->replot();
     }
@@ -397,10 +397,10 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    for (auto curveSet : m_crossPlotCurveSets)
+    for (auto dataSet : m_crossPlotDataSets)
     {
-        curveSet->loadDataAndUpdate(false);
-        curveSet->updateConnectedEditors();
+        dataSet->loadDataAndUpdate(false);
+        dataSet->updateConnectedEditors();
     }
 
     updateCurveNamesAndPlotTitle();
@@ -436,7 +436,7 @@ void RimGridCrossPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderi
     axisFolder->add(&m_xAxisProperties);
     axisFolder->add(&m_yAxisProperties);
 
-    uiTreeOrdering.add(&m_crossPlotCurveSets);
+    uiTreeOrdering.add(&m_crossPlotDataSets);
 
     uiTreeOrdering.skipRemainingChildren(true);
 }
@@ -450,9 +450,9 @@ void RimGridCrossPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 {
     if (changedField == &m_legendFontSize)
     {
-        for (auto curveSet : m_crossPlotCurveSets)
+        for (auto dataSet : m_crossPlotDataSets)
         {
-            curveSet->updateLegendIcons();
+            dataSet->updateLegendIcons();
         }
     }
     onLoadDataAndUpdate();
@@ -504,9 +504,9 @@ void RimGridCrossPlot::updatePlot()
 
         updateAxisDisplay();
 
-        for (auto curveSet : m_crossPlotCurveSets)
+        for (auto dataSet : m_crossPlotDataSets)
         {
-            curveSet->setParentQwtPlotNoReplot(m_qwtPlot);
+            dataSet->setParentQwtPlotNoReplot(m_qwtPlot);
         }
 
         if (m_showLegend())
@@ -533,9 +533,9 @@ void RimGridCrossPlot::updatePlot()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
 {
-    for (size_t i = 0; i < m_crossPlotCurveSets.size(); ++i)
+    for (size_t i = 0; i < m_crossPlotDataSets.size(); ++i)
     {
-        m_crossPlotCurveSets[i]->updateCurveNames(i, m_crossPlotCurveSets.size());
+        m_crossPlotDataSets[i]->updateCurveNames(i, m_crossPlotDataSets.size());
     }
 
     if (m_qwtPlot)
@@ -563,9 +563,9 @@ void RimGridCrossPlot::swapAxes()
     m_yAxisProperties = xAxisProperties;
     m_xAxisProperties = yAxisProperties;
 
-    for (auto curveSet : m_crossPlotCurveSets)
+    for (auto dataSet : m_crossPlotDataSets)
     {
-        curveSet->swapAxisProperties(false);
+        dataSet->swapAxisProperties(false);
     }
 
     loadDataAndUpdate();
@@ -576,11 +576,11 @@ void RimGridCrossPlot::swapAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlot::asciiTitleForPlotExport(int curveSetIndex) const
+QString RimGridCrossPlot::asciiTitleForPlotExport(int dataSetIndex) const
 {
-    if ((size_t)curveSetIndex < m_crossPlotCurveSets.size())
+    if ((size_t)dataSetIndex < m_crossPlotDataSets.size())
     {
-        return m_crossPlotCurveSets[curveSetIndex]->createAutoName();
+        return m_crossPlotDataSets[dataSetIndex]->createAutoName();
     }
     return "Data invalid";
 }
@@ -588,9 +588,9 @@ QString RimGridCrossPlot::asciiTitleForPlotExport(int curveSetIndex) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGridCrossPlot::asciiDataForPlotExport(int curveSetIndex) const
+QString RimGridCrossPlot::asciiDataForPlotExport(int dataSetIndex) const
 {
-    if ((size_t)curveSetIndex < m_crossPlotCurveSets.size())
+    if ((size_t)dataSetIndex < m_crossPlotDataSets.size())
     {
         QString     asciiData;
         QTextStream stringStream(&asciiData);
@@ -601,7 +601,7 @@ QString RimGridCrossPlot::asciiDataForPlotExport(int curveSetIndex) const
         formatter.setTableRowLineAppendText("");
         formatter.setColumnSpacing(3);
 
-        m_crossPlotCurveSets[curveSetIndex]->exportFormattedData(formatter);
+        m_crossPlotDataSets[dataSetIndex]->exportFormattedData(formatter);
         formatter.tableCompleted();
         return asciiData;
     }
@@ -657,11 +657,11 @@ int RimGridCrossPlot::legendFontSize() const
 QString RimGridCrossPlot::xAxisParameterString() const
 {
     QStringList xAxisParams;
-    for (auto curveSet : m_crossPlotCurveSets)
+    for (auto dataSet : m_crossPlotDataSets)
     {
-        if (curveSet->isChecked() && curveSet->sampleCount() > 0u)
+        if (dataSet->isChecked() && dataSet->sampleCount() > 0u)
         {
-            xAxisParams.push_back(curveSet->xAxisName());
+            xAxisParams.push_back(dataSet->xAxisName());
         }
     }
 
@@ -681,11 +681,11 @@ QString RimGridCrossPlot::xAxisParameterString() const
 QString RimGridCrossPlot::yAxisParameterString() const
 {
     QStringList yAxisParams;
-    for (auto curveSet : m_crossPlotCurveSets)
+    for (auto dataSet : m_crossPlotDataSets)
     {
-        if (curveSet->isChecked() && curveSet->sampleCount() > 0u)
+        if (dataSet->isChecked() && dataSet->sampleCount() > 0u)
         {
-            yAxisParams.push_back(curveSet->yAxisName());
+            yAxisParams.push_back(dataSet->yAxisName());
         }
     }
 
@@ -827,11 +827,11 @@ void RimGridCrossPlot::updateAxisFromQwt(RiaDefines::PlotAxis axisType)
 std::vector<const QwtPlotCurve*> RimGridCrossPlot::visibleQwtCurves() const
 {
     std::vector<const QwtPlotCurve*> plotCurves;
-    for (auto curveSet : m_crossPlotCurveSets)
+    for (auto dataSet : m_crossPlotDataSets)
     {
-        if (curveSet->isChecked())
+        if (dataSet->isChecked())
         {
-            for (auto curve : curveSet->curves())
+            for (auto curve : dataSet->curves())
             {
                 if (curve->isCurveVisible())
                 {

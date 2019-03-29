@@ -22,7 +22,7 @@
 #include "RimEclipseView.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
-#include "RimGridCrossPlotCurveSet.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RimGridView.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -59,11 +59,11 @@ void RicCreateGridCrossPlotFeature::onActionTriggered(bool isChecked)
         launchedFromPlotCollection = false;
     }
     RimGridCrossPlot* plot = collection->createGridCrossPlot();    
-    RimGridCrossPlotCurveSet* curveSet = plot->createCurveSet();
+    RimGridCrossPlotDataSet* dataSet = plot->createDataSet();
 
     if (!launchedFromPlotCollection)
     {
-        curveSet->setCellFilterView(RiaApplication::instance()->activeGridView());
+        dataSet->setCellFilterView(RiaApplication::instance()->activeGridView());
     }
     
     plot->loadDataAndUpdate();

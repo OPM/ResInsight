@@ -29,7 +29,7 @@
 #include <QPointer>
 
 class RimPlotAxisProperties;
-class RimGridCrossPlotCurveSet;
+class RimGridCrossPlotDataSet;
 class RiuGridCrossQwtPlot;
 
 class RimGridCrossPlotNameConfig : public RimNameConfig
@@ -53,11 +53,11 @@ public:
     RimGridCrossPlot();
     ~RimGridCrossPlot();
 
-    RimGridCrossPlotCurveSet* createCurveSet();
-    int                       indexOfCurveSet(const RimGridCrossPlotCurveSet* curveSet) const;
-    void                      addCurveSet(RimGridCrossPlotCurveSet* curveSet);
+    RimGridCrossPlotDataSet* createDataSet();
+    int                      indexOfDataSet(const RimGridCrossPlotDataSet* dataSet) const;
+    void                     addDataSet(RimGridCrossPlotDataSet* dataSet);
     
-    std::vector<RimGridCrossPlotCurveSet*> curveSets() const;
+    std::vector<RimGridCrossPlotDataSet*> dataSets() const;
 
     QWidget* viewWidget() override;
     QImage   snapshotWindowContent() override;
@@ -72,8 +72,8 @@ public:
     void                 performAutoNameUpdate() override;
     void                 updateCurveNamesAndPlotTitle();
     void                 swapAxes();
-    QString              asciiTitleForPlotExport(int curveSetIndex) const;
-    QString              asciiDataForPlotExport(int curveSetIndex) const;
+    QString              asciiTitleForPlotExport(int dataSetIndex) const;
+    QString              asciiDataForPlotExport(int dataSetIndex) const;
     RiuGridCrossQwtPlot* qwtPlot() const;
     bool                 isXAxisLogarithmic() const;
     bool                 isYAxisLogarithmic() const;
@@ -123,7 +123,7 @@ private:
     caf::PdmChildField<RimPlotAxisProperties*>         m_yAxisProperties;
     caf::PdmChildField<RimPlotAxisProperties*>         m_xAxisProperties;
 
-    caf::PdmChildArrayField<RimGridCrossPlotCurveSet*> m_crossPlotCurveSets;
+    caf::PdmChildArrayField<RimGridCrossPlotDataSet*>  m_crossPlotDataSets;
 
     QPointer<RiuGridCrossQwtPlot>                      m_qwtPlot;
         

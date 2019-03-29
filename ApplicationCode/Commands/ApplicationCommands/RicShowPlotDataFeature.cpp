@@ -155,7 +155,7 @@ public:
     virtual int tabCount() const override
     {
         CVF_ASSERT(m_crossPlot.notNull() && "Need to check that provider is valid");
-        return (int)m_crossPlot->curveSets().size();
+        return (int)m_crossPlot->dataSets().size();
     }
 
 private:

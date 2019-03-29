@@ -60,7 +60,7 @@
 #include "RimGridCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
-#include "RimGridCrossPlotCurveSet.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
@@ -480,16 +480,16 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimGridCrossPlot*>(uiItem))
         {
-            menuBuilder << "RicPasteGridCrossPlotCurveSetFeature";
+            menuBuilder << "RicPasteGridCrossPlotDataSetFeature";
             menuBuilder << "Separator";
-            menuBuilder << "RicCreateGridCrossPlotCurveSetFeature";
-            menuBuilder << "RicSwapGridCrossPlotCurveSetAxesFeature";
+            menuBuilder << "RicCreateGridCrossPlotDataSetFeature";
+            menuBuilder << "RicSwapGridCrossPlotDataSetAxesFeature";
         }
-        else if (dynamic_cast<RimGridCrossPlotCurveSet*>(uiItem))
+        else if (dynamic_cast<RimGridCrossPlotDataSet*>(uiItem))
         {
-            menuBuilder << "RicPasteGridCrossPlotCurveSetFeature";
+            menuBuilder << "RicPasteGridCrossPlotDataSetFeature";
             menuBuilder << "Separator";
-            menuBuilder << "RicSwapGridCrossPlotCurveSetAxesFeature";
+            menuBuilder << "RicSwapGridCrossPlotDataSetAxesFeature";
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))  // This is also the definition for RimSummaryCrossPlot
         {

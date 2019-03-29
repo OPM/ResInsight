@@ -23,7 +23,7 @@
 #include "RiuWidgetDragger.h"
 
 #include "RimGridCrossPlot.h"
-#include "RimGridCrossPlotCurveSet.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimRegularLegendConfig.h"
 
@@ -76,15 +76,15 @@ RiuGridCrossQwtPlot::~RiuGridCrossQwtPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::addOrUpdateCurveSetLegend(RimGridCrossPlotCurveSet* curveSet)
+void RiuGridCrossQwtPlot::addOrUpdateDataSetLegend(RimGridCrossPlotDataSet* dataSet)
 {
     RiuCvfOverlayItemWidget* overlayWidget = nullptr;
 
-    auto it = m_legendWidgets.find(curveSet);
+    auto it = m_legendWidgets.find(dataSet);
     if (it == m_legendWidgets.end() || it->second == nullptr)
     {
         overlayWidget = new RiuCvfOverlayItemWidget(this, canvas());
-        m_legendWidgets[curveSet] = overlayWidget;
+        m_legendWidgets[dataSet] = overlayWidget;
     }
     else
     {
@@ -93,7 +93,7 @@ void RiuGridCrossQwtPlot::addOrUpdateCurveSetLegend(RimGridCrossPlotCurveSet* cu
 
     if (overlayWidget)
     {
-        caf::TitledOverlayFrame* overlayItem = curveSet->legendConfig()->titledOverlayFrame();
+        caf::TitledOverlayFrame* overlayItem = dataSet->legendConfig()->titledOverlayFrame();
         resizeOverlayItemToFitPlot(overlayItem);
         overlayWidget->updateFromOverlayItem(overlayItem);
     }
@@ -103,9 +103,9 @@ void RiuGridCrossQwtPlot::addOrUpdateCurveSetLegend(RimGridCrossPlotCurveSet* cu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::removeCurveSetLegend(RimGridCrossPlotCurveSet* curveSetToShowLegendFor)
+void RiuGridCrossQwtPlot::removeDataSetLegend(RimGridCrossPlotDataSet* dataSetToShowLegendFor)
 {
-    auto it = m_legendWidgets.find(curveSetToShowLegendFor);
+    auto it = m_legendWidgets.find(dataSetToShowLegendFor);
     if (it != m_legendWidgets.end())
     {
         if (it->second != nullptr) it->second->deleteLater();
@@ -126,15 +126,15 @@ void RiuGridCrossQwtPlot::updateLegendSizesToMatchPlot()
 
     bool anyLegendResized = false;
 
-    for (RimGridCrossPlotCurveSet* curveSet : crossPlot->curveSets())
+    for (RimGridCrossPlotDataSet* dataSet : crossPlot->dataSets())
     {
-        if (!curveSet->isChecked() || !curveSet->legendConfig()->showLegend()) continue;
+        if (!dataSet->isChecked() || !dataSet->legendConfig()->showLegend()) continue;
 
-        auto pairIt = m_legendWidgets.find(curveSet);
+        auto pairIt = m_legendWidgets.find(dataSet);
         if (pairIt != m_legendWidgets.end())
         {
             RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
-            caf::TitledOverlayFrame* overlayItem = curveSet->legendConfig()->titledOverlayFrame();
+            caf::TitledOverlayFrame* overlayItem = dataSet->legendConfig()->titledOverlayFrame();
             if (resizeOverlayItemToFitPlot(overlayItem))
             {
                 anyLegendResized = true;
@@ -183,10 +183,10 @@ void RiuGridCrossQwtPlot::updateInfoBoxLayout()
     if (crossPlot->showInfoBox())
     {
         QStringList curveInfoTexts;
-        for (auto curveSet : crossPlot->curveSets())
+        for (auto dataSet : crossPlot->dataSets())
         {
-            QString curveInfoText = curveSet->infoText();
-            if (curveSet->isChecked() && !curveInfoText.isEmpty())
+            QString curveInfoText = dataSet->infoText();
+            if (dataSet->isChecked() && !curveInfoText.isEmpty())
             {
                 curveInfoTexts += curveInfoText;
             }
@@ -246,17 +246,17 @@ void RiuGridCrossQwtPlot::updateLegendLayout()
 
     std::set<QString> legendTypes;
 
-    for (RimGridCrossPlotCurveSet* curveSet : crossPlot->curveSets())
+    for (RimGridCrossPlotDataSet* dataSet : crossPlot->dataSets())
     {
-        if (!curveSet->isChecked() || !curveSet->legendConfig()->showLegend()) continue;
+        if (!dataSet->isChecked() || !dataSet->legendConfig()->showLegend()) continue;
 
-        auto pairIt = m_legendWidgets.find(curveSet);
+        auto pairIt = m_legendWidgets.find(dataSet);
         if (pairIt != m_legendWidgets.end())
         {
             RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
 
             // Show only one copy of each legend type
-            if (!legendTypes.count(curveSet->groupParameter()))
+            if (!legendTypes.count(dataSet->groupParameter()))
             {
                 if (ypos + overlayWidget->height() + spacing > this->canvas()->height())
                 {
@@ -270,7 +270,7 @@ void RiuGridCrossQwtPlot::updateLegendLayout()
 
                 ypos += pairIt->second->height() + spacing;
                 maxColumnWidth = std::max(maxColumnWidth, pairIt->second->width());
-                legendTypes.insert(curveSet->groupParameter());
+                legendTypes.insert(dataSet->groupParameter());
             }
         }
     }
@@ -326,7 +326,7 @@ void RiuGridCrossQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 
     caf::SelectionManager::instance()->setSelectedItem(ownerViewWindow());
 
-    menuBuilder << "RicSwapGridCrossPlotCurveSetAxesFeature";
+    menuBuilder << "RicSwapGridCrossPlotDataSetAxesFeature";
     menuBuilder << "Separator";
     menuBuilder << "RicShowPlotDataFeature";
 
@@ -389,12 +389,12 @@ bool RiuGridCrossQwtPlot::curveText(const QwtPlotCurve* curve,
         {
             *curveTitle = crossPlotCurve->curveName();
 
-            RimGridCrossPlotCurveSet* curveSet = nullptr;
-            crossPlotCurve->firstAncestorOrThisOfType(curveSet);
-            if (curveSet)
+            RimGridCrossPlotDataSet* dataSet = nullptr;
+            crossPlotCurve->firstAncestorOrThisOfType(dataSet);
+            if (dataSet)
             {
-                *xParamName = curveSet->xAxisName();
-                *yParamName = curveSet->yAxisName();
+                *xParamName = dataSet->xAxisName();
+                *yParamName = dataSet->yAxisName();
                 return true;
             }
         }

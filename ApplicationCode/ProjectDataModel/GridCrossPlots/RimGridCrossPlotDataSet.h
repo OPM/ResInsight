@@ -53,12 +53,12 @@ class QString;
 class RimPlotCellFilterCollection;
 class RimPlotCellFilter;
 
-class RimGridCrossPlotCurveSetNameConfig : public RimNameConfig
+class RimGridCrossPlotDataSetNameConfig : public RimNameConfig
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGridCrossPlotCurveSetNameConfig(RimNameConfigHolderInterface* parent = nullptr);
+    RimGridCrossPlotDataSetNameConfig(RimNameConfigHolderInterface* parent = nullptr);
 
     caf::PdmField<bool> addCaseName;
     caf::PdmField<bool> addAxisVariables;
@@ -73,7 +73,7 @@ protected:
 ///
 ///
 //==================================================================================================
-class RimGridCrossPlotCurveSet : public RimCheckableNamedObject, public RimNameConfigHolderInterface
+class RimGridCrossPlotDataSet : public RimCheckableNamedObject, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -89,8 +89,8 @@ public:
     };
 
 public:
-    RimGridCrossPlotCurveSet();
-    ~RimGridCrossPlotCurveSet() = default;
+    RimGridCrossPlotDataSet();
+    ~RimGridCrossPlotDataSet() = default;
 
     void    setCellFilterView(RimGridView* cellFilterView);
     void    loadDataAndUpdate(bool updateParentPlot);
@@ -117,7 +117,7 @@ public:
 
     std::map<NameComponents, QString> nameComponents() const;
 
-    void updateCurveNames(size_t curveSetIndex, size_t curveSetCount);
+    void updateCurveNames(size_t dataSetIndex, size_t dataSetCount);
     void updateLegendRange();
     void updateLegendIcons();
     bool groupingByCategoryResult() const;
@@ -172,7 +172,7 @@ private:
     caf::PdmChildField<RimEclipseResultDefinition*> m_yAxisProperty;
     caf::PdmChildField<RimEclipseCellColors*>       m_groupingProperty;
 
-    caf::PdmChildField<RimGridCrossPlotCurveSetNameConfig*> m_nameConfig;
+    caf::PdmChildField<RimGridCrossPlotDataSetNameConfig*> m_nameConfig;
 
     caf::PdmChildArrayField<RimGridCrossPlotCurve*> m_crossPlotCurves;
 

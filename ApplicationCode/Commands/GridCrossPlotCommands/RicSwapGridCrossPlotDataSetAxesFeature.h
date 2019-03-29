@@ -22,7 +22,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicSwapGridCrossPlotCurveSetAxesFeature : public caf::CmdFeature
+class RicSwapGridCrossPlotDataSetAxesFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

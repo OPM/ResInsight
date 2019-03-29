@@ -31,7 +31,7 @@
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
-#include "RimGridCrossPlotCurveSet.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RimIntersectionCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimViewLinker.h"
@@ -258,7 +258,7 @@ void RimRegularLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
         ensembleCurveSet->onLegendDefinitionChanged();
     }
 
-    RimGridCrossPlotCurveSet* crossPlotCurveSet;
+    RimGridCrossPlotDataSet* crossPlotCurveSet;
     firstAncestorOrThisOfType(crossPlotCurveSet);
     if (crossPlotCurveSet)
     {
@@ -877,7 +877,7 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions(cons
     this->firstAncestorOrThisOfType(ensembleCurveSet);
     if (ensembleCurveSet) hasEnsembleCurveSetParent = true;
 
-    RimGridCrossPlotCurveSet* crossPlotCurveSet = nullptr;
+    RimGridCrossPlotDataSet* crossPlotCurveSet = nullptr;
     this->firstAncestorOrThisOfType(crossPlotCurveSet);
 
     bool isCategoryResult = false;

@@ -1,18 +1,18 @@
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCrossPlotFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCrossPlotCurveSetFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicSwapGridCrossPlotCurveSetAxesFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicPasteGridCrossPlotCurveSetFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCrossPlotDataSetFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicSwapGridCrossPlotDataSetAxesFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicPasteGridCrossPlotDataSetFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateSaturationPressurePlotsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSaturationPressureUi.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCrossPlotFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCrossPlotCurveSetFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicSwapGridCrossPlotCurveSetAxesFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicPasteGridCrossPlotCurveSetFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicCreateGridCrossPlotDataSetFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSwapGridCrossPlotDataSetAxesFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicPasteGridCrossPlotDataSetFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateSaturationPressurePlotsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSaturationPressureUi.cpp
 )
