@@ -426,11 +426,12 @@ void RimEclipseResultDefinition::setTofAndSelectTracer(const QString& tracerName
 
         std::vector<QString> tracers;
         tracers.push_back(tracerName);
-        if (tracerStatus == RimFlowDiagSolution::INJECTOR)
+        if ((tracerStatus == RimFlowDiagSolution::INJECTOR) || (tracerStatus == RimFlowDiagSolution::VARYING))
         {
             setSelectedInjectorTracers(tracers);
         }
-        else if (tracerStatus == RimFlowDiagSolution::PRODUCER)
+
+        if ((tracerStatus == RimFlowDiagSolution::PRODUCER) || (tracerStatus == RimFlowDiagSolution::VARYING))
         {
             setSelectedProducerTracers(tracers);
         }
