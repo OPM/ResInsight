@@ -11,8 +11,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseInputVisibleCellsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseInputVisibleCellsUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseResultAsInputPropertyExec.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseResultAsInputPropertyFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicExportEclipseInputGridFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicExportEclipseInputGridUi.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportEclipseSectorModelFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportEclipseSectorModelUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotAllPlotsToFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotAllViewsToFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotFilenameGenerator.h
@@ -38,8 +38,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicExportToLasFileResampleUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseInputPropertyFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseInputVisibleCellsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseInputVisibleCellsUi.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicExportEclipseInputGridFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicExportEclipseInputGridUi.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportEclipseSectorModelFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportEclipseSectorModelUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseResultAsInputPropertyExec.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSaveEclipseResultAsInputPropertyFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotAllPlotsToFileFeature.cpp

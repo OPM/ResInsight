@@ -34,7 +34,7 @@ class RigEclipseCaseData;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicExportEclipseInputGridUi : public caf::PdmObject
+class RicExportEclipseSectorModelUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -49,8 +49,8 @@ class RicExportEclipseInputGridUi : public caf::PdmObject
     typedef caf::AppEnum<ResultExportOptions> ResultExportOptionsEnum;
 
 public:
-    RicExportEclipseInputGridUi(RigEclipseCaseData* caseData = nullptr);
-    ~RicExportEclipseInputGridUi() override;
+    RicExportEclipseSectorModelUi(RigEclipseCaseData* caseData = nullptr);
+    ~RicExportEclipseSectorModelUi() override;
 
     std::vector<QString> allSelectedKeywords() const;
 

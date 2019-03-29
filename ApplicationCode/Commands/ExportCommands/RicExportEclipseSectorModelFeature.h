@@ -24,19 +24,19 @@
 #include "cvfVector3.h"
 
 class RimEclipseView;
-class RicExportEclipseInputGridUi;
+class RicExportEclipseSectorModelUi;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicExportEclipseInputGridFeature : public caf::CmdFeature
+class RicExportEclipseSectorModelFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
 public :
     static void openDialogAndExecuteCommand(RimEclipseView* view);
     static void executeCommand(RimEclipseView* view,
-                               const RicExportEclipseInputGridUi& exportSettings,
+                               const RicExportEclipseSectorModelUi& exportSettings,
                                const QString& logPrefix);
 
     static std::pair<cvf::Vec3st, cvf::Vec3st> getVisibleCellRange(RimEclipseView* view);

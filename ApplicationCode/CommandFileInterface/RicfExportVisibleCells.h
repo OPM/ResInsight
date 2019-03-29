@@ -25,7 +25,7 @@
 #include "cafPdmField.h"
 
 class RimEclipseView;
-class RicExportEclipseInputGridUi;
+class RicExportEclipseSectorModelUi;
 
 //==================================================================================================
 //
@@ -48,7 +48,7 @@ public:
     void execute() override;
 
 private:
-    void buildExportSettings(const QString& exportFolder, RicExportEclipseInputGridUi* exportSettings);
+    void buildExportSettings(const QString& exportFolder, RicExportEclipseSectorModelUi* exportSettings);
 
     caf::PdmField<int>                         m_caseId;
     caf::PdmField<QString>                     m_viewName;

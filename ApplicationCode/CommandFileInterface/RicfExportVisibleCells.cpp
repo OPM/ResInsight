@@ -21,8 +21,8 @@
 #include "RiaFilePathTools.h"
 #include "RiaViewRedrawScheduler.h"
 
-#include "ExportCommands/RicExportEclipseInputGridFeature.h"
-#include "ExportCommands/RicExportEclipseInputGridUi.h"
+#include "ExportCommands/RicExportEclipseSectorModelFeature.h"
+#include "ExportCommands/RicExportEclipseSectorModelUi.h"
 #include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
 
@@ -98,15 +98,15 @@ void RicfExportVisibleCells::execute()
 
     RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
 
-    RicExportEclipseInputGridUi exportSettings(eclipseView->eclipseCase()->eclipseCaseData());
+    RicExportEclipseSectorModelUi exportSettings(eclipseView->eclipseCase()->eclipseCaseData());
     buildExportSettings(exportFolder, &exportSettings);
-    RicExportEclipseInputGridFeature::executeCommand(eclipseView, exportSettings, "exportVisibleCells");
+    RicExportEclipseSectorModelFeature::executeCommand(eclipseView, exportSettings, "exportVisibleCells");
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfExportVisibleCells::buildExportSettings(const QString& exportFolder, RicExportEclipseInputGridUi* exportSettings)
+void RicfExportVisibleCells::buildExportSettings(const QString& exportFolder, RicExportEclipseSectorModelUi* exportSettings)
 {
     QDir baseDir(exportFolder);
     exportSettings->exportResultsFilename = baseDir.absoluteFilePath(QString("%1.grdecl").arg(m_exportKeyword().text()));

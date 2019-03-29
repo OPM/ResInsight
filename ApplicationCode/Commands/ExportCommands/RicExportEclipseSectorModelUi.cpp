@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicExportEclipseInputGridUi.h"
+#include "RicExportEclipseSectorModelUi.h"
 
 #include "RiaApplication.h"
 #include "RigCaseCellResultsData.h"
@@ -36,26 +36,26 @@
 
 #include <set>
 
-CAF_PDM_SOURCE_INIT(RicExportEclipseInputGridUi, "RicExportEclipseInputGridUi");
+CAF_PDM_SOURCE_INIT(RicExportEclipseSectorModelUi, "RicExportEclipseInputGridUi");
 
 namespace caf
 {
 template<>
-void RicExportEclipseInputGridUi::ResultExportOptionsEnum::setUp()
+void RicExportEclipseSectorModelUi::ResultExportOptionsEnum::setUp()
 {
-    addItem(RicExportEclipseInputGridUi::EXPORT_NO_RESULTS, "NO_RESULTS", "Do not export");
-    addItem(RicExportEclipseInputGridUi::EXPORT_TO_GRID_FILE, "TO_GRID_FILE", "Append to grid file");
-    addItem(RicExportEclipseInputGridUi::EXPORT_TO_SINGLE_SEPARATE_FILE, "TO_SINGLE_RESULT_FILE", "Export to single file");
-    addItem(RicExportEclipseInputGridUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT, "TO_SEPARATE_RESULT_FILES", "Export to a separate file per property");
+    addItem(RicExportEclipseSectorModelUi::EXPORT_NO_RESULTS, "NO_RESULTS", "Do not export");
+    addItem(RicExportEclipseSectorModelUi::EXPORT_TO_GRID_FILE, "TO_GRID_FILE", "Append to grid file");
+    addItem(RicExportEclipseSectorModelUi::EXPORT_TO_SINGLE_SEPARATE_FILE, "TO_SINGLE_RESULT_FILE", "Export to single file");
+    addItem(RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT, "TO_SEPARATE_RESULT_FILES", "Export to a separate file per property");
 
-    setDefault(RicExportEclipseInputGridUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT);
+    setDefault(RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT);
 }
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicExportEclipseInputGridUi::RicExportEclipseInputGridUi(RigEclipseCaseData* caseData)
+RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi(RigEclipseCaseData* caseData)
     : m_caseData(caseData)
 {
     CAF_PDM_InitObject("Export Visible Cells as Eclipse Input Grid", "", "", "");
@@ -95,14 +95,14 @@ RicExportEclipseInputGridUi::RicExportEclipseInputGridUi(RigEclipseCaseData* cas
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicExportEclipseInputGridUi::~RicExportEclipseInputGridUi()
+RicExportEclipseSectorModelUi::~RicExportEclipseSectorModelUi()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RicExportEclipseInputGridUi::allSelectedKeywords() const
+std::vector<QString> RicExportEclipseSectorModelUi::allSelectedKeywords() const
 {
     std::vector<QString> additionalResults = exportAdditionalKeywords();
     std::vector<QString> allRes = exportMainKeywords();
@@ -113,7 +113,7 @@ std::vector<QString> RicExportEclipseInputGridUi::allSelectedKeywords() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportEclipseInputGridUi::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+void RicExportEclipseSectorModelUi::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
     if (field == &exportResultsFilename || field == &exportGridFilename || field == &exportFaultsFilename)
     {
@@ -145,7 +145,7 @@ void RicExportEclipseInputGridUi::defineEditorAttribute(const caf::PdmFieldHandl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportEclipseInputGridUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RicExportEclipseSectorModelUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Grid Export");
     gridGroup->add(&exportGrid);
@@ -190,7 +190,7 @@ void RicExportEclipseInputGridUi::defineUiOrdering(QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportEclipseInputGridUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RicExportEclipseSectorModelUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &exportGridFilename)
     {
@@ -241,7 +241,7 @@ void RicExportEclipseInputGridUi::fieldChangedByUi(const caf::PdmFieldHandle* ch
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicExportEclipseInputGridUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+    RicExportEclipseSectorModelUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
     if (fieldNeedingOptions == &exportMainKeywords)
@@ -295,7 +295,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RicExportEclipseInputGridUi::mainKeywords()
+std::set<QString> RicExportEclipseSectorModelUi::mainKeywords()
 {
     return { RiaDefines::eqlnumResultName(), "FIPNUM", "NTG", "PERMX", "PERMY", "PERMZ", "PORO", "PVTNUM", "SATNUM", "SWATINIT" };
 }
@@ -303,7 +303,7 @@ std::set<QString> RicExportEclipseInputGridUi::mainKeywords()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicExportEclipseInputGridUi::defaultFolder() const
+QString RicExportEclipseSectorModelUi::defaultFolder() const
 {
     QString projectDirectory    = RiaApplication::instance()->currentProjectPath();
     QString fallbackDirectory   = projectDirectory;
@@ -319,7 +319,7 @@ QString RicExportEclipseInputGridUi::defaultFolder() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicExportEclipseInputGridUi::defaultGridFileName() const
+QString RicExportEclipseSectorModelUi::defaultGridFileName() const
 {
     
     QDir baseDir(defaultFolder());
@@ -329,7 +329,7 @@ QString RicExportEclipseInputGridUi::defaultGridFileName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicExportEclipseInputGridUi::defaultResultsFileName() const
+QString RicExportEclipseSectorModelUi::defaultResultsFileName() const
 {
     QDir baseDir(defaultFolder());
     return baseDir.absoluteFilePath("RESULTS.GRDECL");
@@ -338,7 +338,7 @@ QString RicExportEclipseInputGridUi::defaultResultsFileName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicExportEclipseInputGridUi::defaultFaultsFileName() const
+QString RicExportEclipseSectorModelUi::defaultFaultsFileName() const
 {
     QDir baseDir(defaultFolder());
     return baseDir.absoluteFilePath("FAULTS.GRDECL");
