@@ -1240,6 +1240,12 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     RimProject* proj = RiaApplication::instance()->project();
     if (!proj) return;
 
+    if (!caf::SelectionManager::instance()->selectedItemAncestorOfType<Rim3dView>())
+    {
+        // Do not try to manipulate the tree selection if no object part of a 3D view is currently selected
+        return;
+    }
+
     // Find the activated 3D view
 
     Rim3dView* activatedView = nullptr;
