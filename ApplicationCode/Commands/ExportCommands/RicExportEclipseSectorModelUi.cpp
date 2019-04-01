@@ -91,7 +91,10 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi(RigEclipseCaseData*
 
     for (QString keyword : mainKeywords())
     {
-        exportMainKeywords.v().push_back(keyword);
+        if (caseData->results(RiaDefines::MATRIX_MODEL)->hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, keyword)))
+        {
+            exportMainKeywords.v().push_back(keyword);
+        }
     }
 }
 
@@ -255,10 +258,13 @@ QList<caf::PdmOptionItemInfo>
 
         std::set<QString> mainKeywords = this->mainKeywords();
         for (caf::PdmOptionItemInfo option : allOptions)
-        { 
+        {
             if (mainKeywords.count(option.optionUiText()))
             {
-                options.push_back(option);
+                if (resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, option.optionUiText())))
+                {
+                    options.push_back(option);
+                }
             }
         }
     }
@@ -273,14 +279,17 @@ QList<caf::PdmOptionItemInfo>
         {
             if (!mainKeywords.count(option.optionUiText()) && option.optionUiText() != "None")
             {
-                if (option.optionUiText() == "ACTNUM" && exportGrid())
+                if (resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, option.optionUiText())))
                 {
-                    if (exportResults() != EXPORT_TO_GRID_FILE)
-                        options.push_back(caf::PdmOptionItemInfo("ACTNUM (included in Grid File)", "ACTNUM"));
-                }
-                else
-                {
-                    options.push_back(option);
+                    if (option.optionUiText() == "ACTNUM" && exportGrid())
+                    {
+                        if (exportResults() != EXPORT_TO_GRID_FILE)
+                            options.push_back(caf::PdmOptionItemInfo("ACTNUM (included in Grid File)", "ACTNUM"));
+                    }
+                    else
+                    {
+                        options.push_back(option);
+                    }
                 }
             }
         }
