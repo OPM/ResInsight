@@ -39,6 +39,9 @@ RigMainGrid::RigMainGrid()
 
     m_flipXAxis = false;
     m_flipYAxis = false;
+
+    m_useMapAxes = false;
+    m_mapAxes    = defaultMapAxes();
 }
 
 RigMainGrid::~RigMainGrid() {}
@@ -786,4 +789,85 @@ const std::string& RigMainGrid::associatedWellPathName() const
 {
     static const std::string EMPTY_STRING;
     return EMPTY_STRING;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::setUseMapAxes(bool useMapAxes)
+{
+    m_useMapAxes = useMapAxes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigMainGrid::useMapAxes() const
+{
+    return m_useMapAxes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::setMapAxes(const std::array<double, 6>& mapAxes)
+{
+    m_mapAxes = mapAxes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::array<double, 6>& RigMainGrid::mapAxes() const
+{
+    return m_mapAxes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<float, 6> RigMainGrid::mapAxesF() const
+{
+    std::array<float, 6> floatAxes;
+    for (size_t i = 0; i < 6; ++i)
+    {
+        floatAxes[i] = (float)m_mapAxes[i];
+    }
+    return floatAxes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Mat4d RigMainGrid::mapAxisTransform() const
+{
+    cvf::Mat4d mapAxisTrans;
+    if (m_useMapAxes)
+    {
+        cvf::Vec3d origin(m_mapAxes[2], m_mapAxes[3], 0.0);
+        cvf::Vec3d xAxis = cvf::Vec3d(m_mapAxes[4] - origin[0], m_mapAxes[5] - origin[1], 0.0).getNormalized();
+        cvf::Vec3d yAxis = cvf::Vec3d(m_mapAxes[0] - origin[0], m_mapAxes[1] - origin[1], 0.0).getNormalized();
+        cvf::Vec3d zAxis(0.0, 0.0, 1.0);
+        mapAxisTrans = cvf::Mat4d::fromCoordSystemAxes(&xAxis, &yAxis, &zAxis);
+        mapAxisTrans.setTranslation(origin);
+        mapAxisTrans.invert();
+    }
+    else
+    {
+        mapAxisTrans.setIdentity();
+    }
+    return mapAxisTrans;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<double, 6> RigMainGrid::defaultMapAxes()
+{
+    const double origin[2] = {0.0, 0.0};
+    const double xPoint[2] = {1.0, 0.0};
+    const double yPoint[2] = {0.0, 1.0};
+
+    // Order (see Elipse Reference Manual for keyword MAPAXES): Y_x, Y_y, O_x, O_y, X_x, X_y
+    return { yPoint[0], yPoint[1], origin[0], origin[1], xPoint[0], xPoint[1] };
 }

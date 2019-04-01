@@ -100,6 +100,7 @@ void RicExportEclipseSectorModelFeature::executeCommand(RimEclipseView* view,
 
         bool worked = RifEclipseInputFileTools::exportGrid(exportSettings.exportGridFilename(),
                                                            view->eclipseCase()->eclipseCaseData(),
+                                                           exportSettings.exportInLocalCoordinates(),
                                                            cellVisibilityForActnum,
                                                            min,
                                                            max,

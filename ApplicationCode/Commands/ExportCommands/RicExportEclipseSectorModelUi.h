@@ -55,7 +55,7 @@ public:
 
     caf::PdmField<bool>                    exportGrid;
     caf::PdmField<QString>                 exportGridFilename;
-
+    caf::PdmField<bool>                    exportInLocalCoordinates;
     caf::PdmField<bool>                    makeInvisibleCellsInactive;
 
     caf::PdmField<ResultExportOptionsEnum> exportFaults;

@@ -63,6 +63,7 @@ public:
 
     static bool exportGrid(const QString&         gridFileName,
                            RigEclipseCaseData*    eclipseCase,
+                           bool                   exportInLocalCoordinates,
                            const cvf::UByteArray* cellVisibilityOverrideForActnum = nullptr,
                            const cvf::Vec3st&     min                             = cvf::Vec3st::ZERO,
                            const cvf::Vec3st&     max                             = cvf::Vec3st::UNDEFINED,

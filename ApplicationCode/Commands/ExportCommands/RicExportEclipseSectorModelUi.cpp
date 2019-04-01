@@ -64,7 +64,7 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi(RigEclipseCaseData*
     CAF_PDM_InitField(&exportGrid, "ExportGrid", true, "Export Grid", "", "Includes COORD, ZCORN and ACTNUM", "");
     CAF_PDM_InitField(&exportGridFilename, "ExportGridFilename", QString(), "Grid File Name", "", "", "");
     exportGridFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-
+    CAF_PDM_InitField(&exportInLocalCoordinates, "ExportInLocalCoords", false, "Export in Local Coordinates", "", "Remove UTM location on export", "");
     CAF_PDM_InitField(&makeInvisibleCellsInactive, "InvisibleCellActnum", false, "Make Invisible Cells Inactive", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&exportFaults, "ExportFaults", "Export Faults", "", "", "");
@@ -156,6 +156,7 @@ void RicExportEclipseSectorModelUi::defineUiOrdering(QString uiConfigName, caf::
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Grid Export");
     gridGroup->add(&exportGrid);
     gridGroup->add(&exportGridFilename);
+    gridGroup->add(&exportInLocalCoordinates);
     exportGridFilename.uiCapability()->setUiReadOnly(!exportGrid());        
     gridGroup->add(&makeInvisibleCellsInactive);
 
