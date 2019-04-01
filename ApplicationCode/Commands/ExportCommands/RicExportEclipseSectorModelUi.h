@@ -18,10 +18,13 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
-#include "cafAppEnum.h"
+
+#include "cvfBase.h"
+#include "cvfVector3.h"
 
 #include <QString>
 #include <QStringList>
@@ -47,9 +50,26 @@ class RicExportEclipseSectorModelUi : public caf::PdmObject
     };
     typedef caf::AppEnum<ResultExportOptions> ResultExportOptionsEnum;
 
+    enum GridBoxSelection
+    {
+        VISIBLE_CELLS_BOX,
+        ACTIVE_CELLS_BOX,
+        FULL_GRID_BOX,
+        MANUAL_SELECTION
+    };
+    typedef caf::AppEnum<GridBoxSelection> GridBoxSelectionEnum;
+
 public:
-    RicExportEclipseSectorModelUi(RigEclipseCaseData* caseData = nullptr);
+    RicExportEclipseSectorModelUi(RigEclipseCaseData* caseData = nullptr,
+                                  const cvf::Vec3i&  visibleMin = cvf::Vec3i::ZERO,
+                                  const cvf::Vec3i&  visibleMax = cvf::Vec3i::ZERO);
     ~RicExportEclipseSectorModelUi() override;
+    const QStringList&                     tabNames() const;
+
+    cvf::Vec3i                             min() const;
+    cvf::Vec3i                             max() const;
+    void                                   setMin(const cvf::Vec3i& min);
+    void                                   setMax(const cvf::Vec3i& max);
 
     caf::PdmField<bool>                    exportGrid;
     caf::PdmField<QString>                 exportGridFilename;
@@ -64,11 +84,20 @@ public:
 
     caf::PdmField<std::vector<QString>>    selectedKeywords;
 
-    caf::PdmField<int> cellCountI;
-    caf::PdmField<int> cellCountJ;
-    caf::PdmField<int> cellCountK;
-
+    caf::PdmField<GridBoxSelectionEnum>    exportGridBox;
+   
+    caf::PdmField<int> refinementCountI;
+    caf::PdmField<int> refinementCountJ;
+    caf::PdmField<int> refinementCountK;
+    
 protected:
+    caf::PdmField<int> minI;
+    caf::PdmField<int> maxI;
+    caf::PdmField<int> minJ;
+    caf::PdmField<int> maxJ;
+    caf::PdmField<int> minK;
+    caf::PdmField<int> maxK;
+
     void            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
     void            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -80,6 +109,10 @@ protected:
     QString defaultGridFileName() const;
     QString defaultResultsFileName() const;
     QString defaultFaultsFileName() const;
+
 private:
     RigEclipseCaseData* m_caseData;
+    cvf::Vec3i          m_visibleMin;
+    cvf::Vec3i          m_visibleMax;
+    QStringList         m_tabNames;
 };

@@ -63,11 +63,11 @@ RiuPropertyViewTabWidget::RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObje
     dialogLayout->addWidget(tabWidget);
 
     // Buttons
-    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    m_dialogButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(m_dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    dialogLayout->addWidget(buttonBox);
+    dialogLayout->addWidget(m_dialogButtonBox);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,4 +100,12 @@ QSize RiuPropertyViewTabWidget::sizeHint() const
     }
 
     return maxSizeHint;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDialogButtonBox* RiuPropertyViewTabWidget::dialogButtonBox()
+{
+    return m_dialogButtonBox;
 }

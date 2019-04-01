@@ -38,6 +38,7 @@
 #include "RigMainGrid.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuPropertyViewTabWidget.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
@@ -58,9 +59,16 @@ void RicExportEclipseSectorModelFeature::openDialogAndExecuteCommand(RimEclipseV
 
     RigEclipseCaseData* caseData = view->eclipseCase()->eclipseCaseData();
 
-    RicExportEclipseSectorModelUi exportSettings(caseData);
-    caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export Eclipse Sector Model", "");
-    RicExportFeatureImpl::configureForExport(&propertyDialog);
+    cvf::UByteArray cellVisibility;
+    view->calculateCurrentTotalCellVisibility(&cellVisibility, view->currentTimeStep());
+
+    cvf::Vec3i min, max;
+    std::tie(min, max) = getVisibleCellRange(view, cellVisibility);
+
+    RicExportEclipseSectorModelUi exportSettings(caseData, min, max);
+    RiuPropertyViewTabWidget      propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export Eclipse Sector Model", exportSettings.tabNames());
+
+    RicExportFeatureImpl::configureForExport(propertyDialog.dialogButtonBox());
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {
@@ -84,15 +92,17 @@ void RicExportEclipseSectorModelFeature::executeCommand(RimEclipseView* view,
     caf::ProgressInfo progress(gridProgressPercentage + resultProgressPercentage + faultsProgressPercentage,
                                "Export Eclipse Sector Model");
 
-    cvf::Vec3st refinement(exportSettings.cellCountI(), exportSettings.cellCountJ(), exportSettings.cellCountK());
+    cvf::Vec3st refinement(exportSettings.refinementCountI(), exportSettings.refinementCountJ(), exportSettings.refinementCountK());
 
     CVF_ASSERT(refinement.x() > 0u && refinement.y() > 0u && refinement.z() > 0u);
 
     cvf::UByteArray cellVisibility;
     view->calculateCurrentTotalCellVisibility(&cellVisibility, view->currentTimeStep());
+    getVisibleCellRange(view, cellVisibility);
 
-    cvf::Vec3st min, max;
-    std::tie(min, max) = getVisibleCellRange(view, cellVisibility);
+    cvf::Vec3st min(exportSettings.min());
+    cvf::Vec3st max(exportSettings.max());
+
     if (exportSettings.exportGrid())
     {
         const cvf::UByteArray* cellVisibilityForActnum = exportSettings.makeInvisibleCellsInactive() ? &cellVisibility : nullptr;
@@ -215,14 +225,14 @@ void RicExportEclipseSectorModelFeature::executeCommand(RimEclipseView* view,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3st, cvf::Vec3st> RicExportEclipseSectorModelFeature::getVisibleCellRange(RimEclipseView* view, const cvf::UByteArray& cellVisibillity)
+std::pair<cvf::Vec3i, cvf::Vec3i> RicExportEclipseSectorModelFeature::getVisibleCellRange(RimEclipseView* view, const cvf::UByteArray& cellVisibillity)
 {
 
     const RigMainGrid* mainGrid = view->eclipseCase()->mainGrid();
-    cvf::Vec3st max = cvf::Vec3st::ZERO;
-    cvf::Vec3st min = cvf::Vec3st(mainGrid->cellCountI() - 1,
-                                  mainGrid->cellCountJ() - 1,
-                                  mainGrid->cellCountK() - 1);
+    cvf::Vec3i max = cvf::Vec3i::ZERO;
+    cvf::Vec3i min = cvf::Vec3i(int(mainGrid->cellCountI() - 1),
+                                int(mainGrid->cellCountJ() - 1),
+                                int(mainGrid->cellCountK() - 1));
 
     size_t cellCount = mainGrid->cellCount();
     for (size_t index = 0; index < cellCount; ++index)
@@ -233,8 +243,8 @@ std::pair<cvf::Vec3st, cvf::Vec3st> RicExportEclipseSectorModelFeature::getVisib
             mainGrid->ijkFromCellIndex(index, &ijk[0], &ijk[1], &ijk[2]);
             for (int n = 0; n < 3; ++n)
             {
-                min[n] = std::min(min[n], ijk[n]);
-                max[n] = std::max(max[n], ijk[n]);
+                min[n] = std::min(min[n], (int) ijk[n]);
+                max[n] = std::max(max[n], (int) ijk[n]);
             }
         }
     }
@@ -263,7 +273,7 @@ void RicExportEclipseSectorModelFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseSectorModelFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Export Visible Cells as Eclipse Sector Model");
+    actionToSetup->setText("Export Eclipse Sector Model");
 }
 
 //--------------------------------------------------------------------------------------------------

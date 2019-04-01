@@ -129,7 +129,7 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
     }
 
     caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), exportSettings, dialogTitle, "");
-    RicExportFeatureImpl::configureForExport(&propertyDialog);
+    RicExportFeatureImpl::configureForExport(propertyDialog.dialogButtonBox());
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {

@@ -93,7 +93,7 @@ void RicExportCompletionsWellSegmentsFeature::onActionTriggered(bool isChecked)
     exportSettings.folder = defaultDir;
 
     caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export Well Segments", "");
-    RicExportFeatureImpl::configureForExport(&propertyDialog);
+    RicExportFeatureImpl::configureForExport(propertyDialog.dialogButtonBox());
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {

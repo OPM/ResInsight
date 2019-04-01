@@ -53,7 +53,7 @@ void RicSaveEclipseInputVisibleCellsFeature::openDialogAndExecuteCommand(RimEcli
 
     RicSaveEclipseInputVisibleCellsUi exportSettings;
     caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export FLUXNUM/MULTNUM", "");
-    RicExportFeatureImpl::configureForExport(&propertyDialog);
+    RicExportFeatureImpl::configureForExport(propertyDialog.dialogButtonBox());
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {

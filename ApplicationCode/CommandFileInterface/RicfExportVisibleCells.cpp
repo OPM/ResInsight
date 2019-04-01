@@ -98,7 +98,13 @@ void RicfExportVisibleCells::execute()
 
     RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
 
-    RicExportEclipseSectorModelUi exportSettings(eclipseView->eclipseCase()->eclipseCaseData());
+    cvf::UByteArray cellVisibility;
+    eclipseView->calculateCurrentTotalCellVisibility(&cellVisibility, eclipseView->currentTimeStep());
+
+    cvf::Vec3i min, max;
+    std::tie(min, max) = RicExportEclipseSectorModelFeature::getVisibleCellRange(eclipseView, cellVisibility);
+
+    RicExportEclipseSectorModelUi exportSettings(eclipseView->eclipseCase()->eclipseCaseData(), min, max);
     buildExportSettings(exportFolder, &exportSettings);
     RicExportEclipseSectorModelFeature::executeCommand(eclipseView, exportSettings, "exportVisibleCells");
 }

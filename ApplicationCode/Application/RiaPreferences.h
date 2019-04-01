@@ -110,5 +110,5 @@ private:
     caf::PdmField<bool>                    m_showTestToolbar;
     caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
     caf::PdmField<QString>                 m_holoLensExportFolder;
-    QStringList m_tabNames;
+    QStringList                            m_tabNames;
 };
