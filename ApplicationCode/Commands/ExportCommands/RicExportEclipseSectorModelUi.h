@@ -51,8 +51,6 @@ public:
     RicExportEclipseSectorModelUi(RigEclipseCaseData* caseData = nullptr);
     ~RicExportEclipseSectorModelUi() override;
 
-    std::vector<QString> allSelectedKeywords() const;
-
     caf::PdmField<bool>                    exportGrid;
     caf::PdmField<QString>                 exportGridFilename;
     caf::PdmField<bool>                    exportInLocalCoordinates;
@@ -61,11 +59,10 @@ public:
     caf::PdmField<ResultExportOptionsEnum> exportFaults;
     caf::PdmField<QString>                 exportFaultsFilename;
 
-    caf::PdmField<ResultExportOptionsEnum> exportResults;
-    caf::PdmField<QString>                 exportResultsFilename;
+    caf::PdmField<ResultExportOptionsEnum> exportParameters;
+    caf::PdmField<QString>                 exportParametersFilename;
 
-    caf::PdmField<std::vector<QString>>    exportMainKeywords;
-    caf::PdmField<std::vector<QString>>    exportAdditionalKeywords;
+    caf::PdmField<std::vector<QString>>    selectedKeywords;
 
     caf::PdmField<int> cellCountI;
     caf::PdmField<int> cellCountJ;

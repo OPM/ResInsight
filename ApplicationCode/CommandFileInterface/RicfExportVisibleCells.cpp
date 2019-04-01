@@ -109,7 +109,7 @@ void RicfExportVisibleCells::execute()
 void RicfExportVisibleCells::buildExportSettings(const QString& exportFolder, RicExportEclipseSectorModelUi* exportSettings)
 {
     QDir baseDir(exportFolder);
-    exportSettings->exportResultsFilename = baseDir.absoluteFilePath(QString("%1.grdecl").arg(m_exportKeyword().text()));
+    exportSettings->exportParametersFilename = baseDir.absoluteFilePath(QString("%1.grdecl").arg(m_exportKeyword().text()));
 
 /*
 if (m_exportKeyword == ExportKeyword::FLUXNUM)

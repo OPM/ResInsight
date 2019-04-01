@@ -61,24 +61,23 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi(RigEclipseCaseData*
 {
     CAF_PDM_InitObject("Export Visible Cells as Eclipse Input Grid", "", "", "");
 
-    CAF_PDM_InitField(&exportGrid, "ExportGrid", true, "Export Grid", "", "Includes COORD, ZCORN and ACTNUM", "");
+    CAF_PDM_InitField(&exportGrid, "ExportGrid", true, "Export Grid Data", "", "Includes COORD, ZCORN and ACTNUM", "");
     CAF_PDM_InitField(&exportGridFilename, "ExportGridFilename", QString(), "Grid File Name", "", "", "");
     exportGridFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     CAF_PDM_InitField(&exportInLocalCoordinates, "ExportInLocalCoords", false, "Export in Local Coordinates", "", "Remove UTM location on export", "");
     CAF_PDM_InitField(&makeInvisibleCellsInactive, "InvisibleCellActnum", false, "Make Invisible Cells Inactive", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&exportFaults, "ExportFaults", "Export Faults", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&exportFaults, "ExportFaults", "Export Fault Data", "", "", "");
     exportFaults = EXPORT_TO_SINGLE_SEPARATE_FILE;
 
     CAF_PDM_InitField(&exportFaultsFilename, "ExportFaultsFilename", QString(), "Faults File Name", "", "", "");
     exportFaultsFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
-    CAF_PDM_InitFieldNoDefault(&exportResults, "ExportResults", "Export Properties", "", "", "");
-    CAF_PDM_InitField(&exportResultsFilename, "ExportResultsFilename", QString(), "Properties File Name", "", "", "");
-    exportResultsFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault(&exportParameters, "ExportResults", "Export Properties", "", "", "");
+    CAF_PDM_InitField(&exportParametersFilename, "ExportResultsFilename", QString(), "Properties File Name", "", "", "");
+    exportParametersFilename.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
-    CAF_PDM_InitFieldNoDefault(&exportMainKeywords, "ExportMainKeywords", "Main Keywords", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&exportAdditionalKeywords, "ExportAdditionalKeywords", "Additional Keywords", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&selectedKeywords, "ExportMainKeywords", "Main Keywords", "", "", "");
 
     QString ijkLabel = "Cell Count I, J, K";
     CAF_PDM_InitField(&cellCountI, "CellCountI", 1, ijkLabel, "", "", "");
@@ -86,14 +85,14 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi(RigEclipseCaseData*
     CAF_PDM_InitField(&cellCountK, "CellCountK", 1, "", "", "", "");
 
     exportGridFilename    = defaultGridFileName();
-    exportResultsFilename = defaultResultsFileName();
+    exportParametersFilename = defaultResultsFileName();
     exportFaultsFilename  = defaultFaultsFileName();
 
     for (QString keyword : mainKeywords())
     {
         if (caseData->results(RiaDefines::MATRIX_MODEL)->hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, keyword)))
         {
-            exportMainKeywords.v().push_back(keyword);
+            selectedKeywords.v().push_back(keyword);
         }
     }
 }
@@ -106,22 +105,11 @@ RicExportEclipseSectorModelUi::~RicExportEclipseSectorModelUi()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RicExportEclipseSectorModelUi::allSelectedKeywords() const
-{
-    std::vector<QString> additionalResults = exportAdditionalKeywords();
-    std::vector<QString> allRes = exportMainKeywords();
-    allRes.insert(allRes.end(), additionalResults.begin(), additionalResults.end());
-    return allRes;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseSectorModelUi::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
-    if (field == &exportResultsFilename || field == &exportGridFilename || field == &exportFaultsFilename)
+    if (field == &exportParametersFilename || field == &exportGridFilename || field == &exportFaultsFilename)
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
         if (myAttr)
@@ -129,12 +117,12 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute(const caf::PdmFieldHan
             myAttr->m_selectSaveFileName = true;
         }
     }
-    else if (field == &exportMainKeywords || field == &exportAdditionalKeywords)
+    else if (field == &selectedKeywords)
     {
         caf::PdmUiListEditorAttribute* myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute);
         if (myAttr)
         {
-            myAttr->m_heightHint = 200;
+            myAttr->m_heightHint = 280;
         }
     }
     else if (field == &cellCountI || field == &cellCountJ || field == &cellCountK)
@@ -156,9 +144,11 @@ void RicExportEclipseSectorModelUi::defineUiOrdering(QString uiConfigName, caf::
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Grid Export");
     gridGroup->add(&exportGrid);
     gridGroup->add(&exportGridFilename);
+    exportGridFilename.uiCapability()->setUiReadOnly(!exportGrid());
     gridGroup->add(&exportInLocalCoordinates);
-    exportGridFilename.uiCapability()->setUiReadOnly(!exportGrid());        
+    exportInLocalCoordinates.uiCapability()->setUiReadOnly(!exportGrid());
     gridGroup->add(&makeInvisibleCellsInactive);
+    makeInvisibleCellsInactive.uiCapability()->setUiReadOnly(!exportGrid());
 
     gridGroup->add(&exportFaults);
     if (exportFaults() != EXPORT_NO_RESULTS)
@@ -169,28 +159,29 @@ void RicExportEclipseSectorModelUi::defineUiOrdering(QString uiConfigName, caf::
         }
     }
 
+    caf::PdmUiGroup* gridRefinement = gridGroup->addNewGroup("Grid Refinement");
+    gridRefinement->add(&cellCountI, {true, 2, 1});
+    gridRefinement->add(&cellCountJ, {false});
+    gridRefinement->add(&cellCountK, {false});
+    cellCountI.uiCapability()->setUiReadOnly(!exportGrid());
+    cellCountJ.uiCapability()->setUiReadOnly(!exportGrid());
+    cellCountK.uiCapability()->setUiReadOnly(!exportGrid());
 
-    caf::PdmUiGroup* resultsGroup = uiOrdering.addNewGroup("Results and Faults Export");
+    caf::PdmUiGroup* resultsGroup = uiOrdering.addNewGroup("Property Export");
 
-    resultsGroup->add(&exportResults);
-    if (exportResults() != EXPORT_NO_RESULTS)
+    resultsGroup->add(&exportParameters);
+    if (exportParameters() != EXPORT_NO_RESULTS)
     {
-        if (exportResults() == EXPORT_TO_SINGLE_SEPARATE_FILE)
+        if (exportParameters() == EXPORT_TO_SINGLE_SEPARATE_FILE)
         {
-            resultsGroup->add(&exportResultsFilename);
+            resultsGroup->add(&exportParametersFilename);
         }
     }
     
-    if (exportResults() != EXPORT_NO_RESULTS)
+    if (exportParameters() != EXPORT_NO_RESULTS)
     {
-        resultsGroup->add(&exportMainKeywords);
-        resultsGroup->add(&exportAdditionalKeywords);
+        resultsGroup->add(&selectedKeywords);
     }
-
-    caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup("Grid Refinement");
-    gridRefinement->add(&cellCountI, { true, 2, 1 });
-    gridRefinement->add(&cellCountJ, { false });
-    gridRefinement->add(&cellCountK, { false });
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -205,18 +196,18 @@ void RicExportEclipseSectorModelUi::fieldChangedByUi(const caf::PdmFieldHandle* 
         QFileInfo info(exportGridFilename());
         QDir      dirPath = info.absoluteDir();
 
-        if (exportResultsFilename() == defaultResultsFileName())
+        if (exportParametersFilename() == defaultResultsFileName())
         {
-            exportResultsFilename = dirPath.absoluteFilePath("RESULTS.GRDECL");
+            exportParametersFilename = dirPath.absoluteFilePath("RESULTS.GRDECL");
         }
         if (exportFaultsFilename() == defaultFaultsFileName())
         {
             exportFaultsFilename = dirPath.absoluteFilePath("FAULTS.GRDECL");
         }
     }
-    else if (changedField == &exportResultsFilename)
+    else if (changedField == &exportParametersFilename)
     {
-        QFileInfo info(exportResultsFilename());
+        QFileInfo info(exportParametersFilename());
         QDir      dirPath = info.absoluteDir();
 
         if (exportGridFilename() == defaultGridFileName())
@@ -237,9 +228,9 @@ void RicExportEclipseSectorModelUi::fieldChangedByUi(const caf::PdmFieldHandle* 
         {
             exportGridFilename = dirPath.absoluteFilePath("GRID.GRDECL");
         }
-        if (exportResultsFilename() == defaultResultsFileName())
+        if (exportParametersFilename() == defaultResultsFileName())
         {
-            exportResultsFilename = dirPath.absoluteFilePath("RESULTS.GRDECL");
+            exportParametersFilename = dirPath.absoluteFilePath("RESULTS.GRDECL");
         }
     }
 }
@@ -252,7 +243,7 @@ QList<caf::PdmOptionItemInfo>
     RicExportEclipseSectorModelUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
-    if (fieldNeedingOptions == &exportMainKeywords)
+    if (fieldNeedingOptions == &selectedKeywords)
     {
         RigCaseCellResultsData* resultData = m_caseData->results(RiaDefines::MATRIX_MODEL);
         QList<caf::PdmOptionItemInfo> allOptions = RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::STATIC_NATIVE, resultData);        
@@ -268,14 +259,6 @@ QList<caf::PdmOptionItemInfo>
                 }
             }
         }
-    }
-    else if (fieldNeedingOptions == &exportAdditionalKeywords)
-    {
-        RigCaseCellResultsData*       resultData = m_caseData->results(RiaDefines::MATRIX_MODEL);
-        QList<caf::PdmOptionItemInfo> allOptions =
-            RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard(RiaDefines::STATIC_NATIVE, resultData);
-
-        std::set<QString> mainKeywords = this->mainKeywords();
         for (caf::PdmOptionItemInfo option : allOptions)
         {
             if (!mainKeywords.count(option.optionUiText()) && option.optionUiText() != "None")
@@ -284,7 +267,7 @@ QList<caf::PdmOptionItemInfo>
                 {
                     if (option.optionUiText() == "ACTNUM" && exportGrid())
                     {
-                        if (exportResults() != EXPORT_TO_GRID_FILE)
+                        if (exportParameters() != EXPORT_TO_GRID_FILE)
                             options.push_back(caf::PdmOptionItemInfo("ACTNUM (included in Grid File)", "ACTNUM"));
                     }
                     else
@@ -298,6 +281,18 @@ QList<caf::PdmOptionItemInfo>
     else if (fieldNeedingOptions == &exportFaults)
     {
         std::set<ResultExportOptions> validFaultOptions = { EXPORT_NO_RESULTS, EXPORT_TO_GRID_FILE, EXPORT_TO_SINGLE_SEPARATE_FILE };
+        if (!exportGrid())
+            validFaultOptions.erase(EXPORT_TO_GRID_FILE);
+        for (ResultExportOptions option : validFaultOptions)
+        {
+            options.push_back(caf::PdmOptionItemInfo(ResultExportOptionsEnum::uiText(option), option));
+        }
+    }
+    else if (fieldNeedingOptions == &exportParameters)
+    {
+        std::set<ResultExportOptions> validFaultOptions = { EXPORT_NO_RESULTS, EXPORT_TO_GRID_FILE, EXPORT_TO_SINGLE_SEPARATE_FILE, EXPORT_TO_SEPARATE_FILE_PER_RESULT };
+        if (!exportGrid())
+            validFaultOptions.erase(EXPORT_TO_GRID_FILE);
         for (ResultExportOptions option : validFaultOptions)
         {
             options.push_back(caf::PdmOptionItemInfo(ResultExportOptionsEnum::uiText(option), option));

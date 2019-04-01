@@ -75,8 +75,8 @@ void RicExportEclipseSectorModelFeature::executeCommand(RimEclipseView* view,
                                                       const RicExportEclipseSectorModelUi& exportSettings,
                                                       const QString& logPrefix)
 {
-    int resultProgressPercentage = exportSettings.exportResults() ?
-        std::min((int) exportSettings.exportMainKeywords().size(), 20) : 0;
+    int resultProgressPercentage = exportSettings.exportParameters() ?
+        std::min((int) exportSettings.selectedKeywords().size(), 20) : 0;
 
     int faultsProgressPercentage = exportSettings.exportFaults() ? 10 : 0;
 
@@ -123,12 +123,12 @@ void RicExportEclipseSectorModelFeature::executeCommand(RimEclipseView* view,
         }
     }
 
-    if (exportSettings.exportResults() != RicExportEclipseSectorModelUi::EXPORT_NO_RESULTS)
+    if (exportSettings.exportParameters() != RicExportEclipseSectorModelUi::EXPORT_NO_RESULTS)
     {
         auto                 task     = progress.task("Export Properties", resultProgressPercentage);
-        std::vector<QString> keywords = exportSettings.allSelectedKeywords();
+        std::vector<QString> keywords = exportSettings.selectedKeywords;
 
-        if (exportSettings.exportResults == RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT)
+        if (exportSettings.exportParameters == RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT)
         {
             QFileInfo info(exportSettings.exportGridFilename());
             QDir dirPath = info.absoluteDir();
@@ -152,8 +152,8 @@ void RicExportEclipseSectorModelFeature::executeCommand(RimEclipseView* view,
         else
         {
             QString fileWriteMode = "w";
-            QString fileName = exportSettings.exportResultsFilename();
-            if (exportSettings.exportResults() == RicExportEclipseSectorModelUi::EXPORT_TO_GRID_FILE)
+            QString fileName = exportSettings.exportParametersFilename();
+            if (exportSettings.exportParameters() == RicExportEclipseSectorModelUi::EXPORT_TO_GRID_FILE)
             {
                 fileWriteMode = "a";
                 fileName = exportSettings.exportGridFilename();
@@ -194,7 +194,7 @@ void RicExportEclipseSectorModelFeature::executeCommand(RimEclipseView* view,
         {            
             QString fileName      = exportSettings.exportFaultsFilename();
             QIODevice::OpenMode openFlag = QIODevice::Truncate;
-            if (exportSettings.exportResults() == RicExportEclipseSectorModelUi::EXPORT_TO_GRID_FILE)
+            if (exportSettings.exportParameters() == RicExportEclipseSectorModelUi::EXPORT_TO_GRID_FILE)
             {
                 openFlag = QIODevice::Append;
                 fileName = exportSettings.exportGridFilename();
