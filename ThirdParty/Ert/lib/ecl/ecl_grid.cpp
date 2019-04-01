@@ -6947,7 +6947,7 @@ void ecl_grid_fprintf_grdecl2(ecl_grid_type * grid , FILE * stream , ert_ecl_uni
     fprintf(stream , "\n");
   }
 
-  if (grid->use_mapaxes) {
+  if (grid->mapaxes != NULL) {
     ecl_kw_type * mapaxes_kw = ecl_grid_alloc_mapaxes_kw( grid );
     ecl_kw_fprintf_grdecl( mapaxes_kw , stream );
     ecl_kw_free( mapaxes_kw );
