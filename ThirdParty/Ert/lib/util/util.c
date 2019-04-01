@@ -2153,6 +2153,11 @@ int util_fmove( FILE * stream , long offset , long shift) {
 #ifdef HAVE_WINDOWS__ACCESS
 
 bool util_access(const char * entry, int mode) {
+  if (!entry)
+  {
+    return false;
+  }
+
   return (_access(entry, mode) == 0);
 }
 
