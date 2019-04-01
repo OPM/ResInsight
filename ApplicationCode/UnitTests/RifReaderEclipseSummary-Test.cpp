@@ -41,6 +41,7 @@ TEST(RifEclipseSummaryTest, BasicTestSetCurrentFolder)
 
     bool                            hasWarning      = false;
     std::vector<RifRestartFileInfo> originFileInfos = eclSummary.getRestartFiles(summaryFileName, &hasWarning);
+    EXPECT_TRUE(originFileInfos.empty());
 }
 
 /*
