@@ -2153,10 +2153,7 @@ int util_fmove( FILE * stream , long offset , long shift) {
 #ifdef HAVE_WINDOWS__ACCESS
 
 bool util_access(const char * entry, int mode) {
-  if (!entry)
-  {
-    return false;
-  }
+  if (!entry) return false;
 
   return (_access(entry, mode) == 0);
 }
@@ -2165,6 +2162,8 @@ bool util_access(const char * entry, int mode) {
 
 #ifdef HAVE_POSIX_ACCESS
 bool util_access(const char * entry, mode_t mode) {
+  if (!entry) return false;
+
   return (access(entry, mode) == 0);
 }
 #endif
