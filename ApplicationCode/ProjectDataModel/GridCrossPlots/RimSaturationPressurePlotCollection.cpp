@@ -64,6 +64,8 @@ std::vector<RimSaturationPressurePlot*>
         RigEclipseResultAddress resAdr(RiaDefines::STATIC_NATIVE, RiaDefines::eqlnumResultName());
         if (results->hasResultEntry(resAdr))
         {
+            results->ensureKnownResultLoaded(resAdr);
+
             auto vals = results->uniqueCellScalarValues(resAdr);
             for (auto v : vals)
             {
