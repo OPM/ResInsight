@@ -70,8 +70,8 @@ void RicExportEclipseSectorModelUi::GridBoxSelectionEnum::setUp()
 /// 
 //--------------------------------------------------------------------------------------------------
 RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi(RigEclipseCaseData* caseData /*= nullptr*/,
-                                                             const cvf::Vec3i&  visibleMin /*= cvf::Vec3i::ZERO*/,
-                                                             const cvf::Vec3i&  visibleMax /*= cvf::Vec3i::ZERO*/)
+                                                             const cvf::Vec3i&   visibleMin /*= cvf::Vec3i::ZERO*/,
+                                                             const cvf::Vec3i&   visibleMax /*= cvf::Vec3i::ZERO*/)
     : m_caseData(caseData)
     , m_visibleMin(visibleMin)
     , m_visibleMax(visibleMax)
@@ -122,7 +122,7 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi(RigEclipseCaseData*
 
     for (QString keyword : mainKeywords())
     {
-        if (caseData->results(RiaDefines::MATRIX_MODEL)->hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, keyword)))
+        if (caseData && caseData->results(RiaDefines::MATRIX_MODEL)->hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, keyword)))
         {
             selectedKeywords.v().push_back(keyword);
         }
