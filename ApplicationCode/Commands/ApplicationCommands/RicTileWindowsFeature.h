@@ -34,6 +34,8 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandChecked() override;
+
 };
 
 //==================================================================================================
@@ -48,5 +50,6 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered(bool isChecked) override;
     void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandChecked() override;
 };
 

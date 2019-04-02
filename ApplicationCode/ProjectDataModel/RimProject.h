@@ -137,6 +137,12 @@ public:
     bool            show3DWindow() const;
     bool            showPlotWindow() const;
 
+    bool            subWindowsTiled3DWindow() const;
+    bool            subWindowsTiledPlotWindow() const;
+
+    void            setSubWindowsTiledIn3DWindow(bool tiled);
+    void            setSubWindowsTiledInPlotWindow(bool tiled);
+
     void            reloadCompletionTypeResultsInAllViews();
     void            reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase);
 
@@ -185,6 +191,9 @@ private:
 
     caf::PdmField<bool>     m_show3DWindow;
     caf::PdmField<bool>     m_showPlotWindow;
+
+    caf::PdmField<bool>     m_subWindowsTiled3DWindow;
+    caf::PdmField<bool>     m_subWindowsTiledPlotWindow;
 
     caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
     caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from Octave scripts

@@ -65,7 +65,7 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     , m_windowMenu(nullptr)
     , m_blockSlotSubWindowActivated(false)
 {
-    m_mdiArea = new QMdiArea;
+    m_mdiArea = new RiuMdiArea;
     connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
     setCentralWidget(m_mdiArea);
 
@@ -118,6 +118,11 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
         {
             setExpanded(obj);
         }
+    }
+
+    if (subWindowsAreTiled())
+    {
+        tileSubWindows();
     }
 
     if (m_activePlotViewWindow && m_activePlotViewWindow->viewWidget())
@@ -369,6 +374,7 @@ void RiuPlotMainWindow::refreshToolbars()
     QStringList allToolbarCommandNames = toolbarCommandIds();
 
     caf::CmdFeatureManager::instance()->refreshEnabledState(allToolbarCommandNames);
+    caf::CmdFeatureManager::instance()->refreshCheckedState(allToolbarCommandNames);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -584,7 +590,10 @@ void RiuPlotMainWindow::removeViewer(QWidget* viewer)
     m_blockSlotSubWindowActivated = true;
     m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
     m_blockSlotSubWindowActivated = false;
-
+    if (subWindowsAreTiled())
+    {
+        tileSubWindows();
+    }
     refreshToolbars();
 }
 
@@ -840,7 +849,7 @@ void RiuPlotMainWindow::customMenuRequested(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::tileWindows()
+void RiuPlotMainWindow::tileSubWindows()
 {
     QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
 
@@ -871,6 +880,45 @@ void RiuPlotMainWindow::tileWindows()
     // Set back the original activation order to avoid messing with the standard ordering
     m_mdiArea->setActivationOrder(currentActivationOrder);
     m_mdiArea->setActiveSubWindow(a);
+
+    storeSubWindowTiling(true);    
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::storeSubWindowTiling(bool tiled)
+{
+    RiaApplication::instance()->project()->setSubWindowsTiledInPlotWindow(tiled);
+    refreshToolbars();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::clearWindowTiling()
+{
+    QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
+
+    std::list<QMdiSubWindow*> windowList;
+    for (QMdiSubWindow* subWindow : m_mdiArea->subWindowList(currentActivationOrder))
+    {
+        subWindow->hide();
+        subWindow->showNormal();
+    }
+    storeSubWindowTiling(false);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuPlotMainWindow::subWindowsAreTiled() const
+{
+    if (RiaApplication::instance()->project())
+    {
+        return RiaApplication::instance()->project()->subWindowsTiledPlotWindow();
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

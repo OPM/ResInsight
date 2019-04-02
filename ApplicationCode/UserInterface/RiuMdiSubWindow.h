@@ -21,9 +21,9 @@
 #include <QMdiSubWindow>
 #include "RimViewWindow.h"
 
-
 class RiuMdiSubWindow : public QMdiSubWindow
 {
+    Q_OBJECT
 public:
     RiuMdiSubWindow(QWidget* parent = nullptr, Qt::WindowFlags flags = nullptr);
 
@@ -31,12 +31,14 @@ public:
 
     RimMdiWindowGeometry windowGeometry() const;
 
+    void blockTilingChanges(bool block);
 protected:
     void closeEvent(QCloseEvent* event) override;
     void resizeEvent(QResizeEvent* resizeEvent) override;
     void moveEvent(QMoveEvent *moveEvent) override;
 
-private:
+private:    
     QRect m_normalWindowGeometry;
+    bool  m_blockTilingChanges;
 };
 
