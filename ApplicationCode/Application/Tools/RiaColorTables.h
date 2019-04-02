@@ -64,6 +64,13 @@ public:
 
     static WellPathComponentColors wellPathComponentColors();
 
+    // Default 3d View colors
+    static cvf::Color3f defaultGridLineColor();
+    static cvf::Color3f defaultFaultLineColor();
+    static cvf::Color3f defaultWellLabelColor();
+    static cvf::Color3f defaultViewerBackgroundColor();  
+
+
     static caf::ColorTable createBrightnessBasedColorTable(cvf::Color3ub baseColor, int brightnessLevelCount);
 private:
     static std::vector<cvf::Color3ub> categoryColors();

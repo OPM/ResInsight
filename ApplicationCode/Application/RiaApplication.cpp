@@ -22,6 +22,7 @@
 
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
+#include "RiaColorTables.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
@@ -61,6 +62,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlot.h"
 #include "RimSaturationPressurePlotCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -1963,7 +1965,7 @@ RiaPreferences* RiaApplication::preferences()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::applyPreferences()
+void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
 {
     if (m_activeReservoirView && m_activeReservoirView->viewer())
     {
@@ -1998,14 +2000,91 @@ void RiaApplication::applyPreferences()
         std::vector<Rim3dView*> visibleViews;
         this->project()->allVisibleViews(visibleViews);
 
+        bool existingViewsWithCustomColors = false;
+        bool existingViewsWithCustomZScale = false;
+        if (oldPreferences)
+        {
+            for (auto view : visibleViews)
+            {
+                if (view->backgroundColor() != oldPreferences->defaultViewerBackgroundColor())
+                {
+                    existingViewsWithCustomColors = true;
+                }
+                if (view->scaleZ() != static_cast<double>(oldPreferences->defaultScaleFactorZ))
+                {
+                    existingViewsWithCustomZScale = true;
+                }
+
+                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
+                if (eclipseView)
+                {
+                    if (eclipseView->wellCollection()->wellLabelColor() != oldPreferences->defaultWellLabelColor())
+                    {
+                        existingViewsWithCustomColors = true;
+                    }
+                }
+            }
+        }
+
+        bool applySettingsToAllViews = false;
+        if (existingViewsWithCustomColors || existingViewsWithCustomZScale)
+        {
+            QStringList changedData;
+            if (existingViewsWithCustomColors) changedData << "Colors";
+            if (existingViewsWithCustomZScale) changedData << "Z-Scale";
+
+            QString listString = changedData.takeLast();
+            if (!changedData.empty())
+            {
+                listString = changedData.join(", ") + " and " + listString;
+            }
+
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(m_mainWindow,
+                QString("Apply %1 to Existing Views?").arg(listString),
+                QString("You have changed default %1 and have existing views with different settings.\n").arg(listString) +
+                QString("Do you want to apply the new default settings to all existing views?"),
+                QMessageBox::Ok | QMessageBox::Cancel);
+            applySettingsToAllViews = (reply == QMessageBox::Ok);
+        }
+        
         for (auto view : visibleViews)
         {
+            std::set<caf::PdmUiItem*> uiItemsToUpdate;
+
+            if (oldPreferences && (applySettingsToAllViews || view->backgroundColor() == oldPreferences->defaultViewerBackgroundColor()))
+            {
+                view->setAndApplyBackgroundColor(m_preferences->defaultViewerBackgroundColor());
+                uiItemsToUpdate.insert(view);
+            }
+
+            if (oldPreferences && (applySettingsToAllViews || view->scaleZ == static_cast<double>(oldPreferences->defaultScaleFactorZ())))
+            {
+                view->scaleZ = static_cast<double>(m_preferences->defaultScaleFactorZ());
+                view->updateScaling();
+                uiItemsToUpdate.insert(view);
+                if (view == activeViewWindow())
+                {
+                    RiuMainWindow::instance()->updateScaleValue();
+                }
+            }
+          
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
             if (eclipseView)
             {
+                if (oldPreferences && (applySettingsToAllViews || eclipseView->wellCollection()->wellLabelColor() == oldPreferences->defaultWellLabelColor()))
+                {
+                    eclipseView->wellCollection()->wellLabelColor = m_preferences->defaultWellLabelColor();
+                    uiItemsToUpdate.insert(eclipseView->wellCollection());
+                }
                 eclipseView->scheduleReservoirGridGeometryRegen();
             }
             view->scheduleCreateDisplayModelAndRedraw();
+
+            for (caf::PdmUiItem* uiItem : uiItemsToUpdate)
+            {
+                uiItem->updateConnectedEditors();
+            }
         }
     }
 

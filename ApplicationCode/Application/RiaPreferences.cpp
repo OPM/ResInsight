@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2011-2018 Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
 // 
@@ -20,6 +21,7 @@
 
 #include "RiaPreferences.h"
 
+#include "RiaColorTables.h"
 #include "RifReaderSettings.h"
 
 #include "cafPdmFieldCvfColor.h"
@@ -65,14 +67,14 @@ RiaPreferences::RiaPreferences(void)
     ssihubAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitField(&defaultGridLines,                "defaultGridLines", true, "Gridlines", "", "", "");
-    CAF_PDM_InitField(&defaultGridLineColors,           "defaultGridLineColors", cvf::Color3f(0.92f, 0.92f, 0.92f), "Mesh Color", "", "", "");
-    CAF_PDM_InitField(&defaultFaultGridLineColors,      "defaultFaultGridLineColors", cvf::Color3f(0.08f, 0.08f, 0.08f), "Mesh Color Along Faults", "", "", "");
-    CAF_PDM_InitField(&defaultWellLabelColor,           "defaultWellLableColor", cvf::Color3f(0.92f, 0.92f, 0.92f), "Well Label Color", "", "The default well label color in new views", "");
+    CAF_PDM_InitField(&defaultGridLineColors,           "defaultGridLineColors", RiaColorTables::defaultGridLineColor(), "Mesh Color", "", "", "");
+    CAF_PDM_InitField(&defaultFaultGridLineColors,      "defaultFaultGridLineColors", RiaColorTables::defaultFaultLineColor(), "Mesh Color Along Faults", "", "", "");
+    CAF_PDM_InitField(&defaultWellLabelColor,           "defaultWellLableColor", RiaColorTables::defaultWellLabelColor(), "Well Label Color", "", "The default well label color in new views", "");
 
-    CAF_PDM_InitField(&defaultViewerBackgroundColor,      "defaultViewerBackgroundColor", cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer Background", "", "The viewer background color for new views", "");
+    CAF_PDM_InitField(&defaultViewerBackgroundColor,      "defaultViewerBackgroundColor", RiaColorTables::defaultViewerBackgroundColor(), "Viewer Background", "", "The viewer background color for new views", "");
 
     CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&fontSizeInScene,        "fontSizeInScene", "Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&fontSizeInScene,        "fontSizeInScene", "Font Size", "", "", "");    
 
     CAF_PDM_InitField(&showLasCurveWithoutTvdWarning,   "showLasCurveWithoutTvdWarning", true, "Show LAS Curve Without TVD Warning", "", "", "");
     showLasCurveWithoutTvdWarning.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);

@@ -167,7 +167,7 @@ public:
     void                waitForProcess() const;
     
     RiaPreferences*     preferences();
-    void                applyPreferences();
+    void                applyPreferences(const RiaPreferences* oldPreferences = nullptr);
 
     cvf::Font*          standardFont();
     cvf::Font*          customFont();

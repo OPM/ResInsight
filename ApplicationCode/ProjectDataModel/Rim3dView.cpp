@@ -590,31 +590,7 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
     }
     else if (changedField == &scaleZ)
     {
-        if (scaleZ < 1) scaleZ = 1;
-
-        this->updateGridBoxData();
-
-        if (m_viewer)
-        {
-            cvf::Vec3d poi = m_viewer->pointOfInterest();
-            cvf::Vec3d eye, dir, up;
-            eye = m_viewer->mainCamera()->position();
-            dir = m_viewer->mainCamera()->direction();
-            up  = m_viewer->mainCamera()->up();
-
-            eye[2] = poi[2]*scaleZ()/this->scaleTransform()->worldTransform()(2, 2) + (eye[2] - poi[2]);
-            poi[2] = poi[2]*scaleZ()/this->scaleTransform()->worldTransform()(2, 2);
-
-            m_viewer->mainCamera()->setFromLookAt(eye, eye + dir, up);
-            m_viewer->setPointOfInterest(poi);
-
-            updateScaleTransform();
-            createDisplayModelAndRedraw();
-
-            m_viewer->update();
-
-            updateZScaleLabel();
-        }
+        updateScaling();
 
         RiuMainWindow::instance()->updateScaleValue();
     }
@@ -822,6 +798,38 @@ void Rim3dView::updateAnnotationItems()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void Rim3dView::updateScaling()
+{
+    if (scaleZ < 1) scaleZ = 1;
+
+    this->updateGridBoxData();
+
+    if (m_viewer)
+    {
+        cvf::Vec3d poi = m_viewer->pointOfInterest();
+        cvf::Vec3d eye, dir, up;
+        eye = m_viewer->mainCamera()->position();
+        dir = m_viewer->mainCamera()->direction();
+        up  = m_viewer->mainCamera()->up();
+
+        eye[2] = poi[2] * scaleZ() / this->scaleTransform()->worldTransform()(2, 2) + (eye[2] - poi[2]);
+        poi[2] = poi[2] * scaleZ() / this->scaleTransform()->worldTransform()(2, 2);
+
+        m_viewer->mainCamera()->setFromLookAt(eye, eye + dir, up);
+        m_viewer->setPointOfInterest(poi);
+
+        updateScaleTransform();
+        createDisplayModelAndRedraw();
+
+        m_viewer->update();
+
+        updateZScaleLabel();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim3dView::updateZScaleLabel()
 {
     // Update Z scale label
@@ -885,6 +893,15 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
 void Rim3dView::setBackgroundColor(const cvf::Color3f& newBackgroundColor)
 {
     m_backgroundColor = newBackgroundColor; 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::setAndApplyBackgroundColor(const cvf::Color3f& newBackgroundColor)
+{
+    setBackgroundColor(newBackgroundColor);
+    applyBackgroundColor();
 }
 
 //--------------------------------------------------------------------------------------------------

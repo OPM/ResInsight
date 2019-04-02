@@ -19,7 +19,9 @@
 #pragma once
 
 #include "cafCmdFeature.h"
+#include <memory>
 
+class RiaPreferences;
 
 //==================================================================================================
 /// 
@@ -27,12 +29,14 @@
 class RicEditPreferencesFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
+    
 protected:
     // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+    static std::unique_ptr<RiaPreferences> clonePreferences(const RiaPreferences* preferences);
 };
 
 

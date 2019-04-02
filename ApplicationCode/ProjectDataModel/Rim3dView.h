@@ -114,6 +114,7 @@ public:
     void                                    setFaultMeshSurfDrawstyle();
     void                                    setSurfaceDrawstyle();
     void                                    setBackgroundColor(const cvf::Color3f& newBackgroundColor);
+    void                                    setAndApplyBackgroundColor(const cvf::Color3f& newBackgroundColor);
     void                                    setShowGridBox(bool showGridBox);
 
     void                                    disableLighting(bool disable);
@@ -143,6 +144,7 @@ public:
     void                                    createHighlightAndGridBoxDisplayModelWithRedraw();
     void                                    updateGridBoxData();
     void                                    updateAnnotationItems();   
+    void                                    updateScaling();
     void                                    updateZScaleLabel();
     void                                    updateMeasurement();
 
