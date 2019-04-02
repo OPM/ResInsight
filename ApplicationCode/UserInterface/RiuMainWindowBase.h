@@ -20,6 +20,7 @@
 
 #include <QMainWindow>
 
+class QMdiArea;
 struct RimMdiWindowGeometry;
 
 namespace caf
@@ -29,7 +30,7 @@ namespace caf
     class PdmUiItem;
 }
 
-class QMdiArea;
+
 class QMdiSubWindow;
 
 
@@ -62,6 +63,11 @@ public:
     void                selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange = true);
     
     void                enableShowFirstVisibleMdiWindowMaximized(bool enable);
+ 
+    virtual void        tileSubWindows() = 0;
+    virtual void        storeSubWindowTiling(bool tiled) = 0;
+    virtual void        clearWindowTiling() = 0;
+    virtual bool        subWindowsAreTiled() const = 0;
 
 protected slots:
     void                slotDockWidgetToggleViewActionTriggered();
@@ -71,8 +77,6 @@ protected:
     caf::PdmUiTreeView* m_projectTreeView;
     bool                m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control 
                                                                          // whether to select the corresponding active view or not
-
-
 private:
     QString             registryFolderName();
 

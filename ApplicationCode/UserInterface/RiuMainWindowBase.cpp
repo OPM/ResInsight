@@ -18,16 +18,21 @@
 
 #include "RiuMainWindowBase.h"
 
+#include "RiaApplication.h"
 #include "RiaVersionInfo.h"
 
 #include "RiuDockWidgetTools.h"
 #include "RiuMdiSubWindow.h"
+
+#include "RimViewWindow.h"
+#include "RimProject.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiTreeView.h"
 
 #include <QDockWidget>
 #include <QMdiArea>
+#include <QMdiSubWindow>
 #include <QSettings>
 
 //--------------------------------------------------------------------------------------------------
@@ -182,6 +187,7 @@ void RiuMainWindowBase::addViewerToMdiArea(QMdiArea*     mdiArea,
     subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
     subWin->setWidget(viewer);
 
+    bool initialStateTiled     = subWindowsAreTiled();
     bool initialStateMaximized = false;
 
     if (m_showFirstVisibleWindowMaximized && mdiArea->subWindowList().empty())
@@ -210,5 +216,9 @@ void RiuMainWindowBase::addViewerToMdiArea(QMdiArea*     mdiArea,
     else
     {
         subWin->showNormal();
+        if (initialStateTiled)
+        {
+            tileSubWindows();
+        }
     }
 }

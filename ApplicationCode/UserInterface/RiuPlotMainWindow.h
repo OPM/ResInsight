@@ -19,11 +19,10 @@
 #pragma once
 
 #include "RiuMainWindowBase.h"
+#include "RiuMdiArea.h"
 
 #include "cafPdmUiDragDropInterface.h"
 #include "cafPdmPointer.h"
-
-#include <QMdiArea>
 
 #include <memory>
 
@@ -69,7 +68,11 @@ public:
 
     void                setDefaultWindowSize();
 
-    void                tileWindows();
+    void                tileSubWindows() override;
+    void                storeSubWindowTiling(bool tiled) override;
+    void                clearWindowTiling() override;
+    bool                subWindowsAreTiled() const override;
+
     bool                isAnyMdiSubWindowVisible();
     QMdiSubWindow*      findMdiSubWindow(QWidget* viewer) override;
     QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
@@ -110,7 +113,7 @@ private slots:
 private:
     QByteArray          m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
 
-    QMdiArea*           m_mdiArea;
+    RiuMdiArea*         m_mdiArea;
     caf::PdmPointer<RimViewWindow>  m_activePlotViewWindow;
 
     QMenu*              m_windowMenu;

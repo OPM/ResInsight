@@ -12,6 +12,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuRimQwtPlotCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.h
+${CMAKE_CURRENT_LIST_DIR}/RiuMdiArea.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiSubWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMultiCaseImportDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuProcessMonitor.h
@@ -96,6 +97,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuRimQwtPlotCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuMdiArea.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiSubWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMultiCaseImportDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuProcessMonitor.cpp
@@ -175,6 +177,8 @@ list(APPEND QT_MOC_HEADERS
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.h
+${CMAKE_CURRENT_LIST_DIR}/RiuMdiArea.h
+${CMAKE_CURRENT_LIST_DIR}/RiuMdiSubWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuRelativePermeabilityPlotPanel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuResultInfoPanel.h

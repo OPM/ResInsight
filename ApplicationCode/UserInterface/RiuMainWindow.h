@@ -21,13 +21,13 @@
 #pragma once
 
 #include "RiuMainWindowBase.h"
+#include "RiuMdiArea.h"
 
 #include "cafPdmUiDragDropInterface.h"
 #include "cafPdmObjectHandle.h"
 
 #include <QEvent>
 #include <QLabel>
-#include <QMdiArea>
 #include <QPointer>
 
 #include <memory>
@@ -110,7 +110,11 @@ public:
     
     void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
 
-    void            tileWindows();
+    void            tileSubWindows() override;
+    void            storeSubWindowTiling(bool tiled) override;
+    void            clearWindowTiling() override;
+
+    bool            subWindowsAreTiled() const override;
     bool            isAnyMdiSubWindowVisible();
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer) override;
     RimViewWindow*  findViewWindowFromSubWindow(QMdiSubWindow* lhs);
@@ -167,7 +171,7 @@ private:
 
     caf::AnimationToolBar* m_animationToolBar;
 
-    QMdiArea*           m_mdiArea;
+    RiuMdiArea*         m_mdiArea;
     RiuResultInfoPanel* m_resultInfoPanel;
     RiuProcessMonitor*  m_processMonitor;
     QPointer<RiuMessagePanel>               m_messagePanel;

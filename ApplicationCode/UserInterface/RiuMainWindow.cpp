@@ -119,7 +119,7 @@ RiuMainWindow::RiuMainWindow()
     , m_blockSlotSubWindowActivated(false)
     , m_holoLensToolBar(nullptr)
 {
-    m_mdiArea = new QMdiArea;
+    m_mdiArea = new RiuMdiArea;
     connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
     setCentralWidget(m_mdiArea);
 
@@ -178,6 +178,12 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
 {
     setPdmRoot(RiaApplication::instance()->project());
     restoreTreeViewState();
+
+    if (subWindowsAreTiled())
+    {
+        tileSubWindows();
+    }
+
     slotRefreshFileActions();
     slotRefreshEditActions();
     slotRefreshViewActions();
@@ -864,7 +870,6 @@ void RiuMainWindow::slotRefreshFileActions()
     CVF_ASSERT(cmdFeatureMgr);
 
     cmdFeatureMgr->action("RicWellPathsImportSsihubFeature")->setEnabled(projectFileExists);
-
     QStringList commandIdList;
     commandIdList << "RicExportEclipseInputGridFeature";
     commandIdList << "RicSaveEclipseInputVisibleCellsFeature";
@@ -872,6 +877,7 @@ void RiuMainWindow::slotRefreshFileActions()
     commandIdList << "RicExportCompletionsForVisibleWellPathsFeature";
     commandIdList << "RicExportVisibleWellPathsFeature";
     cmdFeatureMgr->refreshStates(commandIdList);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -912,6 +918,7 @@ void RiuMainWindow::slotRefreshViewActions()
 
     {
         QStringList commandIds;
+        commandIds << "RicTileWindowsFeature";
         commandIds << "RicToggleMeasurementModeFeature";
         commandIds << "RicTogglePolyMeasurementModeFeature";
 
@@ -1111,7 +1118,10 @@ void RiuMainWindow::removeViewer(QWidget* viewer)
     m_blockSlotSubWindowActivated = true;
     m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
     m_blockSlotSubWindowActivated = false;
-
+    if (subWindowsAreTiled())
+    {
+        tileSubWindows();
+    }
     slotRefreshViewActions();
 }
 
@@ -1985,7 +1995,7 @@ void RiuMainWindow::customMenuRequested(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::tileWindows()
+void RiuMainWindow::tileSubWindows()
 {
     QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
 
@@ -2039,9 +2049,49 @@ void RiuMainWindow::tileWindows()
     }
 
     m_mdiArea->tileSubWindows();
+
     // Set back the original activation order to avoid messing with the standard ordering
     m_mdiArea->setActivationOrder(currentActivationOrder);
-    m_mdiArea->setActiveSubWindow(a);
+    m_mdiArea->setActiveSubWindow(a);  
+
+    storeSubWindowTiling(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::storeSubWindowTiling(bool tiled)
+{
+    RiaApplication::instance()->project()->setSubWindowsTiledIn3DWindow(tiled);
+    refreshViewActions();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::clearWindowTiling()
+{
+    QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
+
+    std::list<QMdiSubWindow*> windowList;
+    for (QMdiSubWindow* subWindow : m_mdiArea->subWindowList(currentActivationOrder))
+    {
+        subWindow->hide();
+        subWindow->showNormal();
+    }
+    storeSubWindowTiling(false);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuMainWindow::subWindowsAreTiled() const
+{
+    if (RiaApplication::instance()->project())
+    {
+        return RiaApplication::instance()->project()->subWindowsTiled3DWindow();
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
