@@ -365,8 +365,12 @@ bool RifEclipseInputFileTools::exportGrid(const QString&         fileName,
         }
     }
 
+    // Do not perform the transformation (applyMapaxes == false):
+    // The coordinates have been transformed to the mapaxes coordinate system already.
+    // However, send the mapaxes data in to libecl so that the coordinate system description is saved.
+    bool applyMapaxes = false;
     ecl_grid_type* mainEclGrid =
-        ecl_grid_alloc_GRID_data((int)ecl_coords.size(), ecl_nx, ecl_ny, ecl_nz, 5, &ecl_coords[0], &ecl_corners[0], false, mapAxes.data());
+        ecl_grid_alloc_GRID_data((int)ecl_coords.size(), ecl_nx, ecl_ny, ecl_nz, 5, &ecl_coords[0], &ecl_corners[0], applyMapaxes, mapAxes.data());
     progress.setProgress(mainGrid->cellCount());
 
     for (float* floatArray : ecl_corners)
@@ -433,7 +437,7 @@ bool RifEclipseInputFileTools::exportKeywords(const QString&              result
         std::vector<double> resultValues;
 
         RigEclipseResultAddress resAddr(RiaDefines::STATIC_NATIVE, keyword);
-        CVF_ASSERT(cellResultsData->hasResultEntry(resAddr));
+        if (!cellResultsData->hasResultEntry(resAddr)) continue;
 
         cellResultsData->ensureKnownResultLoaded(resAddr);
         
@@ -441,6 +445,8 @@ bool RifEclipseInputFileTools::exportKeywords(const QString&              result
 
         resultValues = cellResultsData->cellScalarResults(resAddr)[0];
         CVF_ASSERT(!resultValues.empty());
+        if (resultValues.empty()) continue;
+
 
         std::vector<double> filteredResults;
         filteredResults.reserve(resultValues.size());
