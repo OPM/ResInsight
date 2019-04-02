@@ -59,7 +59,7 @@ void RicExportEclipseSectorModelUi::GridBoxSelectionEnum::setUp()
     addItem(RicExportEclipseSectorModelUi::VISIBLE_CELLS_BOX, "VISIBLE_CELLS", "Box Containing all Visible Cells");
     addItem(RicExportEclipseSectorModelUi::ACTIVE_CELLS_BOX, "ACTIVE_CELLS", "Box Containing all Active Cells");
     addItem(RicExportEclipseSectorModelUi::FULL_GRID_BOX, "FULL_GRID", "Full Grid");
-    addItem(RicExportEclipseSectorModelUi::MANUAL_SELECTION, "MANUAL_SELECTION", "Manual Selection");
+    addItem(RicExportEclipseSectorModelUi::MANUAL_SELECTION, "MANUAL_SELECTION", "User Defined Selection");
 
     setDefault(RicExportEclipseSectorModelUi::VISIBLE_CELLS_BOX);
 }
