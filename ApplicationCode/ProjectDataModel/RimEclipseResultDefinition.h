@@ -70,7 +70,7 @@ public:
     };
 
 public:
-    RimEclipseResultDefinition();
+    RimEclipseResultDefinition(caf::PdmUiItemInfo::LabelPosType labelPosition = caf::PdmUiItemInfo::LEFT);
     ~RimEclipseResultDefinition() override;
 
     void                            simpleCopy(const RimEclipseResultDefinition* other);
@@ -122,7 +122,6 @@ public:
     void                            updateUiFieldsFromActiveResult();
 
     void                            setDiffResultOptionsEnabled(bool enabled);
-    void                            setLabelsOnTop(bool labelsOnTop);
 
     bool                            hasDualPorFractureResult();
 
@@ -223,9 +222,10 @@ private:
 
     void                            ensureProcessingOfObsoleteFields();
     bool                            isTernaryEnabled() const;
+
 private:
-    bool                            m_diffResultOptionsEnabled;
-    bool                            m_labelsOnTop;
-    bool                            m_ternaryEnabled;
+    bool                             m_diffResultOptionsEnabled;
+    caf::PdmUiItemInfo::LabelPosType m_labelPosition;
+    bool                             m_ternaryEnabled;
 };
 

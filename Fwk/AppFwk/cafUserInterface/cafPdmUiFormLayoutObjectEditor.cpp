@@ -197,7 +197,8 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                                 labelAndFieldVerticalLayout->addWidget(fieldEditorWidget, 1, Qt::AlignTop);
 
                                 // Apply margins determined by the editor type
-                                fieldLabelWidget->setContentsMargins(fieldEditor->labelContentMargins());
+                                //fieldLabelWidget->setContentsMargins(fieldEditor->labelContentMargins());
+                                currentColumn += itemColumnSpan;
                             }
                             else
                             {

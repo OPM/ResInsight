@@ -74,9 +74,9 @@ CAF_PDM_SOURCE_INIT(RimEclipseResultDefinition, "ResultDefinition");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultDefinition::RimEclipseResultDefinition()
+RimEclipseResultDefinition::RimEclipseResultDefinition(caf::PdmUiItemInfo::LabelPosType labelPosition)
     : m_diffResultOptionsEnabled(false)
-    , m_labelsOnTop(false)
+    , m_labelPosition(labelPosition)
     , m_ternaryEnabled(true)
 {
     CAF_PDM_InitObject("Result Definition", "", "", "");
@@ -114,19 +114,22 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
 
     CAF_PDM_InitFieldNoDefault(&m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_phaseSelection, "PhaseSelection", "Phases", "", "", "");
-
+    m_phaseSelection.uiCapability()->setUiLabelPosition(m_labelPosition);
     // Ui only fields
 
     CAF_PDM_InitFieldNoDefault(&m_resultTypeUiField, "MResultType", "Type", "", "", "");
     m_resultTypeUiField.xmlCapability()->disableIO();
+    m_resultTypeUiField.uiCapability()->setUiLabelPosition(m_labelPosition);
 
     CAF_PDM_InitFieldNoDefault(&m_porosityModelUiField, "MPorosityModelType", "Porosity", "", "", "");
     m_porosityModelUiField.xmlCapability()->disableIO();
+    m_porosityModelUiField.uiCapability()->setUiLabelPosition(m_labelPosition);
 
     CAF_PDM_InitField(
         &m_resultVariableUiField, "MResultVariable", RiaDefines::undefinedResultName(), "Result Property", "", "", "");
     m_resultVariableUiField.xmlCapability()->disableIO();
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_resultVariableUiField.uiCapability()->setUiLabelPosition(m_labelPosition);
 
     CAF_PDM_InitFieldNoDefault(&m_flowSolutionUiField, "MFlowDiagSolution", "Solution", "", "", "");
     m_flowSolutionUiField.xmlCapability()->disableIO();
@@ -151,6 +154,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     CAF_PDM_InitFieldNoDefault(&m_selectedSouringTracersUiField, "MSelectedSouringTracers", "Tracers", "", "", "");
     m_selectedSouringTracersUiField.xmlCapability()->disableIO();
     m_selectedSouringTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_selectedSouringTracersUiField.uiCapability()->setUiLabelPosition(m_labelPosition);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1191,14 +1195,6 @@ void RimEclipseResultDefinition::setDiffResultOptionsEnabled(bool enabled)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::setLabelsOnTop(bool labelsOnTop)
-{
-    m_labelsOnTop = labelsOnTop;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 {
     bool isTernary = (m_resultType() == RiaDefines::DYNAMIC_NATIVE) &&
@@ -1324,19 +1320,6 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
             resultPropertyLabel += QString("<br>\n<br>\n%1").arg(diffResultUiShortNameHTML());
         }
         m_resultVariableUiField.uiCapability()->setUiName(resultPropertyLabel);
-    }
-
-    if (m_labelsOnTop)
-    {
-        std::vector<caf::PdmFieldHandle*> fields;
-        this->fields(fields);
-        for (auto field : fields)
-        {
-            if (field->uiCapability())
-            {
-                field->uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
-            }
-        }
     }
 
     uiOrdering.skipRemainingFields(true);

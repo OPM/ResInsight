@@ -94,17 +94,16 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     CAF_PDM_InitFieldNoDefault(&m_grouping, "Grouping", "Group Data by", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_xAxisProperty, "XAxisProperty", "X-Axis Property", "", "", "");
-    m_xAxisProperty = new RimEclipseResultDefinition;
+    m_xAxisProperty = new RimEclipseResultDefinition(caf::PdmUiItemInfo::TOP);
     m_xAxisProperty.uiCapability()->setUiHidden(true);
     m_xAxisProperty.uiCapability()->setUiTreeChildrenHidden(true);
-    m_xAxisProperty->setLabelsOnTop(true);
     m_xAxisProperty->setTernaryEnabled(false);
 
     CAF_PDM_InitFieldNoDefault(&m_yAxisProperty, "YAxisProperty", "Y-Axis Property", "", "", "");
-    m_yAxisProperty = new RimEclipseResultDefinition;
+    m_yAxisProperty = new RimEclipseResultDefinition(caf::PdmUiItemInfo::TOP);
     m_yAxisProperty.uiCapability()->setUiHidden(true);
     m_yAxisProperty.uiCapability()->setUiTreeChildrenHidden(true);
-    m_yAxisProperty->setLabelsOnTop(true);
+    
     m_yAxisProperty->setTernaryEnabled(false);
 
     CAF_PDM_InitFieldNoDefault(&m_groupingProperty, "GroupingProperty", "Data Grouping Property", "", "", "");
