@@ -110,6 +110,7 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     CAF_PDM_InitFieldNoDefault(&m_groupingProperty, "GroupingProperty", "Data Grouping Property", "", "", "");
     m_groupingProperty = new RimEclipseCellColors;
     m_groupingProperty.uiCapability()->setUiHidden(true);
+    CVF_ASSERT(m_groupingProperty->legendConfig());
     m_groupingProperty->legendConfig()->setMappingMode(RimRegularLegendConfig::CATEGORY_INTEGER);
     m_groupingProperty->setTernaryEnabled(false);
 
@@ -777,6 +778,8 @@ void RimGridCrossPlotDataSet::defineUiOrdering(QString uiConfigName, caf::PdmUiO
         uiOrdering.add(&m_cellFilterView);
         uiOrdering.add(&m_grouping);
 
+        CVF_ASSERT(m_xAxisProperty && m_yAxisProperty && m_groupingProperty && "All property objects should always be created");
+
         if (m_grouping() == GROUP_BY_TIME && !(m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult()))
         {
             m_grouping = NO_GROUPING;
@@ -912,6 +915,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotDataSet::calculateValueOptions(con
             options.push_back(caf::PdmOptionItemInfo("Disabled", nullptr));
             for (RimEclipseView* view : eclipseCase->reservoirViews.childObjects())
             {
+                CVF_ASSERT(view && "Really always should have a valid view pointer in ReservoirViews");
                 options.push_back(caf::PdmOptionItemInfo(view->name(), view, false, view->uiIcon()));
             }
         }
@@ -925,7 +929,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotDataSet::calculateValueOptions(con
         }
         {
             RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
-            if (!eclipseCase || !eclipseCase->eclipseCaseData()->activeFormationNames())
+            if (!(eclipseCase && eclipseCase->activeFormationNames()))
             {
                 validOptions.erase(GROUP_BY_FORMATION);
             }
