@@ -178,13 +178,17 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         RimWellAllocationPlot* wellAllocPlot;
         firstAncestorOrThisOfType(wellAllocPlot);
-        if (wellAllocPlot) wellAllocPlot->loadDataAndUpdate();
-        else if (isRftPlotChild()) rftPlot()->loadDataAndUpdate();
-        else
+        if (wellAllocPlot)
         {
-            updateTracks();
-            updateDepthZoom();
+            wellAllocPlot->loadDataAndUpdate();
         }
+        else if (isRftPlotChild())
+        {
+            rftPlot()->loadDataAndUpdate();
+        }
+
+        updateTracks();
+        updateDepthZoom();
     }
     else if ( changedField == &m_depthUnit)
     {
@@ -586,8 +590,7 @@ void RimWellLogPlot::uiOrderingForDepthAxis(caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Depth Axis");
     
-    RimWellRftPlot* rftp = rftPlot();
-    if (!(rftp || pltPlot()))
+    if (!pltPlot())
     {
         gridGroup->add(&m_depthType);
     }
@@ -595,7 +598,7 @@ void RimWellLogPlot::uiOrderingForDepthAxis(caf::PdmUiOrdering& uiOrdering)
     RimWellAllocationPlot* wap;
     firstAncestorOrThisOfType(wap);
 
-    if (!(wap || rftp))
+    if (!wap)
     {
         gridGroup->add(&m_depthUnit);
     }
@@ -1127,7 +1130,6 @@ void RimWellLogPlot::updateDisabledDepthTypes()
     }
     else if (isRftPlotChild())
     {
-        m_disabledDepthTypes.insert(MEASURED_DEPTH);
         m_disabledDepthTypes.insert(PSEUDO_LENGTH);
         m_disabledDepthTypes.insert(CONNECTION_NUMBER);
     }

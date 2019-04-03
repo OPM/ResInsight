@@ -106,6 +106,7 @@ private:
     void                                updateEditorsFromCurves();
     void                                updateWidgetTitleWindowTitle();
     void                                syncCurvesFromUiSelection();
+    void                                assignWellPathToExtractionCurves();
 
     std::set<RiaRftPltCurveDefinition>  selectedCurveDefs() const;
     std::set<RiaRftPltCurveDefinition>  curveDefsFromCurves() const;

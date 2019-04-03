@@ -856,10 +856,37 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
 
+    if (m_wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH)
+    {
+        assignWellPathToExtractionCurves();
+    }
+
     m_wellLogPlot->loadDataAndUpdate();
 
     updateEditorsFromCurves();
     updateWidgetTitleWindowTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::assignWellPathToExtractionCurves()
+{
+    RimProject*  proj     = RiaApplication::instance()->project();
+    RimWellPath* wellPath = proj->wellPathByName(m_wellPathNameOrSimWellName);
+
+    if (wellPath)
+    {
+        for (RimWellLogCurve* curve : m_wellLogPlot->trackByIndex(0)->curvesVector())
+        {
+            auto extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>(curve);
+            if (extractionCurve)
+            {
+                extractionCurve->setTrajectoryType(RimWellLogExtractionCurve::WELL_PATH);
+                extractionCurve->setWellPath(wellPath);
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
