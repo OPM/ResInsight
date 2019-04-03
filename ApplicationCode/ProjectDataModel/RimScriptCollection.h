@@ -59,4 +59,7 @@ public: // Methods
 
 protected:
     void                                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+private:
+    caf::PdmField<bool> m_searchSubFolders;
 };

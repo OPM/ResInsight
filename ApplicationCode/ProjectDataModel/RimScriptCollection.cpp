@@ -43,6 +43,8 @@ RimScriptCollection::RimScriptCollection()
     CAF_PDM_InitFieldNoDefault(&subDirectories, "SubDirectories", "",  "", "", "");
     subDirectories.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitField(&m_searchSubFolders, "SearchSubFolders", false, "Add Subfolders", "", "", "");
+
     directory.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 }
 
@@ -100,13 +102,12 @@ void RimScriptCollection::readContentFromDisc()
         }
     }
 
-    // Add subfolders
+    subDirectories.deleteAllChildObjects();
+
+    if (m_searchSubFolders())
     {
         QDir dir(directory);
         QFileInfoList fileInfoList = dir.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Readable);
-        subDirectories.deleteAllChildObjects();
-
-        QStringList retFileNames;
 
         QListIterator<QFileInfo> it(fileInfoList);
         while (it.hasNext())
@@ -177,6 +178,10 @@ void RimScriptCollection::fieldChangedByUi(const caf::PdmFieldHandle *changedFie
     {
         QFileInfo fi(directory);
         this->setUiName(fi.baseName());
+        this->readContentFromDisc();
+    }
+    else if (&m_searchSubFolders == changedField)
+    {
         this->readContentFromDisc();
     }
 }
