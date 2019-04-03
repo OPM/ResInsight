@@ -93,8 +93,8 @@ bool RigCaseCellResultCalculator::computeDifference(RigEclipseCaseData*         
     }
 
     RigEclipseResultAddress nativeAddress(address);
-    nativeAddress.m_differenceCaseId      = RigEclipseResultAddress::NO_CASE_DIFF;
-    nativeAddress.m_timeLapseBaseFrameIdx = RigEclipseResultAddress::NO_TIME_LAPSE;
+    nativeAddress.m_differenceCaseId      = RigEclipseResultAddress::noCaseDiffValue();
+    nativeAddress.m_timeLapseBaseFrameIdx = RigEclipseResultAddress::noTimeLapseValue();
     if (!sourceCaseResults->ensureKnownResultLoaded(nativeAddress))
     {
         RiaLogging::error("Failed to load destination diff result");

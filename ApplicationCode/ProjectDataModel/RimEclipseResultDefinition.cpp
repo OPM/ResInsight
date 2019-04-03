@@ -94,7 +94,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     m_flowSolution.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(
-        &m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", RigEclipseResultAddress::NO_TIME_LAPSE, "Base Time Step", "", "", "");
+        &m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", RigEclipseResultAddress::noTimeLapseValue(), "Base Time Step", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_differenceCase, "DifferenceCase", "Difference Case", "", "", "");
 
@@ -269,7 +269,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     if (&m_differenceCase == changedField)
     {
-        m_timeLapseBaseTimestep = RigEclipseResultAddress::NO_TIME_LAPSE;
+        m_timeLapseBaseTimestep = RigEclipseResultAddress::noTimeLapseValue();
         loadDataAndUpdate();
     }
 
@@ -690,7 +690,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
                 baseCase = m_differenceCase;
             }
 
-            options.push_back(caf::PdmOptionItemInfo("Disabled", RigEclipseResultAddress::NO_TIME_LAPSE));
+            options.push_back(caf::PdmOptionItemInfo("Disabled", RigEclipseResultAddress::noTimeLapseValue()));
 
             std::vector<QDateTime> stepDates = baseCase->timeStepDates();
             for (size_t stepIdx = 0; stepIdx < stepDates.size(); ++stepIdx)
@@ -718,8 +718,8 @@ RigEclipseResultAddress RimEclipseResultDefinition::eclipseResultAddress() const
     const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        int timelapseTimeStep = RigEclipseResultAddress::NO_TIME_LAPSE;
-        int diffCaseId        = RigEclipseResultAddress::NO_CASE_DIFF;
+        int timelapseTimeStep = RigEclipseResultAddress::noTimeLapseValue();
+        int diffCaseId        = RigEclipseResultAddress::noCaseDiffValue();
 
         if (isTimeDiffResult())
         {

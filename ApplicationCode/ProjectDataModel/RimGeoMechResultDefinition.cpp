@@ -77,7 +77,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
     CAF_PDM_InitField(&m_resultComponentName, "ResultComponentName", QString(""), "Component", "", "", "");
     m_resultComponentName.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", (int) RigFemResultAddress::NO_TIME_LAPSE, "Base Time Step", "", "", "");
+    CAF_PDM_InitField(&m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", RigFemResultAddress::noTimeLapseValue(), "Base Time Step", "", "", "");
 
     CAF_PDM_InitField(&m_compactionRefLayer, "CompactionRefLayer", 0, "Compaction Ref Layer", "", "", "");
     m_compactionRefLayer.uiCapability()->setUiHidden(true);
@@ -91,7 +91,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_resultVariableUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
-    CAF_PDM_InitField(&m_compactionRefLayerUiField, "CompactionRefLayerUi", (int)RigFemResultAddress::NO_COMPACTION, "Compaction Ref Layer", "", "The compaction is calculated with reference to this layer. Default layer is the topmost layer with POR", "");
+    CAF_PDM_InitField(&m_compactionRefLayerUiField, "CompactionRefLayerUi", RigFemResultAddress::noCompactionValue(), "Compaction Ref Layer", "", "The compaction is calculated with reference to this layer. Default layer is the topmost layer with POR", "");
     m_compactionRefLayerUiField.xmlCapability()->disableIO();
 
     // OBSOLETE FIELDS
@@ -120,7 +120,7 @@ void RimGeoMechResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
     uiOrdering.add(&m_resultVariableUiField);
 
     QString valueLabel = "Value";
-    if (m_timeLapseBaseTimestep != RigFemResultAddress::NO_TIME_LAPSE)
+    if (m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue())
     {
         valueLabel += QString(" (%1)").arg(diffResultUiName());
     }
@@ -137,7 +137,7 @@ void RimGeoMechResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         caf::PdmUiGroup * compactionGroup = uiOrdering.addNewGroup("Compaction Options");
         compactionGroup->add(&m_compactionRefLayerUiField);
 
-        if (m_compactionRefLayerUiField == (int)RigFemResultAddress::NO_COMPACTION)
+        if (m_compactionRefLayerUiField == RigFemResultAddress::noCompactionValue())
         {
             if (m_geomCase &&  m_geomCase->geoMechData() )
             {
@@ -201,7 +201,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
                  stepNames = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
             }
 
-            options.push_back(caf::PdmOptionItemInfo(QString("Disabled"), (int)RigFemResultAddress::NO_TIME_LAPSE));
+            options.push_back(caf::PdmOptionItemInfo(QString("Disabled"), RigFemResultAddress::noTimeLapseValue()));
             for (size_t stepIdx = 0; stepIdx < stepNames.size(); ++stepIdx)
             {
                 options.push_back(caf::PdmOptionItemInfo(QString("%1 (#%2)").arg(QString::fromStdString(stepNames[stepIdx])).arg(stepIdx), static_cast<int>(stepIdx)));
@@ -244,7 +244,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     {
         if (m_resultPositionTypeUiField() == RIG_WELLPATH_DERIVED || m_resultPositionType() == RIG_FORMATION_NAMES)
         {
-            m_timeLapseBaseTimestep = RigFemResultAddress::NO_TIME_LAPSE;
+            m_timeLapseBaseTimestep = RigFemResultAddress::noTimeLapseValue();
             m_timeLapseBaseTimestep.uiCapability()->setUiReadOnly(true);
         }
         else
@@ -435,7 +435,7 @@ void RimGeoMechResultDefinition::initAfterRead()
 {
     if (!m_isTimeLapseResult_OBSOLETE())
     {
-        m_timeLapseBaseTimestep = RigFemResultAddress::NO_TIME_LAPSE;
+        m_timeLapseBaseTimestep = RigFemResultAddress::noTimeLapseValue();
     }
 
     m_resultPositionTypeUiField = m_resultPositionType;
@@ -486,7 +486,7 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
                                resultFieldName().toStdString(), 
                                resultComponentName().toStdString(),
                                m_timeLapseBaseTimestep(),
-                               resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION ? m_compactionRefLayer() : RigFemResultAddress::NO_COMPACTION);
+                               resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION ? m_compactionRefLayer() : RigFemResultAddress::noCompactionValue());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -527,7 +527,7 @@ QString RimGeoMechResultDefinition::resultComponentName() const
 QString RimGeoMechResultDefinition::diffResultUiName() const
 {
     QString diffResultString;
-    if (m_timeLapseBaseTimestep != RigFemResultAddress::NO_TIME_LAPSE)
+    if (m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue())
     {
         if (m_geomCase->geoMechData())
         {
@@ -545,7 +545,7 @@ QString RimGeoMechResultDefinition::diffResultUiName() const
 QString RimGeoMechResultDefinition::diffResultUiShortName() const
 {
     QString diffResultString;
-    if (m_timeLapseBaseTimestep != RigFemResultAddress::NO_TIME_LAPSE)
+    if (m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue())
     {
         if (m_geomCase->geoMechData())
         {

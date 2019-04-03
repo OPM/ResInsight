@@ -57,9 +57,9 @@ public:
         }
     }
 
-    static const int ALL_TIME_LAPSES = -2;
-    static const int NO_TIME_LAPSE = -1;
-    static const int NO_CASE_DIFF = -1;
+    static constexpr int allTimeLapsesValue() { return ALL_TIME_LAPSES; }
+    static constexpr int noTimeLapseValue()   { return NO_TIME_LAPSE; }
+    static constexpr int noCaseDiffValue()    { return NO_CASE_DIFF; }
 
     bool isTimeLapse() const { return m_timeLapseBaseFrameIdx > NO_TIME_LAPSE;}
     bool representsAllTimeLapses() const { return m_timeLapseBaseFrameIdx == ALL_TIME_LAPSES;}
@@ -104,6 +104,11 @@ public:
     
     int                       m_timeLapseBaseFrameIdx;
     int                       m_differenceCaseId;
+
+private:
+    static const int ALL_TIME_LAPSES = -2;
+    static const int NO_TIME_LAPSE   = -1;
+    static const int NO_CASE_DIFF    = -1;
 };
 
 

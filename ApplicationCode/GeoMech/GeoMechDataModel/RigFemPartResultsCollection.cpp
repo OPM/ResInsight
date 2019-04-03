@@ -193,12 +193,12 @@ void RigFemPartResultsCollection::setCalculationParameters(double cohesion, doub
     m_frictionAngleRad = frictionAngleRad;
 
     // Todo, delete all dependent results
-    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "SFI", RigFemResultAddress::ALL_TIME_LAPSES));
-    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "SFI", RigFemResultAddress::ALL_TIME_LAPSES));
-    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "DSM", RigFemResultAddress::ALL_TIME_LAPSES));
-    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "DSM", RigFemResultAddress::ALL_TIME_LAPSES));
-    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "FOS", RigFemResultAddress::ALL_TIME_LAPSES));
-    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "FOS", RigFemResultAddress::ALL_TIME_LAPSES));
+    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "SFI", RigFemResultAddress::allTimeLapsesValue()));
+    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "SFI", RigFemResultAddress::allTimeLapsesValue()));
+    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "DSM", RigFemResultAddress::allTimeLapsesValue()));
+    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "DSM", RigFemResultAddress::allTimeLapsesValue()));
+    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "FOS", RigFemResultAddress::allTimeLapsesValue()));
+    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "FOS", RigFemResultAddress::allTimeLapsesValue()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -605,7 +605,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
         frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
         frameCountProgress.setNextProgressIncrement(this->frameCount());
 
-        RigFemResultAddress resVarNative(resVarAddr.resultPosType, resVarAddr.fieldName, resVarAddr.componentName, RigFemResultAddress::NO_TIME_LAPSE, resVarAddr.refKLayerIndex);
+        RigFemResultAddress resVarNative(resVarAddr.resultPosType, resVarAddr.fieldName, resVarAddr.componentName, RigFemResultAddress::noTimeLapseValue(), resVarAddr.refKLayerIndex);
         RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, resVarNative);
         RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
