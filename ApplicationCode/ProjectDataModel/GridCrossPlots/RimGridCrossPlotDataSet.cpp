@@ -794,7 +794,7 @@ void RimGridCrossPlotDataSet::defineUiOrdering(QString uiConfigName, caf::PdmUiO
         caf::PdmUiGroup* xAxisGroup = uiOrdering.addNewGroup("X-Axis Property");
         m_xAxisProperty->uiOrdering(uiConfigName, *xAxisGroup);
 
-        caf::PdmUiGroup* yAxisGroup = uiOrdering.addNewGroup("Y-Axis Property";
+        caf::PdmUiGroup* yAxisGroup = uiOrdering.addNewGroup("Y-Axis Property");
         m_yAxisProperty->uiOrdering(uiConfigName, *yAxisGroup);
     }
 
