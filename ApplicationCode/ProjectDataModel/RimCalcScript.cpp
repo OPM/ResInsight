@@ -18,10 +18,13 @@
 
 #include "RimCalcScript.h"
 
+#include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
 
 #include "cafPdmField.h"
 #include "cafPdmUiFilePathEditor.h"
+
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT(RimCalcScript, "CalcScript");
 
@@ -43,3 +46,22 @@ RimCalcScript::RimCalcScript()
 ///
 //--------------------------------------------------------------------------------------------------
 RimCalcScript::~RimCalcScript() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimCalcScript::createCommandLineArguments(const QString& absoluteFileName)
+{
+    QFileInfo fi(absoluteFileName);
+    QString   octaveFunctionSearchPath = fi.absolutePath();
+
+    auto app = RiaApplication::instance();
+
+    QStringList arguments = app->octaveArguments();
+    arguments.append("--path");
+
+    arguments << octaveFunctionSearchPath;
+    arguments << absoluteFileName;
+
+    return arguments;
+}

@@ -19,8 +19,11 @@
 
 #include "RicExecuteScriptForCasesFeature.h"
 
-#include "RimCase.h"
 #include "RiaApplication.h"
+
+#include "RimCase.h"
+#include "RimCalcScript.h"
+
 #include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"
@@ -62,16 +65,7 @@ void RicExecuteScriptForCasesFeature::onActionTriggered(bool isChecked)
     QString octavePath = app->octavePath();
     if (!octavePath.isEmpty())
     {
-        // TODO: Must rename RimCalcScript::absolutePath to absoluteFileName, as the code below is confusing
-        // absolutePath() is a function in QFileInfo
-
-        QFileInfo fi(scriptAbsolutePath);
-        QString octaveFunctionSearchPath = fi.absolutePath();
-
-        QStringList arguments = app->octaveArguments();
-        arguments.append("--path");
-        arguments << octaveFunctionSearchPath;
-        arguments << scriptAbsolutePath;
+        QStringList arguments = RimCalcScript::createCommandLineArguments(scriptAbsolutePath);
 
         std::vector<RimCase*> selection;
         caf::SelectionManager::instance()->objectsByType(&selection);

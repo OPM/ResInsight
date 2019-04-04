@@ -33,6 +33,8 @@ public:
     RimCalcScript();
     ~RimCalcScript() override;
 
+    static QStringList createCommandLineArguments(const QString& absoluteFileName);
+
     caf::PdmField<QString>  absoluteFileName;
     caf::PdmField<QString>  content;    // TODO: Obsolete field, can be deleted on next project file revision.
 };

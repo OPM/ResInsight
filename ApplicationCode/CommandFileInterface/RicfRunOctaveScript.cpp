@@ -22,6 +22,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RimCalcScript.h"
+
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT(RicfRunOctaveScript, "runOctaveScript");
@@ -41,11 +43,8 @@ RicfRunOctaveScript::RicfRunOctaveScript()
 void RicfRunOctaveScript::execute()
 {
     QString octavePath = RiaApplication::instance()->octavePath();
-    QFileInfo scriptFileInfo(m_path());
-    QStringList processArguments;
 
-    processArguments << "--path" << scriptFileInfo.absolutePath();
-    processArguments << scriptFileInfo.absoluteFilePath();
+    QStringList processArguments = RimCalcScript::createCommandLineArguments(m_path());
 
     bool ok;
     if (m_caseIds().empty())
