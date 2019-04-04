@@ -57,6 +57,9 @@ void RiuMdiArea::resizeEvent(QResizeEvent* resizeEvent)
             riuWindow->blockTilingChanges(true);
         }
 
+        RiuMainWindowBase* mainWindow = dynamic_cast<RiuMainWindowBase*>(window());
+        mainWindow->setBlockSlotSubWindowActivated(true);
+
         // Workaround for Qt bug #51761: https://bugreports.qt.io/browse/QTBUG-51761
         // Set the first window to be the active window then perform resize event and set back.
         auto a = activeSubWindow();
@@ -66,6 +69,8 @@ void RiuMdiArea::resizeEvent(QResizeEvent* resizeEvent)
         tileSubWindows();
 
         setActiveSubWindow(a);
+
+        mainWindow->setBlockSlotSubWindowActivated(false);
 
         for (auto subWindow : subWindowList())
         {

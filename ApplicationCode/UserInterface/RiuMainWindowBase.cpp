@@ -42,6 +42,7 @@ RiuMainWindowBase::RiuMainWindowBase()
     : m_projectTreeView(nullptr)
     , m_allowActiveViewChangeFromSelection(true)
     , m_showFirstVisibleWindowMaximized(true)
+    , m_blockSlotSubWindowActivated(false)
 {
     setDockNestingEnabled(true);
 }
@@ -144,6 +145,22 @@ void RiuMainWindowBase::selectAsCurrentItem(const caf::PdmObject* object, bool a
 void RiuMainWindowBase::enableShowFirstVisibleMdiWindowMaximized(bool enable)
 {
     m_showFirstVisibleWindowMaximized = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::setBlockSlotSubWindowActivated(bool block)
+{
+    m_blockSlotSubWindowActivated = block;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuMainWindowBase::blockSlotSubWindowActivated() const
+{
+    return m_blockSlotSubWindowActivated;
 }
 
 //--------------------------------------------------------------------------------------------------

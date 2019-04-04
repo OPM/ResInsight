@@ -116,7 +116,6 @@ RiuMainWindow::RiuMainWindow()
     , m_pvtPlotPanel(nullptr)
     , m_mohrsCirclePlot(nullptr)
     , m_windowMenu(nullptr)
-    , m_blockSlotSubWindowActivated(false)
     , m_holoLensToolBar(nullptr)
 {
     m_mdiArea = new RiuMdiArea;
@@ -1115,9 +1114,9 @@ RiuMessagePanel* RiuMainWindow::messagePanel()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::removeViewer(QWidget* viewer)
 {
-    m_blockSlotSubWindowActivated = true;
+    setBlockSlotSubWindowActivated(true);
     m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
-    m_blockSlotSubWindowActivated = false;
+    setBlockSlotSubWindowActivated(false);
     if (subWindowsAreTiled())
     {
         tileSubWindows();
@@ -1245,7 +1244,7 @@ void RiuMainWindow::slotViewFromBelow()
 void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
     if (!subWindow) return;
-    if (m_blockSlotSubWindowActivated) return;
+    if (blockSlotSubWindowActivated()) return;
 
     RimProject* proj = RiaApplication::instance()->project();
     if (!proj) return;
@@ -1353,12 +1352,12 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::setActiveViewer(QWidget* viewer)
 {
-    m_blockSlotSubWindowActivated = true;
+    setBlockSlotSubWindowActivated(true);
 
     QMdiSubWindow* swin = findMdiSubWindow(viewer);
     if (swin) m_mdiArea->setActiveSubWindow(swin);
 
-    m_blockSlotSubWindowActivated = false;
+    setBlockSlotSubWindowActivated(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2036,23 +2035,26 @@ void RiuMainWindow::tileSubWindows()
         }
         return lhs->frameGeometry().topLeft().rx() > rhs->frameGeometry().topLeft().rx();
     });
-
+    
     // Based on workaround described here
     // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
 
+    bool prevActivationBlock = blockSlotSubWindowActivated();
     // Force activation order so they end up in the order of the loop.
     m_mdiArea->setActivationOrder(QMdiArea::ActivationHistoryOrder);
     QMdiSubWindow* a = m_mdiArea->activeSubWindow();
+
+    setBlockSlotSubWindowActivated(true);
     for (QMdiSubWindow* subWindow : windowList)
     {
         m_mdiArea->setActiveSubWindow(subWindow);
     }
 
     m_mdiArea->tileSubWindows();
-
     // Set back the original activation order to avoid messing with the standard ordering
     m_mdiArea->setActivationOrder(currentActivationOrder);
     m_mdiArea->setActiveSubWindow(a);  
+    setBlockSlotSubWindowActivated(prevActivationBlock);
 
     storeSubWindowTiling(true);
 }
