@@ -75,6 +75,7 @@ public:
                                                       
     RigEclipseCaseData*                         eclipseCaseData();
     const RigEclipseCaseData*                   eclipseCaseData() const;
+    void                                        ensureDeckIsParsedForEquilData();
     cvf::Color3f                                defaultWellColor(const QString& wellName);
 
     const RigMainGrid*                          mainGrid() const;

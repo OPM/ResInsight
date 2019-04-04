@@ -231,6 +231,8 @@ std::vector<RigEquil> RimPlotAxisAnnotation::equilItems() const
 {
     if (m_sourceCase && m_sourceCase->eclipseCaseData())
     {
+        m_sourceCase->ensureDeckIsParsedForEquilData();
+
         return m_sourceCase->eclipseCaseData()->equilData();
     }
 

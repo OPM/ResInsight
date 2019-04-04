@@ -119,6 +119,7 @@ public:
 
     void                                        clearWellCellsInGridCache() { m_wellCellsInGrid.clear(); }
 
+    void                                        ensureDeckIsParsedForEquilData(const QString& dataDeckFile, const QString& includeFileAbsolutePathPrefix);
     std::vector<RigEquil>                       equilData() const;
     void                                        setEquilData(const std::vector<RigEquil>& equilObjects);
 
@@ -145,6 +146,7 @@ private:
 
     RiaEclipseUnitTools::UnitSystem             m_unitsType;
 
+    bool                                        m_hasParsedDeckForEquilData;
     std::vector<RigEquil>                       m_equil;
 
     mutable std::map<std::tuple<QString, bool, bool>, cvf::Collection<RigWellPath>> m_simWellBranchCache;

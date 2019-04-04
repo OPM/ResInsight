@@ -74,6 +74,7 @@ std::vector<RimSaturationPressurePlot*>
         }
     }
 
+    eclipseResultCase->ensureDeckIsParsedForEquilData();
     std::vector<RigEquil> equilData = eclipseCaseData->equilData();
     for (size_t i = 0; i < equilData.size(); i++)
     {

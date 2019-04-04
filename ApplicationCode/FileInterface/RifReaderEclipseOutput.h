@@ -76,6 +76,10 @@ public:
                            const cvf::Vec3st&  refinement);
 
     static void             transferCoarseningInfo(const ecl_grid_type* eclGrid, RigGridBase* grid);
+    
+    static void             importEquilData(const QString&      deckFileName,
+                                            const QString&      includeStatementAbsolutePathPrefix,
+                                            RigEclipseCaseData* eclipseCase);
 
     std::set<RiaDefines::PhaseType> availablePhases() const override;
 
@@ -89,7 +93,6 @@ private:
     RigWellResultPoint      createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId, const char* wellName);
     
     void                    importFaults(const QStringList& fileSet, cvf::Collection<RigFault>* faults);
-    void                    importEquilData(const QStringList& fileSet, RigEclipseCaseData* eclipseCase);
 
     void                    openInitFile();
 

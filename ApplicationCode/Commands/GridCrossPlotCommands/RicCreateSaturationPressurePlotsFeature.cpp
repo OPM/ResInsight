@@ -112,16 +112,18 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
 
     caf::PdmObject* objectToSelect = nullptr;
 
-    if (eclipseResultCase)
+    if (eclipseResultCase && eclipseResultCase->ensureReservoirCaseIsOpen())
     {
-        eclipseResultCase->ensureReservoirCaseIsOpen();
+        eclipseResultCase->ensureDeckIsParsedForEquilData();
+
+        RigEclipseCaseData* eclipseCaseData = eclipseResultCase->eclipseCaseData();
 
         bool requiredInputDataPresent = false;
-        if (!eclipseResultCase->eclipseCaseData()->equilData().empty())
+        if (!eclipseCaseData->equilData().empty())
         {
-            if (eclipseResultCase->eclipseCaseData() && eclipseResultCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL))
+            if (eclipseCaseData && eclipseCaseData->results(RiaDefines::MATRIX_MODEL))
             {
-                RigCaseCellResultsData* resultData = eclipseResultCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL);
+                RigCaseCellResultsData* resultData = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
 
                 if (resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PRESSURE")) &&
                     resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PDEW")) &&

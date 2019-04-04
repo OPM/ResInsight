@@ -18,6 +18,9 @@
 
 #include "RimSaturationPressurePlot.h"
 
+#include "RiaColorTables.h"
+#include "RiaLogging.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEquil.h"
@@ -29,7 +32,6 @@
 #include "RimPlotAxisProperties.h"
 
 #include "CellFilters/RimPlotCellPropertyFilter.h"
-#include "RiaColorTables.h"
 
 CAF_PDM_SOURCE_INIT(RimSaturationPressurePlot, "RimSaturationPressurePlot");
 
@@ -48,6 +50,15 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::Poros
                                                                RimEclipseResultCase*         eclipseResultCase,
                                                                int                           zeroBasedEquilRegionIndex)
 {
+    CVF_ASSERT(eclipseResultCase && eclipseResultCase->eclipseCaseData());
+
+    auto equilData = eclipseResultCase->eclipseCaseData()->equilData();
+    if (zeroBasedEquilRegionIndex >= equilData.size())
+    {
+        RiaLogging::error("Invalid equilibrium region index");
+        return;
+    }
+
     setShowInfoBox(false);
     nameConfig()->addDataSetNames = false;
 
@@ -56,8 +67,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::Poros
 
     nameConfig()->setCustomName(plotTitle);
 
-    auto equilData = eclipseResultCase->eclipseCaseData()->equilData();
-    auto eq        = equilData[zeroBasedEquilRegionIndex];
+    auto eq = equilData[zeroBasedEquilRegionIndex];
 
     double gasOilContactDepth   = eq.gasOilContactDepth();
     double waterOilContactDepth = eq.waterOilContactDepth();

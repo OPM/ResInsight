@@ -22,6 +22,8 @@
 
 #include "RiaApplication.h"
 
+#include "RifReaderEclipseOutput.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEquil.h"
@@ -44,6 +46,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigEclipseCaseData::RigEclipseCaseData(RimEclipseCase* ownerCase)
+    : m_hasParsedDeckForEquilData(false)
 {
     m_mainGrid  = new RigMainGrid();
     m_ownerCase = ownerCase;
@@ -553,6 +556,19 @@ const RigVirtualPerforationTransmissibilities* RigEclipseCaseData::virtualPerfor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigEclipseCaseData::ensureDeckIsParsedForEquilData(const QString& dataDeckFile, const QString& includeFileAbsolutePathPrefix)
+{
+    if (!m_hasParsedDeckForEquilData)
+    {
+        RifReaderEclipseOutput::importEquilData(dataDeckFile, includeFileAbsolutePathPrefix, this);
+
+        m_hasParsedDeckForEquilData = true;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RigEquil> RigEclipseCaseData::equilData() const
 {
     return m_equil;
@@ -751,4 +767,3 @@ const std::vector<double>* RigEclipseCaseData::resultValues(RiaDefines::Porosity
 
     return swatResults;
 }
-
