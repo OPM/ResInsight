@@ -32,11 +32,11 @@ RimCalcScript::RimCalcScript()
 {
     CAF_PDM_InitObject("CalcScript", ":/OctaveScriptFile16x16.png", "Calc Script", "");
 
-    CAF_PDM_InitField(&absolutePath, "AbsolutePath", QString(), "Location", "", "", "");
+    CAF_PDM_InitField(&absoluteFileName, "AbsolutePath", QString(), "Location", "", "", "");
     CAF_PDM_InitField(&content, "Content", QString(), "Directory", "", "", "");
     RiaFieldhandleTools::disableWriteAndSetFieldHidden(&content);
 
-    absolutePath.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    absoluteFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1058,10 +1058,10 @@ void RimContextCommandBuilder::appendScriptItems(caf::CmdFeatureMenuBuilder& men
     for (size_t i = 0; i < scriptCollection->calcScripts.size(); i++)
     {
         RimCalcScript* calcScript = scriptCollection->calcScripts[i];
-        QFileInfo fi(calcScript->absolutePath());
+        QFileInfo fi(calcScript->absoluteFileName());
 
         QString menuText = fi.baseName();
-        menuBuilder.addCmdFeatureWithUserData("RicExecuteScriptForCasesFeature", menuText, QVariant(calcScript->absolutePath()));
+        menuBuilder.addCmdFeatureWithUserData("RicExecuteScriptForCasesFeature", menuText, QVariant(calcScript->absoluteFileName()));
     }
 
     for (size_t i = 0; i < scriptCollection->subDirectories.size(); i++)

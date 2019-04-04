@@ -63,7 +63,7 @@ void RicNewScriptFeature::onActionTriggered(bool isChecked)
 
     if (calcScript)
     {
-        QFileInfo existingScriptFileInfo(calcScript->absolutePath());
+        QFileInfo existingScriptFileInfo(calcScript->absoluteFileName());
         fullPathNewScript = existingScriptFileInfo.absolutePath();
     }
     else if (scriptColl)

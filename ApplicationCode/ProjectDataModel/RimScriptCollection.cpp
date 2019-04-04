@@ -92,7 +92,7 @@ void RimScriptCollection::readContentFromDisc()
             if (caf::Utils::fileExists(fileName))
             {
                 RimCalcScript* calcScript = new RimCalcScript;
-                calcScript->absolutePath  = fileName;
+                calcScript->absoluteFileName  = fileName;
 
                 QFileInfo fi(fileName);
                 calcScript->setUiName(fi.baseName());

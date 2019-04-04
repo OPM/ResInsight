@@ -33,6 +33,6 @@ public:
     RimCalcScript();
     ~RimCalcScript() override;
 
-    caf::PdmField<QString>  absolutePath;
+    caf::PdmField<QString>  absoluteFileName;
     caf::PdmField<QString>  content;    // TODO: Obsolete field, can be deleted on next project file revision.
 };
