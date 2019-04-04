@@ -376,6 +376,43 @@ protected:
 
 CAF_PDM_SOURCE_INIT(SmallGridDemoPdmObject, "SmallGridDemoPdmObject");
 
+class SingleEditorPdmObject : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    SingleEditorPdmObject()
+    {
+        CAF_PDM_InitObject("Single Editor Object",
+                           "",
+                           "This object is a demo of the CAF framework",
+                           "This object is a demo of the CAF framework");
+
+        CAF_PDM_InitField(&m_intFieldStandard,
+                          "Standard",
+                          0,
+                          "Fairly Wide Label",
+                          "",
+                          "Enter some small number here",
+                          "This is a place you can enter a small integer value if you want");
+       
+    }
+
+    // Outside group
+    caf::PdmField<int> m_intFieldStandard;
+  
+protected:
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
+    {
+        uiOrdering.add(&m_intFieldStandard);      
+    }
+};
+
+CAF_PDM_SOURCE_INIT(SingleEditorPdmObject, "SingleEditorObject");
+
 class SmallDemoPdmObjectA: public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -872,6 +909,9 @@ void MainWindow::buildTestModel()
 
     SmallGridDemoPdmObject* smallGridObj = new SmallGridDemoPdmObject;
     m_testRoot->objects.push_back(smallGridObj);
+
+    SingleEditorPdmObject* singleEditorObj = new SingleEditorPdmObject;
+    m_testRoot->objects.push_back(singleEditorObj);
 
     DemoPdmObject* demoObj2 = new DemoPdmObject;
    

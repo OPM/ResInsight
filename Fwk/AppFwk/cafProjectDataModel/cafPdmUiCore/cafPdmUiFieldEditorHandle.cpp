@@ -112,6 +112,10 @@ void PdmUiFieldEditorHandle::createWidgets(QWidget * parent)
     {
         connect(m_editorWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuRequested(QPoint)));
     }
+    if (m_labelWidget)
+    {
+        m_labelWidget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
