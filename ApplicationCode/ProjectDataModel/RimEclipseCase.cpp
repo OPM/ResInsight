@@ -171,7 +171,7 @@ void RimEclipseCase::ensureDeckIsParsedForEquilData()
             RiaPreferences* prefs = RiaApplication::instance()->preferences();
             if (prefs->readerSettings())
             {
-                includeFileAbsolutePathPrefix = prefs->readerSettings()->faultIncludeFileAbsolutePathPrefix();
+                includeFileAbsolutePathPrefix = prefs->readerSettings()->includeFileAbsolutePathPrefix();
             }
         }
 
