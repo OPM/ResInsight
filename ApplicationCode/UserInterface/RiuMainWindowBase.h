@@ -69,6 +69,9 @@ public:
     virtual void        clearWindowTiling() = 0;
     virtual bool        subWindowsAreTiled() const = 0;
 
+    void                setBlockSlotSubWindowActivated(bool block);
+    bool                blockSlotSubWindowActivated() const;
+
 protected slots:
     void                slotDockWidgetToggleViewActionTriggered();
     void			    addViewerToMdiArea(QMdiArea* mdiArea, QWidget* viewer, const QPoint& subWindowPos, const QSize& subWindowSize);
@@ -82,4 +85,6 @@ private:
 
 private:
     bool                m_showFirstVisibleWindowMaximized;
+    bool                m_blockSlotSubWindowActivated;
+
 };

@@ -270,5 +270,4 @@ private:
 
     std::vector<QPointer<QDockWidget> > m_additionalProjectViews;
 
-    bool                        m_blockSlotSubWindowActivated;
 };
