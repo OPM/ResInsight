@@ -17,21 +17,34 @@ cafShortenedQLabel::cafShortenedQLabel(QWidget* parent /*= nullptr*/, Qt::Window
 //--------------------------------------------------------------------------------------------------
 QSize cafShortenedQLabel::minimumSizeHint() const
 {
-    int minimumWidth = 100;
+    int minimumWidth = 40;
 
     QFontMetrics fontMetrics = QApplication::fontMetrics();
-    QString labelText = fullText();
-    if (!labelText.isEmpty())
+    QString fullLabelText = fullText();
+    if (!fullLabelText.isEmpty())
     {
-        QStringList words = labelText.split(" ");
+        QStringList words = fullLabelText.split(" ");
         if (!words.empty())
         {
-            minimumWidth = std::min(fontMetrics.width(labelText), fontMetrics.width(words.front() + "..."));
+            int textMinimumWidth = std::min(fontMetrics.width(fullLabelText), fontMetrics.width(words.front() + "..."));
+            minimumWidth = std::max(minimumWidth, textMinimumWidth);
         }
     }
     QSize minimumSize = QLabel::minimumSizeHint();
-    minimumSize.setWidth(std::min(minimumSize.width(), minimumWidth));
+    minimumSize.setWidth(minimumWidth);
     return minimumSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize cafShortenedQLabel::sizeHint() const
+{
+    QFontMetrics fontMetrics = QApplication::fontMetrics();
+    QString      labelText   = fullText();
+    QSize        size        = QLabel::sizeHint();
+    size.setWidth(fontMetrics.width(labelText));
+    return size;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,7 +61,8 @@ void cafShortenedQLabel::resizeEvent(QResizeEvent* event)
     }
     else
     {
-        QString elidedText = fontMetrics.elidedText(labelText, Qt::ElideRight, event->size().width());
+        int width = std::max(minimumSizeHint().width(), event->size().width());
+        QString elidedText = fontMetrics.elidedText(labelText, Qt::ElideRight, width);
         setShortText(elidedText);
     }
 }
