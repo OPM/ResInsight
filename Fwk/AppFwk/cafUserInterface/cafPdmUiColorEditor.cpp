@@ -43,6 +43,7 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmField.h"
+#include "cafShortenedQLabel.h"
 
 #include "cafFactory.h"
 
@@ -119,7 +120,7 @@ QWidget* PdmUiColorEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiColorEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new cafShortenedQLabel(parent);
     return m_label;
 }
 

@@ -42,6 +42,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
+#include "cafShortenedQLabel.h"
 
 #include "cafFactory.h"
 
@@ -97,7 +98,7 @@ QWidget* PdmUiCheckBoxEditor::createEditorWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiCheckBoxEditor::createLabelWidget(QWidget* parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new cafShortenedQLabel(parent);
     return m_label;
 }
 

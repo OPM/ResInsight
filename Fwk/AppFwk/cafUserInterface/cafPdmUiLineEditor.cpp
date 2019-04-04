@@ -38,6 +38,7 @@
 #include "cafPdmUiLineEditor.h"
 
 #include "cafFactory.h"
+#include "cafShortenedQLabel.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
@@ -55,7 +56,6 @@
 #include <QPalette>
 #include <QStatusBar>
 #include <QString>
-
 
 namespace caf
 {
@@ -78,7 +78,7 @@ QWidget* PdmUiLineEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiLineEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new cafShortenedQLabel(parent);
     return m_label;
 }
 

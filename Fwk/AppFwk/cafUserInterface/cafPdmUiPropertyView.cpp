@@ -167,9 +167,9 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
         // Add stretch to make sure the property widget is not stretched
         this->m_placeHolderLayout->insertStretch(-1, 1);
 
-        int minimumWidth = propertyWidget->minimumSizeHint().width() + m_scrollArea->verticalScrollBar()->width();
-        m_scrollArea->setMinimumWidth(minimumWidth);
-        m_scrollArea->adjustSize();
+        //int minimumWidth = propertyWidget->minimumSizeHint().width() + m_scrollArea->verticalScrollBar()->width();
+        //m_scrollArea->setMinimumWidth(minimumWidth);
+        //m_scrollArea->adjustSize();
     }
 
     m_defaultObjectEditor->setPdmObject(object);

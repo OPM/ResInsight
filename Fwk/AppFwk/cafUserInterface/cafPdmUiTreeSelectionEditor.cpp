@@ -40,6 +40,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiTreeSelectionQModel.h"
+#include "cafShortenedQLabel.h"
 
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -406,7 +407,7 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiTreeSelectionEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new cafShortenedQLabel(parent);
     return m_label;
 }
 
