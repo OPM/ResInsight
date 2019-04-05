@@ -59,6 +59,28 @@ QVerticalScrollArea::QVerticalScrollArea(QWidget* parent) :
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize QVerticalScrollArea::sizeHint() const
+{
+    QSize widgetSize = widget()->sizeHint();
+    QSize scrollSize = QScrollArea::sizeHint();
+    scrollSize.setWidth(widgetSize.width() + verticalScrollBar()->width());
+    return scrollSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize QVerticalScrollArea::minimumSizeHint() const
+{
+    QSize widgetSize = widget()->minimumSizeHint();
+    QSize scrollSize = QScrollArea::minimumSizeHint();
+    scrollSize.setWidth(widgetSize.width() + verticalScrollBar()->width());
+    return scrollSize;
+}
+
 namespace caf
 {
 
@@ -166,10 +188,6 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
 
         // Add stretch to make sure the property widget is not stretched
         this->m_placeHolderLayout->insertStretch(-1, 1);
-
-        //int minimumWidth = propertyWidget->minimumSizeHint().width() + m_scrollArea->verticalScrollBar()->width();
-        //m_scrollArea->setMinimumWidth(minimumWidth);
-        //m_scrollArea->adjustSize();
     }
 
     m_defaultObjectEditor->setPdmObject(object);
@@ -177,6 +195,7 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
     QObject::connect(m_defaultObjectEditor, SIGNAL(uiUpdated()), this, SLOT(slotScheduleScrollToSelectedItemsInFieldEditors()));
 
     m_defaultObjectEditor->updateUi(m_uiConfigName);
+    m_scrollArea->updateGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,12 +224,15 @@ PdmObjectHandle* PdmUiPropertyView::currentObject()
 //--------------------------------------------------------------------------------------------------
 QSize PdmUiPropertyView::sizeHint() const
 {
-    if (m_placeholder)
-    {
-        return m_placeholder->sizeHint();
-    }
+    return m_scrollArea->sizeHint();
+}
 
-    return QWidget::sizeHint();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize PdmUiPropertyView::minimumSizeHint() const
+{
+    return m_scrollArea->minimumSizeHint();
 }
 
 } //End of namespace caf

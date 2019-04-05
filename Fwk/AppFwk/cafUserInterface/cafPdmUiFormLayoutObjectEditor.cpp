@@ -260,6 +260,7 @@ bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
 
         CAF_ASSERT(currentColumn <= totalColumns);
     }
+    containerWidgetWithGridLayout->updateGeometry();
     // The magnitude of the stretch should not be sent up, only if there was stretch or not
     return maxRowStretch > 0;
 }

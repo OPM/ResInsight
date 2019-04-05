@@ -91,10 +91,6 @@ QWidget* PdmUiDefaultObjectEditor::createWidget(QWidget* parent)
 {
     QWidget* widget = new QWidget(parent);
     widget->setObjectName("ObjectEditor");
-    QGridLayout* gridLayout = new QGridLayout();
-    gridLayout->setContentsMargins(0, 0, 0, 0);
-    widget->setLayout(gridLayout);
-    
     return widget;
 }
 
@@ -105,7 +101,29 @@ void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(c
 {
     CAF_ASSERT(this->widget());
 
-    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(topLevelUiOrdering, this->widget(), uiConfigName);
+    createLayout(this->widget());
+    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(topLevelUiOrdering, this->widget(), uiConfigName);    
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiDefaultObjectEditor::createLayout(QWidget* containerWidget)
+{
+    CAF_ASSERT(containerWidget);
+    QLayout* layout = containerWidget->layout();
+    if (layout != nullptr)
+    {
+        // Remove all items from the layout, then reparent the layout to a temporary
+        // This is because you cannot remove a layout from a widget but it gets moved when reparenting.
+        QLayoutItem* item;
+        while ((item = layout->takeAt(0)) != 0) {}
+        QWidget().setLayout(layout);
+    }
+
+    QGridLayout* gridLayout = new QGridLayout;
+    gridLayout->setContentsMargins(0, 0, 0, 0);
+    containerWidget->setLayout(gridLayout);
 }
 
 } // end namespace caf

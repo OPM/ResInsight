@@ -67,6 +67,8 @@ private:
     void     recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiItems,
                                                                      const QString& uiConfigName) override;
 
+    static void createLayout(QWidget* containerWidget);
+
 };
 
 
