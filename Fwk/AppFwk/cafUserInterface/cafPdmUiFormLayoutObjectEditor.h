@@ -90,6 +90,8 @@ protected:
     QMinimizePanel*         findOrCreateGroupBox(QWidget* parent, PdmUiGroup* group, const QString& uiConfigName);
     PdmUiFieldEditorHandle* findOrCreateFieldEditor(QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName);
 
+    static void             ensureEmptyGridLayout(QWidget* containerWidget);
+
 private slots:
     void            groupBoxExpandedStateToggled(bool isExpanded);
 

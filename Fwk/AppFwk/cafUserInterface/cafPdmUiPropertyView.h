@@ -54,6 +54,9 @@ class QVerticalScrollArea : public QScrollArea
     Q_OBJECT
 public:
     explicit QVerticalScrollArea(QWidget* parent = nullptr);
+
+    virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
 };
 
 
@@ -78,6 +81,7 @@ public:
     PdmObjectHandle*    currentObject();
 
     QSize               sizeHint() const override;
+    QSize               minimumSizeHint() const override;
 
 public slots:
     void                showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases

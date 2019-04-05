@@ -260,6 +260,7 @@ bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
 
         CAF_ASSERT(currentColumn <= totalColumns);
     }
+    containerWidgetWithGridLayout->updateGeometry();
     // The magnitude of the stretch should not be sent up, only if there was stretch or not
     return maxRowStretch > 0;
 }
@@ -403,6 +404,29 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
     }
 
     return fieldEditor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiFormLayoutObjectEditor::ensureEmptyGridLayout(QWidget* containerWidget)
+{
+    CAF_ASSERT(containerWidget);
+    QLayout* layout = containerWidget->layout();
+    if (layout != nullptr)
+    {
+        // Remove all items from the layout, then reparent the layout to a temporary
+        // This is because you cannot remove a layout from a widget but it gets moved when reparenting.
+        QLayoutItem* item;
+        while ((item = layout->takeAt(0)) != 0)
+        {
+        }
+        QWidget().setLayout(layout);
+    }
+
+    QGridLayout* gridLayout = new QGridLayout;
+    gridLayout->setContentsMargins(0, 0, 0, 0);
+    containerWidget->setLayout(gridLayout);
 }
 
 //--------------------------------------------------------------------------------------------------

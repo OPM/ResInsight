@@ -91,10 +91,6 @@ QWidget* PdmUiDefaultObjectEditor::createWidget(QWidget* parent)
 {
     QWidget* widget = new QWidget(parent);
     widget->setObjectName("ObjectEditor");
-    QGridLayout* gridLayout = new QGridLayout();
-    gridLayout->setContentsMargins(0, 0, 0, 0);
-    widget->setLayout(gridLayout);
-    
     return widget;
 }
 
@@ -105,7 +101,9 @@ void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(c
 {
     CAF_ASSERT(this->widget());
 
-    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(topLevelUiOrdering, this->widget(), uiConfigName);
+    ensureEmptyGridLayout(this->widget());
+    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(topLevelUiOrdering, this->widget(), uiConfigName);    
 }
+
 
 } // end namespace caf
