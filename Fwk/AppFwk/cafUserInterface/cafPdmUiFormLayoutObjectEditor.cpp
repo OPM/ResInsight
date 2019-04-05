@@ -328,7 +328,6 @@ QMinimizePanel*
 {
     QString         groupBoxKey    = group->keyword();
     QMinimizePanel* groupBox       = nullptr;
-    QGridLayout*    groupBoxLayout = nullptr;
 
     // Find or create groupBox
     std::map<QString, QPointer<QMinimizePanel>>::iterator it;
@@ -340,18 +339,6 @@ QMinimizePanel*
         groupBox->enableFrame(group->enableFrame());
         groupBox->setTitle(group->uiName(uiConfigName));
         groupBox->setObjectName(group->keyword());
-        groupBoxLayout = new QGridLayout();
-        
-        if (!group->enableFrame())
-        {
-            groupBoxLayout->setContentsMargins(0, 0, 0, 0);
-            groupBoxLayout->setHorizontalSpacing(0);
-        }
-        else
-        {
-            groupBoxLayout->setContentsMargins(6, 6, 6, 6);
-        }
-        groupBox->contentFrame()->setLayout(groupBoxLayout);
         connect(groupBox, SIGNAL(expandedChanged(bool)), this, SLOT(groupBoxExpandedStateToggled(bool)));
 
         m_newGroupBoxes[groupBoxKey] = groupBox;
@@ -360,9 +347,16 @@ QMinimizePanel*
     {
         groupBox = it->second;
         CAF_ASSERT(groupBox);
-
         m_newGroupBoxes[groupBoxKey] = groupBox;
     }
+
+    QMargins contentMargins;
+    if (group->enableFrame())
+    {
+        contentMargins = QMargins(6, 6, 6, 6);
+    }
+
+    ensureWidgetContainsEmptyGridLayout(groupBox->contentFrame(), contentMargins);
 
     // Set Expanded state
     bool isExpanded = isUiGroupExpanded(group);
@@ -419,7 +413,7 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout(QWidget* containerWidget)
+void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout(QWidget* containerWidget, QMargins contentMargins)
 {
     CAF_ASSERT(containerWidget);
     QLayout* layout = containerWidget->layout();
@@ -435,7 +429,7 @@ void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout(QWidg
     }
 
     QGridLayout* gridLayout = new QGridLayout;
-    gridLayout->setContentsMargins(0, 0, 0, 0);
+    gridLayout->setContentsMargins(contentMargins);
     containerWidget->setLayout(gridLayout);
 }
 
