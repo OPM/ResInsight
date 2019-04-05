@@ -206,6 +206,10 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 
         m_listView->setPalette(myPalette);
         m_listView->setHeightHint(attributes.m_heightHint);
+        if (!attributes.m_allowHorizontalScrollBar)
+        {
+            m_listView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        }
     }
 
     MyStringListModel* strListModel = dynamic_cast<MyStringListModel*>(m_model.data());

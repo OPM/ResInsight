@@ -57,6 +57,7 @@ class PdmUiListEditorAttribute : public PdmUiEditorAttribute
 public:
     PdmUiListEditorAttribute()
         : m_heightHint(2000)
+        , m_allowHorizontalScrollBar(true)
     {
         QPalette myPalette;
 
@@ -66,6 +67,7 @@ public:
 public:
     QColor  m_baseColor;
     int     m_heightHint;
+    bool    m_allowHorizontalScrollBar;
 };
 
 

@@ -1351,6 +1351,14 @@ void RimEclipseResultDefinition::defineEditorAttribute(const caf::PdmFieldHandle
             }
         }
     }
+    if (field == &m_resultVariableUiField)
+    {
+        caf::PdmUiListEditorAttribute* listEditAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute);
+        if (listEditAttr)
+        {
+            listEditAttr->m_allowHorizontalScrollBar = false;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
