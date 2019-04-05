@@ -17,12 +17,14 @@ cafShortenedQLabel::cafShortenedQLabel(QWidget* parent /*= nullptr*/, Qt::Window
 //--------------------------------------------------------------------------------------------------
 QSize cafShortenedQLabel::minimumSizeHint() const
 {
-    int minimumWidth = 40;
+    int minimumWidth = 0;
 
     QFontMetrics fontMetrics = QApplication::fontMetrics();
     QString fullLabelText = fullText();
     if (!fullLabelText.isEmpty())
     {
+        minimumWidth = 10;
+
         QStringList words = fullLabelText.split(" ");
         if (!words.empty())
         {
