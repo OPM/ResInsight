@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaLogging.h"
 
 #include "cafPdmField.h"
 #include "cafPdmUiFilePathEditor.h"
@@ -68,6 +69,12 @@ QStringList RimCalcScript::createCommandLineArguments(const QString& absoluteFil
 
         arguments << octaveFunctionSearchPath;
         arguments << absFilePath;
+    }
+
+    {
+        QString argumentString = arguments.join(" ");
+
+        RiaLogging::info("Octave arguments : " + argumentString);
     }
 
     return arguments;
