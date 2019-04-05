@@ -548,15 +548,10 @@ bool RiaApplication::loadProject(const QString&      projectFileName,
         {
             oilField->observedDataCollection = new RimObservedDataCollection();
         }
-        for (auto observedCases : oilField->observedDataCollection()->allObservedData())
+        for (RimObservedData* observedData : oilField->observedDataCollection()->allObservedData())
         {
-            observedCases->createSummaryReaderInterface();
-
-            RimObservedData* rimObservedData = dynamic_cast<RimObservedData*>(observedCases);
-            if (rimObservedData)
-            {
-                rimObservedData->updateMetaData();
-            }
+            observedData->createSummaryReaderInterface();
+            observedData->updateMetaData();
         }
 
         oilField->fractureDefinitionCollection()->loadAndUpdateData();

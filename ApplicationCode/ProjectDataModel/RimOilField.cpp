@@ -121,11 +121,11 @@ QString RimOilField::uniqueShortNameForCase(RimSummaryCase* summaryCase)
     std::set<QString> allAutoShortNames;
 
     std::vector<RimSummaryCase*> allCases = summaryCaseMainCollection->allSummaryCases();
-    std::vector<RimSummaryCase*> observedDataCases = observedDataCollection->allObservedData();
+    std::vector<RimObservedData*> observedDataCases = observedDataCollection->allObservedData();
     
     for (auto observedData : observedDataCases)
     {
-        allCases.push_back(dynamic_cast<RimSummaryCase*>(observedData));
+        allCases.push_back(observedData);
     }
     
     for (RimSummaryCase* sumCase : allCases)
