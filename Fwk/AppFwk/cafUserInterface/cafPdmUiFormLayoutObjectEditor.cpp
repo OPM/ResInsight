@@ -96,13 +96,13 @@ bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
 
 //--------------------------------------------------------------------------------------------------
 /// Add all widgets at a recursion level in the form.
-/// Returns true if the level should get a row stretch at the level above.
+/// Returns the stretch factor that should be applied at the level above.
 //--------------------------------------------------------------------------------------------------
-bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayout(const PdmUiOrdering& uiOrdering,
+int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayout(const PdmUiOrdering& uiOrdering,
                                                                                            QWidget* containerWidgetWithGridLayout,
                                                                                            const QString& uiConfigName)
 {
-    int maxRowStretch = 0;
+    int sumRowStretch = 0;
     CAF_ASSERT(containerWidgetWithGridLayout);
 
     QWidget* previousTabOrderWidget = nullptr;
@@ -153,17 +153,16 @@ bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
 
             if (currentItem->isUiGroup())
             {
-                bool stretchGroup = recursivelyAddGroupToGridLayout(currentItem,
-                                                                    containerWidgetWithGridLayout,
-                                                                    uiConfigName,
-                                                                    parentLayout,
-                                                                    currentRowIndex,
-                                                                    currentColumn,
-                                                                    itemColumnSpan);
-                int groupStretchFactor = stretchGroup ? 1 : 0;
+                int groupStretchFactor = recursivelyAddGroupToGridLayout(currentItem,
+                                                                         containerWidgetWithGridLayout,
+                                                                         uiConfigName,
+                                                                         parentLayout,
+                                                                         currentRowIndex,
+                                                                         currentColumn,
+                                                                         itemColumnSpan);
                 parentLayout->setRowStretch(currentRowIndex, groupStretchFactor);
                 currentColumn += itemColumnSpan;
-                maxRowStretch = std::max(maxRowStretch, groupStretchFactor);
+                sumRowStretch += groupStretchFactor;
             }
             else
             {
@@ -185,7 +184,7 @@ bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                     {
                         parentLayout->addWidget(fieldCombinedWidget, currentRowIndex, currentColumn, 1, itemColumnSpan);                        
                         parentLayout->setRowStretch(currentRowIndex, fieldEditor->rowStretchFactor());
-                        maxRowStretch = std::max(maxRowStretch, fieldEditor->rowStretchFactor());
+                        sumRowStretch += fieldEditor->rowStretchFactor();
                     }
                     else
                     {
@@ -261,7 +260,7 @@ bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                         previousTabOrderWidget = fieldEditorWidget;
 
                         parentLayout->setRowStretch(currentRowIndex, fieldEditor->rowStretchFactor());
-                        maxRowStretch = std::max(maxRowStretch, fieldEditor->rowStretchFactor());
+                        sumRowStretch += fieldEditor->rowStretchFactor();
                     }
                     fieldEditor->updateUi(uiConfigName);
                 }
@@ -272,25 +271,25 @@ bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
     }
     containerWidgetWithGridLayout->updateGeometry();
     // The magnitude of the stretch should not be sent up, only if there was stretch or not
-    return maxRowStretch > 0;
+    return sumRowStretch;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Create a group and add widgets. Return true if the containing row needs to be stretched.
 //--------------------------------------------------------------------------------------------------
-bool caf::PdmUiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout(PdmUiItem*     currentItem,
-                                                                       QWidget*       containerWidgetWithGridLayout,
-                                                                       const QString& uiConfigName,
-                                                                       QGridLayout*   parentLayout,
-                                                                       int            currentRowIndex,
-                                                                       int            currentColumn,
-                                                                       int            itemColumnSpan)
+int caf::PdmUiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout(PdmUiItem*     currentItem,
+                                                                      QWidget*       containerWidgetWithGridLayout,
+                                                                      const QString& uiConfigName,
+                                                                      QGridLayout*   parentLayout,
+                                                                      int            currentRowIndex,
+                                                                      int            currentColumn,
+                                                                      int            itemColumnSpan)
 {
     PdmUiGroup* group = static_cast<PdmUiGroup*>(currentItem);
 
     QMinimizePanel* groupBox = findOrCreateGroupBox(containerWidgetWithGridLayout, group, uiConfigName);
 
-    bool stretch = recursivelyConfigureAndUpdateUiOrderingInGridLayout(*group, groupBox->contentFrame(), uiConfigName);
+    int stretch = recursivelyConfigureAndUpdateUiOrderingInGridLayout(*group, groupBox->contentFrame(), uiConfigName);
 
     /// Insert the group box at the correct position of the parent layout
     parentLayout->addWidget(groupBox, currentRowIndex, currentColumn, 1, itemColumnSpan);

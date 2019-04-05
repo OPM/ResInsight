@@ -194,6 +194,14 @@ void QMinimizePanel::enableFrame(bool showFrame)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool QMinimizePanel::isExpanded() const
+{
+    return !m_contentFrame->isHidden();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void QMinimizePanel::setExpanded(bool isExpanded)
@@ -201,7 +209,17 @@ void QMinimizePanel::setExpanded(bool isExpanded)
     if (m_contentFrame->isHidden() != isExpanded) return;
 
     m_contentFrame->setVisible(isExpanded);
-    isExpanded ? m_collapseButton->setIcon(expandUpIcon()) : m_collapseButton->setIcon(expandDownIcon());
+    if (isExpanded)
+    {
+        m_collapseButton->setIcon(expandUpIcon());
+        this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    }
+    else
+    {
+        m_collapseButton->setIcon(expandDownIcon());
+        this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    }
+    
     this->QWidget::updateGeometry();
     
     emit expandedChanged(isExpanded);
@@ -235,7 +253,7 @@ void QMinimizePanel::initialize(const QString &title)
         QHBoxLayout* titleLayout = new QHBoxLayout();
         titleLayout->setContentsMargins(4, 2, 0, 2);
         m_titleFrame->setLayout(titleLayout);
-
+        m_titleFrame->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         {
             m_titleLabel = new QLabel(title);
             QPalette titleLabelPalette = m_titleLabel->palette();

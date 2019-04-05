@@ -62,7 +62,7 @@ private:
     
     QWidget*        createWidget(QWidget* parent) override;
 
-    QWidget*                getOrCreateCurveTreeWidget();
+    QMinimizePanel*         getOrCreateCurveTreeGroup();
     QWidget*                getOrCreatePlotWidget();
 
     static caf::PdmUiGroup* findGroupByKeyword(const std::vector<caf::PdmUiItem *>& topLevelUiItems,

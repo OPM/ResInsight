@@ -78,11 +78,11 @@ protected:
     bool            recursivelyConfigureAndUpdateUiOrderingInNewGridLayout(const PdmUiOrdering& uiOrdering,
                                                                            QWidget*             containerWidget,
                                                                            const QString&       uiConfigName);
-    bool            recursivelyConfigureAndUpdateUiOrderingInGridLayout(const PdmUiOrdering& uiOrdering,
+    int             recursivelyConfigureAndUpdateUiOrderingInGridLayout(const PdmUiOrdering& uiOrdering,
                                                                         QWidget*             containerWidgetWithGridLayout,
                                                                         const QString&       uiConfigName);
 
-    bool recursivelyAddGroupToGridLayout(PdmUiItem*     currentItem,
+    int recursivelyAddGroupToGridLayout(PdmUiItem*     currentItem,
                                          QWidget*       containerWidget,
                                          const QString& uiConfigName,
                                          QGridLayout*   parentLayout,

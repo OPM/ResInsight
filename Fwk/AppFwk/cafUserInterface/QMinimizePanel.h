@@ -58,7 +58,7 @@ public:
     void    setTitle (const QString& title);
     QString title() const;
     void    enableFrame(bool showFrame);
-
+    bool    isExpanded() const;
 public slots:
     void    setExpanded(bool isExpanded);
     void    toggleExpanded();
@@ -78,6 +78,5 @@ private:
 
     QString titleFrameStyleSheet();
     QString contentFrameStyleSheet();
-    QSize   calculateSizeHint(bool minimumSizeHint) const;
 
 };

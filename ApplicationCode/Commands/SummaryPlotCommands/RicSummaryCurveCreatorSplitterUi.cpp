@@ -102,10 +102,11 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiOr
     auto nameConfigGroupBox = createGroupBoxWithContent(nameConfigGroup, uiConfigName);
     m_lowerLeftLayout->insertWidget(1, nameConfigGroupBox);
 
-    m_lowerLeftLayout->insertWidget(2, getOrCreateCurveTreeWidget(), 1);
-
+    QMinimizePanel* curveGroup = getOrCreateCurveTreeGroup();
+    m_lowerLeftLayout->insertWidget(2, curveGroup, 1);
+    m_lowerLeftLayout->addStretch(0);
     m_secondRowLayout->insertWidget(1, getOrCreatePlotWidget());
-
+    
     // Fields at bottom of dialog
     configureAndUpdateFields(1, m_bottomFieldLayout, topLevelUiItems, uiConfigName);
 }
@@ -128,7 +129,7 @@ QWidget* RicSummaryCurveCreatorSplitterUi::createWidget(QWidget* parent)
 
     QFrame* secondRowFrame = new QFrame(widget);
     m_secondRowLayout = new QHBoxLayout;
-    m_secondRowLayout->setContentsMargins(0, 0, 0, 0);
+    m_secondRowLayout->setContentsMargins(0, 4, 0, 0);
     secondRowFrame->setLayout(m_secondRowLayout);
 
     m_lowerLeftLayout = new QVBoxLayout;
@@ -148,7 +149,7 @@ QWidget* RicSummaryCurveCreatorSplitterUi::createWidget(QWidget* parent)
     m_layout->addWidget(m_firstColumnSplitter);
 
     m_bottomFieldLayout = new QHBoxLayout;
-    m_bottomFieldLayout->setContentsMargins(0, 0, 0, 0);
+    m_bottomFieldLayout->setContentsMargins(0, 2, 0, 0);
     m_layout->addLayout(m_bottomFieldLayout);
     m_bottomFieldLayout->insertStretch(0, 1);
 
@@ -180,7 +181,7 @@ caf::PdmUiGroup* RicSummaryCurveCreatorSplitterUi::findGroupByKeyword(const std:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreateCurveTreeWidget()
+QMinimizePanel* RicSummaryCurveCreatorSplitterUi::getOrCreateCurveTreeGroup()
 {
     if (!m_curvesPanel)
     {
@@ -189,6 +190,8 @@ QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreateCurveTreeWidget()
         QVBoxLayout* curvesLayout = new QVBoxLayout(m_curvesPanel->contentFrame());
 
         m_curveTreeView = new caf::PdmUiTreeView(m_curvesPanel->contentFrame());
+        curvesLayout->setStretchFactor(m_curveTreeView, 1);
+
         curvesLayout->addWidget(m_curveTreeView);
         
         m_curveTreeView->treeView()->setHeaderHidden(true);
