@@ -215,6 +215,11 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
         {
             m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         }
+        else if (attributes.minimumContentsLength > 0)
+        {
+            m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+            m_comboBox->setMinimumContentsLength(attributes.minimumContentsLength);
+        }
 
         m_comboBox->blockSignals(false);
     }
