@@ -42,13 +42,13 @@ class RivWindowEdgeAxesOverlayItem;
 
 class QCDEStyle;
 class QLabel;
-class QProgressBar;
 
 namespace caf
 {
     class OverlayScaleLegend;
     class TitledOverlayFrame;
     class PdmUiSelection3dEditorVisualizer;
+    class QStyledProgressBar;
 }
 
 namespace cvf
@@ -170,7 +170,7 @@ private:
     bool            m_showZScaleLabel;
     bool            m_hideZScaleCheckbox;
 
-    QProgressBar*   m_animationProgress;
+    caf::QStyledProgressBar*  m_animationProgress;
     bool            m_showAnimProgress; 
     RiuSimpleHistogramWidget* m_histogramWidget;
     bool            m_showHistogram;

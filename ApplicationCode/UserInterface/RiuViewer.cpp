@@ -52,6 +52,7 @@
 #include "cafOverlayScalarMapperLegend.h"
 #include "cafOverlayScaleLegend.h"
 #include "cafTitledOverlayFrame.h"
+#include "cafQStyledProgressBar.h"
 
 #include "cvfCamera.h"
 #include "cvfFont.h"
@@ -69,7 +70,6 @@
 #endif
 #include <QLabel>
 #include <QMouseEvent>
-#include <QProgressBar>
 
 #include <algorithm>
 
@@ -107,8 +107,9 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 
     // Info Text
     m_infoLabel = new QLabel();
+    m_infoLabel->setObjectName("InfoLabel");
     m_infoLabel->setFrameShape(QFrame::Box);
-    m_infoLabel->setFrameShadow(QFrame::Raised);
+    m_infoLabel->setFrameShadow(QFrame::Plain);
     m_infoLabel->setMinimumWidth(275);
     m_showInfoText = true;
 
@@ -128,10 +129,11 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_hideZScaleCheckbox = false;
 
     // Animation progress bar
-    m_animationProgress = new QProgressBar();
+    m_animationProgress = new caf::QStyledProgressBar("AnimationProgress");
     m_animationProgress->setFormat("Time Step: %v/%m");
     m_animationProgress->setTextVisible(true);
     m_animationProgress->setAlignment(Qt::AlignCenter);
+    m_animationProgress->setObjectName("AnimationProgress");
 
 #if QT_VERSION < 0x050000
     m_progressBarStyle = new QCDEStyle();
@@ -1149,10 +1151,12 @@ void RiuViewer::updateOverlayItemsPalette()
     p.setColor(QPalette::Mid, backgroundFrameColor);
 
     m_infoLabel->setPalette(p);
-    m_animationProgress->setPalette(p);
     m_histogramWidget->setPalette(p);
     m_versionInfoLabel->setPalette(p);
     m_zScaleLabel->setPalette(p);
+
+    QColor progressColor(Qt::green); progressColor.setAlphaF(0.8f);
+    m_animationProgress->setTextBackgroundAndProgressColor(contrastColor, backgroundColor, backgroundFrameColor, progressColor);
 }
 
 //--------------------------------------------------------------------------------------------------

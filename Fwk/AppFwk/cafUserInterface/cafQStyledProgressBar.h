@@ -35,6 +35,20 @@
 //##################################################################################################
 #pragma once
 
+#include <QProgressBar>
+
 namespace caf
 {
-class 
+class QStyledProgressBar : public QProgressBar
+{
+    Q_OBJECT
+
+public:
+    QStyledProgressBar(QString objectName, QWidget* parent = nullptr);
+
+    void setTextBackgroundAndProgressColor(QColor textColor, QColor backgroundColor, QColor backgroundFrameColor, QColor progressColor);
+
+private:
+    static QString colorStringWithAlpha(QColor color);
+};
+}
