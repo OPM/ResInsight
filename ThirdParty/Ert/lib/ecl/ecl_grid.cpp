@@ -3021,23 +3021,19 @@ static ecl_grid_type * ecl_grid_alloc_EGRID__( ecl_grid_type * main_grid , const
     eclipse_version = main_grid->eclipse_version;
   }
 
-  // If ACTNUM and ext_actnum are not present - that is is interpreted as all active. 
-  const int * actnum_data;
-  std::vector<int> actnum_product;
-  if (ecl_file_get_num_named_kw(ecl_file , ACTNUM_KW) > grid_nr) {
-    actnum_kw = ecl_file_iget_named_kw( ecl_file , ACTNUM_KW    , grid_nr);
-    actnum_data = ecl_kw_get_int_ptr(actnum_kw);
-    if (ext_actnum) {
-      int size = ecl_kw_get_size(actnum_kw);
-      actnum_product.resize(size);
-      for (int i = 0; i < size; i++)
-        actnum_product[i] = actnum_data[i] * ext_actnum[i];
-      actnum_data = actnum_product.data();
-    }
+  /*
+    If ext_actnum is present that is used as ACTNUM, and the file is not checked
+    for an ACTNUM keyword at all.
+  */
+  const int * actnum_data = NULL;
+  if (ext_actnum)
+      actnum_data = ext_actnum;
+  else {
+      if (ecl_file_get_num_named_kw(ecl_file, ACTNUM_KW) > grid_nr) {
+          actnum_kw = ecl_file_iget_named_kw(ecl_file, ACTNUM_KW, grid_nr);
+          actnum_data = ecl_kw_get_int_ptr(actnum_kw);
+      }
   }
-  else
-    actnum_data = ext_actnum;
-
 
   if (grid_nr == 0) {
     /* MAPAXES and COARSENING only apply to the global grid. */
