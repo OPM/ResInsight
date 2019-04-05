@@ -216,6 +216,6 @@ QMinimizePanel* RiuSummaryCurveDefSelectionEditor::createGroupBoxWithContent(caf
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
 
-    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(*group, groupBox->contentFrame(), uiConfigName);
+    recursivelyConfigureAndUpdateUiOrderingInGridLayout(*group, groupBox->contentFrame(), uiConfigName);
     return groupBox;
 }

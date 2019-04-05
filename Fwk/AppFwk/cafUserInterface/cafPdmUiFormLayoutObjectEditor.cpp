@@ -84,13 +84,23 @@ void caf::PdmUiFormLayoutObjectEditor::slotScrollToSelectedItemsInFieldEditors()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInNewGridLayout(const PdmUiOrdering& uiOrdering,
+                                                                                              QWidget*       containerWidget,
+                                                                                              const QString& uiConfigName)
+{
+    ensureWidgetContainsEmptyGridLayout(containerWidget);
+    return recursivelyConfigureAndUpdateUiOrderingInGridLayout(uiOrdering, containerWidget, uiConfigName);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Add all widgets at a recursion level in the form.
 /// Returns true if the level should get a row stretch at the level above.
 //--------------------------------------------------------------------------------------------------
-bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(
-    const PdmUiOrdering& uiOrdering,
-    QWidget*             containerWidgetWithGridLayout,
-    const QString&       uiConfigName)
+bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayout(const PdmUiOrdering& uiOrdering,
+                                                                                           QWidget* containerWidgetWithGridLayout,
+                                                                                           const QString& uiConfigName)
 {
     int maxRowStretch = 0;
     CAF_ASSERT(containerWidgetWithGridLayout);
@@ -280,7 +290,7 @@ bool caf::PdmUiFormLayoutObjectEditor::recursivelyAddGroupToGridLayout(PdmUiItem
 
     QMinimizePanel* groupBox = findOrCreateGroupBox(containerWidgetWithGridLayout, group, uiConfigName);
 
-    bool stretch = recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(*group, groupBox->contentFrame(), uiConfigName);
+    bool stretch = recursivelyConfigureAndUpdateUiOrderingInGridLayout(*group, groupBox->contentFrame(), uiConfigName);
 
     /// Insert the group box at the correct position of the parent layout
     parentLayout->addWidget(groupBox, currentRowIndex, currentColumn, 1, itemColumnSpan);
@@ -409,7 +419,7 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiFormLayoutObjectEditor::ensureEmptyGridLayout(QWidget* containerWidget)
+void caf::PdmUiFormLayoutObjectEditor::ensureWidgetContainsEmptyGridLayout(QWidget* containerWidget)
 {
     CAF_ASSERT(containerWidget);
     QLayout* layout = containerWidget->layout();

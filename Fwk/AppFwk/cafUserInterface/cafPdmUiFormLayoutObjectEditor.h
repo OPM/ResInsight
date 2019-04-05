@@ -75,9 +75,12 @@ protected:
     virtual void    recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
                                                                     const QString& uiConfigName) = 0;
     
-    bool            recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(const PdmUiOrdering& uiOrdering,
-                                                                              QWidget* containerWidgetWithGridLayout,
-                                                                              const QString& uiConfigName);
+    bool            recursivelyConfigureAndUpdateUiOrderingInNewGridLayout(const PdmUiOrdering& uiOrdering,
+                                                                           QWidget*             containerWidget,
+                                                                           const QString&       uiConfigName);
+    bool            recursivelyConfigureAndUpdateUiOrderingInGridLayout(const PdmUiOrdering& uiOrdering,
+                                                                        QWidget*             containerWidgetWithGridLayout,
+                                                                        const QString&       uiConfigName);
 
     bool recursivelyAddGroupToGridLayout(PdmUiItem*     currentItem,
                                          QWidget*       containerWidget,
@@ -90,7 +93,7 @@ protected:
     QMinimizePanel*         findOrCreateGroupBox(QWidget* parent, PdmUiGroup* group, const QString& uiConfigName);
     PdmUiFieldEditorHandle* findOrCreateFieldEditor(QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName);
 
-    static void             ensureEmptyGridLayout(QWidget* containerWidget);
+    static void             ensureWidgetContainsEmptyGridLayout(QWidget* containerWidget);
 
 private slots:
     void            groupBoxExpandedStateToggled(bool isExpanded);

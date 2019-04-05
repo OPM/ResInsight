@@ -101,8 +101,7 @@ void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(c
 {
     CAF_ASSERT(this->widget());
 
-    ensureEmptyGridLayout(this->widget());
-    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(topLevelUiOrdering, this->widget(), uiConfigName);    
+    recursivelyConfigureAndUpdateUiOrderingInNewGridLayout(topLevelUiOrdering, this->widget(), uiConfigName);    
 }
 
 
