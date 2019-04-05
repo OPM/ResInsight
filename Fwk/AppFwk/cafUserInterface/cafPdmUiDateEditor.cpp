@@ -107,7 +107,7 @@ QWidget* PdmUiDateEditor::createEditorWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiDateEditor::createLabelWidget(QWidget* parent)
 {
-    m_label = new cafShortenedQLabel(parent);
+    m_label = new ShortenedQLabel(parent);
     return m_label;
 }
 

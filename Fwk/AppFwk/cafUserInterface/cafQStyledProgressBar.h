@@ -35,25 +35,6 @@
 //##################################################################################################
 #pragma once
 
-#include <QLabel>
-
 namespace caf
 {
-class ShortenedQLabel : public QLabel
-{
-    Q_OBJECT
-public:
-    explicit ShortenedQLabel(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-
-    QSize minimumSizeHint() const override;
-    QSize sizeHint() const override;
-protected:
-    void    resizeEvent(QResizeEvent *event) override;
-    void    setDisplayText(const QString& shortText);
-    QString fullText() const;
-
-private:
-    QString m_fullLengthText;
-};
-}
-
+class 

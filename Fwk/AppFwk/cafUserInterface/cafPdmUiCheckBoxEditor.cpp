@@ -98,7 +98,7 @@ QWidget* PdmUiCheckBoxEditor::createEditorWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiCheckBoxEditor::createLabelWidget(QWidget* parent)
 {
-    m_label = new cafShortenedQLabel(parent);
+    m_label = new ShortenedQLabel(parent);
     return m_label;
 }
 

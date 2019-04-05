@@ -407,7 +407,7 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiTreeSelectionEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new cafShortenedQLabel(parent);
+    m_label = new ShortenedQLabel(parent);
     return m_label;
 }
 
