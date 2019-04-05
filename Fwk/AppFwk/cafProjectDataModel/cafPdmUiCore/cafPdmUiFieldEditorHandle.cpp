@@ -114,7 +114,7 @@ void PdmUiFieldEditorHandle::createWidgets(QWidget * parent)
     }
     if (m_labelWidget)
     {
-        m_labelWidget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+        m_labelWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     }
 }
 
