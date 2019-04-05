@@ -50,18 +50,25 @@ RimCalcScript::~RimCalcScript() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimCalcScript::createCommandLineArguments(const QString& absoluteFileName)
+QStringList RimCalcScript::createCommandLineArguments(const QString& absoluteFileNameScript)
 {
-    QFileInfo fi(absoluteFileName);
-    QString   octaveFunctionSearchPath = fi.absolutePath();
+    QStringList arguments;
 
-    auto app = RiaApplication::instance();
+    {
+        auto app = RiaApplication::instance();
 
-    QStringList arguments = app->octaveArguments();
-    arguments.append("--path");
+        arguments = app->octaveArguments();
+        arguments.append("--path");
+    }
 
-    arguments << octaveFunctionSearchPath;
-    arguments << absoluteFileName;
+    {
+        QFileInfo fi(absoluteFileNameScript);
+        QString   octaveFunctionSearchPath = fi.absolutePath();
+        QString   absFilePath              = fi.absoluteFilePath();
+
+        arguments << octaveFunctionSearchPath;
+        arguments << absFilePath;
+    }
 
     return arguments;
 }
