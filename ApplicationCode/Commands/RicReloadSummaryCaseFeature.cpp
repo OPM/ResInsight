@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,8 @@
 #include "RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
+#include "RimObservedData.h"
+#include "RimObservedDataCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -38,30 +40,17 @@
 CAF_CMD_SOURCE_INIT(RicReloadSummaryCaseFeature, "RicReloadSummaryCaseFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicReloadSummaryCaseFeature::isCommandEnabled()
 {
     std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
 
-    if (caseSelection.size() == 0)
-    {
-        return false;
-    }
-
-    for (RimSummaryCase* summaryCase : caseSelection)
-    {
-        if (summaryCase->isObservedData())
-        {
-            return false;
-        }
-    }
-    return true;
-
+    return !caseSelection.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicReloadSummaryCaseFeature::onActionTriggered(bool isChecked)
 {
@@ -82,7 +71,7 @@ void RicReloadSummaryCaseFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicReloadSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -91,7 +80,7 @@ void RicReloadSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RicReloadSummaryCaseFeature::selectedSummaryCases()
 {
@@ -106,13 +95,26 @@ std::vector<RimSummaryCase*> RicReloadSummaryCaseFeature::selectedSummaryCases()
     std::vector<RimSummaryCase*> caseSelection;
     caf::SelectionManager::instance()->objectsByType(&caseSelection);
 
-    std::vector<RimSummaryCaseCollection*> collectionSelection;
-    caf::SelectionManager::instance()->objectsByType(&collectionSelection);
-
-    for (auto collection : collectionSelection)
     {
-        std::vector<RimSummaryCase*> summaryCaseCollection = collection->allSummaryCases();
-        caseSelection.insert(caseSelection.end(), summaryCaseCollection.begin(), summaryCaseCollection.end());
+        std::vector<RimSummaryCaseCollection*> collectionSelection;
+        caf::SelectionManager::instance()->objectsByType(&collectionSelection);
+
+        for (auto collection : collectionSelection)
+        {
+            std::vector<RimSummaryCase*> summaryCaseCollection = collection->allSummaryCases();
+            caseSelection.insert(caseSelection.end(), summaryCaseCollection.begin(), summaryCaseCollection.end());
+        }
+    }
+
+    {
+        std::vector<RimObservedDataCollection*> collectionSelection;
+        caf::SelectionManager::instance()->objectsByType(&collectionSelection);
+
+        for (auto collection : collectionSelection)
+        {
+            std::vector<RimObservedData*> observedCases = collection->allObservedData();
+            caseSelection.insert(caseSelection.end(), observedCases.begin(), observedCases.end());
+        }
     }
 
     return caseSelection;
