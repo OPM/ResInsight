@@ -98,6 +98,14 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
         if (it == intersectionToViewMap.end())
         {
             Rim2dIntersectionView* newView = new Rim2dIntersectionView();
+            
+            Rim3dView* view = nullptr;
+            intersection->firstAncestorOrThisOfType(view);
+            if (view)
+            {
+                newView->setCurrentTimeStep(view->currentTimeStep());
+            }
+
             newView->setIntersection(intersection);
             m_intersectionViews.push_back(newView);            
         }
