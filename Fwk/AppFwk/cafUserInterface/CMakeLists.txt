@@ -163,6 +163,8 @@ set( PROJECT_FILES
     cafPdmDoubleStringValidator.cpp
     cafPickEventHandler.h
     cafPdmUiPickableLineEditor.cpp
+	cafStyleSheetTools.h
+	cafStyleSheetTools.cpp
 )
 
 add_library( ${PROJECT_NAME}
