@@ -42,7 +42,7 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
-#include "cafShortenedQLabel.h"
+#include "cafQShortenedLabel.h"
 
 #include <QTextEdit>
 #include <QLabel>
@@ -196,7 +196,7 @@ QWidget* PdmUiTextEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiTextEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new ShortenedQLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 

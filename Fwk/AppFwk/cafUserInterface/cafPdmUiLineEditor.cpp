@@ -38,7 +38,7 @@
 #include "cafPdmUiLineEditor.h"
 
 #include "cafFactory.h"
-#include "cafShortenedQLabel.h"
+#include "cafQShortenedLabel.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
@@ -78,7 +78,7 @@ QWidget* PdmUiLineEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiLineEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new ShortenedQLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 

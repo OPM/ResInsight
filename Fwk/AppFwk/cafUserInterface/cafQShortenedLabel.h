@@ -39,11 +39,11 @@
 
 namespace caf
 {
-class ShortenedQLabel : public QLabel
+class QShortenedLabel : public QLabel
 {
     Q_OBJECT
 public:
-    explicit ShortenedQLabel(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+    explicit QShortenedLabel(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;

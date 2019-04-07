@@ -40,7 +40,7 @@
 #include "cafPdmField.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
-#include "cafShortenedQLabel.h"
+#include "cafQShortenedLabel.h"
 
 #include <QHBoxLayout>
 #include <QDoubleValidator>
@@ -147,7 +147,7 @@ QWidget* PdmUiDoubleSliderEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiDoubleSliderEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new ShortenedQLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 

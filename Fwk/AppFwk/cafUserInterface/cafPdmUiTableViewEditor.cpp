@@ -43,7 +43,7 @@
 #include "cafPdmUiTableViewDelegate.h"
 #include "cafPdmUiTableViewQModel.h"
 #include "cafSelectionManager.h"
-#include "cafShortenedQLabel.h"
+#include "cafQShortenedLabel.h"
 
 #include <QApplication>
 #include <QEvent>
@@ -116,12 +116,12 @@ QWidget* PdmUiTableViewEditor::createLabelWidget(QWidget * parent)
 {
     if (m_tableHeading.isNull())
     {
-        m_tableHeading = new ShortenedQLabel(parent);
+        m_tableHeading = new QShortenedLabel(parent);
     }
 
     if (m_tableHeadingIcon.isNull())
     {
-        m_tableHeadingIcon = new ShortenedQLabel(parent);
+        m_tableHeadingIcon = new QShortenedLabel(parent);
     }
 
     QHBoxLayout* layoutForIconLabel = new QHBoxLayout();

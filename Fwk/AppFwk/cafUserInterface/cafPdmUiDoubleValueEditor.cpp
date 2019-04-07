@@ -42,7 +42,7 @@
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include "cafFactory.h"
-#include "cafShortenedQLabel.h"
+#include "cafQShortenedLabel.h"
 
 #include <QDoubleValidator>
 #include <QHBoxLayout>
@@ -119,7 +119,7 @@ QWidget* PdmUiDoubleValueEditor::createEditorWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiDoubleValueEditor::createLabelWidget(QWidget* parent)
 {
-    m_label = new ShortenedQLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 

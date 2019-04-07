@@ -44,7 +44,7 @@ set (MOC_HEADER_FILES
     cafPdmUiTreeViewEditor.h
     cafUiProcess.h
     QMinimizePanel.h
-	cafShortenedQLabel.h
+	cafQShortenedLabel.h
 	cafQStyledProgressBar.h
     cafPdmUiTreeSelectionEditor.h
     cafPdmUiTreeSelectionQModel.h
@@ -151,8 +151,8 @@ set( PROJECT_FILES
     cafUiProcess.h
     QMinimizePanel.cpp
     QMinimizePanel.h
-	cafShortenedQLabel.cpp
-	cafShortenedQLabel.h
+	cafQShortenedLabel.cpp
+	cafQShortenedLabel.h
 	cafQStyledProgressBar.cpp
 	cafQStyledProgressBar.h
     cafQTreeViewStateSerializer.h

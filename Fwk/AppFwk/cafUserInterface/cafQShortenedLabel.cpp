@@ -33,7 +33,7 @@
 //   for more details.
 //
 //##################################################################################################
-#include "cafShortenedQLabel.h"
+#include "cafQShortenedLabel.h"
 
 #include <QApplication>
 #include <QFontMetrics>
@@ -44,7 +44,7 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ShortenedQLabel::ShortenedQLabel(QWidget* parent /*= nullptr*/, Qt::WindowFlags f /*= Qt::WindowFlags()*/)
+QShortenedLabel::QShortenedLabel(QWidget* parent /*= nullptr*/, Qt::WindowFlags f /*= Qt::WindowFlags()*/)
     : QLabel(parent, f)
 {
 }
@@ -52,7 +52,7 @@ ShortenedQLabel::ShortenedQLabel(QWidget* parent /*= nullptr*/, Qt::WindowFlags 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QSize ShortenedQLabel::minimumSizeHint() const
+QSize QShortenedLabel::minimumSizeHint() const
 {
     int minimumWidth = 0;
 
@@ -77,7 +77,7 @@ QSize ShortenedQLabel::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QSize ShortenedQLabel::sizeHint() const
+QSize QShortenedLabel::sizeHint() const
 {
     QFontMetrics fontMetrics = QApplication::fontMetrics();
     QString      labelText   = fullText();
@@ -89,7 +89,7 @@ QSize ShortenedQLabel::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ShortenedQLabel::resizeEvent(QResizeEvent* event)
+void QShortenedLabel::resizeEvent(QResizeEvent* event)
 {
     QString labelText = fullText();
     QFontMetrics fontMetrics = QApplication::fontMetrics();
@@ -109,7 +109,7 @@ void ShortenedQLabel::resizeEvent(QResizeEvent* event)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ShortenedQLabel::setDisplayText(const QString& shortText)
+void QShortenedLabel::setDisplayText(const QString& shortText)
 {
     // Store original text if we haven't already done so.
     if (m_fullLengthText.isEmpty())
@@ -122,7 +122,7 @@ void ShortenedQLabel::setDisplayText(const QString& shortText)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString ShortenedQLabel::fullText() const
+QString QShortenedLabel::fullText() const
 {
     if (!m_fullLengthText.isEmpty())
     {
