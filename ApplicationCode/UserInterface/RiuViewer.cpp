@@ -1153,7 +1153,8 @@ void RiuViewer::updateOverlayItemsStyle()
 
     m_infoLabel->setStyleSheet(caf::StyleSheetTools::createFrameStyleSheet("QLabel", "InfoLabel", contrastColor, backgroundColor, backgroundFrameColor));
     m_histogramWidget->setStyleSheet(caf::StyleSheetTools::createFrameStyleSheet("", "HistogramWidget", contrastColor, backgroundColor, backgroundFrameColor));
-    
+    m_histogramWidget->setPalette(p);
+
     m_versionInfoLabel->setPalette(p);
     m_zScaleLabel->setPalette(p);
 
