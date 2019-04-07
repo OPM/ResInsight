@@ -53,6 +53,7 @@
 #include "cafOverlayScaleLegend.h"
 #include "cafTitledOverlayFrame.h"
 #include "cafQStyledProgressBar.h"
+#include "cafStyleSheetTools.h"
 
 #include "cvfCamera.h"
 #include "cvfFont.h"
@@ -142,7 +143,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_showAnimProgress = false;
 
     // Histogram
-    m_histogramWidget = new RiuSimpleHistogramWidget();
+    m_histogramWidget = new RiuSimpleHistogramWidget("HistogramWidget");
     m_showHistogram   = false;
 
     m_viewerCommands = new RiuViewerCommands(this);
@@ -1102,7 +1103,7 @@ void RiuViewer::updateTextAndTickMarkColorForOverlayItems()
 
     updateAxisCrossTextColor();
 
-    updateOverlayItemsPalette();
+    updateOverlayItemsStyle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1118,14 +1119,14 @@ void RiuViewer::updateAxisCrossTextColor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::updateOverlayItemsPalette()
+void RiuViewer::updateOverlayItemsStyle()
 {
     QColor backgroundColor;
     QColor backgroundFrameColor;
     QColor contrastColor;
     {
         cvf::Color4f cvf_backgroundColor = mainCamera()->viewport()->clearColor();
-        cvf_backgroundColor.a()          = 0.8f;
+        cvf_backgroundColor.a()          = 0.65f;
 
         cvf::Color4f cvf_backgroundFrameColor =
             cvf::Color4f(RiaColorTools::computeOffsetColor(cvf_backgroundColor.toColor3f(), 0.3f), 0.9f);
@@ -1150,12 +1151,14 @@ void RiuViewer::updateOverlayItemsPalette()
     p.setColor(QPalette::Dark, backgroundFrameColor);
     p.setColor(QPalette::Mid, backgroundFrameColor);
 
-    m_infoLabel->setPalette(p);
-    m_histogramWidget->setPalette(p);
+    m_infoLabel->setStyleSheet(caf::StyleSheetTools::createFrameStyleSheet("QLabel", "InfoLabel", contrastColor, backgroundColor, backgroundFrameColor));
+    m_histogramWidget->setStyleSheet(caf::StyleSheetTools::createFrameStyleSheet("", "HistogramWidget", contrastColor, backgroundColor, backgroundFrameColor));
+    
     m_versionInfoLabel->setPalette(p);
     m_zScaleLabel->setPalette(p);
 
     QColor progressColor(Qt::green); progressColor.setAlphaF(0.8f);
+    backgroundColor.setAlphaF(0.8f);
     m_animationProgress->setTextBackgroundAndProgressColor(contrastColor, backgroundColor, backgroundFrameColor, progressColor);
 }
 
