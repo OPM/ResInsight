@@ -143,7 +143,7 @@ QString RimValveTemplate::typeLabel() const
 //--------------------------------------------------------------------------------------------------
 QString RimValveTemplate::fullLabel() const
 {
-    QString label = QString("%1 (%2)").arg(m_userLabel()).arg(typeLabel());
+    QString label = QString("%1: %2").arg(typeLabel()).arg(m_userLabel());
     return label;
 }
 

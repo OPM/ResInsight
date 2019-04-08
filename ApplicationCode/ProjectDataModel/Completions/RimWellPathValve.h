@@ -83,8 +83,8 @@ private:
     caf::PdmPtrField<RimValveTemplate*>            m_valveTemplate;
     caf::PdmField<double>                          m_measuredDepth;
     caf::PdmChildField<RimMultipleValveLocations*> m_multipleValveLocations;
-    caf::PdmField<bool>                            m_createOrEditValveTemplate;
-
+    caf::PdmField<bool>                            m_editValveTemplate;
+    caf::PdmField<bool>                            m_createValveTemplate;
 };
 
 
