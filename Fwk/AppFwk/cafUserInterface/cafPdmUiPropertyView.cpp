@@ -224,7 +224,7 @@ PdmObjectHandle* PdmUiPropertyView::currentObject()
 //--------------------------------------------------------------------------------------------------
 QSize PdmUiPropertyView::sizeHint() const
 {
-    return m_scrollArea->sizeHint();
+    return m_scrollArea->sizeHint().expandedTo(m_placeholder->sizeHint());
 }
 
 //--------------------------------------------------------------------------------------------------
