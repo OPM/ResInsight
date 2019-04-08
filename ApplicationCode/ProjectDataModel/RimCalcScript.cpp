@@ -71,6 +71,8 @@ QStringList RimCalcScript::createCommandLineArguments(const QString& absoluteFil
         arguments << absFilePath;
     }
 
+    bool debugPrintArgumentText = false;
+    if (debugPrintArgumentText)
     {
         QString argumentString = arguments.join(" ");
 
