@@ -18,8 +18,9 @@
 
 #include "RicHelpFeatures.h"
 
-#include "RiaBaseDefs.h"
 #include "RiaApplication.h"
+#include "RiaBaseDefs.h"
+#include "RiaVersionInfo.h"
 
 #include "RiuMainWindow.h"
 
@@ -87,6 +88,7 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
     dlg.addVersionEntry(" ", QString("   Qt ") + qVersion());
     dlg.addVersionEntry(" ", QString("   ") + caf::AboutDialog::versionStringForcurrentOpenGLContext());
     dlg.addVersionEntry(" ", caf::Viewer::isShadersSupported() ? "   Hardware OpenGL" : "   Software OpenGL");
+    dlg.addVersionEntry(" ", QString("   Octave ") + QString(RESINSIGHT_OCTAVE_VERSION));
 
     if (RiaApplication::enableDevelopmentFeatures())
     {
