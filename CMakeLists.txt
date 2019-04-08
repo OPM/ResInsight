@@ -69,7 +69,7 @@ mark_as_advanced(FORCE RESINSIGHT_ENABLE_COTIRE)
 if(RESINSIGHT_ENABLE_COTIRE)
 
   if(NOT COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES)
-    message("cotire: Setting default number of includes to 5")
+    message(STATUS "cotire: Setting default number of includes to 5")
     set(COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES 5)
   endif()
   
@@ -266,7 +266,7 @@ if (Qt5Core_FOUND)
 	find_package (Qt5 CONFIG REQUIRED Core Widgets OpenGL Network Script ScriptTools)
 else()
     if (RESINSIGHT_BUILD_WITH_QT5)
-		message("Could not find Qt5. Trying with Qt4")
+		message(WARNING "Could not find Qt5. Trying with Qt4")
 	endif(RESINSIGHT_BUILD_WITH_QT5)
 	find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
     if (QT_VERSION_MINOR LESS 6)
@@ -349,9 +349,9 @@ if (CMAKE_COMPILER_IS_GNUCC)
     endif()
  
     if (HAVE_GCC_SYNC_FUNCTIONS)
-        message("GCC synchronization functions detected")
+        message(STATUS "GCC synchronization functions detected")
     else()
-        message("GCC synchronization functions NOT detected, fallback to non threadsafe reference counting")
+        message(STATUS "GCC synchronization functions NOT detected, fallback to non threadsafe reference counting")
         add_definitions(-DCVF_USE_NON_THREADSAFE_REFERENCE_COUNT)
     endif()
  
@@ -508,11 +508,11 @@ endif (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 add_subdirectory(ApplicationCode)
 
 if (OCTAVE_MKOCTFILE)
-  message ("Adding OctavePlugin library")
+  message (STATUS "Adding OctavePlugin library")
   
   add_subdirectory(OctavePlugin)
 else (OCTAVE_MKOCTFILE)
-  message ("Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library")
+  message (STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library")
 endif(OCTAVE_MKOCTFILE)
 
 ################################################################################

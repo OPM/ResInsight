@@ -71,7 +71,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     endif ()
 endif ()
 
-message ("Compiling Octave plugins using : ${OCTAVE_MKOCTFILE}")
+message (STATUS "Compiling Octave plugins using : ${OCTAVE_MKOCTFILE}")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   option(RESINSIGHT_OCTAVE_PLUGIN_QT "Compile Octave plugin using Qt located insided Octave root folder" ON)
