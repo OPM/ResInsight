@@ -84,7 +84,7 @@ RiuWellPathSelectionItem* RicNewFishbonesSubsAtMeasuredDepthFeature::wellPathSel
 void RicNewFishbonesSubsAtMeasuredDepthFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FishBoneGroup16x16.png"));
-    actionToSetup->setText("New Fishbones");
+    actionToSetup->setText("Create Fishbones at this Depth");
 }
 
 //--------------------------------------------------------------------------------------------------

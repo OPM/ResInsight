@@ -55,7 +55,7 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
 void RicNewWellPathFractureAtPosFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
-    actionToSetup->setText("New Fracture");
+    actionToSetup->setText("Create Fracture at this Depth");
 }
  
 //--------------------------------------------------------------------------------------------------

@@ -33,6 +33,7 @@
 #include "RimStimPlanColors.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
@@ -127,7 +128,7 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
 void RicNewWellPathFractureFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
-    actionToSetup->setText("New Fracture");
+    actionToSetup->setText("Create Fracture");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,6 +166,11 @@ RimWellPathFractureCollection* RicNewWellPathFractureFeature::selectedWellPathFr
         if (!wellPaths.empty())
         {
             return wellPaths[0]->fractureCollection();
+        }
+        RimWellPathCompletions* completions = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
+        if (completions)
+        {
+            return completions->fractureCollection();
         }
     }
 

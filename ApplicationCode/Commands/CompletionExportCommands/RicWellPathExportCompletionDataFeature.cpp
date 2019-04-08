@@ -33,6 +33,7 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -173,7 +174,15 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Export Completion Data for Selected Well Paths");
+    std::vector<RimWellPath*> selected = selectedWellPaths();
+    if (selected.size() == 1u)
+    {
+        actionToSetup->setText("Export Completion Data for Current Well Path");
+    }
+    else
+    {
+        actionToSetup->setText("Export Completion Data for Selected Well Paths");
+    }
     actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
 
 }
@@ -188,6 +197,17 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
 
     std::set<RimWellPath*> uniqueWellPaths(wellPaths.begin(), wellPaths.end());
     wellPaths.assign(uniqueWellPaths.begin(), uniqueWellPaths.end());
+
+    if (wellPaths.empty())
+    {
+        RimWellPathCompletions* completions = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
+        if (completions)
+        {
+            RimWellPath* wellPath = nullptr;
+            completions->firstAncestorOrThisOfTypeAsserted(wellPath);
+            wellPaths.push_back(wellPath);
+        }        
+    }
 
     return wellPaths;
 }

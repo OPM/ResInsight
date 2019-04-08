@@ -26,6 +26,7 @@
 #include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 
 #include "cafSelectionManager.h"
 
@@ -75,7 +76,7 @@ void RicNewPerforationIntervalFeature::onActionTriggered(bool isChecked)
 void RicNewPerforationIntervalFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/PerforationInterval16x16.png"));
-    actionToSetup->setText("New Perforation Interval");
+    actionToSetup->setText("Create Perforation Interval");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,6 +101,11 @@ RimPerforationCollection* RicNewPerforationIntervalFeature::selectedPerforationC
         if (!wellPaths.empty())
         {
             return wellPaths[0]->perforationIntervalCollection();
+        }
+        RimWellPathCompletions* completions = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
+        if (completions)
+        {
+            return completions->perforationCollection();
         }
     }
 

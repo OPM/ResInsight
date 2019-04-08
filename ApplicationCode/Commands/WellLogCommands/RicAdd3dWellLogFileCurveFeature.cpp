@@ -72,5 +72,5 @@ void RicAdd3dWellLogFileCurveFeature::onActionTriggered(bool isChecked)
 void RicAdd3dWellLogFileCurveFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
-    actionToSetup->setText("Add 3D Well Log LAS Curve");
+    actionToSetup->setText("Create 3D Well Log LAS Curve");
 }

@@ -77,5 +77,5 @@ void RicAdd3dWellLogRftCurveFeature::onActionTriggered(bool isChecked)
 void RicAdd3dWellLogRftCurveFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
-    actionToSetup->setText("Add 3D Well Log RFT Curve");
+    actionToSetup->setText("Create 3D Well Log RFT Curve");
 }

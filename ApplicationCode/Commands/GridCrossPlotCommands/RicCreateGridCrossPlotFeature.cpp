@@ -84,7 +84,7 @@ void RicCreateGridCrossPlotFeature::setupActionLook(QAction* actionToSetup)
         caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGridCrossPlotCollection>();
     if (!collection)
     {
-        actionToSetup->setText("New Grid Cross Plot from 3d View");
+        actionToSetup->setText("Create Grid Cross Plot from 3d View");
     }
     else
     {

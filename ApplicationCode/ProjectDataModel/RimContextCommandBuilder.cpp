@@ -47,6 +47,9 @@
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimFaultInView.h"
+#include "RimFishbonesCollection.h"
+#include "RimFishbonesMultipleSubs.h"
+#include "RimFishboneWellPathCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFlowPlotCollection.h"
@@ -66,6 +69,8 @@
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
 #include "RimObservedData.h"
+#include "RimPerforationCollection.h"
+#include "RimPerforationInterval.h"
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
@@ -94,6 +99,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
+#include "RimWellPathFractureCollection.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 #include "RimSaturationPressurePlotCollection.h"
@@ -280,30 +287,62 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimWellPathCollection*>(uiItem))
         {
+            menuBuilder << "RicNewEditableWellPathFeature";
+            menuBuilder.addSeparator();
             menuBuilder.subMenuStart("Import");
             menuBuilder << "RicWellPathsImportFileFeature";
             menuBuilder << "RicWellPathsImportSsihubFeature";
             menuBuilder << "RicWellPathFormationsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
             menuBuilder << "RicReloadWellPathFormationNamesFeature";
-            menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
-            menuBuilder.subMenuEnd();
-         
             menuBuilder.addSeparator();
-         
-            menuBuilder << "RicNewEditableWellPathFeature";
+            menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
+            menuBuilder << "RicWellPathImportCompletionsFileFeature";
+            menuBuilder.subMenuEnd();
+            menuBuilder.addSeparator();
+            menuBuilder.subMenuStart("Export Well Paths", QIcon(":/Save.png"));
+            menuBuilder << "RicExportSelectedWellPathsFeature";
+            menuBuilder << "RicExportVisibleWellPathsFeature";
+            menuBuilder.subMenuEnd();
+            appendExportCompletions(menuBuilder);         
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
+            menuBuilder << "RicNewEditableWellPathFeature";
+            menuBuilder << "RicNewWellPathIntersectionFeature";
+            menuBuilder.subMenuStart("Create Completions", QIcon(":/CompletionsSymbol16x16.png"));
+            menuBuilder << "RicNewPerforationIntervalFeature";
+            menuBuilder << "RicEditPerforationCollectionFeature";
+            menuBuilder << "RicNewValveFeature";
+            menuBuilder << "RicNewFishbonesSubsFeature";
+            menuBuilder << "RicNewWellPathFractureFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicCreateMultipleFracturesFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicNewWellPathAttributeFeature";
+            menuBuilder.subMenuEnd();
+            menuBuilder << "RicCreateTemporaryLgrFeature";
+            menuBuilder.addSeparator();
+
             menuBuilder.subMenuStart("Import");
             menuBuilder << "RicWellPathsImportFileFeature";
             menuBuilder << "RicWellPathFormationsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
             menuBuilder << "RicReloadWellPathFormationNamesFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicWellPathImportCompletionsFileFeature";
             menuBuilder.subMenuEnd();
 
             menuBuilder.addSeparator();
+            menuBuilder.subMenuStart("Export Well Paths", QIcon(":/Save.png"));
+            menuBuilder << "RicExportSelectedWellPathsFeature";
+            menuBuilder << "RicExportVisibleWellPathsFeature";
+            menuBuilder.subMenuEnd();
 
+            appendExportCompletions(menuBuilder);
+
+            menuBuilder.addSeparator();
+        
             menuBuilder.subMenuStart("Well Plots", QIcon(":/WellLogTrack16x16.png"));
             menuBuilder << "RicNewRftPlotFeature";
             menuBuilder << "RicNewPltPlotFeature";
@@ -313,40 +352,54 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewWellLogCurveExtractionFeature";
             menuBuilder.subMenuEnd();
 
-            menuBuilder.addSeparator();
-
             menuBuilder.subMenuStart("3D Well Log Curves", QIcon(":/WellLogCurve16x16.png"));
             menuBuilder << "RicAdd3dWellLogCurveFeature";
             menuBuilder << "RicAdd3dWellLogFileCurveFeature";
             menuBuilder << "RicAdd3dWellLogRftCurveFeature";
             menuBuilder.subMenuEnd();
-
-            menuBuilder << "RicNewEditableWellPathFeature";
-            menuBuilder << "RicNewWellPathIntersectionFeature";
+            menuBuilder.addSeparator();
 
             menuBuilder.addSeparator();
-            menuBuilder.subMenuStart("Completions", QIcon(":/CompletionsSymbol16x16.png"));
-            menuBuilder << "RicNewPerforationIntervalFeature";
-            menuBuilder << "RicEditPerforationCollectionFeature";
-            menuBuilder << "RicNewValveFeature";
-            menuBuilder << "RicNewFishbonesSubsFeature";
-            menuBuilder << "RicNewWellPathFractureFeature";
-            menuBuilder.subMenuEnd();
-
-            menuBuilder.subMenuStart("Export Completions", QIcon(":/ExportCompletionsSymbol16x16.png"));
-            menuBuilder << "RicExportCompletionsForVisibleWellPathsFeature";
-            menuBuilder << "RicWellPathExportCompletionDataFeature";
-            menuBuilder.subMenuEnd();
 
             if ( dynamic_cast<RimModeledWellPath*>(uiItem) )
             {
                 menuBuilder << "RicShowWellPlanFeature";
             }
-            menuBuilder << "RicNewWellPathAttributeFeature";
-            menuBuilder << "RicCreateMultipleFracturesFeature"; 
-
-            menuBuilder << "Separator";
-
+        }
+        else if (dynamic_cast<RimWellPathCompletions*>(uiItem))
+        {
+            menuBuilder.subMenuStart("Create Completions", QIcon(":/CompletionsSymbol16x16.png"));
+            menuBuilder << "RicNewPerforationIntervalFeature";
+            menuBuilder << "RicNewFishbonesSubsFeature";
+            menuBuilder << "RicNewWellPathFractureFeature";
+            menuBuilder.subMenuEnd();
+            menuBuilder << "RicCreateTemporaryLgrFeature";
+            menuBuilder.addSeparator();
+            appendExportCompletions(menuBuilder);
+        }
+        else if (dynamic_cast<RimPerforationCollection*>(uiItem) ||
+                 dynamic_cast<RimPerforationInterval*>(uiItem))
+        {
+            menuBuilder << "RicNewPerforationIntervalFeature";
+            if (dynamic_cast<RimPerforationInterval*>(uiItem))
+                menuBuilder << "RicNewValveFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicEditPerforationCollectionFeature";
+            menuBuilder.addSeparator();
+            appendExportCompletions(menuBuilder);
+        }
+        else if (dynamic_cast<RimFishbonesCollection*>(uiItem) ||
+                 dynamic_cast<RimFishbonesMultipleSubs*>(uiItem) ||
+                 dynamic_cast<RimFishboneWellPathCollection*>(uiItem))        
+        {
+            menuBuilder << "RicNewFishbonesSubsFeature";
+            appendExportCompletions(menuBuilder);
+        }
+        else if (dynamic_cast<RimWellPathFractureCollection*>(uiItem) ||
+                 dynamic_cast<RimWellPathFracture*>(uiItem))
+        {
+            menuBuilder << "RicNewWellPathFractureFeature";
+            appendExportCompletions(menuBuilder);
         }
         else if (dynamic_cast<RimWellPathAttributeCollection*>(uiItem))
         {
@@ -787,74 +840,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicConvertGroupToEnsembleFeature";
         menuBuilder.addSeparator();
 
-        if (!menuBuilder.isCmdFeatureAdded("RicNewFishbonesSubsFeature"))
-        {
-            menuBuilder << "RicNewFishbonesSubsFeature";
-        }
-        if (!menuBuilder.isCmdFeatureAdded("RicNewPerforationIntervalFeature"))
-        {
-            menuBuilder << "RicNewPerforationIntervalFeature";
-        }
-        if (!menuBuilder.isCmdFeatureAdded("RicNewValveFeature"))
-        {
-            menuBuilder << "RicNewValveFeature";
-        }
-
-        menuBuilder << "RicEditPerforationCollectionFeature";
-        menuBuilder << "RicExportFishbonesLateralsFeature";
-        menuBuilder << "RicExportCompletionsWellSegmentsFeature";
-        {
-            QStringList candidates;
-
-            if (!menuBuilder.isCmdFeatureAdded("RicExportCompletionsForVisibleWellPathsFeature"))
-            {
-                candidates << "RicExportCompletionsForVisibleWellPathsFeature";
-            }
-            if (!menuBuilder.isCmdFeatureAdded("RicWellPathExportCompletionDataFeature"))
-            {
-                candidates << "RicWellPathExportCompletionDataFeature";
-            }
-
-            if (!candidates.isEmpty())
-            {
-                menuBuilder.subMenuStart("Export Completions", QIcon(":/ExportCompletionsSymbol16x16.png"));
-
-                for (const auto& text : candidates)
-                {
-                    menuBuilder << text;
-                }
-
-                menuBuilder.subMenuEnd();
-            }
-        }
-
-        {
-            QStringList candidates;
-
-            if (!menuBuilder.isCmdFeatureAdded("RicExportSelectedWellPathsFeature"))
-            {
-                candidates << "RicExportSelectedWellPathsFeature";
-
-            }
-            if (!menuBuilder.isCmdFeatureAdded("RicExportVisibleWellPathsFeature"))
-            {
-                candidates << "RicExportVisibleWellPathsFeature";
-            }
-
-            if (!candidates.isEmpty())
-            {
-                menuBuilder.subMenuStart("Export Well Paths", QIcon(":/Save.png"));
-
-                for (const auto& text : candidates)
-                {
-                    menuBuilder << text;
-                }
-
-                menuBuilder.subMenuEnd();
-            }
-        }
-
-        menuBuilder << "RicWellPathImportCompletionsFileFeature";
         menuBuilder << "RicFlyToObjectFeature";
 
         menuBuilder << "RicImportObservedDataFeature";
@@ -867,9 +852,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCloseSummaryCaseInCollectionFeature";
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
         menuBuilder << "RicCloseObservedDataFeature";
-
-        menuBuilder << "RicCreateMultipleFracturesFeature";
-        menuBuilder << "RicCreateTemporaryLgrFeature";
 
         // Work in progress -- End
 
@@ -1072,4 +1054,41 @@ void RimContextCommandBuilder::appendScriptItems(caf::CmdFeatureMenuBuilder& men
     }
 
     menuBuilder.subMenuEnd();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContextCommandBuilder::appendExportCompletions(caf::CmdFeatureMenuBuilder& menuBuilder)
+{
+    QStringList candidates;
+
+    if (!menuBuilder.isCmdFeatureAdded("RicExportCompletionsForVisibleWellPathsFeature"))
+    {
+        candidates << "RicExportCompletionsForVisibleWellPathsFeature";
+    }
+    if (!menuBuilder.isCmdFeatureAdded("RicWellPathExportCompletionDataFeature"))
+    {
+        candidates << "RicWellPathExportCompletionDataFeature";
+    }
+    if (!menuBuilder.isCmdFeatureAdded("RicExportFishbonesLateralsFeature"))
+    {
+        candidates << "RicExportFishbonesLateralsFeature";
+    }
+    if (!menuBuilder.isCmdFeatureAdded("RicExportCompletionsWellSegmentsFeature"))
+    {
+        candidates << "RicExportCompletionsWellSegmentsFeature";
+    }
+
+    if (!candidates.isEmpty())
+    {
+        menuBuilder.subMenuStart("Export Completions", QIcon(":/ExportCompletionsSymbol16x16.png"));
+
+        for (const auto& text : candidates)
+        {
+            menuBuilder << text;
+        }
+
+        menuBuilder.subMenuEnd();
+    }
 }
