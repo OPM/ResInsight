@@ -193,6 +193,14 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
 
 	        set(RESINSIGHT_FOUND_HDF5 1)
 	        message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
+
+			option (RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
+			mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES) 
+	        if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
+		        message( STATUS "Bundling of HDF5 libraries is enabled" )
+	        endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
+
+
         else()
             message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
         endif() # HDF5_FOUND
@@ -469,6 +477,29 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     endif()
     
 endif (RESINSIGHT_PRIVATE_INSTALL)
+
+if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	  foreach (FILE_TO_COPY ${HDF5_LIBRARIES})
+        
+        # find all files containing the string "hdf"
+	    STRING( FIND ${FILE_TO_COPY} "hdf5" POS_IN_STRING ) 
+	    if(${POS_IN_STRING} GREATER -1)
+            get_filename_component(ABS_DIR ${FILE_TO_COPY} REALPATH)
+  		    message (STATUS "HDF5 bundle file - ${ABS_DIR}")
+
+            # as part of install, rename file with the extension ResInsight reports when running "ldd"
+            get_filename_component(FILE_NAME_WE ${FILE_TO_COPY} NAME_WE)
+            set(FILE_NAME_FOR_INSTALL "${FILE_NAME_WE}.so.6")
+  		    message (STATUS "HDF5 file FILE_NAME_FOR_INSTALL  - ${FILE_NAME_FOR_INSTALL}")
+      
+            install(FILES ${ABS_DIR} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} RENAME ${FILE_NAME_FOR_INSTALL} )
+		endif()
+	  endforeach()
+      
+    endif()
+    
+endif (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 
 
 ################################################################################
