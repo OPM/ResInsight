@@ -45,15 +45,17 @@ class QShortenedLabel : public QLabel
 public:
     explicit QShortenedLabel(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
-    QSize minimumSizeHint() const override;
-    QSize sizeHint() const override;
-protected:
-    void    resizeEvent(QResizeEvent *event) override;
-    void    setDisplayText(const QString& shortText);
+    void    setText(const QString& text);
     QString fullText() const;
 
+    QSize   minimumSizeHint() const override;
+    QSize   sizeHint() const override;
+protected:
+    void    resizeEvent(QResizeEvent *event) override;
+    void    resizeText(QSize paintSize);
+    void    setDisplayText(const QString& shortText);
 private:
-    QString m_fullLengthText;
+    QString  m_fullLengthText;
 };
 }
 

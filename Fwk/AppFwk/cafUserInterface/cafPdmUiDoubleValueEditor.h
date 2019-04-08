@@ -86,8 +86,8 @@ private:
     void writeValueToField();
 
 private:
-    QPointer<QLineEdit> m_lineEdit;
-    QPointer<QLabel>    m_label;
+    QPointer<QLineEdit>       m_lineEdit;
+    QPointer<QShortenedLabel> m_label;
 
     PdmUiDoubleValueEditorAttribute m_attributes;
 };

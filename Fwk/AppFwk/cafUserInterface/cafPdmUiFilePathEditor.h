@@ -104,9 +104,9 @@ protected slots:
     void        fileSelectionClicked();
 
 private:
-    QPointer<QLineEdit>     m_lineEdit;
-    QPointer<QLabel>        m_label;
-    QPointer<QToolButton>   m_button;
+    QPointer<QLineEdit>       m_lineEdit;
+    QPointer<QShortenedLabel> m_label;
+    QPointer<QToolButton>     m_button;
 
     PdmUiFilePathEditorAttribute m_attributes;
 };

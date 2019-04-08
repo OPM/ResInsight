@@ -129,7 +129,7 @@ private:
 
 private:
     QPointer<QTreeView>         m_treeView;
-    QPointer<QLabel>            m_label;
+    QPointer<QShortenedLabel>   m_label;
     QPointer<QCheckBox>         m_toggleAllCheckBox;
     QPointer<QLineEdit>         m_textFilterLineEdit;
 

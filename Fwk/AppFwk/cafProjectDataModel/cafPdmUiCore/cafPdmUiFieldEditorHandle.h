@@ -35,9 +35,10 @@
 //##################################################################################################
 #pragma once
 
+#include "cafClassTypeName.h"
 #include "cafFactory.h"
 #include "cafPdmUiEditorHandle.h"
-#include "cafClassTypeName.h"
+#include "cafQShortenedLabel.h"
 
 #include <vector>
 
@@ -109,9 +110,9 @@ protected: // Virtual interface to override
 
     void                setValueToField(const QVariant& value);
 
-    void                updateLabelFromField(QLabel* label, const QString& uiConfigName = "") const;
+    void                updateLabelFromField(QShortenedLabel* label, const QString& uiConfigName = "") const;
     virtual QMargins    calculateLabelContentMargins() const;
-    virtual bool isMultiRowEditor() const;
+    virtual bool        isMultiRowEditor() const;
 
 private slots:
     void                customMenuRequested(QPoint pos);

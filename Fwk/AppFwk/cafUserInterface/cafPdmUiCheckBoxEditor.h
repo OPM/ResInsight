@@ -81,8 +81,8 @@ protected slots:
     void                slotClicked(bool checked);
 
 private:
-    QPointer<QCheckBox> m_checkBox;
-    QPointer<QLabel>    m_label;
+    QPointer<QCheckBox>            m_checkBox;
+    QPointer<QShortenedLabel> m_label;
 };
 
 

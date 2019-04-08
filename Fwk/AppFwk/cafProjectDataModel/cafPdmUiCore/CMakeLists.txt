@@ -20,6 +20,7 @@ set (MOC_HEADER_FILES
     cafPdmUiEditorHandle.h
     cafPdmUiFieldEditorHandle.h
 	cafPdmUiSelection3dEditorVisualizer.h
+	cafQShortenedLabel.h
 )
 
 # Run MOC on the headers
@@ -73,6 +74,9 @@ set( PROJECT_FILES
     cafSelectionManagerTools.h
 	cafPdmUiSelection3dEditorVisualizer.h
 	cafPdmUiSelection3dEditorVisualizer.cpp
+	cafQShortenedLabel.cpp
+	cafQShortenedLabel.h
+
 )
 
 add_library( ${PROJECT_NAME}

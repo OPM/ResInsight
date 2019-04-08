@@ -145,7 +145,7 @@ void PdmUiFieldEditorHandle::setValueToField(const QVariant& newUiValue)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::updateLabelFromField(QLabel* label, const QString& uiConfigName) const
+void PdmUiFieldEditorHandle::updateLabelFromField(QShortenedLabel* label, const QString& uiConfigName /*= ""*/) const
 {
     CAF_ASSERT(label);
     

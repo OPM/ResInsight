@@ -89,7 +89,7 @@ private:
     void        setColorOnWidget(const QColor& c);
 
 private:
-    QPointer<QLabel>    m_label;
+    QPointer<QShortenedLabel>    m_label;
 
     QColor              m_color;
     QPointer<QLabel>    m_colorPixmapLabel;

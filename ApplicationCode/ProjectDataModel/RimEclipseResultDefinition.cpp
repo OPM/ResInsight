@@ -886,7 +886,7 @@ QString RimEclipseResultDefinition::diffResultUiName() const
     {
         diffResult += QString("<b>Base Case</b>: %1").arg(m_differenceCase()->caseUserDescription());
     }
-    return diffResult.join("<br>\n");
+    return diffResult.join("\n");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -928,7 +928,7 @@ QString RimEclipseResultDefinition::diffResultUiShortNameHTML() const
     {
         diffResult += QString("Base Time: #%1").arg(m_timeLapseBaseTimestep());
     }
-    return diffResult.join("\n<br>");
+    return diffResult.join("<br>");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1317,7 +1317,7 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         QString resultPropertyLabel = "Result Property";
         if (isTimeDiffResult() || isCaseDiffResult())
         {
-            resultPropertyLabel += QString("<br>\n<br>\n%1").arg(diffResultUiShortNameHTML());
+            resultPropertyLabel += QString("\n%1").arg(diffResultUiShortName());
         }
         m_resultVariableUiField.uiCapability()->setUiName(resultPropertyLabel);
     }

@@ -121,7 +121,7 @@ QWidget* PdmUiTableViewEditor::createLabelWidget(QWidget * parent)
 
     if (m_tableHeadingIcon.isNull())
     {
-        m_tableHeadingIcon = new QShortenedLabel(parent);
+        m_tableHeadingIcon = new QLabel(parent);
     }
 
     QHBoxLayout* layoutForIconLabel = new QHBoxLayout();

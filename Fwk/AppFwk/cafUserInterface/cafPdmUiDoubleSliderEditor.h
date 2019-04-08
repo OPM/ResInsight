@@ -103,10 +103,10 @@ private:
     double      convertFromSliderValue(int sliderValue);
 
 private:
-    QPointer<QLineEdit> m_lineEdit;
-    QPointer<QSlider>   m_slider;
-    QPointer<QLabel>    m_label;
-    double              m_sliderValue;
+    QPointer<QLineEdit>       m_lineEdit;
+    QPointer<QSlider>         m_slider;
+    QPointer<QShortenedLabel> m_label;
+    double                    m_sliderValue;
 
     PdmUiDoubleSliderEditorAttribute m_attributes;
 };

@@ -100,7 +100,7 @@ protected slots:
 
 private:
     QPointer<QComboBox> m_comboBox;
-    QPointer<QLabel>    m_label;
+    QPointer<QShortenedLabel>    m_label;
 
     QPointer<QToolButton> m_previousItemButton;
     QPointer<QToolButton> m_nextItemButton;
