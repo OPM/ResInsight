@@ -1909,7 +1909,11 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
         m_mainWindow->processMonitor()->startMonitorWorkProcess(m_workerProcess);
 
         m_workerProcess->start(program, arguments);
-        if (!m_workerProcess->waitForStarted(1000))
+
+        // The wait time is a compromise between large wait time when processing many octave runs after each other and short wait
+        // time when starting octave processes interactively
+        int waitTimeMilliseconds = 7 * 1000;
+        if (!m_workerProcess->waitForStarted(waitTimeMilliseconds))
         {
             m_workerProcess->close();
             m_workerProcess        = nullptr;
