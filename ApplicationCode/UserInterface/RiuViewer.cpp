@@ -187,9 +187,6 @@ RiuViewer::~RiuViewer()
     delete m_infoLabel;
     delete m_animationProgress;
     delete m_histogramWidget;
-#if QT_VERSION < 0x050000
-    delete m_progressBarStyle;
-#endif
     delete m_gridBoxGenerator;
 }
 
