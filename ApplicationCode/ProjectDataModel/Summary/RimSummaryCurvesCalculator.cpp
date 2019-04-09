@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,9 +19,10 @@
 #include "RimSummaryCurvesCalculator.h"
 
 #include "RiaDefines.h"
-#include "RimSummaryCurve.h"
-#include "RimPlotAxisProperties.h"
+
 #include "RimAsciiDataCurve.h"
+#include "RimPlotAxisProperties.h"
+#include "RimSummaryCurve.h"
 
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorDescriptionMap.h"
@@ -30,9 +31,9 @@
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
 
+#include <cmath>
 #include <set>
 #include <string>
-#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 // e    format as [-]9.9e[+|-]999
@@ -47,14 +48,13 @@ class DecimalScaleDraw : public QwtScaleDraw
 public:
     DecimalScaleDraw(double scaleFactor, int numberOfDecimals)
     {
-        m_scaleFactor = scaleFactor;
+        m_scaleFactor      = scaleFactor;
         m_numberOfDecimals = numberOfDecimals;
     }
 
     QwtText label(double value) const override
     {
-        if (qFuzzyCompare(scaledValue(value) + 1.0, 1.0))
-            value = 0.0;
+        if (qFuzzyCompare(scaledValue(value) + 1.0, 1.0)) value = 0.0;
 
         return QString::number(scaledValue(value), 'f', m_numberOfDecimals);
     }
@@ -65,26 +65,25 @@ private:
         return value / m_scaleFactor;
     }
 
-    double  m_scaleFactor;
-    int     m_numberOfDecimals;
+    double m_scaleFactor;
+    int    m_numberOfDecimals;
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class ScientificScaleDraw : public QwtScaleDraw
 {
 public:
     ScientificScaleDraw(double scaleFactor, int numberOfDecimals)
     {
-        m_scaleFactor = scaleFactor;
+        m_scaleFactor      = scaleFactor;
         m_numberOfDecimals = numberOfDecimals;
     }
 
     QwtText label(double value) const override
     {
-        if (qFuzzyCompare(scaledValue(value) + 1.0, 1.0))
-            value = 0.0;
+        if (qFuzzyCompare(scaledValue(value) + 1.0, 1.0)) value = 0.0;
 
         return QString::number(scaledValue(value), 'e', m_numberOfDecimals);
     }
@@ -95,27 +94,26 @@ private:
         return value / m_scaleFactor;
     }
 
-    double  m_scaleFactor;
-    int     m_numberOfDecimals;
+    double m_scaleFactor;
+    int    m_numberOfDecimals;
 };
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotYAxisFormatter::RimSummaryPlotYAxisFormatter(RimPlotAxisProperties* axisProperties,
-    const std::vector<RimSummaryCurve*>& summaryCurves,
-    const std::vector<RimAsciiDataCurve*>& asciiCurves,
-    const std::set<QString>& timeHistoryCurveQuantities)
-:   m_axisProperties(axisProperties),
-    m_summaryCurves(summaryCurves),
-    m_asciiDataCurves(asciiCurves),
-    m_timeHistoryCurveQuantities(timeHistoryCurveQuantities)
+RimSummaryPlotYAxisFormatter::RimSummaryPlotYAxisFormatter(RimPlotAxisProperties*                 axisProperties,
+                                                           const std::vector<RimSummaryCurve*>&   summaryCurves,
+                                                           const std::vector<RimAsciiDataCurve*>& asciiCurves,
+                                                           const std::set<QString>&               timeHistoryCurveQuantities)
+    : m_axisProperties(axisProperties)
+    , m_summaryCurves(summaryCurves)
+    , m_asciiDataCurves(asciiCurves)
+    , m_timeHistoryCurveQuantities(timeHistoryCurveQuantities)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot* qwtPlot)
 {
@@ -137,11 +135,11 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
         switch (m_axisProperties->titlePositionEnum())
         {
             case RimPlotAxisProperties::AXIS_TITLE_CENTER:
-            axisTitleY.setRenderFlags(Qt::AlignCenter);
-            break;
+                axisTitleY.setRenderFlags(Qt::AlignCenter);
+                break;
             case RimPlotAxisProperties::AXIS_TITLE_END:
-            axisTitleY.setRenderFlags(Qt::AlignRight);
-            break;
+                axisTitleY.setRenderFlags(Qt::AlignRight);
+                break;
         }
 
         qwtPlot->setAxisTitle(m_axisProperties->qwtPlotAxisType(), axisTitleY);
@@ -161,30 +159,33 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
         }
         else if (m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL)
         {
-            qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), 
-                                      new DecimalScaleDraw(m_axisProperties->scaleFactor(), m_axisProperties->numberOfDecimals()));
+            qwtPlot->setAxisScaleDraw(
+                m_axisProperties->qwtPlotAxisType(),
+                new DecimalScaleDraw(m_axisProperties->scaleFactor(), m_axisProperties->numberOfDecimals()));
         }
         else if (m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC)
         {
-            qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), 
-                                      new ScientificScaleDraw(m_axisProperties->scaleFactor(), m_axisProperties->numberOfDecimals()));
+            qwtPlot->setAxisScaleDraw(
+                m_axisProperties->qwtPlotAxisType(),
+                new ScientificScaleDraw(m_axisProperties->scaleFactor(), m_axisProperties->numberOfDecimals()));
         }
     }
 
     {
         if (m_axisProperties->isLogarithmicScaleEnabled)
         {
-            QwtLogScaleEngine* currentScaleEngine = dynamic_cast<QwtLogScaleEngine*>(qwtPlot->axisScaleEngine(m_axisProperties->qwtPlotAxisType()));
+            QwtLogScaleEngine* currentScaleEngine =
+                dynamic_cast<QwtLogScaleEngine*>(qwtPlot->axisScaleEngine(m_axisProperties->qwtPlotAxisType()));
             if (!currentScaleEngine)
             {
                 qwtPlot->setAxisScaleEngine(m_axisProperties->qwtPlotAxisType(), new QwtLogScaleEngine);
                 qwtPlot->setAxisMaxMinor(m_axisProperties->qwtPlotAxisType(), 5);
             }
-
         }
         else
         {
-            QwtLinearScaleEngine* currentScaleEngine = dynamic_cast<QwtLinearScaleEngine*>(qwtPlot->axisScaleEngine(m_axisProperties->qwtPlotAxisType()));
+            QwtLinearScaleEngine* currentScaleEngine =
+                dynamic_cast<QwtLinearScaleEngine*>(qwtPlot->axisScaleEngine(m_axisProperties->qwtPlotAxisType()));
             if (!currentScaleEngine)
             {
                 qwtPlot->setAxisScaleEngine(m_axisProperties->qwtPlotAxisType(), new QwtLinearScaleEngine);
@@ -195,7 +196,7 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
 {
@@ -227,7 +228,7 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
 
         std::string quantityNameForDisplay;
         {
-            std::string quantityName = sumAddress.quantityName();
+            const std::string& quantityName = sumAddress.quantityName();
 
             if (sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
             {
@@ -252,7 +253,6 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
                     {
                         quantityNameForDisplay += quantityName;
                     }
-
                 }
             }
 
@@ -290,14 +290,14 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
         }
     }
 
-    if (m_timeHistoryCurveQuantities.size() > 0)
+    if (!m_timeHistoryCurveQuantities.empty())
     {
         if (!assembledYAxisText.isEmpty())
         {
             assembledYAxisText += " : ";
         }
 
-        for (auto timeQuantity : m_timeHistoryCurveQuantities)
+        for (const auto& timeQuantity : m_timeHistoryCurveQuantities)
         {
             assembledYAxisText += timeQuantity + " ";
         }
@@ -307,7 +307,7 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::string RimSummaryPlotYAxisFormatter::shortCalculationName(const std::string& calculationName)
 {
@@ -321,4 +321,3 @@ std::string RimSummaryPlotYAxisFormatter::shortCalculationName(const std::string
 
     return calculationShortName.toStdString();
 }
-
