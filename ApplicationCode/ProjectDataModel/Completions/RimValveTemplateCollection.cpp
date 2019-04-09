@@ -36,6 +36,7 @@ RimValveTemplateCollection::RimValveTemplateCollection()
     CAF_PDM_InitFieldNoDefault(&m_defaultUnitsForValveTemplates, "ValveUnits", "Default unit system for valve templates", "", "", "");
     m_defaultUnitsForValveTemplates = RiaEclipseUnitTools::UNITS_METRIC;
     m_valveDefinitions.uiCapability()->setUiHidden(true);
+    addDefaultValveTemplates();    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,3 +98,24 @@ void RimValveTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimValveTemplateCollection::addDefaultValveTemplates()
+{
+    RimValveTemplate* aicd = new RimValveTemplate;
+    aicd->setType(RiaDefines::AICD);
+    aicd->setUserLabel("Valve Template #1");
+
+    RimValveTemplate* icd = new RimValveTemplate;
+    icd->setType(RiaDefines::ICD);
+    icd->setUserLabel("Valve Template #2");
+
+    RimValveTemplate* icv = new RimValveTemplate;
+    icv->setType(RiaDefines::ICV);
+    icv->setUserLabel("Valve Template #3");
+
+    addValveTemplate(aicd);
+    addValveTemplate(icd);
+    addValveTemplate(icv);
+}

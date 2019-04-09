@@ -318,12 +318,31 @@ RiaDefines::WellPathComponentType RimWellPathValve::componentType() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathValve::componentLabel() const
 {
-    if (componentType() == RiaDefines::ICD || componentType() == RiaDefines::AICD)
+    if (componentType() == RiaDefines::ICD)
     {
         if (m_multipleValveLocations->valveLocations().size() > 1)
         {
-            return "Valves";
+            return "ICDs";
         }
+        else
+        {
+            return "ICD";
+        }
+    }
+    else if (componentType() == RiaDefines::AICD)
+    {
+        if (m_multipleValveLocations->valveLocations().size() > 1)
+        {
+            return "AICDs";
+        }
+        else
+        {
+            return "AICD";
+        }
+    }
+    else if (componentType() == RiaDefines::ICV)
+    {
+        return "ICV";
     }
     return "Valve";
 }
@@ -333,6 +352,18 @@ QString RimWellPathValve::componentLabel() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathValve::componentTypeLabel() const
 {
+    if (componentType() == RiaDefines::ICD)
+    {
+        return "ICD";
+    }
+    else if (componentType() == RiaDefines::AICD)
+    {
+        return "AICD";
+    }
+    else if (componentType() == RiaDefines::ICV)
+    {
+        return "ICV";
+    }
     return "Valve";
 }
 

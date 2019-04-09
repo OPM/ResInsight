@@ -101,6 +101,16 @@ RiaDefines::WellPathComponentType RimValveTemplate::type() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimValveTemplate::setType(RiaDefines::WellPathComponentType type)
+{
+    CAF_ASSERT(type == RiaDefines::ICD || type == RiaDefines::AICD || RiaDefines::ICV);
+
+    m_type = type;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaEclipseUnitTools::UnitSystemType RimValveTemplate::templateUnits() const
 {
     return m_valveTemplateUnit;
@@ -205,7 +215,7 @@ void RimValveTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("MSW AICD Parameters");
         m_aicdParameters->uiOrdering(uiConfigName, *group);
     }
-
+  
     bool readOnly = uiConfigName == QString("InsideValve");
     m_type.uiCapability()->setUiReadOnly(readOnly);
     m_userLabel.uiCapability()->setUiReadOnly(readOnly);
@@ -228,19 +238,6 @@ void RimValveTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     }
     if (changedField == &m_type)
     {
-        if (m_type() == RiaDefines::ICV)
-        {
-            this->setUiIcon(QIcon(":/ICVValve16x16.png"));
-        }
-        else if (m_type() == RiaDefines::ICD)
-        {
-            this->setUiIcon(QIcon(":/ICDValve16x16.png"));
-        }
-        else if (m_type() == RiaDefines::AICD)
-        {
-            this->setUiIcon(QIcon(":/AICDValve16x16.png"));
-        }
-
         std::vector<caf::PdmFieldHandle*> referringFields;
         this->referringPtrFields(referringFields);
         for (caf::PdmFieldHandle* field : referringFields)
@@ -257,4 +254,17 @@ void RimValveTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 void RimValveTemplate::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     this->setName(fullLabel());
+    if (m_type() == RiaDefines::ICV)
+    {
+        this->setUiIcon(QIcon(":/ICVValve16x16.png"));
+    }
+    else if (m_type() == RiaDefines::ICD)
+    {
+        this->setUiIcon(QIcon(":/ICDValve16x16.png"));
+    }
+    else if (m_type() == RiaDefines::AICD)
+    {
+        this->setUiIcon(QIcon(":/AICDValve16x16.png"));
+    }
+
 }

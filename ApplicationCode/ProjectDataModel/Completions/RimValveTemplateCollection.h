@@ -41,11 +41,12 @@ public:
     std::vector<RimValveTemplate*>           valveTemplates() const;
     void                                     addValveTemplate(RimValveTemplate* valveTemplate);
     void                                     removeAndDeleteValveTemplate(RimValveTemplate* valveTemplate);
+    void                                     addDefaultValveTemplates();
 
     RiaEclipseUnitTools::UnitSystemType      defaultUnitSystemType() const;
     void                                     setDefaultUnitSystemBasedOnLoadedCases();
 
 private:
-    caf::PdmChildArrayField<RimValveTemplate*>           m_valveDefinitions;    
-    caf::PdmField< RiaEclipseUnitTools::UnitSystemType > m_defaultUnitsForValveTemplates;
+    caf::PdmChildArrayField<RimValveTemplate*>         m_valveDefinitions;    
+    caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_defaultUnitsForValveTemplates; 
 };

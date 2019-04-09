@@ -40,6 +40,7 @@ public:
     void setDefaultValuesFromUnits();
 
     RiaDefines::WellPathComponentType   type() const;
+    void                                setType(RiaDefines::WellPathComponentType type);
     RiaEclipseUnitTools::UnitSystemType templateUnits() const;
     double                              orificeDiameter() const;
     double                              flowCoefficient() const;
