@@ -90,8 +90,18 @@ bool caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                                                                                               QWidget*       containerWidget,
                                                                                               const QString& uiConfigName)
 {
+    QSize beforeSize = containerWidget->sizeHint();
+    
     ensureWidgetContainsEmptyGridLayout(containerWidget);
-    return recursivelyConfigureAndUpdateUiOrderingInGridLayout(uiOrdering, containerWidget, uiConfigName);
+    int stretch = recursivelyConfigureAndUpdateUiOrderingInGridLayout(uiOrdering, containerWidget, uiConfigName);
+    
+    QSize afterSize  = containerWidget->sizeHint();
+    if (beforeSize != afterSize)
+    {
+        containerWidget->adjustSize();
+    }
+
+    return stretch > 0;
 }
 
 //--------------------------------------------------------------------------------------------------

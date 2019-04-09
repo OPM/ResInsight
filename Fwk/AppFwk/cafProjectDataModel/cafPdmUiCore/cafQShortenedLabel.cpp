@@ -53,10 +53,17 @@ QShortenedLabel::QShortenedLabel(QWidget* parent /*= nullptr*/, Qt::WindowFlags 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::QShortenedLabel::setText(const QString& text)
+void QShortenedLabel::setText(const QString& text)
 {
+    bool textHasChanged = m_fullLengthText != text;
+
     m_fullLengthText = text;
     setDisplayText(text);
+
+    if (textHasChanged)
+    {
+        adjustSize();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,5 +175,5 @@ void caf::QShortenedLabel::resizeText(QSize paintSize)
 //--------------------------------------------------------------------------------------------------
 void QShortenedLabel::setDisplayText(const QString& displayText)
 {
-    QLabel::setText(displayText);    
+    QLabel::setText(displayText);
 }
