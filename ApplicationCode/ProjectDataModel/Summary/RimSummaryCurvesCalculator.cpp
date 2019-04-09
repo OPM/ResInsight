@@ -279,9 +279,14 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
             assembledYAxisText += QString::fromStdString(quantIt) + " ";
         }
 
-        if (m_axisProperties->showUnitText() && !unitIt.first.empty())
+        if (m_axisProperties->showUnitText())
         {
-            assembledYAxisText += "[" + QString::fromStdString(unitIt.first) + scaleFactorText + "] ";
+            QString unitAndScaleText = QString::fromStdString(unitIt.first) + scaleFactorText;
+
+            if (!unitAndScaleText.isEmpty())
+            {
+                assembledYAxisText += "[" + unitAndScaleText + "] ";
+            }
         }
     }
 
