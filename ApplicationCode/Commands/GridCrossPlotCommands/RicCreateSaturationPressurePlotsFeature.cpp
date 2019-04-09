@@ -48,6 +48,63 @@ CAF_CMD_SOURCE_INIT(RicCreateSaturationPressurePlotsFeature, "RicCreateSaturatio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSaturationPressurePlot*>
+    RicCreateSaturationPressurePlotsFeature::createPlots(RimEclipseResultCase* eclipseResultCase)
+{
+    std::vector<RimSaturationPressurePlot*> plots;
+
+    if (!eclipseResultCase)
+    {
+        RiaLogging::error(
+            "RicCreateSaturationPressurePlotsFeature:: No case specified for creation of saturation pressure plots");
+
+        return plots;
+    }
+
+    RimProject* project = RiaApplication::instance()->project();
+
+    RimSaturationPressurePlotCollection* collection = project->mainPlotCollection()->saturationPressurePlotCollection();
+
+    if (eclipseResultCase && eclipseResultCase->ensureReservoirCaseIsOpen())
+    {
+        eclipseResultCase->ensureDeckIsParsedForEquilData();
+
+        RigEclipseCaseData* eclipseCaseData = eclipseResultCase->eclipseCaseData();
+
+        bool requiredInputDataPresent = false;
+        if (!eclipseCaseData->equilData().empty())
+        {
+            if (eclipseCaseData && eclipseCaseData->results(RiaDefines::MATRIX_MODEL))
+            {
+                RigCaseCellResultsData* resultData = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
+
+                if (resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PRESSURE")) &&
+                    resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PDEW")) &&
+                    resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PBUB")))
+                {
+                    requiredInputDataPresent = true;
+                }
+            }
+        }
+
+        if (requiredInputDataPresent)
+        {
+            plots = collection->createSaturationPressurePlots(eclipseResultCase);
+            for (auto plot : plots)
+            {
+                plot->loadDataAndUpdate();
+                plot->zoomAll();
+                plot->updateConnectedEditors();
+            }
+        }
+    }
+
+    return plots;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicCreateSaturationPressurePlotsFeature::isCommandEnabled()
 {
     return true;
@@ -60,15 +117,7 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
 {
     RimProject* project = RiaApplication::instance()->project();
 
-    bool                                 launchedFromPlotCollection = true;
-    RimSaturationPressurePlotCollection* collection =
-        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimSaturationPressurePlotCollection>();
-
-    if (!collection)
-    {
-        collection                 = project->mainPlotCollection()->saturationPressurePlotCollection();
-        launchedFromPlotCollection = false;
-    }
+    RimSaturationPressurePlotCollection* collection = project->mainPlotCollection()->saturationPressurePlotCollection();
 
     std::vector<RimEclipseResultCase*> eclipseCases;
     {
@@ -112,58 +161,24 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
 
     caf::PdmObject* objectToSelect = nullptr;
 
-    if (eclipseResultCase && eclipseResultCase->ensureReservoirCaseIsOpen())
+    std::vector<RimSaturationPressurePlot*> plots = createPlots(eclipseResultCase);
+    if (plots.empty())
     {
-        eclipseResultCase->ensureDeckIsParsedForEquilData();
+        QString text = "No plots generated.\n\n";
+        text += "Data required to generate saturation/pressure plots:\n";
+        text += " - EQLNUM property defining at least one region\n";
+        text += " - Dynamic properties PRESSURE, PBUB and PDEW\n\n";
+        text += "Make sure to add 'PBPD' to the RPTRST keyword in the SOLUTION selection. ";
+        text += "If this is a two phase run (Oil/water or Gas/Water) or if both VAPOIL ";
+        text += "and DISGAS are disabled, saturation pressure are not valid.";
 
-        RigEclipseCaseData* eclipseCaseData = eclipseResultCase->eclipseCaseData();
+        QMessageBox::warning(nullptr, "Saturation Pressure Plots", text);
 
-        bool requiredInputDataPresent = false;
-        if (!eclipseCaseData->equilData().empty())
-        {
-            if (eclipseCaseData && eclipseCaseData->results(RiaDefines::MATRIX_MODEL))
-            {
-                RigCaseCellResultsData* resultData = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
-
-                if (resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PRESSURE")) &&
-                    resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PDEW")) &&
-                    resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PBUB")))
-                {
-                    requiredInputDataPresent = true;
-                }
-            }
-        }
-
-        std::vector<RimSaturationPressurePlot*> plots;
-        if (requiredInputDataPresent)
-        {
-            plots = collection->createSaturationPressurePlots(eclipseResultCase);
-            for (auto plot : plots)
-            {
-                plot->loadDataAndUpdate();
-                plot->zoomAll();
-                plot->updateConnectedEditors();
-            }
-        }
-
-        if (plots.empty())
-        {
-            QString text = "No plots generated.\n\n";
-            text += "Data required to generate saturation/pressure plots:\n";
-            text += " - EQLNUM property defining at least one region\n";
-            text += " - Dynamic properties PRESSURE, PBUB and PDEW\n\n";
-            text += "Make sure to add 'PBPD' to the RPTRST keyword in the SOLUTION selection. ";
-            text += "If this is a two phase run (Oil/water or Gas/Water) or if both VAPOIL ";
-            text += "and DISGAS are disabled, saturation pressure are not valid.";
-
-            QMessageBox::warning(nullptr, "Saturation Pressure Plots", text);
-
-            RiaLogging::warning(text);
-        }
-        else
-        {
-            objectToSelect = plots.front();
-        }
+        RiaLogging::warning(text);
+    }
+    else
+    {
+        objectToSelect = plots.front();
     }
 
     collection->updateAllRequiredEditors();
@@ -180,15 +195,6 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicCreateSaturationPressurePlotsFeature::setupActionLook(QAction* actionToSetup)
 {
-    RimSaturationPressurePlotCollection* collection =
-        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimSaturationPressurePlotCollection>();
-    if (!collection)
-    {
-        actionToSetup->setText("New Grid Cross Plot from 3d View");
-    }
-    else
-    {
-        actionToSetup->setText("Create Saturation Pressure Plots");
-    }
+    actionToSetup->setText("Create Saturation Pressure Plots");
     actionToSetup->setIcon(QIcon(":/SummaryXPlotsLight16x16.png"));
 }
