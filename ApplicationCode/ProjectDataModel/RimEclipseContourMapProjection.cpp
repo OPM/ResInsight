@@ -199,7 +199,7 @@ std::vector<double> RimEclipseContourMapProjection::generateResults(int timeStep
                 }
                 gridResultValues = calculateColumnResult(m_resultAggregation());
             }
-            else
+            else if (!(cellColors->hasStaticResult() && timeStep > 0))
             {
                 m_currentResultName = cellColors->resultVariable();
                 RigEclipseResultAddress resAddr(cellColors->resultType(), cellColors->resultVariable());
