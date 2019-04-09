@@ -1298,13 +1298,8 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         uiOrdering.add(&m_resultVariableUiField);
     }
 
-    if (enableDiffResultOptions())
+    if (isCaseDiffResultAvailable() || isTimeDiffResultAvailable())
     {
-        // NOTE
-        //
-        // It is possible to enable the use of case/time diff results in property filter, fault result, etc
-        // but to limit the number of UI items, the time/case diff is only available as part of "Cell Result"
-
         caf::PdmUiGroup* differenceGroup = uiOrdering.addNewGroup("Difference Options");
         differenceGroup->setUiReadOnly(!(isTimeDiffResultAvailable() || isCaseDiffResultAvailable()));
 
@@ -1915,7 +1910,7 @@ bool RimEclipseResultDefinition::enableDiffResultOptions() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isTimeDiffResultAvailable() const
 {
-    return enableDiffResultOptions() && m_resultType() == RiaDefines::DYNAMIC_NATIVE && !isTernarySaturationSelected();
+    return enableDiffResultOptions() && m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE && !isTernarySaturationSelected();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1932,8 +1927,8 @@ bool RimEclipseResultDefinition::isTimeDiffResult() const
 bool RimEclipseResultDefinition::isCaseDiffResultAvailable() const
 {
     return enableDiffResultOptions() && !isTernarySaturationSelected() &&
-           (m_resultType() == RiaDefines::DYNAMIC_NATIVE || m_resultType() == RiaDefines::STATIC_NATIVE ||
-            m_resultType() == RiaDefines::GENERATED);
+           (m_resultTypeUiField() == RiaDefines::DYNAMIC_NATIVE || m_resultTypeUiField() == RiaDefines::STATIC_NATIVE ||
+            m_resultTypeUiField() == RiaDefines::GENERATED);
 }
 
 //--------------------------------------------------------------------------------------------------
