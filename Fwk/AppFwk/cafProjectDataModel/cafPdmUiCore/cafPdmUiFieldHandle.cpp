@@ -58,27 +58,11 @@ void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const Q
         PdmFieldHandle* fieldHandle = this->fieldHandle();
         CAF_ASSERT(fieldHandle && fieldHandle->ownerObject());
 
-        PdmObjectHandle* ownerObjectHandle = fieldHandle->ownerObject();
-
+        PdmUiObjectHandle* uiObjHandle = uiObj(fieldHandle->ownerObject());
+        if (uiObjHandle)
         {
-            PdmUiObjectHandle* uiObjHandle = uiObj(ownerObjectHandle);
-            if (uiObjHandle)
-            {
-                uiObjHandle->fieldChangedByUi(fieldHandle, oldFieldValue, newFieldValue);
-                uiObjHandle->updateConnectedEditors();
-
-            }
-        }
-
-        if (ownerObjectHandle->parentField() && ownerObjectHandle->parentField()->ownerObject())
-        {
-            PdmUiObjectHandle* uiObjHandle = uiObj(ownerObjectHandle->parentField()->ownerObject());
-            if (uiObjHandle)
-            {
-                uiObjHandle->childFieldChangedByUi(ownerObjectHandle->parentField());
-
-                // If updateConnectedEditors() is required, this has to be called in childFieldChangedByUi()
-            }
+            uiObjHandle->fieldChangedByUi(fieldHandle, oldFieldValue, newFieldValue);
+            uiObjHandle->updateConnectedEditors();
         }
 
         // Update field editors
