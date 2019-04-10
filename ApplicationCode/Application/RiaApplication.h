@@ -169,8 +169,9 @@ public:
     RiaPreferences*     preferences();
     void                applyPreferences(const RiaPreferences* oldPreferences = nullptr);
 
-    cvf::Font*          standardFont();
-    cvf::Font*          customFont();
+    cvf::Font*          defaultSceneFont();
+    cvf::Font*          defaultAnnotationFont();
+    cvf::Font*          defaultWellLabelFont();
 
     QString             commandLineParameterHelp() const;
     void                showFormattedTextInMessageBox(const QString& text);
@@ -254,8 +255,9 @@ private:
     std::map<QString, QString>          m_fileDialogDefaultDirectories;
     QString                             m_startupDefaultDirectory;
 
-    cvf::ref<cvf::Font>                 m_standardFont;
-    cvf::ref<cvf::Font>                 m_customFont;
+    cvf::ref<cvf::Font>                 m_defaultSceneFont;
+    cvf::ref<cvf::Font>                 m_defaultAnnotationFont;
+    cvf::ref<cvf::Font>                 m_defaultWellLabelFont;
 
     QMap<QString, QVariant>             m_sessionCache;     // Session cache used to store username/passwords per session
 

@@ -93,7 +93,10 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     : caf::Viewer(format, parent)
     , m_isNavigationRotationEnabled(true)
 {
-    cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+    cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
+    QFont      font         = QApplication::font();
+    font.setPointSize(RiaFontCache::getPointSize(RiaApplication::instance()->preferences()->defaultFontSizeInScene()));
+
     m_axisCross             = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
     m_axisCross->setAxisLabels("X", "Y", "Z");
     m_axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_RIGHT);
@@ -109,6 +112,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_infoLabel->setFrameShape(QFrame::Box);
     m_infoLabel->setFrameShadow(QFrame::Plain);
     m_infoLabel->setMinimumWidth(275);
+    m_infoLabel->setFont(font);
     m_showInfoText = true;
 
     // Version info label
@@ -116,6 +120,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_versionInfoLabel->setFrameShape(QFrame::NoFrame);
     m_versionInfoLabel->setAlignment(Qt::AlignRight);
     m_versionInfoLabel->setText(QString("%1 v%2").arg(RI_APPLICATION_NAME, RiaApplication::getVersionStringApp(false)));
+    m_versionInfoLabel->setFont(font);
     m_showVersionInfo = true;
 
     // Z scale label
@@ -123,6 +128,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_zScaleLabel->setFrameShape(QFrame::NoFrame);
     m_zScaleLabel->setAlignment(Qt::AlignLeft);
     m_zScaleLabel->setText(QString("Z: "));
+    m_zScaleLabel->setFont(font);
     m_showZScaleLabel    = true;
     m_hideZScaleCheckbox = false;
 
@@ -132,6 +138,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_animationProgress->setTextVisible(true);
     m_animationProgress->setAlignment(Qt::AlignCenter);
     m_animationProgress->setObjectName("AnimationProgress");
+    m_animationProgress->setFont(font);
 
     m_showAnimProgress = false;
 
@@ -572,6 +579,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* addedL
         addedLegend->enableBackground(preferences->showLegendBackground());
         addedLegend->setBackgroundColor(backgroundColor);
         addedLegend->setBackgroundFrameColor(cvf::Color4f(RiaColorTools::computeOffsetColor(frameColor, 0.3f), 0.9f));
+        addedLegend->setFont(app->defaultSceneFont());
 
         m_visibleLegends.push_back(addedLegend);
     }
@@ -1049,6 +1057,29 @@ void RiuViewer::setHoverCursor(const QCursor& cursor)
 void RiuViewer::clearHoverCursor()
 {
     s_hoverCursor.reset();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateFonts()
+{
+    cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
+    m_mainRendering->removeOverlayItem(m_axisCross.p());
+
+    m_axisCross             = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
+    m_axisCross->setAxisLabels("X", "Y", "Z");
+    m_axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_RIGHT);
+    m_mainRendering->addOverlayItem(m_axisCross.p());
+    m_showAxisCross = true;
+
+    QFont font = QApplication::font();
+    font.setPointSize(RiaFontCache::getPointSize(RiaApplication::instance()->preferences()->defaultFontSizeInScene()));
+    
+    m_zScaleLabel->setFont(font);
+    m_infoLabel->setFont(font);
+    m_animationProgress->setFont(font);
+    m_versionInfoLabel->setFont(font);
 }
 
 //--------------------------------------------------------------------------------------------------

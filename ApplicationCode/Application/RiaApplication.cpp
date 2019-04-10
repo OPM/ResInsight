@@ -39,6 +39,8 @@
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
+#include "RimAnnotationInViewCollection.h"
+#include "RimAnnotationTextAppearance.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimCommandObject.h"
 #include "RimEclipseCaseCollection.h"
@@ -70,6 +72,8 @@
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimTextAnnotation.h"
+#include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogFile.h"
@@ -226,10 +230,6 @@ RiaApplication::RiaApplication(int& argc, char** argv)
 #endif
 
     setLastUsedDialogDirectory("MULTICASEIMPORT", "/");
-
-    // The creation of a font is time consuming, so make sure you really need your own font
-    // instead of using the application font
-    m_standardFont = RiaFontCache::getFont(RiaFontCache::FONT_SIZE_8);
 
     m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);
 
@@ -1988,23 +1988,37 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
             mainPlotWindow()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
     }
 
-    RiaFontCache::FontSize fontSizeType = m_preferences->fontSizeInScene();
-    m_customFont                        = RiaFontCache::getFont(fontSizeType);
+    // The creation of a font is time consuming, so make sure you really need your own font
+    // instead of using the application font
+    RiaFontCache::FontSize sceneFontSize    = m_preferences->defaultFontSizeInScene();
+    m_defaultSceneFont                        = RiaFontCache::getFont(sceneFontSize);    
+    RiaFontCache::FontSize annotationFontSize = m_preferences->defaultAnnotationFontSize();
+    m_defaultAnnotationFont                   = RiaFontCache::getFont(annotationFontSize);
+    RiaFontCache::FontSize wellLabelFontSize  = m_preferences->defaultWellLabelFontSize();
+    m_defaultWellLabelFont                    = RiaFontCache::getFont(wellLabelFontSize);
 
     if (this->project())
     {
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
         this->project()->updateConnectedEditors();
 
+        RimWellPathCollection* wellPathCollection = this->project()->activeOilField()->wellPathCollection();
+
         std::vector<Rim3dView*> visibleViews;
         this->project()->allVisibleViews(visibleViews);
 
-        bool existingViewsWithCustomColors = false;
-        bool existingViewsWithCustomZScale = false;
+        bool existingViewsWithDifferentMeshLines   = false;
+        bool existingViewsWithCustomColors         = false;
+        bool existingViewsWithCustomZScale         = false;
+        bool existingObjectsWithCustomFonts        = false;
         if (oldPreferences)
         {
             for (auto view : visibleViews)
             {
+                if (view->meshMode()  != oldPreferences->defaultMeshModeType())
+                {
+                    existingViewsWithDifferentMeshLines = true;
+                }
                 if (view->backgroundColor() != oldPreferences->defaultViewerBackgroundColor())
                 {
                     existingViewsWithCustomColors = true;
@@ -2014,6 +2028,12 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
                     existingViewsWithCustomZScale = true;
                 }
 
+                RimGridView* gridView = dynamic_cast<RimGridView*>(view);
+                if (gridView)
+                {
+                    RiaFontCache::FontSize oldFontSize = oldPreferences->defaultAnnotationFontSize();
+                    existingObjectsWithCustomFonts = gridView->annotationCollection()->hasTextAnnotationsWithCustomFontSize(oldFontSize);
+                }
                 RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
                 if (eclipseView)
                 {
@@ -2022,15 +2042,22 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
                         existingViewsWithCustomColors = true;
                     }
                 }
+                if (wellPathCollection->wellPathLabelColor() != oldPreferences->defaultWellLabelColor())
+                {
+                    existingViewsWithCustomColors = true;
+                }
             }
         }
 
         bool applySettingsToAllViews = false;
-        if (existingViewsWithCustomColors || existingViewsWithCustomZScale)
+        if (existingViewsWithCustomColors || existingViewsWithCustomZScale ||
+            existingViewsWithDifferentMeshLines || existingObjectsWithCustomFonts)
         {
             QStringList changedData;
+            if (existingViewsWithDifferentMeshLines) changedData << "Mesh Visibility";
             if (existingViewsWithCustomColors) changedData << "Colors";
             if (existingViewsWithCustomZScale) changedData << "Z-Scale";
+            if (existingObjectsWithCustomFonts) changedData << "Fonts Sizes";
 
             QString listString = changedData.takeLast();
             if (!changedData.empty())
@@ -2046,44 +2073,97 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
                 QMessageBox::Ok | QMessageBox::Cancel);
             applySettingsToAllViews = (reply == QMessageBox::Ok);
         }
-        
+
+        std::set<caf::PdmUiItem*> uiEditorsToUpdate;
+
         for (auto view : visibleViews)
         {
-            std::set<caf::PdmUiItem*> uiItemsToUpdate;
+            bool applyBackgroundOrFonts = false;
+
+            if (oldPreferences && (applySettingsToAllViews || view->meshMode() == oldPreferences->defaultMeshModeType()))
+            {
+                view->meshMode = m_preferences->defaultMeshModeType();
+            }
 
             if (oldPreferences && (applySettingsToAllViews || view->backgroundColor() == oldPreferences->defaultViewerBackgroundColor()))
             {
-                view->setAndApplyBackgroundColor(m_preferences->defaultViewerBackgroundColor());
-                uiItemsToUpdate.insert(view);
+                view->setBackgroundColor(m_preferences->defaultViewerBackgroundColor());
+                applyBackgroundOrFonts = true;
+                uiEditorsToUpdate.insert(view);
             }
 
             if (oldPreferences && (applySettingsToAllViews || view->scaleZ == static_cast<double>(oldPreferences->defaultScaleFactorZ())))
             {
                 view->scaleZ = static_cast<double>(m_preferences->defaultScaleFactorZ());
                 view->updateScaling();
-                uiItemsToUpdate.insert(view);
+                uiEditorsToUpdate.insert(view);
                 if (view == activeViewWindow())
                 {
                     RiuMainWindow::instance()->updateScaleValue();
                 }
             }
-          
+
+            if (oldPreferences && oldPreferences->defaultFontSizeInScene() != sceneFontSize)
+            {
+                applyBackgroundOrFonts = true;
+            }
+
+            if (oldPreferences && oldPreferences->defaultAnnotationFontSize() != annotationFontSize)
+            {
+                RimGridView* gridView = dynamic_cast<RimGridView*>(view);
+                if (gridView)
+                {
+                    auto annotations = gridView->annotationCollection();
+                    RiaFontCache::FontSize oldFontSize = oldPreferences->defaultAnnotationFontSize();
+                    bool applyFontSizes = applySettingsToAllViews ||
+                        !annotations->hasTextAnnotationsWithCustomFontSize(oldFontSize);
+
+                    if (applyFontSizes)
+                    {
+                        annotations->applyFontSizeToAllTextAnnotations(annotationFontSize);
+                        for (auto annotation : annotations->globalTextAnnotations())
+                        {
+                            uiEditorsToUpdate.insert(annotation);
+                        }
+                        for (auto annotation : annotations->textAnnotations())
+                        {
+                            uiEditorsToUpdate.insert(annotation);
+                        }
+                    }
+                }
+            }
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
             if (eclipseView)
             {
                 if (oldPreferences && (applySettingsToAllViews || eclipseView->wellCollection()->wellLabelColor() == oldPreferences->defaultWellLabelColor()))
                 {
                     eclipseView->wellCollection()->wellLabelColor = m_preferences->defaultWellLabelColor();
-                    uiItemsToUpdate.insert(eclipseView->wellCollection());
+                    uiEditorsToUpdate.insert(eclipseView->wellCollection());
                 }
                 eclipseView->scheduleReservoirGridGeometryRegen();
             }
             view->scheduleCreateDisplayModelAndRedraw();
-
-            for (caf::PdmUiItem* uiItem : uiItemsToUpdate)
+            if (applyBackgroundOrFonts)
             {
-                uiItem->updateConnectedEditors();
+                view->applyBackgroundColorAndFontChanges();
             }
+        }
+
+        if (oldPreferences)
+        {            
+            bool matchingColor = wellPathCollection->wellPathLabelColor() == oldPreferences->defaultWellLabelColor();
+            if (applySettingsToAllViews || matchingColor)
+            {
+                wellPathCollection->wellPathLabelColor = oldPreferences->defaultWellLabelColor();
+                uiEditorsToUpdate.insert(wellPathCollection);
+            }
+        }
+
+
+
+        for (caf::PdmUiItem* uiItem : uiEditorsToUpdate)
+        {
+            uiItem->updateConnectedEditors();
         }
     }
 
@@ -2255,24 +2335,34 @@ void RiaApplication::runMultiCaseSnapshots(const QString&       templateProjectF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Font* RiaApplication::standardFont()
+cvf::Font* RiaApplication::defaultSceneFont()
 {
-    CVF_ASSERT(m_standardFont.notNull());
+    CVF_ASSERT(m_defaultSceneFont.notNull());
 
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
 
-    return m_standardFont.p();
+    return m_defaultSceneFont.p();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Font* RiaApplication::customFont()
+cvf::Font* RiaApplication::defaultAnnotationFont()
 {
-    CVF_ASSERT(m_customFont.notNull());
+    CVF_ASSERT(m_defaultAnnotationFont.notNull());
 
-    return m_customFont.p();
+    return m_defaultAnnotationFont.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Font* RiaApplication::defaultWellLabelFont()
+{
+    CVF_ASSERT(m_defaultWellLabelFont.notNull());
+
+    return m_defaultWellLabelFont.p();
 }
 
 //--------------------------------------------------------------------------------------------------

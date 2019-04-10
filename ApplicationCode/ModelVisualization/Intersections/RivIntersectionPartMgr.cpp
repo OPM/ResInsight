@@ -606,8 +606,8 @@ void RivIntersectionPartMgr::createFaultLabelParts(const std::vector<std::pair<Q
 
     if (!(eclipseView && faultInViewColl->showFaultLabel())) return;
 
-    cvf::Color3f defWellLabelColor = faultInViewColl->faultLabelColor();
-    cvf::Font*   font              = RiaApplication::instance()->customFont();
+    cvf::Color3f faultLabelColor   = faultInViewColl->faultLabelColor();
+    cvf::Font*   font              = RiaApplication::instance()->defaultSceneFont();
 
     std::vector<cvf::Vec3f> lineVertices;
 
@@ -618,7 +618,7 @@ void RivIntersectionPartMgr::createFaultLabelParts(const std::vector<std::pair<Q
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);
         drawableText->setVerticalAlignment(cvf::TextDrawer::BASELINE);
-        drawableText->setTextColor(defWellLabelColor);
+        drawableText->setTextColor(faultLabelColor);
     }
 
     cvf::BoundingBox bb                    = m_crossSectionFaces->boundingBox();

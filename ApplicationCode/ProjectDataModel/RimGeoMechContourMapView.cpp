@@ -178,7 +178,7 @@ void RimGeoMechContourMapView::initAfterRead()
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
     disablePerspectiveProjectionField();
     setShowGridBox(false);
-    meshMode.setValue(NO_MESH);
+    meshMode.setValue(RiaDefines::NO_MESH);
     surfaceMode.setValue(FAULTS);
     scheduleCreateDisplayModelAndRedraw();
 }

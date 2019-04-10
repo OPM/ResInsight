@@ -59,6 +59,13 @@ namespace RiaDefines
         UNDEFINED_COMPONENT
     };
    
+    enum MeshModeType
+    {
+        FULL_MESH,
+        FAULTS_MESH,
+        NO_MESH
+    };
+
     bool isPerCellFaceResult(const QString& resultName);
     bool isNativeCategoryResult(const QString& resultName);
 
@@ -162,5 +169,6 @@ namespace RiaDefines
 
     ImportFileType obtainFileTypeFromFileName(const QString& fileName);
     QString        defaultDirectoryLabel(ImportFileType fileTypes);
+
 };
 

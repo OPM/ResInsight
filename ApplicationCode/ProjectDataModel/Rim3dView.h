@@ -18,6 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaDefines.h"
 #include "RiuViewerToViewInterface.h"
 #include "RimNameConfig.h"
 #include "RimViewWindow.h"
@@ -95,11 +96,10 @@ public:
 
     // Draw style 
 
-    enum MeshModeType    { FULL_MESH, FAULTS_MESH, NO_MESH    };
     enum SurfaceModeType { SURFACE,   FAULTS,      NO_SURFACE };
 
-    caf::PdmField< caf::AppEnum< MeshModeType > >    meshMode;
-    caf::PdmField< caf::AppEnum< SurfaceModeType > > surfaceMode;
+    caf::PdmField< caf::AppEnum< RiaDefines::MeshModeType > > meshMode;
+    caf::PdmField< caf::AppEnum< SurfaceModeType > >          surfaceMode;
 
     RiuViewer*                              viewer() const;
 
@@ -114,8 +114,9 @@ public:
     void                                    setFaultMeshSurfDrawstyle();
     void                                    setSurfaceDrawstyle();
     void                                    setBackgroundColor(const cvf::Color3f& newBackgroundColor);
-    void                                    setAndApplyBackgroundColor(const cvf::Color3f& newBackgroundColor);
     void                                    setShowGridBox(bool showGridBox);
+
+    void                                    applyBackgroundColorAndFontChanges();
 
     void                                    disableLighting(bool disable);
     bool                                    isLightingDisabled() const;
@@ -126,8 +127,8 @@ public:
     virtual bool                            showActiveCellsOnly();
     virtual bool                            isUsingFormationNames() const = 0;
 
-    QImage                          snapshotWindowContent() override;
-    void                            zoomAll() override;
+    QImage                                  snapshotWindowContent() override;
+    void                                    zoomAll() override;
     void                                    forceShowWindowOn();
 
     // Animation
@@ -178,9 +179,6 @@ protected:
     void                                    addMeasurementToModel(cvf::ModelBasicList* wellPathModelBasicList);
 
     void                                    createHighlightAndGridBoxDisplayModel();
-
-    // Implementation of RiuViewerToViewInterface
-    void                                    applyBackgroundColor();
 
     // Implementation of RimNameConfigHolderInterface
     void                                    performAutoNameUpdate() override;

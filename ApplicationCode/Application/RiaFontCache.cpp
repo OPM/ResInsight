@@ -81,3 +81,29 @@ cvf::ref<caf::FixedAtlasFont> RiaFontCache::getFont(FontSize size)
     }
     return ms_fonts[size];
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaFontCache::getPointSize(FontSize fontSize)
+{
+    switch (fontSize)
+    {
+        case RiaFontCache::FONT_SIZE_8:
+            return 8;
+        case RiaFontCache::FONT_SIZE_10:
+            return 10;
+        case RiaFontCache::FONT_SIZE_12:
+            return 12;
+        case RiaFontCache::FONT_SIZE_14:
+            return 14;
+        case RiaFontCache::FONT_SIZE_16:
+            return 16;
+        case RiaFontCache::FONT_SIZE_24:
+            return 24;
+        case RiaFontCache::FONT_SIZE_32:
+            return 32;
+        default:
+            return 16;
+    }
+}

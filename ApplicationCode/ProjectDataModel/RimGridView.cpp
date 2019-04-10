@@ -315,7 +315,7 @@ void RimGridView::initAfterRead()
         // Current : Grid visualization mode is directly defined by m_gridCollection->isActive
         // This change was introduced in https://github.com/OPM/ResInsight/commit/f7bfe8d0
 
-        bool isGridVisualizationModeBefore_2018_1_1 = ((surfaceMode() == RimGridView::SURFACE) || (meshMode() == RimGridView::FULL_MESH));
+        bool isGridVisualizationModeBefore_2018_1_1 = ((surfaceMode() == RimGridView::SURFACE) || (meshMode() == RiaDefines::FULL_MESH));
 
         m_gridCollection->setActive(isGridVisualizationModeBefore_2018_1_1);
         if (!isGridVisualizationModeBefore_2018_1_1)
@@ -324,7 +324,7 @@ void RimGridView::initAfterRead()
             // If was showing with mesh and/or surfaces, turn to full mesh/surf mode to show the mesh, 
             // and to avoid a strange setup when dropping out into grid mode again
             if (surfaceMode() != RimGridView::NO_SURFACE) surfaceMode = RimGridView::SURFACE;
-            if (meshMode() != RimGridView::NO_MESH) meshMode = RimGridView::FULL_MESH;
+            if (meshMode() != RiaDefines::NO_MESH) meshMode = RiaDefines::FULL_MESH;
         }
     }
 }

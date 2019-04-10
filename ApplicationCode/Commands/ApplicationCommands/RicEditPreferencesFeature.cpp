@@ -51,6 +51,7 @@ void RicEditPreferencesFeature::onActionTriggered(bool isChecked)
     std::unique_ptr<RiaPreferences> oldPreferences = clonePreferences(app->preferences());
 
     RiuPropertyViewTabWidget propertyDialog(nullptr, app->preferences(), "Preferences", tabNames);
+    propertyDialog.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application

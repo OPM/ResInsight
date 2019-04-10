@@ -50,7 +50,8 @@ public:
 
     typedef caf::AppEnum<FontSize> FontSizeType;
 
-    static cvf::ref<caf::FixedAtlasFont> getFont(FontSize size);
+    static cvf::ref<caf::FixedAtlasFont> getFont(FontSize fontSize);
+    static int getPointSize(FontSize fontSize);
 
 private:
     static std::map<FontSize, cvf::ref<caf::FixedAtlasFont>> ms_fonts;
