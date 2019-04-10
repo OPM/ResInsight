@@ -482,7 +482,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
     // Fault label
     if (!m_rimFault->name().isEmpty())
     {
-        cvf::Font* font = RiaApplication::instance()->customFont();
+        cvf::Font* font = RiaApplication::instance()->defaultWellLabelFont();
 
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
         drawableText->setFont(font);

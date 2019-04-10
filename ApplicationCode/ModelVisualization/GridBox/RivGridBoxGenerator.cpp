@@ -639,7 +639,7 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
 
         cvf::ref<cvf::DrawableText> geo = new cvf::DrawableText;
         
-        cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+        cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
         
         geo->setFont(standardFont);
         geo->setTextColor(m_gridLegendColor);

@@ -62,6 +62,7 @@ namespace caf {
         cvf::Vec2ui          renderSize() const;
 
         void                 setTextColor(const cvf::Color3f& color);
+        void                 setFont(cvf::Font* font);
         void                 setLineColor(const cvf::Color3f& lineColor);
         void                 setLineWidth(int lineWidth);
 

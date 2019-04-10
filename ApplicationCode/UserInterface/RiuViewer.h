@@ -131,6 +131,8 @@ public:
     static void     setHoverCursor(const QCursor& cursor);
     static void     clearHoverCursor();
 
+    void            updateFonts();
+
 public slots:
     void            slotSetCurrentFrame(int frameIndex) override;
     void            slotEndAnimation() override;

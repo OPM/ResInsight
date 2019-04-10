@@ -190,7 +190,7 @@ void RivMeasurementPartMgr::buildPolyLineParts(const cvf::Camera* camera,
         auto    fontColor       = cvf::Color3f::BLACK;
         QString text            = m_measurement->label();
         auto    labelPosition   = pointsInDisplay.back();
-        auto    font            = RiaApplication::instance()->customFont();
+        auto    font            = RiaApplication::instance()->defaultWellLabelFont();
 
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
         drawableText->setFont(font);

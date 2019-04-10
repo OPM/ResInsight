@@ -73,6 +73,15 @@ void caf::AppEnum<RiaDefines::WellPathComponentType>::setUp()
     addItem(RiaDefines::UNDEFINED_COMPONENT, "UNDEFINED", "Undefined Component");
     setDefault(RiaDefines::WELL_PATH);
 }
+
+template<>
+void caf::AppEnum<RiaDefines::MeshModeType>::setUp()
+{
+    addItem(RiaDefines::FULL_MESH, "FULL_MESH", "All");
+    addItem(RiaDefines::FAULTS_MESH, "FAULTS_MESH", "Faults only");
+    addItem(RiaDefines::NO_MESH, "NO_MESH", "None");
+    setDefault(RiaDefines::FULL_MESH);
+}
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------

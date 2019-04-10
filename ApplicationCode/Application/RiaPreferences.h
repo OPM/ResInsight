@@ -22,8 +22,9 @@
 #pragma once
 
 #include "RiaApplication.h"
-
+#include "RiaDefines.h"
 #include "RiaFontCache.h"
+
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -71,14 +72,20 @@ public: // Pdm Fields
     
     caf::PdmField<QString>  ssihubAddress;
 
-    caf::PdmField<int>      defaultScaleFactorZ;
-    caf::PdmField<bool>     defaultGridLines;
+    caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>> defaultMeshModeType;
+
+    caf::PdmField<int>          defaultScaleFactorZ;
     caf::PdmField<cvf::Color3f> defaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultFaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultViewerBackgroundColor;
     caf::PdmField<cvf::Color3f> defaultWellLabelColor;
-    caf::PdmField<bool>     showLasCurveWithoutTvdWarning;
-    caf::PdmField<FontSizeType> fontSizeInScene;
+    caf::PdmField<bool>         showLasCurveWithoutTvdWarning;
+
+    caf::PdmField<FontSizeType> defaultFontSizeInScene;
+    caf::PdmField<FontSizeType> defaultWellLabelFontSize;
+    caf::PdmField<FontSizeType> defaultAnnotationFontSize;
+    caf::PdmField<FontSizeType> defaultPlotFontSize;
+    
     caf::PdmField<bool>     showLegendBackground;
 
     caf::PdmField<bool>     useShaders;
@@ -112,4 +119,5 @@ private:
     caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
     caf::PdmField<QString>                 m_holoLensExportFolder;
     QStringList                            m_tabNames;
+
 };
