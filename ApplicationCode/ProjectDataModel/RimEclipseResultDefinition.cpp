@@ -20,6 +20,7 @@
 
 #include "RimEclipseResultDefinition.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 
@@ -93,8 +94,13 @@ RimEclipseResultDefinition::RimEclipseResultDefinition(caf::PdmUiItemInfo::Label
     CAF_PDM_InitFieldNoDefault(&m_flowSolution, "FlowDiagSolution", "Solution", "", "", "");
     m_flowSolution.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(
-        &m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", RigEclipseResultAddress::noTimeLapseValue(), "Base Time Step", "", "", "");
+    CAF_PDM_InitField(&m_timeLapseBaseTimestep,
+                      "TimeLapseBaseTimeStep",
+                      RigEclipseResultAddress::noTimeLapseValue(),
+                      "Base Time Step",
+                      "",
+                      "",
+                      "");
 
     CAF_PDM_InitFieldNoDefault(&m_differenceCase, "DifferenceCase", "Difference Case", "", "", "");
 
@@ -740,6 +746,28 @@ RigEclipseResultAddress RimEclipseResultDefinition::eclipseResultAddress() const
     else
     {
         return RigEclipseResultAddress();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::setFromEclipseResultAddress(const RigEclipseResultAddress& address)
+{
+    m_resultType            = address.m_resultCatType;
+    m_resultVariable        = address.m_resultName;
+    m_timeLapseBaseTimestep = address.m_timeLapseBaseFrameIdx;
+
+    if (address.hasDifferenceCase())
+    {
+        auto eclipseCases = RiaApplication::instance()->project()->eclipseCases();
+        for (RimEclipseCase* c : eclipseCases)
+        {
+            if (c && c->caseId() == address.m_differenceCaseId)
+            {
+                m_differenceCase = c;
+            }
+        }
     }
 }
 

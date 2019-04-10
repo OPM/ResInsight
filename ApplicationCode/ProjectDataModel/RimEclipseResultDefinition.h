@@ -100,6 +100,7 @@ public:
 
     void                            loadResult();
     RigEclipseResultAddress         eclipseResultAddress() const;
+    void                            setFromEclipseResultAddress(const RigEclipseResultAddress& resultAddress);
     bool                            hasStaticResult() const;
     bool                            hasDynamicResult() const;
     bool                            hasResult() const;
