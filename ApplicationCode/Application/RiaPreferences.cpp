@@ -75,10 +75,11 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitField(&defaultScaleFactorZ,                "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&defaultFontSizeInScene,     "fontSizeInScene",  "Viewer Font", "", "", "");    
+    CAF_PDM_InitFieldNoDefault(&defaultSceneFontSize,     "fontSizeInScene",  "Viewer Font", "", "", "");    
     CAF_PDM_InitFieldNoDefault(&defaultAnnotationFontSize,  "defaultAnnotationFontSize", "Annotation Font Size", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&defaultWellLabelFontSize, "wellLabelFontSize", "Well Label Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&defaultWellLabelFontSize,   "wellLabelFontSize", "Well Label Font Size", "", "", "");
     CAF_PDM_InitFieldNoDefault(&defaultPlotFontSize,        "defaultPlotFontSize", "Plot Font Size", "", "", "");
+    defaultPlotFontSize = RiaFontCache::FONT_SIZE_10;
 
     CAF_PDM_InitField(&showLasCurveWithoutTvdWarning,   "showLasCurveWithoutTvdWarning", true, "Show LAS Curve Without TVD Warning", "", "", "");
     showLasCurveWithoutTvdWarning.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
@@ -206,7 +207,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         colorGroup->add(&defaultWellLabelColor);
 
         caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup("Default Font Sizes");
-        fontGroup->add(&defaultFontSizeInScene);
+        fontGroup->add(&defaultSceneFontSize);
         fontGroup->add(&defaultAnnotationFontSize, false);
         fontGroup->add(&defaultWellLabelFontSize);
         fontGroup->add(&defaultPlotFontSize, false);
@@ -368,3 +369,15 @@ QString RiaPreferences::holoLensExportFolder() const
     return m_holoLensExportFolder();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::defaultFontSizes() const
+{
+    std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes;
+    fontSizes[RiaDefines::SCENE_FONT]      = defaultSceneFontSize();
+    fontSizes[RiaDefines::ANNOTATION_FONT] = defaultAnnotationFontSize();
+    fontSizes[RiaDefines::WELL_LABEL_FONT] = defaultWellLabelFontSize();
+    fontSizes[RiaDefines::PLOT_FONT]       = defaultPlotFontSize();
+    return fontSizes;
+}

@@ -15,28 +15,21 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#pragma once
+#include "RimPlotAxisPropertiesInterface.h"
 
-#include "RiaFontCache.h"
-#include "RimViewWindow.h"
+#include "cafAppEnum.h"
 
+// clang-format off
 namespace caf
 {
-class PdmObject;
-}
-
-class QwtPlotCurve;
-
-class RimRiuQwtPlotOwnerInterface
+template<>
+void caf::AppEnum<RimPlotAxisPropertiesInterface::AxisTitlePositionType>::setUp()
 {
-public:
-    virtual void detachAllCurves() = 0;
-    virtual void updateAxisScaling() = 0;
-    virtual void updateAxisDisplay() = 0;
-    virtual void updateZoomWindowFromQwt() = 0;
-    virtual void selectAxisInPropertyEditor(int axis) = 0;
-    virtual void setAutoZoomForAllAxes(bool enableAutoZoom) = 0;
-    
-    virtual caf::PdmObject* findRimPlotObjectFromQwtCurve(const QwtPlotCurve* curve) const = 0;
+    addItem(RimPlotAxisPropertiesInterface::AXIS_TITLE_CENTER, "AXIS_TITLE_CENTER", "Center");
+    addItem(RimPlotAxisPropertiesInterface::AXIS_TITLE_END, "AXIS_TITLE_END", "At End");
 
-};
+    setDefault(RimPlotAxisPropertiesInterface::AXIS_TITLE_CENTER);
+}
+} // namespace caf
+
+

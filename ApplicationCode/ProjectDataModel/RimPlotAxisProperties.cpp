@@ -19,7 +19,10 @@
 
 #include "RimPlotAxisProperties.h"
 
+#include "RiaApplication.h"
 #include "RiaDefines.h"
+#include "RiaPreferences.h"
+#include "RiaFontCache.h"
 #include "RigStatisticsCalculator.h"
 
 #include "RimRiuQwtPlotOwnerInterface.h"
@@ -44,15 +47,6 @@ void caf::AppEnum<RimPlotAxisProperties::NumberFormatType>::setUp()
     addItem(RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC, "NUMBER_FORMAT_SCIENTIFIC", "Scientific");
 
     setDefault(RimPlotAxisProperties::NUMBER_FORMAT_AUTO);
-}
-
-template<>
-void caf::AppEnum<RimPlotAxisProperties::AxisTitlePositionType>::setUp()
-{
-    addItem(RimPlotAxisProperties::AXIS_TITLE_CENTER, "AXIS_TITLE_CENTER",   "Center");
-    addItem(RimPlotAxisProperties::AXIS_TITLE_END,    "AXIS_TITLE_END",      "At End");
-
-    setDefault(RimPlotAxisProperties::AXIS_TITLE_CENTER);
 }
 } // namespace caf
 
@@ -79,8 +73,6 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField(&m_displayUnitText,   "DisplayUnitText",  true,   "   Units", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&customTitle,        "CustomTitle",      "Title", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&titlePositionEnum,  "TitlePosition",    "Title Position", "", "", "");
-    CAF_PDM_InitField(&titleFontSize,               "FontSize", 11,     "Font Size", "", "", "");
 
     CAF_PDM_InitField(&visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max", "", "", "");
     CAF_PDM_InitField(&visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min", "", "", "");
@@ -88,13 +80,18 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitFieldNoDefault(&numberFormat,   "NumberFormat",         "Number Format", "", "", "");
     CAF_PDM_InitField(&numberOfDecimals,        "Decimals", 2,          "Number of Decimals", "", "", "");
     CAF_PDM_InitField(&scaleFactor,             "ScaleFactor", 1.0,     "Scale Factor", "", "", "");
-    CAF_PDM_InitField(&valuesFontSize,          "ValuesFontSize", 11,   "Font Size", "", "", "");
 
     numberOfDecimals.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "");
     CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
     CAF_PDM_InitField(&m_isAxisInverted, "AxisInverted", false, "Invert Axis", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
+    CAF_PDM_InitField(&m_titleFontSize, "FontSize", 10, "Font Size", "", "", "");
+    m_titleFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
+    CAF_PDM_InitField(&m_valuesFontSize, "ValuesFontSize", 10, "Font Size", "", "", "");
+    m_valuesFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
 
     CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "", "", "", "");
 
@@ -130,7 +127,7 @@ QList<caf::PdmOptionItemInfo> RimPlotAxisProperties::calculateValueOptions(const
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if (&titleFontSize == fieldNeedingOptions || &valuesFontSize == fieldNeedingOptions)
+    if (&m_titleFontSize == fieldNeedingOptions || &m_valuesFontSize == fieldNeedingOptions)
     {
         std::vector<int> fontSizes;
         fontSizes.push_back(8);
@@ -191,8 +188,8 @@ void RimPlotAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 
     {
         caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup("Title Layout");
-        titleGroup->add(&titlePositionEnum);
-        titleGroup->add(&titleFontSize);
+        titleGroup->add(&m_titlePositionEnum);
+        titleGroup->add(&m_titleFontSize);
     }
 
     caf::PdmUiGroup& scaleGroup = *(uiOrdering.addNewGroup("Axis Values"));
@@ -208,7 +205,7 @@ void RimPlotAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 
     scaleGroup.add(&visibleRangeMin);
     scaleGroup.add(&visibleRangeMax);
-    scaleGroup.add(&valuesFontSize);
+    scaleGroup.add(&m_valuesFontSize);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -223,6 +220,46 @@ void RimPlotAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axis ax
 
     if (axis == QwtPlot::yRight) this->setUiIcon(QIcon(":/RightAxis16x16.png"));
     if (axis == QwtPlot::xBottom) this->setUiIcon(QIcon(":/BottomAxis16x16.png"));
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotAxisPropertiesInterface::AxisTitlePositionType RimPlotAxisProperties::titlePosition() const
+{
+    return m_titlePositionEnum();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPlotAxisProperties::titleFontSize() const
+{
+    return m_titleFontSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setTitleFontSize(int fontSize)
+{
+    m_titleFontSize = fontSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPlotAxisProperties::valuesFontSize() const
+{
+    return m_valuesFontSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setValuesFontSize(int fontSize)
+{
+    m_valuesFontSize = fontSize;
 }
 
 //--------------------------------------------------------------------------------------------------

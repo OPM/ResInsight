@@ -18,8 +18,6 @@
 
 #include "RimAnnotationInViewCollection.h"
 
-#include "RiaApplication.h"
-
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationTextAppearance.h"
@@ -262,17 +260,31 @@ bool RimAnnotationInViewCollection::hasTextAnnotationsWithCustomFontSize(RiaFont
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationInViewCollection::applyFontSizeToAllTextAnnotations(RiaFontCache::FontSize fontSize)
+bool RimAnnotationInViewCollection::applyFontSizeToAllTextAnnotations(RiaFontCache::FontSize oldFontSize,
+                                                                      RiaFontCache::FontSize fontSize,
+                                                                      bool                   forceChange)
 {
+    bool anyChange = false;
     for (auto annotation : textAnnotations())
     {
-        annotation->appearance()->setFontSize(fontSize);
+        if (forceChange || annotation->appearance()->fontSize() == oldFontSize)
+        {
+            annotation->appearance()->setFontSize(fontSize);
+            annotation->updateConnectedEditors();
+            anyChange = true;
+        }
     }
 
     for (auto annotationInView : globalTextAnnotations())
     {
-        annotationInView->sourceAnnotation()->appearance()->setFontSize(fontSize);
+        if (forceChange || annotationInView->sourceAnnotation()->appearance()->fontSize() == oldFontSize)
+        {
+            annotationInView->sourceAnnotation()->appearance()->setFontSize(fontSize);
+            annotationInView->updateConnectedEditors();
+            anyChange = true;
+        }
     }
+    return anyChange;
 }
 
 //--------------------------------------------------------------------------------------------------

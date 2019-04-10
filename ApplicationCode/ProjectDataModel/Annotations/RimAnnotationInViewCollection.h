@@ -61,7 +61,7 @@ public:
     size_t                      annotationsCount() const;
 
     bool                        hasTextAnnotationsWithCustomFontSize(RiaFontCache::FontSize defaultFontSize) const;
-    void                        applyFontSizeToAllTextAnnotations(RiaFontCache::FontSize fontSize);
+    bool                        applyFontSizeToAllTextAnnotations(RiaFontCache::FontSize oldFontSize, RiaFontCache::FontSize fontSize, bool forceSizeChange = false);
 
 protected:
     void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;

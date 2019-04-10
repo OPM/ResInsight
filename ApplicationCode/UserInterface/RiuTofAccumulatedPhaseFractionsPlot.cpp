@@ -57,7 +57,7 @@ RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot(RimTofA
     setDefaults();
     QwtText title("Cumulative Saturation by Time of Flight");
     QFont titleFont = title.font();
-    titleFont.setPixelSize(12);
+    titleFont.setPointSize(12);
     title.setFont(titleFont);
     setTitle(title);
 
@@ -249,7 +249,7 @@ void RiuTofAccumulatedPhaseFractionsPlot::setCommonPlotBehaviour(QwtPlot* plot)
 
     // Axis number font
     QFont axisFont =  plot->axisFont(QwtPlot::xBottom);
-    axisFont.setPixelSize(11);
+    axisFont.setPointSize(10);
 
     plot->setAxisFont(QwtPlot::xBottom, axisFont);
     plot->setAxisFont(QwtPlot::xTop, axisFont);
@@ -259,7 +259,7 @@ void RiuTofAccumulatedPhaseFractionsPlot::setCommonPlotBehaviour(QwtPlot* plot)
     // Axis title font
     QwtText axisTitle = plot->axisTitle(QwtPlot::xBottom);
     QFont axisTitleFont = axisTitle.font();
-    axisTitleFont.setPixelSize(11);
+    axisTitleFont.setPointSize(10);
     axisTitleFont.setBold(false);
     axisTitle.setFont(axisTitleFont);
     axisTitle.setRenderFlags(Qt::AlignRight);

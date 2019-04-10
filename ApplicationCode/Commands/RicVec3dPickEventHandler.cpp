@@ -39,10 +39,14 @@ bool RicVec3dPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObje
 {
     const Rim3dView* rimView = eventObject.m_view;
 
+    double zPickOffset = 10.0;
+
     cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
     cvf::Vec3d pickedPositionInUTM = transForm->transformToDomainCoord(eventObject.m_pickItemInfos.front().globalPickedPoint());
 
     pickedPositionInUTM.z() *= -1.0;
+    pickedPositionInUTM.z() -= zPickOffset;
+
     m_vectorField->setValueWithFieldChanged(pickedPositionInUTM);
     return true;
 }

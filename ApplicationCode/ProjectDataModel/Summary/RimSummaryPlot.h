@@ -45,6 +45,7 @@ class RimEnsembleCurveSet;
 class RimEnsembleCurveSetCollection;
 class RimSummaryCurveFilter_OBSOLETE;
 class RimSummaryTimeAxisProperties;
+class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
 class RiuSummaryQwtPlot;
 class RimSummaryPlotNameHelper;
@@ -132,6 +133,10 @@ public:
 
     size_t                                          singleColorCurveCount() const;
 
+
+    bool hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const override;
+    bool applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange = false) override;
+
 public:
     // Rim2dPlotInterface overrides
     void updateAxisScaling() override;
@@ -171,7 +176,7 @@ private:
     std::vector<RimAsciiDataCurve*>                 visibleAsciiDataCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
     bool                                            hasVisibleCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
 
-    RimPlotAxisProperties*                       yAxisPropertiesLeftOrRight(RiaDefines::PlotAxis leftOrRightPlotAxis) const;
+    RimPlotAxisProperties*                          yAxisPropertiesLeftOrRight(RiaDefines::PlotAxis leftOrRightPlotAxis) const;
     void                                            updateAxis(RiaDefines::PlotAxis plotAxis);
 
     void                                            updateZoomForAxis(RiaDefines::PlotAxis plotAxis);
@@ -180,6 +185,8 @@ private:
     void                                            updateBottomXAxis();
 
     void                                            updateAxisRangesFromQwt();
+
+    std::set<RimPlotAxisPropertiesInterface*>       allPlotAxes() const;
 
 private:
     caf::PdmField<bool>                                 m_showPlotTitle;

@@ -27,16 +27,19 @@
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
+#include "RimTextAnnotation.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewNameConfig.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuMainWindow.h"
 
 #include "cvfModel.h"
 #include "cvfScene.h"
-#include "RiuMainWindow.h"
+
+#include <set>
 
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimGridView, "GenericGridView"); // Do not use. Abstract class 
@@ -282,6 +285,45 @@ RimViewLinker* RimGridView::assosiatedViewLinker() const
 bool RimGridView::isGridVisualizationMode() const
 {
     return this->m_gridCollection->isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridView::hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const
+{
+    bool hasCustomFonts = Rim3dView::hasCustomFontSizes(fontSettingType, defaultFontSize);
+    if (fontSettingType == RiaDefines::ANNOTATION_FONT)
+    {
+        auto                   annotations    = annotationCollection();
+        RiaFontCache::FontSize oldFontSize    = RiaFontCache::fontSizeEnumFromPointSize(oldFontSize);
+        hasCustomFonts = annotations->hasTextAnnotationsWithCustomFontSize(oldFontSize) || hasCustomFonts;
+    }
+    return hasCustomFonts;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridView::applyFontSize(RiaDefines::FontSettingType fontSettingType,
+                                int                         oldFontSize,
+                                int                         fontSize,
+                                bool                        forceChange /*= false*/)
+{
+    bool anyChange = Rim3dView::applyFontSize(fontSettingType, oldFontSize, fontSize, forceChange);
+    if (fontSettingType == RiaDefines::ANNOTATION_FONT)
+    {
+        auto                   annotations = annotationCollection();
+        RiaFontCache::FontSize oldFontSize = RiaFontCache::fontSizeEnumFromPointSize(oldFontSize);
+        RiaFontCache::FontSize newFontSize = RiaFontCache::fontSizeEnumFromPointSize(fontSize);
+        bool applyFontSizes = forceChange || !annotations->hasTextAnnotationsWithCustomFontSize(oldFontSize);
+
+        if (applyFontSizes)
+        {
+            anyChange = annotations->applyFontSizeToAllTextAnnotations(oldFontSize, newFontSize, forceChange) || anyChange;
+        }
+    }
+    return anyChange;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -156,6 +156,10 @@ public:
     virtual RimCase*                        ownerCase() const = 0;
     virtual std::vector<RimLegendConfig*>   legendConfigs() const = 0;
 
+
+    bool hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const override;
+    bool applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange = false) override;
+
 protected:
     static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
 

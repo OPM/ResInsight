@@ -1012,6 +1012,27 @@ cvf::ref<caf::DisplayCoordTransform> Rim3dView::displayCoordTransform() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim3dView::hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim3dView::applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange /*= false*/)
+{
+    if (fontSettingType == RiaDefines::SCENE_FONT)
+    {
+        applyBackgroundColorAndFontChanges();
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 cvf::Mat4d Rim3dView::cameraPosition() const
