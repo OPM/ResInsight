@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuGridCrossQwtPlot.h"
 
+#include "RiaFontCache.h"
+
 #include "RiuCvfOverlayItemWidget.h"
 #include "RiuRimQwtPlotCurve.h"
 #include "RiuQwtCurvePointTracker.h"
@@ -28,6 +30,7 @@
 #include "RimRegularLegendConfig.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafFixedAtlasFont.h"
 #include "cafSelectionManager.h"
 #include "cafTitledOverlayFrame.h"
 
@@ -94,6 +97,7 @@ void RiuGridCrossQwtPlot::addOrUpdateDataSetLegend(RimGridCrossPlotDataSet* data
     if (overlayWidget)
     {
         caf::TitledOverlayFrame* overlayItem = dataSet->legendConfig()->titledOverlayFrame();
+        applyFontSizeToOverlayItem(overlayItem);
         resizeOverlayItemToFitPlot(overlayItem);
         overlayWidget->updateFromOverlayItem(overlayItem);
     }
@@ -135,6 +139,7 @@ void RiuGridCrossQwtPlot::updateLegendSizesToMatchPlot()
         {
             RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
             caf::TitledOverlayFrame* overlayItem = dataSet->legendConfig()->titledOverlayFrame();
+            applyFontSizeToOverlayItem(overlayItem);
             if (resizeOverlayItemToFitPlot(overlayItem))
             {
                 anyLegendResized = true;
@@ -208,6 +213,9 @@ void RiuGridCrossQwtPlot::updateInfoBoxLayout()
         if (!infoText.empty())
         {
             m_infoBox->label()->setText(infoText.join("\n"));
+            QFont font = m_infoBox->font();
+            font.setPointSize(crossPlot->legendFontSize());
+            m_infoBox->setFont(font);
             m_infoBox->adjustSize();
             QRect infoRect = m_infoBox->frameGeometry();
             QRect canvasRect = canvas()->frameGeometry();
@@ -400,4 +408,15 @@ bool RiuGridCrossQwtPlot::curveText(const QwtPlotCurve* curve,
         }
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGridCrossQwtPlot::applyFontSizeToOverlayItem(caf::TitledOverlayFrame* overlayItem)
+{
+    RimGridCrossPlot*        crossPlot   = static_cast<RimGridCrossPlot*>(ownerViewWindow());
+    int                      fontSize    = crossPlot->legendFontSize();
+    cvf::ref<cvf::Font>      cafFont     = RiaFontCache::getFont(RiaFontCache::fontSizeEnumFromPointSize(fontSize));
+    overlayItem->setFont(cafFont.p());
 }

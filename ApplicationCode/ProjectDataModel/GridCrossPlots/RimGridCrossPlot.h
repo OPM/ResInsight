@@ -28,6 +28,9 @@
 
 #include <QPointer>
 
+#include <set>
+
+class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
 class RimGridCrossPlotDataSet;
 class RiuGridCrossQwtPlot;
@@ -79,6 +82,10 @@ public:
     bool                 isYAxisLogarithmic() const;
     void                 setYAxisInverted(bool inverted);
     int                  legendFontSize() const;
+
+    bool hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const override;
+    bool applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange = false) override;
+
 public:
     // Rim2dPlotInterface overrides
     void updateAxisScaling() override;
@@ -114,6 +121,7 @@ protected:
     RimGridCrossPlotNameConfig* nameConfig();
     void                        setShowInfoBox(bool enable);
 
+    std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 private:
     caf::PdmField<bool>                                m_showInfoBox;
     caf::PdmField<bool>                                m_showLegend;

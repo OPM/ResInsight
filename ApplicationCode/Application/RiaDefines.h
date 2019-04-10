@@ -170,5 +170,13 @@ namespace RiaDefines
     ImportFileType obtainFileTypeFromFileName(const QString& fileName);
     QString        defaultDirectoryLabel(ImportFileType fileTypes);
 
+    enum FontSettingType
+    {
+        SCENE_FONT,
+        ANNOTATION_FONT,
+        WELL_LABEL_FONT,
+        PLOT_FONT
+    };
+
 };
 

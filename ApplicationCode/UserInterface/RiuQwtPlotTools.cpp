@@ -55,7 +55,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour(QwtPlot* plot)
 
     // Axis number font
     QFont axisFont = plot->axisFont(QwtPlot::xBottom);
-    axisFont.setPixelSize(11);
+    axisFont.setPointSize(10);
 
     plot->setAxisFont(QwtPlot::xBottom, axisFont);
     plot->setAxisFont(QwtPlot::xTop, axisFont);
@@ -69,7 +69,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour(QwtPlot* plot)
     {
         QwtText axisTitle     = plot->axisTitle(axis);
         QFont   axisTitleFont = axisTitle.font();
-        axisTitleFont.setPixelSize(11);
+        axisTitleFont.setPointSize(10);
         axisTitleFont.setBold(false);
         axisTitle.setFont(axisTitleFont);
         axisTitle.setRenderFlags(Qt::AlignRight);

@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlot.h"
 
+#include "RiaApplication.h"
+#include "RiaFontCache.h"
+#include "RiaPreferences.h"
+
 #include "RifEclipseDataTableFormatter.h"
 #include "RiuGridCrossQwtPlot.h"
 #include "RiuPlotMainWindowTools.h"
@@ -50,7 +54,9 @@ RimGridCrossPlot::RimGridCrossPlot()
 
     CAF_PDM_InitField(&m_showInfoBox, "ShowInfoBox", true, "Show Info Box", "", "", "");
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Show Legend", "", "", "");
-    CAF_PDM_InitField(&m_legendFontSize, "LegendFontSize", 10, "Legend Font Size", "", "", "");
+    CAF_PDM_InitField(&m_legendFontSize, "LegendFontSize", 10, "Legend and Info Font Size", "", "", "");
+    m_legendFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
+
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "Name Config", "", "", "");
     m_nameConfig.uiCapability()->setUiTreeHidden(true);
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden(true);
@@ -515,7 +521,7 @@ void RimGridCrossPlot::updatePlot()
             QwtLegend* legend = new QwtLegend(m_qwtPlot);
 
             auto font = legend->font();
-            font.setPixelSize(m_legendFontSize());
+            font.setPointSize(m_legendFontSize());
             legend->setFont(font);
             m_qwtPlot->insertLegend(legend, QwtPlot::BottomLegend);
         }
@@ -654,6 +660,61 @@ int RimGridCrossPlot::legendFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimGridCrossPlot::hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const
+{
+    if (fontSettingType != RiaDefines::PLOT_FONT) return false;
+
+    for (auto plotAxis : allPlotAxes())
+    {
+        if (plotAxis->titleFontSize() != defaultFontSize || plotAxis->valuesFontSize() != defaultFontSize)
+        {
+            return true;
+        }
+    }
+
+    if (legendFontSize() != defaultFontSize)
+    {
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCrossPlot::applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange /*= false*/)
+{
+    if (fontSettingType != RiaDefines::PLOT_FONT) return false;
+
+    bool anyChange = false;
+    for (auto plotAxis : allPlotAxes())
+    {
+        if (forceChange || plotAxis->titleFontSize() == oldFontSize)
+        {
+            plotAxis->setTitleFontSize(fontSize);
+            anyChange = true;
+        }
+        if (forceChange || plotAxis->valuesFontSize() == oldFontSize)
+        {
+            plotAxis->setValuesFontSize(fontSize);
+            anyChange = true;
+        }
+    }
+
+    if (forceChange || legendFontSize() == oldFontSize)
+    {
+        m_legendFontSize = fontSize;
+        anyChange = true;
+    }
+
+    if (anyChange) loadDataAndUpdate();
+
+    return anyChange;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlot::xAxisParameterString() const
 {
     QStringList xAxisParams;
@@ -722,12 +783,16 @@ void RimGridCrossPlot::updateAxisInQwt(RiaDefines::PlotAxis axisType)
         m_qwtPlot->enableAxis(qwtAxisId, true);
 
         QwtText axisTitle(axisParameterString);
-        QFont   font = m_qwtPlot->axisFont(qwtAxisId);
-        font.setBold(true);
-        font.setPixelSize(axisProperties->titleFontSize);
-        axisTitle.setFont(font);
+        QFont   titleFont = m_qwtPlot->axisTitle(qwtAxisId).font();
+        titleFont.setBold(true);
+        titleFont.setPointSize(axisProperties->titleFontSize());
+        axisTitle.setFont(titleFont);
 
-        switch (axisProperties->titlePositionEnum())
+        QFont   valuesFont = m_qwtPlot->axisFont(qwtAxisId);
+        valuesFont.setPointSize(axisProperties->valuesFontSize());
+        m_qwtPlot->setAxisFont(qwtAxisId, valuesFont);
+
+        switch (axisProperties->titlePosition())
         {
             case RimPlotAxisProperties::AXIS_TITLE_CENTER:
                 axisTitle.setRenderFlags(Qt::AlignCenter);
@@ -873,6 +938,14 @@ RimGridCrossPlotNameConfig* RimGridCrossPlot::nameConfig()
 void RimGridCrossPlot::setShowInfoBox(bool enable)
 {
     m_showInfoBox = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimPlotAxisPropertiesInterface*> RimGridCrossPlot::allPlotAxes() const
+{
+    return { m_xAxisProperties, m_yAxisProperties };
 }
 
 //--------------------------------------------------------------------------------------------------

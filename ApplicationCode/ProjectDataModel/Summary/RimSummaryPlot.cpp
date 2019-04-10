@@ -542,6 +542,61 @@ size_t RimSummaryPlot::singleColorCurveCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const
+{
+    if (fontSettingType != RiaDefines::PLOT_FONT) return false;
+
+    for (auto plotAxis : allPlotAxes())
+    {
+        if (plotAxis->titleFontSize() != defaultFontSize || plotAxis->valuesFontSize() != defaultFontSize)
+        {
+            return true;
+        }
+    }
+
+    if (m_legendFontSize() != defaultFontSize)
+    {
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange /*= false*/)
+{
+    if (fontSettingType != RiaDefines::PLOT_FONT) return false;
+
+    bool anyChange = false;
+    for (auto plotAxis : allPlotAxes())
+    {
+        if (forceChange || plotAxis->titleFontSize() == oldFontSize)
+        {
+            plotAxis->setTitleFontSize(fontSize);
+            anyChange = true;
+        }
+        if (forceChange || plotAxis->valuesFontSize() == oldFontSize)
+        {
+            plotAxis->setValuesFontSize(fontSize);
+            anyChange = true;
+        }
+    }
+
+    if (forceChange || m_legendFontSize() == oldFontSize)
+    {
+        m_legendFontSize = fontSize;
+        anyChange        = true;
+    }
+    
+    if (anyChange) loadDataAndUpdate();
+    
+    return anyChange;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxisScaling()
 {
     loadDataAndUpdate();
@@ -847,12 +902,12 @@ void RimSummaryPlot::updateTimeAxis()
 
         QFont font = timeAxisTitle.font();
         font.setBold(true);
-        font.setPixelSize(m_timeAxisProperties->titleFontSize);
+        font.setPointSize(m_timeAxisProperties->titleFontSize());
         timeAxisTitle.setFont(font);
 
         timeAxisTitle.setText(axisTitle);
 
-        switch ( m_timeAxisProperties->titlePositionEnum() )
+        switch ( m_timeAxisProperties->titlePosition() )
         {
             case RimSummaryTimeAxisProperties::AXIS_TITLE_CENTER:
             timeAxisTitle.setRenderFlags(Qt::AlignCenter);
@@ -868,7 +923,7 @@ void RimSummaryPlot::updateTimeAxis()
     {
         QFont timeAxisFont = m_qwtPlot->axisFont(QwtPlot::xBottom);
         timeAxisFont.setBold(false);
-        timeAxisFont.setPixelSize(m_timeAxisProperties->valuesFontSize);
+        timeAxisFont.setPointSize(m_timeAxisProperties->valuesFontSize());
         m_qwtPlot->setAxisFont(QwtPlot::xBottom, timeAxisFont);
     }
 }
@@ -1338,6 +1393,14 @@ void RimSummaryPlot::updateAxisRangesFromQwt()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
+{
+    return { m_timeAxisProperties, m_bottomAxisProperties, m_leftYAxisProperties, m_rightYAxisProperties };
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::setDescription(const QString& description)
@@ -1518,7 +1581,7 @@ void RimSummaryPlot::updateMdiWindowTitle()
             QwtLegend* legend = new QwtLegend(m_qwtPlot);
 
             auto font = legend->font();
-            font.setPixelSize(m_legendFontSize());
+            font.setPointSize(m_legendFontSize());
             legend->setFont(font);
             m_qwtPlot->insertLegend(legend, QwtPlot::BottomLegend);
         }

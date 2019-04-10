@@ -18,6 +18,10 @@
 
 #include "RimSummaryTimeAxisProperties.h"
 
+#include "RiaApplication.h"
+#include "RiaFontCache.h"
+#include "RiaPreferences.h"
+
 #include "RimSummaryPlot.h"
 
 #include "cafPdmUiLineEditor.h"
@@ -28,15 +32,6 @@
 
 namespace caf
 {
-template<>
-void caf::AppEnum< RimSummaryTimeAxisProperties::AxisTitlePositionType >::setUp()
-{
-    addItem(RimSummaryTimeAxisProperties::AXIS_TITLE_CENTER, "AXIS_TITLE_CENTER", "Center");
-    addItem(RimSummaryTimeAxisProperties::AXIS_TITLE_END, "AXIS_TITLE_END", "At End");
-
-    setDefault(RimSummaryTimeAxisProperties::AXIS_TITLE_CENTER);
-}
-
 template<>
 void caf::AppEnum< RimSummaryTimeAxisProperties::TimeModeType >::setUp()
 {
@@ -77,10 +72,6 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 
     CAF_PDM_InitField(&showTitle, "ShowTitle", false, "Show Title", "", "", "");
     CAF_PDM_InitField(&title, "Title", QString("Time"), "Title", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
-
-    CAF_PDM_InitField(&titleFontSize, "FontSize", 11, "Font Size", "", "", "");
-    CAF_PDM_InitField(&valuesFontSize, "ValuesFontSize", 11, "Font Size", "", "", "");
 
     CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_timeMode, "TimeMode", "Time Mode", "", "", "");
@@ -98,6 +89,52 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     CAF_PDM_InitFieldNoDefault(&m_visibleTimeRangeMin, "VisibleTimeModeRangeMin", "Min", "", "", "");
     m_visibleDateRangeMin.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
 
+    CAF_PDM_InitFieldNoDefault(&m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
+    CAF_PDM_InitField(&m_titleFontSize, "FontSize", 10, "Font Size", "", "", "");
+    m_titleFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
+    CAF_PDM_InitField(&m_valuesFontSize, "ValuesFontSize", 10, "Font Size", "", "", "");
+    m_valuesFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
+
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotAxisPropertiesInterface::AxisTitlePositionType RimSummaryTimeAxisProperties::titlePosition() const
+{
+    return m_titlePositionEnum();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryTimeAxisProperties::titleFontSize() const
+{
+    return m_titleFontSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::setTitleFontSize(int fontSize)
+{
+    m_titleFontSize = fontSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryTimeAxisProperties::valuesFontSize() const
+{
+    return m_valuesFontSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::setValuesFontSize(int fontSize)
+{
+    m_valuesFontSize = fontSize;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -240,8 +277,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryTimeAxisProperties::calculateValueOption
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if (&titleFontSize == fieldNeedingOptions ||
-        &valuesFontSize == fieldNeedingOptions)
+    if (&m_titleFontSize == fieldNeedingOptions ||
+        &m_valuesFontSize == fieldNeedingOptions)
     {
         std::vector<int> fontSizes;
         fontSizes.push_back(8);
@@ -270,6 +307,22 @@ QList<caf::PdmOptionItemInfo> RimSummaryTimeAxisProperties::calculateValueOption
 caf::PdmFieldHandle* RimSummaryTimeAxisProperties::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryTimeAxisProperties::TimeModeType RimSummaryTimeAxisProperties::timeMode() const
+{
+    return m_timeMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::setTimeMode(TimeModeType val)
+{
+    m_timeMode = val;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -340,8 +393,8 @@ void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::P
     caf::PdmUiGroup& titleGroup = *(uiOrdering.addNewGroup("Axis Title"));
     titleGroup.add(&showTitle);
     titleGroup.add(&title);
-    titleGroup.add(&titlePositionEnum);
-    titleGroup.add(&titleFontSize);
+    titleGroup.add(&m_titlePositionEnum);
+    titleGroup.add(&m_titleFontSize);
 
     caf::PdmUiGroup* timeGroup =  uiOrdering.addNewGroup("Time Values");
     timeGroup->add(&m_timeMode);
@@ -356,7 +409,7 @@ void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::P
         timeGroup->add(&m_visibleTimeRangeMax);
         timeGroup->add(&m_visibleTimeRangeMin);
     }
-    timeGroup->add(&valuesFontSize);
+    timeGroup->add(&m_valuesFontSize);
 
     uiOrdering.skipRemainingFields(true);
 }

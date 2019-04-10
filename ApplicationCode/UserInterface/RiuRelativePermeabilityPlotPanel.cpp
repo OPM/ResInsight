@@ -159,7 +159,7 @@ void RiuRelativePermeabilityPlotPanel::setPlotDefaults(QwtPlot* plot)
     {
         QwtText plotTitle = plot->title();
         QFont titleFont = plotTitle.font();
-        titleFont.setPixelSize(14);
+        titleFont.setPointSize(14);
         plotTitle.setFont(titleFont);
         plot->setTitle(plotTitle);
     }

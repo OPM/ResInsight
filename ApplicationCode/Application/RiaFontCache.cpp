@@ -85,7 +85,7 @@ cvf::ref<caf::FixedAtlasFont> RiaFontCache::getFont(FontSize size)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaFontCache::getPointSize(FontSize fontSize)
+int RiaFontCache::pointSizeFromFontSizeEnum(FontSize fontSize)
 {
     switch (fontSize)
     {
@@ -106,4 +106,26 @@ int RiaFontCache::getPointSize(FontSize fontSize)
         default:
             return 16;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaFontCache::FontSize RiaFontCache::fontSizeEnumFromPointSize(int pointSize)
+{
+    std::vector<FontSize> allValues =
+    { FONT_SIZE_8, FONT_SIZE_10, FONT_SIZE_12, FONT_SIZE_14, FONT_SIZE_16, FONT_SIZE_24, FONT_SIZE_32 };
+    
+    FontSize closestEnumValue = FONT_SIZE_8;
+    int      closestDiff      = std::numeric_limits<int>::max();
+    for (FontSize enumValue : allValues)
+    {
+        int diff = std::abs(pointSizeFromFontSizeEnum(enumValue) - pointSize);
+        if (diff < closestDiff)
+        {
+            closestEnumValue = enumValue;
+            closestDiff      = diff;
+        }
+    }
+    return closestEnumValue;
 }

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafPdmChildField.h"
@@ -64,6 +66,10 @@ public:
     virtual void                 zoomAll() = 0;
 
     void                         viewNavigationChanged();
+
+
+    virtual bool hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const                          { return false;}
+    virtual bool applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange = false) { return false;}
 
 protected:
     void                         removeMdiWindowFromMdiArea(); 

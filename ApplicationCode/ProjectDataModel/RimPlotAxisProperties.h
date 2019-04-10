@@ -20,6 +20,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RimPlotAxisPropertiesInterface.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -36,7 +37,7 @@ class RimPlotAxisAnnotation;
 ///
 ///
 //==================================================================================================
-class RimPlotAxisProperties : public caf::PdmObject
+class RimPlotAxisProperties : public caf::PdmObject, public RimPlotAxisPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -48,18 +49,17 @@ public:
         NUMBER_FORMAT_SCIENTIFIC
     };
 
-    enum AxisTitlePositionType
-    {
-        AXIS_TITLE_CENTER,
-        AXIS_TITLE_END
-    };
-
 public:
     RimPlotAxisProperties();
 
-    void                 setEnableTitleTextSettings(bool enable);
-    void                 setNameAndAxis(const QString& name, QwtPlot::Axis axis);
-    
+    void                  setEnableTitleTextSettings(bool enable);
+    void                  setNameAndAxis(const QString& name, QwtPlot::Axis axis);
+    AxisTitlePositionType titlePosition() const override;
+    int                   titleFontSize() const override;
+    void                  setTitleFontSize(int fontSize) override;
+    int                   valuesFontSize() const override;
+    void                  setValuesFontSize(int fontSize) override;
+
     QwtPlot::Axis        qwtPlotAxisType() const;
     QString              name() const;
     RiaDefines::PlotAxis plotAxisType() const;
@@ -76,8 +76,6 @@ public:
     void appendAnnotation(RimPlotAxisAnnotation* annotation);
 
     caf::PdmField<QString>                             customTitle;
-    caf::PdmField<int>                                 titleFontSize;
-    caf::PdmField<caf::AppEnum<AxisTitlePositionType>> titlePositionEnum;
 
     caf::PdmField<double> visibleRangeMin;
     caf::PdmField<double> visibleRangeMax;
@@ -86,7 +84,6 @@ public:
     caf::PdmField<int>                            numberOfDecimals;
     caf::PdmField<double>                         scaleFactor;
     caf::PdmField<bool>                           isLogarithmicScaleEnabled;
-    caf::PdmField<int>                            valuesFontSize;
 
     bool isActive() const;
 
@@ -122,7 +119,10 @@ private:
 
     bool                   m_enableTitleTextSettings;
 
-    caf::PdmChildArrayField<RimPlotAxisAnnotation*> m_annotations;
+    caf::PdmField<int>                                 m_titleFontSize;
+    caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
+    caf::PdmField<int>                                 m_valuesFontSize;
+    caf::PdmChildArrayField<RimPlotAxisAnnotation*>    m_annotations;
 };
 
 class QwtPlotCurve;

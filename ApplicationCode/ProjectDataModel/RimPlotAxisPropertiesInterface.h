@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2019- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,26 +17,21 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "Ric3dViewPickEventHandler.h"
-
-#include "cafPdmUiCoreVec3d.h"
-
-class Rim3dView;
-
-//==================================================================================================
-/// A 3d view pick handler for Vec3d fields
-//==================================================================================================
-class RicVec3dPickEventHandler : public Ric3dViewPickEventHandler
+class RimPlotAxisPropertiesInterface
 {
 public:
-    RicVec3dPickEventHandler(caf::PdmField<cvf::Vec3d>* vectorField);
-    bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;
+    enum AxisTitlePositionType
+    {
+        AXIS_TITLE_CENTER,
+        AXIS_TITLE_END
+    };
 
-    void registerAsPickEventHandler() override;
-    void notifyUnregistered() override;
-
-private:
-    caf::PdmField<cvf::Vec3d>* m_vectorField;
+public:
+    virtual AxisTitlePositionType titlePosition() const = 0;
+    virtual int                   titleFontSize() const           = 0;
+    virtual void                  setTitleFontSize(int fontSize)  = 0;
+    virtual int                   valuesFontSize() const          = 0;
+    virtual void                  setValuesFontSize(int fontSize) = 0;
+    
 };
-
 
