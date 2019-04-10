@@ -58,6 +58,9 @@ public: // Virtual
     /// Method to reimplement to catch when the field has changed due to setUiValue()
     virtual void            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) {}
 
+    /// Method to reimplement to catch when a field in a contained object has changed due to setUiValue()
+    virtual void            childFieldChangedByUi(const caf::PdmFieldHandle* changedChildField) {}
+
     /// Method to re-implement to supply option values for a specific field
     virtual QList<caf::PdmOptionItemInfo>
         calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) { return QList<PdmOptionItemInfo>(); }
