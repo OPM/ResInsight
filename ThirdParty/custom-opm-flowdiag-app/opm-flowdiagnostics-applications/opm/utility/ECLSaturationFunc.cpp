@@ -1420,6 +1420,8 @@ private:
     std::unique_ptr<Gas::SatFunction>   gas_{nullptr};
     std::unique_ptr<Water::SatFunction> wat_{nullptr};
 
+    bool haveEPSData_{false};
+
     std::unique_ptr<EPSEvaluator> eps_{nullptr};
 
     std::unique_ptr<const ECLUnits::UnitSystem> usys_output_{nullptr};
@@ -1616,10 +1618,9 @@ Opm::ECLSaturationFunc::Impl::init(const ECLGraph&        G,
     // Activate saturation function scaling if present in result set.
     const auto& lh = init.keywordData<bool>(LOGIHEAD_KW);
 
-    const auto haveEPS = static_cast<bool>(
-        lh[LOGIHEAD_ENDPOINT_SCALING_INDEX]);
+    this->haveEPSData_ = lh[LOGIHEAD_ENDPOINT_SCALING_INDEX];
 
-    if (haveEPS) {
+    if (this->haveEPSData_) {
         const auto use3PtScaling = static_cast<bool>(
             lh[LOGIHEAD_ALT_ENDPOINT_SCALING_INDEX]);
 
@@ -2466,7 +2467,7 @@ max2PSatSum(const RawCurve&       fi,
 
     if (fi.subsys == RawCurve::SubSystem::OilGas) {
         // Max 2p Saturation sum = 1 - SWL
-        if (enableHorizontalEPS(scaling)) {
+        if (this->haveEPSData_ && enableHorizontalEPS(scaling)) {
             if (this->eps_ != nullptr) {
                 smin = this->eps_->scaledConnateWater(cell);
             }
@@ -2486,7 +2487,7 @@ max2PSatSum(const RawCurve&       fi,
     }
     else {
         // Max 2p Saturation sum = 1 - SGL (almost always = 1)
-        if (enableHorizontalEPS(scaling)) {
+        if (this->haveEPSData_ && enableHorizontalEPS(scaling)) {
             if (this->eps_ != nullptr) {
                 smin = this->eps_->scaledConnateGas(cell);
             }
