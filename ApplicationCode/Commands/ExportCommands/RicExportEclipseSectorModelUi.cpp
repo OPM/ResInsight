@@ -250,8 +250,7 @@ void RicExportEclipseSectorModelUi::defineUiOrdering(QString uiConfigName, caf::
         exportGridFilename.uiCapability()->setUiReadOnly(!exportGrid());
         gridGroup->add(&exportInLocalCoordinates);
         exportInLocalCoordinates.uiCapability()->setUiReadOnly(!exportGrid());
-        gridGroup->add(&makeInvisibleCellsInactive);
-
+        
         caf::PdmUiGroup* gridBoxGroup = uiOrdering.addNewGroup("Grid Box Selection");
         gridBoxGroup->add(&exportGridBox, { true, 4, 1 });
         
@@ -262,6 +261,7 @@ void RicExportEclipseSectorModelUi::defineUiOrdering(QString uiConfigName, caf::
         gridBoxGroup->add(&maxI, { true, 2, 1 });
         gridBoxGroup->add(&maxJ, false);
         gridBoxGroup->add(&maxK, false);
+        gridBoxGroup->add(&makeInvisibleCellsInactive);
         
         minI.uiCapability()->setUiReadOnly(exportGridBox() != MANUAL_SELECTION);
         minJ.uiCapability()->setUiReadOnly(exportGridBox() != MANUAL_SELECTION);
