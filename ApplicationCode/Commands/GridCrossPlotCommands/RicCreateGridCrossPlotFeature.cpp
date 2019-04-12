@@ -88,7 +88,7 @@ void RicCreateGridCrossPlotFeature::setupActionLook(QAction* actionToSetup)
     }
     else
     {
-        actionToSetup->setText("New Grid Cross Plot");     
+        actionToSetup->setText("Create Grid Cross Plot");     
     }
     actionToSetup->setIcon(QIcon(":/SummaryXPlotsLight16x16.png"));
 }
