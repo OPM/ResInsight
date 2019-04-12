@@ -2091,8 +2091,6 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
             applySettingsToAllViews = (reply == QMessageBox::Ok);
         }
 
-        std::set<caf::PdmUiItem*> uiEditorsToUpdate;
-
         for (auto viewWindow : allViewWindows)
         {
             for (auto fontTypeSizePair : fontSizes)
@@ -2102,10 +2100,7 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
                 {
                     int oldFontSize = RiaFontCache::pointSizeFromFontSizeEnum(oldFontSizeEnum);
                     int newFontSize = RiaFontCache::pointSizeFromFontSizeEnum(fontTypeSizePair.second);
-                    if (viewWindow->applyFontSize(fontTypeSizePair.first, oldFontSize, newFontSize, applySettingsToAllViews))
-                    {
-                        uiEditorsToUpdate.insert(viewWindow);
-                    }
+                    viewWindow->applyFontSize(fontTypeSizePair.first, oldFontSize, newFontSize, applySettingsToAllViews);
                 }
 
             }
@@ -2122,14 +2117,12 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
                 {
                     rim3dView->setBackgroundColor(m_preferences->defaultViewerBackgroundColor());
                     rim3dView->applyBackgroundColorAndFontChanges();
-                    uiEditorsToUpdate.insert(rim3dView);
                 }
 
                 if (oldPreferences && (applySettingsToAllViews || rim3dView->scaleZ == static_cast<double>(oldPreferences->defaultScaleFactorZ())))
                 {
                     rim3dView->scaleZ = static_cast<double>(m_preferences->defaultScaleFactorZ());
                     rim3dView->updateScaling();
-                    uiEditorsToUpdate.insert(rim3dView);
                     if (rim3dView == activeViewWindow())
                     {
                         RiuMainWindow::instance()->updateScaleValue();
@@ -2142,7 +2135,6 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
                     if (oldPreferences && (applySettingsToAllViews || eclipseView->wellCollection()->wellLabelColor() == oldPreferences->defaultWellLabelColor()))
                     {
                         eclipseView->wellCollection()->wellLabelColor = m_preferences->defaultWellLabelColor();
-                        uiEditorsToUpdate.insert(eclipseView->wellCollection());
                     }
                     eclipseView->scheduleReservoirGridGeometryRegen();
                 }
@@ -2156,7 +2148,6 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
             if (applySettingsToAllViews || matchingColor)
             {
                 wellPathCollection->wellPathLabelColor = oldPreferences->defaultWellLabelColor();
-                uiEditorsToUpdate.insert(wellPathCollection);
             }
 
             if (oldPreferences->defaultPlotFontSize() != m_preferences->defaultPlotFontSize())
@@ -2164,6 +2155,9 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
                 m_mainWindow->applyFontSizesToDockedPlots();
             }
         }
+
+        std::vector<caf::PdmUiItem*> uiEditorsToUpdate;
+        caf::SelectionManager::instance()->selectedItems(uiEditorsToUpdate);
 
         for (caf::PdmUiItem* uiItem : uiEditorsToUpdate)
         {
