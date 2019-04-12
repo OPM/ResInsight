@@ -167,9 +167,7 @@ void RimGridCrossPlotCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
     if (updateParentPlot)
     {
-        RimGridCrossPlot* crossPlot;
-        firstAncestorOrThisOfTypeAsserted(crossPlot);
-        crossPlot->reattachCurvesToQwtAndReplot();
+        m_parentQwtPlot->replot();
     }
 }
 

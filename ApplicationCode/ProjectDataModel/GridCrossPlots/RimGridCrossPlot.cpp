@@ -312,7 +312,7 @@ void RimGridCrossPlot::updateZoomWindowFromQwt()
 
     updateAxisFromQwt(RiaDefines::PLOT_AXIS_LEFT);
     updateAxisFromQwt(RiaDefines::PLOT_AXIS_BOTTOM);
-    this->updateConnectedEditors();
+    setAutoZoomForAllAxes(false);
 }
 
 //--------------------------------------------------------------------------------------------------
