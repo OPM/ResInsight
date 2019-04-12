@@ -295,9 +295,9 @@ bool RimGridView::hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType
     bool hasCustomFonts = Rim3dView::hasCustomFontSizes(fontSettingType, defaultFontSize);
     if (fontSettingType == RiaDefines::ANNOTATION_FONT)
     {
-        auto                   annotations    = annotationCollection();
-        RiaFontCache::FontSize oldFontSize    = RiaFontCache::fontSizeEnumFromPointSize(oldFontSize);
-        hasCustomFonts = annotations->hasTextAnnotationsWithCustomFontSize(oldFontSize) || hasCustomFonts;
+        auto                   annotations         = annotationCollection();
+        RiaFontCache::FontSize defaultFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(defaultFontSize);
+        hasCustomFonts = annotations->hasTextAnnotationsWithCustomFontSize(defaultFontSizeEnum) || hasCustomFonts;
     }
     return hasCustomFonts;
 }
@@ -314,13 +314,13 @@ bool RimGridView::applyFontSize(RiaDefines::FontSettingType fontSettingType,
     if (fontSettingType == RiaDefines::ANNOTATION_FONT)
     {
         auto                   annotations = annotationCollection();
-        RiaFontCache::FontSize oldFontSize = RiaFontCache::fontSizeEnumFromPointSize(oldFontSize);
-        RiaFontCache::FontSize newFontSize = RiaFontCache::fontSizeEnumFromPointSize(fontSize);
-        bool applyFontSizes = forceChange || !annotations->hasTextAnnotationsWithCustomFontSize(oldFontSize);
+        RiaFontCache::FontSize oldFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(oldFontSize);
+        RiaFontCache::FontSize newFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(fontSize);
+        bool applyFontSizes = forceChange || !annotations->hasTextAnnotationsWithCustomFontSize(oldFontSizeEnum);
 
         if (applyFontSizes)
         {
-            anyChange = annotations->applyFontSizeToAllTextAnnotations(oldFontSize, newFontSize, forceChange) || anyChange;
+            anyChange = annotations->applyFontSizeToAllTextAnnotations(oldFontSizeEnum, newFontSizeEnum, forceChange) || anyChange;
         }
     }
     return anyChange;
