@@ -100,7 +100,7 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
 
     // Center point part
     {
-        auto centerPos = rimAnnotation->centerPoint();
+        auto centerPos = displayXf->transformToDisplayCoord(rimAnnotation->centerPoint());
         double symbolSize = 20;
         double xMin = centerPos.x() - symbolSize / 2.0;
         double xMax = xMin + symbolSize;
