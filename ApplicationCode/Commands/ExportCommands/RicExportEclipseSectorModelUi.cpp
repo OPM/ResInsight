@@ -261,7 +261,7 @@ void RicExportEclipseSectorModelUi::defineUiOrdering(QString uiConfigName, caf::
         gridBoxGroup->add(&maxI, { true, 2, 1 });
         gridBoxGroup->add(&maxJ, false);
         gridBoxGroup->add(&maxK, false);
-        gridBoxGroup->add(&makeInvisibleCellsInactive);
+        gridBoxGroup->add(&makeInvisibleCellsInactive, { true, 2, 1 });
         
         minI.uiCapability()->setUiReadOnly(exportGridBox() != MANUAL_SELECTION);
         minJ.uiCapability()->setUiReadOnly(exportGridBox() != MANUAL_SELECTION);
@@ -348,7 +348,7 @@ void RicExportEclipseSectorModelUi::fieldChangedByUi(const caf::PdmFieldHandle* 
             const RigMainGrid* mainGrid = m_caseData->mainGrid();
             cvf::Vec3i gridDimensions(int(mainGrid->cellCountI() - 1), int(mainGrid->cellCountJ() - 1), int(mainGrid->cellCountK() - 1));
 
-            setMin(cvf::Vec3i(1, 1, 1));
+            setMin(cvf::Vec3i(0, 0, 0));
             setMax(gridDimensions);
         }
         this->updateConnectedEditors();
