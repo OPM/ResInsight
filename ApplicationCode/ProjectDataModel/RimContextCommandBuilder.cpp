@@ -835,7 +835,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
         // Work in progress -- End
         appendCreateCompletions(menuBuilder, menuBuilder.itemCount() > 0u);
-        appendImportMenu(menuBuilder, menuBuilder.itemCount() > 0u);
         bool addedExportWellPaths   = appendExportWellPaths(menuBuilder, menuBuilder.itemCount() > 0u) > 0;
         appendExportCompletions(menuBuilder, menuBuilder.itemCount() > 0u && !addedExportWellPaths);
 
@@ -1127,7 +1126,8 @@ int RimContextCommandBuilder::appendSubMenuWithCommands(caf::CmdFeatureMenuBuild
         }
         else
         {
-            if (!menuBuilder.isCmdFeatureAdded(candidate))
+            if (caf::CmdFeatureManager::instance()->getCommandFeature(candidate.toStdString())->canFeatureBeExecuted() &&
+                !menuBuilder.isCmdFeatureAdded(candidate))
             {
                 validCommands << candidate;
                 actualCommandsAdded++;
