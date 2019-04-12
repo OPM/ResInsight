@@ -72,7 +72,7 @@ void RicCreateGridCrossPlotFeature::onActionTriggered(bool isChecked)
 
     collection->updateAllRequiredEditors();
     RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem(plot);
+    RiuPlotMainWindowTools::selectAsCurrentItem(dataSet);
 }
 
 //--------------------------------------------------------------------------------------------------
