@@ -44,6 +44,7 @@
 #include <QPointer>
 #include <QLineEdit>
 #include <QLabel>
+#include <QToolButton>
 
 
 namespace caf 
