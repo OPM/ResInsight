@@ -151,7 +151,7 @@ RimWellPathFractureCollection* RicNewWellPathFractureFeature::selectedWellPathFr
 {
     std::vector<caf::PdmUiItem*> allSelectedItems;
     caf::SelectionManager::instance()->selectedItems(allSelectedItems);
-    if (allSelectedItems.size() != 1u) return false;
+    if (allSelectedItems.size() != 1u) return nullptr;
     
     RimWellPathFractureCollection* objToFind = nullptr;
 

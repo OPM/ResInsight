@@ -97,7 +97,7 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
 {
     std::vector<caf::PdmUiItem*> allSelectedItems;
     caf::SelectionManager::instance()->selectedItems(allSelectedItems);
-    if (allSelectedItems.size() != 1u) return false;
+    if (allSelectedItems.size() != 1u) return nullptr;
 
     RimFishbonesCollection* objToFind = nullptr;
     
