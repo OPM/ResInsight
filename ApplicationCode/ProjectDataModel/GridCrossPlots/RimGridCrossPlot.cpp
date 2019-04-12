@@ -171,7 +171,8 @@ void RimGridCrossPlot::zoomAll()
 
     m_qwtPlot->replot();
 
-    updateZoomWindowFromQwt();
+    updateAxisFromQwt(RiaDefines::PLOT_AXIS_LEFT);
+    updateAxisFromQwt(RiaDefines::PLOT_AXIS_BOTTOM);
 }
 
 //--------------------------------------------------------------------------------------------------
