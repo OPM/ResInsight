@@ -62,6 +62,7 @@ void RicCreateTextAnnotationFeature::onActionTriggered(bool isChecked)
     if (coll)
     {
         auto newAnnotation = new RimTextAnnotation();
+        newAnnotation->enablePicking(true);
         coll->addAnnotation(newAnnotation);
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(newAnnotation);

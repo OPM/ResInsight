@@ -64,6 +64,7 @@ void RicCreateReachCircleAnnotationFeature::onActionTriggered(bool isChecked)
         auto newAnnotation = new RimReachCircleAnnotation();
         auto newColor      = RiaColorTables::categoryPaletteColors().cycledColor3f(coll->lineBasedAnnotationsCount());
         newAnnotation->appearance()->setColor(newColor);
+        newAnnotation->enablePicking(true);
         coll->addAnnotation(newAnnotation);
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(newAnnotation);

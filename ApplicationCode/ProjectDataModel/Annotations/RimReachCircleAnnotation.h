@@ -59,6 +59,7 @@ public:
 
     bool            isActive();
     bool            isVisible();
+    void            enablePicking(bool enable);
 
     Vec3d           centerPoint() const;
     double          radius() const;

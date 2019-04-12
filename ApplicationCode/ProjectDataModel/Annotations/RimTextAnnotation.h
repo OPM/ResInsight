@@ -66,6 +66,7 @@ public:
     const QString&      text() const;
     bool                isActive();
     bool                isVisible() const;
+    void                enablePicking(bool enable);
 
     RimAnnotationTextAppearance* appearance() const;
 

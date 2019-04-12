@@ -50,7 +50,7 @@ RimTextAnnotation::RimTextAnnotation()
 
     CAF_PDM_InitField(&m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point", "", "", "");
     m_anchorPointXyd.uiCapability()->setUiEditorTypeName(caf::PdmUiPickableLineEditor::uiEditorTypeName());
-    CAF_PDM_InitField(&m_anchorPointPickEnabledButtonField, "AnchorPointPick", true, "", "", "", "");
+    CAF_PDM_InitField(&m_anchorPointPickEnabledButtonField, "AnchorPointPick", false, "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_anchorPointPickEnabledButtonField);
     m_anchorPointPickEnabledButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::HIDDEN);
 
@@ -222,6 +222,14 @@ bool RimTextAnnotation::isVisible() const
     if(visible) visible = m_isActive;
 
     return visible;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTextAnnotation::enablePicking(bool enable)
+{
+    m_anchorPointPickEnabledButtonField = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
