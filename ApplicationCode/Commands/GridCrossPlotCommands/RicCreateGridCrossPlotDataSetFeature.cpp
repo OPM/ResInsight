@@ -58,6 +58,6 @@ void RicCreateGridCrossPlotDataSetFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicCreateGridCrossPlotDataSetFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("New Data Set");
+    actionToSetup->setText("Create Data Set");
     actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
 }

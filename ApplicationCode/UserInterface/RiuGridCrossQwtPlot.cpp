@@ -285,29 +285,31 @@ void RiuGridCrossQwtPlot::updateLegendLayout()
 
     for (RimGridCrossPlotDataSet* dataSet : crossPlot->dataSets())
     {
-        if (!dataSet->isChecked() || !dataSet->legendConfig()->showLegend()) continue;
-
-        auto pairIt = m_legendWidgets.find(dataSet);
-        if (pairIt != m_legendWidgets.end())
+        if (dataSet->isChecked() && dataSet->groupingEnabled() && dataSet->legendConfig()->showLegend())
         {
-            RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
 
-            // Show only one copy of each legend type
-            if (!legendTypes.count(dataSet->groupParameter()))
+            auto pairIt = m_legendWidgets.find(dataSet);
+            if (pairIt != m_legendWidgets.end())
             {
-                if (ypos + overlayWidget->height() + spacing > this->canvas()->height())
+                RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
+
+                // Show only one copy of each legend type
+                if (!legendTypes.count(dataSet->groupParameter()))
                 {
-                    xpos += spacing + maxColumnWidth;
-                    ypos           = startMarginY;
-                    maxColumnWidth = 0;
+                    if (ypos + overlayWidget->height() + spacing > this->canvas()->height())
+                    {
+                        xpos += spacing + maxColumnWidth;
+                        ypos = startMarginY;
+                        maxColumnWidth = 0;
+                    }
+
+                    overlayWidget->show();
+                    overlayWidget->move(xpos, ypos);
+
+                    ypos += pairIt->second->height() + spacing;
+                    maxColumnWidth = std::max(maxColumnWidth, pairIt->second->width());
+                    legendTypes.insert(dataSet->groupParameter());
                 }
-
-                overlayWidget->show();
-                overlayWidget->move(xpos, ypos);
-
-                ypos += pairIt->second->height() + spacing;
-                maxColumnWidth = std::max(maxColumnWidth, pairIt->second->width());
-                legendTypes.insert(dataSet->groupParameter());
             }
         }
     }
