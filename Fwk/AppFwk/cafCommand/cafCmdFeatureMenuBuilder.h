@@ -70,7 +70,7 @@ public:
     void                   appendToMenu(QMenu* menu);
 
     bool                   isCmdFeatureAdded(const QString &commandId);
-
+    size_t                 itemCount() const;
 private:
     struct MenuItem
     {

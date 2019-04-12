@@ -19,11 +19,15 @@
 
 #pragma once
 
+#include <QIcon>
 #include <vector>
 
 namespace caf {
     class CmdFeatureMenuBuilder;
 }
+
+class QString;
+class QStringList;
 class QMenu;
 class RimWellPath;
 class RimScriptCollection;
@@ -42,5 +46,13 @@ private:
     static void createExecuteScriptForCasesFeatureMenu(caf::CmdFeatureMenuBuilder& menuBuilder);
     static void appendScriptItems(caf::CmdFeatureMenuBuilder& menuBuilder, RimScriptCollection* scriptCollection);
 
-    static void appendExportCompletions(caf::CmdFeatureMenuBuilder& menuBuilder);
+    static int appendImportMenu(caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu = false);
+    static int appendCreateCompletions(caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu = false);
+    static int appendExportCompletions(caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu = false);
+    static int appendExportWellPaths(caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu = false);
+    static int appendSubMenuWithCommands(caf::CmdFeatureMenuBuilder& menuBuilder,
+                                         const QStringList&          commandCandidates,
+                                         const QString&              menuLabel,
+                                         const QIcon&                menuIcon               = QIcon(),
+                                         bool                        addSeparatorBeforeMenu = false);
 };

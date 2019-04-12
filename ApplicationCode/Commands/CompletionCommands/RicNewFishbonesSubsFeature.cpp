@@ -95,9 +95,13 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection()
 {
+    std::vector<caf::PdmUiItem*> allSelectedItems;
+    caf::SelectionManager::instance()->selectedItems(allSelectedItems);
+    if (allSelectedItems.size() != 1u) return false;
+
     RimFishbonesCollection* objToFind = nullptr;
     
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+    caf::PdmUiItem* pdmUiItem = allSelectedItems.front();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (objHandle)

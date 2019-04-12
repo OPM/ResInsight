@@ -236,4 +236,12 @@ bool CmdFeatureMenuBuilder::isCmdFeatureAdded(const QString &commandId)
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t CmdFeatureMenuBuilder::itemCount() const
+{
+    return m_items.size();
+}
+
 } // end namespace caf

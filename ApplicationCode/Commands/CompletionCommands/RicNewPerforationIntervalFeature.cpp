@@ -83,31 +83,29 @@ void RicNewPerforationIntervalFeature::setupActionLook(QAction* actionToSetup)
 /// 
 //--------------------------------------------------------------------------------------------------
 RimPerforationCollection* RicNewPerforationIntervalFeature::selectedPerforationCollection()
-{
-    RimPerforationCollection* objToFind = nullptr;
-    
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+{    
+    std::vector<caf::PdmUiItem*> selectedItems;
+    caf::SelectionManager::instance()->selectedItems(selectedItems);
+    if (selectedItems.size() != 1u) return nullptr;
 
+    caf::PdmUiItem* pdmUiItem = selectedItems.front();
+
+    RimPerforationCollection* perforationCollection = nullptr;
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (objHandle)
     {
-        objHandle->firstAncestorOrThisOfType(objToFind);
-    }
+        objHandle->firstAncestorOrThisOfType(perforationCollection);
 
-    if (objToFind == nullptr)
-    {
-        std::vector<RimWellPath*> wellPaths;
-        caf::SelectionManager::instance()->objectsByType(&wellPaths);
-        if (!wellPaths.empty())
-        {
-            return wellPaths[0]->perforationIntervalCollection();
-        }
+        if (perforationCollection)
+            return perforationCollection;
+        
+        RimWellPath* wellPath = dynamic_cast<RimWellPath*>(objHandle);
+        if (wellPath)
+            return wellPath->perforationIntervalCollection();
+
         RimWellPathCompletions* completions = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
         if (completions)
-        {
             return completions->perforationCollection();
-        }
     }
-
-    return objToFind;
+    return nullptr;
 }

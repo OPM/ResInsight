@@ -149,9 +149,13 @@ bool RicNewWellPathFractureFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 RimWellPathFractureCollection* RicNewWellPathFractureFeature::selectedWellPathFractureCollection()
 {
+    std::vector<caf::PdmUiItem*> allSelectedItems;
+    caf::SelectionManager::instance()->selectedItems(allSelectedItems);
+    if (allSelectedItems.size() != 1u) return false;
+    
     RimWellPathFractureCollection* objToFind = nullptr;
 
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+    caf::PdmUiItem* pdmUiItem = allSelectedItems.front();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (objHandle)

@@ -119,6 +119,7 @@
 #include "RiuMainWindow.h"
 
 #include "ToggleCommands/RicToggleItemsFeatureImpl.h"
+#include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
@@ -128,10 +129,13 @@
 #include "cafSelectionManagerTools.h"
 #include "cvfAssert.h"
 
-#include <vector>
+#include <QIcon>
 #include <QMenu>
+#include <QString>
+#include <QStringList>
 #include <QDir>
-#include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
+
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -310,39 +314,15 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewEditableWellPathFeature";
             menuBuilder << "RicNewWellPathIntersectionFeature";
-            menuBuilder.subMenuStart("Create Completions", QIcon(":/CompletionsSymbol16x16.png"));
-            menuBuilder << "RicNewPerforationIntervalFeature";
-            menuBuilder << "RicEditPerforationCollectionFeature";
-            menuBuilder << "RicNewValveFeature";
-            menuBuilder << "RicNewFishbonesSubsFeature";
-            menuBuilder << "RicNewWellPathFractureFeature";
+            appendCreateCompletions(menuBuilder);
             menuBuilder.addSeparator();
-            menuBuilder << "RicCreateMultipleFracturesFeature";
+            appendImportMenu(menuBuilder);
             menuBuilder.addSeparator();
-            menuBuilder << "RicNewWellPathAttributeFeature";
-            menuBuilder.subMenuEnd();
-            menuBuilder << "RicCreateTemporaryLgrFeature";
-            menuBuilder.addSeparator();
-
-            menuBuilder.subMenuStart("Import");
-            menuBuilder << "RicWellPathsImportFileFeature";
-            menuBuilder << "RicWellPathFormationsImportFileFeature";
-            menuBuilder << "RicWellLogsImportFileFeature";
-            menuBuilder << "RicReloadWellPathFormationNamesFeature";
-            menuBuilder.addSeparator();
-            menuBuilder << "RicWellPathImportCompletionsFileFeature";
-            menuBuilder.subMenuEnd();
-
-            menuBuilder.addSeparator();
-            menuBuilder.subMenuStart("Export Well Paths", QIcon(":/Save.png"));
-            menuBuilder << "RicExportSelectedWellPathsFeature";
-            menuBuilder << "RicExportVisibleWellPathsFeature";
-            menuBuilder.subMenuEnd();
-
             appendExportCompletions(menuBuilder);
-
             menuBuilder.addSeparator();
-        
+            appendExportWellPaths(menuBuilder);
+            menuBuilder.addSeparator();
+
             menuBuilder.subMenuStart("Well Plots", QIcon(":/WellLogTrack16x16.png"));
             menuBuilder << "RicNewRftPlotFeature";
             menuBuilder << "RicNewPltPlotFeature";
@@ -854,6 +834,15 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCloseObservedDataFeature";
 
         // Work in progress -- End
+        appendCreateCompletions(menuBuilder, menuBuilder.itemCount() > 0u);
+        appendImportMenu(menuBuilder, menuBuilder.itemCount() > 0u);
+        bool addedExportWellPaths   = appendExportWellPaths(menuBuilder, menuBuilder.itemCount() > 0u) > 0;
+        appendExportCompletions(menuBuilder, menuBuilder.itemCount() > 0u && !addedExportWellPaths);
+
+        if (menuBuilder.itemCount() > 0u)
+        {
+            menuBuilder.addSeparator();
+        }
 
         caf::PdmUiItem* uiItem = uiItems[0];
         if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
@@ -1059,36 +1048,111 @@ void RimContextCommandBuilder::appendScriptItems(caf::CmdFeatureMenuBuilder& men
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContextCommandBuilder::appendExportCompletions(caf::CmdFeatureMenuBuilder& menuBuilder)
+int RimContextCommandBuilder::appendImportMenu(caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu)
 {
     QStringList candidates;
+    candidates << "RicWellPathsImportFileFeature";
+    candidates << "RicWellPathFormationsImportFileFeature";
+    candidates << "RicWellLogsImportFileFeature";
+    candidates << "RicReloadWellPathFormationNamesFeature";
+    candidates << "Separator";
+    candidates << "RicWellPathImportCompletionsFileFeature";
 
-    if (!menuBuilder.isCmdFeatureAdded("RicExportCompletionsForVisibleWellPathsFeature"))
-    {
-        candidates << "RicExportCompletionsForVisibleWellPathsFeature";
-    }
-    if (!menuBuilder.isCmdFeatureAdded("RicWellPathExportCompletionDataFeature"))
-    {
-        candidates << "RicWellPathExportCompletionDataFeature";
-    }
-    if (!menuBuilder.isCmdFeatureAdded("RicExportFishbonesLateralsFeature"))
-    {
-        candidates << "RicExportFishbonesLateralsFeature";
-    }
-    if (!menuBuilder.isCmdFeatureAdded("RicExportCompletionsWellSegmentsFeature"))
-    {
-        candidates << "RicExportCompletionsWellSegmentsFeature";
-    }
+    return appendSubMenuWithCommands(menuBuilder, candidates, "Import", QIcon(), addSeparatorBeforeMenu);
+}
 
-    if (!candidates.isEmpty())
-    {
-        menuBuilder.subMenuStart("Export Completions", QIcon(":/ExportCompletionsSymbol16x16.png"));
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimContextCommandBuilder::appendCreateCompletions(caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu)
+{
+    QStringList candidates;
+    candidates << "RicNewPerforationIntervalFeature";
+    candidates << "RicEditPerforationCollectionFeature";
+    candidates << "RicNewValveFeature";
+    candidates << "RicNewFishbonesSubsFeature";
+    candidates << "RicNewWellPathFractureFeature";
+    candidates << "Separator";
+    candidates << "RicCreateMultipleFracturesFeature";
+    candidates << "RicNewWellPathAttributeFeature";
+    candidates << "Separator";
+    candidates << "RicCreateTemporaryLgrFeature";
 
-        for (const auto& text : candidates)
+    return appendSubMenuWithCommands(menuBuilder, candidates, "Create Completions", QIcon(":/CompletionsSymbol16x16.png"), addSeparatorBeforeMenu);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimContextCommandBuilder::appendExportCompletions(caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu)
+{
+    QStringList candidates;
+    candidates << "RicExportCompletionsForVisibleWellPathsFeature";
+    candidates << "RicWellPathExportCompletionDataFeature";
+    candidates << "RicExportFishbonesLateralsFeature";
+    candidates << "RicExportCompletionsWellSegmentsFeature";
+
+    return appendSubMenuWithCommands(menuBuilder, candidates, "Export Completions", QIcon(":/ExportCompletionsSymbol16x16.png"), addSeparatorBeforeMenu);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimContextCommandBuilder::appendExportWellPaths(caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu)
+{
+    QStringList candidates;
+    candidates << "RicExportSelectedWellPathsFeature";
+    candidates << "RicExportVisibleWellPathsFeature";
+
+    return appendSubMenuWithCommands(menuBuilder, candidates, "Export Well Paths", QIcon(":/Save.png"), addSeparatorBeforeMenu);
+}
+
+//-------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimContextCommandBuilder::appendSubMenuWithCommands(caf::CmdFeatureMenuBuilder& menuBuilder,
+                                                        const QStringList&          commandCandidates,
+                                                        const QString&              menuLabel,
+                                                        const QIcon&                menuIcon /*= QIcon()*/,
+                                                        bool                        addSeparatorBeforeMenu /*=false*/)
+{
+    int actualCommandsAdded = 0;
+    QStringList validCommands;
+    for (QString candidate : commandCandidates)
+    {
+        if (candidate == "Separator")
         {
-            menuBuilder << text;
+            validCommands << candidate;
+        }
+        else
+        {
+            if (!menuBuilder.isCmdFeatureAdded(candidate))
+            {
+                validCommands << candidate;
+                actualCommandsAdded++;
+            }
+        }
+    }
+
+    if (actualCommandsAdded > 0)
+    {
+        if (addSeparatorBeforeMenu)
+        {
+            menuBuilder << "Separator";
+        }
+        menuBuilder.subMenuStart(menuLabel, menuIcon);
+
+        for (int i = 0; i < validCommands.size(); ++i)
+        {
+            bool firstOrLast = i == 0 || i == validCommands.size() - 1;
+            if (!firstOrLast || validCommands[i] != "Separator")
+            {
+                menuBuilder << validCommands[i];
+            }
         }
 
         menuBuilder.subMenuEnd();
     }
+    return actualCommandsAdded;
 }
