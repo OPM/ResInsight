@@ -168,6 +168,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     // Find the following data
 
     const cvf::Part* firstHitPart           = nullptr;
+    const cvf::Part* additionalHitPart = nullptr;
     uint             firstPartTriangleIndex = cvf::UNDEFINED_UINT;
     m_currentPickPositionInDomainCoords     = cvf::Vec3d::UNDEFINED;
 
@@ -178,9 +179,10 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         for (const auto& pickItem : pickItemInfos)
         {
             const RivObjectSourceInfo* objectSourceInfo = dynamic_cast<const RivObjectSourceInfo*>(pickItem.sourceInfo());
-            if (objectSourceInfo && dynamic_cast<RimPerforationInterval*>(objectSourceInfo->object()))
+            if (objectSourceInfo && dynamic_cast<RimWellPathComponentInterface*>(objectSourceInfo->object()))
             {
-                // Skip picking on perforation interval, display well path context menu
+                // Store any component hit, but keep going to find main well path
+                additionalHitPart = pickItem.pickedPart();
                 continue;
             }
 
@@ -361,71 +363,84 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     // Well log curve creation commands
     if (firstHitPart && firstHitPart->sourceInfo())
     {
+        RimWellPath* wellPath = nullptr;
         const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstHitPart->sourceInfo());
         if (wellPathSourceInfo)
         {
-            RimWellPath* wellPath = wellPathSourceInfo->wellPath();
-            if (wellPath)
+            wellPath = wellPathSourceInfo->wellPath();
+        }
+
+        RimWellPathComponentInterface* wellPathComponent = nullptr;
+        if (additionalHitPart)
+        {
+            const RivObjectSourceInfo* objectSourceInfo = dynamic_cast<const RivObjectSourceInfo*>(additionalHitPart->sourceInfo());
+            if (objectSourceInfo)
             {
-                if (firstPartTriangleIndex != cvf::UNDEFINED_UINT)
-                {
-                    cvf::Vec3d pickedPositionInUTM = m_currentPickPositionInDomainCoords;
-                    if (int2dView) pickedPositionInUTM = int2dView->transformToUtm(pickedPositionInUTM);
-
-                    double     measuredDepth = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, pickedPositionInUTM);
-                    cvf::Vec3d closestPointOnCenterLine =
-                        wellPathSourceInfo->closestPointOnCenterLine(firstPartTriangleIndex, pickedPositionInUTM);
-                    RiuSelectionItem* selItem =
-                        new RiuWellPathSelectionItem(wellPathSourceInfo, closestPointOnCenterLine, measuredDepth);
-                    Riu3dSelectionManager::instance()->setSelectedItem(selItem, Riu3dSelectionManager::RUI_TEMPORARY);
-                }
-
-                // TODO: Update so these also use RiuWellPathSelectionItem
-                caf::SelectionManager::instance()->setSelectedItem(wellPath);
-
-                menuBuilder << "RicNewWellLogCurveExtractionFeature";
-                menuBuilder << "RicNewWellLogFileCurveFeature";
-
-                menuBuilder.addSeparator();
-
-                menuBuilder.subMenuStart("Well Plots", QIcon(":/WellLogTrack16x16.png"));
-
-                menuBuilder << "RicNewRftPlotFeature";
-                menuBuilder << "RicNewPltPlotFeature";
-
-                menuBuilder.addSeparator();
-
-                menuBuilder << "RicShowWellAllocationPlotFeature";
-                menuBuilder << "RicNewWellBoreStabilityPlotFeature";
-
-                menuBuilder.subMenuEnd();
-
-                menuBuilder.addSeparator();
-
-                menuBuilder.subMenuStart("3D Well Log Curves", QIcon(":/WellLogCurve16x16.png"));
-
-                menuBuilder << "RicAdd3dWellLogCurveFeature";
-                menuBuilder << "RicAdd3dWellLogFileCurveFeature";
-
-                menuBuilder.subMenuEnd();
-
-                menuBuilder.addSeparator();
-                menuBuilder.subMenuStart("Create Completions", QIcon(":/FishBoneGroup16x16.png"));
-
-                menuBuilder << "RicNewPerforationIntervalAtMeasuredDepthFeature";
-                menuBuilder << "RicNewFishbonesSubsAtMeasuredDepthFeature";
-                menuBuilder << "RicNewWellPathFractureAtPosFeature";
-                menuBuilder.addSeparator();
-                menuBuilder << "RicNewWellPathAttributeFeature";
-                menuBuilder << "RicWellPathImportCompletionsFileFeature";
-
-
-                menuBuilder.subMenuEnd();
-
-                menuBuilder.addSeparator();
-
-                menuBuilder << "RicNewWellPathIntersectionFeature";
+                wellPathComponent = dynamic_cast<RimWellPathComponentInterface*>(objectSourceInfo->object());
             }
+        }
+
+        if (wellPath)
+        {
+            if (firstPartTriangleIndex != cvf::UNDEFINED_UINT)
+            {
+                cvf::Vec3d pickedPositionInUTM = m_currentPickPositionInDomainCoords;
+                if (int2dView) pickedPositionInUTM = int2dView->transformToUtm(pickedPositionInUTM);
+
+                double     measuredDepth = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, pickedPositionInUTM);
+                cvf::Vec3d closestPointOnCenterLine =
+                    wellPathSourceInfo->closestPointOnCenterLine(firstPartTriangleIndex, pickedPositionInUTM);
+                RiuSelectionItem* selItem =
+                    new RiuWellPathSelectionItem(wellPathSourceInfo, closestPointOnCenterLine, measuredDepth, wellPathComponent);
+                Riu3dSelectionManager::instance()->setSelectedItem(selItem, Riu3dSelectionManager::RUI_TEMPORARY);
+            }
+
+            // TODO: Update so these also use RiuWellPathSelectionItem
+            caf::SelectionManager::instance()->setSelectedItem(wellPath);
+
+            menuBuilder << "RicNewWellLogCurveExtractionFeature";
+            menuBuilder << "RicNewWellLogFileCurveFeature";
+
+            menuBuilder.addSeparator();
+
+            menuBuilder.subMenuStart("Well Plots", QIcon(":/WellLogTrack16x16.png"));
+
+            menuBuilder << "RicNewRftPlotFeature";
+            menuBuilder << "RicNewPltPlotFeature";
+
+            menuBuilder.addSeparator();
+
+            menuBuilder << "RicShowWellAllocationPlotFeature";
+            menuBuilder << "RicNewWellBoreStabilityPlotFeature";
+
+            menuBuilder.subMenuEnd();
+
+            menuBuilder.addSeparator();
+
+            menuBuilder.subMenuStart("3D Well Log Curves", QIcon(":/WellLogCurve16x16.png"));
+
+            menuBuilder << "RicAdd3dWellLogCurveFeature";
+            menuBuilder << "RicAdd3dWellLogFileCurveFeature";
+
+            menuBuilder.subMenuEnd();
+
+            menuBuilder.addSeparator();
+            menuBuilder.subMenuStart("Create Completions", QIcon(":/FishBoneGroup16x16.png"));
+
+            menuBuilder << "RicNewPerforationIntervalAtMeasuredDepthFeature";
+            menuBuilder << "RicNewValveAtMeasuredDepthFeature";
+            menuBuilder << "RicNewFishbonesSubsAtMeasuredDepthFeature";
+            menuBuilder << "RicNewWellPathFractureAtPosFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicNewWellPathAttributeFeature";
+            menuBuilder << "RicWellPathImportCompletionsFileFeature";
+
+
+            menuBuilder.subMenuEnd();
+
+            menuBuilder.addSeparator();
+
+            menuBuilder << "RicNewWellPathIntersectionFeature";
         }
 
         const RivSimWellPipeSourceInfo* eclipseWellSourceInfo =

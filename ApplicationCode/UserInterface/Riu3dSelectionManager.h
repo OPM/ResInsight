@@ -38,6 +38,7 @@ class RimGeoMechView;
 class RimSimWellInView;
 class Rim2dIntersectionView;
 class RimWellPath;
+class RimWellPathComponentInterface;
 class RiuSelectionChangedHandler;
 class RiuSelectionItem;
 class RivSimWellPipeSourceInfo;
@@ -237,7 +238,8 @@ class RiuWellPathSelectionItem : public RiuSelectionItem
 public:
     explicit RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
                                       const cvf::Vec3d& pipeCenterLineIntersectionInDomainCoords,
-                                      double measuredDepth);
+                                      double measuredDepth,
+                                      RimWellPathComponentInterface* wellPathComponent = nullptr);
 
     ~RiuWellPathSelectionItem() override {};
 
@@ -247,9 +249,10 @@ public:
     }
 
 public:
-    RimWellPath*                  m_wellpath;
-    cvf::Vec3d                    m_pipeCenterlineIntersectionInDomainCoords;
-    double                        m_measuredDepth;
+    RimWellPath*                   m_wellpath;
+    cvf::Vec3d                     m_pipeCenterlineIntersectionInDomainCoords;
+    double                         m_measuredDepth;
+    RimWellPathComponentInterface* m_wellPathComponent;
 };
 
 

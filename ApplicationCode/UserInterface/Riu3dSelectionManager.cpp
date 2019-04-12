@@ -262,9 +262,11 @@ RiuGeoMechSelectionItem* Riu2dIntersectionSelectionItem::geoMechSelectionItem() 
 //--------------------------------------------------------------------------------------------------
 RiuWellPathSelectionItem::RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
                                                    const cvf::Vec3d& pipeCenterLineIntersectionInDomainCoords,
-                                                   double measuredDepth)
-    : m_pipeCenterlineIntersectionInDomainCoords(pipeCenterLineIntersectionInDomainCoords),
-    m_measuredDepth(measuredDepth)
+                                                   double measuredDepth,
+                                                   RimWellPathComponentInterface* component /*=nullptr*/)
+    : m_pipeCenterlineIntersectionInDomainCoords(pipeCenterLineIntersectionInDomainCoords)
+    , m_measuredDepth(measuredDepth)
+    , m_wellPathComponent(component)
 {
     m_wellpath = wellPathSourceInfo->wellPath();
 }
