@@ -37,6 +37,7 @@ public:
     RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObject* object, const QString& windowTitle, const QStringList& uiConfigNameForTabs);
     ~RiuPropertyViewTabWidget() override;
 
+    QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
     QDialogButtonBox* dialogButtonBox();
 private:
