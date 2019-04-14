@@ -37,7 +37,7 @@ RiuPropertyViewTabWidget::RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObje
     setWindowTitle(windowTitle);
 
     QTabWidget* tabWidget = new QTabWidget;
-
+    
     for (int i = 0; i < uiConfigNameForTabs.size(); i++)
     {
         QHBoxLayout* widgetLayout = new QHBoxLayout;
@@ -68,6 +68,7 @@ RiuPropertyViewTabWidget::RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObje
     connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
     dialogLayout->addWidget(m_dialogButtonBox);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,12 +83,30 @@ RiuPropertyViewTabWidget::~RiuPropertyViewTabWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize RiuPropertyViewTabWidget::minimumSizeHint() const
+{
+    QSize maxSizeHint(0, 0);
+
+    for (auto w : m_pageWidgets)
+    {
+        QSize pageSize = w->minimumSizeHint();
+        pageSize += QSize(0, 100);
+
+        maxSizeHint = maxSizeHint.expandedTo(pageSize);
+    }
+
+    return maxSizeHint;
+
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QSize RiuPropertyViewTabWidget::sizeHint() const
 {
-    QSize maxSizeHint = QDialog::sizeHint();
-    //qDebug() << "dialog size hint : " << maxSizeHint;
+    QSize maxSizeHint(0, 0);
 
     for (auto w : m_pageWidgets)
     {

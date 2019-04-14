@@ -25,6 +25,7 @@
 #include "RifReaderSettings.h"
 
 #include "cafPdmFieldCvfColor.h"
+#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
@@ -123,7 +124,7 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&m_showProjectChangedDialog, "showProjectChangedDialog", true, "Show 'Project has changed' dialog", "", "", "");
     m_showProjectChangedDialog.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&m_showOctaveWarningForMultipleInstances, "showOctaveWarningForMultipleInstances", true, "Show Octave communication warning when multiple instances are created", "", "", "");
+    CAF_PDM_InitField(&m_showOctaveWarningForMultipleInstances, "showOctaveWarningForMultipleInstances", true, "Show Octave warning when multiple instances are created", "", "", "");
     m_showOctaveWarningForMultipleInstances.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
@@ -191,6 +192,12 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             myAttr->m_selectDirectory = true;
         }
     }
+    if (field == &defaultSceneFontSize || field == &defaultWellLabelFontSize ||
+        field == &defaultAnnotationFontSize || field == &defaultPlotFontSize)
+    {
+        caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);
+        myAttr->minimumContentsLength = 2;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,16 +209,16 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     {
         caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup("Default Colors");
         colorGroup->add(&defaultViewerBackgroundColor);
-        colorGroup->add(&defaultGridLineColors);
+        colorGroup->add(&defaultGridLineColors, false);
         colorGroup->add(&defaultFaultGridLineColors);
-        colorGroup->add(&defaultWellLabelColor);
-
+        colorGroup->add(&defaultWellLabelColor, false);
+        
         caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup("Default Font Sizes");
         fontGroup->add(&defaultSceneFontSize);
         fontGroup->add(&defaultAnnotationFontSize, false);
         fontGroup->add(&defaultWellLabelFontSize);
         fontGroup->add(&defaultPlotFontSize, false);
-
+        
         caf::PdmUiGroup* viewsGroup = uiOrdering.addNewGroup("3d Views");
         viewsGroup->add(&defaultMeshModeType);
         viewsGroup->add(&navigationPolicy);
@@ -232,7 +239,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         newCaseBehaviourGroup->add(&loadAndShowSoil);
     
         m_readerSettings->defineUiOrdering(uiConfigName, *newCaseBehaviourGroup);
-
+        
         caf::PdmUiGroup* restartBehaviourGroup = uiOrdering.addNewGroup("Origin Files");
         restartBehaviourGroup->add(&summaryRestartFilesShowImportDialog);
         caf::PdmUiGroup* summaryImportOptionGroup = restartBehaviourGroup->addNewGroup("Origin Summary Files");
