@@ -121,7 +121,6 @@ QMargins PdmUiColorEditor::calculateLabelContentMargins() const
 QWidget* PdmUiColorEditor::createEditorWidget(QWidget * parent)
 {    
     QWidget* placeholder = new QWidget(parent);
-
     QHBoxLayout* layout = new QHBoxLayout(placeholder);
     layout->setContentsMargins(0,0,0,0);
     layout->setSpacing(0);
@@ -144,7 +143,7 @@ QWidget* PdmUiColorEditor::createEditorWidget(QWidget * parent)
     QFontMetrics fontMetrics = QApplication::fontMetrics();
 
     buttonLayout->addWidget(m_colorPreviewLabel);
-    m_colorSelectionButton->setMinimumWidth(fontMetrics.width(m_colorPreviewLabel->text()) + 20);
+    m_colorSelectionButton->setMinimumWidth(fontMetrics.width(m_colorPreviewLabel->text()) + 15);
 
     layout->addWidget(m_colorTextLabel);
     layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
@@ -203,7 +202,7 @@ void PdmUiColorEditor::setColorOnWidget(const QColor& color)
         else
         {
             QColor fontColor      = getFontColor(m_color);
-            QString styleTemplate = "QLabel#ColorPreviewLabel { background-color: %1; color: %2; border: 1px solid %2; }";
+            QString styleTemplate = "QLabel#ColorPreviewLabel { background-color: %1; color: %2; border: 1px solid black; }";
             QString styleSheet    = QString(styleTemplate).arg(m_color.name()).arg(fontColor.name());
 
             m_colorPreviewLabel->setStyleSheet(styleSheet);
