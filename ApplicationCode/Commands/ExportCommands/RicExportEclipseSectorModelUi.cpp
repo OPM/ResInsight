@@ -331,26 +331,7 @@ void RicExportEclipseSectorModelUi::fieldChangedByUi(const caf::PdmFieldHandle* 
     }
     else if (changedField == &exportGridBox)
     {
-        if (exportGridBox == ACTIVE_CELLS_BOX)
-        {
-            cvf::Vec3st minActive, maxActive;
-            m_caseData->activeCellInfo(RiaDefines::MATRIX_MODEL)->IJKBoundingBox(minActive, maxActive);
-            setMin(cvf::Vec3i(minActive));
-            setMax(cvf::Vec3i(maxActive));
-        }
-        else if (exportGridBox == VISIBLE_CELLS_BOX)
-        {
-            setMin(m_visibleMin);
-            setMax(m_visibleMax);
-        }
-        else if (exportGridBox == FULL_GRID_BOX)
-        {
-            const RigMainGrid* mainGrid = m_caseData->mainGrid();
-            cvf::Vec3i gridDimensions(int(mainGrid->cellCountI() - 1), int(mainGrid->cellCountJ() - 1), int(mainGrid->cellCountK() - 1));
-
-            setMin(cvf::Vec3i(0, 0, 0));
-            setMax(gridDimensions);
-        }
+        applyBoundaryDefaults();
         this->updateConnectedEditors();
     }
     else if (changedField == &exportGridFilename)
@@ -513,4 +494,67 @@ QString RicExportEclipseSectorModelUi::defaultFaultsFileName() const
 {
     QDir baseDir(defaultFolder());
     return baseDir.absoluteFilePath("FAULTS.GRDECL");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
+{
+    if (exportGridBox == ACTIVE_CELLS_BOX)
+    {
+        cvf::Vec3st minActive, maxActive;
+        m_caseData->activeCellInfo(RiaDefines::MATRIX_MODEL)->IJKBoundingBox(minActive, maxActive);
+        setMin(cvf::Vec3i(minActive));
+        setMax(cvf::Vec3i(maxActive));
+    }
+    else if (exportGridBox == VISIBLE_CELLS_BOX)
+    {
+        setMin(m_visibleMin);
+        setMax(m_visibleMax);
+    }
+    else if (exportGridBox == FULL_GRID_BOX)
+    {
+        const RigMainGrid* mainGrid = m_caseData->mainGrid();
+        cvf::Vec3i         gridDimensions(
+                    int(mainGrid->cellCountI() - 1), int(mainGrid->cellCountJ() - 1), int(mainGrid->cellCountK() - 1));
+
+        setMin(cvf::Vec3i(0, 0, 0));
+        setMax(gridDimensions);
+    }
+    else
+    {
+        const RigMainGrid* mainGrid = m_caseData->mainGrid();
+
+        if (maxI() > (int) mainGrid->cellCountI())
+        {
+            maxI = (int) mainGrid->cellCountI();
+        }
+        if (maxJ() > (int) mainGrid->cellCountJ())
+        {
+            maxJ = (int) mainGrid->cellCountJ();
+        }
+        if (maxK() > (int) mainGrid->cellCountK())
+        {
+            maxK = (int) mainGrid->cellCountK();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportEclipseSectorModelUi::removeInvalidKeywords()
+{
+    RigCaseCellResultsData* resultData = m_caseData->results(RiaDefines::MATRIX_MODEL);
+
+    std::vector<QString> validKeywords;
+    for (QString keyword : selectedKeywords())
+    {
+        if (resultData->hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, keyword)))
+        {
+            validKeywords.push_back(keyword);
+        }
+    }
+    selectedKeywords.v().swap(validKeywords);
 }
