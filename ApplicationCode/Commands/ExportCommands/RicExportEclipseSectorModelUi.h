@@ -70,6 +70,8 @@ public:
     cvf::Vec3i                             max() const;
     void                                   setMin(const cvf::Vec3i& min);
     void                                   setMax(const cvf::Vec3i& max);
+    void                                   applyBoundaryDefaults();
+    void                                   removeInvalidKeywords();
 
     caf::PdmField<bool>                    exportGrid;
     caf::PdmField<QString>                 exportGridFilename;

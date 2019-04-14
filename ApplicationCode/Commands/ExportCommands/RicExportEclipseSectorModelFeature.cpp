@@ -40,6 +40,7 @@
 #include "Riu3DMainWindowTools.h"
 #include "RiuPropertyViewTabWidget.h"
 
+#include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
@@ -66,6 +67,11 @@ void RicExportEclipseSectorModelFeature::openDialogAndExecuteCommand(RimEclipseV
     std::tie(min, max) = getVisibleCellRange(view, cellVisibility);
 
     RicExportEclipseSectorModelUi exportSettings(caseData, min, max);
+
+    caf::PdmSettings::readFieldsFromApplicationStore(&exportSettings);
+    exportSettings.applyBoundaryDefaults();
+    exportSettings.removeInvalidKeywords();
+
     RiuPropertyViewTabWidget      propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export Eclipse Sector Model", exportSettings.tabNames());
 
     RicExportFeatureImpl::configureForExport(propertyDialog.dialogButtonBox());
@@ -74,6 +80,8 @@ void RicExportEclipseSectorModelFeature::openDialogAndExecuteCommand(RimEclipseV
     {
         executeCommand(view, exportSettings, "ExportInputGrid");
     }
+
+    caf::PdmSettings::writeFieldsToApplicationStore(&exportSettings);
 }
 
 //--------------------------------------------------------------------------------------------------
