@@ -887,6 +887,23 @@ void RimGridCrossPlotDataSet::fieldChangedByUi(const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotDataSet::childFieldChangedByUi(const caf::PdmFieldHandle* changedChildField)
+{
+    if (changedChildField == &m_yAxisProperty)
+    {
+        if (m_yAxisProperty->resultVariable() == "DEPTH")
+        {
+            RimGridCrossPlot* plot;
+            this->firstAncestorOrThisOfTypeAsserted(plot);
+            plot->setYAxisInverted(true);
+            triggerPlotNameUpdateAndReplot();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimGridCrossPlotDataSet::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                               bool*                      useOptionsOnly)
 {
