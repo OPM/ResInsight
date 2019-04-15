@@ -845,6 +845,12 @@ void RimRegularLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         uiOrdering.add(&m_numLevels);
         uiOrdering.skipRemainingFields(true);
     }
+    else if (uiConfigName == "NumIntervalsOnly")
+    {
+        m_numLevels.uiCapability()->setUiName("Number of Intervals");
+        uiOrdering.add(&m_numLevels);
+        uiOrdering.skipRemainingFields(true);
+    }
     else
     {
         caf::PdmUiOrdering * formatGr = uiOrdering.addNewGroup("Format");

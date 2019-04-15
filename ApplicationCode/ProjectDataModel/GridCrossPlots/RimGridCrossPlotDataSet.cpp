@@ -792,7 +792,7 @@ void RimGridCrossPlotDataSet::defineUiOrdering(QString uiConfigName, caf::PdmUiO
         if (m_grouping() == GROUP_BY_RESULT)
         {
             caf::PdmUiGroup* dataGroupingGroup = uiOrdering.addNewGroup("Data Grouping Property");
-            m_groupingProperty->uiOrdering(uiConfigName, *dataGroupingGroup);
+            m_groupingProperty->uiOrdering("AddLegendLevels", *dataGroupingGroup);
         }
 
         caf::PdmUiGroup* invisibleFullWidthGroup = uiOrdering.addNewGroup("Property Group");

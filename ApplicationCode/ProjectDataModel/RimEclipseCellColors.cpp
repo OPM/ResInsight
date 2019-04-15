@@ -184,6 +184,19 @@ void RimEclipseCellColors::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCellColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimEclipseResultDefinition::defineUiOrdering(uiConfigName, uiOrdering);
+
+    if (uiConfigName == "AddLegendLevels")
+    {
+        legendConfig()->uiOrdering("NumIntervalsOnly", uiOrdering);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)

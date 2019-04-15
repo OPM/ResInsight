@@ -66,6 +66,9 @@ protected:
     friend class RimCellEdgeColors;
     void                                initAfterRead() override;
 
+
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 private:
     void                                        changeLegendConfig(QString resultVarNameOfNewLegend);
 
