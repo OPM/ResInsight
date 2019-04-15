@@ -153,6 +153,11 @@ void RimGridCrossPlotDataSet::setCellFilterView(RimGridView* cellFilterView)
             m_yAxisProperty->setResultVariable("DEPTH");
             m_timeStep = eclipseView->currentTimeStep();
             m_grouping = NO_GROUPING;
+            if (eclipseView->eclipseCase() && eclipseView->eclipseCase()->activeFormationNames())
+            {
+                m_grouping = GROUP_BY_FORMATION;
+                m_groupingProperty->legendConfig()->setColorRange(RimRegularLegendConfig::CATEGORY);
+            }
 
             RimGridCrossPlot* parentPlot = nullptr;
             firstAncestorOrThisOfType(parentPlot);
