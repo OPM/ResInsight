@@ -1265,6 +1265,13 @@ void RimGridCrossPlotDataSet::setDefaults()
 
             m_yAxisProperty->setResultType(RiaDefines::STATIC_NATIVE);
             m_yAxisProperty->setResultVariable("PERMX");
+
+            m_grouping = NO_GROUPING;
+            if (eclipseCase->activeFormationNames())
+            {
+                m_grouping = GROUP_BY_FORMATION;
+                m_groupingProperty->legendConfig()->setColorRange(RimRegularLegendConfig::CATEGORY);
+            }
         }
     }
 }
