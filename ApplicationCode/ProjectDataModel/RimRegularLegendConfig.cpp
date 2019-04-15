@@ -262,6 +262,7 @@ void RimRegularLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
     firstAncestorOrThisOfType(crossPlotCurveSet);
     if (crossPlotCurveSet)
     {
+        crossPlotCurveSet->destroyCurves();
         crossPlotCurveSet->loadDataAndUpdate(true);
     }
 }
