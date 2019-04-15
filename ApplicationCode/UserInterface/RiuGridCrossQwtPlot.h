@@ -52,6 +52,7 @@ public:
     ~RiuGridCrossQwtPlot();
     void addOrUpdateDataSetLegend(RimGridCrossPlotDataSet* dataSetToShowLegendFor);
     void removeDataSetLegend(RimGridCrossPlotDataSet* dataSetToShowLegendFor);
+    void removeDanglingDataSetLegends();
     void updateLegendSizesToMatchPlot();
     void updateAnnotationObjects(RimPlotAxisProperties* axisProperties);
 
