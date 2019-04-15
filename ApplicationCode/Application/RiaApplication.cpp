@@ -2084,8 +2084,8 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
 
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(m_mainWindow,
-                QString("Apply %1 to Existing Views?").arg(listString),
-                QString("You have changed default %1 and have existing views with different settings.\n").arg(listString) +
+                QString("Apply %1 to Existing Views or Plots?").arg(listString),
+                QString("You have changed default %1 and have existing views or plots with different settings.\n").arg(listString) +
                 QString("Do you want to apply the new default settings to all existing views?"),
                 QMessageBox::Ok | QMessageBox::Cancel);
             applySettingsToAllViews = (reply == QMessageBox::Ok);

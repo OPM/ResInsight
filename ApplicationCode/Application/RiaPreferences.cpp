@@ -75,7 +75,7 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitField(&defaultScaleFactorZ,                "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&defaultSceneFontSize,     "fontSizeInScene",  "Viewer Font", "", "", "");    
+    CAF_PDM_InitFieldNoDefault(&defaultSceneFontSize,     "fontSizeInScene",  "Viewer Font Size", "", "", "");    
     CAF_PDM_InitFieldNoDefault(&defaultAnnotationFontSize,  "defaultAnnotationFontSize", "Annotation Font Size", "", "", "");
     CAF_PDM_InitFieldNoDefault(&defaultWellLabelFontSize,   "wellLabelFontSize", "Well Label Font Size", "", "", "");
     CAF_PDM_InitFieldNoDefault(&defaultPlotFontSize,        "defaultPlotFontSize", "Plot Font Size", "", "", "");
