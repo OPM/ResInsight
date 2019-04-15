@@ -62,7 +62,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
-    : QwtPlot(parent)
+    : RiuDockedQwtPlot(parent)
     , m_sourceGeoMechViewOfLastPlot(nullptr)
     , m_scheduleUpdateAxisScaleTimer(nullptr)
 {
@@ -75,6 +75,8 @@ RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
 
     setAxisTitle(QwtPlot::xBottom, "Effective Normal Stress");
     setAxisTitle(QwtPlot::yLeft, "Shear Stress");
+
+    applyFontSizes(false);
 
     // The legend will be deleted in the destructor of the plot or when
     // another legend is inserted.

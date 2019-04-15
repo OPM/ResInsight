@@ -2158,6 +2158,11 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
                 wellPathCollection->wellPathLabelColor = oldPreferences->defaultWellLabelColor();
                 uiEditorsToUpdate.insert(wellPathCollection);
             }
+
+            if (oldPreferences->defaultPlotFontSize() != m_preferences->defaultPlotFontSize())
+            {
+                m_mainWindow->applyFontSizesToDockedPlots();
+            }
         }
 
         for (caf::PdmUiItem* uiItem : uiEditorsToUpdate)

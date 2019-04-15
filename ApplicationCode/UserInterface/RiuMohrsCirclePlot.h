@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiuDockedQwtPlot.h"
+
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_item.h"
@@ -39,7 +41,7 @@ class RiuSelectionItem;
 //
 //
 //==================================================================================================
-class RiuMohrsCirclePlot : public QwtPlot
+class RiuMohrsCirclePlot : public RiuDockedQwtPlot
 {
     Q_OBJECT
 

@@ -128,6 +128,7 @@ public:
 
     void            showProcessMonitorDockPanel();
     void            setDefaultToolbarVisibility();
+    void            applyFontSizesToDockedPlots();
 
 protected:
     void    closeEvent(QCloseEvent* event) override;

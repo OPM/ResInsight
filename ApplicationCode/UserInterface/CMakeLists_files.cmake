@@ -38,6 +38,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuSelectionChangedHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/Riu3dSelectionManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSimpleHistogramWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.h
@@ -122,6 +123,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuSelectionChangedHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Riu3dSelectionManager.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSimpleHistogramWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.cpp
@@ -193,6 +195,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuRecentFileActionProvider.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.h

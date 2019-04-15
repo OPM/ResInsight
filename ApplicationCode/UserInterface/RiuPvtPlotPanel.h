@@ -27,6 +27,7 @@
 #include <cmath>
 #include <memory>
 
+class RiuDockedQwtPlot;
 class RiuPvtPlotUpdater;
 class RiuPvtQwtPicker;
 class RiuPvtPlotPanel;
@@ -63,6 +64,7 @@ public:
     RiuPvtPlotWidget(RiuPvtPlotPanel* parent);
 
     void    plotCurves(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr, double pressure, double pointMarkerYValue, QString pointMarkerLabel, QString plotTitle, QString yAxisTitle);
+    void    applyFontSizes(bool replot);
 
 private:
     static void                 setPlotDefaults(QwtPlot* plot);
@@ -76,7 +78,7 @@ private:
     void            slotPickerPointChanged(const QPoint& pt);
 
 private:
-    QPointer<QwtPlot>                                   m_qwtPlot;
+    QPointer<RiuDockedQwtPlot>                          m_qwtPlot;
 
     std::vector<RigFlowDiagSolverInterface::PvtCurve>   m_pvtCurveArr;  // Array of source Pvt curves currently being plotted
     std::vector<const QwtPlotCurve*>                    m_qwtCurveArr;  // Array of corresponding qwt curves used for mapping to Pvt curve when doing tracking
@@ -124,6 +126,7 @@ public:
     void                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, CellValues cellValues, QString cellReferenceText);
     void                clearPlot();
     RiuPvtPlotUpdater*  plotUpdater();
+    void                applyFontSizes(bool replot);
 
 private:
     void                plotUiSelectedCurves();

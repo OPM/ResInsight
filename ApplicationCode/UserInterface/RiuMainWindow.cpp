@@ -1820,6 +1820,17 @@ void RiuMainWindow::setDefaultToolbarVisibility()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMainWindow::applyFontSizesToDockedPlots()
+{
+    m_resultQwtPlot->applyFontSizes(true);
+    m_mohrsCirclePlot->applyFontSizes(true);
+    m_relPermPlotPanel->applyFontSizes(true);
+    m_pvtPlotPanel->applyFontSizes(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotScaleChanged(int scaleValue)
 {
     if (RiaApplication::instance()->activeReservoirView())
