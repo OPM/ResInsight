@@ -63,7 +63,6 @@
 RiuPlotMainWindow::RiuPlotMainWindow()
     : m_activePlotViewWindow(nullptr)
     , m_windowMenu(nullptr)
-    , m_blockSlotSubWindowActivated(false)
 {
     m_mdiArea = new RiuMdiArea;
     connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)), SLOT(slotSubWindowActivated(QMdiSubWindow*)));
@@ -587,13 +586,22 @@ void RiuPlotMainWindow::updateSummaryPlotToolBar(bool forceUpdateUi)
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::removeViewer(QWidget* viewer)
 {
-    m_blockSlotSubWindowActivated = true;
+    bool wasMaximized = viewer && viewer->isMaximized();
+    
+    setBlockSlotSubWindowActivated(true);
     m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
-    m_blockSlotSubWindowActivated = false;
-    if (subWindowsAreTiled())
+    setBlockSlotSubWindowActivated(false);
+    
+    if (wasMaximized && m_mdiArea->currentSubWindow())
+    {
+        m_mdiArea->currentSubWindow()->showMaximized();
+    }
+    else if (subWindowsAreTiled())
     {
         tileSubWindows();
     }
+
+
     refreshToolbars();
 }
 
@@ -655,7 +663,7 @@ void RiuPlotMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 
     if (viewWindow && viewWindow != m_activePlotViewWindow)
     {
-        if (!m_blockSlotSubWindowActivated)
+        if (!blockSlotSubWindowActivated())
         {
             selectAsCurrentItem(viewWindow);
         }
@@ -672,12 +680,12 @@ void RiuPlotMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::setActiveViewer(QWidget* viewer)
 {
-    m_blockSlotSubWindowActivated = true;
+    setBlockSlotSubWindowActivated(true);
 
     QMdiSubWindow* swin = findMdiSubWindow(viewer);
     if (swin) m_mdiArea->setActiveSubWindow(swin);
 
-    m_blockSlotSubWindowActivated = false;
+    setBlockSlotSubWindowActivated(false);
 }
 
 //--------------------------------------------------------------------------------------------------

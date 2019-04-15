@@ -124,7 +124,5 @@ private:
     
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
 
-    bool                        m_blockSlotSubWindowActivated;
-
     std::vector<QWidget*>       m_temporaryWidgets;
 };
