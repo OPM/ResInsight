@@ -73,7 +73,7 @@ void RimGridCrossPlotDataSet::CurveGroupingEnum::setUp()
     addItem(RigGridCrossPlotCurveGrouping::GROUP_BY_TIME, "TIME", "Time Step");
     addItem(RigGridCrossPlotCurveGrouping::GROUP_BY_FORMATION, "FORMATION", "Formations");
     addItem(RigGridCrossPlotCurveGrouping::GROUP_BY_RESULT, "RESULT", "Result Property");
-    setDefault(RigGridCrossPlotCurveGrouping::GROUP_BY_TIME);
+    setDefault(RigGridCrossPlotCurveGrouping::NO_GROUPING);
 }
 } // namespace caf
 
