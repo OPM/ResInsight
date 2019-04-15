@@ -1080,10 +1080,13 @@ void RimGridCrossPlotDataSet::exportFormattedData(RifEclipseDataTableFormatter& 
 {
     if (m_groupedResults.empty()) return;
 
+    QString xTitle = QString("%1").arg(m_xAxisProperty->resultVariableUiShortName());
+    QString yTitle = QString("%1").arg(m_yAxisProperty->resultVariableUiShortName());
+
     if (m_grouping != NO_GROUPING)
     {
-        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn("X"),
-                                                           RifEclipseOutputTableColumn("Y"),
+        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn(xTitle),
+                                                           RifEclipseOutputTableColumn(yTitle),
                                                            RifEclipseOutputTableColumn("Group Index"),
                                                            RifEclipseOutputTableColumn("Group Description")};
 
@@ -1091,7 +1094,7 @@ void RimGridCrossPlotDataSet::exportFormattedData(RifEclipseDataTableFormatter& 
     }
     else
     {
-        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn("X"), RifEclipseOutputTableColumn("Y")};
+        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn(xTitle), RifEclipseOutputTableColumn(yTitle)};
         formatter.header(header);
     }
 
