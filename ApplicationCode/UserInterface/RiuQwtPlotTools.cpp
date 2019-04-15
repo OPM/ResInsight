@@ -87,6 +87,8 @@ void RiuQwtPlotTools::setCommonPlotBehaviour(QwtPlot* plot)
     plot->canvas()->setMouseTracking(true);
     plot->canvas()->installEventFilter(plot);
     plot->plotLayout()->setAlignCanvasToScales(true);
+
+    plot->setContentsMargins(4, 4, 4, 4);
 }
 
 //--------------------------------------------------------------------------------------------------
