@@ -82,8 +82,16 @@ public:
         WELLPIPE_CELLCENTER,
         WELLPIPE_INTERPOLATED
     };
+
     typedef caf::AppEnum<RimSimWellInViewCollection::WellPipeCoordType> WellPipeCoordEnum;
 
+    enum WellPipeColors
+    {
+        WELLPIPE_COLOR_UNIQUE,
+        WELLPIPE_COLOR_UNIFORM
+    };
+
+    typedef caf::AppEnum<RimSimWellInViewCollection::WellPipeColors> WellPipeColorsEnum;
 
     caf::PdmField<bool>                 isActive;
     caf::PdmField<bool>                 showWellsIntersectingVisibleCells;
@@ -135,7 +143,6 @@ protected:
 
     caf::PdmFieldHandle*        objectToggleField() override;
     void                        initAfterRead() override;
-    void                        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     void                                calculateWellGeometryVisibility(size_t frameIndex);
@@ -146,9 +153,8 @@ private:
     std::vector< std::vector< cvf::ubyte > > m_framesOfResultWellPipeVisibilities;  
     
     // Fields
-    caf::PdmField<cvf::Color3f>         m_wellColorForApply;
-    caf::PdmField<bool>                 m_applySingleColorToWells;
-    caf::PdmField<bool>                 m_applyIndividualColorsToWells;
+    caf::PdmField<cvf::Color3f>         m_defaultWellPipeColor;
+    caf::PdmField<WellPipeColorsEnum>   m_wellPipeColors;
 
     caf::PdmField<caf::Tristate>        m_showWellLabel;
     caf::PdmField<caf::Tristate>        m_showWellHead;
