@@ -100,6 +100,22 @@ std::vector<RimFractureTemplate*> RimFractureTemplateCollection::fractureTemplat
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEllipseFractureTemplate* RimFractureTemplateCollection::addDefaultEllipseTemplate()
+{
+    RimEllipseFractureTemplate* ellipseFractureTemplate = new RimEllipseFractureTemplate();
+
+    addFractureTemplate(ellipseFractureTemplate);
+
+    ellipseFractureTemplate->setName("Ellipse Fracture Template");
+    ellipseFractureTemplate->setUnitSystem(defaultUnitSystemType());
+    ellipseFractureTemplate->setDefaultValuesFromUnit();
+    
+    return ellipseFractureTemplate;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::addFractureTemplate(RimFractureTemplate* templ)

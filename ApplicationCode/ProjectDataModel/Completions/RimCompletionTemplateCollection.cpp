@@ -36,7 +36,7 @@ RimCompletionTemplateCollection::RimCompletionTemplateCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_fractureTemplates, "FractureTemplates", "", "", "", "");
     m_fractureTemplates = new RimFractureTemplateCollection;
-
+    m_fractureTemplates->addDefaultEllipseTemplate();
     CAF_PDM_InitFieldNoDefault(&m_valveTemplates, "ValveTemplates", "", "", "", "");
     m_valveTemplates = new RimValveTemplateCollection;
 }

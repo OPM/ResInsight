@@ -81,14 +81,7 @@ RimEllipseFractureTemplate* RicNewEllipseFractureTemplateFeature::createNewTempl
 
     if (fracDefColl)
     {
-        RimEllipseFractureTemplate* ellipseFractureTemplate = new RimEllipseFractureTemplate();
-
-        fracDefColl->addFractureTemplate(ellipseFractureTemplate);
-        ellipseFractureTemplate->setName("Ellipse Fracture Template");
-        ellipseFractureTemplate->setUnitSystem(fracDefColl->defaultUnitSystemType());
-        ellipseFractureTemplate->setDefaultValuesFromUnit();
-
-        return ellipseFractureTemplate;
+        return fracDefColl->addDefaultEllipseTemplate();
     }
     return nullptr;
 }
