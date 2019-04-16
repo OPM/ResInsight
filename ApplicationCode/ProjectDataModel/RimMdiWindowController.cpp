@@ -83,7 +83,10 @@ void RimMdiWindowController::handleViewerDeletion()
 {
     viewPdmObject()->m_showWindow = false;
     viewPdmObject()->updateConnectedEditors();
+    viewPdmObject()->updateUiIconFromToggleField();
     uiCapability()->updateUiIconFromToggleField();
+    removeWindowFromMDI();
+
     updateConnectedEditors();
 }
 

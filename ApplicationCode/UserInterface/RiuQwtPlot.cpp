@@ -92,11 +92,7 @@ RiuQwtPlot::~RiuQwtPlot()
     if (ownerPlotDefinition())
     {
         ownerPlotDefinition()->detachAllCurves();
-    }
-    if (ownerViewWindow())
-    {
-        ownerViewWindow()->handleMdiWindowClosed();
-    }
+    }  
 }
 
 //--------------------------------------------------------------------------------------------------

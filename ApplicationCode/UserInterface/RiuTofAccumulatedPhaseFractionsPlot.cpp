@@ -89,11 +89,6 @@ RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot(RimTofA
 //--------------------------------------------------------------------------------------------------
 RiuTofAccumulatedPhaseFractionsPlot::~RiuTofAccumulatedPhaseFractionsPlot()
 {
-    if (m_plotDefinition)
-    {
-        m_plotDefinition->handleMdiWindowClosed();
-    }
-
     if (m_watCurve)
     {
         m_watCurve->detach();

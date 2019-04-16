@@ -98,41 +98,25 @@ void RiuMdiSubWindow::closeEvent(QCloseEvent* event)
 {
     QWidget* mainWidget = widget();
 
-    RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(mainWidget);
-    if (viewWindow)
-    {
-        viewWindow->setMdiWindowGeometry(windowGeometry());
-    }
-    else
+	RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(mainWidget);
+    if (!viewWindow)
     {
         RiuViewer* viewer = mainWidget->findChild<RiuViewer*>();
         if (viewer)
         {
-            viewer->ownerReservoirView()->setMdiWindowGeometry(windowGeometry());
+            viewWindow = viewer->ownerViewWindow();
         }
     }
 
-    RiuMainWindowBase* windowToTile = nullptr;
-    if (window() == RiaApplication::instance()->mainWindow())
+    if (viewWindow)
     {
-        if (RiaApplication::instance()->mainWindow()->subWindowsAreTiled())
-        {
-            windowToTile = RiaApplication::instance()->mainWindow();
-        }
+        viewWindow->setMdiWindowGeometry(windowGeometry());
+        viewWindow->handleMdiWindowClosed();
+        event->accept();
     }
-    else if (window() == RiaApplication::instance()->mainPlotWindow())
+    else
     {
-        if (RiaApplication::instance()->mainPlotWindow()->subWindowsAreTiled())
-        {
-            windowToTile = RiaApplication::instance()->mainPlotWindow();
-        }
-    }
-
-    QMdiSubWindow::closeEvent(event);
-
-    if(windowToTile)
-    {
-        windowToTile->tileSubWindows();
+        QMdiSubWindow::closeEvent(event);
     }
 }
 

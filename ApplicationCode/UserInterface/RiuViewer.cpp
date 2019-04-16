@@ -185,8 +185,6 @@ RiuViewer::~RiuViewer()
 {
     if (m_rimView)
     {
-        m_rimView->handleMdiWindowClosed();
-
         m_rimView->setCameraPosition(m_mainCamera->viewMatrix());
         m_rimView->setCameraPointOfInterest(pointOfInterest());
     }

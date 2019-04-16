@@ -586,22 +586,7 @@ void RiuPlotMainWindow::updateSummaryPlotToolBar(bool forceUpdateUi)
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::removeViewer(QWidget* viewer)
 {
-    bool wasMaximized = viewer && viewer->isMaximized();
-    
-    setBlockSlotSubWindowActivated(true);
-    m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
-    setBlockSlotSubWindowActivated(false);
-    
-    if (wasMaximized && m_mdiArea->currentSubWindow())
-    {
-        m_mdiArea->currentSubWindow()->showMaximized();
-    }
-    else if (subWindowsAreTiled())
-    {
-        tileSubWindows();
-    }
-
-
+    removeViewerFromMdiArea(m_mdiArea, viewer);
     refreshToolbars();
 }
 
@@ -653,6 +638,7 @@ void RiuPlotMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 void RiuPlotMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
     if (!subWindow) return;
+    if (blockSlotSubWindowActivated()) return;
 
     RimProject* proj = RiaApplication::instance()->project();
     if (!proj) return;
@@ -663,11 +649,7 @@ void RiuPlotMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 
     if (viewWindow && viewWindow != m_activePlotViewWindow)
     {
-        if (!blockSlotSubWindowActivated())
-        {
-            selectAsCurrentItem(viewWindow);
-        }
-
+        selectAsCurrentItem(viewWindow);        
         m_activePlotViewWindow = viewWindow;
     }
 
@@ -680,12 +662,8 @@ void RiuPlotMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::setActiveViewer(QWidget* viewer)
 {
-    setBlockSlotSubWindowActivated(true);
-
     QMdiSubWindow* swin = findMdiSubWindow(viewer);
     if (swin) m_mdiArea->setActiveSubWindow(swin);
-
-    setBlockSlotSubWindowActivated(false);
 }
 
 //--------------------------------------------------------------------------------------------------

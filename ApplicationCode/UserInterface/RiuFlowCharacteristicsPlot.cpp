@@ -106,10 +106,6 @@ void RiuFlowCharacteristicsPlot::addWindowZoom(QwtPlot* plot)
 //--------------------------------------------------------------------------------------------------
 RiuFlowCharacteristicsPlot::~RiuFlowCharacteristicsPlot()
 {
-    if (m_plotDefinition)
-    {
-        m_plotDefinition->handleMdiWindowClosed();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

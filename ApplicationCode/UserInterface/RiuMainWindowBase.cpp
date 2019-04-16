@@ -166,6 +166,44 @@ bool RiuMainWindowBase::blockSlotSubWindowActivated() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::removeViewerFromMdiArea(QMdiArea* mdiArea, QWidget* viewer)
+{
+    bool wasMaximized = viewer && viewer->isMaximized();
+
+    QMdiSubWindow* subWindowBeingClosed      = findMdiSubWindow(viewer);
+    bool           removedSubWindowWasActive = false;
+    if (subWindowBeingClosed->isActiveWindow())
+    {
+        // If we are removing the active window, we will need a new active window
+        // Start by making the window inactive so Qt doesn't pick the active window itself
+        mdiArea->setActiveSubWindow(nullptr);
+        removedSubWindowWasActive = true;
+    }
+    mdiArea->removeSubWindow(subWindowBeingClosed);
+
+    QList<QMdiSubWindow*> subWindowList = mdiArea->subWindowList(QMdiArea::ActivationHistoryOrder);
+    if (!subWindowList.empty())
+    {
+        if (removedSubWindowWasActive)
+        {
+            mdiArea->setActiveSubWindow(nullptr);
+            // Make the last activated window the current activated one
+            mdiArea->setActiveSubWindow(subWindowList.back());
+        }
+        if (wasMaximized && mdiArea->currentSubWindow())
+        {
+            mdiArea->currentSubWindow()->showMaximized();
+        }
+        else if (subWindowsAreTiled())
+        {
+            tileSubWindows();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
 {
     m_projectTreeView->setExpanded(uiItem, expanded);

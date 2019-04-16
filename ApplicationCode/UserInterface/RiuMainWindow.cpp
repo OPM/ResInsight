@@ -1114,21 +1114,7 @@ RiuMessagePanel* RiuMainWindow::messagePanel()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::removeViewer(QWidget* viewer)
 {
-    bool wasMaximized = viewer && viewer->isMaximized();
-
-    setBlockSlotSubWindowActivated(true);
-    m_mdiArea->removeSubWindow(findMdiSubWindow(viewer));
-    setBlockSlotSubWindowActivated(false);
-    
-    if (wasMaximized && m_mdiArea->currentSubWindow())
-    {
-        m_mdiArea->currentSubWindow()->showMaximized();
-    }
-    else if (subWindowsAreTiled())
-    {
-        tileSubWindows();
-    }
-
+    removeViewerFromMdiArea(m_mdiArea, viewer);
     slotRefreshViewActions();
 }
 
@@ -1360,12 +1346,8 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::setActiveViewer(QWidget* viewer)
 {
-    setBlockSlotSubWindowActivated(true);
-
     QMdiSubWindow* swin = findMdiSubWindow(viewer);
     if (swin) m_mdiArea->setActiveSubWindow(swin);
-
-    setBlockSlotSubWindowActivated(false);
 }
 
 //--------------------------------------------------------------------------------------------------

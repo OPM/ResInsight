@@ -104,10 +104,6 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
 //--------------------------------------------------------------------------------------------------
 RiuWellAllocationPlot::~RiuWellAllocationPlot()
 {
-    if (m_plotDefinition)
-    {
-        m_plotDefinition->handleMdiWindowClosed();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

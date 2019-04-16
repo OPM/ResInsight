@@ -31,6 +31,7 @@ namespace caf
 }
 
 
+class QMdiArea;
 class QMdiSubWindow;
 
 
@@ -71,6 +72,9 @@ public:
 
     void                setBlockSlotSubWindowActivated(bool block);
     bool                blockSlotSubWindowActivated() const;
+
+protected:
+    void                removeViewerFromMdiArea(QMdiArea* mdiArea, QWidget* viewer);
 
 protected slots:
     void                slotDockWidgetToggleViewActionTriggered();
