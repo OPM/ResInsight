@@ -29,7 +29,7 @@ class Rim3dView;
 class RicVec3dPickEventHandler : public Ric3dViewPickEventHandler
 {
 public:
-    RicVec3dPickEventHandler(caf::PdmField<cvf::Vec3d>* vectorField);
+    RicVec3dPickEventHandler(caf::PdmField<cvf::Vec3d>* vectorField, double zOffsetFactor = 0.0);
     bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;
 
     void registerAsPickEventHandler() override;
@@ -37,6 +37,7 @@ public:
 
 private:
     caf::PdmField<cvf::Vec3d>* m_vectorField;
+    double                     m_zOffsetFactor;
 };
 
 

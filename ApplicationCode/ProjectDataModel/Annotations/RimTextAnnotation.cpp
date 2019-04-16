@@ -77,7 +77,7 @@ RimTextAnnotation::RimTextAnnotation()
     m_nameProxy.xmlCapability()->disableIO();
 
     m_anchorPointPickEventHandler.reset(new RicVec3dPickEventHandler(&m_anchorPointXyd));
-    m_labelPointPickEventHandler.reset(new RicVec3dPickEventHandler(&m_labelPointXyd));
+    m_labelPointPickEventHandler.reset(new RicVec3dPickEventHandler(&m_labelPointXyd, 0.1));
 
 }
 

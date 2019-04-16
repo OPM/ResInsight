@@ -19,16 +19,18 @@
 
 #include "RiaApplication.h"
 #include "Rim3dView.h"
+#include "RimCase.h"
 #include "RiuViewer.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
 
 //--------------------------------------------------------------------------------------------------
-///
+/// zOffsetFactor will be multiplied by characteristic length to yield a z-offset
 //--------------------------------------------------------------------------------------------------
-RicVec3dPickEventHandler::RicVec3dPickEventHandler(caf::PdmField<cvf::Vec3d>* vectorField)
+RicVec3dPickEventHandler::RicVec3dPickEventHandler(caf::PdmField<cvf::Vec3d>* vectorField, double zOffsetFactor)
     : m_vectorField(vectorField)
+    , m_zOffsetFactor(zOffsetFactor)
 {
 }
 
@@ -39,13 +41,20 @@ bool RicVec3dPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObje
 {
     const Rim3dView* rimView = eventObject.m_view;
 
-    double zPickOffset = 10.0;
+    cvf::Vec3d pickedPosition = eventObject.m_pickItemInfos.front().globalPickedPoint();
+
+    RimCase* ownerCase   = nullptr;
+    rimView->firstAncestorOrThisOfType(ownerCase);
+    if (ownerCase)
+    {
+        double zPickOffset = ownerCase->characteristicCellSize() * m_zOffsetFactor;
+        pickedPosition.z() += zPickOffset;
+    }
 
     cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-    cvf::Vec3d pickedPositionInUTM = transForm->transformToDomainCoord(eventObject.m_pickItemInfos.front().globalPickedPoint());
+    cvf::Vec3d pickedPositionInUTM = transForm->transformToDomainCoord(pickedPosition);
 
     pickedPositionInUTM.z() *= -1.0;
-    pickedPositionInUTM.z() -= zPickOffset;
 
     m_vectorField->setValueWithFieldChanged(pickedPositionInUTM);
     return true;
