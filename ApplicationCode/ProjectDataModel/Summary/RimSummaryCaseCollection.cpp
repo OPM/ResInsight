@@ -294,8 +294,8 @@ EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& par
     EnsembleParameter eParam;
     eParam.name = paramName;
 
-    bool numericValuesCount = 0;
-    bool textValuesCount = 0;
+    size_t numericValuesCount = 0;
+    size_t textValuesCount = 0;
 
     // Prepare case realization params, and check types
     for (const auto& rimCase : allSummaryCases())
