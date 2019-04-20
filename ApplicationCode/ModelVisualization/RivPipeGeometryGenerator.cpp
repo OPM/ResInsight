@@ -384,8 +384,6 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube(
                                                                                 const cvf::Vec3dArray* cylinderCenterCoords,
                                                                                 const std::vector<double>& radii)
 {
-    const double epsilon = 1.0e-8;
-
     CVF_ASSERT(cylinderCenterCoords != nullptr);
    
     // Calculate first valid pipe direction, to be able to handle centerNodes in the same place

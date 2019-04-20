@@ -2790,7 +2790,6 @@ void findReferenceElementForNode(const RigFemPart& part, size_t nodeIdx, size_t 
     part.findIntersectingCells(bb, &refElementCandidates);
 
     const RigFemPartGrid* grid = part.getOrCreateStructGrid();
-    const std::vector<cvf::Vec3f>& nodeCoords = part.nodes().coordinates;
 
     refElement->elementIdx = cvf::UNDEFINED_SIZE_T;
     refElement->intersectionPointToCurrentNodeDistance = std::numeric_limits<float>::infinity();
