@@ -81,8 +81,6 @@ void RifEclipseSummaryTools::findSummaryFiles(const QString& inputFile,
         }
     }
     stringlist_free(summary_file_list);
-
-    return;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,7 +90,6 @@ QString RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(const QStr
 {
     char* myPath = nullptr;
     char* myBase = nullptr;
-    bool formattedFile = true;
 
     util_alloc_file_components(RiaStringEncodingTools::toNativeEncoded(QDir::toNativeSeparators(summaryHeaderFile)).data(), &myPath, &myBase, nullptr);
 
@@ -100,10 +97,6 @@ QString RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(const QStr
     if (!caseFile)
     {
         caseFile= ecl_util_alloc_exfilename(myPath, myBase, ECL_EGRID_FILE, false, -1);
-        if (caseFile)
-        {
-            formattedFile = false;
-        }
     }
 
     QString gridCaseFile;

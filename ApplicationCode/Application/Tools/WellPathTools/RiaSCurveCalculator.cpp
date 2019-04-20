@@ -211,7 +211,6 @@ void RiaSCurveCalculator::initializeByFinding_q1q2(cvf::Vec3d p1, double azi1, d
 
     const int maxIterations = 40;
     const double maxError = 0.01;
-    const double closeError = 40*maxError;
     const double maxStepSize = 1.0e9;
     const double maxLengthToQ = 1.0e10;
     bool enableBackstepping = false;
