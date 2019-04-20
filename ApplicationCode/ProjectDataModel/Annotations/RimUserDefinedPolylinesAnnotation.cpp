@@ -94,7 +94,6 @@ cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
     std::vector<cvf::Vec3d> line;
-    std::vector<std::vector<cvf::Vec3d> > lines;
     for (const RimPolylineTarget* target : m_targets)
     {
         line.push_back(target->targetPointXYZ());

@@ -149,8 +149,6 @@ double RigEclipseToStimPlanCalculator::areaWeightedMatrixPermeability() const
     RiaWeightedMeanCalculator<double> calc;
 
     {
-        std::map<size_t, double> reservoirCellAndIntersectedArea;
-
         for (const auto& singleCellCalc : m_singleFractureCellCalculators)
         {
             const RigEclipseToStimPlanCellTransmissibilityCalculator& calulator = singleCellCalc.second;

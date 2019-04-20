@@ -686,7 +686,6 @@ std::vector<cvf::Vec3d> RigCellGeometryTools::unionOfPolygons(const std::vector<
     std::vector<cvf::Vec3d> unionPolygon;
     for (ClipperLib::Path pathInSol : solution)
     {
-        std::vector<cvf::Vec3d> clippedPolygon;
         for (ClipperLib::IntPoint IntPosition : pathInSol)
         {
             unionPolygon.push_back(fromClipperPoint(IntPosition));

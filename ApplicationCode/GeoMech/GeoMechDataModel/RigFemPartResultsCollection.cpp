@@ -224,7 +224,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
     {
         std::map<std::string, std::vector<float>> elementProperties = m_elementPropertyReader->readAllElementPropertiesInFileContainingField(resVarAddr.fieldName);
         
-        std::vector<RigFemScalarResultFrames*> resultsForEachComponent;
         for (std::pair< std::string, std::vector<float>> elem : elementProperties)
         {
             RigFemResultAddress addressForElement(RIG_ELEMENT, elem.first, "");

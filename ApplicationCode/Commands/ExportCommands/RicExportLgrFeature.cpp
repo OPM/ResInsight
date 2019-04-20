@@ -731,7 +731,6 @@ std::vector<std::pair<RigCompletionDataGridCell, std::vector<RigCompletionData>>
         }
     }
 
-    std::set<size_t> cellsTaken;
     std::vector<std::pair<RigCompletionDataGridCell, std::vector<RigCompletionData>>> result;
 
     // Walk along well path
