@@ -22,7 +22,6 @@
 #include "RicHoloLensSessionManager.h"
 
 #include "RiaLogging.h"
-#include "RiaQIconTools.h"
 
 #include "cafCmdFeatureManager.h"
 

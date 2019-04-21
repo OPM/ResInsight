@@ -58,7 +58,6 @@ public:
     std::vector<RimPolylinesFromFileAnnotationInView*>      globalPolylineFromFileAnnotations() const;
 
     void                        onGlobalCollectionChanged(const RimAnnotationCollection* globalCollection);
-    size_t                      annotationsCount() const;
 
     bool                        hasTextAnnotationsWithCustomFontSize(RiaFontCache::FontSize defaultFontSize) const;
     bool                        applyFontSizeToAllTextAnnotations(RiaFontCache::FontSize oldFontSize, RiaFontCache::FontSize fontSize, bool forceSizeChange = false);

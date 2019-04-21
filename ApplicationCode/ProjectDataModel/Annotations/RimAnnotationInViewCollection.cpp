@@ -228,14 +228,6 @@ void RimAnnotationInViewCollection::onGlobalCollectionChanged(const RimAnnotatio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimAnnotationInViewCollection::annotationsCount() const
-{
-    return m_textAnnotations->m_annotations.size() + allGlobalPdmAnnotations().size();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimAnnotationInViewCollection::hasTextAnnotationsWithCustomFontSize(RiaFontCache::FontSize defaultFontSize) const
 {
     for (auto annotation : textAnnotations())

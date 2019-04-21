@@ -138,8 +138,6 @@ public:
     void                          tableCompleted();
     void                          tableCompleted(const QString& appendText, bool appendNewline);
 
-    static void                   addValueTable(QTextStream& stream, const QString& keyword, size_t columns, const std::vector<double>& values);
-
     int tableWidth() const;
 
 private:

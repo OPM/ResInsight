@@ -21,7 +21,6 @@
 #include "RicHoloLensSession.h"
 
 #include "RiaApplication.h"
-#include "RiaQIconTools.h"
 #include "RiaLogging.h"
 
 #include "RimGridView.h"

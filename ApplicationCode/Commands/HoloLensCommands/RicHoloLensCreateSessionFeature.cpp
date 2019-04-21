@@ -18,8 +18,6 @@
 
 #include "RicHoloLensCreateSessionFeature.h"
 
-#include "RiaQIconTools.h"
-
 #include "RicHoloLensCreateSessionUi.h"
 #include "RicHoloLensServerSettings.h"
 #include "RicHoloLensSessionManager.h"

@@ -213,12 +213,6 @@ private:
                                                                                size_t timeStep,
                                                                                const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                                                bool* isIntersectingOtherLgrs);
-    //static std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
-    //    cellsIntersectingCompletions_PerCompletion_old(RimEclipseCase* eclipseCase,
-    //                                               const RimWellPath* wellPath,
-    //                                               size_t timeStep,
-    //                                               const std::set<RigCompletionData::CompletionType>& completionTypes,
-    //                                               bool* isIntersectingOtherLgrs);
 
     static std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
                cellsIntersectingCompletions_PerCompletion(RimEclipseCase*                                    eclipseCase,

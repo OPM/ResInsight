@@ -20,8 +20,6 @@
 
 #include "RicHoloLensSessionManager.h"
 
-#include "RiaQIconTools.h"
-
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicHoloLensCreateDummyFiledBackedSessionFeature, "RicHoloLensCreateDummyFiledBackedSessionFeature");
