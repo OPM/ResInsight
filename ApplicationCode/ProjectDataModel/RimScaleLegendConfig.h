@@ -109,8 +109,6 @@ public:
 
     RangeModeType                               rangeMode() const;
 
-    void                                        setCurrentScale(double scale);
-
 private:
     void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                                        initAfterRead() override;
@@ -145,6 +143,4 @@ private:
     caf::PdmField<double>                       m_userDefinedMaxValue;
     caf::PdmField<double>                       m_userDefinedMinValue;
     caf::PdmField<caf::AppEnum<ColorRangesType> > m_colorRangeMode;
-
-    double                                      m_currentScale; // [meters/pixel]
 };

@@ -120,7 +120,6 @@ public:
     QString commentPrefix() const;
     void setCommentPrefix(const QString& commentPrefix);
     void setUnlimitedDataRowWidth();
-    void setMaxDataRowWidth(int maxWidth);
     int  maxDataRowWidth() const;
 
     RifEclipseDataTableFormatter& keyword(const QString& keyword);

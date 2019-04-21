@@ -134,14 +134,6 @@ void RifEclipseDataTableFormatter::setUnlimitedDataRowWidth()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseDataTableFormatter::setMaxDataRowWidth(int maxWidth)
-{
-    m_maxDataRowWidth = maxWidth;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 int RifEclipseDataTableFormatter::maxDataRowWidth() const
 {
     return m_maxDataRowWidth;
