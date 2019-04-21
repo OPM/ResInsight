@@ -344,12 +344,3 @@ void RicCreateTemporaryLgrFeature::computeCachedData(RimEclipseCase* eclipseCase
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicCreateTemporaryLgrFeature::containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells)
-{
-    return std::find_if(cells.begin(), cells.end(), [](const RigCompletionDataGridCell& cell) {
-               return !cell.isMainGridCell();
-           }) != cells.end();
-}

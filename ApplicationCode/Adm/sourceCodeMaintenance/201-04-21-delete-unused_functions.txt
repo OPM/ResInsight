@@ -2,6 +2,11 @@
 
 Nothing to do
 -------------
+unchanged	ApplicationCode\Commands\HoloLensCommands\farmhash\farmhash.cc	1948	style	unusedFunction	false	The function 'Hash128WithSeed' is never used.
+unchanged	ApplicationCode\ReservoirDataModel\cvfGeometryTools.cpp	614	style	unusedFunction	false	The function 'addMidEdgeNodes' is never used.
+unchanged	ApplicationCode\WellPathImportSsihub\RiuWellImportWizard.cpp	147	style	unusedFunction	false	The function 'cancelDownload' is never used.
+unchanged	ApplicationCode\GeoMech\GeoMechDataModel\RigFemPartGrid.cpp	453	style	unusedFunction	false	The function 'cellIJKFromCoordinate' is never used.
+unchanged	ApplicationCode\GeoMech\GeoMechDataModel\RigFemPartGrid.cpp	486	style	unusedFunction	false	The function 'cellMinMaxCordinates' is never used.
 
 WIP
 ---
@@ -18,21 +23,18 @@ Must be changed
 
 Deleted
 -------
-
-Backlog
--------
-unchanged	ApplicationCode\Commands\HoloLensCommands\farmhash\farmhash.cc	1948	style	unusedFunction	false	The function 'Hash128WithSeed' is never used.
-unchanged	ApplicationCode\ReservoirDataModel\cvfGeometryTools.cpp	614	style	unusedFunction	false	The function 'addMidEdgeNodes' is never used.
 unchanged	ApplicationCode\FileInterface\RifEclipseDataTableFormatter.cpp	278	style	unusedFunction	false	The function 'addValueTable' is never used.
 unchanged	ApplicationCode\ReservoirDataModel\Completions\RigEclipseToStimPlanCellTransmissibilityCalculator.cpp	109	style	unusedFunction	false	The function 'aggregatedMatrixTransmissibility' is never used.
 unchanged	ApplicationCode\ProjectDataModel\Annotations\RimAnnotationInViewCollection.cpp	231	style	unusedFunction	false	The function 'annotationsCount' is never used.
 unchanged	ApplicationCode\Commands\ExportCommands\RicExportLgrFeature.cpp	848	style	unusedFunction	false	The function 'appendIntersectedCells' is never used.
 unchanged	ApplicationCode\Application\Tools\RiaQIconTools.cpp	26	style	unusedFunction	false	The function 'appendPixmapUpperLeft' is never used.
 unchanged	ApplicationCode\ReservoirDataModel\RigEclipseResultBinSorter.cpp	48	style	unusedFunction	false	The function 'binRange' is never used.
-unchanged	ApplicationCode\WellPathImportSsihub\RiuWellImportWizard.cpp	147	style	unusedFunction	false	The function 'cancelDownload' is never used.
-unchanged	ApplicationCode\GeoMech\GeoMechDataModel\RigFemPartGrid.cpp	453	style	unusedFunction	false	The function 'cellIJKFromCoordinate' is never used.
-unchanged	ApplicationCode\GeoMech\GeoMechDataModel\RigFemPartGrid.cpp	486	style	unusedFunction	false	The function 'cellMinMaxCordinates' is never used.
 unchanged	ApplicationCode\Commands\ExportCommands\RicExportLgrFeature.cpp	684	style	unusedFunction	false	The function 'cellsIntersectingCompletion' is never used.
+unchanged	ApplicationCode\Commands\ExportCommands\RicExportLgrFeature.cpp	702	style	unusedFunction	false	The function 'createOrderedIntersectionList' is never used.
+unchanged	ApplicationCode\Commands\ExportCommands\RicExportLgrFeature.cpp	1129	style	unusedFunction	false	The function 'resetNumbering' is never used.
+
+Backlog
+-------
 unchanged	ApplicationCode\UserInterface\RiuWellLogPlot.cpp	527	style	unusedFunction	false	The function 'changeEvent' is never used.
 unchanged	ApplicationCode\Commands\AnnotationCommands\RicTextAnnotation3dEditor.cpp	133	style	unusedFunction	false	The function 'cleanupBeforeSettingPdmObject' is never used.
 unchanged	ApplicationCode\Commands\AnnotationCommands\RicTextAnnotation3dEditor.cpp	73	style	unusedFunction	false	The function 'configureAndUpdateUi' is never used.
@@ -41,7 +43,6 @@ unchanged	ApplicationCode\UserInterface\RiuGridCrossQwtPlot.cpp	359	style	unused
 unchanged	ApplicationCode\Application\Tools\RiaColorTools.cpp	147	style	unusedFunction	false	The function 'contrastRatio' is never used.
 unchanged	ApplicationCode\Commands\HoloLensCommands\VdeCachingHashedIdFactory.cpp	233	style	unusedFunction	false	The function 'crc' is never used.
 unchanged	ApplicationCode\Application\Tools\RiaColorTables.cpp	580	style	unusedFunction	false	The function 'createBrightnessBasedColorTable' is never used.
-unchanged	ApplicationCode\Commands\ExportCommands\RicExportLgrFeature.cpp	702	style	unusedFunction	false	The function 'createOrderedIntersectionList' is never used.
 unchanged	ApplicationCode\GeoMech\GeoMechVisualization\RivFemPartGeometryGenerator.cpp	106	style	unusedFunction	false	The function 'createOutlineMeshDrawable' is never used.
 unchanged	ApplicationCode\ModelVisualization\RivWellConnectionFactorGeometryGenerator.cpp	202	style	unusedFunction	false	The function 'createStarGeometry' is never used.
 unchanged	ApplicationCode\Commands\SummaryPlotCommands\RicSummaryCurveCalculatorEditor.cpp	119	style	unusedFunction	false	The function 'createWidget' is never used.
@@ -91,7 +92,6 @@ unchanged	ApplicationCode\UserInterface\RiuViewer.cpp	345	style	unusedFunction	f
 unchanged	ApplicationCode\ProjectDataModel\RimProject.cpp	1066	style	unusedFunction	false	The function 'polylineAnnotations' is never used.
 unchanged	ApplicationCode\Application\RiaApplication.cpp	326	style	unusedFunction	false	The function 'processNonGuiEvents' is never used.
 unchanged	ApplicationCode\Commands\SummaryPlotCommands\RicSummaryCurveCalculatorEditor.cpp	65	style	unusedFunction	false	The function 'recursivelyConfigureAndUpdateTopLevelUiOrdering' is never used.
-unchanged	ApplicationCode\Commands\ExportCommands\RicExportLgrFeature.cpp	1129	style	unusedFunction	false	The function 'resetNumbering' is never used.
 unchanged	ApplicationCode\ProjectDataModel\RimContourMapProjection.cpp	223	style	unusedFunction	false	The function 'resultAggregation' is never used.
 unchanged	ApplicationCode\ProjectDataModel\Annotations\RimAnnotationTextAppearance.cpp	75	style	unusedFunction	false	The function 'setAnchorLineColor' is never used.
 unchanged	ApplicationCode\ProjectDataModel\RimScaleLegendConfig.cpp	447	style	unusedFunction	false	The function 'setCurrentScale' is never used.

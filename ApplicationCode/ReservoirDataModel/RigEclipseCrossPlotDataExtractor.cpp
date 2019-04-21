@@ -24,7 +24,6 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
-#include "RigEclipseResultBinSorter.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 
@@ -49,7 +48,6 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
 
     RigFormationNames* activeFormationNames = resultData->activeFormationNames();
 
-    std::unique_ptr<RigEclipseResultBinSorter> catBinSorter;
     const std::vector<std::vector<double>>*    catValuesForAllSteps = nullptr;
 
     if (xAddress.isValid() && yAddress.isValid())

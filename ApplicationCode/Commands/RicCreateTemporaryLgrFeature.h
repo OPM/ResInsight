@@ -65,5 +65,4 @@ private:
     void createLgr(const LgrInfo& lgrInfo, RigMainGrid* mainGrid);
     void computeCachedData(RimEclipseCase* eclipseCase);
     void deleteAllCachedData(RimEclipseCase* eclipseCase);
-    bool containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells);
 };

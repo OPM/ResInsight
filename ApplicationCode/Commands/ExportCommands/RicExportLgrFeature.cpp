@@ -116,7 +116,6 @@ public:
     LgrNameFactory();
     QString newName(RigCompletionData::CompletionType completionType);
     QString newName(const QString& baseName, int number);
-    void    resetNumbering();
 
 private:
     std::map<RigCompletionData::CompletionType, std::pair<QString, int>> m_counters;
@@ -681,108 +680,6 @@ RicExportLgrFeature::cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionDataGridCell> cellsIntersectingCompletion(const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>& allCells,
-                                                                   caf::PdmObject* sourcePdmObject)
-{
-    std::vector<RigCompletionDataGridCell> cells;
-    for (const auto& intInfo : allCells)
-    {
-        for (const auto& completion : intInfo.second)
-        {
-            if (completion.sourcePdmObject() == sourcePdmObject) cells.push_back(intInfo.first);
-        }
-    }
-    return cells;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::pair<RigCompletionDataGridCell, std::vector<RigCompletionData>>>
-     createOrderedIntersectionList(const std::vector<WellPathCellIntersectionInfo>&                           allWellPathCells,
-                                   const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>& completionCells)
-{
-    // All cell indices intersecting a completion and lookup into map
-    std::set<size_t>                            complCellIndices;
-    std::map<size_t, RigCompletionDataGridCell> complCellLookup;
-    std::set<CellInfo>                          cellsOnWellPath;
-    std::vector<std::pair<bool, CellInfo>>      cellsNotOnWellPath;
-    {
-        for (const auto& complCell : completionCells)
-        {
-            complCellIndices.insert(complCell.first.globalCellIndex());
-            complCellLookup.insert({complCell.first.globalCellIndex(), complCell.first});
-
-            bool cellFoundOnWellPath = false;
-            for (const auto& wellPathCell : allWellPathCells)
-            {
-                if (complCell.first.globalCellIndex() == wellPathCell.globCellIndex)
-                {
-                    cellsOnWellPath.insert(CellInfo(complCell.first.globalCellIndex(), wellPathCell.startMD, wellPathCell.endMD));
-                    cellFoundOnWellPath = true;
-                    break;
-                }
-            }
-
-            if (!cellFoundOnWellPath)
-            {
-                cellsNotOnWellPath.emplace_back( true, CellInfo(complCell.first.globalCellIndex()) );
-            }
-        }
-    }
-
-    std::vector<std::pair<RigCompletionDataGridCell, std::vector<RigCompletionData>>> result;
-
-    // Walk along well path
-    for (const auto& cellOnWellPath : cellsOnWellPath)
-    {
-        // Add cell on well path first
-        auto complDataGridCell = complCellLookup.at(cellOnWellPath.globCellIndex);
-        auto complDataList = completionCells.at(complDataGridCell);
-        result.emplace_back(complDataGridCell, complDataList);
-
-        // Check intersected completions in current cell
-        RigCompletionData::CompletionType complTypes[] = { RigCompletionData::FRACTURE, RigCompletionData::FISHBONES, RigCompletionData::PERFORATION };
-
-        for (auto complType : complTypes)
-        {
-            const caf::PdmObject* completion = nullptr;
-            for (const auto& complData : complDataList)
-            {
-                if (complData.completionType() == complType)
-                {
-                    completion = complData.sourcePdmObject();
-                    break;
-                }
-            }
-
-            if (completion)
-            {
-                // Add all cells intersecting this completion
-                for (auto& cellNotOnWellPath : cellsNotOnWellPath)
-                {
-                    if (!cellNotOnWellPath.first) continue;
-
-                    auto complDataList2 = completionCells.at(complCellLookup.at(cellNotOnWellPath.second.globCellIndex));
-                    auto itr = std::find_if(complDataList2.begin(), complDataList2.end(),
-                                            [&completion](const RigCompletionData& cd) { return cd.sourcePdmObject() == completion; });
-
-                    if (itr != complDataList2.end())
-                    {
-                        result.emplace_back( complCellLookup.at(cellNotOnWellPath.second.globCellIndex), complDataList2);
-                        cellNotOnWellPath.first = false;
-                    }
-                }
-            }
-        }
-    }
-
-    return result;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>> RicExportLgrFeature::cellsIntersectingCompletions_PerCompletion(
     RimEclipseCase*                                    eclipseCase,
     const std::vector<RimWellPath*>                    wellPaths,
@@ -1042,13 +939,3 @@ QString LgrNameFactory::newName(const QString& baseName, int number)
     return lgrName.replace(" ", "_");
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void LgrNameFactory::resetNumbering()
-{
-    for (auto& counter : m_counters)
-    {
-        counter.second.second = 1;
-    }
-}
