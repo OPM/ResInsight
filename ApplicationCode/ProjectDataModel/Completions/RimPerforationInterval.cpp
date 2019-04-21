@@ -102,14 +102,6 @@ void RimPerforationInterval::setCustomStartDate(const QDate& date)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPerforationInterval::enableCustomEndDate(bool enable)
-{
-    m_useCustomEndDate = enable;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::setCustomEndDate(const QDate& date)
 {
     if (date.isValid())

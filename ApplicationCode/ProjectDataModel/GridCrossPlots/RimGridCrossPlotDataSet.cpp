@@ -397,19 +397,6 @@ QString RimGridCrossPlotDataSet::timeStepString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimGridCrossPlotDataSet::groupStrings() const
-{
-    std::vector<QString> groupStrings;
-    for (auto curve : m_crossPlotCurves())
-    {
-        groupStrings.push_back(legendConfig()->categoryNameFromCategoryValue(curve->groupIndex()));
-    }
-    return groupStrings;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::map<RimGridCrossPlotDataSet::NameComponents, QString> RimGridCrossPlotDataSet::nameComponents() const
 {
     std::map<RimGridCrossPlotDataSet::NameComponents, QString> componentNames;
