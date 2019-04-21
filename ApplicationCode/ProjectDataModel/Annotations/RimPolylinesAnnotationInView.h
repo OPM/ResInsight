@@ -56,7 +56,6 @@ public:
     ~RimPolylinesAnnotationInView() override {}
 
     bool    isActive() const;
-    void    setSourceAnnotation(RimPolylinesAnnotation* annotation);
     RimPolylinesAnnotation* sourceAnnotation() const;
 
     bool    isVisible() const;

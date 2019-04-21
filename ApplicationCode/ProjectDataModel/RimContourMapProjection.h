@@ -83,11 +83,9 @@ public:
     const std::vector<ContourPolygons>& contourPolygons() const;
     const std::vector<cvf::Vec4d>&      trianglesWithVertexValues();
 
-    ResultAggregation resultAggregation() const;
     double            sampleSpacing() const;
     double            sampleSpacingFactor() const;
     bool              showContourLines() const;
-    bool              showContourLabels() const;
 
     QString resultAggregationText() const;
 
@@ -103,7 +101,6 @@ public:
     bool isColumnResult() const;
 
     double valueAtVertex(uint i, uint j) const;
-    bool   hasResultAtVertex(uint i, uint j) const;
 
     uint   numberOfCells() const;
     uint   numberOfValidCells() const;
@@ -171,7 +168,6 @@ protected:
                                                                   const std::vector<double>& weightingResultValues) const;
 
     bool        isMeanResult() const;
-    bool        isSummationResult() const;
     bool        isStraightSummationResult() const;
     static bool isStraightSummationResult(ResultAggregationEnum aggregationType);
 

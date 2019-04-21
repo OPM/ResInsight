@@ -36,22 +36,6 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
-//--------------------------------------------------------------------------------------------------
-/// Internal function
-//--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> xydToXyzVector(const std::vector<cvf::Vec3d>& xyds)
-{
-    std::vector<cvf::Vec3d> xyzs;
-    for (const auto& xyd : xyds)
-    {
-        auto xyz = xyd;
-        xyz.z() = -xyd.z();
-        xyzs.push_back(xyz);
-    }
-    return xyzs;
-}
-
-
 CAF_PDM_SOURCE_INIT(RimUserDefinedPolylinesAnnotation, "UserDefinedPolylinesAnnotation");
 
 //--------------------------------------------------------------------------------------------------

@@ -23,7 +23,6 @@
 RigLocalGrid::RigLocalGrid(RigMainGrid* mainGrid): 
     RigGridBase(mainGrid),
     m_parentGrid(nullptr), 
-    m_positionInParentGrid(cvf::UNDEFINED_SIZE_T),
     m_isTempGrid(false),
     m_associatedWellPathName("")
 {
@@ -49,22 +48,6 @@ RigGridBase * RigLocalGrid::parentGrid() const
 void RigLocalGrid::setParentGrid(RigGridBase * parentGrid)
 {
     m_parentGrid = parentGrid;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigLocalGrid::positionInParentGrid() const
-{
-    return m_positionInParentGrid;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigLocalGrid::setPositionInParentGrid(size_t positionInParentGrid)
-{
-    m_positionInParentGrid = positionInParentGrid;
 }
 
 //--------------------------------------------------------------------------------------------------
