@@ -150,7 +150,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
 
     m_categoryMapper = new caf::CategoryMapper;
 
-    cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
+    cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
     m_scalarMapperLegend = new caf::OverlayScalarMapperLegend(standardFont);
     m_categoryLegend = new caf::CategoryLegend(standardFont, m_categoryMapper.p());
 

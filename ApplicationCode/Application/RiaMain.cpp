@@ -16,14 +16,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
 int main(int argc, char *argv[])
 {
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
 
-    RiaApplication app(argc, argv);
+    RiaGuiApplication app(argc, argv);
 
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
     setlocale(LC_NUMERIC,"C");
