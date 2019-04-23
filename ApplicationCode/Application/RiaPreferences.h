@@ -22,6 +22,7 @@
 #pragma once
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
 
@@ -65,7 +66,7 @@ public:
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
 public: // Pdm Fields
-    caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;
+    caf::PdmField<caf::AppEnum< RiaGuiApplication::RINavigationPolicy > > navigationPolicy;
 
     caf::PdmField<QString>  scriptDirectories;
     caf::PdmField<QString>  scriptEditorExecutable;
