@@ -1615,7 +1615,8 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
                         // HACK: Ert returns open as "this is equally wrong as closed for well heads". 
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
-                        wellResFrame.m_wellHead.m_isOpen = false; 
+                        // However, this will always yield closed connections. Instead base it on the full well result.
+                        wellResFrame.m_wellHead.m_isOpen = wellResFrame.m_isOpen;
                         break;
                     }
                 }
@@ -1950,7 +1951,8 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                         RigWellResultPoint wellHeadRp = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1, wellName);
                         // HACK: Ert returns open as "this is equally wrong as closed for well heads". 
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
-                        wellHeadRp.m_isOpen = false;
+                        // However, this will always yield closed connections. Instead base it on the full well result
+                        wellHeadRp.m_isOpen = wellResFrame.m_isOpen;
 
                         if (!subCellConnCalc.hasSubCellConnection(wellHeadRp))  wellResFrame.m_wellHead = wellHeadRp;
                     }
