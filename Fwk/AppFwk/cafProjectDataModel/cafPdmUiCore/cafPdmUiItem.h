@@ -39,6 +39,7 @@
 
 #include "cafPdmUiFieldSpecialization.h"
 
+#include <QGuiApplication>
 #include <QString>
 #include <QIcon>
 #include <QVariant>
@@ -64,6 +65,24 @@ public:
         , m_isCustomContextMenuEnabled(-1)
     {}
 
+    PdmUiItemInfo(const QString& uiName, QString iconName = "", QString toolTip = "", QString whatsThis = "", QString extraDebugText = "")
+        : m_uiName(uiName)
+        , m_icon()
+        , m_toolTip(toolTip)
+        , m_whatsThis(whatsThis)
+        , m_extraDebugText(extraDebugText)
+        , m_editorTypeName("")
+        , m_isHidden(false)
+        , m_isTreeChildrenHidden(false)
+        , m_isReadOnly(false)
+        , m_labelAlignment(LEFT)
+        , m_isCustomContextMenuEnabled(false)
+    {
+        if (dynamic_cast<QGuiApplication*>(QCoreApplication::instance()))
+        {
+            m_icon = QIcon(iconName);
+        }
+    }
     PdmUiItemInfo(const QString& uiName, QIcon icon = QIcon(), QString toolTip = "", QString whatsThis = "", QString extraDebugText = "")
         : m_uiName(uiName)
         , m_icon(icon)
@@ -219,6 +238,7 @@ public:
 
     const QIcon      uiIcon(const QString& uiConfigName = "") const;
     void             setUiIcon(const QIcon& uiIcon, const QString& uiConfigName = ""); 
+    void             setUiIcon(const QString& uiIconName, const QString& uiConfigName = "");
 
     const QColor     uiContentTextColor(const QString& uiConfigName = "") const;
     void             setUiContentTextColor(const QColor& uiIcon, const QString& uiConfigName = ""); 

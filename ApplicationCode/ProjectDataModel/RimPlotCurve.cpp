@@ -494,6 +494,7 @@ void RimPlotCurve::updateUiIconFromPlotSymbol()
 {
     if (m_pointSymbol() != RiuQwtSymbol::NoSymbol)
     {
+        CVF_ASSERT(dynamic_cast<QGuiApplication*>(QCoreApplication::instance()));
         QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
 
         QSizeF iconSize(24, 24);

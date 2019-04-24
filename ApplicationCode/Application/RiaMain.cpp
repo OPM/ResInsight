@@ -16,31 +16,51 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RiaArgumentParser.h"
+#include "RiaConsoleApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+
+#include "cvfProgramOptions.h"
+#include "cvfqtUtils.h"
+
+RiaApplication* createApplication(int &argc, char *argv[])
+{
+    for (int i = 1; i < argc; ++i)
+        if (!qstrcmp(argv[i], "--console"))
+        {
+            return new RiaConsoleApplication(argc, argv);
+        }
+    return new RiaGuiApplication(argc, argv);
+}
 
 int main(int argc, char *argv[])
 {
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
 
-    RiaGuiApplication app(argc, argv);
-    app.initialize();
+    std::unique_ptr<RiaApplication> app (createApplication(argc, argv));
+    app->initialize();
 
+    cvf::ProgramOptions progOpt;
+
+    bool result    = RiaArgumentParser::parseArguments(&progOpt);
+
+    if (!result)
+    {
+        const cvf::String usageText = progOpt.usageText(110, 30);
+        app->showInformationMessage(RiaApplication::commandLineParameterHelp() + cvfqt::Utils::toQString(usageText));
+        app->cleanupBeforeProgramExit();
+    }
+  
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
     setlocale(LC_NUMERIC,"C");
 
-    int unitTestResult = app.parseArgumentsAndRunUnitTestsIfRequested();
-    if (unitTestResult > -1)
-    {
-        return unitTestResult;
-    }
-     
-    if (app.parseArguments())
+    if (app->handleArguments(&progOpt))
     {
         int exitCode = 0;
         try
         {
-            exitCode = app.exec();
+            exitCode = QCoreApplication::instance()->exec();
         }
         catch (std::exception& exep )
         {

@@ -210,6 +210,19 @@ void PdmUiItem::setUiIcon(const QIcon& uiIcon, const QString& uiConfigName /*= "
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiItem::setUiIcon(const QString& uiIconName, const QString& uiConfigName /*= ""*/)
+{
+    QIcon uiIcon;
+    if (dynamic_cast<QGuiApplication*>(QCoreApplication::instance()))
+    {
+        uiIcon = QIcon(uiIconName);
+    }
+    m_configItemInfos[uiConfigName].m_icon = uiIcon;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const QColor PdmUiItem::uiContentTextColor(const QString& uiConfigName) const
 {
     const PdmUiItemInfo* conInfo = configInfo(uiConfigName);

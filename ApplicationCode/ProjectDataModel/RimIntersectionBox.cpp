@@ -543,21 +543,21 @@ void RimIntersectionBox::updateVisibility()
     if (m_singlePlaneState == PLANE_STATE_X)
     {
         m_maxXCoord.uiCapability()->setUiReadOnly(true);
-        this->setUiIcon(QIcon(QString(":/IntersectionXPlane16x16.png")));
+        this->setUiIcon(QString(":/IntersectionXPlane16x16.png"));
     }
     else if (m_singlePlaneState == PLANE_STATE_Y)
     {
         m_maxYCoord.uiCapability()->setUiReadOnly(true);
-        this->setUiIcon(QIcon(QString(":/IntersectionYPlane16x16.png")));
+        this->setUiIcon(QString(":/IntersectionYPlane16x16.png"));
     }
     else if (m_singlePlaneState == PLANE_STATE_Z)
     {
         m_maxDepth.uiCapability()->setUiReadOnly(true);
-        this->setUiIcon(QIcon(QString(":/IntersectionZPlane16x16.png")));
+        this->setUiIcon(QString(":/IntersectionZPlane16x16.png"));
     }
     else
     {
-        this->setUiIcon(QIcon(QString(":/IntersectionBox16x16.png")));
+        this->setUiIcon(QString(":/IntersectionBox16x16.png"));
     }
 }
 
