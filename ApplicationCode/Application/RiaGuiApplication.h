@@ -1,19 +1,17 @@
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
-// 
+//  Copyright (C) 2019-     Equinor ASA
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -67,11 +65,6 @@ class RiuMdiMaximizeWindowGuard;
 class RiuPlotMainWindow;
 class RiuRecentFileActionProvider;
 class RiaArgumentParser;
-
-namespace caf
-{
-    class UiProcess;
-}
 
 //==================================================================================================
 //
@@ -142,11 +135,12 @@ public:
 
     // Public RiaApplication overrides
     void                initialize() override;
-    bool                parseArguments() override;
+    bool                handleArguments(cvf::ProgramOptions* progOpt) override;
     int                 launchUnitTestsWithConsole() override;
     void                addToRecentFiles(const QString& fileName) override;
     void                showInformationMessage(const QString& text) override;
     void                showErrorMessage(const QString& errMsg) override;
+    void                cleanupBeforeProgramExit() override;
 protected:
     // Protected RiaApplication overrides
     void                handleEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;    

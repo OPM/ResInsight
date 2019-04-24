@@ -85,7 +85,7 @@ class PdmObjectCapability;
     this->isInheritedFromPdmUiObject(); \
     this->isInheritedFromPdmXmlSerializable(); \
     \
-    static caf::PdmUiItemInfo objDescr(uiName, QIcon(QString(iconResourceName)), toolTip, whatsThis); \
+    static caf::PdmUiItemInfo objDescr(uiName, QString(iconResourceName), toolTip, whatsThis); \
     this->setUiItemInfo(&objDescr); \
 }
 
@@ -106,7 +106,7 @@ class PdmObjectCapability;
     AddXmlCapabilityToField(field); \
     AddUiCapabilityToField(field); \
     \
-    static caf::PdmUiItemInfo objDescr(uiName, QIcon(QString(iconResourceName)), toolTip, whatsThis, keyword); \
+    static caf::PdmUiItemInfo objDescr(uiName, QString(iconResourceName), toolTip, whatsThis, keyword); \
     addFieldUi(field, keyword, default, &objDescr); \
 }
 
@@ -124,7 +124,7 @@ class PdmObjectCapability;
     AddXmlCapabilityToField(field); \
     AddUiCapabilityToField(field); \
     \
-    static caf::PdmUiItemInfo objDescr(uiName, QIcon(QString(iconResourceName)), toolTip, whatsThis, keyword); \
+    static caf::PdmUiItemInfo objDescr(uiName, QString(iconResourceName), toolTip, whatsThis, keyword); \
     addFieldUiNoDefault(field, keyword, &objDescr); \
 }
 

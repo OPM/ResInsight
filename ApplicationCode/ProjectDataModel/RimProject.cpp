@@ -174,7 +174,7 @@ RimProject::RimProject(void)
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.uiCapability()->setUiHidden(true);
     scriptCollection->uiCapability()->setUiName("Scripts");
-    scriptCollection->uiCapability()->setUiIcon(QIcon(":/octave.png"));
+    scriptCollection->uiCapability()->setUiIcon(":/octave.png");
 
     mainPlotCollection = new RimMainPlotCollection();
 
@@ -771,7 +771,6 @@ RimOilField* RimProject::activeOilField()
 //--------------------------------------------------------------------------------------------------
 const RimOilField * RimProject::activeOilField() const
 {
-    qDebug() << oilFields.size();
     CVF_ASSERT(oilFields.size() == 1);
   
     return oilFields[0];

@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -14,7 +16,7 @@
 //  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
-/////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include "RiaDefines.h"
@@ -67,6 +69,11 @@ namespace caf
 class UiProcess;
 }
 
+namespace cvf
+{
+class ProgramOptions;
+}
+
 //==================================================================================================
 /// Base class for all ResInsight applications. I.e. console and GUI
 ///
@@ -85,7 +92,6 @@ public:
     RiaApplication();
     virtual ~RiaApplication();
 
-    int                parseArgumentsAndRunUnitTestsIfRequested();
     static const char* getVersionStringApp(bool includeCrtInfo);
     static bool        enableDevelopmentFeatures();
     
@@ -137,7 +143,7 @@ public:
     RiaPreferences* preferences();
     void            applyPreferences(const RiaPreferences* oldPreferences = nullptr);
 
-    QString commandLineParameterHelp() const;
+    static QString commandLineParameterHelp();
 
     void     setCacheDataObject(const QString& key, const QVariant& dataObject);
     QVariant cacheDataObject(const QString& key) const;
@@ -155,23 +161,25 @@ public:
 
     // Public implementation specific overrides
     virtual void initialize();
-    virtual bool parseArguments() = 0;
-    virtual int  launchUnitTestsWithConsole() = 0;
+    virtual bool handleArguments(cvf::ProgramOptions* progOpt) = 0;
+    virtual int  launchUnitTestsWithConsole();
     virtual void addToRecentFiles(const QString& fileName) {}
     virtual void showInformationMessage(const QString& infoText) = 0;
     virtual void showErrorMessage(const QString& errMsg) = 0;
+    virtual void cleanupBeforeProgramExit() {}
+
 protected:
     // Protected implementation specific overrides
     virtual void handleEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) = 0;
-    virtual void onChangedActiveReservoirView() = 0;
-    virtual void onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) = 0;
-    virtual void onProjectBeingOpened() = 0;
+    virtual void onChangedActiveReservoirView() {}
+    virtual void onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) {}
+    virtual void onProjectBeingOpened() {}
     virtual void onProjectOpened() = 0;
     virtual void onProjectOpeningError(const QString& errMsg) = 0;
-    virtual void onProjectBeingClosed() = 0;
+    virtual void onProjectBeingClosed() {}
     virtual void onProjectClosed() = 0;
-    virtual void startMonitoringWorkProgress(caf::UiProcess* uiProcess) = 0;
-    virtual void stopMonitoringWorkProgress() = 0;
+    virtual void startMonitoringWorkProgress(caf::UiProcess* uiProcess) {}
+    virtual void stopMonitoringWorkProgress() {}
 
 protected:
     caf::PdmPointer<Rim3dView>  m_activeReservoirView;
@@ -194,8 +202,6 @@ protected:
 
     std::list<RimCommandObject*> m_commandQueue;
     QMutex                       m_commandQueueLock;
-
-    QString m_helpText;
 
     bool m_runningWorkerProcess;
 

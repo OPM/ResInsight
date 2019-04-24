@@ -136,11 +136,6 @@ RiaApplication::RiaApplication()
 #endif
 
     setLastUsedDialogDirectory("MULTICASEIMPORT", "/");
-
-    QString helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(RiaApplication::getVersionStringApp(false));
-    helpText += "Copyright Equinor ASA, Ceetron Solution AS, Ceetron AS\n\n";
-
-    m_helpText = helpText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,35 +144,6 @@ RiaApplication::RiaApplication()
 RiaApplication::~RiaApplication()
 {
     delete m_preferences;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Return -1 if unit test is not executed, returns 0 if test passed, returns 1 if tests failed
-//--------------------------------------------------------------------------------------------------
-int RiaApplication::parseArgumentsAndRunUnitTestsIfRequested()
-{
-    cvf::ProgramOptions progOpt;
-    progOpt.registerOption("unittest", "", "Execute unit tests");
-    progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
-
-    QStringList arguments = QCoreApplication::arguments();
-
-    bool parseOk = progOpt.parse(cvfqt::Utils::toStringVector(arguments));
-    if (!parseOk)
-    {
-        return -1;
-    }
-
-    // Unit testing
-    // --------------------------------------------------------
-    if (cvf::Option o = progOpt.option("unittest"))
-    {
-        int testReturnValue = launchUnitTestsWithConsole();
-
-        return testReturnValue;
-    }
-
-    return -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1081,9 +1047,11 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaApplication::commandLineParameterHelp() const
+QString RiaApplication::commandLineParameterHelp()
 {
-    return m_helpText;
+    QString helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(RiaApplication::getVersionStringApp(false));
+    helpText += "Copyright Equinor ASA, Ceetron Solution AS, Ceetron AS\n\n";
+    return helpText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1285,4 +1253,12 @@ void RiaApplication::initialize()
     // Start with a project
     m_project = new RimProject;
     m_project->initScriptDirectories(m_preferences->scriptDirectories());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaApplication::launchUnitTestsWithConsole()
+{
+    return launchUnitTests();
 }

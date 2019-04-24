@@ -64,11 +64,11 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
  
     caseCollection = new RimCaseCollection;
     caseCollection->uiCapability()->setUiName("Source Cases");
-    caseCollection->uiCapability()->setUiIcon(QIcon(":/Cases16x16.png"));
+    caseCollection->uiCapability()->setUiIcon(":/Cases16x16.png");
 
     statisticsCaseCollection = new RimCaseCollection;
     statisticsCaseCollection->uiCapability()->setUiName("Derived Statistics");
-    statisticsCaseCollection->uiCapability()->setUiIcon(QIcon(":/Histograms16x16.png"));
+    statisticsCaseCollection->uiCapability()->setUiIcon(":/Histograms16x16.png");
 
 
     m_mainGrid = nullptr;

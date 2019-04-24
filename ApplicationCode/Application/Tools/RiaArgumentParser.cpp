@@ -56,6 +56,7 @@
 bool RiaArgumentParser::parseArguments(cvf::ProgramOptions* progOpt)
 {
     CVF_ASSERT(progOpt);
+    progOpt->registerOption("console", "", "Run as a console application without Graphics");
     progOpt->registerOption("last", "", "Open last used project.");
     progOpt->registerOption("project", "<filename>", "Open project file <filename>.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt->registerOption("case",

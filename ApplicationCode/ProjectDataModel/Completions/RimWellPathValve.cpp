@@ -184,13 +184,13 @@ void RimWellPathValve::applyValveLabelAndIcon()
 {
     if (componentType() == RiaDefines::ICV)
     {
-        this->setUiIcon(QIcon(":/ICVValve16x16.png"));
+        this->setUiIcon(":/ICVValve16x16.png");
         QString fullName = QString("%1: %2").arg(componentLabel()).arg(m_measuredDepth());
         this->setName(fullName);
     }
     else if (componentType() == RiaDefines::ICD)
     {
-        this->setUiIcon(QIcon(":/ICDValve16x16.png"));
+        this->setUiIcon(":/ICDValve16x16.png");
         QString fullName = QString("%1 %2: %3 - %4")
                                .arg(m_multipleValveLocations->valveLocations().size())
                                .arg(componentLabel())
@@ -200,7 +200,7 @@ void RimWellPathValve::applyValveLabelAndIcon()
     }
     else if (componentType() == RiaDefines::AICD)
     {
-        this->setUiIcon(QIcon(":/AICDValve16x16.png"));
+        this->setUiIcon(":/AICDValve16x16.png");
         QString fullName = QString("%1 %2: %3 - %4")
                                .arg(m_multipleValveLocations->valveLocations().size())
                                .arg(componentLabel())
