@@ -166,7 +166,6 @@ protected:
     virtual void                            setDefaultView();
     void                                    disableGridBoxField();
     void                                    disablePerspectiveProjectionField();
-    void                                    enablePerspectiveProjectionField();
     cvf::Mat4d                              cameraPosition() const;
     cvf::Vec3d                              cameraPointOfInterest() const;
     RimViewNameConfig*                      nameConfig() const;

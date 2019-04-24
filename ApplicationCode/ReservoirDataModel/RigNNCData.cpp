@@ -44,7 +44,6 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
         const RigCell& c1 = mainGrid.globalCellArray()[m_connections[cnIdx].m_c1GlobIdx];
         const RigCell& c2 = mainGrid.globalCellArray()[m_connections[cnIdx].m_c2GlobIdx];
 
-        bool foundAnyOverlap = false;
         std::vector<size_t> connectionPolygon;
         std::vector<cvf::Vec3d> connectionIntersections;
         cvf::StructGridInterface::FaceType connectionFace = cvf::StructGridInterface::NO_FACE;
@@ -53,7 +52,6 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
 
         if (connectionFace != cvf::StructGridInterface::NO_FACE)
         {
-            foundAnyOverlap = true;
             // Found an overlap polygon. Store data about connection
 
             m_connections[cnIdx].m_c1Face = connectionFace;

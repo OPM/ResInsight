@@ -73,7 +73,7 @@ const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellIntersectionAreas() const
 {
@@ -81,7 +81,7 @@ const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellPermeabilities() const
 {
@@ -101,21 +101,6 @@ double RigEclipseToStimPlanCellTransmissibilityCalculator::areaOpenForFlow() con
     }
 
     return area;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RigEclipseToStimPlanCellTransmissibilityCalculator::aggregatedMatrixTransmissibility() const
-{
-    double totalTransmissibility = 0.0;
-
-    for (const auto& trans : m_contributingEclipseCellTransmissibilities)
-    {
-        totalTransmissibility += trans;
-    }
-
-    return totalTransmissibility;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -377,5 +362,6 @@ cvf::ref<RigResultAccessor>
     const RigEclipseCaseData*     eclipseCaseData = eclipseCase->eclipseCaseData();
 
     // Create result accessor object for main grid at time step zero (static result date is always at first time step
-    return RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, 0, porosityModel, 0, RigEclipseResultAddress(uiResultName));
+    return RigResultAccessorFactory::createFromResultAddress(
+        eclipseCaseData, 0, porosityModel, 0, RigEclipseResultAddress(uiResultName));
 }

@@ -220,14 +220,6 @@ const std::vector<cvf::Vec4d>& RimContourMapProjection::trianglesWithVertexValue
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapProjection::ResultAggregation RimContourMapProjection::resultAggregation() const
-{
-    return m_resultAggregation();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::sampleSpacing() const
 {
     return m_sampleSpacing;
@@ -247,14 +239,6 @@ double RimContourMapProjection::sampleSpacingFactor() const
 bool RimContourMapProjection::showContourLines() const
 {
     return m_showContourLines();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::showContourLabels() const
-{
-    return m_showContourLines() && m_showContourLabels();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -346,15 +330,6 @@ double RimContourMapProjection::valueAtVertex(uint i, uint j) const
         return m_aggregatedVertexResults.at(index);
     }
     return std::numeric_limits<double>::infinity();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::hasResultAtVertex(uint i, uint j) const
-{
-    size_t index = vertexIndexFromIJ(i, j);
-    return m_aggregatedVertexResults[index] != std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1409,14 +1384,6 @@ bool RimContourMapProjection::isMeanResult() const
 {
     return m_resultAggregation() == RESULTS_MEAN_VALUE || m_resultAggregation() == RESULTS_HARM_VALUE ||
            m_resultAggregation() == RESULTS_GEOM_VALUE;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::isSummationResult() const
-{
-    return isStraightSummationResult() || m_resultAggregation() == RESULTS_VOLUME_SUM;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -183,7 +183,6 @@ cvf::Vec3d RigFisbonesGeometry::closestMainAxis(const cvf::Vec3d& vec)
     if (cvf::Math::abs(vec.z()) > maxValue)
     {
         maxComponent = 2;
-        maxValue = cvf::Math::abs(vec.z());
     }
 
     if (maxComponent == 0)

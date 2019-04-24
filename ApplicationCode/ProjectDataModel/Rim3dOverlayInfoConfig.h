@@ -87,7 +87,6 @@ public:
     bool          showCaseInfo() const;
     bool          showResultInfo() const;
     bool          isActive() const;
-    void          setIsActive(bool active);
 
     bool          showVersionInfo() const;
 

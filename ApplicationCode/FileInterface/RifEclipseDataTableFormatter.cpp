@@ -134,14 +134,6 @@ void RifEclipseDataTableFormatter::setUnlimitedDataRowWidth()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseDataTableFormatter::setMaxDataRowWidth(int maxWidth)
-{
-    m_maxDataRowWidth = maxWidth;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 int RifEclipseDataTableFormatter::maxDataRowWidth() const
 {
     return m_maxDataRowWidth;
@@ -270,29 +262,6 @@ void RifEclipseDataTableFormatter::tableCompleted(const QString& appendText, boo
     {
         m_out << m_tableRowPrependText << appendText << (appendNewline ? "\n" : "");
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifEclipseDataTableFormatter::addValueTable(QTextStream& stream, const QString& name, size_t columns, const std::vector<double>& values)
-{
-    RifEclipseDataTableFormatter subFormatter(stream);
-
-    std::vector<RifEclipseOutputTableColumn> cols(columns, RifEclipseOutputTableColumn(""));
-
-    subFormatter.setTableRowPrependText("");
-    subFormatter.keyword(name);
-    subFormatter.header(cols);
-
-    int colCount = 0;
-    for (size_t i = 0; i < values.size(); i++)
-    {
-        subFormatter.add(values[i]);
-        if (++colCount % columns == 0 && i < values.size() - 1) subFormatter.rowCompleted("");
-    }
-    subFormatter.rowCompleted();
-    subFormatter.tableCompleted("", false);
 }
 
 //--------------------------------------------------------------------------------------------------

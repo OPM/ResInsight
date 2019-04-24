@@ -42,9 +42,7 @@ public:
     RimAnnotationTextAppearance();
 
     void                setFontSize(FontSize size);
-    void                setFontColor(const cvf::Color3f& newColor);
     void                setBackgroundColor(const cvf::Color3f& newColor);
-    void                setAnchorLineColor(const cvf::Color3f& newColor);
     
     FontSize            fontSize() const;
     cvf::Color3f        fontColor() const;

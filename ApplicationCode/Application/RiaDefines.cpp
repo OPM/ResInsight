@@ -540,7 +540,7 @@ QString RiaDefines::defaultDirectoryLabel(RiaDefines::ImportFileType fileType)
     {
         defaultDirLabel = "GENERAL_DATA";
     }
-    else if (fileType & (ECLIPSE_GRID_FILE | fileType & ECLIPSE_EGRID_FILE))
+    else if (fileType & ECLIPSE_RESULT_GRID)
     {
         defaultDirLabel = "BINARY_GRID";
     }

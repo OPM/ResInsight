@@ -22,7 +22,6 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
-#include "RiaQIconTools.h"
 
 #include "RimGridView.h"
 

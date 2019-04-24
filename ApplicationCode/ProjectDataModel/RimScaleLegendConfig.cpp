@@ -442,17 +442,6 @@ RimLegendConfig::RangeModeType RimScaleLegendConfig::rangeMode() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimScaleLegendConfig::setCurrentScale(double scale)
-{
-    m_currentScale = scale;
-
-    // Update legend
-    updateLegend();
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimScaleLegendConfig::setUiValuesFromLegendConfig(const RimScaleLegendConfig* otherLegendConfig)

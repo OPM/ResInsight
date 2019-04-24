@@ -109,7 +109,7 @@ void RicCreateMultipleFracturesOptionItemUi::fieldChangedByUi(const caf::PdmFiel
     {
         if (m_topKOneBased > m_baseKOneBased) m_baseKOneBased = m_topKOneBased;
     }
-    else if (changedField = &m_baseKOneBased)
+    else if (changedField == &m_baseKOneBased)
     {
         if (m_baseKOneBased < m_topKOneBased) m_topKOneBased = m_baseKOneBased;
     }

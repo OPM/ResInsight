@@ -120,7 +120,6 @@ public:
     QString commentPrefix() const;
     void setCommentPrefix(const QString& commentPrefix);
     void setUnlimitedDataRowWidth();
-    void setMaxDataRowWidth(int maxWidth);
     int  maxDataRowWidth() const;
 
     RifEclipseDataTableFormatter& keyword(const QString& keyword);
@@ -137,8 +136,6 @@ public:
     void                          rowCompleted(const QString& appendText);
     void                          tableCompleted();
     void                          tableCompleted(const QString& appendText, bool appendNewline);
-
-    static void                   addValueTable(QTextStream& stream, const QString& keyword, size_t columns, const std::vector<double>& values);
 
     int tableWidth() const;
 

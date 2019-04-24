@@ -144,20 +144,6 @@ cvf::Color3f RiaColorTools::fromQColorTo3f(QColor color)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-float RiaColorTools::contrastRatio(cvf::Color3f color1, cvf::Color3f color2)
-{
-    float L1 = relativeLuminance(color1);
-    float L2 = relativeLuminance(color2);
-
-    float Lmin = std::min(L1, L2);
-    float Lmax = std::max(L1, L2);
-
-    return (Lmax + 0.05) / (Lmin + 0.05);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 float RiaColorTools::relativeLuminance(cvf::Color3f backgroundColor)
 {
     float R = calculateNonLinearColorValue(backgroundColor.r());

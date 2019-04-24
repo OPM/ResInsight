@@ -149,7 +149,6 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     if (!fileExists(fileName, errorText)) return nullptr;
 
     RimObservedData* observedData = nullptr;
-    bool parseOk = false;
 
     RimCsvUserData* userData = new RimCsvUserData();
     RicPasteAsciiDataToSummaryPlotFeatureUi* parseOptions = userData->parseOptions();
@@ -186,7 +185,6 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     {
         this->m_observedDataArray.push_back(userData);
         observedData = userData;
-        parseOk = true;
     }
     else
     {

@@ -965,7 +965,6 @@ std::vector<QString> RimProject::simulationWellNames() const
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RimProject::wellPathFromSimWellName(const QString& simWellName, int branchIndex)
 {
-    std::vector<RimWellPath*> paths;
     for (RimWellPath* const path : allWellPaths())
     {
         if (QString::compare(path->associatedSimulationWellName(), simWellName) == 0 &&

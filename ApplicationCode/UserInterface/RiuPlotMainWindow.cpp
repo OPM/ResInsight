@@ -886,7 +886,6 @@ void RiuPlotMainWindow::clearWindowTiling()
 {
     QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
 
-    std::list<QMdiSubWindow*> windowList;
     for (QMdiSubWindow* subWindow : m_mdiArea->subWindowList(currentActivationOrder))
     {
         subWindow->hide();

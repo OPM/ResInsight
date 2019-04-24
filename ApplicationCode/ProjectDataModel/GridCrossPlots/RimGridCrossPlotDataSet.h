@@ -113,7 +113,6 @@ public:
     QString              caseNameString() const;
     QString              axisVariableString() const;
     QString              timeStepString() const;
-    std::vector<QString> groupStrings() const;
 
     std::map<NameComponents, QString> nameComponents() const;
 

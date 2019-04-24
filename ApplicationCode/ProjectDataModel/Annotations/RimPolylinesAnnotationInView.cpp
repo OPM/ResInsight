@@ -63,14 +63,6 @@ bool RimPolylinesAnnotationInView::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylinesAnnotationInView::setSourceAnnotation(RimPolylinesAnnotation* annotation)
-{
-    m_sourceAnnotation = annotation;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimPolylinesAnnotation* RimPolylinesAnnotationInView::sourceAnnotation() const
 {
     return m_sourceAnnotation;
