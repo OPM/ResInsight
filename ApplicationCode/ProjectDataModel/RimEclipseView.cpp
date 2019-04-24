@@ -1717,7 +1717,7 @@ bool RimEclipseView::isTimeStepDependentDataVisible() const
         if (this->faultResultSettings()->customFaultResult()->isTernarySaturationSelected()) return true;
     }
 
-    if (this->wellPathCollection()->anyWellsContainingPerforationIntervals()) return true;
+    if (this->wellPathCollection() && this->wellPathCollection()->anyWellsContainingPerforationIntervals()) return true;
 
     if (this->hasVisibleTimeStepDependent3dWellLogCurves()) return true;
 

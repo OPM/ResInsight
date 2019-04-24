@@ -1638,7 +1638,7 @@ void RiuMainWindow::refreshDrawStyleActions()
     if (!eclView)
     {
         Rim2dIntersectionView* intView = dynamic_cast<Rim2dIntersectionView*>(view);
-        if (intView)
+        if (intView && intView->intersection())
         {
             intView->intersection()->firstAncestorOrThisOfType(eclView);
         }
