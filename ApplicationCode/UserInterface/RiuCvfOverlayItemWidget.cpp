@@ -18,7 +18,7 @@
 
 #include "RiuCvfOverlayItemWidget.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "cafTitledOverlayFrame.h"
 #include "cafViewer.h"
@@ -66,7 +66,7 @@ void RiuCvfOverlayItemWidget::updateFromOverlayItem( caf::TitledOverlayFrame * i
     unsigned int height = item->renderSize().y();
 
     QGLFormat glFormat;
-    glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
+    glFormat.setDirectRendering(RiaGuiApplication::instance()->useShaders());
 
     // Enforce no border to avoid
     item->setBackgroundFrameColor(cvf::Color4f(0, 0, 0, 0));
@@ -88,7 +88,7 @@ void RiuCvfOverlayItemWidget::updateFromOverlayItem( caf::TitledOverlayFrame * i
     cvf::ref<cvf::RenderSequence> renderingSequence = new cvf::RenderSequence;
     renderingSequence->addRendering(rendering.p());
 
-    if (RiaApplication::instance()->useShaders())
+    if (RiaGuiApplication::instance()->useShaders())
     {
         // Set up frame and render buffers    
 

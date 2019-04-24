@@ -18,7 +18,7 @@
 
 #include "RiaRegressionTestRunner.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaGitDiff.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
@@ -504,7 +504,7 @@ void RiaRegressionTestRunner::resizeMaximizedPlotWindows()
     RimProject* proj = RiaApplication::instance()->project();
     if (!proj) return;
 
-    RiuPlotMainWindow* plotMainWindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* plotMainWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if (!plotMainWindow) return;
 
     std::vector<RimViewWindow*> viewWindows;

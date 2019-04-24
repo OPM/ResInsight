@@ -67,6 +67,10 @@ namespace caf
 class UiProcess;
 }
 
+//==================================================================================================
+/// Base class for all ResInsight applications. I.e. console and GUI
+///
+//==================================================================================================
 class RiaApplication
 {
 public:
@@ -77,15 +81,15 @@ public:
     };
 
 public:
-    static RiaApplication*   instance();
-
+    static RiaApplication*    instance();
     RiaApplication();
     virtual ~RiaApplication();
 
-    virtual bool parseArguments() = 0;
-    int  parseArgumentsAndRunUnitTestsIfRequested();
+    virtual bool       parseArguments() = 0;
+    int                parseArgumentsAndRunUnitTestsIfRequested();
     static const char* getVersionStringApp(bool includeCrtInfo);
     static bool        enableDevelopmentFeatures();
+    virtual void       addToRecentFiles(const QString& fileName) {}
 
     void             setActiveReservoirView(Rim3dView*);
     Rim3dView*       activeReservoirView();
@@ -140,6 +144,7 @@ public:
     void     setCacheDataObject(const QString& key, const QVariant& dataObject);
     QVariant cacheDataObject(const QString& key) const;
 
+    void executeCommandFile(const QString& commandFile);
     void addCommandObject(RimCommandObject* commandObject);
     void executeCommandObjects();
     void waitUntilCommandObjectsHasBeenProcessed();
@@ -151,10 +156,10 @@ public:
 
     static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
+    virtual void showInformationText(const QString& infoText) = 0;
+
 protected:
-    friend RiaArgumentParser;
-    void setHelpText(const QString& helpText);
-    
+    // Implementation specific overrides
     virtual void handleEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) = 0;
     virtual void onChangedActiveReservoirView() = 0;
     virtual void onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) = 0;

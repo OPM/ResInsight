@@ -20,7 +20,7 @@
 
 #include "RicSaveProjectFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 
 #include <QAction>
@@ -42,9 +42,12 @@ void RicSaveProjectAsFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    RiaApplication* app = RiaApplication::instance();
-
-    app->saveProjectPromptForFileName();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+    if (app)
+    {
+        app->saveProjectPromptForFileName();
+    }
+    
 }
 
 //--------------------------------------------------------------------------------------------------

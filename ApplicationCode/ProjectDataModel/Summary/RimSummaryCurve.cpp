@@ -18,7 +18,7 @@
 
 #include "RimSummaryCurve.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaDefines.h"
 
 #include "RifReaderEclipseSummary.h"
@@ -872,7 +872,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         plot->updatePlotTitle();
         plot->updateConnectedEditors();
 
-        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
 
         if (m_showCurve() == true)
@@ -1030,7 +1030,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         plot->updatePlotTitle();
         plot->updateConnectedEditors();
 
-        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 

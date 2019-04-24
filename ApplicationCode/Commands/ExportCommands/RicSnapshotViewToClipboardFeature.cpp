@@ -19,7 +19,7 @@
 #include "RicSnapshotViewToClipboardFeature.h"
 #include "RicGridStatisticsDialog.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
 #include "RimMainPlotCollection.h"
@@ -82,7 +82,7 @@ void RicSnapshotViewToClipboardFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    RimViewWindow* viewWindow = RiaApplication::activeViewWindow();
+    RimViewWindow* viewWindow = RiaGuiApplication::activeViewWindow();
 
     if (viewWindow)
     {

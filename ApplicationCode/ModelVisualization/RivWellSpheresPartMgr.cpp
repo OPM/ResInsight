@@ -18,7 +18,7 @@
 
 #include "RivWellSpheresPartMgr.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
@@ -137,7 +137,7 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(std::vector<std::pair<cvf:
     }
 
     cvf::ref<cvf::DrawableVectors> vectorDrawable;
-    if (RiaApplication::instance()->useShaders())
+    if (RiaGuiApplication::instance()->useShaders())
     {
         // NOTE: Drawable vectors must be rendered using shaders when the rest of the application is rendered using shaders
         // Drawing vectors using fixed function when rest of the application uses shaders causes visual artifacts
@@ -169,7 +169,7 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart(std::vector<std::pair<cvf:
     part->setDrawable(vectorDrawable.p());
 
     cvf::ref<cvf::Effect> eff = new cvf::Effect;
-    if (RiaApplication::instance()->useShaders())
+    if (RiaGuiApplication::instance()->useShaders())
     {
         if (m_rimReservoirView->viewer())
         {

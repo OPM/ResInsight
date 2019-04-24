@@ -18,7 +18,7 @@
 
 #include "RicExitApplicationFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiuMainWindow.h"
 
 #include <QAction>
@@ -41,7 +41,7 @@ void RicExitApplicationFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    RiaApplication* app = RiaApplication::instance();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
     if (!app->askUserToSaveModifiedProject()) return;
 
     // Hide all windows first to make sure they get closed properly

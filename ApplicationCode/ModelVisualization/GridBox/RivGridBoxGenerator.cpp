@@ -20,7 +20,7 @@
 
 #include "RivGridBoxGenerator.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaColorTools.h"
 
 #include "RivPartPriority.h"
@@ -639,7 +639,7 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
 
         cvf::ref<cvf::DrawableText> geo = new cvf::DrawableText;
         
-        cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
+        cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
         
         geo->setFont(standardFont);
         geo->setTextColor(m_gridLegendColor);

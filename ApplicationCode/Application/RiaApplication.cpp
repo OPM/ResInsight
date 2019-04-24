@@ -29,6 +29,8 @@
 
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
+#include "RicfCommandFileExecutor.h"
+#include "RicfMessages.h"
 #include "RicImportGeneralDataFeature.h"
 
 #include "Rim2dIntersectionViewCollection.h"
@@ -91,7 +93,7 @@
 #include <QFileInfo>
 
 #ifdef WIN32
-#include "synchapi.h"
+#include <windows.h>
 #else
 #include <unistd.h> // for usleep
 #endif // WIN32
@@ -127,6 +129,11 @@ RiaApplication::RiaApplication()
 
     // Start with a project
     m_project = new RimProject;
+
+    QString helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(RiaApplication::getVersionStringApp(false));
+    helpText += "Copyright Equinor ASA, Ceetron Solution AS, Ceetron AS\n\n";
+
+    m_helpText = helpText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -854,8 +861,6 @@ void RiaApplication::addWellLogsToModel(const QList<QString>& wellLogFilePaths)
         m_project->updateConnectedEditors();
     }
 
-    RimWellLogFile* wellLogFile = oilField->wellPathCollection->addWellLogs(wellLogFilePaths);
-
     oilField->wellPathCollection->updateConnectedEditors();
 }
 
@@ -1102,6 +1107,23 @@ QVariant RiaApplication::cacheDataObject(const QString& key) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaApplication::executeCommandFile(const QString& commandFile)
+{
+    QFile        file(commandFile);
+    RicfMessages messages;
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        // TODO : Error logging?
+        return;
+    }
+
+    QTextStream in(&file);
+    RicfCommandFileExecutor::instance()->executeCommands(in);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::addCommandObject(RimCommandObject* commandObject)
 {
     m_commandQueue.push_back(commandObject);
@@ -1245,12 +1267,4 @@ std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileNa
     }
 
     return fileList;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::setHelpText(const QString& helpText)
-{
-    m_helpText = helpText;
 }

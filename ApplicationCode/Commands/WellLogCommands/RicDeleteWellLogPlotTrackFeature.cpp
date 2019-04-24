@@ -20,7 +20,7 @@
 #include "RicDeleteWellLogPlotTrackFeature.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
@@ -67,7 +67,7 @@ void RicDeleteWellLogPlotTrackFeature::onActionTriggered(bool isChecked)
 
     std::vector<RimWellLogTrack*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
-    RiuPlotMainWindow* plotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+    RiuPlotMainWindow* plotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     std::set<RimWellLogPlot*> alteredWellLogPlots;
 
     for (size_t i = 0; i < selection.size(); i++)

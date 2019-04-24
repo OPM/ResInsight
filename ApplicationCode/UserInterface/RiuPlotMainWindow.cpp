@@ -178,7 +178,7 @@ void RiuPlotMainWindow::cleanUpTemporaryWidgets()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::closeEvent(QCloseEvent* event)
 {
-    RiaApplication* app = RiaApplication::instance();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
 
     app->savePlotWinGeoAndDockToolBarLayout();
 
@@ -260,7 +260,7 @@ void RiuPlotMainWindow::createMenus()
     fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
     fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectAsFeature"));
 
-    std::vector<QAction*> recentFileActions = RiaApplication::instance()->recentFileActions();
+    std::vector<QAction*> recentFileActions = RiaGuiApplication::instance()->recentFileActions();
     for (auto act : recentFileActions)
     {
         fileMenu->addAction(act);

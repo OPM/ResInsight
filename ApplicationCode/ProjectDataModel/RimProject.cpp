@@ -20,7 +20,7 @@
 
 #include "RimProject.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaFilePathTools.h"
@@ -384,16 +384,12 @@ void RimProject::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimProject::setupBeforeSave()
 {
-    m_show3DWindow = RiuMainWindow::instance()->isVisible();
+    RiaGuiApplication* guiApp = RiaGuiApplication::instance();
 
-    if (RiaApplication::instance()->mainPlotWindow() &&
-        RiaApplication::instance()->mainPlotWindow()->isVisible())
+    if (guiApp)
     {
-        m_showPlotWindow = true;
-    }
-    else
-    {
-        m_showPlotWindow = false;
+        m_show3DWindow = guiApp->mainWindow()->isVisible();
+        m_showPlotWindow = guiApp->mainPlotWindow() && guiApp->mainPlotWindow()->isVisible();
     }
 
     m_projectFileVersionString = STRPRODUCTVER;

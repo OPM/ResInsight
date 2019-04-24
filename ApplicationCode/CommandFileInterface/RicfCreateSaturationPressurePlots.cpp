@@ -21,7 +21,7 @@
 
 #include "GridCrossPlotCommands/RicCreateSaturationPressurePlotsFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
 #include "RimEclipseResultCase.h"
@@ -79,5 +79,5 @@ void RicfCreateSaturationPressurePlots::execute()
 
     RimSaturationPressurePlotCollection* collection = project->mainPlotCollection()->saturationPressurePlotCollection();
     collection->updateAllRequiredEditors();
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
 }

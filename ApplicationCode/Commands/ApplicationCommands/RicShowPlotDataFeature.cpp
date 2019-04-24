@@ -18,7 +18,7 @@
 
 #include "RicShowPlotDataFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
@@ -211,7 +211,7 @@ void RicShowPlotDataFeature::onActionTriggered(bool isChecked)
         return;
     }
 
-    RiuPlotMainWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     CVF_ASSERT(plotwindow);
 
     for (RimSummaryPlot* summaryPlot : selectedSummaryPlots)
@@ -248,7 +248,7 @@ void RicShowPlotDataFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 void RicShowPlotDataFeature::showTabbedTextWindow(RiuTabbedTextProvider* textProvider)
 {
-    RiuPlotMainWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     CVF_ASSERT(plotwindow);
 
     RiuTabbedTextDialog* textWidget = new RiuTabbedTextDialog(textProvider);
@@ -263,7 +263,7 @@ void RicShowPlotDataFeature::showTabbedTextWindow(RiuTabbedTextProvider* textPro
 //--------------------------------------------------------------------------------------------------
 void RicShowPlotDataFeature::showTextWindow(const QString& title, const QString& text)
 {
-    RiuPlotMainWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     CVF_ASSERT(plotwindow);
 
     RiuTextDialog* textWiget = new RiuTextDialog();

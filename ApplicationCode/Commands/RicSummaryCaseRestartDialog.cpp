@@ -21,7 +21,7 @@
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
 #include "ExportCommands/RicSnapshotFilenameGenerator.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
@@ -611,7 +611,7 @@ void RicSummaryCaseRestartDialog::slotCopyFileNameToClipboard()
 {
     QAction* a = dynamic_cast<QAction*>(sender());
     
-    QClipboard* cb = RiaApplication::clipboard();
+    QClipboard* cb = RiaGuiApplication::clipboard();
     if (cb)
     {
         QString fullFileName = a->data().toString();

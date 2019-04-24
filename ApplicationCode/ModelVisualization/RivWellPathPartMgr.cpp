@@ -21,7 +21,7 @@
 
 #include "RivWellPathPartMgr.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -612,7 +612,7 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
 
     if (wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty())
     {
-        cvf::Font* font = RiaApplication::instance()->defaultWellLabelFont();
+        cvf::Font* font = RiaGuiApplication::instance()->defaultWellLabelFont();
 
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
         drawableText->setFont(font);

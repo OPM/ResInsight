@@ -40,7 +40,7 @@ bool RicOpenLastUsedFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicOpenLastUsedFileFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication* app = RiaApplication::instance();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
 
     if (!app->askUserToSaveModifiedProject()) return;
 

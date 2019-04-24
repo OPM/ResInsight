@@ -20,7 +20,7 @@
 
 #include "RimScaleLegendConfig.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
@@ -110,7 +110,7 @@ RimScaleLegendConfig::RimScaleLegendConfig()
     CAF_PDM_InitField(&resultVariableName, "ResultVariableUsage", QString(""), "", "", "", "");
     resultVariableName.uiCapability()->setUiHidden(true);
 
-    cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
+    cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
     m_scaleLegend = new caf::OverlayScaleLegend(standardFont);
 
     updateFieldVisibility();
@@ -343,7 +343,7 @@ void RimScaleLegendConfig::recreateLegend()
     // has been removed, (and thus the opengl resources has been deleted) The text in 
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
-    cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
+    cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
     m_scaleLegend = new caf::OverlayScaleLegend(standardFont);
 
     updateLegend();

@@ -18,7 +18,7 @@
 
 #include "RicWellLogTools.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RimCase.h"
 #include "RimEclipseResultCase.h"
@@ -205,7 +205,7 @@ RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* 
     plotTrack->updateConnectedEditors();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
-    RiaApplication::instance()->getOrCreateMainPlotWindow();
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem(curve);
 
     if (showPlotWindow)
@@ -257,7 +257,7 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve(RimWellLogTrack* plotTrack, con
     plotTrack->updateConnectedEditors();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
-    RiaApplication::instance()->getOrCreateMainPlotWindow();
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem(curve);
 
     if (showPlotWindow)
@@ -286,7 +286,7 @@ RimWellLogFileCurve* RicWellLogTools::addFileCurve(RimWellLogTrack* plotTrack, b
     plotTrack->updateConnectedEditors();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
-    RiaApplication::instance()->getOrCreateMainPlotWindow();
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem(curve);
 
     if (showPlotWindow)

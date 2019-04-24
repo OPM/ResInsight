@@ -18,7 +18,7 @@
 
 #include "RicViewZoomAllFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "Rim3dView.h"
 #include "RimViewWindow.h"
@@ -47,11 +47,11 @@ void RicViewZoomAllFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    QWidget* topLevelWidget = RiaApplication::activeWindow();
+    QWidget* topLevelWidget = RiaGuiApplication::activeWindow();
 
     if (dynamic_cast<RiuMainWindow*>(topLevelWidget))
     {
-        RimViewWindow* viewWindow = RiaApplication::instance()->activeReservoirView();
+        RimViewWindow* viewWindow = RiaGuiApplication::instance()->activeReservoirView();
         if (viewWindow)
         {
             viewWindow->zoomAll();

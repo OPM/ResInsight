@@ -19,7 +19,7 @@
 
 #include "Rim3dView.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 #include "RiaViewRedrawScheduler.h"
@@ -181,7 +181,7 @@ QString Rim3dView::name() const
 QWidget* Rim3dView::createViewWidget(QWidget* mainWindowParent)
 {
     QGLFormat glFormat;
-    glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
+    glFormat.setDirectRendering(RiaGuiApplication::instance()->useShaders());
 
     m_viewer = new RiuViewer(glFormat, mainWindowParent);
     m_viewer->setOwnerReservoirView(this);
@@ -207,7 +207,7 @@ void Rim3dView::updateViewWidgetAfterCreation()
     this->resetLegendsInViewer();
 
     m_viewer->updateNavigationPolicy();
-    m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
+    m_viewer->enablePerfInfoHud(RiaGuiApplication::instance()->showPerformanceInfo());
 
     m_viewer->mainCamera()->setViewMatrix(m_cameraPosition);
     m_viewer->setPointOfInterest(m_cameraPointOfInterest());

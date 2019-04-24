@@ -18,7 +18,7 @@
 
 #include "RimSummaryPlotSourceStepping.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 
@@ -364,7 +364,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             ensembleCurveColl->updateConnectedEditors();
         }
 
-        RiuPlotMainWindow* mainPlotWindow               = RiaApplication::instance()->getOrCreateMainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow               = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
         bool               forceUpdateOfFieldsInToolbar = true;
         mainPlotWindow->updateSummaryPlotToolBar(forceUpdateOfFieldsInToolbar);
 
@@ -580,7 +580,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
                 curveCollection->updateConnectedEditors();
             }
 
-            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateSummaryPlotToolBar();
         }
     }
