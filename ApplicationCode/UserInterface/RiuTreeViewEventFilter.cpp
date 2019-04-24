@@ -21,7 +21,7 @@
 
 #include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
@@ -104,9 +104,9 @@ bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
         {
             toggleStateForSelection = false;
         }
-        else if (RiaApplication::instance()->mainPlotWindow() && 
-                 RiaApplication::instance()->mainPlotWindow()->projectTreeView() &&
-                 RiaApplication::instance()->mainPlotWindow()->projectTreeView()->isTreeItemEditWidgetActive())
+        else if (RiaGuiApplication::instance()->mainPlotWindow() && 
+                 RiaGuiApplication::instance()->mainPlotWindow()->projectTreeView() &&
+                 RiaGuiApplication::instance()->mainPlotWindow()->projectTreeView()->isTreeItemEditWidgetActive())
         {
             toggleStateForSelection = false;
         }

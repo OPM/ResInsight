@@ -18,7 +18,7 @@
 
 #include "RicSnapshotAllViewsToFileFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaViewRedrawScheduler.h"
 
@@ -151,9 +151,9 @@ bool RicSnapshotAllViewsToFileFeature::isCommandEnabled()
 void RicSnapshotAllViewsToFileFeature::onActionTriggered(bool isChecked)
 {
     QWidget* currentActiveWidget = nullptr;
-    if (RiaApplication::activeViewWindow())
+    if (RiaGuiApplication::activeViewWindow())
     {
-        currentActiveWidget = RiaApplication::activeViewWindow()->viewWidget();
+        currentActiveWidget = RiaGuiApplication::activeViewWindow()->viewWidget();
     }
 
     RicSnapshotAllViewsToFileFeature::saveAllViews();

@@ -18,7 +18,7 @@
 
 #include "RicCreateTemporaryLgrFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaCellDividingTools.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaLogging.h"
@@ -110,7 +110,9 @@ void RicCreateTemporaryLgrFeature::createLgrsForWellPaths(std::vector<RimWellPat
 //--------------------------------------------------------------------------------------------------
 void RicCreateTemporaryLgrFeature::updateViews(RimEclipseCase* eclipseCase)
 {
-    RiaApplication::clearAllSelections();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+
+    app->clearAllSelections();
 
     deleteAllCachedData(eclipseCase);
     RiaApplication::instance()->project()->mainPlotCollection()->deleteAllCachedData();

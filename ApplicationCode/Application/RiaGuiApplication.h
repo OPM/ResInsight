@@ -117,7 +117,6 @@ public:
     cvf::Font*          defaultAnnotationFont();
     cvf::Font*          defaultWellLabelFont();
 
-    void                showFormattedTextInMessageBox(const QString& text);
     int                 launchUnitTestsWithConsole();
 
     RiuMainWindow*      getOrCreateAndShowMainWindow();
@@ -144,10 +143,11 @@ public:
     void                savePlotWinGeoAndDockToolBarLayout();
 
     static void         clearAllSelections();
+    void                showInformationText(const QString& text) override;
 
 protected:
-    void                handleEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;
-    // RiaApplication notification overrides
+    // RiaApplication overrides
+    void                handleEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;    
     void                onChangedActiveReservoirView() override;
     void                onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) override;
     void                onProjectBeingOpened() override;

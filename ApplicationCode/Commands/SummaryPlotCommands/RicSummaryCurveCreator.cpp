@@ -18,7 +18,7 @@
 
 #include "RicSummaryCurveCreator.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
 #include "RiaCurveSetDefinition.h"
 #include "RiaSummaryCurveDefinition.h"
@@ -231,7 +231,7 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
         caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>(m_targetPlot->uiCapability()->objectToggleField());
         field->setValueWithFieldChanged(true);
 
-        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
     }
     else if (changedField == &m_useAutoAppearanceAssignment && m_useAutoAppearanceAssignment)
@@ -912,7 +912,7 @@ void RicSummaryCurveCreator::createNewPlot()
             m_targetPlot = newSummaryPlot;
             updateTargetPlot();
 
-            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateSummaryPlotToolBar();
         }
     }

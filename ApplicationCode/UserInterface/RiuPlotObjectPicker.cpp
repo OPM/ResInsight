@@ -18,7 +18,7 @@
 
 #include "RiuPlotObjectPicker.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiuPlotMainWindow.h"
 
 #include <QMouseEvent>
@@ -39,7 +39,7 @@ RiuPlotObjectPicker::RiuPlotObjectPicker(QWidget* widget, caf::PdmObject* associ
 //--------------------------------------------------------------------------------------------------
 bool RiuPlotObjectPicker::eventFilter(QObject* watchedObject, QEvent* event)
 {
-    RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if (mainPlotWindow && m_associatedObject.notNull())
     {
         if (event->type() == QEvent::MouseButtonPress)

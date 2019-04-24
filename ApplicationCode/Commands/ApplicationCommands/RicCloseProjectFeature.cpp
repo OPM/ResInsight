@@ -18,7 +18,7 @@
 
 #include "RicCloseProjectFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include <QAction>
 
@@ -39,9 +39,8 @@ void RicCloseProjectFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    RiaApplication* app = RiaApplication::instance();
-
-    if (!app->askUserToSaveModifiedProject()) return;
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+    if (!app || !app->askUserToSaveModifiedProject()) return;
 
     app->closeProject();
 }

@@ -20,7 +20,7 @@
 
 #include "RicfCommandFileExecutor.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaProjectModifier.h"
 
@@ -39,6 +39,12 @@ RicfExportMultiCaseSnapshots::RicfExportMultiCaseSnapshots()
 //--------------------------------------------------------------------------------------------------
 void RicfExportMultiCaseSnapshots::execute()
 {
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+    if (!app)
+    {
+        RiaLogging::error("exportMultiCaseSnapshots: Requires GUI Application");
+        return;
+    }
     if (m_gridListFile().isNull())
     {
         RiaLogging::error("exportMultiCaseSnapshots: Required parameter gridListFile.");
@@ -53,5 +59,5 @@ void RicfExportMultiCaseSnapshots::execute()
     }
 
     std::vector<QString> listFileNames = RiaApplication::readFileListFromTextFile(m_gridListFile());
-    RiaApplication::instance()->runMultiCaseSnapshots(lastProjectPath, listFileNames, RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::SNAPSHOTS));
+    app->runMultiCaseSnapshots(lastProjectPath, listFileNames, RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::SNAPSHOTS));
 }

@@ -18,7 +18,7 @@
 
 #include "RiuMeasurementEventFilter.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RimMeasurement.h"
 
@@ -39,7 +39,7 @@ RiuMeasurementEventFilter::RiuMeasurementEventFilter(RimMeasurement* parent)
 //--------------------------------------------------------------------------------------------------
 void RiuMeasurementEventFilter::registerFilter()
 {
-    RiaApplication::instance()->installEventFilter(this);
+    RiaGuiApplication::instance()->installEventFilter(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ void RiuMeasurementEventFilter::registerFilter()
 //--------------------------------------------------------------------------------------------------
 void RiuMeasurementEventFilter::unregisterFilter()
 {
-    RiaApplication::instance()->removeEventFilter(this);
+    RiaGuiApplication::instance()->removeEventFilter(this);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -23,7 +23,7 @@
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RiuMainWindow.h"
 
@@ -60,7 +60,7 @@ void RicfExportSnapshots::execute()
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     CVF_ASSERT(mainWnd);
     mainWnd->hideAllDockWindows();
-    RiaApplication::instance()->processEvents();
+    RiaGuiApplication::instance()->processEvents();
 
     QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::SNAPSHOTS);
     if (absolutePathToSnapshotDir.isNull())
@@ -77,5 +77,5 @@ void RicfExportSnapshots::execute()
     }
 
     mainWnd->loadWinGeoAndDockToolBarLayout();
-    RiaApplication::instance()->processEvents();
+    RiaGuiApplication::instance()->processEvents();
 }

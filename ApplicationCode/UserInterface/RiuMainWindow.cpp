@@ -20,7 +20,7 @@
 
 #include "RiuMainWindow.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTest.h"
@@ -159,7 +159,7 @@ RiuMainWindow::RiuMainWindow()
 //--------------------------------------------------------------------------------------------------
 RiuMainWindow* RiuMainWindow::instance()
 {
-    return RiaApplication::instance()->mainWindow();
+    return RiaGuiApplication::instance()->mainWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,7 +266,7 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::closeEvent(QCloseEvent* event)
 {
-    RiaApplication* app = RiaApplication::instance();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
 
     app->saveMainWinGeoAndDockToolBarLayout();
 
@@ -461,7 +461,7 @@ void RiuMainWindow::createMenus()
     fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
     fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectAsFeature"));
 
-    std::vector<QAction*> recentFileActions = RiaApplication::instance()->recentFileActions();
+    std::vector<QAction*> recentFileActions = RiaGuiApplication::instance()->recentFileActions();
     for (auto act : recentFileActions)
     {
         fileMenu->addAction(act);

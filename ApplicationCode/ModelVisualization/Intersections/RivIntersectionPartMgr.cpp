@@ -19,7 +19,7 @@
 
 #include "RivIntersectionPartMgr.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaOffshoreSphericalCoords.h"
 #include "RiaPreferences.h"
 
@@ -607,7 +607,7 @@ void RivIntersectionPartMgr::createFaultLabelParts(const std::vector<std::pair<Q
     if (!(eclipseView && faultInViewColl->showFaultLabel())) return;
 
     cvf::Color3f faultLabelColor   = faultInViewColl->faultLabelColor();
-    cvf::Font*   font              = RiaApplication::instance()->defaultSceneFont();
+    cvf::Font*   font              = RiaGuiApplication::instance()->defaultSceneFont();
 
     std::vector<cvf::Vec3f> lineVertices;
 

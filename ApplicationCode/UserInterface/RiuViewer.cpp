@@ -93,9 +93,9 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     : caf::Viewer(format, parent)
     , m_isNavigationRotationEnabled(true)
 {
-    cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
-    QFont      font         = QApplication::font();
-    font.setPointSize(RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultSceneFontSize()));
+    cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
+    QFont      font         = RiaGuiApplication::instance()->font();
+    font.setPointSize(RiaFontCache::pointSizeFromFontSizeEnum(RiaGuiApplication::instance()->preferences()->defaultSceneFontSize()));
 
     m_axisCross             = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
     m_axisCross->setAxisLabels("X", "Y", "Z");
@@ -559,7 +559,7 @@ void RiuViewer::removeAllColorLegends()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* addedLegend)
 {
-    RiaApplication* app = RiaApplication::instance();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
     CVF_ASSERT(app);
     RiaPreferences* preferences    = app->preferences();
     cvf::Rendering* firstRendering = m_mainRendering.p();
@@ -689,21 +689,21 @@ void RiuViewer::enableNavigationRotation(bool enable)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::updateNavigationPolicy()
 {
-    switch (RiaApplication::instance()->navigationPolicy())
+    switch (RiaGuiApplication::instance()->navigationPolicy())
     {
-        case RiaApplication::NAVIGATION_POLICY_CAD:
+        case RiaGuiApplication::NAVIGATION_POLICY_CAD:
             setNavigationPolicy(new RiuCadNavigation);
             break;
 
-        case RiaApplication::NAVIGATION_POLICY_CEETRON:
+        case RiaGuiApplication::NAVIGATION_POLICY_CEETRON:
             setNavigationPolicy(new caf::CeetronPlusNavigation);
             break;
 
-        case RiaApplication::NAVIGATION_POLICY_GEOQUEST:
+        case RiaGuiApplication::NAVIGATION_POLICY_GEOQUEST:
             setNavigationPolicy(new RiuGeoQuestNavigation);
             break;
 
-        case RiaApplication::NAVIGATION_POLICY_RMS:
+        case RiaGuiApplication::NAVIGATION_POLICY_RMS:
             setNavigationPolicy(new RiuRmsNavigation);
             break;
 
@@ -1062,7 +1062,7 @@ void RiuViewer::clearHoverCursor()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::updateFonts()
 {
-    cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
+    cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
     m_mainRendering->removeOverlayItem(m_axisCross.p());
 
     m_axisCross             = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);

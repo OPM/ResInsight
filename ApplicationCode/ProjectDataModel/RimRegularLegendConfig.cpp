@@ -20,7 +20,7 @@
 
 #include "RimRegularLegendConfig.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
@@ -554,7 +554,7 @@ void RimRegularLegendConfig::recreateLegend()
     // has been removed, (and thus the opengl resources has been deleted) The text in 
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
-    cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
+    cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
     m_scalarMapperLegend = new caf::OverlayScalarMapperLegend(standardFont);
     m_categoryLegend = new caf::CategoryLegend(standardFont, m_categoryMapper.p());
 

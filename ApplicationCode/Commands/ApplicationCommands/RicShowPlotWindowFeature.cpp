@@ -18,7 +18,7 @@
 
 #include "RicShowPlotWindowFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include <QAction>
 
@@ -39,7 +39,7 @@ void RicShowPlotWindowFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
 }
 
 //--------------------------------------------------------------------------------------------------

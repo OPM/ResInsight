@@ -18,7 +18,7 @@
 
 #include "RicOpenProjectFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RiuMainWindow.h"
 
@@ -41,7 +41,7 @@ bool RicOpenProjectFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicOpenProjectFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication* app = RiaApplication::instance();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
     
     if (!app->askUserToSaveModifiedProject()) return;
 

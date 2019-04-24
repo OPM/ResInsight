@@ -18,7 +18,7 @@
 
 #include "RimEnsembleCurveSet.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
 #include "RiaStatisticsTools.h"
 
@@ -597,7 +597,7 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                 plot->updatePlotTitle();
                 plot->updateConnectedEditors();
 
-                RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+                RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
                 mainPlotWindow->updateSummaryPlotToolBar();
             }
         }
