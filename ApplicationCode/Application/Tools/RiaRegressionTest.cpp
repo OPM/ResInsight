@@ -70,6 +70,9 @@ RiaRegressionTest::RiaRegressionTest(void)
         "If empty, all tests are executed.\nTo execute a subset of tests, specify folder names separated by ;",
         "");
     testFilter.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(
+        &appendTestsAfterTestFilter, "appendTestsAfterTestFilter", false, "Append All Tests After Test Filter", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

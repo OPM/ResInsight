@@ -1903,7 +1903,7 @@ void RiuMainWindow::slotShowRegressionTestDialog()
     regTestConfig.readSettingsFromApplicationStore();
 
     caf::PdmUiPropertyViewDialog regressionTestDialog(this, &regTestConfig, "Regression Test", "");
-    regressionTestDialog.resize(QSize(600, 300));
+    regressionTestDialog.resize(QSize(600, 350));
 
     if (regressionTestDialog.exec() == QDialog::Accepted)
     {

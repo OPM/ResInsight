@@ -83,6 +83,7 @@ void logInfoTextWithTimeInSeconds(const QTime& time, const QString& msg)
 //--------------------------------------------------------------------------------------------------
 RiaRegressionTestRunner::RiaRegressionTestRunner()
     : m_runningRegressionTests(false)
+    , m_appendAllTestsAfterLastItemInFilter(false)
 {
 }
 
@@ -589,6 +590,8 @@ QFileInfoList RiaRegressionTestRunner::subDirectoriesForTestExecution(const QDir
         return folderList;
     }
 
+    bool anyMatchFound = false;
+
     QFileInfoList foldersMatchingTestFilter;
 
     QFileInfoList folderList = directory.entryInfoList();
@@ -600,9 +603,10 @@ QFileInfoList RiaRegressionTestRunner::subDirectoriesForTestExecution(const QDir
         for (const auto& s : m_testFilter)
         {
             QString trimmed = s.trimmed();
-            if (baseName.contains(trimmed, Qt::CaseInsensitive))
+            if (anyMatchFound || baseName.contains(trimmed, Qt::CaseInsensitive))
             {
                 foldersMatchingTestFilter.push_back(fi);
+                anyMatchFound = true;
             }
         }
     }
@@ -620,6 +624,11 @@ void RiaRegressionTestRunner::executeRegressionTests()
 
     QString     testPath   = testConfig.regressionTestFolder();
     QStringList testFilter = testConfig.testFilter().split(";", QString::SkipEmptyParts);
+
+    if (testConfig.appendTestsAfterTestFilter)
+    {
+        m_appendAllTestsAfterLastItemInFilter = true;
+    }
 
     executeRegressionTests(testPath, testFilter);
 }

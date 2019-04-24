@@ -68,6 +68,7 @@ private:
 private:
     QString           m_rootPath;
     QStringList       m_testFilter;
+    bool              m_appendAllTestsAfterLastItemInFilter;
     bool              m_runningRegressionTests;
     RiaRegressionTest m_regressionTestSettings;
 };

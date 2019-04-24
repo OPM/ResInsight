@@ -42,6 +42,7 @@ public:
     caf::PdmField<bool>    showInteractiveDiffImages;
     caf::PdmField<bool>    useOpenMPForGeometryCreation;
     caf::PdmField<bool>    openReportInBrowser;
+    caf::PdmField<bool>    appendTestsAfterTestFilter;
 
 protected:
     void defineEditorAttribute(const caf::PdmFieldHandle* field,
