@@ -105,6 +105,8 @@ public:
     caf::PdmField<QString>                              plotWindowCurrentModelIndexPath;
 
     void            setScriptDirectories(const QString& scriptDirectories);
+    void            initScriptDirectories(const QString& scriptDirectories);
+
     QString         projectFileVersionString() const;
     bool            isProjectFileVersionEqualOrOlderThan(const QString& otherProjectFileVersion) const;
     void            close();
@@ -173,7 +175,6 @@ public:
 
 protected:
     // Overridden methods
-    void            initScriptDirectories();
     void    initAfterRead() override;
     void    setupBeforeSave() override;
 

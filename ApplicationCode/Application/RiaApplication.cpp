@@ -20,6 +20,7 @@
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
 #include "RiaFilePathTools.h"
+#include "RiaGuiApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -102,12 +103,14 @@
 #include "gtest/gtest.h"
 #endif // USE_UNIT_TESTS
 
+RiaApplication* RiaApplication::s_riaApplication = nullptr;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiaApplication* RiaApplication::instance()
 {
-    return reinterpret_cast<RiaApplication*>(QCoreApplication::instance());
+    return s_riaApplication;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,16 +122,20 @@ RiaApplication::RiaApplication()
     , m_preferences(nullptr)
     , m_runningWorkerProcess(false)
 {
+    CAF_ASSERT(s_riaApplication == nullptr);
+    s_riaApplication = this;
+
     // USed to get registry settings in the right place
     QCoreApplication::setOrganizationName(RI_COMPANY_NAME);
     QCoreApplication::setApplicationName(RI_APPLICATION_NAME);
 
-    m_preferences = new RiaPreferences;
-    caf::PdmSettings::readFieldsFromApplicationStore(m_preferences);
-    applyPreferences();
+#ifdef WIN32
+    m_startupDefaultDirectory = QDir::homePath();
+#else
+    m_startupDefaultDirectory = QDir::currentPath();
+#endif
 
-    // Start with a project
-    m_project = new RimProject;
+    setLastUsedDialogDirectory("MULTICASEIMPORT", "/");
 
     QString helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(RiaApplication::getVersionStringApp(false));
     helpText += "Copyright Equinor ASA, Ceetron Solution AS, Ceetron AS\n\n";
@@ -1068,8 +1075,6 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
         this->project()->updateConnectedEditors();
     }
-
-    onPreferencesChanged(oldPreferences);
 }
 
 
@@ -1267,4 +1272,17 @@ std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileNa
     }
 
     return fileList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::initialize()
+{
+    m_preferences = new RiaPreferences;
+    caf::PdmSettings::readFieldsFromApplicationStore(m_preferences);
+
+    // Start with a project
+    m_project = new RimProject;
+    m_project->initScriptDirectories(m_preferences->scriptDirectories());
 }

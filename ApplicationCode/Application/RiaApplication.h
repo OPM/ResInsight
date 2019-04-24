@@ -85,12 +85,10 @@ public:
     RiaApplication();
     virtual ~RiaApplication();
 
-    virtual bool       parseArguments() = 0;
     int                parseArgumentsAndRunUnitTestsIfRequested();
     static const char* getVersionStringApp(bool includeCrtInfo);
     static bool        enableDevelopmentFeatures();
-    virtual void       addToRecentFiles(const QString& fileName) {}
-
+    
     void             setActiveReservoirView(Rim3dView*);
     Rim3dView*       activeReservoirView();
     const Rim3dView* activeReservoirView() const;
@@ -137,7 +135,7 @@ public:
     void waitForProcess() const;
 
     RiaPreferences* preferences();
-    virtual void    applyPreferences(const RiaPreferences* oldPreferences = nullptr);
+    void            applyPreferences(const RiaPreferences* oldPreferences = nullptr);
 
     QString commandLineParameterHelp() const;
 
@@ -150,16 +148,20 @@ public:
     void waitUntilCommandObjectsHasBeenProcessed();
 
     int launchUnitTests();
-    virtual int launchUnitTestsWithConsole() = 0;
 
     void setStartDir(const QString& startDir);
 
     static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
-    virtual void showInformationText(const QString& infoText) = 0;
-
+    // Public implementation specific overrides
+    virtual void initialize();
+    virtual bool parseArguments() = 0;
+    virtual int  launchUnitTestsWithConsole() = 0;
+    virtual void addToRecentFiles(const QString& fileName) {}
+    virtual void showInformationMessage(const QString& infoText) = 0;
+    virtual void showErrorMessage(const QString& errMsg) = 0;
 protected:
-    // Implementation specific overrides
+    // Protected implementation specific overrides
     virtual void handleEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) = 0;
     virtual void onChangedActiveReservoirView() = 0;
     virtual void onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) = 0;
@@ -168,7 +170,6 @@ protected:
     virtual void onProjectOpeningError(const QString& errMsg) = 0;
     virtual void onProjectBeingClosed() = 0;
     virtual void onProjectClosed() = 0;
-    virtual void onPreferencesChanged(const RiaPreferences* oldPreferences) = 0;
     virtual void startMonitoringWorkProgress(caf::UiProcess* uiProcess) = 0;
     virtual void stopMonitoringWorkProgress() = 0;
 
@@ -197,6 +198,9 @@ protected:
     QString m_helpText;
 
     bool m_runningWorkerProcess;
+
+private:
+    static RiaApplication* s_riaApplication;
 };
 
 
