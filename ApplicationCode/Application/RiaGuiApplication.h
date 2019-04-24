@@ -100,8 +100,6 @@ public:
     RiaGuiApplication(int& argc, char** argv);
     ~RiaGuiApplication() override;
     
-    bool                parseArguments() override;
-
     bool                saveProject();
     bool                saveProjectPromptForFileName();
     bool                askUserToSaveModifiedProject();
@@ -116,9 +114,7 @@ public:
     cvf::Font*          defaultSceneFont();
     cvf::Font*          defaultAnnotationFont();
     cvf::Font*          defaultWellLabelFont();
-
-    int                 launchUnitTestsWithConsole();
-
+    
     RiuMainWindow*      getOrCreateAndShowMainWindow();
     RiuMainWindow*      mainWindow();
     RimViewWindow*      activePlotWindow() const;
@@ -136,17 +132,23 @@ public:
     void                closeMainWindowIfOpenButHidden();
     void                closeMainPlotWindowIfOpenButHidden();
 
-    void                  addToRecentFiles(const QString& fileName);
     std::vector<QAction*> recentFileActions() const;
 
     void                saveMainWinGeoAndDockToolBarLayout();
     void                savePlotWinGeoAndDockToolBarLayout();
 
     static void         clearAllSelections();
-    void                showInformationText(const QString& text) override;
+    void                applyGuiPreferences(const RiaPreferences* oldPreferences = nullptr);
 
+    // Public RiaApplication overrides
+    void                initialize() override;
+    bool                parseArguments() override;
+    int                 launchUnitTestsWithConsole() override;
+    void                addToRecentFiles(const QString& fileName) override;
+    void                showInformationMessage(const QString& text) override;
+    void                showErrorMessage(const QString& errMsg) override;
 protected:
-    // RiaApplication overrides
+    // Protected RiaApplication overrides
     void                handleEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;    
     void                onChangedActiveReservoirView() override;
     void                onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) override;
@@ -155,7 +157,6 @@ protected:
     void                onProjectOpened() override;
     void                onProjectBeingClosed() override;
     void                onProjectClosed() override;
-    void                onPreferencesChanged(const RiaPreferences* oldPreferences) override;
     void                startMonitoringWorkProgress(caf::UiProcess* uiProcess) override;
     void                stopMonitoringWorkProgress() override;
 

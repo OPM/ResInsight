@@ -89,6 +89,7 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfBoundingBox.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QMenu>
 
@@ -180,8 +181,6 @@ RimProject::RimProject(void)
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back(new RimOilField);
 
-    initScriptDirectories();
-
     this->setUiHidden(true);
 }
 
@@ -238,14 +237,11 @@ void RimProject::close()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::initScriptDirectories()
+void RimProject::initScriptDirectories(const QString& scriptDirectories)
 {
     //
     // TODO : Must store content of scripts in project file and notify user if stored content is different from disk on execute and edit
     // 
-    RiaApplication* app = RiaApplication::instance();
-    QString scriptDirectories = app->scriptDirectories();
-
     this->setScriptDirectories(scriptDirectories);
 
     // Find largest used caseId read from file and make sure all cases have a valid caseId
@@ -318,8 +314,6 @@ void RimProject::initScriptDirectories()
 //--------------------------------------------------------------------------------------------------
 void RimProject::initAfterRead()
 {
-    initScriptDirectories();
-
     // Create an empty oil field in case the project did not contain one
     if (oilFields.size() < 1)
     {
@@ -777,6 +771,7 @@ RimOilField* RimProject::activeOilField()
 //--------------------------------------------------------------------------------------------------
 const RimOilField * RimProject::activeOilField() const
 {
+    qDebug() << oilFields.size();
     CVF_ASSERT(oilFields.size() == 1);
   
     return oilFields[0];

@@ -18,6 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RiaApplication.h"
 #include "RiaSocketCommand.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
@@ -48,7 +49,7 @@ public:
         RimEclipseCase* rimCase = server->findReservoir(caseId);
         if (!rimCase)
         {
-            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
+            RiaApplication::instance()->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
 
             return true;
         }
@@ -102,7 +103,7 @@ public:
         RimEclipseCase* rimCase = server->findReservoir(caseId);
         if (!rimCase)
         {
-            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
+            RiaApplication::instance()->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
 
             return true;
         }
@@ -125,7 +126,7 @@ public:
 
         if (currentWellResult.isNull())
         {
-            server->errorMessageDialog()->showMessage(
+            RiaApplication::instance()->showErrorMessage(
                 RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the well with name : \"%1\"").arg(wellName));
 
             return true;
@@ -161,7 +162,7 @@ public:
 
             if (timeStepReadError)
             {
-                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetGridProperty : \n")
+                RiaApplication::instance()->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetGridProperty : \n")
                     + RiaSocketServer::tr("An error occured while interpreting the requested timesteps."));
             }
         }
@@ -241,7 +242,7 @@ public:
         RimEclipseCase* rimCase = server->findReservoir(caseId);
         if (!rimCase)
         {
-            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
+            RiaApplication::instance()->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
 
             socketStream << (quint64)0;
             return true;
@@ -260,7 +261,7 @@ public:
 
         if (currentWellResult.isNull())
         {
-            server->errorMessageDialog()->showMessage(
+            RiaApplication::instance()->showErrorMessage(
                 RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the well with name : \"%1\"").arg(wellName));
 
             socketStream << (quint64)0;

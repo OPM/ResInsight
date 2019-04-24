@@ -113,6 +113,7 @@
 #include "cvfqtUtils.h"
 
 #include <QDir>
+#include <QErrorMessage>
 #include <QFileDialog>
 #include <QMdiSubWindow>
 #include <QMessageBox>
@@ -165,48 +166,19 @@ RiaGuiApplication* RiaGuiApplication::instance()
 //--------------------------------------------------------------------------------------------------
 RiaGuiApplication::RiaGuiApplication(int& argc, char** argv)
     : QApplication(argc, argv)   
+    , RiaApplication()
     , m_mainWindow(nullptr)
     , m_mainPlotWindow(nullptr)
 {
-
     // For idle processing
     //    m_idleTimerStarted = false;
-    installEventFilter(this);
-
-    // cvf::Trace::enable(false);
-
-
-    if (useShaders())
-    {
-        caf::EffectGenerator::setRenderingMode(caf::EffectGenerator::SHADER_BASED);
-    }
-    else
-    {
-        caf::EffectGenerator::setRenderingMode(caf::EffectGenerator::FIXED_FUNCTION);
-    }
-
+    installEventFilter(this);   
 
     setWindowIcon(QIcon(":/AppLogo48x48.png"));
 
-    m_socketServer = new RiaSocketServer(this);
-
-#ifdef WIN32
-    m_startupDefaultDirectory = QDir::homePath();
-#else
-    m_startupDefaultDirectory = QDir::currentPath();
-#endif
-
-    setLastUsedDialogDirectory("MULTICASEIMPORT", "/");
-
     m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);
-
-    // Create main windows
-    // The plot window is created to be able to set expanded state on created objects, but hidden by default
-    getOrCreateAndShowMainWindow();
-    getOrCreateMainPlotWindow();
-
-    RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(m_mainWindow->messagePanel()));
-    RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
+  
+    m_socketServer = new RiaSocketServer(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,6 +197,27 @@ RiaGuiApplication::~RiaGuiApplication()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::initialize()
+{
+    RiaApplication::initialize();
+
+    applyGuiPreferences(nullptr);
+
+    // Create main windows
+    // The plot window is created to be able to set expanded state on created objects, but hidden by default
+    getOrCreateAndShowMainWindow();
+    getOrCreateMainPlotWindow();
+    if (!m_socketServer->isOk())
+    {
+        showErrorMessage(m_socketServer->errMsg());
+    }
+    RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(m_mainWindow->messagePanel()));
+    RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaGuiApplication::parseArguments()
 {
     cvf::ProgramOptions progOpt;
@@ -232,7 +225,7 @@ bool RiaGuiApplication::parseArguments()
     if (!result)
     {
         const cvf::String usageText = progOpt.usageText(110, 30);
-        showInformationText(m_helpText + cvfqt::Utils::toQString(usageText));
+        showInformationMessage(m_helpText + cvfqt::Utils::toQString(usageText));
 
         closeAllWindows();
         handleEvents();
@@ -1195,7 +1188,7 @@ void RiaGuiApplication::clearAllSelections()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::showInformationText(const QString& text)
+void RiaGuiApplication::showInformationMessage(const QString& text)
 {
     QString helpText = text;
 
@@ -1211,6 +1204,15 @@ void RiaGuiApplication::showInformationText(const QString& text)
     msgBox.setText(helpText);
 
     msgBox.exec();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::showErrorMessage(const QString& errMsg)
+{
+    QErrorMessage errDialog(mainWindow());
+    errDialog.showMessage(errMsg);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1350,7 +1352,7 @@ void RiaGuiApplication::onProjectClosed()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::onPreferencesChanged(const RiaPreferences* oldPreferences)
+void RiaGuiApplication::applyGuiPreferences(const RiaPreferences* oldPreferences)
 {
     if (m_activeReservoirView && m_activeReservoirView->viewer())
     {

@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
 
     RiaGuiApplication app(argc, argv);
+    app.initialize();
 
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
     setlocale(LC_NUMERIC,"C");
