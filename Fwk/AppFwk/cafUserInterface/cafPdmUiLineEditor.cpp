@@ -152,7 +152,22 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
             QString displayString;
             if (leab.m_displayString.isEmpty())
             {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0) && QT_VERSION < QT_VERSION_CHECK(5, 9, 0))
+                bool valueOk = false;
+                double  value = uiField()->uiValue().toDouble(&valueOk);
+                if (valueOk)
+                {
+                    // Workaround for issue seen on Qt 5.6.1 on Linux
+                    int precision = 8;
+                    displayString = QString::number(value, 'g', precision);
+                }
+                else
+                {
+                    displayString = uiField()->uiValue().toString();
+                }
+#else
                 displayString = uiField()->uiValue().toString();
+#endif
             }
             else
             {
