@@ -2302,6 +2302,7 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(RiaDefines:
             actCellInfo->gridActiveCellCounts(i, matrixActiveCellCount);
             fracActCellInfo->gridActiveCellCounts(i, fractureActiveCellCount);
 
+
             if (matrixOrFracture == RiaDefines::MATRIX_MODEL)
             {
                 destinationResultValues->insert(destinationResultValues->end(), 
@@ -2310,9 +2311,16 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(RiaDefines:
             }
             else
             {
-                destinationResultValues->insert(destinationResultValues->end(), 
-                                                sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount, 
-                                                sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount + fractureActiveCellCount);
+                if ((matrixActiveCellCount + fractureActiveCellCount) > sourceResultValues.size())
+                {
+                    // Special handling of the situation where we only have data for one fracture mode
+                    matrixActiveCellCount = 0;
+                }
+
+                destinationResultValues->insert(destinationResultValues->end(),
+                                                sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount,
+                                                sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount +
+                                                    fractureActiveCellCount);
             }
 
             sourceStartPosition += (matrixActiveCellCount + fractureActiveCellCount);
