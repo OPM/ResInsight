@@ -78,6 +78,7 @@ public:
     
     caf::PdmField<bool>                     includeFractures;
     
+    void                                    enableIncludeMsw();
     void                                    showForSimWells();
     void                                    showForWellPath();
 

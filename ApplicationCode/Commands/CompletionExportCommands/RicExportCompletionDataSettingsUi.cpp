@@ -116,6 +116,14 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::enableIncludeMsw()
+{
+    includeMsw = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::showForSimWells()
 {
     m_displayForSimWell = true;
