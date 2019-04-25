@@ -28,7 +28,7 @@
 class RicWellPathFractureReportItem
 {
 public:
-    RicWellPathFractureReportItem(const QString& wellPathName, const QString& fractureName, const QString& fractureTemplateName, double measuredDepth);
+    RicWellPathFractureReportItem(const QString& wellPathNameForExport, const QString& fractureName, const QString& fractureTemplateName, double measuredDepth);
 
     void setData(double trans, size_t connCount, double area);
     void setWidthAndConductivity(double width, double conductivity);

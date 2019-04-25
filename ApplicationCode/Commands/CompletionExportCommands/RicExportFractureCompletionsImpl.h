@@ -84,7 +84,7 @@ public:
                                                                           PressureDepletionParameters pdParams = PressureDepletionParameters());
 
     static std::vector<RigCompletionData> generateCompdatValues(RimEclipseCase* caseToApply,
-                                                                const QString& wellPathName,
+                                                                const QString& wellNameForExport,
                                                                 const RigWellPath* wellPathGeometry,
                                                                 const std::vector<const RimFracture*>& fractures,
                                                                 std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
