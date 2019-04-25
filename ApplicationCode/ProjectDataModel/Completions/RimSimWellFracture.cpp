@@ -147,6 +147,14 @@ std::vector<cvf::Vec3d> RimSimWellFracture::perforationLengthCenterLineCoords() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSimWellFracture::isEnabled() const
+{
+    return isChecked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                           const QVariant&            oldValue,
                                           const QVariant&            newValue)

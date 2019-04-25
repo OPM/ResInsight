@@ -24,6 +24,7 @@
 #include "RimEllipseFractureTemplate.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
@@ -80,7 +81,7 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         RimProject* proj = nullptr;
         this->firstAncestorOrThisOfType(proj);
         if (proj) proj->reloadCompletionTypeResultsInAllViews();
-    }   
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,6 +190,19 @@ bool RimWellPathFracture::compareByWellPathNameAndMD(const RimWellPathFracture* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellPathFracture::isEnabled() const
+{
+    RimWellPathFractureCollection* fractureCollection = nullptr;
+    this->firstAncestorOrThisOfType(fractureCollection);
+    if (fractureCollection)
+    {
+        return fractureCollection->isChecked() && isChecked();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::updatePositionFromMeasuredDepth()
 {
     cvf::Vec3d positionAlongWellpath = cvf::Vec3d::ZERO;
@@ -220,7 +234,7 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     {
         uiOrdering.add(nameField(), caf::PdmUiOrdering::LayoutOptions(true, 3, 1));
         uiOrdering.add(&m_fractureTemplate, {true, 2, 1});
-        uiOrdering.add(&m_editFractureTemplate, { false, 1, 0 });
+        uiOrdering.add(&m_editFractureTemplate, {false, 1, 0});
     }
     else
     {
@@ -236,8 +250,8 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
             else
             {
                 uiOrdering.add(&m_fractureTemplate);
-            }            
-        }        
+            }
+        }
     }
 
     caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");

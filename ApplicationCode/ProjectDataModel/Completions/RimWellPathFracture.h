@@ -52,6 +52,8 @@ public:
 
     static bool             compareByWellPathNameAndMD(const RimWellPathFracture* lhs, const RimWellPathFracture* rhs);
 
+    bool                    isEnabled() const override; // RimWellPathCompletionsInterface override
+
 protected:
     void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
