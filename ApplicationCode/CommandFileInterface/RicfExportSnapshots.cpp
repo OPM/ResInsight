@@ -57,6 +57,11 @@ RicfExportSnapshots::RicfExportSnapshots()
 //--------------------------------------------------------------------------------------------------
 void RicfExportSnapshots::execute()
 {
+    if (!RiaGuiApplication::isRunning())
+    {
+        RiaLogging::error(QString("RicfExportSnapshot: cannot run without GUI"));
+    }
+
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     CVF_ASSERT(mainWnd);
     mainWnd->hideAllDockWindows();
