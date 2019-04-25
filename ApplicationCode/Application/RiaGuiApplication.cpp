@@ -1358,8 +1358,18 @@ void RiaGuiApplication::onProjectBeingClosed()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::onProjectClosed()
 {
-    // Always creating new project when closing old one
-    onProjectOpened();
+    if (m_mainWindow)
+    {
+        m_mainWindow->initializeGuiNewProjectLoaded();
+    }
+    if (m_mainPlotWindow)
+    {
+        m_mainPlotWindow->initializeGuiNewProjectLoaded();
+    }
+
+    setWindowCaptionFromAppState();
+
+    processEvents();
 }
 
 //--------------------------------------------------------------------------------------------------

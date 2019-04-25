@@ -43,7 +43,8 @@ RicfOpenProject::RicfOpenProject()
 void RicfOpenProject::execute()
 {
     QString projectPath = m_path;
-    if (!QFileInfo::exists(projectPath))
+    QFileInfo projectPathInfo(projectPath);
+    if (!projectPathInfo.exists())
     {
         QDir startDir(RiaApplication::instance()->startDir());
         projectPath = startDir.absoluteFilePath(m_path);

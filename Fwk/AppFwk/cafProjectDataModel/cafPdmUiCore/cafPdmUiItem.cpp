@@ -213,7 +213,7 @@ void PdmUiItem::setUiIcon(const QIcon& uiIcon, const QString& uiConfigName /*= "
 void PdmUiItem::setUiIcon(const QString& uiIconName, const QString& uiConfigName /*= ""*/)
 {
     QIcon uiIcon;
-    if (dynamic_cast<QGuiApplication*>(QCoreApplication::instance()))
+    if (dynamic_cast<QApplication*>(QCoreApplication::instance()))
     {
         uiIcon = QIcon(uiIconName);
     }
