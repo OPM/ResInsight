@@ -65,24 +65,7 @@ public:
         , m_isCustomContextMenuEnabled(-1)
     {}
 
-    PdmUiItemInfo(const QString& uiName, QString iconName = "", QString toolTip = "", QString whatsThis = "", QString extraDebugText = "")
-        : m_uiName(uiName)
-        , m_icon()
-        , m_toolTip(toolTip)
-        , m_whatsThis(whatsThis)
-        , m_extraDebugText(extraDebugText)
-        , m_editorTypeName("")
-        , m_isHidden(false)
-        , m_isTreeChildrenHidden(false)
-        , m_isReadOnly(false)
-        , m_labelAlignment(LEFT)
-        , m_isCustomContextMenuEnabled(false)
-    {
-        if (dynamic_cast<QApplication*>(QCoreApplication::instance()))
-        {
-            m_icon = QIcon(iconName);
-        }
-    }
+    PdmUiItemInfo(const QString& uiName, QString iconName = "", QString toolTip = "", QString whatsThis = "", QString extraDebugText = "");
     PdmUiItemInfo(const QString& uiName, QIcon icon = QIcon(), QString toolTip = "", QString whatsThis = "", QString extraDebugText = "")
         : m_uiName(uiName)
         , m_icon(icon)
