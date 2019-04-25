@@ -24,6 +24,7 @@
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 
 #include "RiuMainWindow.h"
 
@@ -59,7 +60,8 @@ void RicfExportSnapshots::execute()
 {
     if (!RiaGuiApplication::isRunning())
     {
-        RiaLogging::error(QString("RicfExportSnapshot: cannot run without GUI"));
+        RiaLogging::error(QString("RicfExportSnapshot: Command cannot run without a GUI"));
+        return;
     }
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
