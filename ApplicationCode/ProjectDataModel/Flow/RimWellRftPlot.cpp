@@ -522,6 +522,11 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
         }
     }
 
+    if (m_wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH)
+    {
+        assignWellPathToExtractionCurves();
+    }
+
     m_wellLogPlot->loadDataAndUpdate();
     if (plotTrack->curveCount())
     {
