@@ -193,11 +193,9 @@ bool RimWellPathFracture::compareByWellPathNameAndMD(const RimWellPathFracture* 
 bool RimWellPathFracture::isEnabled() const
 {
     RimWellPathFractureCollection* fractureCollection = nullptr;
-    this->firstAncestorOrThisOfType(fractureCollection);
-    if (fractureCollection)
-    {
-        return fractureCollection->isChecked() && isChecked();
-    }
+    this->firstAncestorOrThisOfTypeAsserted(fractureCollection);
+
+    return fractureCollection->isChecked() && isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
