@@ -146,6 +146,9 @@ private:
     
     static cvf::Color3ubArray                   colorArrayFromColorType(ColorRangesType colorType);
 
+    caf::OverlayScalarMapperLegend*             getOrCreateScalarMapperLegend();
+    caf::CategoryLegend*                        getOrCreateCategoryLegend();
+
 private:
     cvf::ref<cvf::ScalarMapperDiscreteLinear>   m_linDiscreteScalarMapper;
     cvf::ref<cvf::ScalarMapperDiscreteLog>      m_logDiscreteScalarMapper;

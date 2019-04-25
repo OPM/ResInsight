@@ -28,6 +28,8 @@
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
+#include <QFileInfo>
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -67,11 +69,14 @@ RiaConsoleApplication::~RiaConsoleApplication()
 void RiaConsoleApplication::initialize()
 {
 #ifdef _WIN32
+#pragma warning(push) // Saves the current warning state.
+#pragma warning(disable : 4996) // Temporarily disables warning 4996.
     if (AttachConsole(ATTACH_PARENT_PROCESS) || AllocConsole())
     {
         freopen("CONOUT$", "w", stdout);
         freopen("CONOUT$", "w", stderr);
     }
+#pragma warning(pop)
 #endif
 
     RiaApplication::initialize();
@@ -88,7 +93,7 @@ void RiaConsoleApplication::initialize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaConsoleApplication::handleArguments(cvf::ProgramOptions* progOpt)
+RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments(cvf::ProgramOptions* progOpt)
 {
     CVF_ASSERT(progOpt);
 
@@ -96,7 +101,7 @@ bool RiaConsoleApplication::handleArguments(cvf::ProgramOptions* progOpt)
     // --------------------------------------------------------
     if (cvf::Option o = progOpt->option("ignoreArgs"))
     {
-        return true;
+        return KEEP_GOING;
     }
 
     // Unit testing
@@ -105,7 +110,7 @@ bool RiaConsoleApplication::handleArguments(cvf::ProgramOptions* progOpt)
     {
         int testReturnValue = launchUnitTestsWithConsole();
 
-        return testReturnValue;
+        return testReturnValue == 0 ? RiaApplication::EXIT_COMPLETED : RiaApplication::EXIT_WITH_ERROR;
     }
 
     if (cvf::Option o = progOpt->option("startdir"))
@@ -227,6 +232,12 @@ bool RiaConsoleApplication::handleArguments(cvf::ProgramOptions* progOpt)
     if (cvf::Option o = progOpt->option("commandFile"))
     {
         QString commandFile = cvfqt::Utils::toQString(o.safeValue(0));
+        if (!progOpt->hasOption("startdir"))
+        {
+            QFileInfo commandFileInfo(commandFile);
+            QString commandDir = commandFileInfo.absolutePath();
+            setStartDir(commandDir);
+        }
 
         cvf::Option projectOption = progOpt->option("commandFileProject");
         cvf::Option caseOption    = progOpt->option("commandFileReplaceCases");
@@ -303,10 +314,10 @@ bool RiaConsoleApplication::handleArguments(cvf::ProgramOptions* progOpt)
         {
             executeCommandFile(commandFile);
         }
-        return false;
+        return EXIT_COMPLETED;
     }
 
-    return true;
+    return KEEP_GOING;
 }
 
 //--------------------------------------------------------------------------------------------------

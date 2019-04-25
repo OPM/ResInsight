@@ -42,7 +42,7 @@
 #include "cafPdmUiModelChangeDetector.h"
 
 #include <QAction>
-
+#include <QApplication>
 
 namespace caf
 {
@@ -106,7 +106,10 @@ QAction* CmdFeature::actionWithUserData(const QString& customText, const QVarian
         action->setData(userData);
     }
 
-    this->setupActionLook(action);
+    if (dynamic_cast<QApplication*>(QCoreApplication::instance()))
+    {
+        this->setupActionLook(action);
+    }
     if (!customText.isEmpty())
     {
         action->setText(customText);

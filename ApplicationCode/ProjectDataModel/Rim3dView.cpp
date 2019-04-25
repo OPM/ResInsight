@@ -409,7 +409,10 @@ void Rim3dView::createDisplayModelAndRedraw()
         }
     }
 
-    RiuMainWindow::instance()->refreshAnimationActions();
+    if (RiuMainWindow::instance())
+    {
+        RiuMainWindow::instance()->refreshAnimationActions();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

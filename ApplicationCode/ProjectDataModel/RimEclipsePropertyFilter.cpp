@@ -22,6 +22,7 @@
 
 #include "RiaDefines.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaGuiApplication.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -90,7 +91,11 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     CAF_PDM_InitField(&m_useCategorySelection, "CategorySelection", false, "Category Selection", "", "", "");
     m_upperBound.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
-    updateIconState();
+    // HEADLESS HACK
+    if (RiaGuiApplication::isRunning())
+    {
+        updateIconState();
+    }
 
     m_minimumResultValue = cvf::UNDEFINED_DOUBLE;
     m_maximumResultValue = cvf::UNDEFINED_DOUBLE;

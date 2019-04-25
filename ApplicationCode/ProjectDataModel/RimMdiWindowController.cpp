@@ -122,7 +122,11 @@ QWidget* RimMdiWindowController::viewWidget()
 //--------------------------------------------------------------------------------------------------
 RiuMainWindowBase* RimMdiWindowController::getMainWindow()
 {
-    return RiaGuiApplication::instance()->mainWindowByID(m_mainWindowID);
+    if (RiaGuiApplication::isRunning())
+    {
+        return RiaGuiApplication::instance()->mainWindowByID(m_mainWindowID);
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

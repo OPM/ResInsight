@@ -154,6 +154,14 @@ void AppEnum<RiaGuiApplication::RINavigationPolicy>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaGuiApplication::isRunning()
+{
+    return dynamic_cast<RiaGuiApplication*>(RiaApplication::instance()) != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaGuiApplication* RiaGuiApplication::instance()
 {
     RiaGuiApplication* currentGuiApp = dynamic_cast<RiaGuiApplication*>(RiaApplication::instance());
@@ -574,7 +582,7 @@ void RiaGuiApplication::initialize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaGuiApplication::handleArguments(cvf::ProgramOptions* progOpt)
+RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::ProgramOptions* progOpt)
 {
     CVF_ASSERT(progOpt);
 
@@ -582,7 +590,7 @@ bool RiaGuiApplication::handleArguments(cvf::ProgramOptions* progOpt)
     // --------------------------------------------------------
     if (cvf::Option o = progOpt->option("ignoreArgs"))
     {
-        return true;
+        return KEEP_GOING;
     }
 
     // Unit testing
@@ -591,7 +599,7 @@ bool RiaGuiApplication::handleArguments(cvf::ProgramOptions* progOpt)
     {
         int testReturnValue = launchUnitTestsWithConsole();
 
-        return testReturnValue;
+        return testReturnValue == 0 ? RiaApplication::EXIT_COMPLETED : RiaApplication::EXIT_WITH_ERROR;
     }
 
     if (cvf::Option o = progOpt->option("regressiontest"))
@@ -608,7 +616,7 @@ bool RiaGuiApplication::handleArguments(cvf::ProgramOptions* progOpt)
         RiaLogging::setLoggerInstance(stdLogger);
 
         RiaRegressionTestRunner::instance()->executeRegressionTests(regressionTestPath, QStringList());
-        return false;
+        return EXIT_COMPLETED;
     }
 
     if (cvf::Option o = progOpt->option("updateregressiontestbase"))
@@ -616,7 +624,7 @@ bool RiaGuiApplication::handleArguments(cvf::ProgramOptions* progOpt)
         CVF_ASSERT(o.valueCount() == 1);
         QString regressionTestPath = cvfqt::Utils::toQString(o.value(0));
         RiaRegressionTestRunner::instance()->updateRegressionTest(regressionTestPath);
-        return false;
+        return EXIT_COMPLETED;
     }
 
     if (cvf::Option o = progOpt->option("startdir"))
@@ -657,7 +665,7 @@ bool RiaGuiApplication::handleArguments(cvf::ProgramOptions* progOpt)
             std::vector<QString> gridFiles    = readFileListFromTextFile(gridListFile);
             runMultiCaseSnapshots(projectFileName, gridFiles, "multiCaseSnapshots");
 
-            return false;
+            return EXIT_COMPLETED;
         }
     }
 
@@ -821,13 +829,19 @@ bool RiaGuiApplication::handleArguments(cvf::ProgramOptions* progOpt)
             }
         }
 
-        // Returning false will exit the application
-        return false;
+        return EXIT_COMPLETED;
     }
 
     if (cvf::Option o = progOpt->option("commandFile"))
     {
         QString commandFile = cvfqt::Utils::toQString(o.safeValue(0));
+
+        if (!progOpt->hasOption("startdir"))
+        {
+            QFileInfo commandFileInfo(commandFile);
+            QString   commandDir = commandFileInfo.absolutePath();
+            setStartDir(commandDir);
+        }
 
         cvf::Option projectOption = progOpt->option("commandFileProject");
         cvf::Option caseOption    = progOpt->option("commandFileReplaceCases");
@@ -904,10 +918,10 @@ bool RiaGuiApplication::handleArguments(cvf::ProgramOptions* progOpt)
         {
             executeCommandFile(commandFile);
         }
-        return false;
+        return EXIT_COMPLETED;
     }
 
-    return true;
+    return KEEP_GOING;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1384,13 +1398,7 @@ void RiaGuiApplication::applyGuiPreferences(const RiaPreferences* oldPreferences
             mainPlotWindow()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
     }
 
-    // The creation of a font is time consuming, so make sure you really need your own font
-    // instead of using the application font
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes = m_preferences->defaultFontSizes();
-
-    m_defaultSceneFont      = RiaFontCache::getFont(fontSizes[RiaDefines::SCENE_FONT]);
-    m_defaultAnnotationFont = RiaFontCache::getFont(fontSizes[RiaDefines::ANNOTATION_FONT]);
-    m_defaultWellLabelFont  = RiaFontCache::getFont(fontSizes[RiaDefines::WELL_LABEL_FONT]);
 
     if (this->project())
     {
@@ -1654,39 +1662,6 @@ void RiaGuiApplication::runMultiCaseSnapshots(const QString&       templateProje
     }
 
     m_mainWindow->loadWinGeoAndDockToolBarLayout();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Font* RiaGuiApplication::defaultSceneFont()
-{
-    CVF_ASSERT(m_defaultSceneFont.notNull());
-
-    // The creation of a font is time consuming, so make sure you really need your own font
-    // instead of using the application font
-
-    return m_defaultSceneFont.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Font* RiaGuiApplication::defaultAnnotationFont()
-{
-    CVF_ASSERT(m_defaultAnnotationFont.notNull());
-
-    return m_defaultAnnotationFont.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Font* RiaGuiApplication::defaultWellLabelFont()
-{
-    CVF_ASSERT(m_defaultWellLabelFont.notNull());
-
-    return m_defaultWellLabelFont.p();
 }
 
 //--------------------------------------------------------------------------------------------------

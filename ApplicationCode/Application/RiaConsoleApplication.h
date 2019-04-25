@@ -38,7 +38,7 @@ public:
 
     // Public RiaApplication overrides
     void initialize() override;
-    bool handleArguments(cvf::ProgramOptions* progOpt) override;
+    ApplicationStatus handleArguments(cvf::ProgramOptions* progOpt) override;
     void showInformationMessage(const QString& text) override;
     void showErrorMessage(const QString& errMsg) override;
 
