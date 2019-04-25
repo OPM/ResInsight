@@ -108,7 +108,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
         {
             QString wellFileName =
                 QString("%1_UnifiedCompletions_MSW_%2")
-                    .arg(wellPath->completions()->wellNameForExport(), exportSettings.caseToApply->caseUserDescription());
+                    .arg(wellPath->name(), exportSettings.caseToApply->caseUserDescription());
             unifiedWellPathFile = RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, wellFileName);
         }
 
@@ -123,7 +123,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             {
                 QString fileName =
                     QString("%1_Fracture_MSW_%2")
-                        .arg(wellPath->completions()->wellNameForExport(), exportSettings.caseToApply->caseUserDescription());
+                        .arg(wellPath->name(), exportSettings.caseToApply->caseUserDescription());
                 fractureExportFile = RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
             }
             exportWellSegmentsForFractures(
@@ -141,7 +141,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             {
                 QString fileName =
                     QString("%1_Perforation_MSW_%2")
-                        .arg(wellPath->completions()->wellNameForExport(), exportSettings.caseToApply->caseUserDescription());
+                        .arg(wellPath->name(), exportSettings.caseToApply->caseUserDescription());
                 perforationsExportFile =
                     RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
             }
@@ -163,7 +163,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             {
                 QString fileName =
                     QString("%1_Fishbones_MSW_%2")
-                        .arg(wellPath->completions()->wellNameForExport(), exportSettings.caseToApply->caseUserDescription());
+                        .arg(wellPath->name(), exportSettings.caseToApply->caseUserDescription());
                 fishbonesExportFile = RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
             }
             exportWellSegmentsForFishbones(exportSettings.caseToApply,
