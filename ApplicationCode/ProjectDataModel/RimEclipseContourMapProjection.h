@@ -35,7 +35,7 @@
 class RigMainGrid;
 class RigResultAccessor;
 class RimEclipseContourMapView;
-class RimEclipseResultCase;
+class RimEclipseCase;
 class RimEclipseResultDefinition;
 
 //==================================================================================================
@@ -77,7 +77,7 @@ protected:
     // Eclipse implementation specific data generation methods
     std::vector<double>             calculateColumnResult(ResultAggregation resultAggregation) const;
 
-    RimEclipseResultCase*           eclipseCase() const;
+    RimEclipseCase*                 eclipseCase() const;
     RimEclipseContourMapView*       view() const;
 
 

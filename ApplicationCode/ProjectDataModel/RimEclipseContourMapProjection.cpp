@@ -31,11 +31,11 @@
 #include "RigMainGrid.h"
 
 #include "RimCellRangeFilterCollection.h"
-#include "RimEclipseContourMapView.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseView.h"
-#include "RimEclipseResultCase.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTextAnnotation.h"
@@ -177,7 +177,7 @@ std::vector<double> RimEclipseContourMapProjection::generateResults(int timeStep
     std::vector<double> aggregatedResults = std::vector<double>(nCells, std::numeric_limits<double>::infinity());
 
     RimEclipseCellColors* cellColors = view()->cellResult();
-    RimEclipseResultCase* eclipseCase = this->eclipseCase();
+    RimEclipseCase* eclipseCase = this->eclipseCase();
     {
         if (!cellColors->isTernarySaturationSelected())
         {
@@ -345,9 +345,9 @@ std::vector<double> RimEclipseContourMapProjection::retrieveParameterWeights()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultCase* RimEclipseContourMapProjection::eclipseCase() const
+RimEclipseCase* RimEclipseContourMapProjection::eclipseCase() const
 {
-    RimEclipseResultCase* eclipseCase = nullptr;
+    RimEclipseCase* eclipseCase = nullptr;
     firstAncestorOrThisOfType(eclipseCase);
     return eclipseCase;
 }
