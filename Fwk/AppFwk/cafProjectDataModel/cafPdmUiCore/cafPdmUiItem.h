@@ -39,7 +39,7 @@
 
 #include "cafPdmUiFieldSpecialization.h"
 
-#include <QGuiApplication>
+#include <QApplication>
 #include <QString>
 #include <QIcon>
 #include <QVariant>
@@ -78,7 +78,7 @@ public:
         , m_labelAlignment(LEFT)
         , m_isCustomContextMenuEnabled(false)
     {
-        if (dynamic_cast<QGuiApplication*>(QCoreApplication::instance()))
+        if (dynamic_cast<QApplication*>(QCoreApplication::instance()))
         {
             m_icon = QIcon(iconName);
         }
