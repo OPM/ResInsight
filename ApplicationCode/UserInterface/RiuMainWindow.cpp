@@ -159,7 +159,11 @@ RiuMainWindow::RiuMainWindow()
 //--------------------------------------------------------------------------------------------------
 RiuMainWindow* RiuMainWindow::instance()
 {
-    return RiaGuiApplication::instance()->mainWindow();
+    if (RiaGuiApplication::isRunning())
+    {
+        return RiaGuiApplication::instance()->mainWindow();
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

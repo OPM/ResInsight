@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cafFixedAtlasFont.h"
 #include "cvfBase.h"
 #include "cvfObject.h"
 
@@ -25,7 +26,6 @@
 
 namespace caf
 {
-class FixedAtlasFont;
 template<typename T> class AppEnum;
 }
 

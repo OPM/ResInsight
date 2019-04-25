@@ -87,6 +87,13 @@ public:
         PLA_CALCULATE_STATISTICS = 1
     };
 
+    enum ApplicationStatus
+    {
+        KEEP_GOING = 0,
+        EXIT_COMPLETED,
+        EXIT_WITH_ERROR
+    };
+
 public:
     static RiaApplication*    instance();
     RiaApplication();
@@ -155,13 +162,18 @@ public:
 
     int launchUnitTests();
 
+    const QString startDir() const;
     void setStartDir(const QString& startDir);
 
     static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
+    cvf::Font* defaultSceneFont();
+    cvf::Font* defaultAnnotationFont();
+    cvf::Font* defaultWellLabelFont();
+
     // Public implementation specific overrides
     virtual void initialize();
-    virtual bool handleArguments(cvf::ProgramOptions* progOpt) = 0;
+    virtual ApplicationStatus handleArguments(cvf::ProgramOptions* progOpt) = 0;
     virtual int  launchUnitTestsWithConsole();
     virtual void addToRecentFiles(const QString& fileName) {}
     virtual void showInformationMessage(const QString& infoText) = 0;
@@ -182,6 +194,10 @@ protected:
     virtual void stopMonitoringWorkProgress() {}
 
 protected:
+    cvf::ref<cvf::Font> m_defaultSceneFont;
+    cvf::ref<cvf::Font> m_defaultAnnotationFont;
+    cvf::ref<cvf::Font> m_defaultWellLabelFont;
+
     caf::PdmPointer<Rim3dView>  m_activeReservoirView;
     caf::PdmPointer<RimProject> m_project;
 

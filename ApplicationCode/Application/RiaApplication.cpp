@@ -20,6 +20,7 @@
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
 #include "RiaFilePathTools.h"
+#include "RiaFontCache.h"
 #include "RiaGuiApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
@@ -1036,6 +1037,14 @@ RiaPreferences* RiaApplication::preferences()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
 {    
+    // The creation of a font is time consuming, so make sure you really need your own font
+    // instead of using the application font
+    std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes = m_preferences->defaultFontSizes();
+
+    m_defaultSceneFont      = RiaFontCache::getFont(fontSizes[RiaDefines::SCENE_FONT]);
+    m_defaultAnnotationFont = RiaFontCache::getFont(fontSizes[RiaDefines::ANNOTATION_FONT]);
+    m_defaultWellLabelFont  = RiaFontCache::getFont(fontSizes[RiaDefines::WELL_LABEL_FONT]);
+
     if (this->project())
     {
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
@@ -1208,6 +1217,14 @@ int RiaApplication::launchUnitTests()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const QString RiaApplication::startDir() const
+{
+    return m_startupDefaultDirectory;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::setStartDir(const QString& startDir)
 {
     m_startupDefaultDirectory = startDir;
@@ -1245,10 +1262,45 @@ std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileNa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Font* RiaApplication::defaultSceneFont()
+{
+    CVF_ASSERT(m_defaultSceneFont.notNull());
+
+    // The creation of a font is time consuming, so make sure you really need your own font
+    // instead of using the application font
+
+    return m_defaultSceneFont.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Font* RiaApplication::defaultAnnotationFont()
+{
+    CVF_ASSERT(m_defaultAnnotationFont.notNull());
+
+    return m_defaultAnnotationFont.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Font* RiaApplication::defaultWellLabelFont()
+{
+    CVF_ASSERT(m_defaultWellLabelFont.notNull());
+
+    return m_defaultWellLabelFont.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::initialize()
 {
     m_preferences = new RiaPreferences;
     caf::PdmSettings::readFieldsFromApplicationStore(m_preferences);
+
+    applyPreferences(nullptr);
 
     // Start with a project
     m_project = new RimProject;

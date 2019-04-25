@@ -24,6 +24,9 @@
 #include "RiaLogging.h"
 #include "RiaRegressionTestRunner.h"
 
+#include <QDir>
+#include <QFileInfo>
+
 CAF_PDM_SOURCE_INIT(RicfOpenProject, "openProject");
 
 //--------------------------------------------------------------------------------------------------
@@ -39,7 +42,13 @@ RicfOpenProject::RicfOpenProject()
 //--------------------------------------------------------------------------------------------------
 void RicfOpenProject::execute()
 {
-    bool ok = RiaApplication::instance()->loadProject(m_path);
+    QString projectPath = m_path;
+    if (!QFileInfo::exists(projectPath))
+    {
+        QDir startDir(RiaApplication::instance()->startDir());
+        projectPath = startDir.absoluteFilePath(m_path);
+    }
+    bool ok = RiaApplication::instance()->loadProject(projectPath);
     if (!ok)
     {
         RiaLogging::error(QString("openProject: Unable to open project at %1").arg(m_path()));
@@ -51,5 +60,5 @@ void RicfOpenProject::execute()
         RiaRegressionTestRunner::regressionTestConfigureProject();
     }
 
-    RicfCommandFileExecutor::instance()->setLastProjectPath(m_path);
+    RicfCommandFileExecutor::instance()->setLastProjectPath(projectPath);
 }

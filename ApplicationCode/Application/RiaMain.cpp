@@ -27,10 +27,12 @@
 RiaApplication* createApplication(int &argc, char *argv[])
 {
     for (int i = 1; i < argc; ++i)
-        if (!qstrcmp(argv[i], "--console"))
+    {
+        if (!qstrcmp(argv[i], "--console") || !qstrcmp(argv[i], "--unittest"))
         {
             return new RiaConsoleApplication(argc, argv);
         }
+    }
     return new RiaGuiApplication(argc, argv);
 }
 
@@ -55,7 +57,16 @@ int main(int argc, char *argv[])
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
     setlocale(LC_NUMERIC,"C");
 
-    if (app->handleArguments(&progOpt))
+    RiaApplication::ApplicationStatus status = app->handleArguments(&progOpt);
+    if (status == RiaApplication::EXIT_COMPLETED)
+    {
+        return 0;
+    }
+    else if (status == RiaApplication::EXIT_WITH_ERROR)
+    {
+        return 1;
+    }
+    else if (status == RiaApplication::KEEP_GOING)
     {
         int exitCode = 0;
         try
@@ -76,6 +87,7 @@ int main(int argc, char *argv[])
         return exitCode;
     }
 
-    return 0;
+    CVF_ASSERT(false && "Unknown ApplicationStatus");
+    return -1;
 }
 

@@ -116,7 +116,6 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
 
     m_isVisCellStatUpToDate = false;
 
-    m_gridStatisticsDialog = std::unique_ptr<RicGridStatisticsDialog>(new RicGridStatisticsDialog(nullptr));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,11 +230,24 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicGridStatisticsDialog* Rim3dOverlayInfoConfig::getOrCreateGridStatisticsDialog()
+{
+    if (!m_gridStatisticsDialog)
+    {
+        m_gridStatisticsDialog.reset(new RicGridStatisticsDialog(nullptr));
+    }
+    CVF_ASSERT(m_gridStatisticsDialog);
+    return m_gridStatisticsDialog.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QImage Rim3dOverlayInfoConfig::statisticsDialogScreenShotImage()
 {
-    if (m_gridStatisticsDialog->isVisible())
+    if (getOrCreateGridStatisticsDialog()->isVisible())
     {
-        return m_gridStatisticsDialog->screenShotImage();
+        return getOrCreateGridStatisticsDialog()->screenShotImage();
     }
     return QImage();
 }
@@ -862,16 +874,17 @@ void Rim3dOverlayInfoConfig::showStatisticsInfoDialog(bool raise)
 {
     if (m_viewDef)
     {
+        RicGridStatisticsDialog* dialog = getOrCreateGridStatisticsDialog();
         // Show dialog before setting data due to text edit auto height setting
-        m_gridStatisticsDialog->resize(600, 800);
-        m_gridStatisticsDialog->show();
+        dialog->resize(600, 800);
+        dialog->show();
 
-        m_gridStatisticsDialog->setLabel("Grid statistics");
-        m_gridStatisticsDialog->updateFromRimView(m_viewDef);
+        dialog->setLabel("Grid statistics");
+        dialog->updateFromRimView(m_viewDef);
 
         if (raise)
         {
-            m_gridStatisticsDialog->raise();
+            dialog->raise();
         }
     }
 }
@@ -916,7 +929,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         updateEclipse3DInfo(reservoirView);
 
         // Update statistics dialog
-        m_gridStatisticsDialog->updateFromRimView(reservoirView);
+        getOrCreateGridStatisticsDialog()->updateFromRimView(reservoirView);
     }
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
@@ -927,7 +940,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         updateGeoMech3DInfo(geoMechView);
 
         // Update statistics dialog
-        m_gridStatisticsDialog->updateFromRimView(geoMechView);
+        getOrCreateGridStatisticsDialog()->updateFromRimView(geoMechView);
     }
 
     update3DInfoIn2dViews();

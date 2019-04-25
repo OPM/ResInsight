@@ -40,6 +40,7 @@
 #include "cafMemoryInspector.h"
 #include "cafProgressState.h"
 
+#include <QApplication>
 #include <QPointer>
 #include <QProgressDialog>
 #include <QCoreApplication>
@@ -115,7 +116,7 @@ namespace caf {
     {
         ProgressInfoStatic::start(maxProgressValue, title, delayShowingProgress);
 
-        if (qApp)
+        if (dynamic_cast<QApplication*>(QCoreApplication::instance()))
         {
             QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         }
@@ -128,7 +129,7 @@ namespace caf {
     {
         ProgressInfoStatic::finished();
 
-        if (qApp)
+        if (dynamic_cast<QApplication*>(QCoreApplication::instance()))
         {
             QApplication::restoreOverrideCursor();
         }
@@ -228,7 +229,7 @@ namespace caf {
     static QProgressDialog* progressDialog()
     {
         static QPointer<QProgressDialog> progDialog;
-        if (progDialog.isNull())
+        if (progDialog.isNull() && dynamic_cast<QApplication*>(QCoreApplication::instance()))
         {
             progDialog = new QProgressDialog(nullptr, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
 
@@ -467,19 +468,24 @@ namespace caf {
         std::vector<size_t>& progressSpanStack_v = progressSpanStack();
         std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
 
+        QProgressDialog* dialog = progressDialog();
+
         if (!maxProgressStack_v.size())
         {
             //progressDialog()->setWindowModality(Qt::ApplicationModal);
-            progressDialog()->setMinimum(0);
-            progressDialog()->setWindowTitle(title);
-            progressDialog()->setCancelButton(nullptr);
-            if (delayShowingProgress)
+            if (dialog)
             {
-                progressDialog()->setMinimumDuration(1000);
-            }
-            else
-            {
-                progressDialog()->show();
+                dialog->setMinimum(0);
+                dialog->setWindowTitle(title);
+                dialog->setCancelButton(nullptr);
+                if (delayShowingProgress)
+                {
+                    dialog->setMinimumDuration(1000);
+                }
+                else
+                {
+                    dialog->show();
+                }
             }
         }
 
@@ -489,10 +495,12 @@ namespace caf {
         titleStack().push_back(title);
         descriptionStack().push_back("");
 
-        progressDialog()->setMaximum(static_cast<int>(currentTotalMaxProgressValue()));
-        progressDialog()->setValue(static_cast<int>(currentTotalProgress()));
-        progressDialog()->setLabelText(currentComposedLabel());
-
+        if (dialog)
+        {
+            dialog->setMaximum(static_cast<int>(currentTotalMaxProgressValue()));
+            dialog->setValue(static_cast<int>(currentTotalProgress()));
+            dialog->setLabelText(currentComposedLabel());
+        }
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         //if (progressDialog()) progressDialog()->repaint();
     }
@@ -506,7 +514,11 @@ namespace caf {
 
         descriptionStack().back() = description;
 
-        progressDialog()->setLabelText(currentComposedLabel());
+        QProgressDialog* dialog = progressDialog();
+        if (dialog)
+        {
+            dialog->setLabelText(currentComposedLabel());
+        }
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         //if (progressDialog()) progressDialog()->repaint();
 
@@ -546,8 +558,12 @@ namespace caf {
             totalProgress = totalMaxProgress;
         }
 
-        progressDialog()->setMaximum(totalMaxProgress);
-        progressDialog()->setValue(totalProgress);
+        QProgressDialog* dialog = progressDialog();
+        if (dialog)
+        {
+            dialog->setMaximum(totalMaxProgress);
+            dialog->setValue(totalProgress);
+        }
 
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         //if (progressDialog()) progressDialog()->repaint();
@@ -623,15 +639,19 @@ namespace caf {
         descriptionStack().pop_back();
 
         // Update the text to reflect the "previous level"
-        progressDialog()->setLabelText(currentComposedLabel());
+        QProgressDialog* dialog = progressDialog();
+        if (dialog)
+        {
+            dialog->setLabelText(currentComposedLabel());
+        }
 
         // If we are finishing the last level, clean up
         if (maxProgressStack_v.empty())
         {
-            if (progressDialog() != nullptr)
+            if (dialog)
             {
-                progressDialog()->reset();
-                progressDialog()->close();
+                dialog->reset();
+                dialog->close();
             }
         }
         else
@@ -649,11 +669,15 @@ namespace caf {
     {
         if (s_disabled) return false;
 
-        if (!qApp) return false;
-
-        if (!progressDialog()) return false;
-
-        return progressDialog()->thread() == QThread::currentThread();
+        if (dynamic_cast<QApplication*>(QCoreApplication::instance()))
+        {
+            QProgressDialog* dialog = progressDialog();
+            if (dialog)
+            {
+                return dialog->thread() == QThread::currentThread();
+            }
+        }
+        return false;
     }
 
 } // namespace caf 

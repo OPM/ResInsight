@@ -20,13 +20,11 @@
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
-#include "RiaFontCache.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfFont.h"
 
 #include <QApplication>
 #include <QMutex>
@@ -84,10 +82,8 @@ public:
         NAVIGATION_POLICY_RMS
     };
 
-
-    typedef RiaFontCache::FontSize FontSize;
-
 public:
+    static bool               isRunning();
     static RiaGuiApplication* instance();
 
     RiaGuiApplication(int& argc, char** argv);
@@ -104,10 +100,6 @@ public:
 
     RINavigationPolicy  navigationPolicy() const;
 
-    cvf::Font*          defaultSceneFont();
-    cvf::Font*          defaultAnnotationFont();
-    cvf::Font*          defaultWellLabelFont();
-    
     RiuMainWindow*      getOrCreateAndShowMainWindow();
     RiuMainWindow*      mainWindow();
     RimViewWindow*      activePlotWindow() const;
@@ -135,7 +127,7 @@ public:
 
     // Public RiaApplication overrides
     void                initialize() override;
-    bool                handleArguments(cvf::ProgramOptions* progOpt) override;
+    ApplicationStatus   handleArguments(cvf::ProgramOptions* progOpt) override;
     int                 launchUnitTestsWithConsole() override;
     void                addToRecentFiles(const QString& fileName) override;
     void                showInformationMessage(const QString& text) override;
@@ -173,10 +165,6 @@ private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
-    cvf::ref<cvf::Font>                 m_defaultSceneFont;
-    cvf::ref<cvf::Font>                 m_defaultAnnotationFont;
-    cvf::ref<cvf::Font>                 m_defaultWellLabelFont;
-
     RiuMainWindow*                      m_mainWindow;
     RiuPlotMainWindow*                  m_mainPlotWindow;
     

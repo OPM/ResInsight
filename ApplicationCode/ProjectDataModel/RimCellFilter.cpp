@@ -18,6 +18,8 @@
 
 #include "RimCellFilter.h"
 
+#include "RiaGuiApplication.h"
+
 #include <QPainter>
 
 namespace caf
@@ -68,6 +70,9 @@ caf::PdmFieldHandle* RimCellFilter::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimCellFilter::updateIconState()
 {
+    // HEADLESS HACK
+    if (!RiaGuiApplication::isRunning()) return;
+
     // Reset dynamic icon
     this->setUiIcon(QIcon());
     // Get static one

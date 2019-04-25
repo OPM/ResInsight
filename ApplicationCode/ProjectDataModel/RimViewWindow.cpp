@@ -19,6 +19,7 @@
 #include "RimViewWindow.h"
 
 #include "RiaFieldHandleTools.h"
+#include "RiaGuiApplication.h"
 
 #include "RimMdiWindowController.h"
 
@@ -99,6 +100,8 @@ void RimViewWindow::handleMdiWindowClosed()
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::updateMdiWindowVisibility()
 {
+    if (!RiaGuiApplication::isRunning()) return;
+
     if (m_windowController())
     {
         m_windowController->updateViewerWidget();
