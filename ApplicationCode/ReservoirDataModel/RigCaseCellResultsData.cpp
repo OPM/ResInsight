@@ -881,7 +881,15 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
     }
     // MULTXYZ
     {
-        addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedMultResultName(), false, 0);
+        if (hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTX")) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTX-")) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTY")) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTY-")) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTZ")) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTZ-")))
+        {
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedMultResultName(), false, 0);
+        }
     }
 
     // riTRANSXYZ and X,Y,Z
