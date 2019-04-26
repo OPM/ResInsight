@@ -524,7 +524,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimEclipseView* eclipseView)
 {
     QString infoText;
 
-    if (eclipseView)
+    if (eclipseView && eclipseView->eclipseCase())
     {
         QString caseName = eclipseView->eclipseCase()->caseUserDescription();
 
@@ -660,7 +660,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData,
                                 "</table>")
                             .arg(histData.min)
                             .arg(histData.mean)
-                            .arg(histData.max);                            
+                            .arg(histData.max);
         }
     }
     else if (eclipseView)
@@ -691,7 +691,8 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData,
 
             if (eclipseView->cellResult()->hasDualPorFractureResult())
             {
-                QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText(eclipseView->cellResult()->porosityModel());
+                QString porosityModelText =
+                    caf::AppEnum<RiaDefines::PorosityModelType>::uiText(eclipseView->cellResult()->porosityModel());
 
                 infoText += QString("<b>Dual Porosity Type:</b> %1<br>").arg(porosityModelText);
             }
@@ -1104,18 +1105,22 @@ void Rim3dOverlayInfoConfig::update3DInfoIn2dViews() const
 //--------------------------------------------------------------------------------------------------
 QString Rim3dOverlayInfoConfig::timeStepText(RimEclipseView* eclipseView)
 {
-    int                    currTimeStepIndex = eclipseView->currentTimeStep();
-    std::vector<QDateTime> timeSteps         = eclipseView->currentGridCellResults()->allTimeStepDatesFromEclipseReader();
-
     QString dateTimeString;
-    if (currTimeStepIndex >= 0 && currTimeStepIndex < (int)timeSteps.size())
+
+    if (eclipseView && eclipseView->currentGridCellResults())
     {
-        QString dateFormat = RiaQDateTimeTools::createTimeFormatStringFromDates(timeSteps);
+        int                    currTimeStepIndex = eclipseView->currentTimeStep();
+        std::vector<QDateTime> timeSteps         = eclipseView->currentGridCellResults()->allTimeStepDatesFromEclipseReader();
 
-        QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(timeSteps[currTimeStepIndex], dateFormat);
+        if (currTimeStepIndex >= 0 && currTimeStepIndex < (int)timeSteps.size())
+        {
+            QString dateFormat = RiaQDateTimeTools::createTimeFormatStringFromDates(timeSteps);
 
-        dateTimeString = QString("Time Step: %1/%2  %3")
-                             .arg(QString::number(currTimeStepIndex), QString::number(timeSteps.size() - 1), dateString);
+            QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(timeSteps[currTimeStepIndex], dateFormat);
+
+            dateTimeString = QString("Time Step: %1/%2  %3")
+                                 .arg(QString::number(currTimeStepIndex), QString::number(timeSteps.size() - 1), dateString);
+        }
     }
 
     return QString("<p><b><center>-- %1 --</center></b>").arg(dateTimeString) +
