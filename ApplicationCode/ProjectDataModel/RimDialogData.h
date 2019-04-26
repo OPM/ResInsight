@@ -23,6 +23,7 @@
 
 class RicExportCarfinUi;
 class RicExportCompletionDataSettingsUi;
+class RicExportEclipseSectorModelUi;
 class RiuCreateMultipleFractionsUi;
 class RicHoloLensExportToFolderUi;
 class RicExportWellPathsUi;
@@ -54,11 +55,12 @@ public:
 
     RicExportCompletionDataSettingsUi* exportCompletionData() const;
 
-    RiuCreateMultipleFractionsUi* multipleFractionsData() const;
-    RicHoloLensExportToFolderUi*  holoLensExportToFolderData() const;
-    RicExportWellPathsUi*         wellPathsExportData() const;
-    RicExportLgrUi*               exportLgrData() const;
-    RimMockModelSettings*         mockModelSettings() const;
+    RiuCreateMultipleFractionsUi*  multipleFractionsData() const;
+    RicHoloLensExportToFolderUi*   holoLensExportToFolderData() const;
+    RicExportWellPathsUi*          wellPathsExportData() const;
+    RicExportLgrUi*                exportLgrData() const;
+    RicExportEclipseSectorModelUi* exportSectorModelUi() const;
+    RimMockModelSettings*          mockModelSettings() const;
 
 private:
     caf::PdmChildField<RicExportCarfinUi*>                 m_exportCarfin;
@@ -67,5 +69,6 @@ private:
     caf::PdmChildField<RicHoloLensExportToFolderUi*>       m_holoLenseExportToFolderData;
     caf::PdmChildField<RicExportWellPathsUi*>              m_exportWellPathsData;
     caf::PdmChildField<RicExportLgrUi*>                    m_exportLgrData;
+    caf::PdmChildField<RicExportEclipseSectorModelUi*>     m_exportSectorModelData;
     caf::PdmChildField<RimMockModelSettings*>              m_mockModelSettings;
 };

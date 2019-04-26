@@ -21,6 +21,7 @@
 #include "RimMockModelSettings.h"
 
 #include "ExportCommands/RicExportCarfinUi.h"
+#include "ExportCommands/RicExportEclipseSectorModelUi.h"
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "FractureCommands/RicCreateMultipleFracturesUi.h"
 #include "HoloLensCommands/RicHoloLensExportToFolderUi.h"
@@ -53,6 +54,9 @@ RimDialogData::RimDialogData()
 
     CAF_PDM_InitFieldNoDefault(&m_exportLgrData, "ExportLgr", "LGR Export", "", "", "");
     m_exportLgrData = new RicExportLgrUi();
+
+    CAF_PDM_InitFieldNoDefault(&m_exportSectorModelData, "ExportSectorModel", "Export Sector Model", "", "", "");
+    m_exportSectorModelData = new RicExportEclipseSectorModelUi();
 
     CAF_PDM_InitFieldNoDefault(&m_mockModelSettings, "MockModelSettings", "Mock Model Settings", "", "", "");
     m_mockModelSettings = new RimMockModelSettings();
@@ -129,6 +133,14 @@ RicExportWellPathsUi* RimDialogData::wellPathsExportData() const
 RicExportLgrUi* RimDialogData::exportLgrData() const
 {
     return m_exportLgrData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicExportEclipseSectorModelUi* RimDialogData::exportSectorModelUi() const
+{
+    return m_exportSectorModelData;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -60,11 +60,13 @@ class RicExportEclipseSectorModelUi : public caf::PdmObject
     typedef caf::AppEnum<GridBoxSelection> GridBoxSelectionEnum;
 
 public:
-    RicExportEclipseSectorModelUi(RigEclipseCaseData* caseData = nullptr,
-                                  const cvf::Vec3i&   visibleMin = cvf::Vec3i::ZERO,
-                                  const cvf::Vec3i&   visibleMax = cvf::Vec3i::ZERO);
+    RicExportEclipseSectorModelUi();
     ~RicExportEclipseSectorModelUi() override;
     const QStringList&                     tabNames() const;
+
+    void setCaseData(RigEclipseCaseData* caseData   = nullptr,
+                     const cvf::Vec3i&   visibleMin = cvf::Vec3i::ZERO,
+                     const cvf::Vec3i&   visibleMax = cvf::Vec3i::ZERO);
 
     cvf::Vec3i                             min() const;
     cvf::Vec3i                             max() const;

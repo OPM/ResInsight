@@ -69,12 +69,7 @@ void RicExportEclipseSectorModelUi::GridBoxSelectionEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi(RigEclipseCaseData* caseData /*= nullptr*/,
-                                                             const cvf::Vec3i&   visibleMin /*= cvf::Vec3i::ZERO*/,
-                                                             const cvf::Vec3i&   visibleMax /*= cvf::Vec3i::ZERO*/)
-    : m_caseData(caseData)
-    , m_visibleMin(visibleMin)
-    , m_visibleMax(visibleMax)
+RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
 {
     CAF_PDM_InitObject("Export Visible Cells as Eclipse Input Grid", "", "", "");
 
@@ -87,16 +82,16 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi(RigEclipseCaseData*
     CAF_PDM_InitFieldNoDefault(&exportGridBox, "GridBoxSelection", "Cells to Export", "", "", "");
 
     QString minIJKLabel = "Min I, J, K";
-    CAF_PDM_InitField(&minI, "MinI", m_visibleMin.x() + 1, minIJKLabel, "", "", "");
-    CAF_PDM_InitField(&minJ, "MinJ", m_visibleMin.y() + 1, "", "", "", "");
+    CAF_PDM_InitField(&minI, "MinI", std::numeric_limits<int>::max(), minIJKLabel, "", "", "");
+    CAF_PDM_InitField(&minJ, "MinJ", std::numeric_limits<int>::max(), "", "", "", "");
     minJ.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    CAF_PDM_InitField(&minK, "MinK", m_visibleMin.z() + 1, "", "", "", "");
+    CAF_PDM_InitField(&minK, "MinK", std::numeric_limits<int>::max(), "", "", "", "");
     minK.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     QString maxIJKLabel = "Max I, J, K";
-    CAF_PDM_InitField(&maxI, "MaxI", m_visibleMax.x() + 1, maxIJKLabel, "", "", "");
-    CAF_PDM_InitField(&maxJ, "MaxJ", m_visibleMax.y() + 1, "", "", "", "");
+    CAF_PDM_InitField(&maxI, "MaxI", -std::numeric_limits<int>::max(), maxIJKLabel, "", "", "");
+    CAF_PDM_InitField(&maxJ, "MaxJ", -std::numeric_limits<int>::max(), "", "", "", "");
     maxJ.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    CAF_PDM_InitField(&maxK, "MaxK", m_visibleMax.z() + 1, "", "", "", "");
+    CAF_PDM_InitField(&maxK, "MaxK", -std::numeric_limits<int>::max(), "", "", "", "");
     maxK.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&exportFaults, "ExportFaults", "Export Fault Data", "", "", "");
@@ -120,13 +115,6 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi(RigEclipseCaseData*
     exportParametersFilename = defaultResultsFileName();
     exportFaultsFilename  = defaultFaultsFileName();
 
-    for (QString keyword : mainKeywords())
-    {
-        if (caseData && caseData->results(RiaDefines::MATRIX_MODEL)->hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, keyword)))
-        {
-            selectedKeywords.v().push_back(keyword);
-        }
-    }
     m_tabNames << "Grid Data";
     m_tabNames << "Parameters";
 }
@@ -144,6 +132,57 @@ RicExportEclipseSectorModelUi::~RicExportEclipseSectorModelUi()
 const QStringList& RicExportEclipseSectorModelUi::tabNames() const
 {
     return m_tabNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportEclipseSectorModelUi::setCaseData(RigEclipseCaseData* caseData /*= nullptr*/,
+                                                const cvf::Vec3i&   visibleMin /*= cvf::Vec3i::ZERO*/,
+                                                const cvf::Vec3i&   visibleMax /*= cvf::Vec3i::ZERO*/)
+{
+    m_caseData = caseData;
+    m_visibleMin = visibleMin;
+    m_visibleMax = visibleMax;
+
+    if (minI == std::numeric_limits<int>::max())
+        minI = m_visibleMin.x() + 1;
+    if (minJ == std::numeric_limits<int>::max())
+        minJ = m_visibleMin.y() + 1;
+    if (minK == std::numeric_limits<int>::max())
+        minK = m_visibleMin.z() + 1;
+
+    if (maxI == -std::numeric_limits<int>::max())
+        maxI = m_visibleMax.x() + 1;
+    if (maxJ == std::numeric_limits<int>::max())
+        maxJ = m_visibleMax.y() + 1;
+    if (maxK == std::numeric_limits<int>::max())
+        maxK = m_visibleMax.z() + 1;
+
+    if (selectedKeywords.v().empty())
+    {
+        for (QString keyword : mainKeywords())
+        {
+            if (caseData && caseData->results(RiaDefines::MATRIX_MODEL)
+                ->hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, keyword)))
+            {
+                selectedKeywords.v().push_back(keyword);
+            }
+        }
+    }
+    else
+    {
+        std::vector<QString> validSelectedKeywords;
+        for (QString keyword : selectedKeywords())
+        {
+            if (caseData && caseData->results(RiaDefines::MATRIX_MODEL)
+                                ->hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, keyword)))
+            {
+                validSelectedKeywords.push_back(keyword);
+            }
+        }
+        selectedKeywords.v() = validSelectedKeywords;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
