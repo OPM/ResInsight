@@ -354,7 +354,30 @@ bool RigSimWellData::isOpen(size_t resultTimeStepIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigWellResultPoint* RigWellResultFrame::findResultCell(size_t gridIndex, size_t gridCellIndex) const
+const RigWellResultPoint* RigWellResultFrame::findResultCellWellHeadIncluded(size_t gridIndex, size_t gridCellIndex) const
+{
+    const RigWellResultPoint* wellResultPoint = findResultCellWellHeadExcluded(gridIndex, gridCellIndex);
+    if (wellResultPoint) return wellResultPoint;
+
+    // If we could not find the cell among the real connections, we try the wellhead.
+    // The wellhead does however not have a real connection state, and is rendering using pipe color
+    // https://github.com/OPM/ResInsight/issues/4328
+    
+    // This behavior was different prior to release 2019.04 and was rendered as a closed connection (gray)
+    // https://github.com/OPM/ResInsight/issues/712
+
+    if (m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex )
+    {
+        return &m_wellHead;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigWellResultPoint* RigWellResultFrame::findResultCellWellHeadExcluded(size_t gridIndex, size_t gridCellIndex) const
 {
     CVF_ASSERT(gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T);
 
@@ -362,21 +385,12 @@ const RigWellResultPoint* RigWellResultFrame::findResultCell(size_t gridIndex, s
     {
         for (size_t wc = 0; wc < m_wellResultBranches[wb].m_branchResultPoints.size(); ++wc)
         {
-            if (   m_wellResultBranches[wb].m_branchResultPoints[wc].m_gridCellIndex == gridCellIndex  
-                && m_wellResultBranches[wb].m_branchResultPoints[wc].m_gridIndex == gridIndex  )
+            if (m_wellResultBranches[wb].m_branchResultPoints[wc].m_gridCellIndex == gridCellIndex &&
+                m_wellResultBranches[wb].m_branchResultPoints[wc].m_gridIndex == gridIndex)
             {
                 return &(m_wellResultBranches[wb].m_branchResultPoints[wc]);
             }
         }
-    }
-
-    // If we could not find the cell among the real connections, we try the wellhead.
-    // The wellhead does however not have a real connection state, and is thereby always rendered as closed
-    // If we have a real connection in the wellhead, we should not end here. See Github issue #712
-
-    if (m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex )
-    {
-        return &m_wellHead;
     }
 
     return nullptr;

@@ -833,7 +833,7 @@ QString RiuResultTextBuilder::wellResultText()
             }
 
             const RigWellResultFrame& wellResultFrame = singleWellResultData->wellResultFrame(m_timeStepIndex);
-            const RigWellResultPoint* wellResultCell = wellResultFrame.findResultCell(m_gridIndex, m_cellIndex);
+            const RigWellResultPoint* wellResultCell = wellResultFrame.findResultCellWellHeadIncluded(m_gridIndex, m_cellIndex);
             if (wellResultCell)
             {
                 text += QString("-- Well-cell connection info --\n Well Name: %1\n Branch Id: %2\n Segment Id: %3\n").arg(singleWellResultData->m_wellName).arg(wellResultCell->m_ertBranchId).arg(wellResultCell->m_ertSegmentId);
