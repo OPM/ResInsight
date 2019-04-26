@@ -19,8 +19,8 @@
 #include "RicMeasurementPickEventHandler.h"
 
 #include "RiaApplication.h"
-#include "RiuViewerCommands.h"
 #include "RiuViewer.h"
+#include "RiuViewerCommands.h"
 
 #include "Rim3dView.h"
 #include "RimIntersection.h"
@@ -67,8 +67,9 @@ void RicMeasurementPickEventHandler::unregisterAsPickEventHandler()
 ///
 //--------------------------------------------------------------------------------------------------
 RicMeasurementPickEventHandler::RicMeasurementPickEventHandler()
-{}
-
+    : m_polyLineModeEnabled(false)
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
