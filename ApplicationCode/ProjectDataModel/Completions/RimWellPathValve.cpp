@@ -155,7 +155,7 @@ double RimWellPathValve::flowCoefficient() const
 {
     if (m_valveTemplate())
     {
-        double templateCoefficient = m_valveTemplate()->orificeDiameter();
+        double templateCoefficient = m_valveTemplate()->flowCoefficient();
         return templateCoefficient;
     }
     return 0.0;
