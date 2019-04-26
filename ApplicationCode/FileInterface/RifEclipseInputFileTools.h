@@ -138,7 +138,7 @@ public:
     static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
 
 private:
-    static bool     readDataFromKeyword(ecl_kw_type* eclipseKeywordData, RigEclipseCaseData* caseData, const QString& resultName);
+    static bool     readDataFromKeyword(ecl_kw_type* eclipseKeywordData, RigEclipseCaseData* caseData, const QString& resultName, QString* errMsg);
     static void     findGridKeywordPositions(const std::vector< RifKeywordAndFilePos >& keywords, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos, qint64* gridunitPos);
 
     static size_t   findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name);

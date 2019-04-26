@@ -729,20 +729,28 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties(const QStrin
     std::vector<RifKeywordAndFilePos> fileKeywords;
     RifEclipseInputFileTools::findKeywordsOnFile(fileName, &fileKeywords);
 
+    if (!fileKeywords.size())
+    {
+        RiaLogging::warning(QString("No keywords found in file: %1").arg(fileName));
+    }
     mainProgress.setProgress(1);
     caf::ProgressInfo progress(fileKeywords.size(), "Reading properties");
 
     FILE* gridFilePointer = util_fopen(fileName.toLatin1().data(), "r");
 
-    if (!gridFilePointer || !fileKeywords.size())
+    if (!gridFilePointer)
     {
+        RiaLogging::warning(QString("Could not open file: %1").arg(fileName));
         return std::map<QString, QString>();
     }
 
     std::map<QString, QString> newResults;
     for (size_t i = 0; i < fileKeywords.size(); ++i)
     {
-        if (!isValidDataKeyword(fileKeywords[i].keyword)) continue;
+        if (!isValidDataKeyword(fileKeywords[i].keyword))
+        {
+            continue;
+        }
 
         fseek(gridFilePointer, fileKeywords[i].filePos, SEEK_SET);
 
@@ -751,12 +759,20 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties(const QStrin
         if (eclipseKeywordData)
         {
             QString newResultName = caseData->results(RiaDefines::MATRIX_MODEL)->makeResultNameUnique(fileKeywords[i].keyword);
-            if (readDataFromKeyword(eclipseKeywordData, caseData, newResultName))
+            QString errMsg;
+            if (readDataFromKeyword(eclipseKeywordData, caseData, newResultName, &errMsg))
             {
                 newResults[newResultName] = fileKeywords[i].keyword;
             }
-
+            else
+            {
+                RiaLogging::error(QString("Failed to read keyword: %1").arg(errMsg));
+            }
             ecl_kw_free(eclipseKeywordData);
+        }
+        else
+        {
+            RiaLogging::error(QString("Failed to allocate keyword: %1").arg(fileKeywords[i].keyword));
         }
 
         progress.setProgress(i);
@@ -780,16 +796,29 @@ bool RifEclipseInputFileTools::readProperty(const QString&      fileName,
     if (!isValidDataKeyword(eclipseKeyWord)) return false;
 
     FILE* filePointer = util_fopen(fileName.toLatin1().data(), "r");
-    if (!filePointer) return false;
+    if (!filePointer)
+    {
+        RiaLogging::error(QString("Could not open property file: %1").arg(fileName));
+        return false;
+    }
 
     ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_grdecl_dynamic__(
         filePointer, eclipseKeyWord.toLatin1().data(), false, ecl_type_create_from_type(ECL_FLOAT_TYPE));
     bool isOk = false;
     if (eclipseKeywordData)
     {
-        isOk = readDataFromKeyword(eclipseKeywordData, caseData, resultName);
+        QString errMsg;
+        isOk = readDataFromKeyword(eclipseKeywordData, caseData, resultName, &errMsg);
+        if (!isOk)
+        {
+            RiaLogging::error(QString("Failed to read property: %1").arg(errMsg));
 
+        }
         ecl_kw_free(eclipseKeywordData);
+    }
+    else
+    {
+        RiaLogging::error(QString("Failed to load keyword %1 from file: %2").arg(eclipseKeyWord).arg(fileName));
     }
 
     fclose(filePointer);
@@ -802,25 +831,33 @@ bool RifEclipseInputFileTools::readProperty(const QString&      fileName,
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type*        eclipseKeywordData,
                                                    RigEclipseCaseData* caseData,
-                                                   const QString&      resultName)
+                                                   const QString&      resultName,
+                                                   QString*            errMsg)
 {
     CVF_ASSERT(caseData);
     CVF_ASSERT(eclipseKeywordData);
+    CVF_ASSERT(errMsg);
 
     bool mathingItemCount = false;
+    size_t keywordItemCount = 0u;
     {
-        size_t itemCount = static_cast<size_t>(ecl_kw_get_size(eclipseKeywordData));
-        if (itemCount == caseData->mainGrid()->cellCount())
+        keywordItemCount = static_cast<size_t>(ecl_kw_get_size(eclipseKeywordData));
+        if (keywordItemCount == caseData->mainGrid()->cellCount())
         {
             mathingItemCount = true;
         }
-        if (itemCount == caseData->activeCellInfo(RiaDefines::MATRIX_MODEL)->reservoirActiveCellCount())
+        if (keywordItemCount == caseData->activeCellInfo(RiaDefines::MATRIX_MODEL)->reservoirActiveCellCount())
         {
             mathingItemCount = true;
         }
     }
-
-    if (!mathingItemCount) return false;
+    
+    if (!mathingItemCount)
+    {
+        QString errFormat("Size mismatch: Main Grid has %1 cells, keyword %2 has %3 cells");
+        *errMsg = errFormat.arg(caseData->mainGrid()->cellCount()).arg(resultName).arg(keywordItemCount);
+        return false;
+    }
 
     RigEclipseResultAddress resAddr(RiaDefines::INPUT_PROPERTY, resultName);
     caseData->results(RiaDefines::MATRIX_MODEL)->createResultEntry(resAddr, false);
@@ -968,6 +1005,8 @@ const std::vector<QString>& RifEclipseInputFileTools::invalidPropertyDataKeyword
         keywords.push_back("SPECGRID");
         keywords.push_back("MAPAXES");
         keywords.push_back("NOECHO");
+        keywords.push_back("MAPUNITS");
+        keywords.push_back("GRIDUNIT");
 
         keywords.push_back(faultsKeyword);
 
