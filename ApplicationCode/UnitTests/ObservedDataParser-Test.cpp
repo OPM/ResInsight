@@ -837,3 +837,80 @@ TEST(RifColumnBasedRsmspecParserTest, HasOnlyValidDoubleValues)
         EXPECT_FALSE(RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(words, &doubleValues));
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST(RifColumnBasedRsmspecParserTest, TestParsingOfDateString)
+{
+    {
+        QString txt = "22.12.1900";
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df = RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+
+        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_DDMMYYYY_DOT_SEPARATED, df);
+    }
+
+    {
+        QString                                             txt = "22-12-1900";
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
+            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+
+        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_DDMMYYYY_DASH_SEPARATED, df);
+    }
+
+    {
+        QString                                             txt = "22/12/1900";
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
+            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+
+        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_DDMMYYYY_SLASH_SEPARATED, df);
+    }
+
+    {
+        QString                                             txt = "1900.12.24";
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
+            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+
+        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_YYYYMMDD_DOT_SEPARATED, df);
+    }
+
+    {
+        QString                                             txt = "1900-12-24";
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
+            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+
+        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_YYYYMMDD_DASH_SEPARATED, df);
+    }
+
+    {
+        QString                                             txt = "1900/12/24";
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
+            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+
+        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_YYYYMMDD_SLASH_SEPARATED, df);
+    }
+
+    {
+        QString                                             txt = "12/22/1900";
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
+            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+
+        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_MMDDYYYY_SLASH_SEPARATED, df);
+    }
+
+    {
+        QString                                             txt = "22/12/1900";
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
+            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+
+        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_DDMMYYYY_SLASH_SEPARATED, df);
+    }
+
+    {
+        QString                                             txt = "12/22/30";
+        RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat df =
+            RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(txt);
+
+        EXPECT_EQ(RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat::DATE_MMDDYY_SLASH_SEPARATED, df);
+    }
+}

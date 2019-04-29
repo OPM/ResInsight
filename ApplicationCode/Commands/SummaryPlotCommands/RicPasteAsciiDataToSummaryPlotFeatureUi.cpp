@@ -289,6 +289,77 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::createNewPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
+    RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(const QString& dateString)
+{
+    std::vector<int> indicesForDot;
+    std::vector<int> indicesForSlash;
+    std::vector<int> values;
+
+    {
+        QStringList split = dateString.split(".", QString::SkipEmptyParts);
+        if (split.size() == 3)
+        {
+            values.push_back(split.at(0).toInt());
+            values.push_back(split.at(1).toInt());
+            values.push_back(split.at(2).toInt());
+
+            if (values[0] > 31) return DATE_YYYYMMDD_DOT_SEPARATED;
+            if (values[2] > 31) return DATE_DDMMYYYY_DOT_SEPARATED;
+        }
+    }
+
+    {
+        QStringList split = dateString.split("-", QString::SkipEmptyParts);
+        if (split.size() == 3)
+        {
+            values.push_back(split.at(0).toInt());
+            values.push_back(split.at(1).toInt());
+            values.push_back(split.at(2).toInt());
+
+            if (values[0] > 31) return DATE_YYYYMMDD_DASH_SEPARATED;
+            if (values[2] > 31) return DATE_DDMMYYYY_DASH_SEPARATED;
+        }
+    }
+
+    {
+        QStringList split = dateString.split("/", QString::SkipEmptyParts);
+        if (split.size() == 3)
+        {
+            values.push_back(split.at(0).toInt());
+            values.push_back(split.at(1).toInt());
+            values.push_back(split.at(2).toInt());
+
+            if (split.at(0).size() == 2 && split.at(1).size() == 2 && split.at(2).size() == 2) return DATE_MMDDYY_SLASH_SEPARATED;
+
+            if (values[0] > 31)
+            {
+                return DATE_YYYYMMDD_SLASH_SEPARATED;
+            }
+            else if (values[2] > 31)
+            {
+                if (values[0] > 12)
+                {
+                    return DATE_DDMMYYYY_SLASH_SEPARATED;
+                }
+
+                if (values[1] > 12)
+                {
+                    return DATE_MMDDYYYY_SLASH_SEPARATED;
+                }
+
+                return DATE_DDMMYYYY_SLASH_SEPARATED;
+            }
+        }
+    }
+
+    return DATE_DDMMYYYY_DOT_SEPARATED;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
