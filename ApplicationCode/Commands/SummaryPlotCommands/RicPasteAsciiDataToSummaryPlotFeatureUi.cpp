@@ -466,7 +466,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::fieldChangedByUi(const caf::PdmFie
 {
     if (changedField == &m_cellSeparator || changedField == &m_timeSeriesColumnName)
     {
-        m_previewText = m_parser->previewText(PREVIEW_TEXT_LINE_COUNT, parseOptions());
+        updatePreviewTextAndDateFormat();
     }
 }
 
@@ -495,5 +495,23 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::initialize(RifCsvUserDataParser* p
         m_timeSeriesColumnName = QString::fromStdString(parser->tableData().columnInfos()[0].columnName());
     }
 
-    m_previewText = parser->previewText(PREVIEW_TEXT_LINE_COUNT, parseOptions());
+    updatePreviewTextAndDateFormat();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicPasteAsciiDataToSummaryPlotFeatureUi::updatePreviewTextAndDateFormat()
+{
+    m_previewText = m_parser->previewText(PREVIEW_TEXT_LINE_COUNT, parseOptions());
+
+    QStringList timeStrings = m_parser->timeColumnPreviewData(PREVIEW_TEXT_LINE_COUNT, parseOptions());
+
+    DateFormat df = DATE_DDMMYYYY_DOT_SEPARATED;
+    for (auto& s : timeStrings)
+    {
+        df = dateFormatFromString(s);
+    }
+
+    m_dateFormat = df;
 }

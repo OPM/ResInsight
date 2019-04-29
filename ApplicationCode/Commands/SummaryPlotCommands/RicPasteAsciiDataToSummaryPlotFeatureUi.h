@@ -143,6 +143,7 @@ protected:
 
 private:
     void    initialize(RifCsvUserDataParser* parser);
+    void    updatePreviewTextAndDateFormat();
 
 private:
     UiMode                                                      m_uiMode;
