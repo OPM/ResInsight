@@ -294,8 +294,6 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::createNewPlot()
 RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
     RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString(const QString& dateString)
 {
-    std::vector<int> indicesForDot;
-    std::vector<int> indicesForSlash;
     std::vector<int> values;
 
     {
