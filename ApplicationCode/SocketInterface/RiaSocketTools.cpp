@@ -41,7 +41,6 @@
 
 #include "cvfTimer.h"
 
-#include <QErrorMessage>
 #include <QTcpSocket>
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +60,7 @@ RimEclipseCase* RiaSocketTools::findCaseFromArgs(RiaSocketServer* server, const 
     if (rimCase == nullptr)
     {
         // TODO: Display error message a different place to avoid socket comm to be halted.
-        //server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the Case with CaseId : \"%1\"").arg(caseId));
+        //server->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the Case with CaseId : \"%1\"").arg(caseId));
     }
 
     return rimCase;
@@ -131,13 +130,13 @@ bool RiaSocketTools::writeBlockData(RiaSocketServer* server, QTcpSocket* socket,
     {
         for (int i = 0; i < errorMessages.size(); i++)
         {
-            server->errorMessageDialog()->showMessage(errorMessages[i]);
+            server->showErrorMessage(errorMessages[i]);
         }
 
 //         double totalTimeMS = timer.time() * 1000.0;
 //         QString resultInfo = QString("Total time '%1 ms'").arg(totalTimeMS);
 // 
-//         server->errorMessageDialog()->showMessage(resultInfo);
+//         server->showMessage(resultInfo);
     }
 
     return writeSucceded;
