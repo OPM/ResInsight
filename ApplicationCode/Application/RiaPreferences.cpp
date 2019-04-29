@@ -124,9 +124,6 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&m_showProjectChangedDialog, "showProjectChangedDialog", true, "Show 'Project has changed' dialog", "", "", "");
     m_showProjectChangedDialog.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&m_showOctaveWarningForMultipleInstances, "showOctaveWarningForMultipleInstances", true, "Show Octave warning when multiple instances are created", "", "", "");
-    m_showOctaveWarningForMultipleInstances.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
 
@@ -175,7 +172,6 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &showLasCurveWithoutTvdWarning ||
             field == &holoLensDisableCertificateVerification ||
             field == &m_showProjectChangedDialog ||
-            field == &m_showOctaveWarningForMultipleInstances ||
             field == &showLegendBackground)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
@@ -263,7 +259,6 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         uiOrdering.add(&m_appendFieldKeywordToToolTipText);
 
         uiOrdering.add(&m_showProjectChangedDialog);
-        uiOrdering.add(&m_showOctaveWarningForMultipleInstances);
 
         uiOrdering.add(&m_showTestToolbar);
         uiOrdering.add(&m_includeFractureDebugInfoFile);
@@ -353,19 +348,6 @@ bool RiaPreferences::showProjectChangedDialog() const
     }
 
     return m_showProjectChangedDialog();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::showOctaveCommunicationWarning() const
-{
-    if (!RiaApplication::enableDevelopmentFeatures())
-    {
-        return true;
-    }
-
-    return m_showOctaveWarningForMultipleInstances();
 }
 
 //--------------------------------------------------------------------------------------------------

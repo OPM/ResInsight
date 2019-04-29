@@ -60,7 +60,6 @@ public:
     bool showTestToolbar() const;
     bool includeFractureDebugInfoFile() const;
     bool showProjectChangedDialog() const;
-    bool showOctaveCommunicationWarning() const;
     QString holoLensExportFolder() const;
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
@@ -117,7 +116,6 @@ private:
     caf::PdmField<bool>                    m_appendFieldKeywordToToolTipText;
 
     caf::PdmField<bool>                    m_showProjectChangedDialog;
-    caf::PdmField<bool>                    m_showOctaveWarningForMultipleInstances;
 
     caf::PdmField<bool>                    m_showTestToolbar;
     caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
