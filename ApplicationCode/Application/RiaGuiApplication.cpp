@@ -25,6 +25,7 @@
 #include "RiaColorTables.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
+#include "RiaGrpcServer.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -573,6 +574,8 @@ void RiaGuiApplication::initialize()
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
 
     m_socketServer = new RiaSocketServer(this);
+    m_grpcServer.reset(new RiaGrpcServer);
+    m_grpcServer->run();
 }
 
 //--------------------------------------------------------------------------------------------------

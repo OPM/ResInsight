@@ -230,6 +230,54 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     add_definitions(-DENABLE_SOURING)
 endif()
 
+if (RESINSIGHT_ENABLE_GRPC)
+	if (MSVC)
+		add_definitions(-D_WIN32_WINNT=0x600)		
+	endif()
+
+    add_definitions(-DENABLE_GRPC)
+	# Find Protobuf installation
+	# Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
+	set(protobuf_MODULE_COMPATIBLE ON CACHE BOOL "")
+	find_package(Protobuf CONFIG 3.0 REQUIRED)
+	message(STATUS "Using protobuf ${protobuf_VERSION}")
+
+	set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+	set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+
+	# Find gRPC installation
+	# Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
+	find_package(gRPC CONFIG REQUIRED NO_MODULE)
+	message(STATUS "Using gRPC ${gRPC_VERSION}")
+
+	set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure)
+	set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)	
+	set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
+	# Proto file
+	get_filename_component(hw_proto "GrpcProtos/ResInsightGrid.proto" ABSOLUTE)
+	get_filename_component(hw_proto_path "${hw_proto}" PATH)
+
+	set(hw_proto_srcs "${CMAKE_BINARY_DIR}/Generated/ResInsightGrid.pb.cc")
+    set(hw_proto_hdrs "${CMAKE_BINARY_DIR}/Generated/ResInsightGrid.pb.h")
+    set(hw_grpc_srcs  "${CMAKE_BINARY_DIR}/Generated/ResInsightGrid.grpc.pb.cc")
+    set(hw_grpc_hdrs  "${CMAKE_BINARY_DIR}/Generated/ResInsightGrid.grpc.pb.h")
+
+	add_custom_command(
+      OUTPUT "${hw_proto_srcs}" "${hw_proto_hdrs}" "${hw_grpc_srcs}" "${hw_grpc_hdrs}"
+      COMMAND ${_PROTOBUF_PROTOC}
+      ARGS --grpc_out "${CMAKE_BINARY_DIR}/Generated/"
+        --cpp_out "${CMAKE_BINARY_DIR}/Generated/"
+        -I "${hw_proto_path}"
+        --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+        "${hw_proto}"
+      DEPENDS "${hw_proto}"
+	)
+
+	list( APPEND CPP_SOURCES
+	     ${hw_proto_srcs}
+		 ${hw_grpc_srcs}
+	)
+endif(RESINSIGHT_ENABLE_GRPC)
 
 #############################################################################
 # Qt specifics: Moc, ui, resources
@@ -374,6 +422,7 @@ set( LINK_LIBRARIES
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
+	${GRPC_LIBRARIES}	
 )
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7

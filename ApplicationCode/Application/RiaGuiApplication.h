@@ -40,6 +40,7 @@ class Drawable;
 
 class RIProcess;
 
+class RiaGrpcServer;
 class RiaPreferences;
 class RiaProjectModifier;
 class RiaSocketServer;
@@ -167,7 +168,8 @@ private slots:
 private:
     RiuMainWindow*                      m_mainWindow;
     RiuPlotMainWindow*                  m_mainPlotWindow;
-    
+    std::unique_ptr<RiaGrpcServer>      m_grpcServer;
+
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
 
     std::unique_ptr<RiuMdiMaximizeWindowGuard> m_maximizeWindowGuard;
