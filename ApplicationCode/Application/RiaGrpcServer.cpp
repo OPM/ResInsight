@@ -145,6 +145,7 @@ void RiaGrpcServer::run()
     initialize();
     while (true)
     {
+        activateGrpcThread();
         blockForNextRequest();
     }
 }
@@ -154,7 +155,8 @@ void RiaGrpcServer::run()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::runInThread()
 {
-    initialize();    
+    initialize();
+    activateMainThread();
     m_thread = std::thread(&RiaGrpcServer::blockForNextRequest, this);
 }
 
@@ -187,6 +189,9 @@ void RiaGrpcServer::initialize()
     {
         process(callMethod);
     }
+    m_commandWaiting = false;
+    m_idleGuard    = std::unique_lock<std::mutex>(m_idleMutex, std::defer_lock);
+    m_commandGuard = std::unique_lock<std::mutex>(m_commandMutex, std::defer_lock);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -194,7 +199,31 @@ void RiaGrpcServer::initialize()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::handleOneRequest()
 {
-    blockForNextRequest();
+    if (m_commandWaiting)
+    {
+        activateGrpcThread();
+
+        // Block until the idleguard is released
+        while (m_idleGuard) {}
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServer::activateGrpcThread()
+{
+    if (!m_idleGuard) m_idleGuard.lock(); // Stops us returning control to the main thread
+    if (m_commandGuard) m_commandGuard.unlock();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServer::activateMainThread()
+{
+    if (!m_commandGuard) m_commandGuard.lock();
+    if (m_idleGuard) m_idleGuard.unlock();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,10 +240,14 @@ void RiaGrpcServer::blockForNextRequest()
         {
             return;
         }
+        m_commandWaiting = true;
+        while (m_commandGuard) {}       
         {
             RiaGrpcServerCallMethod* method = static_cast<RiaGrpcServerCallMethod*>(tag);
             process(method);
+            m_commandWaiting = false;
         }
+        activateMainThread();
     }
 }
 
