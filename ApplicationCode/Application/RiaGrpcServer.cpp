@@ -46,12 +46,12 @@ RimEclipseCase* RiaGridServiceImpl::getCase(int caseId) const
 Status RiaGridServiceImpl::dimensions(ServerContext* context, const Case* request, Vec3i* reply)
 {
     int caseId = request->id();
-    std::cout << "Got dimension request for case id: " << caseId << std::endl;
+    RiaLogging::debug("Got dimension request");
 
     RimEclipseCase* rimCase = getCase(caseId);
     if (rimCase)
     {
-        std::cout << "Sending back dimensions" << std::endl;
+        RiaLogging::debug("Sending back dimensions");
         reply->set_i((int)rimCase->mainGrid()->cellCountI());
         reply->set_j((int)rimCase->mainGrid()->cellCountJ());
         reply->set_k((int)rimCase->mainGrid()->cellCountK());
@@ -66,7 +66,7 @@ Status RiaGridServiceImpl::dimensions(ServerContext* context, const Case* reques
 Status RiaGridServiceImpl::results(ServerContext* context, const EclipseResultRequest* request, DoubleResult* result)
 {
     int caseId = request->result_case().id();
-    std::cout << "Got result request for case id: " << caseId << std::endl;
+    RiaLogging::debug("GRPC: Got result request");
     RimEclipseCase* rimCase = getCase(caseId);
     if (rimCase)
     {
@@ -96,18 +96,16 @@ Status RiaGridServiceImpl::results(ServerContext* context, const EclipseResultRe
                 for (size_t i = 0; i < resultValues[timeStep].size(); ++i)
                 {
                     result->add_value(resultValues[timeStep][i]);
-                    if (i == 25347) std::cout << "Result for cell " << i << ": " << resultValues[timeStep][i] << std::endl;
-                }              
-                std::cout << "Successfully Packed " << resultValues[timeStep].size() << " values" << std::endl;
+                }
                 return Status::OK;
             }
-            std::cout << "Invalid time step" << std::endl;
+            RiaLogging::error("GRPC: Invalid Time Step");
             return Status(grpc::NOT_FOUND, "Invalid Time Step");
         }
-        std::cout << "Invalid result address" << std::endl;
+        RiaLogging::error("GRPC: Invalid Result Address");
         return Status(grpc::NOT_FOUND, "Invalid Result Address");
     }
-    std::cout << "Invalid case id" << std::endl;
+    RiaLogging::error("GRPC: Invalid Case Id");
     return Status(grpc::NOT_FOUND, "Invalid case id");
 }
 
@@ -117,26 +115,26 @@ Status RiaGridServiceImpl::results(ServerContext* context, const EclipseResultRe
 Status RiaGridServiceImpl::numberOfTimeSteps(ServerContext* context, const Case* request, Int32Message* reply)
 {
     int caseId = request->id();
-    std::cout << "Got time steps request for case id: " << caseId << std::endl;
+    RiaLogging::debug("GRPC: Got time steps request");
+
     RimEclipseCase* rimCase = getCase(caseId);
     if (rimCase)
     {
         reply->set_value(rimCase->timeStepStrings().size());
         return Status::OK;
     }
+    RiaLogging::error("GRPC: Invalid Case Id");
     return Status(grpc::NOT_FOUND, "Invalid case id");
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::runInOwnMainLoop()
+RiaGrpcServer::~RiaGrpcServer()
 {
-    run();
-
-    // Wait for the server to shutdown. Note that some other thread must be
-    // responsible for shutting down the server for this call to ever return.
-    server_->Wait();
+    m_thread.join();
+    m_server->Shutdown();
+    m_commandQueue->Shutdown();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,24 +142,147 @@ void RiaGrpcServer::runInOwnMainLoop()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::run()
 {
+    initialize();
+    while (true)
+    {
+        blockForNextRequest();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServer::runInThread()
+{
+    initialize();    
+    m_thread = std::thread(&RiaGrpcServer::blockForNextRequest, this);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServer::initialize()
+{
     std::string        server_address("localhost:50051");
-    RiaGridServiceImpl service;
 
     ServerBuilder builder;
     // Listen on the given address without any authentication mechanism.
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     // Register "service" as the instance through which we'll communicate with
     // clients. In this case it corresponds to an *synchronous* service.
-    builder.RegisterService(&service);
+    builder.RegisterService(&m_service);
+
+    m_commandQueue = builder.AddCompletionQueue();
+
     // Finally assemble the server.
-    server_ = builder.BuildAndStart();
-    std::cout << "Server listening on " << server_address << std::endl;
+    m_server = builder.BuildAndStart();
+
+    RiaLogging::info(QString("Server listening on %1").arg(QString::fromStdString(server_address)));
+    // Spawn new CallData instances to serve new clients.
+    m_callMethods.push_back(new RiaGrpcServerCallData<Case, Vec3i>("dimensions"));
+    m_callMethods.push_back(new RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>("results"));
+    m_callMethods.push_back(new RiaGrpcServerCallData<Case, Int32Message>("numberOfTimeSteps"));
+
+    for (auto callMethod : m_callMethods)
+    {
+        process(callMethod);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::handleRequest()
+void RiaGrpcServer::handleOneRequest()
 {
+    blockForNextRequest();
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServer::blockForNextRequest()
+{
+    void* tag;
+    bool  ok = false;
+
+    while (m_commandQueue->Next(&tag, &ok))
+    {
+        if (!ok)
+        {
+            return;
+        }
+        {
+            RiaGrpcServerCallMethod* method = static_cast<RiaGrpcServerCallMethod*>(tag);
+            process(method);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServer::process(RiaGrpcServerCallMethod* method)
+{
+    RiaGrpcServerCallData<Case, Vec3i>* dimCd = dynamic_cast<RiaGrpcServerCallData<Case, Vec3i>*>(method);
+    RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>* resultsCd = dynamic_cast<RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>*>(method);
+    RiaGrpcServerCallData<Case, Int32Message>* tsCd = dynamic_cast<RiaGrpcServerCallData<Case, Int32Message>*>(method);
+
+    if (method->callStatus() == RiaGrpcServerCallMethod::CREATE)
+    {
+        method->callStatus() = RiaGrpcServerCallMethod::PROCESS;
+        if (dimCd)
+        {
+            m_service.Requestdimensions(&(dimCd->context()),
+                                        &(dimCd->request()),
+                                        &(dimCd->responder()),
+                                        m_commandQueue.get(),
+                                        m_commandQueue.get(),
+                                        dimCd);                                       
+        }
+        else if (resultsCd)
+        {
+            m_service.Requestresults(&(resultsCd->context()),
+                                     &(resultsCd->request()),
+                                     &(resultsCd->responder()),
+                                     m_commandQueue.get(),
+                                     m_commandQueue.get(),
+                                     resultsCd);
+        }
+        else if (tsCd)
+        {
+            m_service.RequestnumberOfTimeSteps(&(tsCd->context()),
+                                               &(tsCd->request()),
+                                               &(tsCd->responder()),
+                                               m_commandQueue.get(),
+                                               m_commandQueue.get(),
+                                               tsCd);
+        }
+    }
+    else if (method->callStatus() == RiaGrpcServerCallMethod::PROCESS)
+    {
+        method->callStatus() = RiaGrpcServerCallMethod::FINISH;
+        if (dimCd)
+        {
+            process(new RiaGrpcServerCallData<Case, Vec3i>("dimensions"));
+            Status status = m_service.dimensions(&(dimCd->context()), &(dimCd->request()), &(dimCd->reply()));
+            dimCd->responder().Finish(dimCd->reply(), status, dimCd);
+            
+        }
+        else if (resultsCd)
+        {
+            process(new RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>("results"));
+            Status status = m_service.results(&(resultsCd->context()), &(resultsCd->request()), &(resultsCd->reply()));
+            resultsCd->responder().Finish(resultsCd->reply(), status, resultsCd);
+        }
+        else if (tsCd)
+        {
+            process(new RiaGrpcServerCallData<Case, Int32Message>("numberOfTimeSteps"));
+            Status status = m_service.numberOfTimeSteps(&(tsCd->context()), &(tsCd->request()), &(tsCd->reply()));
+            tsCd->responder().Finish(tsCd->reply(), status, tsCd);
+        }
+    }
+    else
+    {
+        delete method;
+    }
 }

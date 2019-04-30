@@ -179,13 +179,15 @@ RiaGuiApplication::RiaGuiApplication(int& argc, char** argv)
     , m_mainWindow(nullptr)
     , m_mainPlotWindow(nullptr)
 {
-    // For idle processing
-    //    m_idleTimerStarted = false;
-    installEventFilter(this);   
-
     setWindowIcon(QIcon(":/AppLogo48x48.png"));
 
     m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);  
+    m_grpcServer.reset(new RiaGrpcServer);
+    m_grpcServer->runInThread();
+
+    m_idleTimer = new QTimer(this);
+    connect(m_idleTimer, SIGNAL(timeout()), this, SLOT(handleRpcRequests()));
+    m_idleTimer->start(10);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -572,10 +574,7 @@ void RiaGuiApplication::initialize()
     getOrCreateMainPlotWindow();
     RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(m_mainWindow->messagePanel()));
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
-
     m_socketServer = new RiaSocketServer(this);
-    m_grpcServer.reset(new RiaGrpcServer);
-    m_grpcServer->run();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1649,6 +1648,14 @@ void RiaGuiApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitSt
         m_socketServer->setCurrentCaseId(-1);
         m_runningWorkerProcess = false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::handleRpcRequests()
+{
+    m_grpcServer->handleOneRequest();
 }
 
 //--------------------------------------------------------------------------------------------------
