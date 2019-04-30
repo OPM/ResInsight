@@ -17,12 +17,14 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaLogging.h"
+
+#include <QString>
+
 #include <iostream>
 #include <memory>
 #include <string>
 #include <thread>
-
-#include <QString>
 
 #ifdef WIN32
 // GRPC does a lot of tricks that give warnings on MSVC but works fine
@@ -33,6 +35,7 @@
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
 #include <iostream>
+#include <mutex>
 
 #include "ResInsightGrid.grpc.pb.h"
 
@@ -52,24 +55,103 @@ using ResInsight::DoubleResult;
 
 class RimEclipseCase;
 
-class RiaGridServiceImpl final : public ResInsight::Grid::Service
+class RiaGrpcServerCallMethod
+{
+public:
+    enum CallStatus
+    {
+        CREATE,
+        PROCESS,
+        FINISH
+    };
+
+public:
+    RiaGrpcServerCallMethod(const std::string& methodName)
+        : m_methodName(methodName)
+        , m_status(CREATE)
+    {
+    }
+
+    virtual ~RiaGrpcServerCallMethod() {}
+
+    const std::string& callMethodName() const
+    {
+        return m_methodName;
+    }
+    CallStatus& callStatus()
+    {
+        return m_status;
+    }
+
+private:
+    std::string m_methodName;
+    CallStatus  m_status;
+};
+
+template<typename RequestT, typename ReplyT>
+class RiaGrpcServerCallData : public RiaGrpcServerCallMethod
+{
+public:
+    RiaGrpcServerCallData(const std::string& methodName)
+        : RiaGrpcServerCallMethod(methodName)
+        , m_responder(&m_context)
+    {
+        RiaLogging::info(QString("Listening for %1").arg(QString::fromStdString(methodName)));
+    }
+
+    ServerContext& context()
+    {
+        return m_context;
+    }
+    RequestT& request()
+    {
+        return m_request;
+    }
+    ReplyT& reply()
+    {
+        return m_reply;
+    }
+
+    ServerAsyncResponseWriter<ReplyT>& responder()
+    {
+        return m_responder;
+    }
+
+private:
+    ServerContext                     m_context;
+    RequestT                          m_request;
+    ReplyT                            m_reply;
+    ServerAsyncResponseWriter<ReplyT> m_responder;
+};
+
+class RiaGridServiceImpl final : public ResInsight::Grid::AsyncService
 {
 public:
     RimEclipseCase* getCase(int caseId) const;
 
-    Status dimensions(ServerContext* context, const Case* request, Vec3i* reply);
-    Status results(ServerContext* context, const EclipseResultRequest* request, DoubleResult* result);
-    Status numberOfTimeSteps(ServerContext* context, const Case* request, Int32Message* reply);
+    Status dimensions(ServerContext* context, const Case* request, Vec3i* reply) override;
+    Status results(ServerContext* context, const EclipseResultRequest* request, DoubleResult* result) override;
+    Status numberOfTimeSteps(ServerContext* context, const Case* request, Int32Message* reply) override;
 };
 
 class RiaGrpcServer
 {
 public:
-    void runInOwnMainLoop();
+    ~RiaGrpcServer();
     void run();
-    void handleRequest();
+    void runInThread();
+    void initialize();
+    void handleOneRequest();
 private:
-    std::unique_ptr<Server> server_;
+    void blockForNextRequest();
+    void process(RiaGrpcServerCallMethod* method);
+
+private:
+    std::unique_ptr<ServerCompletionQueue> m_commandQueue;
+    std::unique_ptr<Server>                m_server;
+    RiaGridServiceImpl                     m_service;
+    std::list<RiaGrpcServerCallMethod*>    m_callMethods;
+    std::thread                            m_thread;
 };
 
 

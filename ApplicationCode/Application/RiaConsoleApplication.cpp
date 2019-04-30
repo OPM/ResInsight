@@ -327,7 +327,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments(cvf::Pr
     {
 #ifdef ENABLE_GRPC
         RiaGrpcServer server;
-        server.runInOwnMainLoop();
+        server.run();
         return EXIT_COMPLETED;
 #else
         std::cout << "ResInsight has not been compiled with GRPC. Cannot use --server option" << std::endl;

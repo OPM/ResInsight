@@ -28,8 +28,10 @@
 
 #include <QApplication>
 #include <QMutex>
+#include <QPointer>
 #include <QProcess>
 #include <QString>
+#include <QTimer>
 
 #include <iostream>
 #include <memory>
@@ -147,7 +149,7 @@ protected:
     void                startMonitoringWorkProgress(caf::UiProcess* uiProcess) override;
     void                stopMonitoringWorkProgress() override;
 
-private:
+private:    
     void                setWindowCaptionFromAppState();
 
     void                createMainWindow();
@@ -164,11 +166,12 @@ private:
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-
+    void                handleRpcRequests();
 private:
     RiuMainWindow*                      m_mainWindow;
     RiuPlotMainWindow*                  m_mainPlotWindow;
     std::unique_ptr<RiaGrpcServer>      m_grpcServer;
+    QPointer<QTimer>                    m_idleTimer;
 
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
 
