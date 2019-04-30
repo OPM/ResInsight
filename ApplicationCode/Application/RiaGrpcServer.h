@@ -141,11 +141,9 @@ public:
     void run();
     void runInThread();
     void initialize();
-    void handleOneRequest();
 private:
-    void activateGrpcThread();
-    void activateMainThread();
     void blockForNextRequest();
+    void blockForNextRequestAsync();
     void process(RiaGrpcServerCallMethod* method);
 
 private:
@@ -154,11 +152,6 @@ private:
     RiaGridServiceImpl                     m_service;
     std::list<RiaGrpcServerCallMethod*>    m_callMethods;
     std::thread                            m_thread;
-    bool                                   m_commandWaiting;
-    std::mutex                             m_idleMutex;
-    std::mutex                             m_commandMutex;
-    std::unique_lock<std::mutex>           m_idleGuard;
-    std::unique_lock<std::mutex>           m_commandGuard;
 };
 
 

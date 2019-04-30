@@ -184,10 +184,6 @@ RiaGuiApplication::RiaGuiApplication(int& argc, char** argv)
     m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);  
     m_grpcServer.reset(new RiaGrpcServer);
     m_grpcServer->runInThread();
-
-    m_idleTimer = new QTimer(this);
-    connect(m_idleTimer, SIGNAL(timeout()), this, SLOT(handleRpcRequests()));
-    m_idleTimer->start(10);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1648,14 +1644,6 @@ void RiaGuiApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitSt
         m_socketServer->setCurrentCaseId(-1);
         m_runningWorkerProcess = false;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::handleRpcRequests()
-{
-    m_grpcServer->handleOneRequest();
 }
 
 //--------------------------------------------------------------------------------------------------
