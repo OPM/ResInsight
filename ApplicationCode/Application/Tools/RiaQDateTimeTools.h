@@ -101,6 +101,9 @@ public:
     // settings on local machine. Required for stable regression testing.
     static QString toStringUsingApplicationLocale(const QDateTime& dt, const QString& format);
 
+    static QString createTimeFormatStringFromDates(const std::vector<QDateTime>& dates);
+    static QString dateFormatString();
+
 private:
     static quint64  secondsInDay();
     static quint64  secondsInYear();

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include "RiuDockedQwtPlot.h"
 
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
@@ -39,7 +41,7 @@ class RiuSelectionItem;
 //
 //
 //==================================================================================================
-class RiuMohrsCirclePlot : public QwtPlot
+class RiuMohrsCirclePlot : public RiuDockedQwtPlot
 {
     Q_OBJECT
 

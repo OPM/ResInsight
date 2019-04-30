@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
 #include "RicHoloLensCreateDummyFileBackedSessionFeature.h"
 
 #include "RicHoloLensSessionManager.h"
-
-#include "RiaQIconTools.h"
 
 #include <QAction>
 
@@ -49,11 +47,7 @@ void RicHoloLensCreateDummyFiledBackedSessionFeature::onActionTriggered(bool isC
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensCreateDummyFiledBackedSessionFeature::setupActionLook(QAction* actionToSetup)
 {
-    QPixmap pixmap(":/hololens.png");
-    QPixmap overlayPixmap(":/plus-sign-green.png");
+    actionToSetup->setIcon(QIcon(":/HoloLensConnect24x24.png"));
 
-    QPixmap combinedPixmap = RiaQIconTools::appendPixmapUpperLeft(pixmap, overlayPixmap);
-    actionToSetup->setIcon(QIcon(combinedPixmap));
-
-    actionToSetup->setText("Create Dummy File Backed Session");
+    actionToSetup->setText("Create File-Backed Dummy-Session");
 }

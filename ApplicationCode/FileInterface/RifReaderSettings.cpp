@@ -50,7 +50,14 @@ RifReaderSettings::RifReaderSettings()
     CAF_PDM_InitField(&skipWellData, "skipWellData", false, "Skip Import of Simulation Well Data", "", "", "");
     skipWellData.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&faultIncludeFileAbsolutePathPrefix, "faultIncludeFileAbsolutePathPrefix", QString(), "Fault Include File Absolute Path Prefix", "", "Path used to prefix absolute UNIX paths in fault include statements on Windows", "");
+    CAF_PDM_InitField(
+        &includeFileAbsolutePathPrefix,
+        "includeFileAbsolutePathPrefix",
+        QString(),
+        "Include File Absolute Path Prefix",
+        "",
+        "Path used to prefix absolute UNIX paths in include statements on Windows, used when searching for FAULTS and EQUIL",
+        "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +86,7 @@ void RifReaderSettings::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.add(&importFaults);
 #ifdef WIN32
-    uiOrdering.add(&faultIncludeFileAbsolutePathPrefix);
+    uiOrdering.add(&includeFileAbsolutePathPrefix);
 #endif
     uiOrdering.add(&importNNCs);
     uiOrdering.add(&importAdvancedMswData);

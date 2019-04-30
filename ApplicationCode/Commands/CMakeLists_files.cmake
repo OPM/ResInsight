@@ -42,12 +42,15 @@ ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCasesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportObservedDataFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportObservedDataInMenuFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicImportGeneralDataFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFeatureImpl.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectOrCreateViewFeatureImpl.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicPickEventHandler.h
+${CMAKE_CURRENT_LIST_DIR}/Ric3dViewPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.h
+${CMAKE_CURRENT_LIST_DIR}/RicVec3dPickEventHandler.h
 
 # General delete of any object in a child array field
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExec.h
@@ -119,11 +122,14 @@ ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCaseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCasesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportObservedDataFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportObservedDataInMenuFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicImportGeneralDataFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFeatureImpl.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectOrCreateViewFeatureImpl.cpp
 
+${CMAKE_CURRENT_LIST_DIR}/Ric3dViewPickEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicVec3dPickEventHandler.cpp
 
 # General delete of any object in a child array field
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExec.cpp

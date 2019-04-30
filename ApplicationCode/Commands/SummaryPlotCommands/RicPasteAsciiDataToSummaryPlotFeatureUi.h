@@ -38,7 +38,12 @@
 class AsciiDataParseOptions
 {
 public:
-    AsciiDataParseOptions() : useCustomDateTimeFormat(false), assumeNumericDataColumns(false) { }
+    AsciiDataParseOptions()
+        : useCustomDateTimeFormat(false)
+        , assumeNumericDataColumns(false)
+        , curveSymbolSkipDistance(0.0f)
+    {
+    }
 
     QString                 plotTitle;
     QString                 curvePrefix;
@@ -128,6 +133,8 @@ public:
     const AsciiDataParseOptions    parseOptions() const;
     void    createNewPlot();
 
+    static DateFormat dateFormatFromString(const QString& dateString);
+
 protected:
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
@@ -136,6 +143,7 @@ protected:
 
 private:
     void    initialize(RifCsvUserDataParser* parser);
+    void    updatePreviewTextAndDateFormat();
 
 private:
     UiMode                                                      m_uiMode;

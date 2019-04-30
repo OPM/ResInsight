@@ -44,6 +44,7 @@
 #include <QPointer>
 #include <QLineEdit>
 #include <QLabel>
+#include <QToolButton>
 
 
 namespace caf 
@@ -56,11 +57,13 @@ class PdmUiColorEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     bool showAlpha;
+    bool showLabel;
 
 public:
     PdmUiColorEditorAttribute()
     {
         showAlpha = false;
+        showLabel = true;
     }
 };
 
@@ -82,19 +85,23 @@ protected:
     QWidget*    createLabelWidget(QWidget * parent) override;
     void        configureAndUpdateUi(const QString& uiConfigName) override;
 
+
+    QMargins    calculateLabelContentMargins() const override;
+
 protected slots:
     void        colorSelectionClicked();
 
 private:
     void        setColorOnWidget(const QColor& c);
-
+    QColor      getFontColor(const QColor& backgroundColor) const;
 private:
-    QPointer<QLabel>    m_label;
+    QPointer<QShortenedLabel>    m_label;
 
-    QColor              m_color;
-    QPointer<QLabel>    m_colorPixmapLabel;
-    QPointer<QLabel>    m_colorTextLabel;
-  
+    QColor                m_color;
+    QPointer<QLabel>      m_colorTextLabel;
+    QPointer<QToolButton> m_colorSelectionButton;
+    QPointer<QLabel>      m_colorPreviewLabel;
+
     PdmUiColorEditorAttribute m_attributes;
 };
 

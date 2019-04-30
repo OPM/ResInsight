@@ -57,6 +57,7 @@ class PdmUiListEditorAttribute : public PdmUiEditorAttribute
 public:
     PdmUiListEditorAttribute()
         : m_heightHint(2000)
+        , m_allowHorizontalScrollBar(true)
     {
         QPalette myPalette;
 
@@ -66,6 +67,7 @@ public:
 public:
     QColor  m_baseColor;
     int     m_heightHint;
+    bool    m_allowHorizontalScrollBar;
 };
 
 
@@ -81,11 +83,14 @@ public:
     PdmUiListEditor(); 
     ~PdmUiListEditor() override; 
 
+    void        scrollToSelectedItem() const;
+
 protected:
     QWidget*    createEditorWidget(QWidget * parent) override;
     QWidget*    createLabelWidget(QWidget * parent) override;
     void        configureAndUpdateUi(const QString& uiConfigName) override;
     bool        eventFilter ( QObject * listView, QEvent * event ) override; // To catch delete key press in list view.
+    bool        isMultiRowEditor() const override;
 
 protected slots:
     void        slotSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
@@ -99,11 +104,12 @@ private:
 
 private:
     QPointer<QListViewHeightHint> m_listView;
-    QPointer<QLabel>              m_label;
+    QPointer<QShortenedLabel>     m_label;
     QPointer<QStringListModel>    m_model;
 
-    bool                    m_isEditOperationsAvailable;
-    int                     m_optionItemCount;
+    bool m_isEditOperationsAvailable;
+    int  m_optionItemCount;
+    bool m_isScrollToItemAllowed;
 };
 
 

@@ -195,7 +195,7 @@ QVariant PdmUiTableViewQModel::data(const QModelIndex &index, int role /*= Qt::D
                 }
                 else
                 {
-                    return Qt::lightGray;
+                    return QColor(Qt::lightGray);
                 }
             }
             else if (textColor.isValid())

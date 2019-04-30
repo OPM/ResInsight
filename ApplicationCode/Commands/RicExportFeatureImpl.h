@@ -18,9 +18,7 @@
 
 #pragma once
 
-namespace caf {
-    class PdmUiPropertyViewDialog;
-}
+class QDialogButtonBox;
 
 //==================================================================================================
 /// 
@@ -28,5 +26,5 @@ namespace caf {
 class RicExportFeatureImpl
 {
 public:
-    static void configureForExport(caf::PdmUiPropertyViewDialog* propertyViewDialog);
+    static void configureForExport(QDialogButtonBox* propertyViewDialog);
 };

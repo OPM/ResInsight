@@ -21,9 +21,12 @@
 
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
+#include "RimGridCrossPlot.h"
+#include "RimGridCrossPlotCollection.h"
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
+#include "RimSaturationPressurePlotCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimViewWindow.h"
@@ -65,13 +68,20 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault(&m_flowPlotCollection, "FlowPlotCollection", "Flow Diagnostics Plots", "", "", "");
     m_flowPlotCollection.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_gridCrossPlotCollection, "Rim3dCrossPlotCollection", "3d Cross Plots", "", "", "");
+    m_gridCrossPlotCollection.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_saturationPressurePlotCollection, "RimSaturationPressurePlotCollection", "Saturation Pressure Plots", "", "", "");
+    m_saturationPressurePlotCollection.uiCapability()->setUiHidden(true);
+
     m_wellLogPlotCollection         = new RimWellLogPlotCollection();
     m_rftPlotCollection             = new RimRftPlotCollection();
     m_pltPlotCollection             = new RimPltPlotCollection();
     m_summaryPlotCollection         = new RimSummaryPlotCollection();
     m_summaryCrossPlotCollection    = new RimSummaryCrossPlotCollection();
     m_flowPlotCollection            = new RimFlowPlotCollection();
-
+    m_gridCrossPlotCollection       = new RimGridCrossPlotCollection;
+    m_saturationPressurePlotCollection = new RimSaturationPressurePlotCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,13 +89,6 @@ RimMainPlotCollection::RimMainPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimMainPlotCollection::~RimMainPlotCollection()
 {
-    if (m_wellLogPlotCollection())          delete m_wellLogPlotCollection();
-    if (m_rftPlotCollection())              delete m_rftPlotCollection();
-    if (m_pltPlotCollection())              delete m_pltPlotCollection();
-    if (m_summaryPlotCollection())          delete m_summaryPlotCollection();
-    if (m_summaryCrossPlotCollection())     delete m_summaryCrossPlotCollection();
-    if (m_flowPlotCollection())             delete m_flowPlotCollection();
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,6 +156,22 @@ RimFlowPlotCollection* RimMainPlotCollection::flowPlotCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridCrossPlotCollection* RimMainPlotCollection::gridCrossPlotCollection()
+{
+    return m_gridCrossPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSaturationPressurePlotCollection* RimMainPlotCollection::saturationPressurePlotCollection()
+{
+    return m_saturationPressurePlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::deleteAllContainedObjects()
@@ -162,8 +181,9 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_pltPlotCollection()->deleteAllPlots();
     m_summaryPlotCollection()->summaryPlots.deleteAllChildObjects();
     m_summaryCrossPlotCollection()->deleteAllChildObjects();
-
+    m_gridCrossPlotCollection->deleteAllChildObjects();
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
+    m_saturationPressurePlotCollection()->deleteAllChildObjects();
 }
 
 
@@ -207,6 +227,14 @@ void RimMainPlotCollection::updatePlotsWithFormations()
     if (m_flowPlotCollection)
     {
         m_flowPlotCollection->loadDataAndUpdate();
+    }
+
+    if (m_gridCrossPlotCollection)
+    {
+        for (RimGridCrossPlot* crossPlot : m_gridCrossPlotCollection->gridCrossPlots())
+        {
+            crossPlot->loadDataAndUpdate();
+        }
     }
 }
 

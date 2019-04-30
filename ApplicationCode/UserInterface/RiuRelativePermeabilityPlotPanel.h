@@ -21,10 +21,12 @@
 #include "RiaEclipseUnitTools.h"
 #include "RigFlowDiagSolverInterface.h"
 
+#include <QPointer>
 #include <QWidget>
 
 #include <memory>
 
+class RiuDockedQwtPlot;
 class RiuRelativePermeabilityPlotUpdater;
 class QDockWidget;
 class QButtonGroup;
@@ -54,6 +56,7 @@ public:
                                                     QString cellReferenceText);
     void                                clearPlot();
     RiuRelativePermeabilityPlotUpdater* plotUpdater();
+    void                                applyFontSizes(bool replot);
 
 private:
     enum WhichYAxis
@@ -124,7 +127,7 @@ private:
     double                                                m_sgas;
     QString                                               m_caseName;
     QString                                               m_cellReferenceText;
-    QwtPlot*                                              m_qwtPlot;
+    QPointer<RiuDockedQwtPlot>                            m_qwtPlot;
     std::vector<QwtPlotMarker*>                           m_myPlotMarkers;
 
     QButtonGroup* m_selectedCurvesButtonGroup;

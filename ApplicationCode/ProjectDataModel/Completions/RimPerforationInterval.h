@@ -52,7 +52,6 @@ public:
     void                                enableCustomStartDate(bool enable);
     void                                setCustomStartDate(const QDate& date);
 
-    void                                enableCustomEndDate(bool enable);
     void                                setCustomEndDate(const QDate& date);
 
     void                                setDiameter(double diameter);
@@ -68,6 +67,7 @@ public:
 
     void                                addValve(RimWellPathValve* valve);
     std::vector<RimWellPathValve*>      valves() const;
+    void                                updateAllReferringTracks();
 
     // RimWellPathCompletionInterface overrides
     bool                                isEnabled() const override;

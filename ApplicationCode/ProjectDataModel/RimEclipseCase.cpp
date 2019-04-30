@@ -24,9 +24,11 @@
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 
-#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
+
+#include "RifReaderSettings.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -35,20 +37,16 @@
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
-#include "RimContourMapView.h"
-#include "RimContourMapViewCollection.h"
-#include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
-#include "RimCommandObject.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseContourMapView.h"
+#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
-#include "RimFlowCharacteristicsPlot.h"
-#include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
@@ -56,17 +54,9 @@
 #include "RimOilField.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
-#include "RimRegularLegendConfig.h"
+#include "RimReloadCaseTools.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimStimPlanColors.h"
-#include "RimSummaryCase.h"
-#include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
-#include "RimTools.h"
-#include "RimVirtualPerforationResults.h"
-#include "RimWellAllocationPlot.h"
-#include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -75,9 +65,7 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
-#include <QDebug>
-#include <QDir>
-#include <QFile>
+#include "cafUtils.h"
 #include <QFileInfo>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir");
@@ -102,7 +90,7 @@ RimEclipseCase::RimEclipseCase()
     m_filesContainingFaultsSemColSeparated.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "");
-    m_contourMapCollection = new RimContourMapViewCollection;
+    m_contourMapCollection = new RimEclipseContourMapViewCollection;
     m_contourMapCollection.uiCapability()->setUiTreeHidden(true);
 
     // Obsolete fields
@@ -174,6 +162,33 @@ const RigEclipseCaseData* RimEclipseCase::eclipseCaseData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseCase::ensureDeckIsParsedForEquilData()
+{
+    if (m_rigEclipseCase.notNull())
+    {
+        QString includeFileAbsolutePathPrefix;
+        {
+            RiaPreferences* prefs = RiaApplication::instance()->preferences();
+            if (prefs->readerSettings())
+            {
+                includeFileAbsolutePathPrefix = prefs->readerSettings()->includeFileAbsolutePathPrefix();
+            }
+        }
+
+        QString dataDeckFile;
+        {
+            QFileInfo fi(gridFileName());
+
+            dataDeckFile = caf::Utils::constructFullFileName(fi.absolutePath(), fi.baseName(), ".DATA");
+        }
+
+        m_rigEclipseCase->ensureDeckIsParsedForEquilData(dataDeckFile, includeFileAbsolutePathPrefix);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RimEclipseCase::defaultWellColor(const QString& wellName)
 {
     if (m_wellToColorMap.empty())
@@ -239,7 +254,7 @@ void RimEclipseCase::initAfterRead()
 
         riv->setEclipseCase(this);
     }
-    for (RimContourMapView* contourMap : m_contourMapCollection->views())
+    for (RimEclipseContourMapView* contourMap : m_contourMapCollection->views())
     {
         contourMap->setEclipseCase(this);
     }
@@ -275,9 +290,6 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
     }
 
     caf::PdmDocument::updateUiIconStateRecursively(rimEclipseView);
-
-    size_t i = reservoirViews().size();
-    rimEclipseView->setName(QString("View %1").arg(i + 1));
 
     reservoirViews().push_back(rimEclipseView);
 
@@ -417,7 +429,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 {
     if (changedField == &m_releaseResultMemory)
     {
-        reloadDataAndUpdate();
+        RimReloadCaseTools::reloadAllEclipseGridData(this);
 
         m_releaseResultMemory = oldValue.toBool();
     }
@@ -456,11 +468,11 @@ void RimEclipseCase::updateFormationNamesData()
     {
         if (activeFormationNames())
         {
-            rigEclipseCase->setActiveFormationNames(activeFormationNames()->formationNamesData());
+            rigEclipseCase->setActiveFormationNamesAndUpdatePlots(activeFormationNames()->formationNamesData());
         }
         else
         {
-            rigEclipseCase->setActiveFormationNames(nullptr);
+            rigEclipseCase->setActiveFormationNamesAndUpdatePlots(nullptr);
         }
         std::vector<Rim3dView*> views = this->views();
         for (Rim3dView* view : views)
@@ -480,7 +492,7 @@ void RimEclipseCase::updateFormationNamesData()
                     RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
                     for (RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters)
                     {
-                        if (propFilter->resultDefinition->resultType() == RiaDefines::FORMATION_NAMES)
+                        if (propFilter->resultDefinition()->resultType() == RiaDefines::FORMATION_NAMES)
                         {
                             propFilter->resultDefinition()->setResultVariable(RiaDefines::undefinedResultName());
                         }
@@ -490,7 +502,7 @@ void RimEclipseCase::updateFormationNamesData()
                 RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
                 for (RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters)
                 {
-                    if (propFilter->resultDefinition->resultType() == RiaDefines::FORMATION_NAMES)
+                    if (propFilter->resultDefinition()->resultType() == RiaDefines::FORMATION_NAMES)
                     {
                         propFilter->setToDefaultValues();
                         propFilter->updateConnectedEditors();
@@ -520,10 +532,12 @@ void RimEclipseCase::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     {
         uiTreeOrdering.add(&m_2dIntersectionViewCollection);
     }
+
     if (!m_contourMapCollection->views().empty())
     {
         uiTreeOrdering.add(&m_contourMapCollection);
     }
+
     uiTreeOrdering.skipRemainingChildren(true);
 }
 
@@ -536,31 +550,33 @@ void RimEclipseCase::computeCachedData()
     if (rigEclipseCase)
     {
         caf::ProgressInfo pInf(30, "");
-        pInf.setNextProgressIncrement(1);
-        rigEclipseCase->computeActiveCellBoundingBoxes();
-        pInf.incrementProgress();
 
-        pInf.setNextProgressIncrement(10);
-        pInf.setProgressDescription("Calculating Cell Search Tree");
-        rigEclipseCase->mainGrid()->computeCachedData();
-        pInf.incrementProgress();
-
-        pInf.setNextProgressIncrement(17);
-        pInf.setProgressDescription("Calculating faults");
-        rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL));
-        pInf.incrementProgress();
-
-        pInf.setProgressDescription("Calculating Formation Names Result");
-        if (activeFormationNames())
         {
-            rigEclipseCase->setActiveFormationNames(activeFormationNames()->formationNamesData());
-        }
-        else
-        {
-            rigEclipseCase->setActiveFormationNames(nullptr);
+            auto task = pInf.task("", 1);
+            rigEclipseCase->computeActiveCellBoundingBoxes();
         }
 
-        pInf.incrementProgress();
+        {
+            auto task = pInf.task("Calculating Cell Search Tree", 10);
+            rigEclipseCase->mainGrid()->computeCachedData();
+        }
+
+        {
+            auto task = pInf.task("Calculating faults", 17);
+            rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL));
+        }
+
+        {
+            auto task = pInf.task("Calculating Formation Names Result", 2);
+            if (activeFormationNames())
+            {
+                rigEclipseCase->setActiveFormationNames(activeFormationNames()->formationNamesData());
+            }
+            else
+            {
+                rigEclipseCase->setActiveFormationNames(nullptr);
+            }
+        }
     }
 }
 
@@ -575,7 +591,7 @@ RimCaseCollection* RimEclipseCase::parentCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapViewCollection* RimEclipseCase::contourMapCollection()
+RimEclipseContourMapViewCollection* RimEclipseCase::contourMapCollection()
 {
     return m_contourMapCollection;
 }
@@ -605,7 +621,7 @@ void RimEclipseCase::createTimeStepFormatString()
 {
     std::vector<QDateTime> timeStepDates = this->timeStepDates();
 
-    m_timeStepFormatString = RimTools::createTimeFormatStringFromDates(timeStepDates);
+    m_timeStepFormatString = RiaQDateTimeTools::createTimeFormatStringFromDates(timeStepDates);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -692,8 +708,7 @@ bool RimEclipseCase::loadStaticResultsByName(const std::vector<QString>& resultN
     {
         for (const auto& resultName : resultNames)
         {
-            size_t resultIdx = cellResultsData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, resultName);
-            if (resultIdx == cvf::UNDEFINED_SIZE_T)
+            if (!cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, resultName)))
             {
                 foundDataForAllResults = false;
             }
@@ -766,6 +781,19 @@ void RimEclipseCase::setFilesContainingFaults(const std::vector<QString>& val)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseCase::ensureReservoirCaseIsOpen()
+{
+    if (m_rigEclipseCase.notNull())
+    {
+        return true;
+    }
+
+    return openReserviorCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseCase::openReserviorCase()
 {
     if (!openEclipseGridFile())
@@ -790,33 +818,37 @@ bool RimEclipseCase::openReserviorCase()
                 results->createPlaceholderResultEntries();
                 // After the placeholder result for combined transmissibility is created,
                 // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
-                size_t combinedTransResIdx =
-                    results->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
-                if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
+
+                RigEclipseResultAddress combinedTransmissibilityResAddr(RiaDefines::STATIC_NATIVE,
+                                                                        RiaDefines::combinedTransmissibilityResultName());
+                if (results->hasResultEntry(combinedTransmissibilityResAddr))
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameCombTrans(),
-                                                                                   combinedTransResIdx);
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameCombTrans(),
+                                                                                  combinedTransmissibilityResAddr);
                 }
-                size_t combinedWatFluxResIdx =
-                    results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName());
-                if (combinedWatFluxResIdx != cvf::UNDEFINED_SIZE_T)
+
+                RigEclipseResultAddress combinedWaterFluxResAddr(RiaDefines::DYNAMIC_NATIVE,
+                                                                 RiaDefines::combinedWaterFluxResultName());
+                if (results->hasResultEntry(combinedWaterFluxResAddr))
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxWat(),
-                                                                                   combinedWatFluxResIdx);
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameFluxWat(),
+                                                                                  combinedWaterFluxResAddr);
                 }
-                size_t combinedOilFluxResIdx =
-                    results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
-                if (combinedOilFluxResIdx != cvf::UNDEFINED_SIZE_T)
+
+                RigEclipseResultAddress combinedOilFluxResAddr(RiaDefines::DYNAMIC_NATIVE,
+                                                               RiaDefines::combinedOilFluxResultName());
+                if (results->hasResultEntry(combinedOilFluxResAddr))
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxOil(),
-                                                                                   combinedOilFluxResIdx);
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameFluxOil(),
+                                                                                  combinedOilFluxResAddr);
                 }
-                size_t combinedGasFluxResIdx =
-                    results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
-                if (combinedGasFluxResIdx != cvf::UNDEFINED_SIZE_T)
+                RigEclipseResultAddress combinedGasFluxResAddr(RiaDefines::DYNAMIC_NATIVE,
+                                                               RiaDefines::combinedGasFluxResultName());
+
+                if (results->hasResultEntry(combinedGasFluxResAddr))
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxGas(),
-                                                                                   combinedGasFluxResIdx);
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress(RigNNCData::propertyNameFluxGas(),
+                                                                                  combinedGasFluxResAddr);
                 }
             }
         }
@@ -869,7 +901,7 @@ std::vector<Rim3dView*> RimEclipseCase::allSpecialViews() const
         views.push_back(view);
     }
 
-    for (RimContourMapView* view : m_contourMapCollection->views())
+    for (RimEclipseContourMapView* view : m_contourMapCollection->views())
     {
         views.push_back(view);
     }
@@ -916,88 +948,6 @@ QString RimEclipseCase::timeStepName(int frameIdx) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::reloadDataAndUpdate()
-{
-    if (this->eclipseCaseData())
-    {
-        RigCaseCellResultsData* matrixModelResults = eclipseCaseData()->results(RiaDefines::MATRIX_MODEL);
-        if (matrixModelResults)
-        {
-            matrixModelResults->clearAllResults();
-        }
-
-        RigCaseCellResultsData* fractureModelResults = eclipseCaseData()->results(RiaDefines::FRACTURE_MODEL);
-        if (fractureModelResults)
-        {
-            fractureModelResults->clearAllResults();
-        }
-
-        reloadEclipseGridFile();
-
-        for (size_t i = 0; i < reservoirViews().size(); i++)
-        {
-            RimEclipseView* reservoirView = reservoirViews()[i];
-            CVF_ASSERT(reservoirView);
-            reservoirView->loadDataAndUpdate();
-            reservoirView->updateGridBoxData();
-            reservoirView->updateAnnotationItems();
-        }
-
-        for (RimContourMapView* contourMap : m_contourMapCollection->views())
-        {
-            CVF_ASSERT(contourMap);
-            contourMap->loadDataAndUpdate();
-            contourMap->updateGridBoxData();
-            contourMap->updateAnnotationItems();
-        }
-
-        for (Rim2dIntersectionView* view : intersectionViewCollection()->views())
-        {
-            view->createDisplayModelAndRedraw();
-        }
-
-        RimProject* project = RiaApplication::instance()->project();
-        if (project)
-        {
-            RimSummaryCaseMainCollection* sumCaseColl =
-                project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
-            if (sumCaseColl)
-            {
-                sumCaseColl->loadAllSummaryCaseData();
-            }
-
-            if (project->mainPlotCollection())
-            {
-                RimWellLogPlotCollection* wellPlotCollection    = project->mainPlotCollection()->wellLogPlotCollection();
-                RimSummaryPlotCollection* summaryPlotCollection = project->mainPlotCollection()->summaryPlotCollection();
-                RimFlowPlotCollection*    flowPlotCollection    = project->mainPlotCollection()->flowPlotCollection();
-
-                if (wellPlotCollection)
-                {
-                    for (size_t i = 0; i < wellPlotCollection->wellLogPlots().size(); ++i)
-                    {
-                        wellPlotCollection->wellLogPlots()[i]->loadDataAndUpdate();
-                    }
-                }
-                if (summaryPlotCollection)
-                {
-                    for (size_t i = 0; i < summaryPlotCollection->summaryPlots().size(); ++i)
-                    {
-                        summaryPlotCollection->summaryPlots()[i]->loadDataAndUpdate();
-                    }
-                }
-                if (flowPlotCollection)
-                {
-                    flowPlotCollection->loadDataAndUpdate();
-                }
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RimEclipseCase::characteristicCellSize() const
 {
     const RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
@@ -1017,7 +967,7 @@ void RimEclipseCase::setFormationNames(RimFormationNames* formationNames)
     activeFormationNames = formationNames;
     if (m_rigEclipseCase.notNull() && formationNames != nullptr)
     {
-        m_rigEclipseCase->setActiveFormationNames(formationNames->formationNamesData());
+        m_rigEclipseCase->setActiveFormationNamesAndUpdatePlots(formationNames->formationNamesData());
     }
 }
 

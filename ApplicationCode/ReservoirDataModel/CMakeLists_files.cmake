@@ -45,7 +45,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCurveData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellLogExtractionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigHexIntersectionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTimeHistoryResultAccessor.h
-${CMAKE_CURRENT_LIST_DIR}/RigObservedData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigLasFileExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RigSimulationWellCoordsAndMD.h
 ${CMAKE_CURRENT_LIST_DIR}/RigFishbonesGeometry.h
@@ -53,6 +52,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigTesselatorTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathIntersectionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultInfo.h
+${CMAKE_CURRENT_LIST_DIR}/RigEclipseResultAddress.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTofAccumulatedPhaseFractionsCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityEquations.h
 ${CMAKE_CURRENT_LIST_DIR}/RigNumberOfFloodedPoreVolumesCalculator.h
@@ -65,6 +65,11 @@ ${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigCaseRealizationParameters.h
 ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RigPolyLinesData.h
+${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RigGridCrossPlotCurveGrouping.h
+${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor.h
+${CMAKE_CURRENT_LIST_DIR}/RigEquil.h
 )
 
 
@@ -109,7 +114,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RigEclipseMultiPropertyStatCalc.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCurveData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigHexIntersectionTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTimeHistoryResultAccessor.cpp
-${CMAKE_CURRENT_LIST_DIR}/RigObservedData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigLasFileExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigSimulationWellCoordsAndMD.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigFishbonesGeometry.cpp
@@ -129,6 +133,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigCaseRealizationParameters.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigPolyLinesData.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigEquil.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -256,6 +256,7 @@ double QwtPlotAbstractBarChart::sampleWidth( const QwtScaleMap &map,
 
             width = qwtTransformWidth( map, value, w );
             width -= d_data->spacing;
+            width = qMax( width, d_data->layoutHint );
         }
     }
 
@@ -346,7 +347,7 @@ void QwtPlotAbstractBarChart::getCanvasMarginHint( const QwtScaleMap &xMap,
                 w = canvasRect.height();
             }
 
-            const double sampleWidthP = ( w - spacing * ds ) 
+            const double sampleWidthP = ( w - spacing * ( numSamples - 1 ) )
                 * sampleWidthS / ( ds + sampleWidthS );
 
             hint = 0.5 * sampleWidthP;

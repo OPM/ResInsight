@@ -105,7 +105,7 @@ bool RiuRmsNavigation::handleInputEvent(QInputEvent* inputEvent)
                     m_isZooming = true;
                 }
             }
-
+            forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
     case QEvent::MouseButtonRelease: 
@@ -130,6 +130,7 @@ bool RiuRmsNavigation::handleInputEvent(QInputEvent* inputEvent)
                     m_hasMovedMouseDuringNavigation = false;
                 }
             }
+            forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
     case QEvent::MouseMove:
@@ -169,11 +170,12 @@ bool RiuRmsNavigation::handleInputEvent(QInputEvent* inputEvent)
         {
             if (inputEvent->modifiers() == Qt::NoModifier)
             {
-                initializeRotationCenter();
+                QWheelEvent* we = static_cast<QWheelEvent*>(inputEvent);
+
+                updatePointOfInterestDuringZoomIfNecessary(we->x(), we->y());
+
                 if (m_isRotCenterInitialized)
                 {
-                    QWheelEvent* we = static_cast<QWheelEvent*> ( inputEvent);
-
                     int translatedMousePosX, translatedMousePosY;
                     cvfEventPos(we->x(), we->y(), &translatedMousePosX, &translatedMousePosY);
 

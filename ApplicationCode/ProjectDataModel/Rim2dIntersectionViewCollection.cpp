@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -63,7 +63,6 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
     parentCase->descendantsIncludingThisOfType(allOrderedIntersectionsInCase);
 
     std::set<RimIntersection*> currentIntersections(allOrderedIntersectionsInCase.begin(), allOrderedIntersectionsInCase.end());
-    std::set<RimIntersection*> intersectionsNeedingViews = currentIntersections;
 
     // Delete views without a valid intersection
 
@@ -98,6 +97,14 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
         if (it == intersectionToViewMap.end())
         {
             Rim2dIntersectionView* newView = new Rim2dIntersectionView();
+            
+            Rim3dView* view = nullptr;
+            intersection->firstAncestorOrThisOfType(view);
+            if (view)
+            {
+                newView->setCurrentTimeStep(view->currentTimeStep());
+            }
+
             newView->setIntersection(intersection);
             m_intersectionViews.push_back(newView);            
         }

@@ -19,6 +19,7 @@
 #include "RimMdiWindowController.h"
 
 #include "RiaApplication.h"
+#include "RimProject.h"
 #include "RimViewWindow.h"
 #include "RiuMainWindowBase.h"
 
@@ -81,8 +82,11 @@ RimMdiWindowGeometry RimMdiWindowController::mdiWindowGeometry()
 void RimMdiWindowController::handleViewerDeletion()
 {
     viewPdmObject()->m_showWindow = false;
-
+    viewPdmObject()->updateConnectedEditors();
+    viewPdmObject()->updateUiIconFromToggleField();
     uiCapability()->updateUiIconFromToggleField();
+    removeWindowFromMDI();
+
     updateConnectedEditors();
 }
 

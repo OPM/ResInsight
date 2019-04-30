@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ RimNameConfig::RimNameConfig(const RimNameConfigHolderInterface* configHolder /*
 
     CAF_PDM_InitField(&m_isUsingAutoName_OBSOLETE, "IsUsingAutoName", true, "Add Automatic Name Tags", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_customName, "CustomCurveName", "Custom Name Part", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_autoName, "AutoCurveName", "Full Curve Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_autoName, "AutoCurveName", "Full Name", "", "", "");
     m_isUsingAutoName_OBSOLETE.xmlCapability()->setIOWritable(false);
     m_autoName.registerGetMethod(this, &RimNameConfig::autoName);
     m_autoName.xmlCapability()->disableIO();
@@ -145,6 +145,4 @@ void RimNameConfig::initAfterRead()
     {
         enableAllAutoNameTags(false);
     }
-
-    updateAllSettings();
 }

@@ -137,28 +137,33 @@ public:
 
     bool                                            isUsingFormationNames() const override;
 
-    virtual void                                    calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
+    void                                    calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
     
-    virtual std::vector<RimLegendConfig*>           legendConfigs() const override;
+    std::vector<RimLegendConfig*>           legendConfigs() const override;
     cvf::Color4f                                    colorFromCellCategory(RivCellSetEnum geometryType) const;
+
+    void                                            syncronizeLocalAnnotationsFromGlobal();
 
 protected:
     void                                    initAfterRead() override;
-    virtual void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    virtual void                            onLoadDataAndUpdate() override;
+    void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                            onLoadDataAndUpdate() override;
+    caf::PdmFieldHandle*                    userDescriptionField() override;
 
     void                                    createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
     bool                                    showActiveCellsOnly() override;
-    virtual void                            updateCurrentTimeStep() override;
+    void                            updateCurrentTimeStep() override;
     void                                    updateVisibleGeometriesAndCellColors();
     void                                    appendWellsAndFracturesToModel();
 
-    virtual void                            createDisplayModel() override;
+    void                            createDisplayModel() override;
     RimPropertyFilterCollection*            nativePropertyFilterCollection();
     virtual std::set<RivCellSetEnum>        allVisibleFaultGeometryTypes() const;
 
 private:
+    QString                                         createAutoName() const override;
+
     void                                            updateDisplayModelVisibility() override;
 
     std::vector<size_t>                             indicesToVisibleGrids() const;
@@ -168,7 +173,7 @@ private:
     void                                            updateStaticCellColors() override;
     void                                            updateStaticCellColors(RivCellSetEnum geometryType);
 
-    virtual void                                    updateLegends() override;
+    void                                    updateLegends() override;
     void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultColors, RigCaseCellResultsData* cellResultsData);
     void                                            resetLegendsInViewer() override;
     void                                            updateVirtualConnectionLegendRanges();

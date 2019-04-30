@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiPropertyView.h"
 
 #include "cafPdmObject.h"
@@ -42,8 +41,10 @@
 
 #include <QEvent>
 #include <QHBoxLayout>
+#include <QResizeEvent>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QTimer>
 
 
 
@@ -59,19 +60,26 @@ QVerticalScrollArea::QVerticalScrollArea(QWidget* parent) :
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool QVerticalScrollArea::eventFilter(QObject* object, QEvent* event)
+QSize QVerticalScrollArea::sizeHint() const
 {
-    // This works because QScrollArea::setWidget installs an eventFilter on the widget
-    if (object && object == widget() && event->type() == QEvent::Resize)
-    {
-        setMinimumWidth(widget()->minimumSizeHint().width() + verticalScrollBar()->width());
-    }
-
-    return QScrollArea::eventFilter(object, event);
+    QSize widgetSize = widget()->sizeHint();
+    QSize scrollSize = QScrollArea::sizeHint();
+    scrollSize.setWidth(widgetSize.width() + verticalScrollBar()->width());
+    return scrollSize;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize QVerticalScrollArea::minimumSizeHint() const
+{
+    QSize widgetSize = widget()->minimumSizeHint();
+    QSize scrollSize = QScrollArea::minimumSizeHint();
+    scrollSize.setWidth(widgetSize.width() + verticalScrollBar()->width());
+    return scrollSize;
+}
 
 namespace caf
 {
@@ -83,12 +91,12 @@ namespace caf
 PdmUiPropertyView::PdmUiPropertyView(QWidget* parent, Qt::WindowFlags f)
     : QWidget (parent, f)
 {
-    QVerticalScrollArea* scrollArea = new QVerticalScrollArea(this);
-    scrollArea->setFrameStyle(QFrame::NoFrame);
-    scrollArea->setWidgetResizable(true);
+    m_scrollArea = new QVerticalScrollArea(this);
+    m_scrollArea->setFrameStyle(QFrame::NoFrame);
+    m_scrollArea->setWidgetResizable(true);
 
     m_placeholder = new QWidget();
-    scrollArea->setWidget(m_placeholder);
+    m_scrollArea->setWidget(m_placeholder);
 
     m_placeHolderLayout = new QVBoxLayout();
     m_placeHolderLayout->setContentsMargins(5,5,5,0);
@@ -96,9 +104,9 @@ PdmUiPropertyView::PdmUiPropertyView(QWidget* parent, Qt::WindowFlags f)
 
     QVBoxLayout* dummy = new QVBoxLayout(this);
     dummy->setContentsMargins(0,0,0,0);
-    dummy->addWidget(scrollArea);
+    dummy->addWidget(m_scrollArea);
 
-    m_currentObjectView = nullptr;
+    m_defaultObjectEditor = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +114,7 @@ PdmUiPropertyView::PdmUiPropertyView(QWidget* parent, Qt::WindowFlags f)
 //--------------------------------------------------------------------------------------------------
 PdmUiPropertyView::~PdmUiPropertyView()
 {
-    if (m_currentObjectView) delete m_currentObjectView;
+    if (m_defaultObjectEditor) delete m_defaultObjectEditor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,11 +127,11 @@ void PdmUiPropertyView::setUiConfigurationName(QString uiConfigName)
     { 
         m_uiConfigName = uiConfigName;
 
-        if (m_currentObjectView)
+        if (m_defaultObjectEditor)
         {
-            PdmObjectHandle* object = m_currentObjectView->pdmObject();
-            delete m_currentObjectView;
-            m_currentObjectView = nullptr;
+            PdmObjectHandle* object = m_defaultObjectEditor->pdmObject();
+            delete m_defaultObjectEditor;
+            m_defaultObjectEditor = nullptr;
             this->showProperties(object);
         }
     }
@@ -140,13 +148,13 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
 
     bool rebuildWidget = false;
 
-    if (!m_currentObjectView) rebuildWidget = true;
+    if (!m_defaultObjectEditor) rebuildWidget = true;
         
-    if (m_currentObjectView && m_currentObjectView->pdmObject())
+    if (m_defaultObjectEditor && m_defaultObjectEditor->pdmObject())
     {
         if (object)
         {
-            PdmUiObjectHandle* uiObject1 = uiObj(m_currentObjectView->pdmObject());
+            PdmUiObjectHandle* uiObject1 = uiObj(m_defaultObjectEditor->pdmObject());
             PdmUiObjectHandle* uiObject2 = uiObj(object);
 
             if (uiObject1 && uiObject2 && (uiObject1->uiEditorTypeName(m_uiConfigName) != uiObject2->uiEditorTypeName(m_uiConfigName)))
@@ -159,21 +167,20 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
     if (rebuildWidget)
     {
         // Remove Widget from layout
-        if (m_currentObjectView)
+        if (m_defaultObjectEditor)
         {
-            this->m_placeHolderLayout->removeWidget(m_currentObjectView->widget());
-            delete m_currentObjectView;
-            m_currentObjectView = nullptr;
+            this->m_placeHolderLayout->removeWidget(m_defaultObjectEditor->widget());
+            delete m_defaultObjectEditor;
+            m_defaultObjectEditor = nullptr;
         }
 
-        if (!m_currentObjectView)
+        if (!m_defaultObjectEditor)
         {
-            PdmUiDefaultObjectEditor* defaultEditor = new PdmUiDefaultObjectEditor();
-            m_currentObjectView = defaultEditor;
+            m_defaultObjectEditor = new PdmUiDefaultObjectEditor();
         }
 
         // Create widget to handle this
-        QWidget* propertyWidget = m_currentObjectView->getOrCreateWidget(m_placeholder);
+        QWidget* propertyWidget = m_defaultObjectEditor->getOrCreateWidget(m_placeholder);
         
         CAF_ASSERT(propertyWidget);
 
@@ -183,8 +190,23 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
         this->m_placeHolderLayout->insertStretch(-1, 1);
     }
 
-    m_currentObjectView->setPdmObject(object);
-    m_currentObjectView->updateUi(m_uiConfigName);
+    m_defaultObjectEditor->setPdmObject(object);
+
+    QObject::connect(m_defaultObjectEditor, SIGNAL(uiUpdated()), this, SLOT(slotScheduleScrollToSelectedItemsInFieldEditors()));
+
+    m_defaultObjectEditor->updateUi(m_uiConfigName);
+    m_scrollArea->updateGeometry();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiPropertyView::slotScheduleScrollToSelectedItemsInFieldEditors()
+{
+    if (m_defaultObjectEditor)
+    {
+        QTimer::singleShot(150, m_defaultObjectEditor, SLOT(slotScrollToSelectedItemsInFieldEditors()));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -192,8 +214,8 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmUiPropertyView::currentObject()
 {
-    if (!m_currentObjectView) return nullptr;
-    return m_currentObjectView->pdmObject();
+    if (!m_defaultObjectEditor) return nullptr;
+    return m_defaultObjectEditor->pdmObject();
 }
 
 
@@ -202,12 +224,17 @@ PdmObjectHandle* PdmUiPropertyView::currentObject()
 //--------------------------------------------------------------------------------------------------
 QSize PdmUiPropertyView::sizeHint() const
 {
-    if (m_placeholder)
-    {
-        return m_placeholder->sizeHint();
-    }
+    QSize scrollSize  = m_scrollArea->sizeHint();
+    QSize contentSize = m_placeholder->sizeHint();
+    return QSize(scrollSize.width(), contentSize.height());
+}
 
-    return QWidget::sizeHint();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize PdmUiPropertyView::minimumSizeHint() const
+{
+    return m_scrollArea->minimumSizeHint();
 }
 
 } //End of namespace caf

@@ -40,6 +40,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiTreeSelectionQModel.h"
+#include "cafQShortenedLabel.h"
 
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -93,7 +94,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void keyPressEvent(QKeyEvent *event)
+    void keyPressEvent(QKeyEvent *event) override
     {
         QTreeView::keyPressEvent(event);
 
@@ -164,7 +165,11 @@ private:
         QRect r = rect();
         QPalette pal = palette();
 
+#if QT_VERSION_MAJOR > 4
+        QStyleOptionFrame panel;
+#else
         QStyleOptionFrameV2 panel;
+#endif
         initStyleOption(&panel);
         style()->drawPrimitive(QStyle::PE_PanelLineEdit, &panel, &p, this);
         r = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);
@@ -402,7 +407,7 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiTreeSelectionEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 
@@ -421,6 +426,14 @@ QMargins PdmUiTreeSelectionEditor::calculateLabelContentMargins() const
         contentMargins.setBottom(contentMargins.bottom() + heightDiff / 2);
     }
     return contentMargins;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTreeSelectionEditor::isMultiRowEditor() const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -589,6 +602,16 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotClicked(const QModelIndex& index)
 {
+    QModelIndex lastUncheckedIndex = m_model->indexForLastUncheckedItem();
+    m_model->clearIndexForLastUncheckedItem();
+
+    QModelIndex proxyModelIndex = m_proxyModel->mapFromSource(lastUncheckedIndex);
+    if (proxyModelIndex == index)
+    {
+        // Early return to avoid changing the current item if an item was unchecked
+        return;
+    }
+
     if (m_attributes.setCurrentIndexWhenItemIsChecked && index.isValid())
     {
         QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes(); 

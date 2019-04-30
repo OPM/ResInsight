@@ -32,7 +32,7 @@ class RimOilFieldEntry : public caf::PdmObject
 
 public:
     RimOilFieldEntry();
-    ~RimOilFieldEntry();
+    ~RimOilFieldEntry() override;
 
 
     caf::PdmField<QString>          name;
@@ -45,10 +45,10 @@ public:
     RimWellPathEntry* find(const QString& name, RimWellPathEntry::WellTypeEnum wellPathType);
 
 
-    virtual caf::PdmFieldHandle*    userDescriptionField();
-    virtual caf::PdmFieldHandle*    objectToggleField();
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                    initAfterRead();
+    caf::PdmFieldHandle*    userDescriptionField() override;
+    caf::PdmFieldHandle*    objectToggleField() override;
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                    initAfterRead() override;
 
 //private:
     void updateEnabledState();

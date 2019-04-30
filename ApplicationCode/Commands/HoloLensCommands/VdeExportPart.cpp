@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ VdeExportPart::VdeExportPart(cvf::Part* part)
     , m_color(cvf::Color3f::MAGENTA)
     , m_opacity(1.0)
     , m_winding(COUNTERCLOCKWISE)
+    , m_cullFace(CF_NONE)
     , m_role(GEOMETRY)
 {
 }
@@ -86,6 +87,14 @@ void VdeExportPart::setOpacity(float opacity)
 void VdeExportPart::setWinding(Winding winding)
 {
     m_winding = winding;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void VdeExportPart::setCullFace(CullFace cullFace)
+{
+    m_cullFace = cullFace;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,6 +167,14 @@ float VdeExportPart::opacity() const
 VdeExportPart::Winding VdeExportPart::winding() const
 {
     return m_winding;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+VdeExportPart::CullFace VdeExportPart::cullFace() const
+{
+    return m_cullFace;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -190,6 +190,8 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
 
     progInfo.incrementProgress();
 
+    m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
+
     CVF_ASSERT(this->eclipseCaseData());
     CVF_ASSERT(readerInterface.notNull());
 
@@ -198,8 +200,6 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
 
     m_gridAndWellDataIsReadFromFile = true;
     m_activeCellInfoIsReadFromFile = true;
-
-    m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
 
     QFileInfo eclipseCaseFileInfo(caseFileName());
     QString rftFileName = eclipseCaseFileInfo.path() + "/" + eclipseCaseFileInfo.completeBaseName() + ".RFT";

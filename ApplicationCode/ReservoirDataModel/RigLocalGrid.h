@@ -28,9 +28,6 @@ public:
     RigGridBase *   parentGrid() const;
     void            setParentGrid(RigGridBase * parentGrid);
 
-    size_t          positionInParentGrid() const;
-    void            setPositionInParentGrid(size_t positionInParentGrid);
-
     void            setAsTempGrid(bool isTemp);
     bool            isTempGrid() const override;
 
@@ -39,7 +36,6 @@ public:
 
 private:
     RigGridBase *   m_parentGrid;
-    size_t          m_positionInParentGrid;
     bool            m_isTempGrid;
     std::string     m_associatedWellPathName;
 };

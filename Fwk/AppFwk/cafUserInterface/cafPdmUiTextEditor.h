@@ -124,6 +124,7 @@ protected:
     QWidget*    createEditorWidget(QWidget * parent) override;
     QWidget*    createLabelWidget(QWidget * parent) override;
     void        configureAndUpdateUi(const QString& uiConfigName) override;
+    bool        isMultiRowEditor() const override;
 
 protected slots:
     void        slotSetValueToField();
@@ -132,9 +133,9 @@ private:
     QTextOption::WrapMode   toQTextOptionWrapMode(PdmUiTextEditorAttribute::WrapMode wrapMode);
 
 private:
-    QPointer<TextEdit>      m_textEdit;
-    QPointer<QPushButton>   m_saveButton;
-    QPointer<QLabel>        m_label;
+    QPointer<TextEdit>        m_textEdit;
+    QPointer<QPushButton>     m_saveButton;
+    QPointer<QShortenedLabel> m_label;
 
     PdmUiTextEditorAttribute::TextMode m_textMode; 
 };

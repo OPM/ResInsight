@@ -25,6 +25,7 @@
 #include "RiaViewRedrawScheduler.h"
 
 #include "Rim3dWellLogCurve.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimCase.h" 
 #include "RimGridView.h"
 #include "RimMainPlotCollection.h"
@@ -33,8 +34,12 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimWellPathCollection.h"
+#include "RimViewNameConfig.h"
+#include "RimMeasurement.h"
 
+#include "RivAnnotationsPartMgr.h"
 #include "RivWellPathsPartMgr.h"
+#include "RivMeasurementPartMgr.h"
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
@@ -54,15 +59,6 @@
 
 
 namespace caf {
-
-template<>
-void caf::AppEnum< Rim3dView::MeshModeType >::setUp()
-{
-    addItem(Rim3dView::FULL_MESH,      "FULL_MESH",       "All");
-    addItem(Rim3dView::FAULTS_MESH,    "FAULTS_MESH",     "Faults only");
-    addItem(Rim3dView::NO_MESH,        "NO_MESH",         "None");
-    setDefault(Rim3dView::FULL_MESH);
-}
 
 template<>
 void caf::AppEnum< Rim3dView::SurfaceModeType >::setUp()
@@ -87,8 +83,11 @@ Rim3dView::Rim3dView(void)
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT(preferences);
 
+    CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
+    m_nameConfig = new RimViewNameConfig(this);
 
-    CAF_PDM_InitField(&m_name, "UserDescription", QString(""), "Name", "", "", "");
+    CAF_PDM_InitField(&m_name_OBSOLETE, "UserDescription", QString(""), "Name", "", "", "");
+    m_name_OBSOLETE.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitField(&m_cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
     m_cameraPosition.uiCapability()->setUiHidden(true);
@@ -112,14 +111,15 @@ Rim3dView::Rim3dView(void)
     CAF_PDM_InitField(&m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "");
     m_currentTimeStep.uiCapability()->setUiHidden(true);
 
-    caf::AppEnum<Rim3dView::MeshModeType> defaultMeshType = NO_MESH;
-    if (preferences->defaultGridLines) defaultMeshType = FULL_MESH;
+    caf::AppEnum<RiaDefines::MeshModeType> defaultMeshType = preferences->defaultMeshModeType();
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid Lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid Surface",  "", "", "");
 
     CAF_PDM_InitField(&m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "");
 
     CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Results Lighting", "", "Disable light model for scalar result colors", "");
+
+    CAF_PDM_InitField(&m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "");
 
     m_crossSectionVizModel = new cvf::ModelBasicList;
     m_crossSectionVizModel->setName("CrossSectionModel");
@@ -131,7 +131,9 @@ Rim3dView::Rim3dView(void)
     m_wellPathPipeVizModel->setName("WellPathPipeModel");
 
     m_wellPathsPartManager = new RivWellPathsPartMgr(this); 
+    m_annotationsPartManager = new RivAnnotationsPartMgr(this);
 
+    m_measurementPartManager = new RivMeasurementPartMgr(this);
     this->setAs3DViewMdiWindow();
 }
 
@@ -140,6 +142,10 @@ Rim3dView::Rim3dView(void)
 //--------------------------------------------------------------------------------------------------
 Rim3dView::~Rim3dView(void)
 {
+    if (m_viewer)
+    {
+        m_viewer->clearRimView();
+    }
     removeMdiWindowFromMdiArea();
 
     deleteViewWidget();
@@ -158,7 +164,7 @@ RiuViewer* Rim3dView::viewer() const
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setName(const QString& name)
 {
-    m_name = name;
+    m_nameConfig->setCustomName(name);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,7 +172,7 @@ void Rim3dView::setName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 QString Rim3dView::name() const
 {
-    return m_name;
+    return m_nameConfig->customName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,7 +183,7 @@ QWidget* Rim3dView::createViewWidget(QWidget* mainWindowParent)
     QGLFormat glFormat;
     glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
 
-    m_viewer = new RiuViewer(glFormat, nullptr);
+    m_viewer = new RiuViewer(glFormat, mainWindowParent);
     m_viewer->setOwnerReservoirView(this);
 
     cvf::String xLabel;
@@ -187,6 +193,7 @@ QWidget* Rim3dView::createViewWidget(QWidget* mainWindowParent)
     this->axisLabels(&xLabel, &yLabel, &zLabel);
     m_viewer->setAxisLabels(xLabel, yLabel, zLabel);
 
+    updateZScaleLabel();
     return m_viewer->layoutWidget();
 }
 
@@ -216,6 +223,23 @@ void Rim3dView::updateViewWidgetAfterCreation()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::initAfterRead()
+{
+    RimViewWindow::initAfterRead();
+
+    if (!m_name_OBSOLETE().isEmpty())
+    {
+        nameConfig()->setCustomName(m_name_OBSOLETE());
+        nameConfig()->setAddCaseName(false);
+        nameConfig()->setAddAggregationType(false);
+        nameConfig()->setAddProperty(false);
+        nameConfig()->setAddSampleSpacing(false);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateMdiWindowTitle()
@@ -225,11 +249,11 @@ void Rim3dView::updateMdiWindowTitle()
         QString windowTitle;
         if (ownerCase())
         {
-            windowTitle = QString("%1 - %2").arg(ownerCase()->caseUserDescription()).arg(m_name);
+            windowTitle = QString("%1 - %2").arg(ownerCase()->caseUserDescription()).arg(name());
         }
         else
         {
-            windowTitle = m_name;
+            windowTitle = name();
         }
 
         m_viewer->layoutWidget()->setWindowTitle(windowTitle);
@@ -241,11 +265,12 @@ void Rim3dView::updateMdiWindowTitle()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::deleteViewWidget()
 {
-    if (m_viewer) 
-    {
-        m_viewer->deleteLater();
-        m_viewer = nullptr;
-    }
+    // Earlier implementations has used m_viewer->deleteLater(). This caused issues triggered by 3D editors and interaction with
+    // the event processing. deleteLater() will not be handeled by processEvents() if we are in the state of processing UI events,
+    // ie in the process of handling a QAction
+    
+    delete m_viewer;
+    m_viewer = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,8 +280,9 @@ void Rim3dView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrd
 {
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroupWithKeyword("Viewer", "ViewGroup");
     
-    viewGroup->add(&m_name);
+    //viewGroup->add(m_nameConfig->nameField());
     viewGroup->add(&m_backgroundColor);
+    viewGroup->add(&m_showZScaleLabel);
     viewGroup->add(&m_showGridBox);
     viewGroup->add(&isPerspectiveView);
     viewGroup->add(&m_disableLighting);
@@ -265,6 +291,8 @@ void Rim3dView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrd
     gridGroup->add(&scaleZ);
     gridGroup->add(&meshMode);
     gridGroup->add(&surfaceMode);
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,6 +341,9 @@ void Rim3dView::setCurrentTimeStepAndUpdate(int frameIndex)
     RimProject* project;
     firstAncestorOrThisOfTypeAsserted(project);
     project->mainPlotCollection()->updateCurrentTimeStepInPlots();
+
+    appendAnnotationsToModel();
+    appendMeasurementToModel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -434,15 +465,19 @@ RimWellPathCollection* Rim3dView::wellPathCollection() const
 //--------------------------------------------------------------------------------------------------
 bool Rim3dView::hasVisibleTimeStepDependent3dWellLogCurves() const
 {
-    std::vector<Rim3dWellLogCurve*> wellLogCurves;
-    wellPathCollection()->descendantsIncludingThisOfType(wellLogCurves);
-    for (const Rim3dWellLogCurve* curve : wellLogCurves)
+    if (wellPathCollection())
     {
-        if (curve->showInView(this) && curve->isShowingTimeDependentResult())
+        std::vector<Rim3dWellLogCurve*> wellLogCurves;
+        wellPathCollection()->descendantsIncludingThisOfType(wellLogCurves);
+        for (const Rim3dWellLogCurve* curve : wellLogCurves)
         {
-            return true;
+            if (curve->showInView(this) && curve->isShowingTimeDependentResult())
+            {
+                return true;
+            }
         }
     }
+
     return false;
 }
 
@@ -464,7 +499,7 @@ void Rim3dView::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setMeshOnlyDrawstyle()
 {
-    meshMode.setValueWithFieldChanged(FULL_MESH);
+    meshMode.setValueWithFieldChanged(RiaDefines::FULL_MESH);
     surfaceMode.setValueWithFieldChanged(NO_SURFACE);
 }
 
@@ -474,7 +509,7 @@ void Rim3dView::setMeshOnlyDrawstyle()
 void Rim3dView::setMeshSurfDrawstyle()
 {
     surfaceMode.setValueWithFieldChanged(SURFACE);
-    meshMode.setValueWithFieldChanged(FULL_MESH);
+    meshMode.setValueWithFieldChanged(RiaDefines::FULL_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -483,7 +518,7 @@ void Rim3dView::setMeshSurfDrawstyle()
 void Rim3dView::setFaultMeshSurfDrawstyle()
 {
     surfaceMode.setValueWithFieldChanged(SURFACE);
-    meshMode.setValueWithFieldChanged(FAULTS_MESH);
+    meshMode.setValueWithFieldChanged(RiaDefines::FAULTS_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -492,7 +527,7 @@ void Rim3dView::setFaultMeshSurfDrawstyle()
 void Rim3dView::setSurfOnlyDrawstyle()
 {
     surfaceMode.setValueWithFieldChanged(SURFACE);
-    meshMode.setValueWithFieldChanged(NO_MESH);
+    meshMode.setValueWithFieldChanged(RiaDefines::NO_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -522,6 +557,14 @@ bool Rim3dView::isLightingDisabled() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* Rim3dView::userDescriptionField()
+{
+    return m_nameConfig->nameField();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
@@ -541,31 +584,7 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
     }
     else if (changedField == &scaleZ)
     {
-        if (scaleZ < 1) scaleZ = 1;
-
-        this->updateGridBoxData();
-
-        if (m_viewer)
-        {
-            cvf::Vec3d poi = m_viewer->pointOfInterest();
-            cvf::Vec3d eye, dir, up;
-            eye = m_viewer->mainCamera()->position();
-            dir = m_viewer->mainCamera()->direction();
-            up  = m_viewer->mainCamera()->up();
-
-            eye[2] = poi[2]*scaleZ()/this->scaleTransform()->worldTransform()(2, 2) + (eye[2] - poi[2]);
-            poi[2] = poi[2]*scaleZ()/this->scaleTransform()->worldTransform()(2, 2);
-
-            m_viewer->mainCamera()->setFromLookAt(eye, eye + dir, up);
-            m_viewer->setPointOfInterest(poi);
-
-            updateScaleTransform();
-            createDisplayModelAndRedraw();
-
-            m_viewer->update();
-
-
-        }
+        updateScaling();
 
         RiuMainWindow::instance()->updateScaleValue();
     }
@@ -586,7 +605,7 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
         RiuMainWindow::instance()->refreshDrawStyleActions();
         RiuMainWindow::instance()->refreshAnimationActions();
     }
-    else if (changedField == &m_name)
+    else if (changedField == m_nameConfig->nameField())
     {
         updateMdiWindowTitle();
 
@@ -615,7 +634,7 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
     }
     else if (changedField == &m_backgroundColor)
     {
-        this->applyBackgroundColor();
+        this->applyBackgroundColorAndFontChanges();
     }
     else if (changedField == &maximumFrameRate)
     {
@@ -625,6 +644,11 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
         {
             m_viewer->animationControl()->setTimeout(maximumFrameRate != 0 ? 1000/maximumFrameRate : std::numeric_limits<int>::max());
         }
+    }
+    else if (changedField == &m_showZScaleLabel)
+    {
+        m_viewer->showZScaleLabel(m_showZScaleLabel());
+        m_viewer->update();
     }
 }
 
@@ -661,6 +685,52 @@ void Rim3dView::addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBas
                                                               transForm.p(),
                                                               this->ownerCase()->characteristicCellSize(),
                                                               wellPathClipBoundingBox);
+
+    wellPathModelBasicList->updateBoundingBoxesRecursive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::addAnnotationsToModel(cvf::ModelBasicList* wellPathModelBasicList)
+{
+    if (!this->ownerCase()) return;
+
+    std::vector<RimAnnotationInViewCollection*> annotationCollections;
+    descendantsIncludingThisOfType(annotationCollections);
+
+    if (annotationCollections.empty() || !annotationCollections.front()->isActive())
+    {
+        m_annotationsPartManager->clearGeometryCache();
+    }
+    else
+    {
+        cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+        m_annotationsPartManager->appendGeometryPartsToModel(wellPathModelBasicList, transForm.p(), ownerCase()->allCellsBoundingBox());
+    }
+
+    wellPathModelBasicList->updateBoundingBoxesRecursive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::addMeasurementToModel(cvf::ModelBasicList* wellPathModelBasicList)
+{
+    if (!this->ownerCase()) return;
+
+    RimMeasurement* measurement = RiaApplication::instance()->project()->measurement();
+
+    if (!measurement || measurement->pointsInDomainCoords().empty())
+    {
+        m_measurementPartManager->clearGeometryCache();
+    }
+    else
+    {
+        cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+        m_measurementPartManager->appendGeometryPartsToModel(m_viewer->mainCamera(),
+            wellPathModelBasicList, transForm.p(), ownerCase()->allCellsBoundingBox());
+    }
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
 }
@@ -716,6 +786,60 @@ void Rim3dView::updateAnnotationItems()
     if (m_viewer)
     {
         m_viewer->updateAnnotationItems();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::updateScaling()
+{
+    if (scaleZ < 1) scaleZ = 1;
+
+    this->updateGridBoxData();
+
+    if (m_viewer)
+    {
+        cvf::Vec3d poi = m_viewer->pointOfInterest();
+        cvf::Vec3d eye, dir, up;
+        eye = m_viewer->mainCamera()->position();
+        dir = m_viewer->mainCamera()->direction();
+        up  = m_viewer->mainCamera()->up();
+
+        eye[2] = poi[2] * scaleZ() / this->scaleTransform()->worldTransform()(2, 2) + (eye[2] - poi[2]);
+        poi[2] = poi[2] * scaleZ() / this->scaleTransform()->worldTransform()(2, 2);
+
+        m_viewer->mainCamera()->setFromLookAt(eye, eye + dir, up);
+        m_viewer->setPointOfInterest(poi);
+
+        updateScaleTransform();
+        createDisplayModelAndRedraw();
+
+        m_viewer->update();
+
+        updateZScaleLabel();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::updateZScaleLabel()
+{
+    // Update Z scale label
+    int scale = static_cast<int>(scaleZ());
+    m_viewer->setZScale(scale);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::updateMeasurement()
+{
+    if (m_viewer)
+    {
+        appendMeasurementToModel();
+        m_viewer->update();
     }
 }
 
@@ -776,15 +900,24 @@ void Rim3dView::setShowGridBox(bool showGridBox)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::applyBackgroundColor()
+void Rim3dView::applyBackgroundColorAndFontChanges()
 {
     if (m_viewer != nullptr)
     {
         m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
+        m_viewer->updateFonts();
     }
     updateGridBoxData();
     updateAnnotationItems();
     updateLegends();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::performAutoNameUpdate()
+{
+    updateMdiWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -827,14 +960,14 @@ void Rim3dView::updateDisplayModelVisibility()
         mask |= intersectionCellFaceBit;
     }
 
-    if (meshMode == FULL_MESH)
+    if (meshMode == RiaDefines::FULL_MESH)
     {
         mask |= uintMeshSurfaceBit;
         mask |= uintMeshFaultBit;
         mask |= intersectionCellMeshBit;
         mask |= intersectionFaultMeshBit;
     }
-    else if (meshMode == FAULTS_MESH)
+    else if (meshMode == RiaDefines::FAULTS_MESH)
     {
         mask |= uintMeshFaultBit;
         mask |= intersectionFaultMeshBit;
@@ -883,6 +1016,27 @@ cvf::ref<caf::DisplayCoordTransform> Rim3dView::displayCoordTransform() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim3dView::hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim3dView::applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange /*= false*/)
+{
+    if (fontSettingType == RiaDefines::SCENE_FONT)
+    {
+        applyBackgroundColorAndFontChanges();
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 cvf::Mat4d Rim3dView::cameraPosition() const
@@ -896,6 +1050,14 @@ cvf::Mat4d Rim3dView::cameraPosition() const
 cvf::Vec3d Rim3dView::cameraPointOfInterest() const
 {
     return m_cameraPointOfInterest();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewNameConfig* Rim3dView::nameConfig() const
+{
+    return m_nameConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -936,15 +1098,6 @@ void Rim3dView::disablePerspectiveProjectionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim3dView::enablePerspectiveProjectionField()
-{
-    isPerspectiveView.uiCapability()->setUiHidden(false);
-    isPerspectiveView.xmlCapability()->setIOWritable(true);
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::handleMdiWindowClosed()
@@ -961,11 +1114,45 @@ void Rim3dView::setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
+void Rim3dView::appendAnnotationsToModel()
+{
+    if (!m_viewer) return;
+
+    cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
+    if (frameScene)
+    {
+        cvf::String name = "Annotations";
+        this->removeModelByName(frameScene, name);
+
+        cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+        model->setName(name);
+
+        addAnnotationsToModel(model.p());
+
+        frameScene->addModel(model.p());
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
+void Rim3dView::appendMeasurementToModel()
+{
+    if (!m_viewer) return;
+
+    cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
+    if (frameScene)
+    {
+        cvf::String name = "Measurement";
+        this->removeModelByName(frameScene, name);
+
+        cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+        model->setName(name);
+
+        addMeasurementToModel(model.p());
+
+        frameScene->addModel(model.p());
+    }
+}

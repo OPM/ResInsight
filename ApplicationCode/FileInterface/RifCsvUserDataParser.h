@@ -54,6 +54,7 @@ public:
 
     bool                parseColumnInfo(const AsciiDataParseOptions& parseOptions);
     QString             previewText(int lineCount, const AsciiDataParseOptions& parseOptions);
+    QStringList         timeColumnPreviewData(int lineCount, const AsciiDataParseOptions& parseOptions);
 
     CsvLayout           determineCsvLayout();
 

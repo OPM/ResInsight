@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 -    Equinor ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -229,14 +229,14 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
         }
         else if (m_type() == RiaDefines::PACKER)
         {
-            m_endMD = m_startMD + 2;
+            m_endMD = m_startMD + 1;
         }
     }
     if (changedField == &m_startMD)
     {
         if (m_type() == RiaDefines::PACKER)
         {
-            m_endMD = m_startMD + 2;
+            m_endMD = m_startMD + 1;
         }
     }
 

@@ -76,13 +76,11 @@ void QwtPlotLayout::LayoutData::init( const QwtPlot *plot, const QRectF &rect )
 
         const QSize hint = plot->legend()->sizeHint();
 
-        int w = qMin( hint.width(), qFloor( rect.width() ) );
+        const int w = qMin( hint.width(), qFloor( rect.width() ) );
+
         int h = plot->legend()->heightForWidth( w );
         if ( h <= 0 )
             h = hint.height();
-
-        if ( h > rect.height() )
-            w += legend.hScrollExtent;
 
         legend.hint = QSize( w, h );
     }

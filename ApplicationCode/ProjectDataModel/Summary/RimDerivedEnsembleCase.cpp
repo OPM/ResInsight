@@ -18,6 +18,7 @@
 
 #include "RimDerivedEnsembleCase.h"
 
+#include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveMerger.h"
 
@@ -132,6 +133,16 @@ void RimDerivedEnsembleCase::calculate(const RifEclipseSummaryAddress& address)
     RifSummaryReaderInterface*  reader1 = m_summaryCase1 ? m_summaryCase1->summaryReader() : nullptr;
     RifSummaryReaderInterface*  reader2 = m_summaryCase2 ? m_summaryCase2->summaryReader() : nullptr;
     if (!reader1 || !reader2 || !parentEnsemble()) return;
+
+    if (!reader1->hasAddress(address) || !reader2->hasAddress(address))
+    {
+        std::string text = address.uiText();
+
+        RiaLogging::warning("Derived Ensemble : At least one of the ensembles does not contain the summary address : " +
+                            QString::fromStdString(text));
+
+        return;
+    }
 
     RiaTimeHistoryCurveMerger   merger;
     std::vector<double>         values1;

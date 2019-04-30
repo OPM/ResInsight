@@ -27,8 +27,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuSimpleHistogramWidget::RiuSimpleHistogramWidget(QWidget * parent /*= 0*/, Qt::WindowFlags f /*= 0*/):
-QWidget(parent, f)
+RiuSimpleHistogramWidget::RiuSimpleHistogramWidget(const QString& objectName, QWidget * parent /*= 0*/, Qt::WindowFlags f /*= 0*/)
+    : QWidget(parent, f)
 {
     m_minPercentile = HUGE_VAL;
     m_maxPercentile = HUGE_VAL;
@@ -41,6 +41,8 @@ QWidget(parent, f)
     m_height = 0;
     m_x = 0;
     m_y = 0;
+
+    setObjectName(objectName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,7 +50,7 @@ QWidget(parent, f)
 //--------------------------------------------------------------------------------------------------
 void RiuSimpleHistogramWidget::paintEvent(QPaintEvent* event)
 {
-    QPainter painter(this);
+   QPainter painter(this);
    this->draw(&painter, 0, 0, this->width()-1, this->height()-1);
 }
 
@@ -64,7 +66,7 @@ void RiuSimpleHistogramWidget::draw(QPainter *painter,int x, int y, int width, i
 
     // Frame around it all;
     QColor windowColor = palette().color(QPalette::Window);// QColor(144, 173, 208, 180);
-    QColor frameColor = palette().color(QPalette::WindowText);//QColor(220, 240, 255, 100);
+    QColor frameColor = palette().color(QPalette::Midlight);//QColor(220, 240, 255, 100);
     QColor foregroundColor = palette().color(QPalette::Dark);// QColor(100, 141, 189);
 
     //painter->fillRect(r1, windowColor);

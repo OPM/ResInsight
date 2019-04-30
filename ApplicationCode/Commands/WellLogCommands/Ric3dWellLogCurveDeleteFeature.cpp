@@ -78,4 +78,5 @@ void Ric3dWellLogCurveDeleteFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete 3D Well Log Curve(s)");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
 }

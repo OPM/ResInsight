@@ -42,6 +42,7 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
+#include "cafQShortenedLabel.h"
 
 #include <QTextEdit>
 #include <QLabel>
@@ -156,6 +157,14 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTextEditor::isMultiRowEditor() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiTextEditor::createEditorWidget(QWidget * parent)
@@ -187,7 +196,7 @@ QWidget* PdmUiTextEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiTextEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 

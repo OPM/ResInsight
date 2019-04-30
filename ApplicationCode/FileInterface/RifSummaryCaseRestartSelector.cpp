@@ -31,7 +31,7 @@
 #include "cafProgressInfo.h"
 
 #include <string>
-#include <assert.h>
+#include <cassert>
 
 #include <QDateTime>
 #include <QString>
@@ -154,7 +154,6 @@ QStringList RifSummaryCaseRestartSelector::gridCaseFiles() const
 //--------------------------------------------------------------------------------------------------
 void RifSummaryCaseRestartSelector::determineFilesToImport(const std::vector<RifSummaryCaseFileImportInfo>& initialFiles)
 {
-    std::vector<RifSummaryCaseFileImportInfo> fileInfos;
     if (m_showDialog)
     {
         bool enableApplyToAllField = initialFiles.size() > 1;

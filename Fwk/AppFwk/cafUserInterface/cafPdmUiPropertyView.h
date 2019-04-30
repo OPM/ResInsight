@@ -37,14 +37,14 @@
 
 #pragma once
 
+#include <QPointer>
+#include <QScrollArea>
 #include <QString>
 #include <QWidget>
-#include <QPointer>
 
 class QVBoxLayout;
+class QTimer;
 
-
-#include <QScrollArea>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -54,7 +54,9 @@ class QVerticalScrollArea : public QScrollArea
     Q_OBJECT
 public:
     explicit QVerticalScrollArea(QWidget* parent = nullptr);
-    bool eventFilter(QObject* object, QEvent* event) override;
+
+    virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
 };
 
 
@@ -62,7 +64,7 @@ namespace caf
 {
 
 class PdmObjectHandle;
-class PdmUiObjectEditorHandle;
+class PdmUiDefaultObjectEditor;
 
 //==================================================================================================
 /// 
@@ -79,19 +81,19 @@ public:
     PdmObjectHandle*    currentObject();
 
     QSize               sizeHint() const override;
+    QSize               minimumSizeHint() const override;
 
 public slots:
     void                showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
+    void                slotScheduleScrollToSelectedItemsInFieldEditors();
 
 private:
-    PdmUiObjectEditorHandle*    m_currentObjectView; 
-    QString                     m_uiConfigName;
-    
-    QPointer<QVBoxLayout>       m_placeHolderLayout;
-    QPointer<QWidget>           m_placeholder;
+    PdmUiDefaultObjectEditor*     m_defaultObjectEditor;
+    QString                       m_uiConfigName;
+    QPointer<QVBoxLayout>         m_placeHolderLayout;
+    QPointer<QWidget>             m_placeholder;
+    QPointer<QVerticalScrollArea> m_scrollArea;
 };
-
-
 
 } // End of namespace caf
 

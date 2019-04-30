@@ -28,7 +28,6 @@
 #include "Rim3dOverlayInfoConfig.h"
 
 #include "RiuPlotMainWindow.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuTools.h"
 
 #include <QVBoxLayout>
@@ -48,7 +47,7 @@
 #include <QToolTip>
 
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <thread>
 
 #define DEFAULT_DIALOG_WIDTH        750

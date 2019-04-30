@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -178,40 +178,40 @@ unsigned char VdeArrayDataPacket::imageComponentCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VdeArrayDataPacket VdeArrayDataPacket::fromFloat32Arr(int arrayId, const float* srcArr, size_t srcArrElementCount)
+std::unique_ptr<VdeArrayDataPacket> VdeArrayDataPacket::fromFloat32Arr(int arrayId, const float* srcArr, size_t srcArrElementCount)
 {
     size_t payloadByteCount = srcArrElementCount*sizeof(float);
     const char* rawSrcPtr = reinterpret_cast<const char*>(srcArr);
 
-    VdeArrayDataPacket packet;
-    packet.assign(arrayId, Float32, srcArrElementCount, 0, 0, 0, rawSrcPtr, payloadByteCount);
+    std::unique_ptr<VdeArrayDataPacket> packet(new VdeArrayDataPacket);
+    packet->assign(arrayId, Float32, srcArrElementCount, 0, 0, 0, rawSrcPtr, payloadByteCount);
     return packet;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VdeArrayDataPacket VdeArrayDataPacket::fromUint32Arr(int arrayId, const unsigned int* srcArr, size_t srcArrElementCount)
+std::unique_ptr<VdeArrayDataPacket> VdeArrayDataPacket::fromUint32Arr(int arrayId, const unsigned int* srcArr, size_t srcArrElementCount)
 {
     size_t payloadByteCount = srcArrElementCount*sizeof(unsigned int);
     const char* rawSrcPtr = reinterpret_cast<const char*>(srcArr);
 
-    VdeArrayDataPacket packet;
-    packet.assign(arrayId, Uint32, srcArrElementCount, 0, 0, 0, rawSrcPtr, payloadByteCount);
+    std::unique_ptr<VdeArrayDataPacket> packet(new VdeArrayDataPacket);
+    packet->assign(arrayId, Uint32, srcArrElementCount, 0, 0, 0, rawSrcPtr, payloadByteCount);
     return packet;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VdeArrayDataPacket VdeArrayDataPacket::fromUint8ImageRGBArr(int arrayId, unsigned short imageWidth, unsigned short imageHeight, const unsigned char* srcArr, size_t srcArrElementCount)
+std::unique_ptr<VdeArrayDataPacket> VdeArrayDataPacket::fromUint8ImageRGBArr(int arrayId, unsigned short imageWidth, unsigned short imageHeight, const unsigned char* srcArr, size_t srcArrElementCount)
 {
     const char* rawSrcPtr = reinterpret_cast<const char*>(srcArr);
 
     assert(3*imageWidth*imageHeight == srcArrElementCount);
 
-    VdeArrayDataPacket packet;
-    packet.assign(arrayId, Uint8, srcArrElementCount, imageWidth, imageHeight, 3, rawSrcPtr, srcArrElementCount);
+    std::unique_ptr<VdeArrayDataPacket> packet(new VdeArrayDataPacket);
+    packet->assign(arrayId, Uint8, srcArrElementCount, imageWidth, imageHeight, 3, rawSrcPtr, srcArrElementCount);
     return packet;
 }
 

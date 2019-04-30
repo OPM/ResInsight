@@ -165,7 +165,7 @@ class StructGridGeometryGenerator : public Object
 {
 public:
     explicit StructGridGeometryGenerator(const StructGridInterface* grid, bool useOpenMP);
-    ~StructGridGeometryGenerator();
+    ~StructGridGeometryGenerator() override;
 
     // Setup methods
 

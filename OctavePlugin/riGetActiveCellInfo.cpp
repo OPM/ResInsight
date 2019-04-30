@@ -129,7 +129,7 @@ DEFUN_DLD (riGetActiveCellInfo, args, nargout,
 
         if (nargin > 0)
         {
-            if (args(0).is_numeric_type())
+            if (riOctavePlugin::isOctaveValueNumeric(args(0)))
             {
                 unsigned int argCaseId = args(0).uint_value();
                 caseId = argCaseId;
@@ -142,7 +142,7 @@ DEFUN_DLD (riGetActiveCellInfo, args, nargout,
 
         if (nargin > 1)
         {
-            if (args(1).is_numeric_type())
+            if (riOctavePlugin::isOctaveValueNumeric(args(1)))
             {
                 unsigned int argCaseId = args(1).uint_value();
                 caseId = argCaseId;

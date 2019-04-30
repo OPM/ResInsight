@@ -30,10 +30,14 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 
+#include "RimAdvancedSnapshotExportDefinition.h"
+#include "RimAnnotationCollection.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimCalcScript.h"
 #include "RimCase.h"
 #include "RimCaseCollection.h"
 #include "RimCommandObject.h"
+#include "RimCompletionTemplateCollection.h"
 #include "RimContextCommandBuilder.h"
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
@@ -44,21 +48,28 @@
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
+#include "RimGridCrossPlotCollection.h"
 #include "RimGridSummaryCase.h"
 #include "RimGridView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
-#include "RimMultiSnapshotDefinition.h"
+#include "RimMeasurement.h"
+#include "RimObservedData.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimPltPlotCollection.h"
+#include "RimPolylinesFromFileAnnotation.h"
 #include "RimRftPlotCollection.h"
+#include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimTools.h"
+#include "RimUserDefinedPolylinesAnnotation.h"
+#include "RimValveTemplate.h"
+#include "RimValveTemplateCollection.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogFile.h"
@@ -138,6 +149,12 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitField(&m_showPlotWindow, "showPlotWindow", false, "Show Plot Window", "", "", "");
     m_showPlotWindow.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_subWindowsTiled3DWindow, "tiled3DWindow", false, "Tile 3D Window", "", "", "");
+    m_subWindowsTiled3DWindow.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_subWindowsTiledPlotWindow, "tiledPlotWindow", false, "Tile Plot Window", "", "", "");
+    m_subWindowsTiledPlotWindow.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_dialogData, "DialogData", "DialogData", "", "", "");
     m_dialogData = new RimDialogData();
@@ -442,7 +459,7 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& projectF
     QString oldProjectPath = fileInfoOld.path();
     
     std::vector<caf::FilePath*> filePaths;
-    fieldsByType(this, filePaths);
+    fieldContentsByType(this, filePaths);
 
     for (caf::FilePath* filePath : filePaths)
     {
@@ -680,7 +697,7 @@ void RimProject::allNotLinkedViews(std::vector<RimGridView*>& views)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allVisibleViews(std::vector<Rim3dView*>& views)
+void RimProject::allVisibleViews(std::vector<Rim3dView*>& views) const
 {
     std::vector<RimCase*> cases;
     allCases(cases);
@@ -704,10 +721,10 @@ void RimProject::allVisibleViews(std::vector<Rim3dView*>& views)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allVisibleGridViews(std::vector<RimGridView*>& views)
+void RimProject::allVisibleGridViews(std::vector<RimGridView*>& views) const
 {
     std::vector<Rim3dView*> visibleViews;
-    this->allVisibleViews(visibleViews);
+    this->allVisibleViews(visibleViews); 
     for ( Rim3dView* view : visibleViews )
     {
         RimGridView* gridView = dynamic_cast<RimGridView*>(view);
@@ -842,6 +859,38 @@ bool RimProject::showPlotWindow() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject::subWindowsTiled3DWindow() const
+{
+    return m_subWindowsTiled3DWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject::subWindowsTiledPlotWindow() const
+{
+    return m_subWindowsTiledPlotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::setSubWindowsTiledIn3DWindow(bool tiled)
+{
+    m_subWindowsTiled3DWindow = tiled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::setSubWindowsTiledInPlotWindow(bool tiled)
+{
+    m_subWindowsTiledPlotWindow = tiled;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsInAllViews()
@@ -916,7 +965,6 @@ std::vector<QString> RimProject::simulationWellNames() const
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RimProject::wellPathFromSimWellName(const QString& simWellName, int branchIndex)
 {
-    std::vector<RimWellPath*> paths;
     for (RimWellPath* const path : allWellPaths())
     {
         if (QString::compare(path->associatedSimulationWellName(), simWellName) == 0 &&
@@ -955,6 +1003,83 @@ std::vector<RimWellPath*> RimProject::allWellPaths() const
         }
     }
     return paths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimTextAnnotation*> RimProject::textAnnotations() const
+{
+    std::vector<RimTextAnnotation*> annotations;
+
+    // 'Global' text annotations
+    for (const auto& oilField : oilFields())
+    {
+        auto annotationColl = oilField->annotationCollection();
+        for (const auto& annotation : annotationColl->textAnnotations())
+        {
+            annotations.push_back(annotation);
+        }
+    }
+
+    // 'Local' text annotations
+    std::vector<RimGridView*> visibleViews;
+    allVisibleGridViews(visibleViews);
+    for (const auto& view : visibleViews)
+    {
+        std::vector<RimAnnotationInViewCollection*> annotationColls;
+        view->descendantsIncludingThisOfType(annotationColls);
+
+        if (annotationColls.size() == 1)
+        {
+            for (const auto& annotation : annotationColls.front()->textAnnotations())
+            {
+                annotations.push_back(annotation);
+            }
+        }
+    }
+
+    return annotations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimReachCircleAnnotation*> RimProject::reachCircleAnnotations() const
+{
+    std::vector<RimReachCircleAnnotation*> annotations;
+    for (const auto& oilField : oilFields())
+    {
+        auto annotationColl = oilField->annotationCollection();
+        for (const auto& annotation : annotationColl->reachCircleAnnotations())
+        {
+            annotations.push_back(annotation);
+        }
+    }
+    return annotations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolylinesAnnotation*> RimProject::polylineAnnotations() const
+{
+    std::vector<RimPolylinesAnnotation*> annotations;
+    for (const auto& oilField : oilFields())
+    {
+        auto annotationColl = oilField->annotationCollection();
+        for (const auto& annotation : annotationColl->userDefinedPolylineAnnotations())
+        {
+            annotations.push_back(annotation);
+        }
+
+        for (const auto& annotation : annotationColl->polylinesFromFileAnnotations())
+        {
+            annotations.push_back(annotation);
+        }
+
+    }
+    return annotations;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1015,6 +1140,38 @@ std::vector<RimFractureTemplate*> RimProject::allFractureTemplates() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimValveTemplateCollection*> RimProject::allValveTemplateCollections() const
+{
+    std::vector<RimValveTemplateCollection*> templColls;
+    std::vector<RimOilField*>                rimOilFields;
+
+    allOilFields(rimOilFields);
+    for (RimOilField* oilField : rimOilFields)
+    {
+        templColls.push_back(oilField->valveTemplateCollection());
+    }
+    return templColls;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimValveTemplate*> RimProject::allValveTemplates() const
+{
+    std::vector<RimValveTemplate*> templates;
+    for (RimValveTemplateCollection* templColl : allValveTemplateCollections())
+    {
+        for (RimValveTemplate* templ : templColl->valveTemplates())
+        {
+            templates.push_back(templ);
+        }
+    }
+    return templates;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiaEclipseUnitTools::UnitSystemType RimProject::commonUnitSystemForAllCases() const
@@ -1045,6 +1202,14 @@ RiaEclipseUnitTools::UnitSystemType RimProject::commonUnitSystemForAllCases() co
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMeasurement* RimProject::measurement() const
+{
+    return activeOilField()->measurement;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase)
@@ -1067,7 +1232,7 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
     if (uiConfigName == "PlotWindow")
     {
         {
-            auto itemCollection = uiTreeOrdering.add("Cases", ":/Folder.png");
+            auto itemCollection = uiTreeOrdering.add("Cases and Data", ":/Folder.png");
 
             RimOilField* oilField = activeOilField();
             if (oilField)
@@ -1115,6 +1280,16 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             {
                 itemCollection->add(mainPlotCollection->flowPlotCollection());
             }
+
+            if (mainPlotCollection->gridCrossPlotCollection())
+            {
+                itemCollection->add(mainPlotCollection->gridCrossPlotCollection());
+            }
+
+            if (mainPlotCollection->saturationPressurePlotCollection())
+            {
+                itemCollection->add(mainPlotCollection->saturationPressurePlotCollection());
+            }
         }
     }
     else
@@ -1132,7 +1307,8 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             if (oilField->geoMechModels())                  uiTreeOrdering.add(oilField->geoMechModels());
             if (oilField->wellPathCollection())             uiTreeOrdering.add(oilField->wellPathCollection());
             if (oilField->formationNamesCollection())       uiTreeOrdering.add(oilField->formationNamesCollection());
-            if (oilField->fractureDefinitionCollection())   uiTreeOrdering.add(oilField->fractureDefinitionCollection());
+            if (oilField->completionTemplateCollection())   uiTreeOrdering.add(oilField->completionTemplateCollection());
+            if (oilField->annotationCollection())           uiTreeOrdering.add(oilField->annotationCollection());
         }
 
         uiTreeOrdering.add(scriptCollection());

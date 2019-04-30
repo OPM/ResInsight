@@ -35,6 +35,7 @@
 #include "RimTernaryLegendConfig.h"
 
 #include "RivFaultGeometryGenerator.h"
+#include "RivMeshLinesSourceInfo.h"
 #include "RivNNCGeometryGenerator.h"
 #include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
@@ -42,9 +43,9 @@
 #include "RivSourceInfo.h"
 #include "RivTernaryScalarMapper.h"
 #include "RivTernaryTextureCoordsCreator.h"
+#include "RivTextLabelSourceInfo.h"
 #include "RivTextureCoordsCreator.h"
 
-#include "RivMeshLinesSourceInfo.h"
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
 #include "cvfModelBasicList.h"
@@ -64,6 +65,7 @@ RivFaultPartMgr::RivFaultPartMgr(const RigGridBase*              grid,
     , m_opacityLevel(1.0f)
     , m_defaultColor(cvf::Color3::WHITE)
 {
+    CVF_ASSERT(rimFault->faultGeometry());
     cvf::ref<cvf::Array<size_t>> connIdxes = new cvf::Array<size_t>;
     connIdxes->assign(rimFault->faultGeometry()->connectionIndices());
 
@@ -480,7 +482,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
     // Fault label
     if (!m_rimFault->name().isEmpty())
     {
-        cvf::Font* font = RiaApplication::instance()->customFont();
+        cvf::Font* font = RiaApplication::instance()->defaultWellLabelFont();
 
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
         drawableText->setFont(font);
@@ -519,6 +521,8 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
 
         labelPart->setEffect(eff.p());
         labelPart->setPriority(RivPartPriority::PartType::Text);
+
+        labelPart->setSourceInfo(new RivTextLabelSourceInfo(m_rimFault, cvfString, textCoord));
 
         m_faultLabelPart = labelPart;
     }
@@ -688,9 +692,9 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
 
     if (cellResultColors)
     {
-        size_t scalarSetIndex = cellResultColors->scalarResultIndex();
+        RigEclipseResultAddress eclResAddr = cellResultColors->eclipseResultAddress();
 
-        if (m_grid->mainGrid()->nncData()->hasScalarValues(scalarSetIndex))
+        if (m_grid->mainGrid()->nncData()->hasScalarValues(eclResAddr))
         {
             showNncsWithScalarMappedColor = true;
         }
@@ -699,8 +703,8 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
 
     if (showNncsWithScalarMappedColor)
     {
-        size_t                    scalarSetIndex = cellResultColors->scalarResultIndex();
-        RiaDefines::ResultCatType resultType     = cellResultColors->resultType();
+        RigEclipseResultAddress   eclResAddr = cellResultColors->eclipseResultAddress();
+        RiaDefines::ResultCatType resultType = cellResultColors->resultType();
 
         const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
@@ -711,7 +715,7 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
             {
                 size_t nativeTimeStepIndex = eclipseCase->uiToNativeTimeStepIndex(timeStepIndex);
                 m_NNCGenerator->textureCoordinates(
-                    m_NNCTextureCoords.p(), mapper, resultType, scalarSetIndex, nativeTimeStepIndex);
+                    m_NNCTextureCoords.p(), mapper, resultType, eclResAddr, nativeTimeStepIndex);
             }
         }
 

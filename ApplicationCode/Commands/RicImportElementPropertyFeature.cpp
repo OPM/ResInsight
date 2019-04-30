@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -80,6 +80,6 @@ void RicImportElementPropertyFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicImportElementPropertyFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/GeoMechCase48x48.png"));
+    actionToSetup->setIcon(QIcon(":/GeoMechCasePropTable24x24.png"));
     actionToSetup->setText("Import &Element Property Table");
 }

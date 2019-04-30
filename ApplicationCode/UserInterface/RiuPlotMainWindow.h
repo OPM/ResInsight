@@ -19,11 +19,10 @@
 #pragma once
 
 #include "RiuMainWindowBase.h"
+#include "RiuMdiArea.h"
 
 #include "cafPdmUiDragDropInterface.h"
 #include "cafPdmPointer.h"
-
-#include <QMdiArea>
 
 #include <memory>
 
@@ -69,12 +68,13 @@ public:
 
     void                setDefaultWindowSize();
 
+    void                tileSubWindows() override;
+    void                storeSubWindowTiling(bool tiled) override;
+    void                clearWindowTiling() override;
+    bool                subWindowsAreTiled() const override;
 
-    RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer) override;
-
-    void                tileWindows();
     bool                isAnyMdiSubWindowVisible();
-    QMdiSubWindow*      findMdiSubWindow(QWidget* viewer);
+    QMdiSubWindow*      findMdiSubWindow(QWidget* viewer) override;
     QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
     void                setWidthOfMdiWindow(QWidget* mdiWindowWidget, int newWidth);
@@ -113,7 +113,7 @@ private slots:
 private:
     QByteArray          m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
 
-    QMdiArea*           m_mdiArea;
+    RiuMdiArea*         m_mdiArea;
     caf::PdmPointer<RimViewWindow>  m_activePlotViewWindow;
 
     QMenu*              m_windowMenu;
@@ -123,8 +123,6 @@ private:
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
-
-    bool                        m_blockSlotSubWindowActivated;
 
     std::vector<QWidget*>       m_temporaryWidgets;
 };

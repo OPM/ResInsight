@@ -38,7 +38,7 @@
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiObjectEditorHandle.h"
+#include "cafPdmUiWidgetObjectEditorHandle.h"
 
 #include <QWidget>
 #include <QPointer>
@@ -103,7 +103,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class PdmUiListViewEditor : public PdmUiObjectEditorHandle
+class PdmUiListViewEditor : public PdmUiWidgetObjectEditorHandle
 {
 public:
     PdmUiListViewEditor();

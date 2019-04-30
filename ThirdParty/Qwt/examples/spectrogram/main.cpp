@@ -2,8 +2,12 @@
 #include <qmainwindow.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
+#include <qcombobox.h>
 #include <qslider.h>
+#include <qlabel.h>
+#include <qcheckbox.h>
 #include "plot.h"
+#include "qwt_color_map.h"
 
 class MainWindow: public QMainWindow
 {
@@ -23,22 +27,6 @@ MainWindow::MainWindow( QWidget *parent ):
 
     QToolBar *toolBar = new QToolBar( this );
 
-    QToolButton *btnSpectrogram = new QToolButton( toolBar );
-    btnSpectrogram->setText( "Spectrogram" );
-    btnSpectrogram->setCheckable( true );
-    btnSpectrogram->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
-    toolBar->addWidget( btnSpectrogram );
-    connect( btnSpectrogram, SIGNAL( toggled( bool ) ),
-        d_plot, SLOT( showSpectrogram( bool ) ) );
-
-    QToolButton *btnContour = new QToolButton( toolBar );
-    btnContour->setText( "Contour" );
-    btnContour->setCheckable( true );
-    btnContour->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
-    toolBar->addWidget( btnContour );
-    connect( btnContour, SIGNAL( toggled( bool ) ),
-        d_plot, SLOT( showContour( bool ) ) );
-
 #ifndef QT_NO_PRINTER
     QToolButton *btnPrint = new QToolButton( toolBar );
     btnPrint->setText( "Print" );
@@ -46,8 +34,22 @@ MainWindow::MainWindow( QWidget *parent ):
     toolBar->addWidget( btnPrint );
     connect( btnPrint, SIGNAL( clicked() ),
         d_plot, SLOT( printPlot() ) );
+
+    toolBar->addSeparator();
 #endif
 
+    toolBar->addWidget( new QLabel("Color Map " ) );
+    QComboBox *mapBox = new QComboBox( toolBar );
+    mapBox->addItem( "RGB" );
+    mapBox->addItem( "Indexed Colors" );
+    mapBox->addItem( "Hue" );
+    mapBox->addItem( "Alpha" );
+    mapBox->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+    toolBar->addWidget( mapBox );
+    connect( mapBox, SIGNAL( currentIndexChanged( int ) ),
+             d_plot, SLOT( setColorMap( int ) ) );
+
+    toolBar->addWidget( new QLabel( " Opacity " ) );
     QSlider *slider = new QSlider( Qt::Horizontal );
     slider->setRange( 0, 255 );
     slider->setValue( 255 );
@@ -55,6 +57,17 @@ MainWindow::MainWindow( QWidget *parent ):
         d_plot, SLOT( setAlpha( int ) ) );
 
     toolBar->addWidget( slider );
+    toolBar->addWidget( new QLabel("   " ) );
+
+    QCheckBox *btnSpectrogram = new QCheckBox( "Spectrogram", toolBar );
+    toolBar->addWidget( btnSpectrogram );
+    connect( btnSpectrogram, SIGNAL( toggled( bool ) ),
+        d_plot, SLOT( showSpectrogram( bool ) ) );
+
+    QCheckBox *btnContour = new QCheckBox( "Contour", toolBar );
+    toolBar->addWidget( btnContour );
+    connect( btnContour, SIGNAL( toggled( bool ) ),
+        d_plot, SLOT( showContour( bool ) ) );
 
     addToolBar( toolBar );
 
@@ -66,6 +79,7 @@ MainWindow::MainWindow( QWidget *parent ):
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
+    a.setStyle( "Windows" );
 
     MainWindow mainWindow;
     mainWindow.resize( 600, 400 );

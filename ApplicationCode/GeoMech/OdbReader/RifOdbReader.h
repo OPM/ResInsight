@@ -39,27 +39,27 @@ class RifOdbReader : public RifGeoMechReaderInterface
 {
 public:
     RifOdbReader();
-    virtual ~RifOdbReader();
+    ~RifOdbReader() override;
 
-    virtual bool                                                openFile(const std::string& fileName, std::string* errorMessage);
-    virtual bool                                                isOpen() const;
-    virtual bool                                                readFemParts(RigFemPartCollection* geoMechCase);
-    virtual std::vector<std::string>                            allStepNames() const override;
-    virtual std::vector<std::string>                            filteredStepNames() const override;
-    virtual std::vector<double>                                 frameTimes(int stepIndex) const override;
+    bool                                                openFile(const std::string& fileName, std::string* errorMessage) override;
+    bool                                                isOpen() const override;
+    bool                                                readFemParts(RigFemPartCollection* geoMechCase) override;
+    std::vector<std::string>                            allStepNames() const override;
+    std::vector<std::string>                            filteredStepNames() const override;
+    std::vector<double>                                 frameTimes(int stepIndex) const override;
 
-    virtual std::vector<std::string>                            elementSetNames(int partIndex);
-    virtual std::vector<size_t>                                 elementSet(int partIndex, int setIndex);
+    std::vector<std::string>                            elementSetNames(int partIndex) override;
+    std::vector<size_t>                                 elementSet(int partIndex, int setIndex) override;
     
-    virtual std::map<std::string, std::vector<std::string> >    scalarNodeFieldAndComponentNames(); 
-    virtual std::map<std::string, std::vector<std::string> >    scalarElementNodeFieldAndComponentNames(); 
-    virtual std::map<std::string, std::vector<std::string> >    scalarIntegrationPointFieldAndComponentNames(); 
+    std::map<std::string, std::vector<std::string> >    scalarNodeFieldAndComponentNames() override; 
+    std::map<std::string, std::vector<std::string> >    scalarElementNodeFieldAndComponentNames() override; 
+    std::map<std::string, std::vector<std::string> >    scalarIntegrationPointFieldAndComponentNames() override; 
 
-    virtual void                                                readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements);
+    void                                                readDisplacements(int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements) override;
 
-    virtual void                                                readNodeField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues);
-    virtual void                                                readElementNodeField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues);
-    virtual void                                                readIntegrationPointField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues);
+    void                                                readNodeField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues) override;
+    void                                                readElementNodeField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues) override;
+    void                                                readIntegrationPointField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues) override;
 
 private:
     enum ResultPosition

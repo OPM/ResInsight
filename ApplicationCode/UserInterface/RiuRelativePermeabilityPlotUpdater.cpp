@@ -18,7 +18,7 @@
 
 #include "RiuRelativePermeabilityPlotUpdater.h"
 #include "RiuRelativePermeabilityPlotPanel.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
@@ -118,7 +118,7 @@ void RiuRelativePermeabilityPlotUpdater::updateOnTimeStepChanged(Rim3dView* chan
     }
 
     // Fetch the current global selection and only continue if the selection's view matches the view with time step change
-    const RiuEclipseSelectionItem* eclipseSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>(RiuSelectionManager::instance()->selectedItem());
+    const RiuEclipseSelectionItem* eclipseSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>(Riu3dSelectionManager::instance()->selectedItem());
     if (eclipseSelectionItem && eclipseSelectionItem->m_view == eclipseView)
     {
         const size_t gridIndex = eclipseSelectionItem->m_gridIndex;
@@ -150,15 +150,15 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot(const RimEclipse
 
             // Make sure we load the results that we'll query below
             RigCaseCellResultsData* cellResultsData = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
-            cellResultsData->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
-            cellResultsData->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
-            cellResultsData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "SATNUM");
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SWAT"));
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SGAS"));
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "SATNUM"));
 
             // Fetch SWAT and SGAS cell values for the selected cell
             const size_t timeStepIndex = static_cast<size_t>(eclipseView.currentTimeStep());
-            cvf::ref<RigResultAccessor> swatAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "SWAT", RiaDefines::DYNAMIC_NATIVE);
-            cvf::ref<RigResultAccessor> sgasAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "SGAS", RiaDefines::DYNAMIC_NATIVE);
-            cvf::ref<RigResultAccessor> satnumAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "SATNUM", RiaDefines::STATIC_NATIVE);
+            cvf::ref<RigResultAccessor> swatAccessor =   RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SWAT"  ));
+            cvf::ref<RigResultAccessor> sgasAccessor =   RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SGAS"  ));
+            cvf::ref<RigResultAccessor> satnumAccessor = RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE , "SATNUM"));
             const double cellSWAT = swatAccessor.notNull() ? swatAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
             const double cellSGAS = sgasAccessor.notNull() ? sgasAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;
             const double cellSATNUM = satnumAccessor.notNull() ? satnumAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;

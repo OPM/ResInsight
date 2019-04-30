@@ -39,6 +39,97 @@ CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection, "SummaryCaseSubCollection");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double EnsembleParameter::stdDeviation() const
+{
+    double N = static_cast<double>(values.size());
+    if (N > 1 && isNumeric())
+    {
+        double sumValues = 0.0;
+        double sumValuesSquared = 0.0;
+        for (const QVariant& variant : values)
+        {
+            double value = variant.toDouble();
+            sumValues += value;
+            sumValuesSquared += value * value;
+        }
+
+        return std::sqrt((N * sumValuesSquared - sumValues * sumValues) / (N * (N - 1.0)));
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Standard deviation normalized by max absolute value of min/max values.
+/// Produces values between 0.0 and sqrt(2.0).
+//--------------------------------------------------------------------------------------------------
+double EnsembleParameter::normalizedStdDeviation() const
+{
+    const double eps = 1.0e-4;
+
+    double maxAbs = std::max(std::fabs(maxValue), std::fabs(minValue));
+    if (maxAbs < eps)
+    {
+        return 0.0;
+    }
+
+    double normalisedStdDev = stdDeviation() / maxAbs;
+    if (normalisedStdDev < eps)
+    {
+        return 0.0;
+    }
+    return normalisedStdDev;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void EnsembleParameter::sortByBinnedVariation(std::vector<NameParameterPair>& parameterVector)
+{
+    double minStdDev = std::numeric_limits<double>::infinity();
+    double maxStdDev = 0.0;
+    for (const auto& paramPair : parameterVector)
+    {
+        minStdDev = std::min(minStdDev, paramPair.second.normalizedStdDeviation());
+        maxStdDev = std::max(maxStdDev, paramPair.second.normalizedStdDeviation());
+    }
+    if ((maxStdDev - minStdDev) < 1.0e-8)
+    {
+        return;
+    }
+
+    double delta = (maxStdDev - minStdDev) / NR_OF_VARIATION_BINS;
+
+    std::vector<double> bins;
+    for (int i = 0; i < NR_OF_VARIATION_BINS - 1; ++i)
+    {
+        bins.push_back(minStdDev + (i + 1) * delta);
+    }
+
+    for (NameParameterPair& nameParamPair : parameterVector)
+    {
+        int binNumber = 0;
+        for (double bin : bins)
+        {
+            if (nameParamPair.second.normalizedStdDeviation() >= bin)
+            {
+                binNumber++;
+            }
+        }
+        nameParamPair.second.variationBin = binNumber;
+    }
+
+    // Sort by variation bin (highest first) but keep name as sorting parameter when parameters have the same variation index
+    std::stable_sort(parameterVector.begin(), parameterVector.end(),
+        [&bins](const NameParameterPair& lhs, const NameParameterPair& rhs)
+        {
+            return lhs.second.variationBin > rhs.second.variationBin;
+        }
+    );
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection::RimSummaryCaseCollection()
 {
     CAF_PDM_InitObject("Summary Case Group", ":/SummaryGroup16x16.png", "", "");
@@ -203,8 +294,8 @@ EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& par
     EnsembleParameter eParam;
     eParam.name = paramName;
 
-    bool numericValuesCount = 0;
-    bool textValuesCount = 0;
+    size_t numericValuesCount = 0;
+    size_t textValuesCount = 0;
 
     // Prepare case realization params, and check types
     for (const auto& rimCase : allSummaryCases())
@@ -283,6 +374,7 @@ EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& par
             eParam.values.push_back(QVariant(val));
         }
     }
+    
     return eParam;
 }
 

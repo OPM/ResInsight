@@ -24,6 +24,8 @@
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 
+#include "cafSelectionManager.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicDeleteAllLinkedViewsFeature, "RicDeleteAllLinkedViewsFeature");
@@ -33,7 +35,7 @@ CAF_CMD_SOURCE_INIT(RicDeleteAllLinkedViewsFeature, "RicDeleteAllLinkedViewsFeat
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteAllLinkedViewsFeature::isCommandEnabled()
 {
-    return true;
+    return caf::SelectionManager::instance()->selectedItemAncestorOfType<RimViewLinkerCollection>() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

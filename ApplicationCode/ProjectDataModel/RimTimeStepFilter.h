@@ -48,6 +48,8 @@ public:
 public:
     RimTimeStepFilter();
 
+    void                    clearFilteredTimeSteps();
+
     void                    setTimeStepsFromFile(const std::vector<QDateTime>& timeSteps);
     void                    setTimeStepsFromFile(const std::vector<std::pair<QString, QDateTime>>& timeSteps);
     std::vector<size_t>     filteredTimeSteps() const;

@@ -75,6 +75,16 @@ void RicWellPathDeleteFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicWellPathDeleteFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Delete Well Path(s)");
+    std::vector<RimWellPath*> objects;
+    caf::SelectionManager::instance()->objectsByType(&objects);
+    if (objects.size() > 1u)
+    {
+        actionToSetup->setText("Delete Well Paths");
+    }
+    else
+    {
+        actionToSetup->setText("Delete Well Path");
+    }
     actionToSetup->setIcon(QIcon(":/Erase.png"));
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
 }

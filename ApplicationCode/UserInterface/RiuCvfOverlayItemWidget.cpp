@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "cafTitledOverlayFrame.h"
 #include "cafViewer.h"
 
 #include "cvfqtUtils.h"
@@ -41,16 +42,11 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuCvfOverlayItemWidget::RiuCvfOverlayItemWidget(QWidget* parent/*=0*/)
-: QWidget(parent)
+RiuCvfOverlayItemWidget::RiuCvfOverlayItemWidget(QWidget* parent/*=0*/, QWidget* widgetToSnapTo)
+: RiuDraggableOverlayFrame(parent, widgetToSnapTo)
 {
-    auto hblayout = new QHBoxLayout(this);
-    hblayout->setMargin(0);
-    hblayout->setSpacing(0);
-
-    this->setLayout(hblayout);
-    m_overlayItemLabel = new QLabel(this);
-    this->layout()->addWidget(m_overlayItemLabel);
+    this->layout()->setMargin(0);
+    this->layout()->setSpacing(0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,15 +60,16 @@ RiuCvfOverlayItemWidget::~RiuCvfOverlayItemWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuCvfOverlayItemWidget::updateFromOverlyItem( cvf::OverlayItem * item)
+void RiuCvfOverlayItemWidget::updateFromOverlayItem( caf::TitledOverlayFrame * item)
 {
-    // Use the render size of the overlayItem (sizeHint should be renamed)
-
-    unsigned int width  = item->sizeHint().x();
-    unsigned int height = item->sizeHint().y();
+    unsigned int width  = item->renderSize().x();
+    unsigned int height = item->renderSize().y();
 
     QGLFormat glFormat;
     glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
+
+    // Enforce no border to avoid
+    item->setBackgroundFrameColor(cvf::Color4f(0, 0, 0, 0));
 
     caf::Viewer*  viewer = new caf::Viewer(glFormat, nullptr);
     cvf::OpenGLContext* cvfOglContext = viewer->cvfOpenGLContext();
@@ -126,7 +123,7 @@ void RiuCvfOverlayItemWidget::updateFromOverlyItem( cvf::OverlayItem * item)
     QPixmap pixmap = QPixmap::fromImage(image);
 
     delete viewer;
-
+    
     m_overlayItemLabel->setPixmap(pixmap);
     this->setMinimumSize(QSize(width, height));
     this->resize(QSize(width, height));

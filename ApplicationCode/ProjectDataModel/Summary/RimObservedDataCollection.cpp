@@ -48,7 +48,7 @@ CAF_PDM_SOURCE_INIT(RimObservedDataCollection, "ObservedDataCollection");
 //--------------------------------------------------------------------------------------------------
 RimObservedDataCollection::RimObservedDataCollection()
 {
-    CAF_PDM_InitObject("Observed Time History Data", ":/Folder.png", "", "");
+    CAF_PDM_InitObject("Observed Data", ":/Folder.png", "", "");
     
     CAF_PDM_InitFieldNoDefault(&m_observedDataArray, "ObservedDataArray", "", "", "", "");
 
@@ -75,13 +75,9 @@ void RimObservedDataCollection::removeObservedData(RimObservedData* observedData
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimObservedDataCollection::allObservedData()
+std::vector<RimObservedData*> RimObservedDataCollection::allObservedData()
 {
-    std::vector<RimSummaryCase*> allObservedData;
-
-    allObservedData.insert(allObservedData.begin(), m_observedDataArray.begin(), m_observedDataArray.end());
-
-    return allObservedData;
+    return m_observedDataArray.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,7 +149,6 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     if (!fileExists(fileName, errorText)) return nullptr;
 
     RimObservedData* observedData = nullptr;
-    bool parseOk = false;
 
     RimCsvUserData* userData = new RimCsvUserData();
     RicPasteAsciiDataToSummaryPlotFeatureUi* parseOptions = userData->parseOptions();
@@ -190,7 +185,6 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     {
         this->m_observedDataArray.push_back(userData);
         observedData = userData;
-        parseOk = true;
     }
     else
     {

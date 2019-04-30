@@ -68,21 +68,28 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     swcrResults = RigCaseCellResultsData::getResultIndexableStaticResult(actCellInfo, gridCellResults, "SWCR", porvActiveCellsResultStorage);
     progress.incrementProgress();
 
-    std::vector<size_t> scalarResultIndexTracers;
+    std::vector<RigEclipseResultAddress> tracerResAddrs;
     for (QString tracerName : tracerNames)
     {
-        scalarResultIndexTracers.push_back(gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, tracerName));
+        RigEclipseResultAddress tracerResAddr(RiaDefines::DYNAMIC_NATIVE, tracerName);
+        if (gridCellResults->ensureKnownResultLoaded(tracerResAddr) )
+        {
+            tracerResAddrs.push_back(tracerResAddr);
+        }
         progress.incrementProgress();
     }
     std::vector<std::vector<double> > summedTracersAtAllTimesteps;
 
     //TODO: Option for Oil and Gas instead of water
+    RigEclipseResultAddress flrWatIAddr(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+");
+    RigEclipseResultAddress flrWatJAddr(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+");
+    RigEclipseResultAddress flrWatKAddr(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+");
 
-    size_t scalarResultIndexFlowrateI = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+"); 
+    bool hasFlowrateI = gridCellResults->ensureKnownResultLoaded(flrWatIAddr); 
     progress.incrementProgress();
-    size_t scalarResultIndexFlowrateJ = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+"); 
+    bool hasFlowrateJ = gridCellResults->ensureKnownResultLoaded(flrWatJAddr); 
     progress.incrementProgress();
-    size_t scalarResultIndexFlowrateK = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+"); 
+    bool hasFlowrateK = gridCellResults->ensureKnownResultLoaded(flrWatKAddr); 
     progress.incrementProgress();
 
     std::vector<const std::vector<double>* > flowrateIatAllTimeSteps;
@@ -107,27 +114,27 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     for (size_t timeStep = 0; timeStep < daysSinceSimulationStart.size(); timeStep++)
     {
         const std::vector<double>* flowrateI = nullptr;
-        if (scalarResultIndexFlowrateI != cvf::UNDEFINED_SIZE_T)
+        if (hasFlowrateI)
         {
-            flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateI, 
+            flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(flrWatIAddr, 
                                                                                                 timeStep));
         }
         flowrateIatAllTimeSteps.push_back(flowrateI);
 
 
         const std::vector<double>* flowrateJ = nullptr;
-        if (scalarResultIndexFlowrateJ != cvf::UNDEFINED_SIZE_T)
+        if (hasFlowrateJ)
         {
-            flowrateJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateJ,
+            flowrateJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(flrWatJAddr,
                                                                                                 timeStep));
         }
         flowrateJatAllTimeSteps.push_back(flowrateJ);
 
 
         const std::vector<double>* flowrateK = nullptr;
-        if (scalarResultIndexFlowrateK != cvf::UNDEFINED_SIZE_T)
+        if (hasFlowrateK)
         {
-            flowrateK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateK,
+            flowrateK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(flrWatKAddr,
                                                                                                 timeStep));
         }
         flowrateKatAllTimeSteps.push_back(flowrateK);
@@ -140,16 +147,13 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 
         //sum all tracers at current timestep
         std::vector<double> summedTracerValues(resultCellCount);
-        for (size_t tracerIndex : scalarResultIndexTracers)
+        for (const RigEclipseResultAddress& tracerResAddr : tracerResAddrs)
         {
-            if (tracerIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                const std::vector<double>* tracerResult = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(tracerIndex, timeStep));
+            const std::vector<double>* tracerResult = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(tracerResAddr, timeStep));
 
-                for (size_t i = 0; i < summedTracerValues.size(); i++)
-                {
-                    summedTracerValues[i] += tracerResult->at(i);
-                }
+            for ( size_t i = 0; i < summedTracerValues.size(); i++ )
+            {
+                summedTracerValues[i] += tracerResult->at(i);
             }
         }
         summedTracersAtAllTimesteps.push_back(summedTracerValues);

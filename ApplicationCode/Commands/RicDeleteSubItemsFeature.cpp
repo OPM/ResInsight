@@ -106,6 +106,7 @@ void RicDeleteSubItemsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete Sub Items");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
 }
 
 //--------------------------------------------------------------------------------------------------

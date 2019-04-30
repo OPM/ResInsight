@@ -28,7 +28,7 @@ class CategoryLegend : public caf::TitledOverlayFrame
 {
 public:
     CategoryLegend(cvf::Font* font, const CategoryMapper* categoryMapper);
-    virtual ~CategoryLegend();
+    ~CategoryLegend() override;
 
     size_t       categoryCount() const;
 

@@ -72,7 +72,7 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged(const QString& previou
                 if (adr.quantityName() == previousCurveName.toStdString())
                 {
                     RifEclipseSummaryAddress updatedAdr = RifEclipseSummaryAddress::calculatedAddress(currentCurveName.toStdString());
-                    curve->setSummaryAddressY(updatedAdr);
+                    curve->setSummaryAddressYAndApplyInterpolation(updatedAdr);
                 }
             }
         }

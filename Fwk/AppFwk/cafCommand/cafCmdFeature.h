@@ -46,6 +46,7 @@
 
 class QAction;
 class QIcon;
+class QKeySequence;
 class QString;
 
 #define CAF_CMD_HEADER_INIT \
@@ -83,6 +84,8 @@ public:
     void            refreshCheckedState();
 
     bool            canFeatureBeExecuted();
+
+    static void     applyShortcutWithHintToAction(QAction* action, const QKeySequence& keySequence);
 
 public slots:
     void            actionTriggered(bool isChecked);

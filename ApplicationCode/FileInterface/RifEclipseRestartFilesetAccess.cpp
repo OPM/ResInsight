@@ -189,7 +189,7 @@ bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t t
         return false;
     }
 
-    size_t fileGridCount = ecl_file_get_num_named_kw(m_ecl_files[timeStep], resultName.toAscii().data());
+    size_t fileGridCount = ecl_file_get_num_named_kw(m_ecl_files[timeStep], resultName.toLatin1().data());
 
     // No results for this result variable for current time step found
     if (fileGridCount == 0) return true;

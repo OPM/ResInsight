@@ -25,6 +25,14 @@
 
 namespace caf {
     template<>
+    void RimMswCompletionParameters::ReferenceMDEnum::setUp()
+    {
+        addItem(RimMswCompletionParameters::AUTO_REFERENCE_MD, "GridIntersectionRefMD", "Grid Entry Point");
+        addItem(RimMswCompletionParameters::MANUAL_REFERENCE_MD, "ManualRefMD", "User Defined");
+        setDefault(RimMswCompletionParameters::AUTO_REFERENCE_MD);
+    }
+
+    template<>
     void RimMswCompletionParameters::PressureDropEnum::setUp()
     {
         addItem(RimMswCompletionParameters::HYDROSTATIC, "H--", "Hydrostatic");
@@ -47,9 +55,20 @@ CAF_PDM_SOURCE_INIT(RimMswCompletionParameters, "RimMswCompletionParameters");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMswCompletionParameters::RimMswCompletionParameters()
+RimMswCompletionParameters::RimMswCompletionParameters(bool enableReferenceDepth /* = true */)
+    : m_enableReferenceDepth(enableReferenceDepth)
 {
     CAF_PDM_InitObject("MSW Completion Parameters", ":/CompletionsSymbol16x16.png", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_refMDType, "RefMDType", "Reference MD", "", "", "");
+    CAF_PDM_InitField(&m_refMD, "RefMD", 0.0, "", "", "", "");
+
+    if (!m_enableReferenceDepth)
+    {
+        m_refMDType.xmlCapability()->disableIO();
+        m_refMD.xmlCapability()->disableIO();
+    }
+
     CAF_PDM_InitField(&m_linerDiameter, "LinerDiameter", std::numeric_limits<double>::infinity(), "Liner Inner Diameter", "", "", "");
     CAF_PDM_InitField(&m_roughnessFactor, "RoughnessFactor", std::numeric_limits<double>::infinity(), "Roughness Factor", "", "", "");
 
@@ -67,6 +86,26 @@ RimMswCompletionParameters::RimMswCompletionParameters()
 RimMswCompletionParameters::~RimMswCompletionParameters()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMswCompletionParameters::ReferenceMDType RimMswCompletionParameters::referenceMDType() const
+{
+    return m_refMDType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::manualReferenceMD() const
+{
+    if (m_refMDType == AUTO_REFERENCE_MD)
+    {
+        return std::numeric_limits<double>::infinity();
+    }
+    return m_refMD;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,6 +201,22 @@ double RimMswCompletionParameters::maxSegmentLength() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMswCompletionParameters::setReferenceMDType(ReferenceMDType refType)
+{
+    m_refMDType = refType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMswCompletionParameters::setManualReferenceMD(double manualRefMD)
+{
+    m_refMD = manualRefMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMswCompletionParameters::setLinerDiameter(double diameter)
 {
     m_linerDiameter = diameter;
@@ -196,6 +251,12 @@ void RimMswCompletionParameters::setLengthAndDepth(LengthAndDepthType lengthAndD
 //--------------------------------------------------------------------------------------------------
 void RimMswCompletionParameters::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (changedField == &m_refMDType)
+    {
+        m_refMD.uiCapability()->setUiHidden(m_refMDType == AUTO_REFERENCE_MD);
+        this->updateAllRequiredEditors();
+    }
+
     if (changedField == &m_enforceMaxSegmentLength)
     {
         m_maxSegmentLength.uiCapability()->setUiHidden(!m_enforceMaxSegmentLength());
@@ -224,6 +285,13 @@ void RimMswCompletionParameters::defineUiOrdering(QString uiConfigName, caf::Pdm
                 m_roughnessFactor.uiCapability()->setUiName("Roughness Factor [ft]");
             }
         }
+    }
+
+    if (m_enableReferenceDepth)
+    {
+        uiOrdering.add(&m_refMDType);
+        uiOrdering.add(&m_refMD);
+        m_refMD.uiCapability()->setUiHidden(m_refMDType == AUTO_REFERENCE_MD);
     }
 
     uiOrdering.add(&m_linerDiameter);

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,11 +18,11 @@
 
 #include "RicHoloLensCreateSessionFeature.h"
 
-#include "RiaQIconTools.h"
-
 #include "RicHoloLensCreateSessionUi.h"
 #include "RicHoloLensServerSettings.h"
 #include "RicHoloLensSessionManager.h"
+
+#include "RiuMainWindow.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -47,7 +47,7 @@ void RicHoloLensCreateSessionFeature::onActionTriggered(bool isChecked)
 {
     RicHoloLensCreateSessionUi createSessionUi;
 
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &createSessionUi, "HoloLens - Create Session", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &createSessionUi, "HoloLens - Create Session", "");
     propertyDialog.resize(QSize(400, 330));
 
     {
@@ -73,11 +73,7 @@ void RicHoloLensCreateSessionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensCreateSessionFeature::setupActionLook(QAction* actionToSetup)
 {
-    QPixmap pixmap(":/hololens.png");
-    QPixmap overlayPixmap(":/plus-sign-green.png");
+    actionToSetup->setIcon(QIcon(":/HoloLensConnect24x24.png"));
 
-    QPixmap combinedPixmap = RiaQIconTools::appendPixmapUpperLeft(pixmap, overlayPixmap);
-    actionToSetup->setIcon(QIcon(combinedPixmap));
-
-    actionToSetup->setText("Create Session");
+    actionToSetup->setText("Connect to HoloLens Server");
 }

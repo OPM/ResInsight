@@ -23,29 +23,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigResultModifier.h"
 
-#include <math.h>
-
-
-//--------------------------------------------------------------------------------------------------
-/// This function must be harmonized with RigResultAccessorFactory::createNativeResultAccessor()
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEclipseCaseData* eclipseCase,
-                                                                           size_t gridIndex,
-                                                                           RiaDefines::PorosityModelType porosityModel,
-                                                                           size_t timeStepIndex,
-                                                                           QString& uiResultName)
-{
-    if (!eclipseCase) return nullptr;
-
-    if (!eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
-    {
-        return nullptr;
-    }
-
-    size_t scalarSetIndex = eclipseCase->results(porosityModel)->findScalarResultIndex(uiResultName);
-
-    return createResultModifier(eclipseCase, gridIndex, porosityModel, timeStepIndex, scalarSetIndex);
-}
+#include <cmath>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +32,8 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEc
 cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEclipseCaseData* eclipseCase,
                                                                            size_t gridIndex,
                                                                            RiaDefines::PorosityModelType porosityModel,
-                                                                           size_t timeStepIndex, size_t scalarResultIndex)
+                                                                           size_t timeStepIndex,  
+                                                                           const RigEclipseResultAddress& resVarAddr)
 {
     if ( !eclipseCase ) return nullptr;
 
@@ -63,7 +42,7 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEc
         return nullptr;
     }
 
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    if (!resVarAddr.isValid())
     {
         return nullptr;
     }
@@ -74,7 +53,7 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEc
         return nullptr;
     }
 
-    std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(scalarResultIndex);
+    std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->modifiableCellScalarResultTimesteps(resVarAddr);
 
     if (timeStepIndex >= scalarSetResults.size())
     {
@@ -87,7 +66,7 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEc
         resultValues = &(scalarSetResults[timeStepIndex]);
     }
 
-    bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(scalarResultIndex);
+    bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(resVarAddr);
     if (useGlobalActiveIndex)
     {
         cvf::ref<RigResultModifier> object = new RigActiveCellsResultModifier(grid, eclipseCase->activeCellInfo(porosityModel), resultValues);

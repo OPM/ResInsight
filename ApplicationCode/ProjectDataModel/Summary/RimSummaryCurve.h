@@ -54,7 +54,9 @@ public:
     // Y Axis functions
     void                                    setSummaryCaseY(RimSummaryCase* sumCase);
     RimSummaryCase*                         summaryCaseY() const; 
+    void                                    setSummaryAddressYAndApplyInterpolation(const RifEclipseSummaryAddress& address);
     void                                    setSummaryAddressY(const RifEclipseSummaryAddress& address);
+
     RifEclipseSummaryAddress                summaryAddressY() const;
     std::string                             unitNameY() const;
     std::vector<double>                     valuesY() const;
@@ -76,7 +78,7 @@ public:
     void                                    updateQwtPlotAxis();
     void                                    applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings);
 
-    QString                         curveExportDescription(const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress()) const override;
+    QString                                 curveExportDescription(const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress()) const override;
     void                                    forceUpdateCurveAppearanceFromCaseType();
 
     void                                    markCachedDataForPurge();
@@ -97,11 +99,11 @@ protected:
     void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
-    RifSummaryReaderInterface*              valuesSummaryReaderX() const;
-    RifSummaryReaderInterface*              valuesSummaryReaderY() const;
-    const std::vector<time_t>&              timeStepsX() const;
+    RifSummaryReaderInterface*      valuesSummaryReaderX() const;
+    RifSummaryReaderInterface*      valuesSummaryReaderY() const;
+    const std::vector<time_t>&      timeStepsX() const;
 
-    void                                    calculateCurveInterpolationFromAddress();
+    void                            calculateCurveInterpolationFromAddress();
 
     // Overridden PDM methods
     void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -109,9 +111,9 @@ private:
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
-    static void                             appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
-                                                                                 RimSummaryCase* summaryCase,
-                                                                                 RimSummaryFilter* summaryFilter);
+    static void                     appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
+                                                                         RimSummaryCase*                summaryCase,
+                                                                         RimSummaryFilter*              summaryFilter);
 
 private:
     // Y values

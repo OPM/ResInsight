@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
-// 
+//  Copyright (C) 2019-     Equinor ASA
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,79 +19,40 @@
 #pragma once
 
 #include "RiuInterfaceToViewWindow.h"
+#include "RiuQwtPlot.h"
 
 #include "cafPdmPointer.h"
 
-#include "qwt_plot.h"
-
 #include <QPointer>
 
-class QwtPlotCurve;
-class QwtPlotGrid;
-class QwtPlotZoomer;
-class QwtInterval;
-class QwtPicker;
-class QwtPlotMarker;
-class QwtScaleWidget;
-
+class RimEnsembleCurveSet;
 class RiuCvfOverlayItemWidget;
 
-class RimSummaryPlot;
-class RimEnsembleCurveSet;
-
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RiuSummaryQwtPlot : public QwtPlot, public RiuInterfaceToViewWindow
+class RiuSummaryQwtPlot : public RiuQwtPlot
 {
     Q_OBJECT;
+
 public:
-    RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* parent = nullptr);
-    ~RiuSummaryQwtPlot() override;
+    RiuSummaryQwtPlot(RimViewWindow* ownerViewWindow, QWidget* parent = nullptr);
 
-    RimSummaryPlot*                 ownerPlotDefinition();
-    RimViewWindow*          ownerViewWindow() const override;
+    void useDateBasedTimeAxis();
+    void useTimeBasedTimeAxis();
 
-    void                            useDateBasedTimeAxis();
-    void                            useTimeBasedTimeAxis();
-
-    void                            currentVisibleWindow(QwtInterval* leftAxis,
-                                                         QwtInterval* rightAxis,
-                                                         QwtInterval* timeAxis) const;
-
-    void                            addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor);
-    void                            removeEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor);
-
-    static void                     setCommonPlotBehaviour(QwtPlot* plot);
-    static void                     enableDateBasedBottomXAxis(QwtPlot* plot);
+    void addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet* curveSetToShowLegendFor);
+    void removeEnsembleCurveSetLegend(RimEnsembleCurveSet* curveSetToShowLegendFor);
 
 protected:
-    bool                    eventFilter(QObject* watched, QEvent* event) override;
-    void                    keyPressEvent(QKeyEvent *) override;
-
-    QSize                   sizeHint() const override;
-    QSize                   minimumSizeHint() const override;
-    void                    contextMenuEvent(QContextMenuEvent *) override;
-    void                    updateLayout() override;
-
+    void keyPressEvent(QKeyEvent*) override;
+    void contextMenuEvent(QContextMenuEvent*) override;
+    void setDefaults();
+    void updateLayout() override;
 private:
-    void                            setDefaults();
-    void                            selectClosestCurve(const QPoint& pos);
-    void                            updateEnsembleLegendLayout();
-
-private slots:
-    void                            onZoomedSlot( );
-    void                            onAxisClicked(int axis, double value);
-
-private:
-    caf::PdmPointer<RimSummaryPlot> m_plotDefinition;
-
-    QPointer<QwtPlotZoomer>         m_zoomerLeft;
-    QPointer<QwtPlotZoomer>         m_zoomerRight;
-
-    std::map< caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget> > m_ensembleLegendWidgets;
+    void updateLegendLayout();
+    std::map<caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget>> m_ensembleLegendWidgets;
 
 };
-

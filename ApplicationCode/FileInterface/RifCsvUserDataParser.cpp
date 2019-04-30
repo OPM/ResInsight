@@ -219,6 +219,52 @@ QString RifCsvUserDataParser::previewText(int lineCount, const AsciiDataParseOpt
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RifCsvUserDataParser::timeColumnPreviewData(int lineCount, const AsciiDataParseOptions& parseOptions)
+{
+    QStringList timeStrings;
+
+    QTextStream* stream = openDataStream();
+
+    if (stream)
+    {
+        int  timeColumnIndex = -1;
+        int  iLine           = 0;
+
+        while (iLine < lineCount && !stream->atEnd())
+        {
+            QString line = stream->readLine();
+
+            if (line.isEmpty()) continue;
+
+            int         iCol = 0;
+            QStringList cols = RifFileParseTools::splitLineAndTrim(line, parseOptions.cellSeparator);
+            for (const QString& cellData : cols)
+            {
+                if (cellData == parseOptions.timeSeriesColumnName && iLine == 0)
+                {
+                    timeColumnIndex = iCol;
+                }
+
+                if (iLine > 0 && timeColumnIndex != -1 && timeColumnIndex == iCol)
+                {
+                    timeStrings.push_back(cellData);
+                }
+
+                iCol++;
+            }
+
+            iLine++;
+        }
+    }
+
+    closeDataStream();
+
+    return timeStrings;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout()
@@ -325,7 +371,7 @@ bool RifCsvUserDataParser::parseColumnBasedData(const AsciiDataParseOptions& par
                     }
                     else
                     {
-                        if (parseOptions.assumeNumericDataColumns || RiaStdStringTools::isNumber(colData, parseOptions.locale.decimalPoint().toAscii()))
+                        if (parseOptions.assumeNumericDataColumns || RiaStdStringTools::isNumber(colData, parseOptions.locale.decimalPoint().toLatin1()))
                         {
                             col.dataType = Column::NUMERIC;
                         }

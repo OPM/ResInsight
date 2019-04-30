@@ -419,6 +419,30 @@ void PdmUiItem::setUiEditorTypeName(const QString& editorTypeName, const QString
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString PdmUiItem::ui3dEditorTypeName(const QString& uiConfigName) const
+{
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo && !(conInfo->m_3dEditorTypeName.isEmpty())) return conInfo->m_3dEditorTypeName;
+    if (defInfo && !(defInfo->m_3dEditorTypeName.isEmpty())) return defInfo->m_3dEditorTypeName;
+    if (sttInfo && !(sttInfo->m_3dEditorTypeName.isEmpty())) return sttInfo->m_3dEditorTypeName;
+
+    return QString(); 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiItem::setUi3dEditorTypeName(const QString& editorTypeName, const QString& uiConfigName /*= ""*/)
+{
+    m_configItemInfos[uiConfigName].m_3dEditorTypeName = editorTypeName;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool PdmUiItem::isUiGroup() const

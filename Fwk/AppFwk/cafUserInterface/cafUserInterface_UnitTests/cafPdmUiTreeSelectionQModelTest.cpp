@@ -85,13 +85,13 @@ TEST(PdmUiTreeSelectionQModelTest, ParentBehaviour)
 
     {
         QModelIndex firstChildIndex = myModel.index(0, 0, parentIndex);
-        EXPECT_STREQ("Second_a", myModel.data(firstChildIndex).toString().toAscii());
+        EXPECT_STREQ("Second_a", myModel.data(firstChildIndex).toString().toLatin1());
         EXPECT_TRUE(parentIndex == myModel.parent(firstChildIndex));
     }
 
     {
         QModelIndex secondChildIndex = myModel.index(1, 0, parentIndex);
-        EXPECT_STREQ("Second_b", myModel.data(secondChildIndex).toString().toAscii());
+        EXPECT_STREQ("Second_b", myModel.data(secondChildIndex).toString().toLatin1());
         EXPECT_TRUE(parentIndex == myModel.parent(secondChildIndex));
     }
 }

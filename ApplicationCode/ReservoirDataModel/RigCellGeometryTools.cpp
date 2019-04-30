@@ -29,8 +29,9 @@
 
 #include "cvfMath.h"
 
-#include <vector>
+#include <algorithm>
 #include <array>
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 /// Efficient Computation of Volume of Hexahedral Cells
@@ -85,16 +86,30 @@ double RigCellGeometryTools::calculateCellVolume(const std::array<cvf::Vec3d, 8>
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// A reasonable approximation to the overlap volume
 //--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3d, 8> RigCellGeometryTools::estimateHexOverlapWithBoundingBox(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::BoundingBox& boundingBox, cvf::BoundingBox* overlapBoundingBox)
+bool RigCellGeometryTools::estimateHexOverlapWithBoundingBox(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::BoundingBox& boundingBox, std::array<cvf::Vec3d, 8>* overlapElement, cvf::BoundingBox* overlapBoundingBox)
 {
-    CVF_ASSERT(overlapBoundingBox);
+    CVF_ASSERT(overlapElement && overlapBoundingBox);
     *overlapBoundingBox = cvf::BoundingBox();
+
     std::array<cvf::Vec3d, 8> overlapCorners = hexCorners;
-    // A reasonable approximation to the overlap volume
-    cvf::Plane topPlane;    topPlane.setFromPoints(hexCorners[0], hexCorners[1], hexCorners[2]);
-    cvf::Plane bottomPlane; bottomPlane.setFromPoints(hexCorners[4], hexCorners[5], hexCorners[6]);
+
+    std::vector<cvf::Vec3d> uniqueTopPoints = { hexCorners[0], hexCorners[1], hexCorners[2], hexCorners[3] };
+    uniqueTopPoints.erase(std::unique(uniqueTopPoints.begin(), uniqueTopPoints.end()), uniqueTopPoints.end());
+    if (uniqueTopPoints.size() < 3) return false;
+    
+    cvf::Plane topPlane;
+    if (!topPlane.setFromPoints(uniqueTopPoints[0], uniqueTopPoints[1], uniqueTopPoints[2]))
+        return false;
+    
+    std::vector<cvf::Vec3d> uniqueBottomPoints = {hexCorners[4], hexCorners[5], hexCorners[6], hexCorners[7]};
+    uniqueBottomPoints.erase(std::unique(uniqueBottomPoints.begin(), uniqueBottomPoints.end()), uniqueBottomPoints.end());
+    if (uniqueBottomPoints.size() < 3) return false;
+    
+    cvf::Plane bottomPlane;
+    if (!bottomPlane.setFromPoints(uniqueBottomPoints[0], uniqueBottomPoints[1], uniqueBottomPoints[2]))
+        return false;
 
     for (size_t i = 0; i < 4; ++i)
     {
@@ -104,8 +119,8 @@ std::array<cvf::Vec3d, 8> RigCellGeometryTools::estimateHexOverlapWithBoundingBo
         corner.z() = cvf::Math::clamp(corner.z(), boundingBox.min().z(), boundingBox.max().z());
         cvf::Vec3d maxZCorner = corner; maxZCorner.z() = boundingBox.max().z();
         cvf::Vec3d minZCorner = corner; minZCorner.z() = boundingBox.min().z();
-        topPlane.intersect(minZCorner, maxZCorner, &corner);
-        overlapBoundingBox->add(corner);
+        if (topPlane.intersect(minZCorner, maxZCorner, &corner))
+            overlapBoundingBox->add(corner);
     }
     for (size_t i = 4; i < 8; ++i)
     {
@@ -115,16 +130,20 @@ std::array<cvf::Vec3d, 8> RigCellGeometryTools::estimateHexOverlapWithBoundingBo
         corner.z() = cvf::Math::clamp(corner.z(), boundingBox.min().z(), boundingBox.max().z());
         cvf::Vec3d maxZCorner = corner; maxZCorner.z() = boundingBox.max().z();
         cvf::Vec3d minZCorner = corner; minZCorner.z() = boundingBox.min().z();
-        bottomPlane.intersect(minZCorner, maxZCorner, &corner);
-        overlapBoundingBox->add(corner);
+        if (bottomPlane.intersect(minZCorner, maxZCorner, &corner))
+            overlapBoundingBox->add(corner);
     }
-    return overlapCorners;
+
+    *overlapElement = overlapCorners;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> &intersectionLineSegments, std::vector<std::vector<cvf::Vec3d>> &polygons)
+void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments,
+                                                         std::vector<std::vector<cvf::Vec3d>>&         polygons,
+                                                         double                                        tolerance)
 {
     bool startNewPolygon = true;
     while (!intersectionLineSegments.empty())
@@ -146,7 +165,6 @@ void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf
         //Search remaining list for next point...
 
         bool isFound = false;
-        float tolerance = 0.0001f;
 
         for (std::list<std::pair<cvf::Vec3d, cvf::Vec3d > >::iterator lIt = intersectionLineSegments.begin(); lIt != intersectionLineSegments.end(); lIt++)
         {
@@ -191,9 +209,50 @@ void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf
             startNewPolygon = true;
         }
     }
+}
 
+//--------------------------------------------------------------------------------------------------
+/// Ramer-Douglas-Peucker simplification algorithm
+///
+/// https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
+//--------------------------------------------------------------------------------------------------
+void RigCellGeometryTools::simplifyPolygon(std::vector<cvf::Vec3d>* vertices, double epsilon)
+{
+    CVF_ASSERT(vertices);
+    if (vertices->size() < 3) return;
 
+    std::pair<size_t, double> maxDistPoint(0u, 0.0);
 
+    for (size_t i = 1; i < vertices->size() - 1; ++i)
+    {
+        cvf::Vec3d v = vertices->at(i);
+        double     u;
+        cvf::Vec3d v_proj   = cvf::GeometryTools::projectPointOnLine(vertices->front(), vertices->back(), v, &u);
+        double     distance = (v_proj - v).length();
+        if (distance > maxDistPoint.second)
+        {
+            maxDistPoint = std::make_pair(i, distance);
+        }
+    }
+
+    if (maxDistPoint.second > epsilon)
+    {
+        std::vector<cvf::Vec3d> newVertices1(vertices->begin(), vertices->begin() + maxDistPoint.first + 1);
+        std::vector<cvf::Vec3d> newVertices2(vertices->begin() + maxDistPoint.first, vertices->end());
+
+        // Recurse
+        simplifyPolygon(&newVertices1, epsilon);
+        simplifyPolygon(&newVertices2, epsilon);
+
+        std::vector<cvf::Vec3d> newVertices(newVertices1.begin(), newVertices1.end() - 1);
+        newVertices.insert(newVertices.end(), newVertices2.begin(), newVertices2.end());
+        *vertices = newVertices;
+    }
+    else
+    {
+        std::vector<cvf::Vec3d> newVertices = {vertices->front(), vertices->back()};
+        *vertices                           = newVertices;
+    }
 }
 
 //==================================================================================================
@@ -627,7 +686,6 @@ std::vector<cvf::Vec3d> RigCellGeometryTools::unionOfPolygons(const std::vector<
     std::vector<cvf::Vec3d> unionPolygon;
     for (ClipperLib::Path pathInSol : solution)
     {
-        std::vector<cvf::Vec3d> clippedPolygon;
         for (ClipperLib::IntPoint IntPosition : pathInSol)
         {
             unionPolygon.push_back(fromClipperPoint(IntPosition));

@@ -81,7 +81,7 @@ class Viewer : public caf::OpenGLWidget
     Q_OBJECT
 public:
     Viewer(const QGLFormat& format, QWidget* parent);
-    ~Viewer();
+    ~Viewer() override;
 
     QWidget*                layoutWidget() { return m_layoutWidget; } // Use this when putting it into something
     cvf::Camera*            mainCamera();
@@ -135,13 +135,13 @@ public:
     // Test whether it is any point in doing navigation etc.
     bool                    canRender() const;
 
-    bool                    rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints) ;
+    bool                    rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints, cvf::Vec3d* rayGlobalOrigin = nullptr) ;
     cvf::OverlayItem*       overlayItem(int winPosX, int winPosY);
 
     // QPainter based drawing on top of the OpenGL graphics
 
-    bool                    isOverlyPaintingEnabled() const;
-    void                    enableOverlyPainting(bool val);
+    bool                    isOverlayPaintingEnabled() const;
+    void                    enableOverlayPainting(bool val);
 
     // Performance information for debugging etc.
     void                    enablePerfInfoHud(bool enable);
@@ -159,7 +159,7 @@ public slots:
     virtual void            slotEndAnimation();
 
 public:
-    virtual QSize           sizeHint() const;
+    QSize           sizeHint() const override;
 
 protected:
     // Method to override if painting directly on the OpenGl Canvas is needed.
@@ -169,11 +169,12 @@ protected:
     virtual void            optimizeClippingPlanes();
 
     // Standard overrides. Not for overriding
-    virtual void            resizeGL(int width, int height);
-    virtual void            paintEvent(QPaintEvent* event);
+    void            resizeGL(int width, int height) override;
+    void            paintEvent(QPaintEvent* event) override;
 
     // Support the navigation policy concept
-    virtual bool                        event( QEvent* e );
+    bool                        event( QEvent* e ) override;
+
     cvf::ref<caf::NavigationPolicy>     m_navigationPolicy;
     bool                                m_navigationPolicyEnabled;
 
@@ -196,7 +197,6 @@ private:
     void                                removeModelFromAllFrames(cvf::Model* model);
 
     void                                updateCamera(int width, int height);
-
     void                                releaseOGlResourcesForCurrentFrame();
     void                                debugShowRenderingSequencePartNames();
 

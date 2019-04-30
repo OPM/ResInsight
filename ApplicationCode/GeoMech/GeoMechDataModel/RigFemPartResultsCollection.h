@@ -50,8 +50,10 @@ class RigFemPartResultsCollection: public cvf::Object
 public:
     static const std::string FIELD_NAME_COMPACTION;
 
-    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, RifElementPropertyReader* elementPropertyReader, const RigFemPartCollection * femPartCollection);
-    ~RigFemPartResultsCollection();
+    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, 
+                                RifElementPropertyReader* elementPropertyReader, 
+                                const RigFemPartCollection * femPartCollection);
+    ~RigFemPartResultsCollection() override;
 
     void                                             setActiveFormationNames(RigFormationNames* activeFormationNames);
     RigFormationNames*                               activeFormationNames();
@@ -67,7 +69,7 @@ public:
     std::vector<std::string>                         filteredStepNames() const;
     bool                                             assertResultsLoaded(const RigFemResultAddress& resVarAddr);
     void                                             deleteResult(const RigFemResultAddress& resVarAddr);
-
+    void                                             deleteResultFrame(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex);
     std::vector<RigFemResultAddress>                 loadedResults() const;
 
     const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex);

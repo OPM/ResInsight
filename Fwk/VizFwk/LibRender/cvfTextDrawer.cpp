@@ -99,13 +99,14 @@ TextDrawer::~TextDrawer()
 // --------------------------------------------------------------------------------------------------
 /// Add text to be drawn
 // --------------------------------------------------------------------------------------------------
-void TextDrawer::addText(const String& text, const Vec2f& pos)
+void TextDrawer::addText(const String& text, const Vec2f& pos, const Vec2f& dir)
 {
     CVF_ASSERT(!text.isEmpty());
     CVF_ASSERT(!pos.isUndefined());
 
     m_texts.push_back(text);
     m_positions.push_back(Vec3f(pos));
+    m_directions.push_back(Vec3f(dir));
 }
 
 
@@ -115,13 +116,14 @@ void TextDrawer::addText(const String& text, const Vec2f& pos)
 /// Note: The Z coordinate needs to correspond with the orthographic projection that is setup
 /// to render the text. So the range should be <1..-1> with 1 being closest to the near plane.
 //--------------------------------------------------------------------------------------------------
-void TextDrawer::addText(const String& text, const Vec3f& pos)
+void TextDrawer::addText(const String& text, const Vec3f& pos, const Vec3f& dir)
 {
     CVF_ASSERT(!text.isEmpty());
     CVF_ASSERT(!pos.isUndefined());
 
     m_texts.push_back(text);
     m_positions.push_back(pos);
+    m_directions.push_back(dir);
 }
 
 
@@ -132,6 +134,7 @@ void TextDrawer::removeAllTexts()
 {
     m_texts.clear();
     m_positions.clear();
+    m_directions.clear();
 }
 
 
@@ -170,44 +173,7 @@ void TextDrawer::setVerticalAlignment(TextDrawer::Alignment alignment)
     CVF_ASSERT(m_font.notNull());
     CVF_ASSERT(!m_font->isEmpty());
 
-    switch (alignment)
-    {
-        case TextDrawer::TOP:
-        {
-            // Character assumed to reach all the way up
-            ref<Glyph> glyph_top = m_font->getGlyph(L'`');
-            m_verticalAlignment = static_cast<short>(-glyph_top->horizontalBearingY());
-            break;
-        }
-
-        case TextDrawer::CENTER:
-        {
-            // Center around A
-            ref<Glyph> glyph_top = m_font->getGlyph(L'A');
-            m_verticalAlignment = static_cast<short>(-((glyph_top->horizontalBearingY() + 1) >> 1));
-            break;
-        }
-
-        case TextDrawer::BASELINE:
-        {
-            m_verticalAlignment = 0;
-            break;
-        }
-
-        case TextDrawer::BOTTOM:
-        {
-            // Character assumed to reach all the way down
-            ref<Glyph> glyph_bottom = m_font->getGlyph(L'g');
-            m_verticalAlignment = static_cast<short>(static_cast<short>(glyph_bottom->height()) + glyph_bottom->horizontalBearingY());
-            break;
-        }
-
-        default:
-        {
-            CVF_FAIL_MSG("Unsupported alignment type");
-            break;
-        }
-    }
+    m_verticalAlignment = calculateVerticalAlignmentOffset(*m_font, alignment);
 }
 
 
@@ -307,7 +273,7 @@ void TextDrawer::renderSoftware(OpenGLContext* oglContext, const MatrixState& ma
 void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrixState, bool softwareRendering)
 {
     CVF_CALLSITE_OPENGL(oglContext);
-    CVF_ASSERT(m_positions.size() == m_texts.size());
+    CVF_ASSERT(m_positions.size() == m_texts.size() && m_positions.size() == m_directions.size());
 
     static const ushort connects[]     = { 0, 1, 2, 0, 2, 3 };
     static const ushort lineConnects[] = { 0, 1, 1, 2, 2, 3, 3, 0 };
@@ -315,11 +281,11 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
     float vertexArray[12];
     float textureCoords[8];                 // Will be updated for each glyph 
 
-    float* v1 = &vertexArray[0]; 
-    float* v2 = &vertexArray[3];
-    float* v3 = &vertexArray[6];
-    float* v4 = &vertexArray[9];
-    v1[2] = v2[2] = v3[2] = v4[2] = 0.0f;
+    std::array<float*, 4> vertices = { &vertexArray[0], &vertexArray[3], &vertexArray[6], &vertexArray[9] };
+    for (size_t i = 0; i < vertices.size(); ++i)
+    {
+        vertices[i][2] = 0.0f;
+    }
 
     // Prepare 2D pixel exact projection to draw texts
     Camera projCam;
@@ -374,7 +340,7 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
 
     // Use a fixed line spacing
     float lineSpacing = m_font->lineSpacing();
-    Vec2f offset(0,0);
+    Vec2f offset(0, 0);
     
     // Render background and border
     // -------------------------------------------------------------------------
@@ -401,27 +367,24 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
 
         // Figure out margin
         ref<Glyph> glyph = m_font->getGlyph(L'A');
-        float charHeight = static_cast<float>(glyph->height());
-        float charWidth  = static_cast<float>(glyph->width());
-
-        offset.x() = cvf::Math::floor(charWidth/2.0f);
-        offset.y() = cvf::Math::floor(charHeight/2.0f);
-
+        float glyphMarginX = cvf::Math::floor(0.5f * static_cast<float>(glyph->width()));
+        float glyphMarginY = cvf::Math::floor(0.5f * static_cast<float>(glyph->height()));
         size_t numTexts = m_texts.size();
         for (size_t i = 0; i < numTexts; i++)
         {
             Vec3f pos  = m_positions[i];
+
             String text = m_texts[i];
-            Vec2ui textExtent = m_font->textExtent(text);
+            Vec2f textExtent(m_font->textExtent(text));
+            std::array<Vec3f, 4> corners = textCorners(*glyph, cvf::Vec2f::ZERO, textExtent, m_verticalAlignment, m_directions[i], glyphMarginX, glyphMarginY);
 
-            Vec3f min = pos;//Vec3f(textBB.min());
-            Vec3f max = Vec3f(min.x() + static_cast<float>(textExtent.x()) + offset.x()*2.0f, min.y() + static_cast<float>(textExtent.y()) + offset.y()*2.0f, 0.0f);
-
-            // Draw the background triangle
-            v1[0] = min.x(); v1[1] = min.y(); v1[2] = pos.z();
-            v2[0] = max.x(); v2[1] = min.y(); v2[2] = pos.z();
-            v3[0] = max.x(); v3[1] = max.y(); v3[2] = pos.z();
-            v4[0] = min.x(); v4[1] = max.y(); v4[2] = pos.z();
+            for (size_t v = 0; v < vertices.size(); ++v)
+            {
+                for (int c = 0; c < 3; ++c)
+                {
+                    vertices[v][c] = pos[c] + corners[v][c];
+                }
+            }
 
             if (m_drawBackground)
             {
@@ -432,10 +395,10 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
                     glDisable(GL_TEXTURE_2D);
                     glColor3fv(m_backgroundColor.ptr());
                     glBegin(GL_TRIANGLE_FAN);
-                    glVertex3fv(v1);
-                    glVertex3fv(v2);
-                    glVertex3fv(v3);
-                    glVertex3fv(v4);
+                    for (size_t v = 0; v < vertices.size(); ++v)
+                    {
+                        glVertex3fv(vertices[v]);
+                    }
                     glEnd();
 #endif
                 }
@@ -456,10 +419,10 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
 #ifndef CVF_OPENGL_ES
                     glColor3fv(m_borderColor.ptr());
                     glBegin(GL_LINE_LOOP);
-                    glVertex3fv(v1);
-                    glVertex3fv(v2);
-                    glVertex3fv(v3);
-                    glVertex3fv(v4);
+                    for (size_t v = 0; v < vertices.size(); ++v)
+                    {
+                        glVertex3fv(vertices[v]);
+                    }
                     glEnd();
 #endif
                 }
@@ -523,16 +486,16 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
     size_t i, j;
     for (i = 0; i < numTexts; i++)
     {
-        Vec3f pos  = m_positions[i];
-
-        String text = m_texts[i];
+        Vec3f pos     = m_positions[i];
+        Vec3f textDir = m_directions[i];
+        String text   = m_texts[i];
         
         // Need to round off to integer positions to avoid buggy text drawing on iPad2
         pos.x() = cvf::Math::floor(pos.x());
         pos.y() = cvf::Math::floor(pos.y());
 
         // Cursor incrementor
-        Vec2f cursor(pos);
+        Vec2f cursor(Vec2f::ZERO);
         cursor += offset;
 
         std::vector<cvf::String> lines = text.split("\n");
@@ -547,30 +510,27 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
             {
                 character = line[j];
                 ref<Glyph> glyph = m_font->getGlyph(character);
+                cvf::Vec2f glyphExtent(static_cast<float>(glyph->width()), static_cast<float>(glyph->height()));
+                std::array<Vec3f, 4> corners = textCorners(*glyph, cursor, glyphExtent, m_verticalAlignment, textDir);
 
-                float textureWidth = static_cast<float>(glyph->width());
-                float textureHeight = static_cast<float>(glyph->height());
-
-                // Lower left corner
-                v1[0] = cursor.x() + static_cast<float>(glyph->horizontalBearingX());
-                v1[1] = cursor.y() + static_cast<float>(glyph->horizontalBearingY()) - textureHeight + static_cast<float>(m_verticalAlignment);
-                v1[2] = pos.z();
-
-                // Lower right corner
-                v2[0] = v1[0] + textureWidth;
-                v2[1] = v1[1];
-                v2[2] = pos.z();
-
-                // Upper right corner
-                v3[0] = v2[0];
-                v3[1] = v1[1] + textureHeight;
-                v3[2] = pos.z();
-
-                // Upper left corner
-                v4[0] = v1[0];
-                v4[1] = v3[1];
-                v4[2] = pos.z();
-
+                for (size_t v = 0; v < vertices.size(); ++v)
+                {
+                    for (int c = 0; c < 3; ++c)
+                    {
+                        vertices[v][c] = pos[c] + corners[v][c];
+                    }
+                }
+                if (textDir.dot(cvf::Vec3f::X_AXIS) < 0.9 && textDir.dot(cvf::Vec3f::Y_AXIS) < 0.9)
+                {
+                    glyph->setMinFilter(Glyph::LINEAR);
+                    glyph->setMagFilter(Glyph::LINEAR);
+                }
+                else
+                {
+                    glyph->setMinFilter(Glyph::NEAREST);
+                    glyph->setMagFilter(Glyph::NEAREST);
+                }
+                
                 glyph->setupAndBindTexture(oglContext, softwareRendering);
 
                 // Get texture coordinates
@@ -592,19 +552,19 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
 
                     // First triangle in quad
                     glTexCoord2fv(&textureCoordinatesPtr[0]);
-                    glVertex3fv(v1);
+                    glVertex3fv(vertices[0]);
                     glTexCoord2fv(&textureCoordinatesPtr[2]);
-                    glVertex3fv(v2);
+                    glVertex3fv(vertices[1]);
                     glTexCoord2fv(&textureCoordinatesPtr[4]);
-                    glVertex3fv(v3);
+                    glVertex3fv(vertices[2]);
 
                     // Second triangle in quad
                     glTexCoord2fv(&textureCoordinatesPtr[0]);
-                    glVertex3fv(v1);
+                    glVertex3fv(vertices[0]);
                     glTexCoord2fv(&textureCoordinatesPtr[4]);
-                    glVertex3fv(v3);
+                    glVertex3fv(vertices[2]);
                     glTexCoord2fv(&textureCoordinatesPtr[6]);
-                    glVertex3fv(v4);
+                    glVertex3fv(vertices[3]);
 
                     glEnd();
 #endif
@@ -623,7 +583,7 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
             }
 
             // CR
-            cursor.x() = pos.x() + offset.x();
+            cursor.x() =  offset.x();
             cursor.y() += lineSpacing;
         }
     }
@@ -691,6 +651,78 @@ bool TextDrawer::pickText(const Vec3f& pickCoord2d, const String& text, const Ve
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+short TextDrawer::calculateVerticalAlignmentOffset(Font& font, Alignment alignment)
+{
+    switch (alignment)
+    {
+        case TextDrawer::TOP:
+        {
+            // Character assumed to reach all the way up
+            ref<Glyph> glyph_top = font.getGlyph(L'`');
+            return static_cast<short>(-glyph_top->horizontalBearingY());
+        }
+
+        case TextDrawer::CENTER:
+        {
+            // Center around A
+            ref<Glyph> glyph_top = font.getGlyph(L'A');
+            return static_cast<short>(-((glyph_top->horizontalBearingY() + 1) >> 1));
+        }
+
+        case TextDrawer::BASELINE:
+        {
+            return 0;
+        }
+
+        case TextDrawer::BOTTOM:
+        {
+            // Character assumed to reach all the way down
+            ref<Glyph> glyph_bottom = font.getGlyph(L'g');
+            return static_cast<short>(static_cast<short>(glyph_bottom->height()) + glyph_bottom->horizontalBearingY());
+        }
+
+        default:
+        {
+            CVF_FAIL_MSG("Unsupported alignment type");
+            break;
+        }
+    }
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3f, 4> TextDrawer::textCorners(const Glyph& glyph, const Vec2f& textStart, const Vec2f& textExtent, short verticalAlignment, const Vec3f& textDirection, float marginX, float marginY)
+{
+    Vec3f tangent = textDirection;
+    if (tangent.x() < 0.0f) tangent *= -1.0f;
+    Vec2f tan2d(tangent.x(), tangent.y());
+    Vec3f normal(-tan2d.perpendicularVector(), tangent.z());
+
+    float x1 = textStart.x() + static_cast<float>(glyph.horizontalBearingX()) - marginY;
+    float y1 = textStart.y() + static_cast<float>(glyph.horizontalBearingY()) - static_cast<float>(glyph.height()) + static_cast<float>(verticalAlignment) - marginY;
+
+    float x2 = x1 + textExtent.x() + 2.0f * marginX;
+    float y2 = y1 + textExtent.y() + 2.0f * marginY;
+
+    // Lower left corner
+    Vec3f c1 = tangent * x1 + normal * y1;
+    // Lower right corner
+    Vec3f c2 = tangent * x2 + normal * y1;
+    // Upper right corner
+    Vec3f c3 = tangent * x2 + normal * y2;
+    // Upper left corner
+    Vec3f c4 = tangent * x1 + normal * y2;
+
+
+    std::array<cvf::Vec3f, 4> retArr = { c1, c2, c3, c4 };
+    return retArr;
 }
 
 }  // namespace cvf

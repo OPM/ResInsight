@@ -62,6 +62,8 @@ public:
     void                            setLineStyle(RiuQwtPlotCurve::LineStyleEnum lineStyle);
     void                            setSymbol(RiuQwtSymbol::PointSymbolEnum symbolStyle);
     RiuQwtSymbol::PointSymbolEnum   symbol();
+    cvf::Color3f                    symbolEdgeColor() const;
+    void                            setSymbolEdgeColor(const cvf::Color3f& edgeColor);
     void                            setSymbolSkipDistance(float distance);
     void                            setSymbolLabel(const QString& label);
     void                            setSymbolSize(int sizeInPixels);
@@ -71,12 +73,16 @@ public:
     bool                            isCurveVisible() const;
     void                            setCurveVisiblity(bool visible);
 
+    void                            updateCurveName();
     void                            updateCurveNameAndUpdatePlotLegendAndTitle();
     void                            updateCurveNameNoLegendUpdate();
 
     QString                         curveName() const { return m_curveName; }
     virtual QString                 curveExportDescription(const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress()) const { return m_curveName; }
     void                            setCustomName(const QString& customName);
+    QString                         legendEntryText() const;
+    void                            setLegendEntryText(const QString& legendEntryText);
+
     void                            updateCurveVisibility(bool updateParentPlot);
     void                            updateLegendEntryVisibilityAndPlotLegend();
     void                            updateLegendEntryVisibilityNoPlotUpdate();
@@ -87,18 +93,21 @@ public:
 
     virtual void                    updateCurveAppearance();
     bool                            isCrossPlotCurve() const;
+    void                            updateUiIconFromPlotSymbol();
 
 protected:
 
     virtual QString                 createCurveAutoName() = 0;
     virtual void                    updateZoomInParentPlot() = 0;
     virtual void                    onLoadDataAndUpdate(bool updateParentPlot) = 0;
-    void                    initAfterRead() override;
+    void                            initAfterRead() override;
     void                            updateCurvePresentation(bool updatePlotLegendAndTitle);
 
     void                            updateOptionSensitivity();
     void                            updatePlotTitle();
     virtual void                    updateLegendsInPlot();
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 protected:
 
     // Overridden PDM methods
@@ -108,7 +117,6 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     void                            appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering);
     void                            curveNameUiOrdering(caf::PdmUiOrdering& uiOrdering);
-
 private:
     bool                            canCurveBeAttached() const;
 
@@ -122,7 +130,8 @@ protected:
     caf::PdmField<bool>               m_showLegend;
     QString                           m_symbolLabel;
     caf::PdmField<int>                m_symbolSize;
-
+    caf::PdmField<QString>            m_legendEntryText;
+    
     caf::PdmField<bool>               m_isUsingAutoName;
     caf::PdmField<cvf::Color3f>       m_curveColor;
     caf::PdmField<int>                m_curveThickness;
@@ -133,6 +142,7 @@ protected:
     caf::PdmField<LineStyle>          m_lineStyle;
     caf::PdmField<CurveInterpolation> m_curveInterpolation;
     RiuQwtSymbol::LabelPosition       m_symbolLabelPosition;
+    caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;
 };
 
 

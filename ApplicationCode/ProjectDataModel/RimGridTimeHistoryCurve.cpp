@@ -24,6 +24,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigTimeHistoryResultAccessor.h"
+#include "RigFemResultAddress.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -41,7 +42,7 @@
 
 #include "RiuFemTimeHistoryResultAccessor.h"
 #include "RiuQwtPlotCurve.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "qwt_plot.h"
 

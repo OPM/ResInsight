@@ -60,7 +60,7 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
             cvfEventPos(me->x(), me->y(), &translatedMousePosX, &translatedMousePosY);
 
            if (me->button() == Qt::MidButton && me->modifiers() == Qt::NoModifier && isRotationEnabled())
-            {
+           {
                 cvf::HitItemCollection hic;
                 bool hitSomething = m_viewer->rayPick( me->x(), me->y(), &hic);
 
@@ -86,6 +86,7 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 m_hasMovedMouseDuringNavigation = false;
                 isEventHandled = true;
             }
+           forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
     case QEvent::MouseButtonRelease: 
@@ -103,6 +104,7 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
        
                 }
             }
+            forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
     case QEvent::MouseMove:
@@ -133,11 +135,12 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
         {
             if (inputEvent->modifiers() == Qt::NoModifier)
             {
-                initializeRotationCenter();
+                QWheelEvent* we = static_cast<QWheelEvent*>(inputEvent);
+
+                updatePointOfInterestDuringZoomIfNecessary(we->x(), we->y());
+
                 if (m_isRotCenterInitialized)
                 {
-                    QWheelEvent* we = static_cast<QWheelEvent*> ( inputEvent);
-
                     int translatedMousePosX, translatedMousePosY;
                     cvfEventPos(we->x(), we->y(), &translatedMousePosX, &translatedMousePosY);
 

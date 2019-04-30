@@ -16,6 +16,8 @@ public:
 public:
     void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory) override;
     void        writeFieldData(QXmlStreamWriter& xmlStream) const override;
+    bool        resolveReferences() override;
+
 private:
     FieldType* m_field;
 };
@@ -40,7 +42,7 @@ public:
 public:
     void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory) override;
     void        writeFieldData(QXmlStreamWriter& xmlStream) const override;
-    void        resolveReferences() override;
+    bool        resolveReferences() override;
 
 private:
     FieldType* m_field;
@@ -69,7 +71,7 @@ public:
 public:
     void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory) override;
     void        writeFieldData(QXmlStreamWriter& xmlStream) const override;
-    void        resolveReferences() override;
+    bool        resolveReferences() override;
 
 private:
     FieldType* m_field;
@@ -93,6 +95,8 @@ public:
 public:
     void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory) override; 
     void        writeFieldData(QXmlStreamWriter& xmlStream) const override;
+    bool        resolveReferences() override;
+
 private:
     FieldType* m_field;
 };
@@ -111,6 +115,7 @@ public:
 public:
     void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory) override;
     void        writeFieldData(QXmlStreamWriter& xmlStream) const override;
+    bool        resolveReferences() override;
 private:
     FieldType* m_field;
 };

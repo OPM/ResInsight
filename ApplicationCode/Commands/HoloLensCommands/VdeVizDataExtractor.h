@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,13 +21,18 @@
 #include "cvfBase.h"
 #include "cvfColor3.h"
 #include "cvfArray.h"
+#include "cvfVector3.h"
+#include "cvfString.h"
 #include "cvfTextureImage.h"
 
 #include <QString>
 
+#include <memory>
+
 class VdeArrayDataPacket;
 class VdePacketDirectory;
 class VdeExportPart;
+class VdeCachingHashedIdFactory;
 
 class RimGridView;
 
@@ -45,6 +50,7 @@ struct VdeMesh
 
     cvf::Color3f                    color;
     float                           opacity;
+    QString                         cullFaceModeStr;   // front, back or none (or empty)
 
     int                             verticesPerPrimitive;
     cvf::cref<cvf::Vec3fArray>      vertexArr;
@@ -62,7 +68,7 @@ struct VdeMesh
 
 //==================================================================================================
 //
-//
+// The set of array IDs that are needed for a mesh
 //
 //==================================================================================================
 struct VdeMeshArrayIds
@@ -89,17 +95,17 @@ struct VdeMeshArrayIds
 class VdeVizDataExtractor
 {
 public:
-    VdeVizDataExtractor(const RimGridView& view);
+    VdeVizDataExtractor(const RimGridView& view, VdeCachingHashedIdFactory* cachingIdFactory);
 
     void    extractViewContents(QString* modelMetaJsonStr, std::vector<int>* allReferencedArrayIds, VdePacketDirectory* packetDirectory);
 
 private:
-    static std::vector<VdeMesh> buildMeshArray(const std::vector<VdeExportPart>& exportPartsArr);
-    static bool                 extractMeshFromExportPart(const VdeExportPart& exportPart, VdeMesh* mesh);
-    static QString              createModelMetaJsonString(const std::vector<VdeMesh>& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr);
-    static void                 debugComparePackets(const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB);
+    static std::vector<std::unique_ptr<VdeMesh> >   buildMeshArray(const std::vector<VdeExportPart>& exportPartsArr);
+    static std::unique_ptr<VdeMesh>                 createMeshFromExportPart(const VdeExportPart& exportPart);
+    static QString                                  createModelMetaJsonString(const std::vector<std::unique_ptr<VdeMesh> >& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr, const std::vector<std::pair<cvf::Vec3f, cvf::String> >& labelAndPositionsArr);
+    static void                                     debugComparePackets(const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB);
 
 private:
-    const RimGridView&  m_view;
-
+    const RimGridView&          m_view;
+    VdeCachingHashedIdFactory*  m_cachingIdFactory;
 };

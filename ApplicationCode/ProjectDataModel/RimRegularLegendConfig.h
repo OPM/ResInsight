@@ -103,6 +103,8 @@ public:
     ColorRangesType                             colorRange()    { return m_colorRangeMode();}
     void                                        setMappingMode(MappingType mappingType);
     MappingType                                 mappingMode()       { return m_mappingMode();}
+    void                                        setTickNumberFormat(NumberFormatType numberFormat);
+
     void                                        disableAllTimeStepsRange(bool doDisable);
         
     void                                        setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax);
@@ -121,7 +123,6 @@ public:
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
     bool                                        showLegend() const;
-    void                                        setShowLegend(bool show);
 
     const caf::TitledOverlayFrame*              titledOverlayFrame() const override;
     caf::TitledOverlayFrame*                    titledOverlayFrame() override;

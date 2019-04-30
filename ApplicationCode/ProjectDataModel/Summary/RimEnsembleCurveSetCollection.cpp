@@ -34,7 +34,8 @@
 #include "RimSummaryPlotSourceStepping.h"
 
 #include "RiuQwtPlotCurve.h"
-#include "RiuSummaryQwtPlot.h"
+
+#include "qwt_plot.h"
 
 CAF_PDM_SOURCE_INIT(RimEnsembleCurveSetCollection, "RimEnsembleCurveSetCollection");
 

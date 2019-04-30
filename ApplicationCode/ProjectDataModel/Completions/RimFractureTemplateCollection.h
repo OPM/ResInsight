@@ -24,6 +24,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
 
+class RimEllipseFractureTemplate;
 class RimFractureTemplate;
 
 //==================================================================================================
@@ -40,6 +41,7 @@ public:
 
     RimFractureTemplate*                        fractureTemplate(int id) const;
     std::vector<RimFractureTemplate*>           fractureTemplates() const;
+    RimEllipseFractureTemplate*                 addDefaultEllipseTemplate();
     void                                        addFractureTemplate(RimFractureTemplate* templ);
 
     RiaEclipseUnitTools::UnitSystemType         defaultUnitSystemType() const;

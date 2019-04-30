@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RiuDockedQwtPlot.h"
+
 #include "qwt_plot.h"
 
 #include <map>
@@ -39,7 +41,7 @@ namespace cvf
 //
 //
 //==================================================================================================
-class RiuResultQwtPlot : public QwtPlot
+class RiuResultQwtPlot : public RiuDockedQwtPlot
 {
     Q_OBJECT
 

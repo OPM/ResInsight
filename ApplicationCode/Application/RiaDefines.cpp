@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,62 +22,70 @@
 
 #include "cafAppEnum.h"
 
-
 namespace caf
 {
-    template<>
-    void caf::AppEnum< RiaDefines::ResultCatType >::setUp()
-    {
-        addItem(RiaDefines::DYNAMIC_NATIVE, "DYNAMIC_NATIVE",   "Dynamic");
-        addItem(RiaDefines::STATIC_NATIVE,  "STATIC_NATIVE",    "Static");
-        addItem(RiaDefines::SOURSIMRL,      "SOURSIMRL",        "SourSimRL");
-        addItem(RiaDefines::GENERATED,      "GENERATED",        "Generated");
-        addItem(RiaDefines::INPUT_PROPERTY, "INPUT_PROPERTY",   "Input Property");
-        addItem(RiaDefines::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
-        addItem(RiaDefines::FLOW_DIAGNOSTICS, "FLOW_DIAGNOSTICS", "Flow Diagnostics");
-        addItem(RiaDefines::INJECTION_FLOODING, "INJECTION_FLOODING", "Injection Flooding");
-        setDefault(RiaDefines::DYNAMIC_NATIVE);
-    }
-
-    template<>
-    void caf::AppEnum< RiaDefines::DepthUnitType >::setUp()
-    {
-        addItem(RiaDefines::UNIT_METER,  "UNIT_METER",   "Meter");
-        addItem(RiaDefines::UNIT_FEET,   "UNIT_FEET",    "Feet");
-        addItem(RiaDefines::UNIT_NONE,   "UNIT_NONE",    "None");
-
-
-        setDefault(RiaDefines::UNIT_METER);
-    }
-
-    template<>
-    void caf::AppEnum< RiaDefines::PlotAxis >::setUp()
-    {
-        addItem(RiaDefines::PLOT_AXIS_LEFT,  "PLOT_AXIS_LEFT",  "Left");
-        addItem(RiaDefines::PLOT_AXIS_RIGHT, "PLOT_AXIS_RIGHT", "Right");
-
-        setDefault(RiaDefines::PLOT_AXIS_LEFT);
-    }
-
-    template<>
-    void caf::AppEnum< RiaDefines::WellPathComponentType >::setUp()
-    {
-        addItem(RiaDefines::WELL_PATH, "WELL_PATH", "Well Path");
-        addItem(RiaDefines::PERFORATION_INTERVAL, "PERFORATION_INTERVAL", "Perforation Interval");
-        addItem(RiaDefines::FISHBONES, "FISHBONES", "Fishbones");
-        addItem(RiaDefines::FRACTURE, "FRACTURE", "Fracture");
-        addItem(RiaDefines::ICD, "ICD", "ICD");
-        addItem(RiaDefines::AICD, "AICD", "AICD");
-        addItem(RiaDefines::ICV, "ICV", "ICV");
-        addItem(RiaDefines::CASING, "CASING", "Casing");
-        addItem(RiaDefines::LINER, "LINER", "Liner");
-        addItem(RiaDefines::PACKER, "PACKER", "Packer");
-        setDefault(RiaDefines::WELL_PATH);
-    }
+template<>
+void caf::AppEnum<RiaDefines::ResultCatType>::setUp()
+{
+    addItem(RiaDefines::DYNAMIC_NATIVE, "DYNAMIC_NATIVE", "Dynamic");
+    addItem(RiaDefines::STATIC_NATIVE, "STATIC_NATIVE", "Static");
+    addItem(RiaDefines::SOURSIMRL, "SOURSIMRL", "SourSimRL");
+    addItem(RiaDefines::GENERATED, "GENERATED", "Generated");
+    addItem(RiaDefines::INPUT_PROPERTY, "INPUT_PROPERTY", "Input Property");
+    addItem(RiaDefines::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
+    addItem(RiaDefines::FLOW_DIAGNOSTICS, "FLOW_DIAGNOSTICS", "Flow Diagnostics");
+    addItem(RiaDefines::INJECTION_FLOODING, "INJECTION_FLOODING", "Injection Flooding");
+    setDefault(RiaDefines::DYNAMIC_NATIVE);
 }
 
+template<>
+void caf::AppEnum<RiaDefines::DepthUnitType>::setUp()
+{
+    addItem(RiaDefines::UNIT_METER, "UNIT_METER", "Meter");
+    addItem(RiaDefines::UNIT_FEET, "UNIT_FEET", "Feet");
+    addItem(RiaDefines::UNIT_NONE, "UNIT_NONE", "None");
+
+    setDefault(RiaDefines::UNIT_METER);
+}
+
+template<>
+void caf::AppEnum<RiaDefines::PlotAxis>::setUp()
+{
+    addItem(RiaDefines::PLOT_AXIS_LEFT, "PLOT_AXIS_LEFT", "Left");
+    addItem(RiaDefines::PLOT_AXIS_RIGHT, "PLOT_AXIS_RIGHT", "Right");
+
+    setDefault(RiaDefines::PLOT_AXIS_LEFT);
+}
+
+template<>
+void caf::AppEnum<RiaDefines::WellPathComponentType>::setUp()
+{
+    addItem(RiaDefines::WELL_PATH, "WELL_PATH", "Well Path");
+    addItem(RiaDefines::PERFORATION_INTERVAL, "PERFORATION_INTERVAL", "Perforation Interval");
+    addItem(RiaDefines::FISHBONES, "FISHBONES", "Fishbones");
+    addItem(RiaDefines::FRACTURE, "FRACTURE", "Fracture");
+    addItem(RiaDefines::ICD, "ICD", "ICD");
+    addItem(RiaDefines::AICD, "AICD", "AICD");
+    addItem(RiaDefines::ICV, "ICV", "ICV");
+    addItem(RiaDefines::CASING, "CASING", "Casing");
+    addItem(RiaDefines::LINER, "LINER", "Liner");
+    addItem(RiaDefines::PACKER, "PACKER", "Packer");
+    addItem(RiaDefines::UNDEFINED_COMPONENT, "UNDEFINED", "Undefined Component");
+    setDefault(RiaDefines::WELL_PATH);
+}
+
+template<>
+void caf::AppEnum<RiaDefines::MeshModeType>::setUp()
+{
+    addItem(RiaDefines::FULL_MESH, "FULL_MESH", "All");
+    addItem(RiaDefines::FAULTS_MESH, "FAULTS_MESH", "Faults only");
+    addItem(RiaDefines::NO_MESH, "NO_MESH", "None");
+    setDefault(RiaDefines::FULL_MESH);
+}
+} // namespace caf
+
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiaDefines::isPerCellFaceResult(const QString& resultName)
 {
@@ -126,7 +134,15 @@ bool RiaDefines::isPerCellFaceResult(const QString& resultName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDefines::isNativeCategoryResult(const QString& resultName)
+{
+    return resultName.endsWith("NUM");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::undefinedResultName()
 {
@@ -134,7 +150,7 @@ QString RiaDefines::undefinedResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::undefinedGridFaultName()
 {
@@ -142,7 +158,7 @@ QString RiaDefines::undefinedGridFaultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::undefinedGridFaultWithInactiveName()
 {
@@ -150,7 +166,7 @@ QString RiaDefines::undefinedGridFaultWithInactiveName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::combinedTransmissibilityResultName()
 {
@@ -158,7 +174,7 @@ QString RiaDefines::combinedTransmissibilityResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::combinedWaterFluxResultName()
 {
@@ -166,7 +182,7 @@ QString RiaDefines::combinedWaterFluxResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::combinedOilFluxResultName()
 {
@@ -174,7 +190,7 @@ QString RiaDefines::combinedOilFluxResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::combinedGasFluxResultName()
 {
@@ -182,7 +198,7 @@ QString RiaDefines::combinedGasFluxResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::ternarySaturationResultName()
 {
@@ -190,7 +206,7 @@ QString RiaDefines::ternarySaturationResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::combinedMultResultName()
 {
@@ -198,7 +214,15 @@ QString RiaDefines::combinedMultResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::eqlnumResultName()
+{
+    return "EQLNUM";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::riTranXResultName()
 {
@@ -206,7 +230,7 @@ QString RiaDefines::riTranXResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::riTranYResultName()
 {
@@ -214,7 +238,7 @@ QString RiaDefines::riTranYResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::riTranZResultName()
 {
@@ -222,7 +246,7 @@ QString RiaDefines::riTranZResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::combinedRiTranResultName()
 {
@@ -230,7 +254,7 @@ QString RiaDefines::combinedRiTranResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::riMultXResultName()
 {
@@ -238,7 +262,7 @@ QString RiaDefines::riMultXResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::riMultYResultName()
 {
@@ -246,7 +270,7 @@ QString RiaDefines::riMultYResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::riMultZResultName()
 {
@@ -254,7 +278,7 @@ QString RiaDefines::riMultZResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::combinedRiMultResultName()
 {
@@ -262,7 +286,7 @@ QString RiaDefines::combinedRiMultResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::riAreaNormTranXResultName()
 {
@@ -270,7 +294,7 @@ QString RiaDefines::riAreaNormTranXResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::riAreaNormTranYResultName()
 {
@@ -278,7 +302,7 @@ QString RiaDefines::riAreaNormTranYResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::riAreaNormTranZResultName()
 {
@@ -286,7 +310,7 @@ QString RiaDefines::riAreaNormTranZResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::combinedRiAreaNormTranResultName()
 {
@@ -310,7 +334,7 @@ QString RiaDefines::riOilVolumeResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::mobilePoreVolumeName()
 {
@@ -318,7 +342,7 @@ QString RiaDefines::mobilePoreVolumeName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::completionTypeResultName()
 {
@@ -326,7 +350,7 @@ QString RiaDefines::completionTypeResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::mockModelBasic()
 {
@@ -334,7 +358,7 @@ QString RiaDefines::mockModelBasic()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::mockModelBasicWithResults()
 {
@@ -342,7 +366,7 @@ QString RiaDefines::mockModelBasicWithResults()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::mockModelLargeWithResults()
 {
@@ -350,7 +374,7 @@ QString RiaDefines::mockModelLargeWithResults()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::mockModelCustomized()
 {
@@ -358,7 +382,7 @@ QString RiaDefines::mockModelCustomized()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::mockModelBasicInputCase()
 {
@@ -366,7 +390,7 @@ QString RiaDefines::mockModelBasicInputCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::activeFormationNamesResultName()
 {
@@ -434,7 +458,7 @@ QString RiaDefines::wellPathSFGResultName()
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaDefines::wellPathAngleResultNames()
 {
-    return { RiaDefines::wellPathAzimuthResultName(), RiaDefines::wellPathInclinationResultName() };
+    return {RiaDefines::wellPathAzimuthResultName(), RiaDefines::wellPathInclinationResultName()};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,13 +466,15 @@ std::vector<QString> RiaDefines::wellPathAngleResultNames()
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaDefines::wellPathStabilityResultNames()
 {
-    return { RiaDefines::wellPathFGResultName(), RiaDefines::wellPathOBGResultName(),
-             RiaDefines::wellPathPPResultName(), RiaDefines::wellPathSFGResultName(),
-             RiaDefines::wellPathSHResultName() };
+    return {RiaDefines::wellPathFGResultName(),
+            RiaDefines::wellPathOBGResultName(),
+            RiaDefines::wellPathPPResultName(),
+            RiaDefines::wellPathSFGResultName(),
+            RiaDefines::wellPathSHResultName()};
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RiaDefines::minimumDefaultValuePlot()
 {
@@ -456,9 +482,82 @@ double RiaDefines::minimumDefaultValuePlot()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+double RiaDefines::minimumDefaultLogValuePlot()
+{
+    return 1.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 double RiaDefines::maximumDefaultValuePlot()
 {
     return 100.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName(const QString& fileName)
+{
+    if (fileName.endsWith("EGRID", Qt::CaseInsensitive))
+    {
+        return ECLIPSE_EGRID_FILE;
+    }
+    else if (fileName.endsWith("GRID", Qt::CaseInsensitive))
+    {
+        return ECLIPSE_GRID_FILE;
+    }
+    else if (fileName.endsWith("GRDECL", Qt::CaseInsensitive))
+    {
+        return ECLIPSE_INPUT_FILE;
+    }
+    else if (fileName.endsWith("SMSPEC", Qt::CaseInsensitive))
+    {
+        return ECLIPSE_SUMMARY_FILE;
+    }
+    else if (fileName.endsWith("ODB", Qt::CaseInsensitive))
+    {
+        return GEOMECH_ODB_FILE;
+    }
+    else if (fileName.endsWith(".rsp", Qt::CaseInsensitive) || fileName.endsWith(".rip", Qt::CaseInsensitive))
+    {
+        return RESINSIGHT_PROJECT_FILE;
+    }
+    return NOT_A_VALID_IMPORT_FILE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::defaultDirectoryLabel(RiaDefines::ImportFileType fileType)
+{
+    QString defaultDirLabel;
+
+    if (fileType == ANY_ECLIPSE_FILE)
+    {
+        defaultDirLabel = "GENERAL_DATA";
+    }
+    else if (fileType & ECLIPSE_RESULT_GRID)
+    {
+        defaultDirLabel = "BINARY_GRID";
+    }
+    else if (fileType & ECLIPSE_INPUT_FILE)
+    {
+        defaultDirLabel = "INPUT_FILES";
+    }
+    else if (fileType & ECLIPSE_SUMMARY_FILE)
+    {
+        // TODO: Summary files used "INPUT_FILES" as last used directory.
+        // Check if this is correct.
+        defaultDirLabel = "INPUT_FILES";
+    }
+    else if (fileType & GEOMECH_ODB_FILE)
+    {
+        defaultDirLabel = "GEOMECH_MODEL";
+    }
+
+    return defaultDirLabel;
 }

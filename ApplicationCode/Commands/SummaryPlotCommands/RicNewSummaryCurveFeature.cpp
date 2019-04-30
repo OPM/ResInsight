@@ -61,7 +61,7 @@ RimSummaryCurve* RicNewSummaryCurveFeature::addCurveToPlot(RimSummaryPlot* plot,
             newCurve->setSummaryCaseY(summaryCase);
         }
 
-        newCurve->setSummaryAddressY(RifEclipseSummaryAddress::fieldAddress("FOPT"));
+        newCurve->setSummaryAddressYAndApplyInterpolation(RifEclipseSummaryAddress::fieldAddress("FOPT"));
 
         newCurve->loadDataAndUpdate(true);
 

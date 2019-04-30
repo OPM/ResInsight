@@ -1,25 +1,23 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
-// 
+//  Copyright (C) 2018-     Equinor ASA
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include "RigFemResultAddress.h"
-#include "RigEclipseResultInfo.h"
 
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
@@ -29,6 +27,8 @@
 
 class RimCase;
 class Rim3dView;
+class RigFemResultAddress;
+class RigEclipseResultAddress;
 
 class RiaMemoryCleanup : public caf::PdmObject
 {
@@ -42,9 +42,9 @@ protected:
     void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 private:
     std::vector<RigFemResultAddress>      selectedGeoMechResults() const;
-    std::vector<RigEclipseResultInfo>     selectedEclipseResults() const;
+    std::vector<RigEclipseResultAddress>  selectedEclipseResults() const;
     std::set<RigFemResultAddress>         findGeoMechCaseResultsInUse() const;
-    std::set<RigEclipseResultInfo>        findEclipseResultsInUse() const;
+    std::set<RigEclipseResultAddress>        findEclipseResultsInUse() const;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly) override;
@@ -54,6 +54,6 @@ private:
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<std::vector<size_t>>              m_resultsToDelete;
     std::vector<RigFemResultAddress>                m_geomResultAddresses;
-    std::vector<RigEclipseResultInfo>               m_eclipseResultAddresses;
+    std::vector<RigEclipseResultAddress>            m_eclipseResultAddresses;
     caf::PdmField<bool>                             m_performDelete;
 };

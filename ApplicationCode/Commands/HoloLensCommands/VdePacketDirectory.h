@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -36,9 +36,11 @@ class VdePacketDirectory
 public:
     VdePacketDirectory();
 
-    void                        addPacket(const VdeArrayDataPacket& packet);
+    void                        addPacket(std::unique_ptr<VdeArrayDataPacket> packet);
     const VdeArrayDataPacket*   lookupPacket(int arrayId) const;
+
     void                        clear();
+    void                        pruneUnreferencedPackets(const std::vector<int>& packetIdsInUseArr);
 
     bool                        getPacketsAsCombinedBuffer(const std::vector<int>& packetIdsToGet, QByteArray* combinedPacketArr) const;
 

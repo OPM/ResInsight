@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMetaType>
+#include <QString>
 
 class QTextStream;
 

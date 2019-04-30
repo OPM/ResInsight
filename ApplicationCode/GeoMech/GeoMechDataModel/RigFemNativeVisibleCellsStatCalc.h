@@ -41,12 +41,12 @@ public:
                                      const RigFemResultAddress& resVarAddr, 
                                      const cvf::UByteArray* cellVisibilities);
 
-    virtual void    minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
-    virtual void    posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
-    virtual void    valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount);
-    virtual void    addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator);
-    virtual void    uniqueValues(size_t timeStepIndex, std::set<int>& values);
-    virtual size_t  timeStepCount();
+    void    minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max) override;
+    void    posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg) override;
+    void    valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount) override;
+    void    addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator) override;
+    void    uniqueValues(size_t timeStepIndex, std::set<int>& values) override;
+    size_t  timeStepCount() override;
 
 private:
     RigGeoMechCaseData*          m_caseData;

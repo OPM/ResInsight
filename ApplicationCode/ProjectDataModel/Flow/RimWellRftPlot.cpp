@@ -105,8 +105,7 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue(false);
 
     this->setAsPlotMdiWindow();
-    m_selectedSourcesOrTimeStepsFieldsChanged = false;
-    m_isOnLoad                                = true;
+    m_isOnLoad = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,11 +151,11 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
     static size_t defaultColorTableIndex  = 0;
     static size_t defaultSymbolTableIndex = 0;
 
-    cvf::Color3f                  currentColor;
-    RiuQwtSymbol::PointSymbolEnum currentSymbol      = symbolTable.front();
-    RiuQwtPlotCurve::LineStyleEnum   currentLineStyle   = RiuQwtPlotCurve::STYLE_SOLID;
-    bool                          isCurrentColorSet  = false;
-    bool                          isCurrentSymbolSet = false;
+    cvf::Color3f                   currentColor;
+    RiuQwtSymbol::PointSymbolEnum  currentSymbol      = symbolTable.front();
+    RiuQwtPlotCurve::LineStyleEnum currentLineStyle   = RiuQwtPlotCurve::STYLE_SOLID;
+    bool                           isCurrentColorSet  = false;
+    bool                           isCurrentSymbolSet = false;
 
     std::set<cvf::Color3f>                  assignedColors;
     std::set<RiuQwtSymbol::PointSymbolEnum> assignedSymbols;
@@ -302,8 +301,10 @@ void RimWellRftPlot::applyInitialSelections()
     m_selectedSources = sourcesToSelect;
 
     {
-        auto relevantTimeSteps = RimWellPlotTools::calculateRelevantTimeStepsFromCases(
-            associatedSimWellName(), m_selectedSources, {RifEclipseRftAddress::PRESSURE});
+        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
+
+        auto relevantTimeSteps =
+            RimWellPlotTools::calculateRelevantTimeStepsFromCases(associatedSimWellName(), m_selectedSources, channelTypesToUse);
 
         std::vector<QDateTime> timeStepVector;
         for (const auto& item : relevantTimeSteps)
@@ -412,8 +413,10 @@ void RimWellRftPlot::syncCurvesFromUiSelection()
 //--------------------------------------------------------------------------------------------------
 std::set<RiaRftPltCurveDefinition> RimWellRftPlot::selectedCurveDefs() const
 {
+    std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
+
     return RimWellPlotTools::curveDefsFromTimesteps(
-        associatedSimWellName(), m_selectedTimeSteps.v(), true, selectedSourcesExpanded());
+        associatedSimWellName(), m_selectedTimeSteps.v(), true, selectedSourcesExpanded(), channelTypesToUse);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -517,6 +520,11 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
                 applyCurveAppearance(curve);
             }
         }
+    }
+
+    if (m_wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH)
+    {
+        assignWellPathToExtractionCurves();
     }
 
     m_wellLogPlot->loadDataAndUpdate();
@@ -659,8 +667,10 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_selectedTimeSteps)
     {
+        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
+
         RimWellPlotTools::calculateValueOptionsForTimeSteps(
-            associatedSimWellName(), selectedSourcesExpanded(), {RifEclipseRftAddress::PRESSURE}, options);
+            associatedSimWellName(), selectedSourcesExpanded(), channelTypesToUse, options);
     }
     else if (fieldNeedingOptions == &m_branchIndex)
     {
@@ -682,17 +692,14 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     if (changedField == &m_wellPathNameOrSimWellName)
     {
         setDescription(QString(plotNameFormatString()).arg(m_wellPathNameOrSimWellName));
-    }
 
-    if (changedField == &m_wellPathNameOrSimWellName)
-    {
-        if (changedField == &m_wellPathNameOrSimWellName)
-        {
-            m_branchIndex = 0;
-        }
+        m_branchIndex = 0;
 
         RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
-        plotTrack->deleteAllCurves();
+        if (plotTrack)
+        {
+            plotTrack->deleteAllCurves();
+        }
 
         updateEditorsFromCurves();
         updateFormationsOnPlot();
@@ -709,7 +716,6 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
-        m_selectedSourcesOrTimeStepsFieldsChanged = true;
     }
     else if (changedField == &m_showPlotTitle)
     {
@@ -746,12 +752,6 @@ QImage RimWellRftPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    if (!m_selectedSourcesOrTimeStepsFieldsChanged)
-    {
-        updateEditorsFromCurves();
-    }
-    m_selectedSourcesOrTimeStepsFieldsChanged = false;
-
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_wellPathNameOrSimWellName);
 
@@ -861,10 +861,37 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
 
+    if (m_wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH)
+    {
+        assignWellPathToExtractionCurves();
+    }
+
     m_wellLogPlot->loadDataAndUpdate();
 
     updateEditorsFromCurves();
     updateWidgetTitleWindowTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::assignWellPathToExtractionCurves()
+{
+    RimProject*  proj     = RiaApplication::instance()->project();
+    RimWellPath* wellPath = proj->wellPathByName(m_wellPathNameOrSimWellName);
+
+    if (wellPath)
+    {
+        for (RimWellLogCurve* curve : m_wellLogPlot->trackByIndex(0)->curvesVector())
+        {
+            auto extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>(curve);
+            if (extractionCurve)
+            {
+                extractionCurve->setTrajectoryType(RimWellLogExtractionCurve::WELL_PATH);
+                extractionCurve->setWellPath(wellPath);
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

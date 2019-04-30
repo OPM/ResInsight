@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,18 +21,19 @@
 
 #include "RiaApplication.h"
 
+#include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseResultCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
+#include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimMainPlotCollection.h"
-#include "RimGridSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimWellLogPlotCollection.h"
 
@@ -48,7 +49,7 @@
 CAF_CMD_SOURCE_INIT(RicCloseCaseFeature, "RicCloseCaseFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCloseCaseFeature::isCommandEnabled()
 {
@@ -56,7 +57,7 @@ bool RicCloseCaseFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCloseCaseFeature::onActionTriggered(bool isChecked)
 {
@@ -90,7 +91,7 @@ void RicCloseCaseFeature::onActionTriggered(bool isChecked)
             RiuMainWindow::instance()->cleanupGuiCaseClose();
         }
     }
-    
+
     if (!geoMechCases.empty())
     {
         for (RimGeoMechCase* geoMechCase : geoMechCases)
@@ -102,17 +103,17 @@ void RicCloseCaseFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCloseCaseFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Close");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCase*> RicCloseCaseFeature::selectedCases() const
 {
@@ -122,14 +123,14 @@ std::vector<RimCase*> RicCloseCaseFeature::selectedCases() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCloseCaseFeature::removeCaseFromAllGroups(RimEclipseCase* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
 
-    RimProject* proj = RiaApplication::instance()->project();
-    RimOilField* activeOilField = proj ? proj->activeOilField() : nullptr;
+    RimProject*               proj           = RiaApplication::instance()->project();
+    RimOilField*              activeOilField = proj ? proj->activeOilField() : nullptr;
     RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : nullptr;
     if (analysisModels)
     {
@@ -139,7 +140,7 @@ void RicCloseCaseFeature::removeCaseFromAllGroups(RimEclipseCase* eclipseCase)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCloseCaseFeature::deleteEclipseCase(RimEclipseCase* eclipseCase)
 {
@@ -189,8 +190,9 @@ void RicCloseCaseFeature::deleteEclipseCase(RimEclipseCase* eclipseCase)
     RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>(eclipseCase);
     if (resultCase)
     {
-        RimProject* project = RiaApplication::instance()->project();
-        RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
+        RimProject*                   project = RiaApplication::instance()->project();
+        RimSummaryCaseMainCollection* sumCaseColl =
+            project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
         if (sumCaseColl)
         {
             RimSummaryCase* summaryCase = sumCaseColl->findSummaryCaseFromEclipseResultCase(resultCase);
@@ -203,18 +205,37 @@ void RicCloseCaseFeature::deleteEclipseCase(RimEclipseCase* eclipseCase)
     }
 
     delete eclipseCase;
+
+    {
+        RimProject* project = RiaApplication::instance()->project();
+
+        std::vector<RimCase*> cases;
+        project->allCases(cases);
+
+        if (cases.empty())
+        {
+            project->multiSnapshotDefinitions.deleteAllChildObjects();
+        }
+        else
+        {
+            for (RimAdvancedSnapshotExportDefinition* msd : project->multiSnapshotDefinitions())
+            {
+                msd->additionalCases.removePtr(nullptr);
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCloseCaseFeature::deleteGeoMechCase(RimGeoMechCase* geoMechCase)
 {
     CVF_ASSERT(geoMechCase);
 
-    RimProject* proj = RiaApplication::instance()->project();
-    RimOilField* activeOilField = proj ? proj->activeOilField() : nullptr;
-    RimGeoMechModels* models = (activeOilField) ? activeOilField->geoMechModels() : nullptr;
+    RimProject*       proj           = RiaApplication::instance()->project();
+    RimOilField*      activeOilField = proj ? proj->activeOilField() : nullptr;
+    RimGeoMechModels* models         = (activeOilField) ? activeOilField->geoMechModels() : nullptr;
     if (models)
     {
         models->cases.removeChildObject(geoMechCase);
@@ -225,7 +246,7 @@ void RicCloseCaseFeature::deleteGeoMechCase(RimGeoMechCase* geoMechCase)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCloseCaseFeature::hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gridCaseGroup)
 {
@@ -233,7 +254,8 @@ bool RicCloseCaseFeature::hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gri
 
     for (size_t i = 0; i < gridCaseGroup->statisticsCaseCollection()->reservoirs().size(); i++)
     {
-        RimEclipseStatisticsCase* rimStaticsCase = dynamic_cast<RimEclipseStatisticsCase*>(gridCaseGroup->statisticsCaseCollection()->reservoirs[i]);
+        RimEclipseStatisticsCase* rimStaticsCase =
+            dynamic_cast<RimEclipseStatisticsCase*>(gridCaseGroup->statisticsCaseCollection()->reservoirs[i]);
         if (rimStaticsCase)
         {
             if (rimStaticsCase->hasComputedStatistics())
@@ -246,18 +268,17 @@ bool RicCloseCaseFeature::hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gri
     return false;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCloseCaseFeature::userConfirmedGridCaseGroupChange(const std::vector<RimEclipseCase*>& casesToBeDeleted)
 {
     std::vector<RimIdenticalGridCaseGroup*> gridCaseGroups;
 
-    for (size_t i = 0; i < casesToBeDeleted.size(); i++)
+    for (auto caseToDelete : casesToBeDeleted)
     {
         RimIdenticalGridCaseGroup* gridCaseGroup = nullptr;
-        casesToBeDeleted[i]->firstAncestorOrThisOfType(gridCaseGroup);
+        caseToDelete->firstAncestorOrThisOfType(gridCaseGroup);
 
         if (gridCaseGroup && hasAnyStatisticsResults(gridCaseGroup))
         {
@@ -265,7 +286,7 @@ bool RicCloseCaseFeature::userConfirmedGridCaseGroupChange(const std::vector<Rim
         }
     }
 
-    if (gridCaseGroups.size() > 0)
+    if (!gridCaseGroups.empty())
     {
         RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
@@ -275,15 +296,16 @@ bool RicCloseCaseFeature::userConfirmedGridCaseGroupChange(const std::vector<Rim
         QString questionText;
         if (gridCaseGroups.size() == 1)
         {
-            questionText = QString("This operation will invalidate statistics results in grid case group\n\"%1\".\n").arg(gridCaseGroups[0]->name());
+            questionText = QString("This operation will invalidate statistics results in grid case group\n\"%1\".\n")
+                               .arg(gridCaseGroups[0]->name());
             questionText += "Computed results in this group will be deleted if you continue.";
         }
         else
         {
             questionText = "This operation will invalidate statistics results in grid case groups\n";
-            for (size_t i = 0; i < gridCaseGroups.size(); i++)
+            for (auto& gridCaseGroup : gridCaseGroups)
             {
-                questionText += QString("\"%1\"\n").arg(gridCaseGroups[i]->name());
+                questionText += QString("\"%1\"\n").arg(gridCaseGroup->name());
             }
 
             questionText += "Computed results in these groups will be deleted if you continue.";

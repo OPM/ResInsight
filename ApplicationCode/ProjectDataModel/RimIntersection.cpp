@@ -100,7 +100,7 @@ RimIntersection::RimIntersection()
     m_dipAngle.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_customExtrusionPoints, "CustomExtrusionPoints", "", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_twoAzimuthPoints, "TwoAzimuthPoints", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
+    CAF_PDM_InitFieldNoDefault(&m_twoAzimuthPoints, "TwoAzimuthPoints", "Points", "", "Pick two points to define a line.\nUse Ctrl-C for copy and Ctrl-V for paste", "");
 
     CAF_PDM_InitField         (&m_branchIndex,     "Branch",            -1,     "Branch", "", "", "");
     CAF_PDM_InitField         (&m_extentLength,    "ExtentLength",      200.0,  "Extent Length", "", "", "");

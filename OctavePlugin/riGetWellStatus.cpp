@@ -24,11 +24,11 @@ void getWellStatus(std::vector<QString>& wellTypes, std::vector<int>& wellStatus
     QString command;
     command += QString("GetWellStatus") + " " + QString::number(caseId) + " " + wellName;
 
-    for (int i = 0; i < requestedTimeSteps.length(); ++i)
+    for (int i = 0; i < requestedTimeSteps.numel(); ++i)
     {
         if (i == 0) command += " ";
         command += QString::number(static_cast<int>(requestedTimeSteps.elem(i)) - 1); // To make the index 0-based
-        if (i != requestedTimeSteps.length() -1) command += " ";
+        if (i != requestedTimeSteps.numel() -1) command += " ";
     }
 
     QByteArray cmdBytes = command.toLatin1();
@@ -136,7 +136,7 @@ DEFUN_DLD (riGetWellStatus, args, nargout,
 
     // Check if we have a Requested TimeSteps
     int lastArgumentIndex = argIndices[2] ;
-    if (!(nargin > argIndices[2] && (args(argIndices[2]).is_matrix_type() || args(argIndices[2]).is_numeric_type())))
+    if (!(nargin > argIndices[2] && (args(argIndices[2]).is_matrix_type() || riOctavePlugin::isOctaveValueNumeric(args(argIndices[2])))))
     {
         argIndices[2] = -1;
     }

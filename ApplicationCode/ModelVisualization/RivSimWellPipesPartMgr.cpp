@@ -287,7 +287,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform
                         for (const auto& intersectionInfo : wellPathCellIntersections)
                         {
                             size_t globalCellIndex = intersectionInfo.globCellIndex;
-                            const RigWellResultPoint* wResCell = wResFrame.findResultCell(0, globalCellIndex);
+                            const RigWellResultPoint* wResCell = wResFrame.findResultCellWellHeadIncluded(0, globalCellIndex);
 
                             if (!wResCell || !wResCell->isValid())
                             {
@@ -415,7 +415,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
             
                 if (cellIds[wcIdx].isCell())
                 {
-                    wResCell = wResFrame.findResultCell(cellIds[wcIdx].m_gridIndex, cellIds[wcIdx].m_gridCellIndex);
+                    wResCell = wResFrame.findResultCellWellHeadExcluded(cellIds[wcIdx].m_gridIndex, cellIds[wcIdx].m_gridCellIndex);
                 }
 
                 if (wResCell) 

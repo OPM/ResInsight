@@ -19,23 +19,26 @@
 
 #pragma once
 
-#include "RigFemResultAddress.h"
-
-#include "cvfStructGrid.h"
+#include "cvfBase.h"
 #include "cvfVector3.h"
+
+#include <QString>
+
 #include <array>
+#include <memory>
+#include <vector>
 
 class RigGeoMechCaseData;
-
+class RigFemResultAddress;
 
 class RiuFemTimeHistoryResultAccessor
 {
 public:
-    RiuFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData, 
+    RiuFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData,
                                     RigFemResultAddress femResultAddress,
-                                    size_t gridIndex, 
+                                    size_t gridIndex,
                                     int elementIndex,
-                                    int face, 
+                                    int face,
                                     const cvf::Vec3d& intersectionPointInDomain);
 
     RiuFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData,
@@ -43,19 +46,20 @@ public:
                                     size_t gridIndex,
                                     int elementIndex,
                                     int face,
-                                    const cvf::Vec3d& intersectionPointInDomain, 
+                                    const cvf::Vec3d& intersectionPointInDomain,
                                     const std::array<cvf::Vec3f, 3>& m_intersectionTriangle);
 
     QString             geometrySelectionText() const;
     std::vector<double> timeHistoryValues() const;
-    int                 closestNodeId() const { return m_closestNodeId; }
+    
+    int                 closestNodeId() const;
 
 private:
     void                computeTimeHistoryData();
 
 private:
-    RigGeoMechCaseData*     m_geoMechCaseData;
-    RigFemResultAddress     m_femResultAddress;
+    RigGeoMechCaseData*                  m_geoMechCaseData;
+    std::unique_ptr<RigFemResultAddress> m_femResultAddress;
 
     size_t                  m_gridIndex;
     int                     m_elementIndex;

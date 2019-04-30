@@ -21,15 +21,17 @@
 #pragma once
 
 #include "RiuViewerToViewInterface.h"
-#include "cafViewer.h"
+#include "RiuInterfaceToViewWindow.h"
 
+#include "cafMouseState.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafPdmInterfacePointer.h"
+#include "cafViewer.h"
 
-#include "cafMouseState.h"
 #include "cvfStructGrid.h"
-#include "RiuInterfaceToViewWindow.h"
+
+#include <memory>
 
 class RicCommandFeature;
 class Rim3dView;
@@ -38,14 +40,14 @@ class RiuViewerCommands;
 class RivGridBoxGenerator;
 class RivWindowEdgeAxesOverlayItem;
 
-class QCDEStyle;
 class QLabel;
-class QProgressBar;
 
 namespace caf
 {
+    class OverlayScaleLegend;
     class TitledOverlayFrame;
-    class PdmUiSelectionVisualizer3d;
+    class PdmUiSelection3dEditorVisualizer;
+    class QStyledProgressBar;
 }
 
 namespace cvf
@@ -70,7 +72,7 @@ class RiuViewer : public caf::Viewer, public RiuInterfaceToViewWindow
 public:
     RiuViewer(const QGLFormat& format, QWidget* parent);
     ~RiuViewer() override;
-
+    void            clearRimView();
     void            setDefaultView();
     cvf::Vec3d      pointOfInterest();
     void            setPointOfInterest(cvf::Vec3d poi);
@@ -80,7 +82,13 @@ public:
     void            setEnableMask(unsigned int mask);
 
     void            showInfoText(bool enable);
+    void            showVersionInfo(bool enable);
     void            setInfoText(QString text);
+
+    void            hideZScaleCheckbox(bool hide);
+    void            showZScaleLabel(bool enable);
+    void            setZScale(int scale);
+
     void            showHistogram(bool enable);
     void            setHistogram(double min, double max, const std::vector<size_t>& histogram);
     void            setHistogramPercentiles(double pmin, double pmax, double mean);
@@ -118,6 +126,13 @@ public:
 
     std::vector<cvf::ref<cvf::Part>> visibleParts();
 
+    void            showScaleLegend(bool show);
+
+    static void     setHoverCursor(const QCursor& cursor);
+    static void     clearHoverCursor();
+
+    void            updateFonts();
+
 public slots:
     void            slotSetCurrentFrame(int frameIndex) override;
     void            slotEndAnimation() override;
@@ -125,8 +140,9 @@ public slots:
 protected:
     void            optimizeClippingPlanes() override;
     void            resizeGL(int width, int height) override;
-    void    mouseMoveEvent(QMouseEvent* e) override;
-    void    leaveEvent(QEvent *) override;
+    void            mouseMoveEvent(QMouseEvent* e) override;
+    void            enterEvent(QEvent* e) override;
+    void            leaveEvent(QEvent*) override;
 
 private:
     void            updateLegendLayout();
@@ -136,6 +152,7 @@ private:
     cvf::Color3f    computeContrastColor() const;
 
     void            updateAxisCrossTextColor();
+    void            updateOverlayItemsStyle();
 
     void            paintOverlayItems(QPainter* painter) override;
 
@@ -147,14 +164,17 @@ private:
     QRect           m_infoLabelOverlayArea;
 
     QLabel*         m_versionInfoLabel;
-    bool            m_showInfoText; 
+    bool            m_showInfoText;
+    bool            m_showVersionInfo;
 
-    QProgressBar*   m_animationProgress;
+    QLabel*         m_zScaleLabel;
+    bool            m_showZScaleLabel;
+    bool            m_hideZScaleCheckbox;
+
+    caf::QStyledProgressBar*  m_animationProgress;
     bool            m_showAnimProgress; 
     RiuSimpleHistogramWidget* m_histogramWidget;
     bool            m_showHistogram;
-
-    QCDEStyle*      m_progressBarStyle;
 
     cvf::ref<cvf::OverlayAxisCross> m_axisCross;
     bool                            m_showAxisCross;
@@ -169,9 +189,13 @@ private:
     cvf::ref<RivWindowEdgeAxesOverlayItem> m_windowEdgeAxisOverlay;
     bool                        m_showWindowEdgeAxes;
 
-    caf::PdmUiSelectionVisualizer3d* m_selectionVisualizerManager;
+    caf::PdmUiSelection3dEditorVisualizer* m_selectionVisualizerManager;
 
     cvf::Vec3d                  m_cursorPositionDomainCoords;
     bool                        m_isNavigationRotationEnabled;
+
+    cvf::ref<caf::OverlayScaleLegend> m_scaleLegend;
+
+    static std::unique_ptr<QCursor>    s_hoverCursor;
 };
 

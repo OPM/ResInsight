@@ -1,24 +1,26 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicIntersectionPickEventHandler.h"
+#include "RiaApplication.h"
+
+#include "RimGridView.h"
 #include "RimIntersection.h"
-#include "Rim3dView.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
@@ -26,7 +28,7 @@
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicIntersectionPickEventHandler* RicIntersectionPickEventHandler::instance()
 {
@@ -35,9 +37,9 @@ RicIntersectionPickEventHandler* RicIntersectionPickEventHandler::instance()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RicIntersectionPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool RicIntersectionPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
     std::vector<RimIntersection*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
@@ -47,11 +49,15 @@ bool RicIntersectionPickEventHandler::handlePickEvent(const Ric3DPickEvent& even
         {
             RimIntersection* intersection = selection[0];
 
-            Rim3dView* rimView = nullptr;
-            intersection->firstAncestorOrThisOfType(rimView);
-            CVF_ASSERT(rimView);
+            RimGridView* gridView = nullptr;
+            intersection->firstAncestorOrThisOfTypeAsserted(gridView);
 
-            cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+            if (RiaApplication::instance()->activeGridView() != gridView)
+            {
+                return false;
+            }
+
+            cvf::ref<caf::DisplayCoordTransform> transForm = gridView->displayCoordTransform();
             cvf::Vec3d domainCoord = transForm->transformToDomainCoord(eventObject.m_pickItemInfos.front().globalPickedPoint());
 
             if (intersection->inputPolyLineFromViewerEnabled())
@@ -80,4 +86,3 @@ bool RicIntersectionPickEventHandler::handlePickEvent(const Ric3DPickEvent& even
 
     return false;
 }
-

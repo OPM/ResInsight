@@ -123,7 +123,11 @@ QWidget* RicSummaryCurveCalculatorEditor::createWidget(QWidget* parent)
     m_pdmTableView->enableHeaderText(false);
 
     QHeaderView* verticalHeader = m_pdmTableView->tableView()->verticalHeader();
+#if QT_VERSION >= 0x050000
+    verticalHeader->setSectionResizeMode(QHeaderView::Interactive);
+#else
     verticalHeader->setResizeMode(QHeaderView::Interactive);
+#endif
 
     m_pdmTableView->tableView()->resizeColumnsToContents();
 
@@ -187,7 +191,7 @@ QMinimizePanel* RicSummaryCurveCalculatorEditor::updateGroupBoxWithContent(caf::
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
 
-    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(*group, groupBox->contentFrame(), uiConfigName);
+    recursivelyConfigureAndUpdateUiOrderingInGridLayout(*group, groupBox->contentFrame(), uiConfigName);
     return groupBox;
 }
 

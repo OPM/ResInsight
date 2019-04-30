@@ -63,7 +63,9 @@ public:
     enum FontSize
     {
         POINT_SIZE_8,           // 8pt
+        POINT_SIZE_10,
         POINT_SIZE_12,
+        POINT_SIZE_14,
         POINT_SIZE_16,              // 16pt
         POINT_SIZE_24,
         POINT_SIZE_32
@@ -71,12 +73,12 @@ public:
 
 public:
     explicit FixedAtlasFont(FontSize size);
-    virtual ~FixedAtlasFont();
+    ~FixedAtlasFont() override;
 
-    virtual const cvf::String& name() const;
-    virtual cvf::ref<cvf::Glyph> getGlyph(wchar_t character);
-    virtual cvf::uint advance(wchar_t character, wchar_t nextCharacter);
-	virtual bool isEmpty();
+    const cvf::String& name() const override;
+    cvf::ref<cvf::Glyph> getGlyph(wchar_t character) override;
+    cvf::uint advance(wchar_t character, wchar_t nextCharacter) override;
+	bool isEmpty() override;
 
 private:
     // Load/unload font

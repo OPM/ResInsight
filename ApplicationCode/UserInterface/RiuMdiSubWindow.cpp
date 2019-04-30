@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,26 +20,31 @@
 
 #include "RiaApplication.h"
 
-#include "RimSummaryPlot.h"
 #include "Rim3dView.h"
+#include "RimSummaryPlot.h"
 #include "RimWellLogPlot.h"
 
-#include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
-#include "RiuSummaryQwtPlot.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuViewer.h"
 #include "RiuWellLogPlot.h"
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RiuMdiSubWindow::RiuMdiSubWindow(QWidget* parent /*= 0*/, Qt::WindowFlags flags /*= 0*/) : QMdiSubWindow(parent, flags)
-{
+#include <QWindowStateChangeEvent>
 
+#include <QDebug>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuMdiSubWindow::RiuMdiSubWindow(QWidget* parent /*= 0*/, Qt::WindowFlags flags /*= 0*/)
+    : QMdiSubWindow(parent, flags)
+    , m_normalWindowGeometry(QRect())
+    , m_blockTilingChanges(false)
+{
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuMdiSubWindow::~RiuMdiSubWindow()
 {
@@ -47,64 +52,120 @@ RiuMdiSubWindow::~RiuMdiSubWindow()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+RimMdiWindowGeometry RiuMdiSubWindow::windowGeometry() const
+{
+    RimMdiWindowGeometry geo;
+
+    int mainWinID = 0;
+    if (window() == RiaApplication::instance()->mainPlotWindow())
+    {
+        mainWinID = 1;
+    }
+
+    geo.mainWindowID = mainWinID;
+    geo.isMaximized  = isMaximized();
+
+    // Save normal/non-maximized size and position so this can be restored
+    QRect currentGeometry = frameGeometry();
+    if (isMaximized() && !m_normalWindowGeometry.isNull())
+    {
+        currentGeometry = m_normalWindowGeometry;
+    }
+
+    geo.x      = currentGeometry.topLeft().x();
+    geo.y      = currentGeometry.topLeft().y();
+    geo.width  = currentGeometry.width();
+    geo.height = currentGeometry.height();
+
+    return geo;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMdiSubWindow::blockTilingChanges(bool block)
+{
+    m_blockTilingChanges = block;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RiuMdiSubWindow::closeEvent(QCloseEvent* event)
 {
     QWidget* mainWidget = widget();
 
-    RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(mainWidget);
-    if ( viewWindow )
-    {
-        viewWindow->setMdiWindowGeometry(windowGeometryForWidget(this));
-    }
-    else
+	RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(mainWidget);
+    if (!viewWindow)
     {
         RiuViewer* viewer = mainWidget->findChild<RiuViewer*>();
         if (viewer)
         {
-            viewer->ownerReservoirView()->setMdiWindowGeometry(windowGeometryForWidget(this));
+            viewWindow = viewer->ownerViewWindow();
         }
     }
-    QMdiSubWindow::closeEvent(event);
+
+    if (viewWindow)
+    {
+        viewWindow->setMdiWindowGeometry(windowGeometry());
+        viewWindow->handleMdiWindowClosed();
+        event->accept();
+    }
+    else
+    {
+        QMdiSubWindow::closeEvent(event);
+    }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RiuMdiSubWindow::windowGeometryForWidget(QWidget* widget)
+void RiuMdiSubWindow::resizeEvent(QResizeEvent* resizeEvent)
 {
-    RimMdiWindowGeometry geo;
-
-    if (widget)
+    if (!isMaximized())
     {
-        // Find topmost parent
-
-        QWidget* nextParent = widget->parentWidget();
-        QWidget* parent     = nullptr;
-        while (nextParent)
-        {
-            parent     = nextParent;
-            nextParent = nextParent->parentWidget();
-        }
-
-        int mainWinID = 0;
-        if (parent)
-        {
-            if (parent == RiaApplication::instance()->mainPlotWindow())
-            {
-                mainWinID = 1;
-            }
-        }
-
-        geo.mainWindowID = mainWinID;
-        geo.x            = widget->pos().x();
-        geo.y            = widget->pos().y();
-        geo.width        = widget->size().width();
-        geo.height       = widget->size().height();
-        geo.isMaximized  = widget->isMaximized();
+        m_normalWindowGeometry = frameGeometry();
     }
 
-    return geo;
+    if (!m_blockTilingChanges)
+    {
+        if (window() == RiaApplication::instance()->mainWindow())
+        {
+            RiaApplication::instance()->mainWindow()->storeSubWindowTiling(false);
+        }
+        else if (window() == RiaApplication::instance()->mainPlotWindow())
+        {
+            RiaApplication::instance()->mainPlotWindow()->storeSubWindowTiling(false);
+        }
+    }
+
+    QMdiSubWindow::resizeEvent(resizeEvent);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMdiSubWindow::moveEvent(QMoveEvent* moveEvent)
+{
+    if (!isMaximized())
+    {
+        m_normalWindowGeometry = frameGeometry();
+    }
+    
+    if (!m_blockTilingChanges)
+    {
+        if (window() == RiaApplication::instance()->mainWindow())
+        {
+            RiaApplication::instance()->mainWindow()->storeSubWindowTiling(false);
+        }
+        else if (window() == RiaApplication::instance()->mainPlotWindow())
+        {
+            RiaApplication::instance()->mainPlotWindow()->storeSubWindowTiling(false);
+        }
+    }
+
+    QMdiSubWindow::moveEvent(moveEvent);
 }

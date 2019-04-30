@@ -20,6 +20,8 @@
 #include "RicGeoMechPropertyFilterFeatureImpl.h"
 #include "RicEclipsePropertyFilterFeatureImpl.h"
 
+#include "RigFemResultAddress.h"
+
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"

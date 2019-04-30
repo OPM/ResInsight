@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (expressionparser)
 
@@ -6,6 +6,13 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj") 
     message(STATUS "MSVC: Enabled increased number of sections in object files") 
  endif() 
+
+if (RESINSIGHT_BUILD_WITH_QT5)
+	find_package(Qt5 COMPONENTS Core REQUIRED)
+else()
+	find_package(Qt4 COMPONENTS QtCore REQUIRED)
+    include(${QT_USE_FILE})
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 list (APPEND MAIN_SOURCE_FILES
     ExpressionParser.h
@@ -27,5 +34,9 @@ if(MSVC)
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+if (RESINSIGHT_BUILD_WITH_QT5)
+	target_link_libraries(${PROJECT_NAME} Qt5::Core)
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 source_group("" FILES ${PROJECT_FILES})

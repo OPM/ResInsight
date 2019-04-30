@@ -463,7 +463,7 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
         RimSummaryCase*  currentCase = curveDef.summaryCase();
         RimSummaryCurve* curve       = new RimSummaryCurve();
         curve->setSummaryCaseY(currentCase);
-        curve->setSummaryAddressY(curveDef.summaryAddress());
+        curve->setSummaryAddressYAndApplyInterpolation(curveDef.summaryAddress());
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
         if (currentCase->isObservedData()) curve->setSymbolSkipDistance(0);
 

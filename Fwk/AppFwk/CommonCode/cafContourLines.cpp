@@ -22,7 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "cafContourLines.h"
+
 #include <algorithm>
+#include <list>
+#include <cmath>
 
 const int caf::ContourLines::s_castab[3][3][3] =
 {
@@ -67,7 +70,9 @@ void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vec
             temp2 = std::max(saneValue(gridIndex1d(i + 1, j, nx), dataXY, contourLevels),
                              saneValue(gridIndex1d(i + 1, j + 1, nx), dataXY, contourLevels));
             double dmax  = std::max(temp1, temp2);
-            if (dmax < contourLevels[0] || dmin > contourLevels[nContourLevels - 1])
+            // Using dmax <= contourLevels[0] as a deviation from Bourke because it empirically
+            // Reduces gridding artifacts in our code.
+            if (dmax <= contourLevels[0] || dmin > contourLevels[nContourLevels - 1])
                 continue;
 
             for (int k = 0; k < nContourLevels; k++)
@@ -204,6 +209,38 @@ void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vec
             } /* k - contour */
         } /* i */
     } /* j */
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::ContourLines::ListOfLineSegments> caf::ContourLines::create(const std::vector<double>& dataXY,
+                                                                             const std::vector<double>& xPositions,
+                                                                             const std::vector<double>& yPositions,
+                                                                             const std::vector<double>& contourLevels)
+{
+    const double eps = 1.0e-4;
+    std::vector<std::vector<cvf::Vec2d>> contourLineSegments;
+    caf::ContourLines::create(dataXY, xPositions, yPositions, contourLevels, &contourLineSegments);
+
+    std::vector<ListOfLineSegments> listOfSegmentsPerLevel(contourLevels.size());
+
+    for (size_t i = 0; i < contourLevels.size(); ++i)
+    {
+        size_t nPoints = contourLineSegments[i].size();
+        size_t nSegments = nPoints / 2;
+        if (nSegments >= 3u) // Need at least three segments for a closed polygon
+        {
+            ListOfLineSegments unorderedSegments;
+            for (size_t j = 0; j < contourLineSegments[i].size(); j += 2)
+            {
+                unorderedSegments.push_back(std::make_pair(cvf::Vec3d(contourLineSegments[i][j]), cvf::Vec3d(contourLineSegments[i][j + 1])));
+            }
+            listOfSegmentsPerLevel[i] = unorderedSegments;
+        }
+    }
+
+    return listOfSegmentsPerLevel;
 }
 
 //--------------------------------------------------------------------------------------------------

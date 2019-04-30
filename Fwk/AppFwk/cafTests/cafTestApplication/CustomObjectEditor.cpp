@@ -173,7 +173,7 @@ void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const P
             std::pair<int, int> rowCol = rowAndColumn(nextCellId);
             m_layout->addWidget(groupBox, rowCol.first, rowCol.second, 1, 1);
             
-            recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(*group, groupBox->contentFrame(), uiConfigName);
+            recursivelyConfigureAndUpdateUiOrderingInNewGridLayout(*group, groupBox->contentFrame(), uiConfigName);
         }
 
         // NB! Only groups at top level are handled, fields at top level are not added to layout

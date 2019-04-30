@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2017-2018 Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -129,7 +130,6 @@ public:
     friend class RimFractureTemplate;
 
     // RimWellPathCompletionsInterface overrides.
-    bool                              isEnabled() const override;
     RiaDefines::WellPathComponentType componentType() const override;
     QString                           componentLabel() const override;
     QString                           componentTypeLabel() const override;
@@ -154,6 +154,9 @@ private:
 
 protected:
     caf::PdmPtrField<RimFractureTemplate*>          m_fractureTemplate;
+    caf::PdmField<bool>                             m_editFractureTemplate;
+    caf::PdmField<bool>                             m_createEllipseFractureTemplate;
+    caf::PdmField<bool>                             m_createStimPlanFractureTemplate;
     caf::PdmProxyValueField<cvf::Vec3d>             m_uiAnchorPosition;
     caf::PdmField< RiaEclipseUnitTools::UnitSystemType >  m_fractureUnit;
 

@@ -58,7 +58,6 @@ public:
     const std::vector<double>& contributingEclipseCellPermeabilities() const;
 
     double areaOpenForFlow() const;
-    double aggregatedMatrixTransmissibility() const;
 
     const RigFractureCell& fractureCell() const;
 

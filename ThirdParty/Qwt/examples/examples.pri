@@ -12,6 +12,8 @@ include( $${QWT_ROOT}/qwtconfig.pri )
 include( $${QWT_ROOT}/qwtbuild.pri )
 include( $${QWT_ROOT}/qwtfunctions.pri )
 
+QWT_OUT_ROOT = $${OUT_PWD}/../..
+
 TEMPLATE     = app
 
 INCLUDEPATH += $${QWT_ROOT}/src
@@ -19,31 +21,21 @@ DEPENDPATH  += $${QWT_ROOT}/src
 
 !debug_and_release {
 
-    DESTDIR      = $${QWT_ROOT}/examples/bin
+    DESTDIR      = $${QWT_OUT_ROOT}/examples/bin
 }
 else {
     CONFIG(debug, debug|release) {
 
-        DESTDIR      = $${QWT_ROOT}/examples/bin_debug
+        DESTDIR      = $${QWT_OUT_ROOT}/examples/bin_debug
     }
     else {
 
-        DESTDIR      = $${QWT_ROOT}/examples/bin
+        DESTDIR      = $${QWT_OUT_ROOT}/examples/bin
     }
 }
 
-QMAKE_RPATHDIR *= $${QWT_ROOT}/lib
-
-contains(QWT_CONFIG, QwtFramework) {
-
-    LIBS      += -F$${QWT_ROOT}/lib
-}
-else {
-
-    LIBS      += -L$${QWT_ROOT}/lib
-}
-
-qwtAddLibrary(qwt)
+QMAKE_RPATHDIR *= $${QWT_OUT_ROOT}/lib
+qwtAddLibrary($${QWT_OUT_ROOT}/lib, qwt)
 
 greaterThan(QT_MAJOR_VERSION, 4) {
 

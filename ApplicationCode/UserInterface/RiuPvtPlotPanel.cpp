@@ -17,8 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuPvtPlotPanel.h"
+
+#include "RiuDockedQwtPlot.h"
 #include "RiuPvtPlotUpdater.h"
-#include "RiuSummaryQwtPlot.h"
 
 #include "RigFlowDiagSolverInterface.h"
 
@@ -50,10 +51,10 @@
 //
 //
 //==================================================================================================
-class PvtQwtPlot : public QwtPlot
+class PvtQwtPlot : public RiuDockedQwtPlot
 {
 public:
-    PvtQwtPlot(QWidget* parent) : QwtPlot(parent) {}
+    PvtQwtPlot(QWidget* parent) : RiuDockedQwtPlot(parent) {}
     QSize sizeHint() const override { return QSize(100, 100); }
     QSize minimumSizeHint() const override { return QSize(0, 0); }
 };
@@ -104,6 +105,7 @@ RiuPvtPlotWidget::RiuPvtPlotWidget(RiuPvtPlotPanel* parent)
 {
     m_qwtPlot = new PvtQwtPlot(this);
     setPlotDefaults(m_qwtPlot);
+    applyFontSizes(false);
 
     QHBoxLayout* layout = new QHBoxLayout();
     layout->addWidget(m_qwtPlot);
@@ -148,7 +150,7 @@ void RiuPvtPlotWidget::setPlotDefaults(QwtPlot* plot)
     // Axis number font
     {
         QFont axisFont = plot->axisFont(QwtPlot::xBottom);
-        axisFont.setPixelSize(11);
+        axisFont.setPointSize(8);
         plot->setAxisFont(QwtPlot::xBottom, axisFont);
         plot->setAxisFont(QwtPlot::yLeft, axisFont);
     }
@@ -157,7 +159,7 @@ void RiuPvtPlotWidget::setPlotDefaults(QwtPlot* plot)
     {
         QwtText axisTitle = plot->axisTitle(QwtPlot::xBottom);
         QFont axisTitleFont = axisTitle.font();
-        axisTitleFont.setPixelSize(11);
+        axisTitleFont.setPointSize(8);
         axisTitleFont.setBold(false);
         axisTitle.setFont(axisTitleFont);
         axisTitle.setRenderFlags(Qt::AlignRight);
@@ -169,7 +171,7 @@ void RiuPvtPlotWidget::setPlotDefaults(QwtPlot* plot)
     {
         QwtText plotTitle = plot->title();
         QFont titleFont = plotTitle.font();
-        titleFont.setPixelSize(14);
+        titleFont.setPointSize(12);
         plotTitle.setFont(titleFont);
         plot->setTitle(plotTitle);
     }
@@ -306,6 +308,14 @@ void RiuPvtPlotWidget::plotCurves(RiaEclipseUnitTools::UnitSystem unitSystem, co
     updateTrackerPlotMarkerAndLabelFromPicker();
 
     m_qwtPlot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPvtPlotWidget::applyFontSizes(bool replot)
+{
+    m_qwtPlot->applyFontSizes(replot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -507,7 +517,7 @@ RiuPvtPlotPanel::RiuPvtPlotPanel(QDockWidget* parent)
     m_titleLabel = new QLabel("", this);
     m_titleLabel->setAlignment(Qt::AlignHCenter);
     QFont font = m_titleLabel->font();
-    font.setPixelSize(14);
+    font.setPointSize(10);
     font.setBold(true);
     m_titleLabel->setFont(font);
 
@@ -592,6 +602,17 @@ void RiuPvtPlotPanel::clearPlot()
 RiuPvtPlotUpdater* RiuPvtPlotPanel::plotUpdater()
 {
     return m_plotUpdater.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPvtPlotPanel::applyFontSizes(bool replot)
+{
+    if (m_fvfPlot)
+        m_fvfPlot->applyFontSizes(replot);
+    if (m_viscosityPlot)
+        m_viscosityPlot->applyFontSizes(replot);
 }
 
 //--------------------------------------------------------------------------------------------------

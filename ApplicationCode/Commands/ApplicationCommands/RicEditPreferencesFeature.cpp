@@ -47,12 +47,16 @@ void RicEditPreferencesFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
 
     QStringList tabNames = app->preferences()->tabNames();
+
+    std::unique_ptr<RiaPreferences> oldPreferences = clonePreferences(app->preferences());
+
     RiuPropertyViewTabWidget propertyDialog(nullptr, app->preferences(), "Preferences", tabNames);
+    propertyDialog.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application
         caf::PdmSettings::writeFieldsToApplicationStore(app->preferences());
-        app->applyPreferences();
+        app->applyPreferences(oldPreferences.get());
     }
     else
     {
@@ -67,4 +71,15 @@ void RicEditPreferencesFeature::onActionTriggered(bool isChecked)
 void RicEditPreferencesFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("&Preferences...");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<RiaPreferences> RicEditPreferencesFeature::clonePreferences(const RiaPreferences* preferences)
+{
+    caf::PdmObjectHandle* pdmClone =
+        preferences->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance());
+    
+    return std::unique_ptr<RiaPreferences>(dynamic_cast<RiaPreferences*>(pdmClone));
 }

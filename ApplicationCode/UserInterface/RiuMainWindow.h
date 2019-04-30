@@ -21,13 +21,13 @@
 #pragma once
 
 #include "RiuMainWindowBase.h"
+#include "RiuMdiArea.h"
 
 #include "cafPdmUiDragDropInterface.h"
 #include "cafPdmObjectHandle.h"
 
 #include <QEvent>
 #include <QLabel>
-#include <QMdiArea>
 #include <QPointer>
 
 #include <memory>
@@ -47,7 +47,6 @@ class RiuMessagePanel;
 class RiuProcessMonitor;
 class RiuResultInfoPanel;
 class RiuResultQwtPlot;
-class RiuViewer;
 class RiuRelativePermeabilityPlotPanel;
 class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
@@ -111,11 +110,13 @@ public:
     
     void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
 
-    RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer) override;
+    void            tileSubWindows() override;
+    void            storeSubWindowTiling(bool tiled) override;
+    void            clearWindowTiling() override;
 
-    void            tileWindows();
+    bool            subWindowsAreTiled() const override;
     bool            isAnyMdiSubWindowVisible();
-    QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
+    QMdiSubWindow*  findMdiSubWindow(QWidget* viewer) override;
     RimViewWindow*  findViewWindowFromSubWindow(QMdiSubWindow* lhs);
     QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
@@ -127,6 +128,7 @@ public:
 
     void            showProcessMonitorDockPanel();
     void            setDefaultToolbarVisibility();
+    void            applyFontSizesToDockedPlots();
 
 protected:
     void    closeEvent(QCloseEvent* event) override;
@@ -142,11 +144,6 @@ private:
     void            showDockPanel(const QString& dockPanelName);
 
     void            updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectToUpdate);
-
-private:
-    static RiuMainWindow*    sm_mainWindowInstance;
-    
-    QByteArray                m_initialDockAndToolbarLayout;    // Initial dock window and toolbar layout, used to reset GUI
 
 private:
     // Edit actions
@@ -175,8 +172,7 @@ private:
 
     caf::AnimationToolBar* m_animationToolBar;
 
-    QMdiArea*           m_mdiArea;
-    RiuViewer*          m_mainViewer;
+    RiuMdiArea*         m_mdiArea;
     RiuResultInfoPanel* m_resultInfoPanel;
     RiuProcessMonitor*  m_processMonitor;
     QPointer<RiuMessagePanel>               m_messagePanel;
@@ -273,7 +269,6 @@ private:
 
     QToolBar*                   m_holoLensToolBar;
 
-    std::vector<QPointer<QDockWidget> > additionalProjectViews;
+    std::vector<QPointer<QDockWidget> > m_additionalProjectViews;
 
-    bool                        m_blockSlotSubWindowActivated;
 };

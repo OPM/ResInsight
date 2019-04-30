@@ -25,16 +25,16 @@
 #include "RigStatisticsMath.h"
 #include "RigWeightedMeanCalc.h"
 
-#include <math.h>
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RigEclipseNativeVisibleCellsStatCalc::RigEclipseNativeVisibleCellsStatCalc(RigCaseCellResultsData* cellResultsData, 
-                                                                           size_t scalarResultIndex,
+                                                                           const RigEclipseResultAddress& scalarResultIndex, 
                                                                            const cvf::UByteArray* cellVisibilities)
 :   m_caseData(cellResultsData),
-    m_scalarResultIndex(scalarResultIndex), 
+    m_resultAddress(scalarResultIndex), 
     m_cellVisibilities(cellVisibilities)
 {
 
@@ -97,7 +97,7 @@ void RigEclipseNativeVisibleCellsStatCalc::uniqueValues(size_t timeStepIndex, st
 //--------------------------------------------------------------------------------------------------
 size_t RigEclipseNativeVisibleCellsStatCalc::timeStepCount()
 {
-    return m_caseData->timeStepCount(m_scalarResultIndex);
+    return m_caseData->timeStepCount(m_resultAddress);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,13 +105,15 @@ size_t RigEclipseNativeVisibleCellsStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RigEclipseNativeVisibleCellsStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, double &result)
 {
-    size_t mobPVResultIndex = m_caseData->findOrLoadScalarResult(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
+    RigEclipseResultAddress mobPorvAddress(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
 
-    const std::vector<double>& weights = m_caseData->cellScalarResults(mobPVResultIndex)[0];
-    const std::vector<double>& values  = m_caseData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
+    m_caseData->ensureKnownResultLoaded(mobPorvAddress);
+
+    const std::vector<double>& weights = m_caseData->cellScalarResults(mobPorvAddress, 0);
+    const std::vector<double>& values  = m_caseData->cellScalarResults(m_resultAddress, timeStepIndex);
 
     const RigActiveCellInfo* actCellInfo = m_caseData->activeCellInfo();
 
-    RigWeightedMeanCalc::weightedMeanOverCells(&weights, &values, m_cellVisibilities.p(), true, actCellInfo, m_caseData->isUsingGlobalActiveIndex(m_scalarResultIndex), &result);
+    RigWeightedMeanCalc::weightedMeanOverCells(&weights, &values, m_cellVisibilities.p(), true, actCellInfo, m_caseData->isUsingGlobalActiveIndex(m_resultAddress), &result);
 }
 

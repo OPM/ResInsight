@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RicImportGeneralDataFeature.h"
+
 #include "cafCmdFeature.h"
 
 #include <vector>
@@ -28,13 +30,9 @@ class QStringList;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicImportInputEclipseCaseFeature : public caf::CmdFeature
+class RicImportInputEclipseCaseFeature : public RicImportGeneralDataFeature
 {
     CAF_CMD_HEADER_INIT;
-
-public:
-    static bool openInputEclipseCaseFromFileNames(const QStringList& fileNames);
-
 
 protected:
     // Overrides

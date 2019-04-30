@@ -114,16 +114,6 @@ double RimSimWellFracture::wellAzimuthAtFracturePosition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimSimWellFracture::wellDipAtFracturePosition()
-{
-    computeSimWellBranchesIfRequired();
-    double simWellDip = m_branchCenterLines[m_branchIndex].simWellDipAngle(fracturePosition());
-    return simWellDip;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::loadDataAndUpdate()
 {
     computeSimWellBranchCenterLines();
@@ -152,6 +142,14 @@ std::vector<cvf::Vec3d> RimSimWellFracture::perforationLengthCenterLineCoords() 
     }
 
     return coords;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSimWellFracture::isEnabled() const
+{
+    return isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------

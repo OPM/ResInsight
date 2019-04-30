@@ -68,7 +68,7 @@ public:
     RimCase*                                    ownerCase() const override;
 
     caf::PdmChildField<RimGeoMechCellColors*>           cellResult;
-    RimGeoMechResultDefinition*                         cellResultResultDefinition();
+    RimGeoMechResultDefinition*                         cellResultResultDefinition() const;
 
     const RimPropertyFilterCollection*          propertyFilterCollection() const override;
 
@@ -102,13 +102,17 @@ public:
     void                                                convertCameraPositionFromOldProjectFiles();
 
 protected:
+    void                                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     void                                        onLoadDataAndUpdate() override;
+    void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     void                                        createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
-
-private:
     void                                        createDisplayModel() override;
+    RimPropertyFilterCollection*                nativePropertyFilterCollection();
+private:
+    QString                                     createAutoName() const override;
+
     void                                        updateScaleTransform() override;
 
     void                                        clampCurrentTimestep() override;
@@ -122,7 +126,6 @@ private:
 
     void                                                updateTensorLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex);
 
-    void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                                        initAfterRead() override;
 
 

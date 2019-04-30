@@ -102,29 +102,42 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered(bool isChecked)
     if (!geoMechView) return;
 
     caf::ProgressInfo progInfo(100, "Creating Well Bore Stability Plot");
-    progInfo.setProgressDescription("Creating plot and formation track");
-    progInfo.setNextProgressIncrement(2);
+
     RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
+    RimWellLogPlot* plot        = RicNewWellLogPlotFeatureImpl::createWellLogPlot(false, "Well Bore Stability");
 
-    QString         plotName("Well Bore Stability");
-    RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot(false, plotName);
-    createFormationTrack(plot, wellPath, geoMechCase);
-    progInfo.incrementProgressAndUpdateNextStep(3, "Creating well design track");
-    createCasingShoeTrack(plot, wellPath, geoMechCase);
-    progInfo.incrementProgressAndUpdateNextStep(75, "Creating stability curves track");
-    createStabilityCurvesTrack(plot, wellPath, geoMechView);
-    progInfo.incrementProgressAndUpdateNextStep(15, "Creating angles track");
-    createAnglesTrack(plot, wellPath, geoMechView);
-    progInfo.incrementProgressAndUpdateNextStep(5, "Updating all tracks");
-    plot->enableAllAutoNameTags(true);
-    plot->setPlotTitleVisible(true);
-    plot->setTrackLegendsVisible(true);
-    plot->setTrackLegendsHorizontal(true);
-    plot->setDepthType(RimWellLogPlot::TRUE_VERTICAL_DEPTH);
-    plot->setDepthAutoZoom(true);
+    {
+        auto task = progInfo.task("Creating formation track", 2);
+        createFormationTrack(plot, wellPath, geoMechCase);
+    }
+    
+    {
+        auto task = progInfo.task("Creating well design track", 3);
+        createCasingShoeTrack(plot, wellPath, geoMechCase);
+    }
 
-    RicNewWellLogPlotFeatureImpl::updateAfterCreation(plot);
-    progInfo.incrementProgress();
+    {
+        auto task = progInfo.task("Creating stability curves track", 75);
+        createStabilityCurvesTrack(plot, wellPath, geoMechView);
+    }
+
+    {
+        auto task = progInfo.task("Creating angles track", 15);
+        createAnglesTrack(plot, wellPath, geoMechView);
+    }
+
+    {
+        auto task = progInfo.task("Updating all tracks", 5);
+
+        plot->enableAllAutoNameTags(true);
+        plot->setPlotTitleVisible(true);
+        plot->setTrackLegendsVisible(true);
+        plot->setTrackLegendsHorizontal(true);
+        plot->setDepthType(RimWellLogPlot::TRUE_VERTICAL_DEPTH);
+        plot->setDepthAutoZoom(true);
+
+        RicNewWellLogPlotFeatureImpl::updateAfterCreation(plot);
+    }
 
     RiuPlotMainWindowTools::selectAsCurrentItem(plot);
 

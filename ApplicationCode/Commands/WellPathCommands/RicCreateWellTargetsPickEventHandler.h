@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RicPickEventHandler.h"
+#include "Ric3dViewPickEventHandler.h"
 
 #include "cafPdmPointer.h"
 
@@ -28,14 +28,16 @@ class RigWellPath;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicCreateWellTargetsPickEventHandler : public RicPickEventHandler
+class RicCreateWellTargetsPickEventHandler : public Ric3dViewPickEventHandler
 {
 public:
     RicCreateWellTargetsPickEventHandler(RimWellPathGeometryDef* wellGeometryDef);
     ~RicCreateWellTargetsPickEventHandler();
 
+    void registerAsPickEventHandler() override;
+
 protected:
-    bool handlePickEvent(const Ric3DPickEvent& eventObject) override;
+    bool handle3dPickEvent(const Ric3dPickEvent& eventObject) override;
     void notifyUnregistered() override;
 
 private:
@@ -44,6 +46,8 @@ private:
                                             double*            azimuth,
                                             double*            inclination) const;
 
+    static bool isGridSourceObject(const cvf::Object* object);
+    static cvf::Vec3d findHexElementIntersection(Rim3dView* view, const RiuPickItemInfo& pickItem, const cvf::Vec3d& domainRayOrigin, const cvf::Vec3d& domainRayEnd);
 private:
     caf::PdmPointer<RimWellPathGeometryDef> m_geometryToAddTargetsTo;
 };

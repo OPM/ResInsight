@@ -36,7 +36,7 @@ public:
         QwtText lbl;
 
         const int index = qRound( value );
-        if ( index >= 0 && index <= d_labels.size() )
+        if ( index >= 0 && index < d_labels.size() )
         {
             lbl = d_labels[ index ];
         }
@@ -56,6 +56,10 @@ public:
     {
         setLegendMode( QwtPlotBarChart::LegendBarTitles );
         setLegendIconSize( QSize( 10, 14 ) );
+        setLayoutPolicy( AutoAdjustSamples );
+        setLayoutHint( 4.0 ); // minimum width for a single bar
+
+        setSpacing( 10 ); // spacing between bars
     }
 
     void addDistro( const QString &distro, const QColor &color )

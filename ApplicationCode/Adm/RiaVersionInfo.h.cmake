@@ -26,3 +26,5 @@
 // Externally shipped versions should have even build numbers
 #define PRODUCTVER     "@PRODUCTVER@"
 #define STRPRODUCTVER  "@STRPRODUCTVER@"
+
+#define RESINSIGHT_OCTAVE_VERSION "@OCTAVE_VERSION_STRING@"

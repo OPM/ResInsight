@@ -20,7 +20,7 @@
 #include "RiuCursors.h"
 
 #include <QtCore/QString>
-#include <QtGui/QBitmap>
+#include <QBitmap>
 
 
 

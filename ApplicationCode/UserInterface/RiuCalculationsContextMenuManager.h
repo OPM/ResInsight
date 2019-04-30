@@ -41,7 +41,11 @@ class RiuCalculationsContextMenuManager : public QObject
      static const std::map<QString, std::set<QString>> MENU_MAP;
 
 public:
-    RiuCalculationsContextMenuManager() { }
+    RiuCalculationsContextMenuManager()
+        : m_curveCalc(nullptr)
+        , m_textPosition(0)
+    {
+    }
 
     void attachWidget(QWidget* widget, RicSummaryCurveCalculator* curveCalc);
 

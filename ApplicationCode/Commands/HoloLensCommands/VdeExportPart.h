@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -44,6 +44,13 @@ public:
         COUNTERCLOCKWISE
     };
 
+    enum CullFace
+    {
+        CF_NONE,
+        CF_FRONT,
+        CF_BACK
+    };
+
     enum Role
     {
         GEOMETRY,
@@ -60,6 +67,7 @@ public:
     void setColor(const cvf::Color3f& color);
     void setOpacity(float opacity);
     void setWinding(Winding winding);
+    void setCullFace(CullFace cullFace);
     void setRole(Role role);
 
     const cvf::Part*         part() const;
@@ -71,6 +79,7 @@ public:
     cvf::Color3f     color() const;
     float            opacity() const;
     Winding          winding() const;
+    CullFace         cullFace() const;
     Role             role() const;
 
 private:
@@ -83,5 +92,6 @@ private:
     cvf::Color3f     m_color;
     float            m_opacity;
     Winding          m_winding;
+    CullFace         m_cullFace;
     Role             m_role;
 };

@@ -45,6 +45,15 @@
 #include "QMVFactory.h"
 
 #include <QtCore/QTimer>
+#if QT_VERSION >= 0x050000
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QAction>
+#include <QMenu>
+#include <QMenuBar>
+#include <QStatusBar>
+#include <QLabel>
+#else
 #include <QtGui/QFrame>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QAction>
@@ -52,6 +61,7 @@
 #include <QtGui/QMenuBar>
 #include <QtGui/QStatusBar>
 #include <QtGui/QLabel>
+#endif
 
 using cvf::ref;
 

@@ -42,6 +42,17 @@
 #include "cvfuSnippetPropertyPublisher.h"
 #include "cvfqtUtils.h"
 
+#if QT_VERSION >= 0x050000
+#include <QTextBrowser>
+#include <QListWidget>
+#include <QVBoxLayout>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QCheckBox>
+#include <QDataWidgetMapper>
+#include <QLabel>
+#include <QDockWidget>
+#else
 #include <QtGui/QTextBrowser>
 #include <QtGui/QListWidget>
 #include <QtGui/QVBoxLayout>
@@ -51,7 +62,7 @@
 #include <QtGui/QDataWidgetMapper>
 #include <QtGui/QLabel>
 #include <QtGui/QDockWidget>
-
+#endif
 
 
 //==================================================================================================

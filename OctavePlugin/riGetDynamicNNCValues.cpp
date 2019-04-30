@@ -26,11 +26,11 @@ void getDynamicNNCValues(Matrix& propertyFrames, const QString &serverName, quin
     QString command;
     command += "GetDynamicNNCValues " + QString::number(caseId) + " " + propertyName;
 
-    for (int i = 0; i < requestedTimeSteps.length(); ++i)
+    for (int i = 0; i < requestedTimeSteps.numel(); ++i)
     {
         if (i == 0) command += " ";
         command += QString::number(static_cast<int>(requestedTimeSteps.elem(i)) - 1); // To make the index 0-based
-        if (i != requestedTimeSteps.length() -1) command += " ";
+        if (i != requestedTimeSteps.numel() -1) command += " ";
     }
 
     QByteArray cmdBytes = command.toLatin1();
@@ -133,7 +133,7 @@ DEFUN_DLD (riGetDynamicNNCValues, args, nargout,
     argIndices.push_back(2);
 
     // Check if we have a CaseId:
-    if (!args(argIndices[0]).is_numeric_type())
+    if (!riOctavePlugin::isOctaveValueNumeric(args(argIndices[0])))
     {
         argIndices[0] = -1;
         for (size_t aIdx = 1; aIdx < argIndices.size(); ++aIdx)

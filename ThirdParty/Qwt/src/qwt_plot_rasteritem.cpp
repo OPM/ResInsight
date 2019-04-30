@@ -647,7 +647,7 @@ void QwtPlotRasterItem::draw( QPainter *painter,
     QRectF pixelRect = pixelHint(area);
     if ( !pixelRect.isEmpty() )
     {
-        // pixel in target device resolution 
+        // one pixel of the target device in plot coordinates
         const double dx = qAbs( xxMap.invTransform( 1 ) - xxMap.invTransform( 0 ) );
         const double dy = qAbs( yyMap.invTransform( 1 ) - yyMap.invTransform( 0 ) );
 
@@ -659,6 +659,19 @@ void QwtPlotRasterItem::draw( QPainter *painter,
               target device resolution.
              */
             pixelRect = QRectF();
+        }
+        else
+        {
+            /*
+              If only one dimension is of the data pixel is higher 
+              we expand the pixel rect to the resolution of the target device.
+             */
+
+            if ( dx > pixelRect.width() )
+                pixelRect.setWidth( dx );
+
+            if ( dy > pixelRect.height() )
+                pixelRect.setHeight( dy );
         }
     }
 
@@ -720,8 +733,10 @@ void QwtPlotRasterItem::draw( QPainter *painter,
         QSize imageSize;
         imageSize.setWidth( qRound( imageArea.width() / pixelRect.width() ) );
         imageSize.setHeight( qRound( imageArea.height() / pixelRect.height() ) );
+
         image = compose(xxMap, yyMap, 
             imageArea, paintRect, imageSize, doCache );
+
         if ( image.isNull() )
             return;
 

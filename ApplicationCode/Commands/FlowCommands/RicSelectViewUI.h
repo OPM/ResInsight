@@ -37,6 +37,7 @@ public:
 
     void            setView(RimEclipseView* currentView);
     void            setCase(RimEclipseResultCase* currentCase);
+    void            setNewViewName(const QString& name);
 
     RimEclipseView* selectedView() const;
     bool            createNewView() const;

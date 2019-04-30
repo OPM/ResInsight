@@ -140,6 +140,7 @@ void CmdDeleteItemFeature::onActionTriggered(bool isChecked)
 void CmdDeleteItemFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete object");
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
 }
 
 } // end namespace caf

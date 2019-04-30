@@ -266,7 +266,7 @@ TEST(BaseTest, PdmReferenceHelper)
     {
         QString refString = caf::PdmReferenceHelper::referenceFromRootToObject(ihd1, s3);
         QString expectedString = ihd1->m_childArrayField.keyword() + " 3";
-        EXPECT_STREQ(refString.toAscii(), expectedString.toAscii());
+        EXPECT_STREQ(refString.toLatin1(), expectedString.toLatin1());
 
         caf::PdmObjectHandle* fromRef = caf::PdmReferenceHelper::objectFromReference(ihd1, refString);
         EXPECT_TRUE(fromRef == s3);

@@ -190,7 +190,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
             mainPlotWindow->selectAsCurrentItem(summaryPlotToSelect);
             mainPlotWindow->setExpanded(summaryPlotToSelect);
 
-            mainPlotWindow->tileWindows();
+            mainPlotWindow->tileSubWindows();
         }
     }
 }
@@ -292,7 +292,7 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
     plot->addCurveAndUpdate(newCurve);
 
     newCurve->setSummaryCaseY(gridSummaryCase);
-    newCurve->setSummaryAddressY(addr);
+    newCurve->setSummaryAddressYAndApplyInterpolation(addr);
     newCurve->setColor(color);
     newCurve->setLeftOrRightAxisY(plotAxis);
     newCurve->loadDataAndUpdate(true);

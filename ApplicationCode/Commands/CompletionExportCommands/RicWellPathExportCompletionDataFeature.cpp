@@ -21,8 +21,8 @@
 
 #include "RiaApplication.h"
 
-#include "RicExportFeatureImpl.h"
 #include "ExportCommands/RicExportLgrFeature.h"
+#include "RicExportFeatureImpl.h"
 
 #include "RimDialogData.h"
 #include "RimFishbonesMultipleSubs.h"
@@ -33,7 +33,9 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
+#include "RimWellPathValve.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -122,6 +124,17 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
     if (!wellPathPerforations.empty())
     {
         exportSettings->showPerforationsInUi(true);
+
+        std::vector<const RimWellPathValve*> perforationValves;
+        for (const auto& perf : wellPathPerforations)
+        {
+            perf->descendantsIncludingThisOfType(perforationValves);
+        }
+
+        if (!perforationValves.empty())
+        {
+            exportSettings->enableIncludeMsw();
+        }
     }
     else
     {
@@ -129,7 +142,7 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
     }
 
     caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), exportSettings, dialogTitle, "");
-    RicExportFeatureImpl::configureForExport(&propertyDialog);
+    RicExportFeatureImpl::configureForExport(propertyDialog.dialogButtonBox());
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {
@@ -173,9 +186,16 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Export Completion Data for Selected Well Paths");
+    std::vector<RimWellPath*> selected = selectedWellPaths();
+    if (selected.size() == 1u)
+    {
+        actionToSetup->setText("Export Completion Data for Current Well Path");
+    }
+    else
+    {
+        actionToSetup->setText("Export Completion Data for Selected Well Paths");
+    }
     actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,6 +208,18 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
 
     std::set<RimWellPath*> uniqueWellPaths(wellPaths.begin(), wellPaths.end());
     wellPaths.assign(uniqueWellPaths.begin(), uniqueWellPaths.end());
+
+    if (wellPaths.empty())
+    {
+        RimWellPathCompletions* completions =
+            caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathCompletions>();
+        if (completions)
+        {
+            RimWellPath* wellPath = nullptr;
+            completions->firstAncestorOrThisOfTypeAsserted(wellPath);
+            wellPaths.push_back(wellPath);
+        }
+    }
 
     return wellPaths;
 }

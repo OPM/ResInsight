@@ -99,6 +99,7 @@ protected:
     QWidget*            createEditorWidget(QWidget* parent) override;
     QWidget*            createLabelWidget(QWidget* parent) override;
     QMargins            calculateLabelContentMargins() const override;
+    bool                isMultiRowEditor() const override;
 
 private slots:
     void                customMenuRequested(const QPoint& pos);
@@ -128,7 +129,7 @@ private:
 
 private:
     QPointer<QTreeView>         m_treeView;
-    QPointer<QLabel>            m_label;
+    QPointer<QShortenedLabel>   m_label;
     QPointer<QCheckBox>         m_toggleAllCheckBox;
     QPointer<QLineEdit>         m_textFilterLineEdit;
 

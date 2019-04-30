@@ -50,6 +50,18 @@
 
 namespace caf {
 
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    ProgressTask::ProgressTask(ProgressInfo& parentTask)
+        : m_parentTask(parentTask)
+    {        
+    }
+    ProgressTask::~ProgressTask()
+    {
+        m_parentTask.incrementProgress();
+    }
+
     //==================================================================================================
     ///
     /// \class caf::ProgressInfo
@@ -99,9 +111,9 @@ namespace caf {
     /// If you do not need a title for a particular level, simply pass "" and it will be ignored.
     /// \sa setProgressDescription
     //--------------------------------------------------------------------------------------------------
-    ProgressInfo::ProgressInfo(size_t maxProgressValue, const QString& title)
+    ProgressInfo::ProgressInfo(size_t maxProgressValue, const QString& title, bool delayShowingProgress)
     {
-        ProgressInfoStatic::start(maxProgressValue, title);
+        ProgressInfoStatic::start(maxProgressValue, title, delayShowingProgress);
 
         if (qApp)
         {
@@ -153,16 +165,6 @@ namespace caf {
     }
 
     //--------------------------------------------------------------------------------------------------
-    /// Convenience method for incrementing progress and setting step size and description for next step
-    //--------------------------------------------------------------------------------------------------
-    void ProgressInfo::incrementProgressAndUpdateNextStep(size_t nextStepSize, const QString& nextDescription)
-    {
-        incrementProgress();
-        setNextProgressIncrement(nextStepSize);
-        setProgressDescription(nextDescription);
-    }
-
-    //--------------------------------------------------------------------------------------------------
     /// To make a certain operation span more of the progress bar than one tick, 
     /// set the number of progress ticks that you want it to use before calling it.
     /// Eg.
@@ -176,15 +178,18 @@ namespace caf {
     //--------------------------------------------------------------------------------------------------
     void ProgressInfo::setNextProgressIncrement(size_t nextStepSize)
     {
-        ProgressInfoStatic::setNextProgressIncrement(nextStepSize);
+        ProgressInfoStatic::setNextProgressIncrement(nextStepSize);        
     }
 
-
-
-
-
-
-
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    caf::ProgressTask ProgressInfo::task(const QString& description, int stepSize)
+    {
+        setProgressDescription(description);
+        setNextProgressIncrement(stepSize);
+        return caf::ProgressTask(*this);
+    }
 
     //==================================================================================================
     ///
@@ -346,18 +351,6 @@ namespace caf {
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    static bool isUpdatePossible()
-    {
-        if (!qApp) return false;
-
-        if (!progressDialog()) return false;
-
-        return progressDialog()->thread() == QThread::currentThread();
-    }
-
-    //--------------------------------------------------------------------------------------------------
-    /// 
-    //--------------------------------------------------------------------------------------------------
     bool ProgressState::isActive()
     {
         return !maxProgressStack().empty();
@@ -369,6 +362,10 @@ namespace caf {
     #ifdef _MSC_VER
     #pragma warning (push)
     #pragma warning (disable: 4668)
+    // Define this one to tell windows.h to not define min() and max() as macros
+    #if defined WIN32 && !defined NOMINMAX
+    #define NOMINMAX
+    #endif
     #include <windows.h>
     #pragma warning (pop)
     #endif
@@ -431,6 +428,23 @@ namespace caf {
         }
     }
 
+    //==================================================================================================
+    ///
+    /// \class caf::ProgressInfoBlocker
+    ///
+    /// Used to disable progress info on a temporary basis
+    ///
+    //==================================================================================================
+
+    ProgressInfoBlocker::ProgressInfoBlocker()
+    {
+        ProgressInfoStatic::s_disabled = true;
+    }
+
+    ProgressInfoBlocker::~ProgressInfoBlocker()
+    {
+        ProgressInfoStatic::s_disabled = false;
+    }
 
     //==================================================================================================
     ///
@@ -440,11 +454,12 @@ namespace caf {
     /// 
     //==================================================================================================
 
+    bool ProgressInfoStatic::s_disabled = false;
 
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    void ProgressInfoStatic::start(size_t maxProgressValue, const QString& title)
+    void ProgressInfoStatic::start(size_t maxProgressValue, const QString& title, bool delayShowingProgress)
     {
         if (!isUpdatePossible()) return;
 
@@ -458,7 +473,14 @@ namespace caf {
             progressDialog()->setMinimum(0);
             progressDialog()->setWindowTitle(title);
             progressDialog()->setCancelButton(nullptr);
-            progressDialog()->show();
+            if (delayShowingProgress)
+            {
+                progressDialog()->setMinimumDuration(1000);
+            }
+            else
+            {
+                progressDialog()->show();
+            }
         }
 
         maxProgressStack_v.push_back(maxProgressValue);
@@ -474,7 +496,6 @@ namespace caf {
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         //if (progressDialog()) progressDialog()->repaint();
     }
-
 
     //--------------------------------------------------------------------------------------------------
     /// 
@@ -621,5 +642,18 @@ namespace caf {
         }
     }
 
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    bool ProgressInfoStatic::isUpdatePossible()
+    {
+        if (s_disabled) return false;
+
+        if (!qApp) return false;
+
+        if (!progressDialog()) return false;
+
+        return progressDialog()->thread() == QThread::currentThread();
+    }
 
 } // namespace caf 

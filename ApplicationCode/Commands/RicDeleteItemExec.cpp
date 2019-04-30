@@ -24,6 +24,8 @@
 #include "RiaApplication.h"
 
 #include "Rim3dView.h"
+#include "RimAnnotationCollection.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -49,7 +51,6 @@
 #include "RiuPlotMainWindow.h"
 
 #include "RimFractureTemplateCollection.h"
-
 
 #include "cafNotificationCenter.h"
 #include "cafPdmChildArrayField.h"
@@ -151,6 +152,7 @@ void RicDeleteItemExec::redo()
         {
             view->scheduleCreateDisplayModelAndRedraw();
         }
+
 
         RimFractureTemplateCollection* fracTemplateColl;
         parentObj->firstAncestorOrThisOfType(fracTemplateColl);
@@ -299,6 +301,24 @@ void RicDeleteItemExec::redo()
             RimSummaryPlot* plot = nullptr;
             ensembleCurveFilterColl->firstAncestorOrThisOfType(plot);
             if (plot) plot->loadDataAndUpdate();
+        }
+
+        {
+            RimAnnotationCollection* annotationColl = nullptr;
+            parentObj->firstAncestorOrThisOfType(annotationColl);
+            if (annotationColl)
+            {
+                annotationColl->onAnnotationDeleted();
+            }
+        }
+
+        {
+            RimAnnotationInViewCollection* annotationColl = nullptr;
+            parentObj->firstAncestorOrThisOfType(annotationColl);
+            if (annotationColl)
+            {
+                annotationColl->onAnnotationDeleted();
+            }
         }
     }
 }

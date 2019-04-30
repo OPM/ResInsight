@@ -93,8 +93,8 @@ public:
     double              skinFactor() const { return m_pipeProperties()->skinFactor(); }
     double              openHoleRoughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double              icdOrificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
-    double              icdFlowCoefficient() const { return m_icdFlowCoefficient(); }
-    size_t              icdCount() const { return m_icdCount(); }
+    double              icdFlowCoefficient() const;
+    size_t              icdCount() const;
     std::vector<double> lateralLengths() const;
 
     void                geometryUpdated();

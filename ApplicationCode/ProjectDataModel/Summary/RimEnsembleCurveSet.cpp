@@ -49,8 +49,8 @@
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuPlotMainWindow.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
+#include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiListEditor.h"
@@ -142,6 +142,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitField(&m_color, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
     CAF_PDM_InitField(&m_ensembleParameter, "EnsembleParameter", QString(""), "Ensemble Parameter", "", "", "");
+    m_ensembleParameter.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
 
@@ -445,6 +446,29 @@ EnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() cons
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleCurveSet::ensembleParameterUiName(const RimEnsembleCurveSet::NameParameterPair& paramPair)
+{
+    QString stem = paramPair.first;
+    QString variationString;
+    if (paramPair.second.isNumeric())
+    {
+        switch (paramPair.second.variationBin)
+        {
+        case EnsembleParameter::LOW_VARIATION:
+            variationString = QString(" (Low variation)");
+        case EnsembleParameter::MEDIUM_VARIATION:
+            break;
+        case EnsembleParameter::HIGH_VARIATION:
+            variationString = QString(" (High variation)");
+            break;
+        }
+    }
+    return QString("%1%2").arg(stem).arg(variationString);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateAllCurves()
@@ -518,8 +542,8 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     {
         if (m_ensembleParameter().isEmpty())
         {
-            auto params = ensembleParameterNames();
-            m_ensembleParameter = !params.empty() ? params.front() : "";
+            auto params = ensembleParameters();
+            m_ensembleParameter = !params.empty() ? params.front().first : "";
         }
         updateCurveColors();
         
@@ -741,16 +765,16 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions(const c
         auto byEnsParamOption = caf::AppEnum<RimEnsembleCurveSet::ColorMode>(RimEnsembleCurveSet::BY_ENSEMBLE_PARAM);
 
         options.push_back(caf::PdmOptionItemInfo(singleColorOption.uiText(), RimEnsembleCurveSet::SINGLE_COLOR));
-        if (!ensembleParameterNames().empty())
+        if (!ensembleParameters().empty())
         {
             options.push_back(caf::PdmOptionItemInfo(byEnsParamOption.uiText(), RimEnsembleCurveSet::BY_ENSEMBLE_PARAM));
         }
     }
     else if (fieldNeedingOptions == &m_ensembleParameter)
     {
-        for (const auto& param : ensembleParameterNames())
+        for (const auto& paramPair : ensembleParameters())
         {
-            options.push_back(caf::PdmOptionItemInfo(param, param));
+            options.push_back(caf::PdmOptionItemInfo(ensembleParameterUiName(paramPair), paramPair.first));
         }
     }
     else if (fieldNeedingOptions == &m_yValuesUiFilterResultSelection)
@@ -947,13 +971,13 @@ void RimEnsembleCurveSet::updateEnsembleCurves(const std::vector<RimSummaryCase*
     RimSummaryAddress* addr = m_yValuesCurveVariable();
     if (plot && addr->address().category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
     {
-        if(m_showCurves)
+        if(isCurvesVisible())
         {
             for (auto& sumCase : sumCases)
             {
                 RimSummaryCurve* curve = new RimSummaryCurve();
                 curve->setSummaryCaseY(sumCase);
-                curve->setSummaryAddressY(addr->address());
+                curve->setSummaryAddressYAndApplyInterpolation(addr->address());
                 curve->setLeftOrRightAxisY(m_plotAxis());
 
                 addCurve(curve);
@@ -993,7 +1017,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves(const std::vector<RimSummaryCas
     RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
     RimSummaryAddress* addr = m_yValuesCurveVariable();
 
-    if (m_disableStatisticCurves || !group || addr->address().category() == RifEclipseSummaryAddress::SUMMARY_INVALID) return;
+    if (!isCurvesVisible() || m_disableStatisticCurves || !group || addr->address().category() == RifEclipseSummaryAddress::SUMMARY_INVALID) return;
 
     // Calculate
     {
@@ -1045,7 +1069,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves(const std::vector<RimSummaryCas
         }
         curve->setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
         curve->setSummaryCaseY(m_ensembleStatCase.get());
-        curve->setSummaryAddressY(address);
+        curve->setSummaryAddressYAndApplyInterpolation(address);
         curve->setLeftOrRightAxisY(m_plotAxis());
 
         curve->updateCurveVisibility(false);
@@ -1121,7 +1145,7 @@ void RimEnsembleCurveSet::updateAllTextInPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimEnsembleCurveSet::ensembleParameterNames() const
+std::vector<RimEnsembleCurveSet::NameParameterPair> RimEnsembleCurveSet::ensembleParameters() const
 {
     RimSummaryCaseCollection* group = m_yValuesSummaryGroup;
 
@@ -1137,7 +1161,15 @@ std::vector<QString> RimEnsembleCurveSet::ensembleParameterNames() const
             }
         }
     }
-    return std::vector<QString>(paramSet.begin(), paramSet.end());
+
+    std::vector<NameParameterPair> parameterVector;
+    parameterVector.reserve(paramSet.size());
+    for (const QString& parameterName : paramSet)
+    {
+        parameterVector.push_back(std::make_pair(parameterName, group->ensembleParameter(parameterName)));
+    }
+    EnsembleParameter::sortByBinnedVariation(parameterVector);
+    return parameterVector;
 }
 
 //--------------------------------------------------------------------------------------------------

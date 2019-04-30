@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2016-2018 Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -26,13 +27,13 @@
 
 #include "RimCase.h"
 #include "RimEclipseView.h"
-#include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimStimPlanColors.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
@@ -89,8 +90,11 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
     auto unitSet = wellPath->unitSystem();
     fracture->setFractureUnit(unitSet);
 
-    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->firstFractureOfUnit(unitSet);
-    fracture->setFractureTemplate(fracDef);
+    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection()->firstFractureOfUnit(unitSet);
+    if (fracDef)
+    {
+        fracture->setFractureTemplate(fracDef);
+    }
 
     wellPath->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem(fracture);
@@ -108,9 +112,6 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj->allFractureTemplates().empty()) return;
-
     RimWellPathFractureCollection* fractureColl = RicNewWellPathFractureFeature::selectedWellPathFractureCollection();
     if (!fractureColl) return;
 
@@ -127,7 +128,7 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
 void RicNewWellPathFractureFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
-    actionToSetup->setText("New Fracture");
+    actionToSetup->setText("Create Fracture");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,9 +136,6 @@ void RicNewWellPathFractureFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellPathFractureFeature::isCommandEnabled()
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj->allFractureTemplates().empty()) return false;
-
     if (selectedWellPathFractureCollection())
     {
         return true;
@@ -151,9 +149,13 @@ bool RicNewWellPathFractureFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 RimWellPathFractureCollection* RicNewWellPathFractureFeature::selectedWellPathFractureCollection()
 {
+    std::vector<caf::PdmUiItem*> allSelectedItems;
+    caf::SelectionManager::instance()->selectedItems(allSelectedItems);
+    if (allSelectedItems.size() != 1u) return nullptr;
+    
     RimWellPathFractureCollection* objToFind = nullptr;
 
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+    caf::PdmUiItem* pdmUiItem = allSelectedItems.front();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (objHandle)
@@ -168,6 +170,11 @@ RimWellPathFractureCollection* RicNewWellPathFractureFeature::selectedWellPathFr
         if (!wellPaths.empty())
         {
             return wellPaths[0]->fractureCollection();
+        }
+        RimWellPathCompletions* completions = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
+        if (completions)
+        {
+            return completions->fractureCollection();
         }
     }
 

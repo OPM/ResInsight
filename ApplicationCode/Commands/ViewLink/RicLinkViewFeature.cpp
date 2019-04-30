@@ -24,7 +24,7 @@
 #include "RicLinkVisibleViewsFeature.h"
 
 #include "Rim3dView.h"
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewLinkerCollection.h"
@@ -43,7 +43,7 @@ bool RicLinkViewFeature::isCommandEnabled()
 {
     std::vector<caf::PdmUiItem*> allSelectedItems;
     std::vector<RimGridView*> selectedGridViews;
-    std::vector<RimContourMapView*> selectedContourMaps;
+    std::vector<RimEclipseContourMapView*> selectedContourMaps;
 
     caf::SelectionManager::instance()->selectedItems(allSelectedItems);
     caf::SelectionManager::instance()->objectsByType(&selectedGridViews);

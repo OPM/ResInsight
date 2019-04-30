@@ -46,6 +46,7 @@ void RicCloseSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Close Summary Case");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
 }
 
 //--------------------------------------------------------------------------------------------------

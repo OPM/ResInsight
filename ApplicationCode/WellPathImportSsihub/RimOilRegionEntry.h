@@ -31,12 +31,12 @@ class RimOilRegionEntry : public caf::PdmObject
 
 public:
     RimOilRegionEntry();
-    ~RimOilRegionEntry();
+    ~RimOilRegionEntry() override;
 
-    virtual caf::PdmFieldHandle*        userDescriptionField();
-    virtual caf::PdmFieldHandle*        objectToggleField();
+    caf::PdmFieldHandle*        userDescriptionField() override;
+    caf::PdmFieldHandle*        objectToggleField() override;
 
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     void                                updateState();
 

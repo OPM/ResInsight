@@ -6,6 +6,10 @@
 #include "riSettings.h"
 #include "RiaSocketDataTransfer.cpp"  // NB! Include cpp-file to avoid linking of additional file in oct-compile configuration
 
+#ifdef WIN32
+#include <Windows.h>
+#endif //WIN32
+
 
 void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, quint16 port,
                         const qint64& caseId, QString propertyName, const int32NDArray& requestedTimeSteps, QString porosityModel)
@@ -27,11 +31,11 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
     QString command;
     command += "SetActiveCellProperty " + QString::number(caseId) + " " + propertyName + " " + porosityModel;
 
-    for (int i = 0; i < requestedTimeSteps.length(); ++i)
+    for (int i = 0; i < requestedTimeSteps.numel(); ++i)
     {
         if (i == 0) command += " ";
         command += QString::number(static_cast<int>(requestedTimeSteps.elem(i)) - 1); // To make the index 0-based
-        if (i != requestedTimeSteps.length() -1) command += " ";
+        if (i != requestedTimeSteps.numel() -1) command += " ";
     }
 
     QByteArray cmdBytes = command.toLatin1();
@@ -92,7 +96,9 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
 #ifdef WIN32
     // TODO: Due to synchronization issues seen on Windows 10, it is required to do a sleep here to be able to catch disconnect
     // signals from the socket. No sleep causes the server to hang.
+
     Sleep(100);
+
 #endif //WIN32
 
     return;
@@ -154,7 +160,7 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
     argIndices.push_back(4);
 
     // Check if we have a CaseId:
-    if (!args(argIndices[1]).is_numeric_type())
+    if (!riOctavePlugin::isOctaveValueNumeric(args(argIndices[1])))
     {
         argIndices[1] = -1;
         for (size_t aIdx = 2; aIdx < argIndices.size(); ++aIdx)
@@ -199,11 +205,11 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
     if (argIndices[3] >= 0) requestedTimeSteps  = args(argIndices[3]).int32_array_value();
     if (argIndices[4] >= 0) porosityModel       = args(argIndices[4]).string_value();
 
-    if (requestedTimeSteps.length())
+    if (requestedTimeSteps.numel())
     {
 
         int timeStepCount = mxDims.elem(1);
-        if (requestedTimeSteps.length() != timeStepCount)
+        if (requestedTimeSteps.numel() != timeStepCount)
         {
             error("riSetActiveCellProperty: The number of timesteps in the input matrix must match the number of timesteps in the TimeStepIndices array.");
             print_usage();

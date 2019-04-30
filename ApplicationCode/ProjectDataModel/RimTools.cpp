@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellLogFile.h"
@@ -305,57 +306,28 @@ void RimTools::caseOptionItems(QList<caf::PdmOptionItemInfo>* options)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString RimTools::createTimeFormatStringFromDates(const std::vector<QDateTime>& dates)
+void RimTools::eclipseCaseOptionItems(QList<caf::PdmOptionItemInfo>* options)
 {
-    bool hasHoursAndMinutesInTimesteps = false;
-    bool hasSecondsInTimesteps = false;
-    bool hasMillisecondsInTimesteps = false;
+    CVF_ASSERT(options);
+    if (!options) return;
 
-    for (size_t i = 0; i < dates.size(); i++)
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj)
     {
-        if (dates[i].time().msec() != 0.0)
-        {
-            hasMillisecondsInTimesteps = true;
-            hasSecondsInTimesteps = true;
-            hasHoursAndMinutesInTimesteps = true;
-            break;
-        }
-        else if (dates[i].time().second() != 0.0)
-        {
-            hasHoursAndMinutesInTimesteps = true;
-            hasSecondsInTimesteps = true;
-        }
-        else if (dates[i].time().hour() != 0.0 || dates[i].time().minute() != 0.0)
-        {
-            hasHoursAndMinutesInTimesteps = true;
-        }
-    }
+        std::vector<RimCase*> cases;
+        proj->allCases(cases);
 
-    QString formatString = dateFormatString();
-    if (hasHoursAndMinutesInTimesteps)
-    {
-        formatString += " - hh:mm";
-        if (hasSecondsInTimesteps)
+        for (RimCase* c : cases)
         {
-            formatString += ":ss";
-            if (hasMillisecondsInTimesteps)
+            RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(c);
+            if (eclipseCase)
             {
-                formatString += ".zzz";
+                options->push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
             }
         }
     }
-
-    return formatString;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimTools::dateFormatString()
-{
-    return "dd.MMM yyyy";
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,13 +20,13 @@
 
 #include "cafCmdFeature.h"
 
+#include "RigFault.h"
+
 #include <QString>
 #include <vector>
-#include "RigFault.h"
 
 class RigMainGrid;
 
-typedef std::tuple<size_t, size_t, size_t, cvf::StructGridInterface::FaceType> FaultCellAndFace;
 
 //==================================================================================================
 /// 
@@ -40,11 +40,5 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    static void saveFault(QString completeFilename, const RigMainGrid* mainGrid, const std::vector<RigFault::FaultFace>& faultFaces, QString faultName);
-    static bool faultOrdering(FaultCellAndFace first, FaultCellAndFace second);
-    static QString faceText(cvf::StructGridInterface::FaceType faceType);
-    static void writeLine(QTextStream &stream, QString faultName, size_t i, size_t j, size_t startK, size_t endK, cvf::StructGridInterface::FaceType faceType);
 };
 

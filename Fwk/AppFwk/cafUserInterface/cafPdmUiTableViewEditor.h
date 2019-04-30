@@ -39,7 +39,6 @@
 
 #include "cafPdmDocument.h"
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiObjectEditorHandle.h"
 #include "cafSelectionChangedReceiver.h"
 
 #include <QAbstractItemModel>
@@ -138,6 +137,7 @@ protected:
     void            configureAndUpdateUi(const QString& uiConfigName) override;
 
     void            onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
+    bool isMultiRowEditor() const override;
 
 private:
     void            selectedUiItems(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects);
@@ -153,8 +153,8 @@ private slots:
 private:
     friend class FocusEventHandler;
 
-    QPointer<QLabel>        m_tableHeading;
-    QPointer<QLabel>        m_tableHeadingIcon;
+    QPointer<QShortenedLabel> m_tableHeading;
+    QPointer<QLabel>          m_tableHeadingIcon;
 
     QTableView*             m_tableView;
     PdmUiTableViewQModel*   m_tableModelPdm;

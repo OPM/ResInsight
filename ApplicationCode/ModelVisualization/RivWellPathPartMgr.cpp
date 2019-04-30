@@ -56,6 +56,7 @@
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathPartMgr.h"
 #include "RivWellPathSourceInfo.h"
+#include "RivTextLabelSourceInfo.h"
 
 #include "RiuViewer.h"
 
@@ -255,11 +256,7 @@ void RivWellPathPartMgr::appendImportedFishbonesToModel(cvf::ModelBasicList* mod
     {
         if (!fbWellPath->isChecked()) continue;
 
-        std::vector<cvf::Vec3d> displayCoords;
-        for (const auto& lateralDomainCoords : fbWellPath->coordinates())
-        {
-            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(lateralDomainCoords));
-        }
+        std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords(fbWellPath->coordinates());
 
         cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(fbWellPath);
 
@@ -615,7 +612,7 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
 
     if (wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty())
     {
-        cvf::Font* font = RiaApplication::instance()->customFont();
+        cvf::Font* font = RiaApplication::instance()->defaultWellLabelFont();
 
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
         drawableText->setFont(font);
@@ -638,6 +635,8 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
 
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::Text);
+
+        part->setSourceInfo(new RivTextLabelSourceInfo(m_rimWellPath, cvfString, textCoord));
 
         m_wellLabelPart = part;
     }

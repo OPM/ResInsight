@@ -23,7 +23,7 @@
 #include "RimIntersectionBox.h"
 #include "Rim3dView.h"
 
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include <QAction>
 
@@ -37,8 +37,8 @@ bool RicHideIntersectionBoxFeature::isCommandEnabled()
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return false;
 
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
-    RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
+    RiuSelectionItem* selItem = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
 
     RiuGeneralSelectionItem* generalSelectionItem = static_cast<RiuGeneralSelectionItem*>(selItem);
     if (!generalSelectionItem) return false;
@@ -59,8 +59,8 @@ void RicHideIntersectionBoxFeature::onActionTriggered(bool isChecked)
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
 
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
-    RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
+    RiuSelectionItem* selItem = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
 
     RiuGeneralSelectionItem* generalSelectionItem = static_cast<RiuGeneralSelectionItem*>(selItem);
     if (!generalSelectionItem) return;

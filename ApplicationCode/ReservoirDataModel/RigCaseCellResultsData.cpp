@@ -23,10 +23,12 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RigCaseCellResultCalculator.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
 #include "RigEclipseNativeStatCalc.h"
 #include "RigEclipseResultInfo.h"
+#include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
@@ -43,13 +45,14 @@
 #include <QDateTime>
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigCaseCellResultsData::RigCaseCellResultsData(RigEclipseCaseData* ownerCaseData)
+RigCaseCellResultsData::RigCaseCellResultsData(RigEclipseCaseData* ownerCaseData, RiaDefines::PorosityModelType porosityModel)
     : m_activeCellInfo(nullptr)
+    , m_porosityModel(porosityModel)
 {
     CVF_ASSERT(ownerCaseData != nullptr);
     CVF_ASSERT(ownerCaseData->mainGrid() != nullptr);
@@ -77,121 +80,121 @@ void RigCaseCellResultsData::setActiveCellInfo(RigActiveCellInfo* activeCellInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max)
+void RigCaseCellResultsData::minMaxCellScalarValues(const RigEclipseResultAddress& resVarAddr, double& min, double& max)
 {
-    m_statisticsDataCache[scalarResultIndex]->minMaxCellScalarValues(min, max);
+    statistics(resVarAddr)->minMaxCellScalarValues(min, max);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max)
+void RigCaseCellResultsData::minMaxCellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& min, double& max)
 {
-    m_statisticsDataCache[scalarResultIndex]->minMaxCellScalarValues(timeStepIndex, min, max);
+    statistics(resVarAddr)->minMaxCellScalarValues(timeStepIndex, min, max);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, double& pos, double& neg)
+void RigCaseCellResultsData::posNegClosestToZero(const RigEclipseResultAddress& resVarAddr, double& pos, double& neg)
 {
-    m_statisticsDataCache[scalarResultIndex]->posNegClosestToZero(pos, neg);
+    statistics(resVarAddr)->posNegClosestToZero(pos, neg);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, size_t timeStepIndex, double& pos, double& neg)
+void RigCaseCellResultsData::posNegClosestToZero(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& pos, double& neg)
 {
-    m_statisticsDataCache[scalarResultIndex]->posNegClosestToZero(timeStepIndex, pos, neg);
+    statistics(resVarAddr)->posNegClosestToZero(timeStepIndex, pos, neg);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(size_t scalarResultIndex)
+const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(const RigEclipseResultAddress& resVarAddr)
 {
-    return m_statisticsDataCache[scalarResultIndex]->cellScalarValuesHistogram();
+    return statistics(resVarAddr)->cellScalarValuesHistogram();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(size_t scalarResultIndex, size_t timeStepIndex)
+const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex)
 {
-    return m_statisticsDataCache[scalarResultIndex]->cellScalarValuesHistogram(timeStepIndex);
+    return statistics(resVarAddr)->cellScalarValuesHistogram(timeStepIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90)
+void RigCaseCellResultsData::p10p90CellScalarValues(const RigEclipseResultAddress& resVarAddr, double& p10, double& p90)
 {
-    m_statisticsDataCache[scalarResultIndex]->p10p90CellScalarValues(p10, p90);
+    statistics(resVarAddr)->p10p90CellScalarValues(p10, p90);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& p10, double& p90)
+void RigCaseCellResultsData::p10p90CellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& p10, double& p90)
 {
-    m_statisticsDataCache[scalarResultIndex]->p10p90CellScalarValues(timeStepIndex, p10, p90);
+    statistics(resVarAddr)->p10p90CellScalarValues(timeStepIndex, p10, p90);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, double& meanValue)
+void RigCaseCellResultsData::meanCellScalarValues(const RigEclipseResultAddress& resVarAddr, double& meanValue)
 {
-    m_statisticsDataCache[scalarResultIndex]->meanCellScalarValues(meanValue);
+    statistics(resVarAddr)->meanCellScalarValues(meanValue);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue)
+void RigCaseCellResultsData::meanCellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue)
 {
-    m_statisticsDataCache[scalarResultIndex]->meanCellScalarValues(timeStepIndex, meanValue);
+    statistics(resVarAddr)->meanCellScalarValues(timeStepIndex, meanValue);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<int>& RigCaseCellResultsData::uniqueCellScalarValues(size_t scalarResultIndex)
+const std::vector<int>& RigCaseCellResultsData::uniqueCellScalarValues(const RigEclipseResultAddress& resVarAddr)
 {
-    return m_statisticsDataCache[scalarResultIndex]->uniqueCellScalarValues();
+    return statistics(resVarAddr)->uniqueCellScalarValues();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::sumCellScalarValues(size_t scalarResultIndex, double& sumValue)
+void RigCaseCellResultsData::sumCellScalarValues(const RigEclipseResultAddress& resVarAddr, double& sumValue)
 {
-    m_statisticsDataCache[scalarResultIndex]->sumCellScalarValues(sumValue);
+    statistics(resVarAddr)->sumCellScalarValues(sumValue);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::sumCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& sumValue)
+void RigCaseCellResultsData::sumCellScalarValues(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& sumValue)
 {
-    m_statisticsDataCache[scalarResultIndex]->sumCellScalarValues(timeStepIndex, sumValue);
+    statistics(resVarAddr)->sumCellScalarValues(timeStepIndex, sumValue);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::mobileVolumeWeightedMean(size_t scalarResultIndex, double& meanValue)
+void RigCaseCellResultsData::mobileVolumeWeightedMean(const RigEclipseResultAddress& resVarAddr, double& meanValue)
 {
-    m_statisticsDataCache[scalarResultIndex]->mobileVolumeWeightedMean(meanValue);
+    statistics(resVarAddr)->mobileVolumeWeightedMean(meanValue);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::mobileVolumeWeightedMean(size_t scalarResultIndex, size_t timeStepIndex, double& meanValue)
+void RigCaseCellResultsData::mobileVolumeWeightedMean(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue)
 {
-    m_statisticsDataCache[scalarResultIndex]->mobileVolumeWeightedMean(timeStepIndex, meanValue);
+    statistics(resVarAddr)->mobileVolumeWeightedMean(timeStepIndex, meanValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,8 +208,9 @@ size_t RigCaseCellResultsData::resultCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::timeStepCount(size_t scalarResultIndex) const
+size_t RigCaseCellResultsData::timeStepCount(const RigEclipseResultAddress& resVarAddr) const
 {
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
     return m_cellScalarResults[scalarResultIndex].size();
@@ -215,8 +219,10 @@ size_t RigCaseCellResultsData::timeStepCount(size_t scalarResultIndex) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResults(size_t scalarResultIndex) const
+const std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResults(const RigEclipseResultAddress& resVarAddr) const
 {
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
+
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
     return m_cellScalarResults[scalarResultIndex];
@@ -225,8 +231,10 @@ const std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResult
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResults(size_t scalarResultIndex)
+std::vector<std::vector<double>>& RigCaseCellResultsData::modifiableCellScalarResultTimesteps(const RigEclipseResultAddress& resVarAddr)
 {
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
+
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
     return m_cellScalarResults[scalarResultIndex];
@@ -235,8 +243,10 @@ std::vector<std::vector<double>>& RigCaseCellResultsData::cellScalarResults(size
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double>& RigCaseCellResultsData::cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex)
+std::vector<double>& RigCaseCellResultsData::modifiableCellScalarResult(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex)
 {
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
+
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
     CVF_TIGHT_ASSERT(timeStepIndex < m_cellScalarResults[scalarResultIndex].size());
 
@@ -246,64 +256,23 @@ std::vector<double>& RigCaseCellResultsData::cellScalarResults(size_t scalarResu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const
+const std::vector<double>& RigCaseCellResultsData::cellScalarResults(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex) const
 {
-    std::vector<RigEclipseResultInfo>::const_iterator it;
-    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
-    {
-        if (it->resultType() == type && it->resultName() == resultName)
-        {
-            return it->gridScalarResultIndex();
-        }
-    }
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
+    CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
+    CVF_TIGHT_ASSERT(timeStepIndex < m_cellScalarResults[scalarResultIndex].size());
 
-    return cvf::UNDEFINED_SIZE_T;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) const
-{
-    size_t scalarResultIndex = this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, resultName);
-
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        scalarResultIndex = this->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, resultName);
-    }
-
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        scalarResultIndex = this->findScalarResultIndex(RiaDefines::SOURSIMRL, resultName);
-    }
-
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        scalarResultIndex = this->findScalarResultIndex(RiaDefines::GENERATED, resultName);
-    }
-
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        scalarResultIndex = this->findScalarResultIndex(RiaDefines::INPUT_PROPERTY, resultName);
-    }
-
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        scalarResultIndex = this->findScalarResultIndex(RiaDefines::FORMATION_NAMES, resultName);
-    }
-
-    return scalarResultIndex;
+    return m_cellScalarResults[scalarResultIndex][timeStepIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Adds an empty scalar set, and returns the scalarResultIndex to it.
 /// if resultName already exists, it just returns the scalarResultIndex to the existing result.
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findOrCreateScalarResultIndex(RiaDefines::ResultCatType type,
-                                                             const QString&            resultName,
+size_t RigCaseCellResultsData::findOrCreateScalarResultIndex(const RigEclipseResultAddress& resVarAddr,
                                                              bool                      needsToBeStored)
 {
-    size_t scalarResultIndex = this->findScalarResultIndex(type, resultName);
+    size_t scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddr);
 
     // If the result exists, do nothing
 
@@ -316,11 +285,15 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex(RiaDefines::ResultC
 
     scalarResultIndex = this->resultCount();
     m_cellScalarResults.push_back(std::vector<std::vector<double>>());
-    RigEclipseResultInfo resInfo(type, resultName, needsToBeStored, false, scalarResultIndex);
+
+    RigEclipseResultInfo resInfo(resVarAddr, needsToBeStored, false, scalarResultIndex);
+    
     m_resultInfos.push_back(resInfo);
 
     // Create statistics calculator and add statistics cache object
     // Todo: Move to a "factory" method
+    
+    QString resultName = resVarAddr.m_resultName;
 
     cvf::ref<RigStatisticsCalculator> statisticsCalculator;
 
@@ -328,9 +301,9 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex(RiaDefines::ResultC
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
 
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANX"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANY"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANZ"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "TRANX"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "TRANY"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "TRANZ"));
 
         statisticsCalculator = calc;
     }
@@ -338,12 +311,12 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex(RiaDefines::ResultC
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
 
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "MULTX"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "MULTX-"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "MULTY"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "MULTY-"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "MULTZ"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "MULTZ-"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTX"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTX-"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTY"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTY-"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTZ"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTZ-"));
 
         statisticsCalculator = calc;
     }
@@ -351,71 +324,71 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex(RiaDefines::ResultC
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator(this,
-                                            findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranXResultName()));
+                                            RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::riTranXResultName()));
         calc->addNativeStatisticsCalculator(this,
-                                            findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranYResultName()));
+                                            RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::riTranYResultName()));
         calc->addNativeStatisticsCalculator(this,
-                                            findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranZResultName()));
+                                            RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::riTranZResultName()));
         statisticsCalculator = calc;
     }
     else if (resultName == RiaDefines::combinedRiMultResultName())
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator(this,
-                                            findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riMultXResultName()));
+                                            RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::riMultXResultName()));
         calc->addNativeStatisticsCalculator(this,
-                                            findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riMultYResultName()));
+                                            RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::riMultYResultName()));
         calc->addNativeStatisticsCalculator(this,
-                                            findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riMultZResultName()));
+                                            RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::riMultZResultName()));
         statisticsCalculator = calc;
     }
     else if (resultName == RiaDefines::combinedRiAreaNormTranResultName())
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator(
-            this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranXResultName()));
+            this, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranXResultName()));
         calc->addNativeStatisticsCalculator(
-            this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranYResultName()));
+            this, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranYResultName()));
         calc->addNativeStatisticsCalculator(
-            this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranZResultName()));
+            this, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranZResultName()));
         statisticsCalculator = calc;
     }
     else if (resultName == RiaDefines::combinedWaterFluxResultName())
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+"));
         statisticsCalculator = calc;
     }
     else if (resultName == RiaDefines::combinedOilFluxResultName())
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILI+"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILJ+"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILK+"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLROILI+"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLROILJ+"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLROILK+"));
         statisticsCalculator = calc;
     }
     else if (resultName == RiaDefines::combinedGasFluxResultName())
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASI+"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASJ+"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASK+"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRGASI+"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRGASJ+"));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRGASK+"));
         statisticsCalculator = calc;
     }
     else if (resultName.endsWith("IJK"))
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc     = new RigEclipseMultiPropertyStatCalc();
         QString                                   baseName = resultName.left(resultName.size() - 3);
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::GENERATED, QString("%1I").arg(baseName)));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::GENERATED, QString("%1J").arg(baseName)));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::GENERATED, QString("%1K").arg(baseName)));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::GENERATED, QString("%1I").arg(baseName)));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::GENERATED, QString("%1J").arg(baseName)));
+        calc->addNativeStatisticsCalculator(this, RigEclipseResultAddress(RiaDefines::GENERATED, QString("%1K").arg(baseName)));
         statisticsCalculator = calc;
     }
     else
     {
-        statisticsCalculator = new RigEclipseNativeStatCalc(this, scalarResultIndex);
+        statisticsCalculator = new RigEclipseNativeStatCalc(this, resVarAddr);
     }
 
     cvf::ref<RigStatisticsDataCache> dataCache = new RigStatisticsDataCache(statisticsCalculator.p());
@@ -429,11 +402,13 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex(RiaDefines::ResultC
 //--------------------------------------------------------------------------------------------------
 QStringList RigCaseCellResultsData::resultNames(RiaDefines::ResultCatType resType) const
 {
-    QStringList                                       varList;
+    QStringList varList;
     std::vector<RigEclipseResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
-        if (it->resultType() == resType)
+        if (it->resultType() == resType &&
+            !it->eclipseResultAddress().isTimeLapse() &&
+            !it->eclipseResultAddress().hasDifferenceCase())
         {
             varList.push_back(it->resultName());
         }
@@ -460,16 +435,17 @@ const RigActiveCellInfo* RigCaseCellResultsData::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::recalculateStatistics(size_t scalarResultIndex)
+void RigCaseCellResultsData::recalculateStatistics(const RigEclipseResultAddress& resVarAddr)
 {
-    m_statisticsDataCache[scalarResultIndex]->clearAllStatistics();
+    m_statisticsDataCache[findScalarResultIndexFromAddress(resVarAddr)]->clearAllStatistics();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Returns whether the result data in question is addressed by Active Cell Index
 //--------------------------------------------------------------------------------------------------
-bool RigCaseCellResultsData::isUsingGlobalActiveIndex(size_t scalarResultIndex) const
+bool RigCaseCellResultsData::isUsingGlobalActiveIndex(const RigEclipseResultAddress& resVarAddr) const
 {
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
     CVF_TIGHT_ASSERT(scalarResultIndex < m_cellScalarResults.size());
 
     if (!m_cellScalarResults[scalarResultIndex].size()) return true;
@@ -513,11 +489,11 @@ std::vector<QDateTime> RigCaseCellResultsData::allTimeStepDatesFromEclipseReader
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RigCaseCellResultsData::timeStepDates(size_t scalarResultIndex) const
+std::vector<QDateTime> RigCaseCellResultsData::timeStepDates(const RigEclipseResultAddress& resVarAddr) const
 {
-    if (scalarResultIndex < m_resultInfos.size())
+    if (findScalarResultIndexFromAddress(resVarAddr) < m_resultInfos.size())
     {
-        return m_resultInfos[scalarResultIndex].dates();
+        return m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)].dates();
     }
     else
         return std::vector<QDateTime>();
@@ -528,7 +504,7 @@ std::vector<QDateTime> RigCaseCellResultsData::timeStepDates(size_t scalarResult
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RigCaseCellResultsData::timeStepDates() const
 {
-    size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
+    RigEclipseResultAddress scalarResWithMostTimeSteps;
     maxTimeStepCount(&scalarResWithMostTimeSteps);
 
     return timeStepDates(scalarResWithMostTimeSteps);
@@ -539,7 +515,7 @@ std::vector<QDateTime> RigCaseCellResultsData::timeStepDates() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart() const
 {
-    size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
+    RigEclipseResultAddress scalarResWithMostTimeSteps;
     maxTimeStepCount(&scalarResWithMostTimeSteps);
 
     return daysSinceSimulationStart(scalarResWithMostTimeSteps);
@@ -548,11 +524,11 @@ std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart(size_t scalarResultIndex) const
+std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart(const RigEclipseResultAddress& resVarAddr) const
 {
-    if (scalarResultIndex < m_resultInfos.size())
+    if (findScalarResultIndexFromAddress(resVarAddr) < m_resultInfos.size())
     {
-        return m_resultInfos[scalarResultIndex].daysSinceSimulationStarts();
+        return m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)].daysSinceSimulationStarts();
     }
     else
     {
@@ -563,10 +539,10 @@ std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart(size_t scal
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RigCaseCellResultsData::reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const
+int RigCaseCellResultsData::reportStepNumber(const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex) const
 {
-    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].timeStepInfos().size() > timeStepIndex)
-        return m_resultInfos[scalarResultIndex].timeStepInfos()[timeStepIndex].m_reportNumber;
+    if (findScalarResultIndexFromAddress(resVarAddr) < m_resultInfos.size() && m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)].timeStepInfos().size() > timeStepIndex)
+        return m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)].timeStepInfos()[timeStepIndex].m_reportNumber;
     else
         return -1;
 }
@@ -574,10 +550,10 @@ int RigCaseCellResultsData::reportStepNumber(size_t scalarResultIndex, size_t ti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos(size_t scalarResultIndex) const
+std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos(const RigEclipseResultAddress& resVarAddr) const
 {
-    if (scalarResultIndex < m_resultInfos.size())
-        return m_resultInfos[scalarResultIndex].timeStepInfos();
+    if (findScalarResultIndexFromAddress(resVarAddr) < m_resultInfos.size())
+        return m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)].timeStepInfos();
     else
         return std::vector<RigEclipseTimeStepInfo>();
 }
@@ -585,36 +561,35 @@ std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos(size_t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos)
+void RigCaseCellResultsData::setTimeStepInfos(const RigEclipseResultAddress& resVarAddr, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos)
 {
-    CVF_ASSERT(scalarResultIndex < m_resultInfos.size());
+    CVF_ASSERT(findScalarResultIndexFromAddress(resVarAddr) < m_resultInfos.size());
 
-    m_resultInfos[scalarResultIndex].setTimeStepInfos(timeStepInfos);
+    m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)].setTimeStepInfos(timeStepInfos);
 
-    std::vector<std::vector<double>>& dataValues = this->cellScalarResults(scalarResultIndex);
+    std::vector<std::vector<double>>& dataValues = this->modifiableCellScalarResultTimesteps(resVarAddr);
     dataValues.resize(timeStepInfos.size());
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::maxTimeStepCount(size_t* scalarResultIndexWithMostTimeSteps) const
+size_t RigCaseCellResultsData::maxTimeStepCount(RigEclipseResultAddress* resultAddressWithMostTimeSteps) const
 {
-    size_t maxTsCount                      = 0;
-    size_t scalarResultIndexWithMaxTsCount = cvf::UNDEFINED_SIZE_T;
+    size_t maxTsCount = 0;
+    RigEclipseResultAddress scalarResultIndexWithMaxTsCount;
 
     for (size_t i = 0; i < m_resultInfos.size(); i++)
     {
         if (m_resultInfos[i].timeStepInfos().size() > maxTsCount)
         {
-            maxTsCount                      = m_resultInfos[i].timeStepInfos().size();
-            scalarResultIndexWithMaxTsCount = i;
-        }
-    }
+            maxTsCount = m_resultInfos[i].timeStepInfos().size();
 
-    if (scalarResultIndexWithMostTimeSteps)
-    {
-        *scalarResultIndexWithMostTimeSteps = scalarResultIndexWithMaxTsCount;
+            if (resultAddressWithMostTimeSteps)
+            {
+                *resultAddressWithMostTimeSteps = m_resultInfos[i].eclipseResultAddress(); 
+            }
+        }
     }
 
     return maxTsCount;
@@ -626,13 +601,11 @@ size_t RigCaseCellResultsData::maxTimeStepCount(size_t* scalarResultIndexWithMos
 QString RigCaseCellResultsData::makeResultNameUnique(const QString& resultNameProposal) const
 {
     QString newResultName = resultNameProposal;
-    size_t  resultIndex   = cvf::UNDEFINED_SIZE_T;
     int     nameNum       = 1;
     int     stringLength  = newResultName.size();
     while (true)
     {
-        resultIndex = this->findScalarResultIndex(newResultName);
-        if (resultIndex == cvf::UNDEFINED_SIZE_T) break;
+        if( !this->hasResultEntry(RigEclipseResultAddress(newResultName))) break;
 
         newResultName.truncate(stringLength);
         newResultName += "_" + QString::number(nameNum);
@@ -647,7 +620,16 @@ QString RigCaseCellResultsData::makeResultNameUnique(const QString& resultNamePr
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::clearScalarResult(RiaDefines::ResultCatType type, const QString& resultName)
 {
-    size_t scalarResultIndex = this->findScalarResultIndex(type, resultName);
+    clearScalarResult(RigEclipseResultAddress(type, resultName));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::clearScalarResult(const RigEclipseResultAddress& resultAddress)
+{
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resultAddress);
+
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return;
 
     for (size_t tsIdx = 0; tsIdx < m_cellScalarResults[scalarResultIndex].size(); ++tsIdx)
@@ -656,15 +638,7 @@ void RigCaseCellResultsData::clearScalarResult(RiaDefines::ResultCatType type, c
         m_cellScalarResults[scalarResultIndex][tsIdx].swap(empty);
     }
 
-    recalculateStatistics(scalarResultIndex);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::clearScalarResult(const RigEclipseResultInfo& resultInfo)
-{
-    clearScalarResult(resultInfo.resultType(), resultInfo.resultName());
+    recalculateStatistics(resultAddress);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -697,9 +671,10 @@ void RigCaseCellResultsData::freeAllocatedResultsData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCaseCellResultsData::isResultLoaded(const RigEclipseResultInfo& resultInfo) const
+bool RigCaseCellResultsData::isResultLoaded(const RigEclipseResultAddress& resultAddr) const
 {
-    size_t scalarResultIndex = this->findScalarResultIndex(resultInfo.resultType(), resultInfo.resultName());
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resultAddr);
+
     CVF_TIGHT_ASSERT(scalarResultIndex != cvf::UNDEFINED_SIZE_T);
     if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
     {
@@ -717,7 +692,7 @@ size_t RigCaseCellResultsData::addStaticScalarResult(RiaDefines::ResultCatType t
                                                      bool                      needsToBeStored,
                                                      size_t                    resultValueCount)
 {
-    size_t resultIdx = findOrCreateScalarResultIndex(type, resultName, needsToBeStored);
+    size_t resultIdx = findOrCreateScalarResultIndex(RigEclipseResultAddress(type, resultName), needsToBeStored);
 
     m_cellScalarResults[resultIdx].resize(1, std::vector<double>());
     m_cellScalarResults[resultIdx][0].resize(resultValueCount, HUGE_VAL);
@@ -750,19 +725,20 @@ bool RigCaseCellResultsData::updateResultName(RiaDefines::ResultCatType resultTy
 const std::vector<double>*
     RigCaseCellResultsData::getResultIndexableStaticResult(RigActiveCellInfo*      actCellInfo,
                                                            RigCaseCellResultsData* gridCellResults,
-                                                           QString                 porvResultName,
+                                                           QString                 resultName,
                                                            std::vector<double>&    activeCellsResultsTempContainer)
 {
     size_t resultCellCount    = actCellInfo->reservoirCellResultCount();
     size_t reservoirCellCount = actCellInfo->reservoirCellCount();
+    RigEclipseResultAddress resVarAddr(RiaDefines::STATIC_NATIVE, resultName);
 
-    size_t scalarResultIndexPorv = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, porvResultName);
+    size_t scalarResultIndexPorv = gridCellResults->findOrLoadKnownScalarResult(resVarAddr);
 
     if (scalarResultIndexPorv == cvf::UNDEFINED_SIZE_T) return nullptr;
 
-    const std::vector<double>* porvResults = &(gridCellResults->cellScalarResults(scalarResultIndexPorv, 0));
+    const std::vector<double>* porvResults = &(gridCellResults->cellScalarResults(resVarAddr, 0));
 
-    if (!gridCellResults->isUsingGlobalActiveIndex(scalarResultIndexPorv))
+    if (!gridCellResults->isUsingGlobalActiveIndex(resVarAddr))
     {
         // PORV is given for all cells
 
@@ -846,15 +822,12 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 {
     // SOIL
     {
-        size_t soilIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-        if (soilIndex == cvf::UNDEFINED_SIZE_T)
+        if (!hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SOIL")))
         {
-            size_t swatIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SWAT");
-            size_t sgasIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SGAS");
-
-            if (swatIndex != cvf::UNDEFINED_SIZE_T || sgasIndex != cvf::UNDEFINED_SIZE_T)
+            if (   hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SWAT")) 
+                || hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SGAS")) )
             {
-                soilIndex = findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL", false);
+                size_t soilIndex = findOrCreateScalarResultIndex(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SOIL"), false);
                 this->setMustBeCalculated(soilIndex);
             }
         }
@@ -863,68 +836,67 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
     // Oil Volume
     if (RiaApplication::enableDevelopmentFeatures())
     {
-        size_t soilIndex = findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL", false);
-        if (soilIndex != cvf::UNDEFINED_SIZE_T)
+        if (hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SOIL")))
         {
-            findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::riOilVolumeResultName(), false);
+            findOrCreateScalarResultIndex(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, RiaDefines::riOilVolumeResultName()), false);
         }
     }
 
     // Completion type
     {
-        size_t completionTypeIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
-        if (completionTypeIndex == cvf::UNDEFINED_SIZE_T)
-        {
-            findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName(), false);
-        }
+        findOrCreateScalarResultIndex(RigEclipseResultAddress (RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName()), false);
     }
 
     // FLUX
     {
-        size_t waterIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName());
-        if (waterIndex == cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+") != cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+") != cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+") != cvf::UNDEFINED_SIZE_T)
+        if (   hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+")) 
+            && hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+")) 
+            && hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+")))
         {
-            findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName(), false);
+            findOrCreateScalarResultIndex(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName()), false);
         }
-        size_t oilIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
-        if (oilIndex == cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILI+") != cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILJ+") != cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILK+") != cvf::UNDEFINED_SIZE_T)
+
+        if (   hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLROILI+")) 
+            && hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLROILJ+"))
+            && hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLROILK+")))
         {
-            findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName(), false);
+            findOrCreateScalarResultIndex(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName()), false);
         }
-        size_t gasIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
-        if (gasIndex == cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASI+") != cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASJ+") != cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASK+") != cvf::UNDEFINED_SIZE_T)
+
+        if (
+               hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRGASI+")) 
+            && hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRGASJ+")) 
+            && hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "FLRGASK+")))
         {
-            findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName(), false);
+            findOrCreateScalarResultIndex(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName()), false);
         }
     }
 
     // TRANSXYZ
     {
-        size_t tranX, tranY, tranZ;
-        if (findTransmissibilityResults(tranX, tranY, tranZ))
+        if (hasCompleteTransmissibilityResults())
         {
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName(), false, 0);
         }
     }
     // MULTXYZ
     {
-        addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedMultResultName(), false, 0);
+        if (hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTX")) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTX-")) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTY")) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTY-")) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTZ")) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "MULTZ-")))
+        {
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedMultResultName(), false, 0);
+        }
     }
 
     // riTRANSXYZ and X,Y,Z
     {
-        if (findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PERMX") != cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PERMY") != cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PERMZ") != cvf::UNDEFINED_SIZE_T)
+        if (hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMX")) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMY")) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMZ")))
         {
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riTranXResultName(), false, 0);
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riTranYResultName(), false, 0);
@@ -935,11 +907,11 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 
     // riMULTXYZ and X, Y, Z
     {
-        size_t tranX, tranY, tranZ;
-        if (findTransmissibilityResults(tranX, tranY, tranZ) &&
-            findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranXResultName()) != cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranYResultName()) != cvf::UNDEFINED_SIZE_T &&
-            findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranZResultName()) != cvf::UNDEFINED_SIZE_T)
+       
+        if (hasCompleteTransmissibilityResults() &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::riTranXResultName())) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::riTranYResultName())) &&
+            hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::riTranZResultName())))
         {
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riMultXResultName(), false, 0);
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riMultYResultName(), false, 0);
@@ -950,23 +922,22 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 
     // riTRANSXYZbyArea and X, Y, Z
     {
-        if (findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANX") != cvf::UNDEFINED_SIZE_T)
+        if (hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "TRANX")))
         {
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranXResultName(), false, 0);
         }
 
-        if (findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANY") != cvf::UNDEFINED_SIZE_T)
+        if (hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "TRANY")))
         {
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranYResultName(), false, 0);
         }
 
-        if (findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANZ") != cvf::UNDEFINED_SIZE_T)
+        if (hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "TRANZ")))
         {
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranZResultName(), false, 0);
         }
 
-        size_t tranX, tranY, tranZ;
-        if (findTransmissibilityResults(tranX, tranY, tranZ))
+        if (hasCompleteTransmissibilityResults())
         {
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiAreaNormTranResultName(), false, 0);
         }
@@ -979,7 +950,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 
     // Mobile Pore Volume
     {
-        if (findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PORV") != cvf::UNDEFINED_SIZE_T)
+        if (hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PORV")) )
         {
             addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName(), false, 0);
         }
@@ -989,57 +960,147 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCaseCellResultsData::findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const
+bool RigCaseCellResultsData::hasCompleteTransmissibilityResults() const
 {
-    tranX = findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANX");
-    tranY = findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANY");
-    tranZ = findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANZ");
-
-    if (tranX == cvf::UNDEFINED_SIZE_T || tranY == cvf::UNDEFINED_SIZE_T || tranZ == cvf::UNDEFINED_SIZE_T)
+    if (   hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "TRANX"))
+        && hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "TRANY"))
+        && hasResultEntry(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "TRANZ")))
     {
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigEclipseResultAddress> RigCaseCellResultsData::existingResults() const
+{
+    std::vector<RigEclipseResultAddress> addresses;
+    for (const auto & ri: m_resultInfos)
+    {
+        addresses.emplace_back(ri.eclipseResultAddress());
+    }
+
+    return addresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigEclipseResultInfo* RigCaseCellResultsData::resultInfo(const RigEclipseResultAddress& resVarAddr) const
+{
+    return &(m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::ensureKnownResultLoaded(const RigEclipseResultAddress& resultAddress)
+{
+    size_t resultIndex = findOrLoadKnownScalarResult(resultAddress);
+
+    return (resultIndex != cvf::UNDEFINED_SIZE_T);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::hasResultEntry(const RigEclipseResultAddress& resultAddress) const
+{
+    size_t resultIndex = findScalarResultIndexFromAddress(resultAddress);
+
+    return (resultIndex != cvf::UNDEFINED_SIZE_T);   
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::createResultEntry(const RigEclipseResultAddress& resultAddress, bool needsToBeStored)
+{
+    findOrCreateScalarResultIndex(resultAddress, needsToBeStored);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::ensureKnownResultLoadedForTimeStep(const RigEclipseResultAddress& resultAddress, 
+                                                                 size_t timeStepIndex)
+{
+    CAF_ASSERT(resultAddress.m_resultCatType != RiaDefines::UNDEFINED);
+
+    findOrLoadKnownScalarResultForTimeStep(resultAddress,
+                                           timeStepIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findOrLoadScalarResult(const QString& resultName)
+size_t RigCaseCellResultsData::findOrLoadKnownScalarResult(const RigEclipseResultAddress& resVarAddr)
 {
-    size_t scalarResultIndex = this->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, resultName);
-
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    if (!resVarAddr.isValid())
     {
-        scalarResultIndex = this->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, resultName);
+        return cvf::UNDEFINED_SIZE_T;
+    }
+    else if (resVarAddr.m_resultCatType == RiaDefines::UNDEFINED)
+    {
+        RigEclipseResultAddress resVarAddressWithType =  resVarAddr;
+
+        resVarAddressWithType.m_resultCatType = RiaDefines::STATIC_NATIVE;
+
+        size_t scalarResultIndex = this->findOrLoadKnownScalarResult(resVarAddressWithType);
+
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            resVarAddressWithType.m_resultCatType = RiaDefines::DYNAMIC_NATIVE;
+            scalarResultIndex = this->findOrLoadKnownScalarResult(resVarAddressWithType);
+        }
+
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            resVarAddressWithType.m_resultCatType = RiaDefines::SOURSIMRL;
+            scalarResultIndex = this->findOrLoadKnownScalarResult(resVarAddressWithType);
+        }
+
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            resVarAddressWithType.m_resultCatType = RiaDefines::GENERATED;
+            scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddressWithType);
+        }
+
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            resVarAddressWithType.m_resultCatType = RiaDefines::INPUT_PROPERTY;
+            scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddressWithType);
+        }
+
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            resVarAddressWithType.m_resultCatType = RiaDefines::FORMATION_NAMES;
+            scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddressWithType); // Use Load ?
+        }
+
+        return scalarResultIndex;
     }
 
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        scalarResultIndex = this->findOrLoadScalarResult(RiaDefines::SOURSIMRL, resultName);
-    }
 
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        scalarResultIndex = this->findScalarResultIndex(RiaDefines::GENERATED, resultName);
-    }
+    size_t scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddr);
 
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        scalarResultIndex = this->findScalarResultIndex(RiaDefines::INPUT_PROPERTY, resultName);
-    }
-
-    return scalarResultIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName)
-{
-    size_t scalarResultIndex = this->findScalarResultIndex(type, resultName);
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return cvf::UNDEFINED_SIZE_T;
+
+    RiaDefines::ResultCatType type = resVarAddr.m_resultCatType; 
+    QString resultName = resVarAddr.m_resultName;
+
+    if (resVarAddr.hasDifferenceCase() || resVarAddr.isTimeLapse())
+    {
+        if (!RigCaseCellResultCalculator::computeDifference(this->m_ownerCaseData, m_porosityModel, resVarAddr))
+        {
+            return cvf::UNDEFINED_SIZE_T;
+        }
+
+        return scalarResultIndex;
+    }
 
     // Load dependency data sets
 
@@ -1047,18 +1108,18 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
     {
         if (resultName == RiaDefines::combinedTransmissibilityResultName())
         {
-            this->findOrLoadScalarResult(type, "TRANX");
-            this->findOrLoadScalarResult(type, "TRANY");
-            this->findOrLoadScalarResult(type, "TRANZ");
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "TRANX"));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "TRANY"));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "TRANZ"));
         }
         else if (resultName == RiaDefines::combinedMultResultName())
         {
-            this->findOrLoadScalarResult(type, "MULTX");
-            this->findOrLoadScalarResult(type, "MULTX-");
-            this->findOrLoadScalarResult(type, "MULTY");
-            this->findOrLoadScalarResult(type, "MULTY-");
-            this->findOrLoadScalarResult(type, "MULTZ");
-            this->findOrLoadScalarResult(type, "MULTZ-");
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "MULTX" ));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "MULTX-"));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "MULTY" ));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "MULTY-"));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "MULTZ" ));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "MULTZ-"));
         }
         else if (resultName == RiaDefines::combinedRiTranResultName())
         {
@@ -1102,21 +1163,21 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
     {
         if (resultName == RiaDefines::combinedWaterFluxResultName())
         {
-            this->findOrLoadScalarResult(type, "FLRWATI+");
-            this->findOrLoadScalarResult(type, "FLRWATJ+");
-            this->findOrLoadScalarResult(type, "FLRWATK+");
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "FLRWATI+"));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "FLRWATJ+"));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "FLRWATK+"));
         }
         else if (resultName == RiaDefines::combinedOilFluxResultName())
         {
-            this->findOrLoadScalarResult(type, "FLROILI+");
-            this->findOrLoadScalarResult(type, "FLROILJ+");
-            this->findOrLoadScalarResult(type, "FLROILK+");
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "FLROILI+"));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "FLROILJ+"));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "FLROILK+"));
         }
         else if (resultName == RiaDefines::combinedGasFluxResultName())
         {
-            this->findOrLoadScalarResult(type, "FLRGASI+");
-            this->findOrLoadScalarResult(type, "FLRGASJ+");
-            this->findOrLoadScalarResult(type, "FLRGASK+");
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "FLRGASI+"));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "FLRGASJ+"));
+            this->findOrLoadKnownScalarResult(RigEclipseResultAddress(type, "FLRGASK+"));
         }
     }
 
@@ -1130,13 +1191,13 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
         if (this->mustBeCalculated(scalarResultIndex))
         {
             // Trigger loading of SWAT, SGAS to establish time step count if no data has been loaded from file at this point
-            findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
-            findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+            findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SWAT"));
+            findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SGAS"));
 
-            this->cellScalarResults(scalarResultIndex).resize(this->maxTimeStepCount());
+            m_cellScalarResults[scalarResultIndex].resize(this->maxTimeStepCount());
             for (size_t timeStepIdx = 0; timeStepIdx < this->maxTimeStepCount(); timeStepIdx++)
             {
-                std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[timeStepIdx];
+                std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIdx];
                 if (values.size() == 0)
                 {
                     computeSOILForTimeStep(timeStepIdx);
@@ -1149,7 +1210,7 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
     else if (resultName == RiaDefines::completionTypeResultName())
     {
         caf::ProgressInfo progressInfo(this->maxTimeStepCount(), "Calculate Completion Type Results");
-        this->cellScalarResults(scalarResultIndex).resize(this->maxTimeStepCount());
+        m_cellScalarResults[scalarResultIndex].resize(this->maxTimeStepCount());
         for (size_t timeStepIdx = 0; timeStepIdx < this->maxTimeStepCount(); ++timeStepIdx)
         {
             computeCompletionTypeForTimeStep(timeStepIdx);
@@ -1177,13 +1238,13 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
 
         if (type == RiaDefines::DYNAMIC_NATIVE && timeStepCount > 0)
         {
-            this->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+            m_cellScalarResults[scalarResultIndex].resize(timeStepCount);
 
             size_t i;
             for (i = 0; i < timeStepCount; i++)
             {
-                std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[i];
-                if (!m_readerInterface->dynamicResult(resultName, RiaDefines::MATRIX_MODEL, i, &values))
+                std::vector<double>& values = m_cellScalarResults[scalarResultIndex][i];
+                if (!m_readerInterface->dynamicResult(resultName, m_porosityModel, i, &values))
                 {
                     resultLoadingSucess = false;
                 }
@@ -1200,10 +1261,10 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
         }
         else if (type == RiaDefines::STATIC_NATIVE)
         {
-            this->cellScalarResults(scalarResultIndex).resize(1);
+            m_cellScalarResults[scalarResultIndex].resize(1);
 
-            std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[0];
-            if (!m_readerInterface->staticResult(resultName, RiaDefines::MATRIX_MODEL, &values))
+            std::vector<double>& values = m_cellScalarResults[scalarResultIndex][0];
+            if (!m_readerInterface->staticResult(resultName, m_porosityModel, &values))
             {
                 resultLoadingSucess = false;
             }
@@ -1221,7 +1282,7 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
         if (!resultLoadingSucess)
         {
             // Remove last scalar result because loading of result failed
-            this->cellScalarResults(scalarResultIndex).clear();
+            m_cellScalarResults[scalarResultIndex].clear();
         }
     }
 
@@ -1246,12 +1307,12 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
         {
             size_t timeStepCount = this->infoForEachResultIndex()[scalarResultIndex].timeStepInfos().size();
 
-            this->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+            m_cellScalarResults[scalarResultIndex].resize(timeStepCount);
 
             size_t i;
             for (i = 0; i < timeStepCount; i++)
             {
-                std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[i];
+                std::vector<double>& values = m_cellScalarResults[scalarResultIndex][i];
                 eclReader->sourSimRlResult(resultName, i, &values);
             }
         }
@@ -1260,24 +1321,27 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
     return scalarResultIndex;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// This method is intended to be used for multicase cross statistical calculations, when
 /// we need process one timestep at a time, freeing memory as we go.
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type,
-                                                                 const QString&            resultName,
-                                                                 size_t                    timeStepIndex)
+size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep(const RigEclipseResultAddress& resVarAddr,
+                                                                      size_t                    timeStepIndex)
 {
+    RiaDefines::ResultCatType type = resVarAddr.m_resultCatType;
+    QString resultName = resVarAddr.m_resultName;
+
     // Special handling for SOIL
     if (type == RiaDefines::DYNAMIC_NATIVE && resultName.toUpper() == "SOIL")
     {
-        size_t soilScalarResultIndex = this->findScalarResultIndex(type, resultName);
+        size_t soilScalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddr);
 
         if (this->mustBeCalculated(soilScalarResultIndex))
         {
-            this->cellScalarResults(soilScalarResultIndex).resize(this->maxTimeStepCount());
+            m_cellScalarResults[soilScalarResultIndex].resize(this->maxTimeStepCount());
 
-            std::vector<double>& values = this->cellScalarResults(soilScalarResultIndex)[timeStepIndex];
+            std::vector<double>& values = m_cellScalarResults[soilScalarResultIndex][timeStepIndex];
             if (values.size() == 0)
             {
                 computeSOILForTimeStep(timeStepIndex);
@@ -1288,12 +1352,12 @@ size_t RigCaseCellResultsData::findOrLoadScalarResultForTimeStep(RiaDefines::Res
     }
     else if (type == RiaDefines::DYNAMIC_NATIVE && resultName == RiaDefines::completionTypeResultName())
     {
-        size_t completionTypeScalarResultIndex = this->findScalarResultIndex(type, resultName);
+        size_t completionTypeScalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddr);
         computeCompletionTypeForTimeStep(timeStepIndex);
         return completionTypeScalarResultIndex;
     }
 
-    size_t scalarResultIndex = this->findScalarResultIndex(type, resultName);
+    size_t scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddr);
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return cvf::UNDEFINED_SIZE_T;
 
     if (type == RiaDefines::GENERATED)
@@ -1309,12 +1373,12 @@ size_t RigCaseCellResultsData::findOrLoadScalarResultForTimeStep(RiaDefines::Res
 
         if (type == RiaDefines::DYNAMIC_NATIVE && timeStepCount > 0)
         {
-            this->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+            m_cellScalarResults[scalarResultIndex].resize(timeStepCount);
 
-            std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[timeStepIndex];
+            std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
             if (values.size() == 0)
             {
-                if (!m_readerInterface->dynamicResult(resultName, RiaDefines::MATRIX_MODEL, timeStepIndex, &values))
+                if (!m_readerInterface->dynamicResult(resultName, m_porosityModel, timeStepIndex, &values))
                 {
                     resultLoadingSucess = false;
                 }
@@ -1322,10 +1386,10 @@ size_t RigCaseCellResultsData::findOrLoadScalarResultForTimeStep(RiaDefines::Res
         }
         else if (type == RiaDefines::STATIC_NATIVE)
         {
-            this->cellScalarResults(scalarResultIndex).resize(1);
+            m_cellScalarResults[scalarResultIndex].resize(1);
 
-            std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[0];
-            if (!m_readerInterface->staticResult(resultName, RiaDefines::MATRIX_MODEL, &values))
+            std::vector<double>& values = m_cellScalarResults[scalarResultIndex][0];
+            if (!m_readerInterface->staticResult(resultName, m_porosityModel, &values))
             {
                 resultLoadingSucess = false;
             }
@@ -1347,9 +1411,9 @@ size_t RigCaseCellResultsData::findOrLoadScalarResultForTimeStep(RiaDefines::Res
         {
             size_t timeStepCount = this->infoForEachResultIndex()[scalarResultIndex].timeStepInfos().size();
 
-            this->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+            m_cellScalarResults[scalarResultIndex].resize(timeStepCount);
 
-            std::vector<double>& values = this->cellScalarResults(scalarResultIndex)[timeStepIndex];
+            std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
 
             if (values.size() == 0)
             {
@@ -1369,9 +1433,13 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
     // Compute SGAS based on SWAT if the simulation contains no oil
     testAndComputeSgasForTimeStep(timeStepIndex);
 
-    size_t scalarIndexSWAT = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SWAT", timeStepIndex);
-    size_t scalarIndexSGAS = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStepIndex);
-    size_t scalarIndexSSOL = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SSOL", timeStepIndex);
+    RigEclipseResultAddress SWATAddr(RiaDefines::DYNAMIC_NATIVE, "SWAT");
+    RigEclipseResultAddress SGASAddr(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+    RigEclipseResultAddress SSOLAddr(RiaDefines::DYNAMIC_NATIVE, "SSOL");
+
+    size_t scalarIndexSWAT = findOrLoadKnownScalarResultForTimeStep(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SWAT"), timeStepIndex);
+    size_t scalarIndexSGAS = findOrLoadKnownScalarResultForTimeStep(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SGAS"), timeStepIndex);
+    size_t scalarIndexSSOL = findOrLoadKnownScalarResultForTimeStep(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SSOL"), timeStepIndex);
 
     // Early exit if none of SWAT or SGAS is present
     if (scalarIndexSWAT == cvf::UNDEFINED_SIZE_T && scalarIndexSGAS == cvf::UNDEFINED_SIZE_T)
@@ -1384,7 +1452,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
     {
-        std::vector<double>& swatForTimeStep = this->cellScalarResults(scalarIndexSWAT, timeStepIndex);
+        const std::vector<double>& swatForTimeStep = this->cellScalarResults(SWATAddr, timeStepIndex);
         if (swatForTimeStep.size() > 0)
         {
             soilResultValueCount = swatForTimeStep.size();
@@ -1394,7 +1462,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T)
     {
-        std::vector<double>& sgasForTimeStep = this->cellScalarResults(scalarIndexSGAS, timeStepIndex);
+        const std::vector<double>& sgasForTimeStep = this->cellScalarResults(SGASAddr, timeStepIndex);
         if (sgasForTimeStep.size() > 0)
         {
             soilResultValueCount = qMax(soilResultValueCount, sgasForTimeStep.size());
@@ -1405,25 +1473,25 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
     }
 
     // Make sure memory is allocated for the new SOIL results
+    RigEclipseResultAddress SOILAddr(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+    size_t soilResultScalarIndex = this->findScalarResultIndexFromAddress(SOILAddr);
+    m_cellScalarResults[soilResultScalarIndex].resize(soilTimeStepCount);
 
-    size_t soilResultScalarIndex = this->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-    this->cellScalarResults(soilResultScalarIndex).resize(soilTimeStepCount);
-
-    if (this->cellScalarResults(soilResultScalarIndex, timeStepIndex).size() > 0)
+    if (this->cellScalarResults(SOILAddr, timeStepIndex).size() > 0)
     {
         // Data is computed and allocated, nothing more to do
         return;
     }
 
-    this->cellScalarResults(soilResultScalarIndex, timeStepIndex).resize(soilResultValueCount);
+    m_cellScalarResults[soilResultScalarIndex][timeStepIndex].resize(soilResultValueCount);
 
-    std::vector<double>* swatForTimeStep = nullptr;
-    std::vector<double>* sgasForTimeStep = nullptr;
-    std::vector<double>* ssolForTimeStep = nullptr;
+    const std::vector<double>* swatForTimeStep = nullptr;
+    const std::vector<double>* sgasForTimeStep = nullptr;
+    const std::vector<double>* ssolForTimeStep = nullptr;
 
     if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
     {
-        swatForTimeStep = &(this->cellScalarResults(scalarIndexSWAT, timeStepIndex));
+        swatForTimeStep = &(this->cellScalarResults(SWATAddr, timeStepIndex));
         if (swatForTimeStep->size() == 0)
         {
             swatForTimeStep = nullptr;
@@ -1432,7 +1500,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T)
     {
-        sgasForTimeStep = &(this->cellScalarResults(scalarIndexSGAS, timeStepIndex));
+        sgasForTimeStep = &(this->cellScalarResults(SGASAddr, timeStepIndex));
         if (sgasForTimeStep->size() == 0)
         {
             sgasForTimeStep = nullptr;
@@ -1441,14 +1509,14 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 
     if (scalarIndexSSOL != cvf::UNDEFINED_SIZE_T)
     {
-        ssolForTimeStep = &(this->cellScalarResults(scalarIndexSSOL, timeStepIndex));
+        ssolForTimeStep = &(this->cellScalarResults(SSOLAddr, timeStepIndex));
         if (ssolForTimeStep->size() == 0)
         {
             ssolForTimeStep = nullptr;
         }
     }
 
-    std::vector<double>& soilForTimeStep = this->cellScalarResults(soilResultScalarIndex, timeStepIndex);
+    std::vector<double>& soilForTimeStep = this->modifiableCellScalarResult(SOILAddr, timeStepIndex);
 
 #pragma omp parallel for
     for (int idx = 0; idx < static_cast<int>(soilResultValueCount); idx++)
@@ -1478,7 +1546,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::testAndComputeSgasForTimeStep(size_t timeStepIndex)
 {
-    size_t scalarIndexSWAT = findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SWAT", timeStepIndex);
+    size_t scalarIndexSWAT = findOrLoadKnownScalarResultForTimeStep(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SWAT"), timeStepIndex);
     if (scalarIndexSWAT == cvf::UNDEFINED_SIZE_T)
     {
         return;
@@ -1492,10 +1560,10 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep(size_t timeStepIndex)
 
     // Simulation type is gas and water. No SGAS is present, compute SGAS based on SWAT
 
-    size_t scalarIndexSGAS = this->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SGAS", false);
-    if (this->cellScalarResults(scalarIndexSGAS).size() > timeStepIndex)
+    size_t scalarIndexSGAS = this->findOrCreateScalarResultIndex(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SGAS"), false);
+    if (m_cellScalarResults[scalarIndexSGAS].size() > timeStepIndex)
     {
-        std::vector<double>& values = this->cellScalarResults(scalarIndexSGAS)[timeStepIndex];
+        std::vector<double>& values = m_cellScalarResults[scalarIndexSGAS][timeStepIndex];
         if (values.size() > 0) return;
     }
 
@@ -1503,7 +1571,7 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep(size_t timeStepIndex)
     size_t swatTimeStepCount    = 0;
 
     {
-        std::vector<double>& swatForTimeStep = this->cellScalarResults(scalarIndexSWAT, timeStepIndex);
+        std::vector<double>& swatForTimeStep = m_cellScalarResults[scalarIndexSWAT][timeStepIndex];
         if (swatForTimeStep.size() > 0)
         {
             swatResultValueCount = swatForTimeStep.size();
@@ -1511,26 +1579,26 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep(size_t timeStepIndex)
         }
     }
 
-    this->cellScalarResults(scalarIndexSGAS).resize(swatTimeStepCount);
+    m_cellScalarResults[scalarIndexSGAS].resize(swatTimeStepCount);
 
-    if (this->cellScalarResults(scalarIndexSGAS, timeStepIndex).size() > 0)
+    if (m_cellScalarResults[scalarIndexSGAS][timeStepIndex].size() > 0)
     {
         return;
     }
 
-    this->cellScalarResults(scalarIndexSGAS, timeStepIndex).resize(swatResultValueCount);
+    m_cellScalarResults[scalarIndexSGAS][timeStepIndex].resize(swatResultValueCount);
 
     std::vector<double>* swatForTimeStep = nullptr;
 
     {
-        swatForTimeStep = &(this->cellScalarResults(scalarIndexSWAT, timeStepIndex));
+        swatForTimeStep = &(m_cellScalarResults[scalarIndexSWAT][timeStepIndex]);
         if (swatForTimeStep->size() == 0)
         {
             swatForTimeStep = nullptr;
         }
     }
 
-    std::vector<double>& sgasForTimeStep = this->cellScalarResults(scalarIndexSGAS, timeStepIndex);
+    std::vector<double>& sgasForTimeStep = m_cellScalarResults[scalarIndexSGAS][timeStepIndex];
 
 #pragma omp parallel for
     for (int idx = 0; idx < static_cast<int>(swatResultValueCount); idx++)
@@ -1554,12 +1622,12 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
     size_t actCellCount = activeCellInfo()->reservoirActiveCellCount();
     if (actCellCount == 0) return;
 
-    size_t depthResultIndex  = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DEPTH");
-    size_t dxResultIndex     = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DX");
-    size_t dyResultIndex     = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DY");
-    size_t dzResultIndex     = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
-    size_t topsResultIndex   = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "TOPS");
-    size_t bottomResultIndex = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "BOTTOM");
+    size_t depthResultIndex  = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DEPTH" ));
+    size_t dxResultIndex     = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DX"    ));
+    size_t dyResultIndex     = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DY"    ));
+    size_t dzResultIndex     = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "DZ"    ));
+    size_t topsResultIndex   = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "TOPS"  ));
+    size_t bottomResultIndex = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "BOTTOM"));
 
     bool computeDepth  = false;
     bool computeDx     = false;
@@ -1604,12 +1672,12 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
         computeBottom     = true;
     }
 
-    std::vector<std::vector<double>>& depth  = this->cellScalarResults(depthResultIndex);
-    std::vector<std::vector<double>>& dx     = this->cellScalarResults(dxResultIndex);
-    std::vector<std::vector<double>>& dy     = this->cellScalarResults(dyResultIndex);
-    std::vector<std::vector<double>>& dz     = this->cellScalarResults(dzResultIndex);
-    std::vector<std::vector<double>>& tops   = this->cellScalarResults(topsResultIndex);
-    std::vector<std::vector<double>>& bottom = this->cellScalarResults(bottomResultIndex);
+    std::vector<std::vector<double>>& depth  = m_cellScalarResults[depthResultIndex];
+    std::vector<std::vector<double>>& dx     = m_cellScalarResults[dxResultIndex];
+    std::vector<std::vector<double>>& dy     = m_cellScalarResults[dyResultIndex];
+    std::vector<std::vector<double>>& dz     = m_cellScalarResults[dzResultIndex];
+    std::vector<std::vector<double>>& tops   = m_cellScalarResults[topsResultIndex];
+    std::vector<std::vector<double>>& bottom = m_cellScalarResults[bottomResultIndex];
 
     // Make sure the size is at least active cells
     {
@@ -1825,34 +1893,34 @@ void RigCaseCellResultsData::computeRiTransComponent(const QString& riTransCompo
 
     // Get the needed result indices we depend on
 
-    size_t permResultIdx = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, permCompName);
-    size_t ntgResultIdx  = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
+    size_t permResultIdx = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, permCompName));
+    size_t ntgResultIdx  = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "NTG"));
 
     bool hasNTGResults = ntgResultIdx != cvf::UNDEFINED_SIZE_T;
 
     // Get the result index of the output
 
-    size_t riTransResultIdx = this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, riTransComponentResultName);
+    size_t riTransResultIdx = this->findScalarResultIndexFromAddress(RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, riTransComponentResultName));
     CVF_ASSERT(riTransResultIdx != cvf::UNDEFINED_SIZE_T);
 
     // Get the result count, to handle that one of them might be globally defined
 
-    size_t permxResultValueCount = this->cellScalarResults(permResultIdx)[0].size();
+    size_t permxResultValueCount = m_cellScalarResults[permResultIdx][0].size();
     size_t resultValueCount      = permxResultValueCount;
     if (hasNTGResults)
     {
-        size_t ntgResultValueCount = this->cellScalarResults(ntgResultIdx)[0].size();
+        size_t ntgResultValueCount =  m_cellScalarResults[ntgResultIdx][0].size();
         resultValueCount           = CVF_MIN(permxResultValueCount, ntgResultValueCount);
     }
 
     // Get all the actual result values
 
-    std::vector<double>& permResults    = this->cellScalarResults(permResultIdx)[0];
-    std::vector<double>& riTransResults = this->cellScalarResults(riTransResultIdx)[0];
+    std::vector<double>& permResults    = m_cellScalarResults[permResultIdx][0];
+    std::vector<double>& riTransResults =  m_cellScalarResults[riTransResultIdx][0];
     std::vector<double>* ntgResults     = nullptr;
     if (hasNTGResults)
     {
-        ntgResults = &(this->cellScalarResults(ntgResultIdx)[0]);
+        ntgResults = &( m_cellScalarResults[ntgResultIdx][0]);
     }
 
     // Set up output container to correct number of results
@@ -1864,12 +1932,12 @@ void RigCaseCellResultsData::computeRiTransComponent(const QString& riTransCompo
     ResultIndexFunction permIdxFunc   = nullptr;
     ResultIndexFunction ntgIdxFunc    = nullptr;
     {
-        bool isPermUsingResIdx  = this->isUsingGlobalActiveIndex(permResultIdx);
-        bool isTransUsingResIdx = this->isUsingGlobalActiveIndex(riTransResultIdx);
+        bool isPermUsingResIdx  = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, permCompName));
+        bool isTransUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, riTransComponentResultName));
         bool isNtgUsingResIdx   = false;
         if (hasNTGResults)
         {
-            isNtgUsingResIdx = this->isUsingGlobalActiveIndex(ntgResultIdx);
+            isNtgUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "NTG"));
         }
 
         // Set up result index function pointers
@@ -1977,35 +2045,34 @@ void RigCaseCellResultsData::computeRiTransComponent(const QString& riTransCompo
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeNncCombRiTrans()
 {
-    size_t riCombTransScalarResultIndex =
-        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiTranResultName());
-    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransScalarResultIndex)) return;
+    RigEclipseResultAddress  riCombTransEclResAddr(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiTranResultName());
+    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult( riCombTransEclResAddr )) return;
 
     double cdarchy = darchysValue();
 
     // Get the needed result indices we depend on
 
-    size_t permXResultIdx = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMX");
-    size_t permYResultIdx = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMY");
-    size_t permZResultIdx = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMZ");
+    size_t permXResultIdx = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMX"));
+    size_t permYResultIdx = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMY"));
+    size_t permZResultIdx = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMZ"));
 
-    size_t ntgResultIdx = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
+    size_t ntgResultIdx = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "NTG"));
 
     bool hasNTGResults = ntgResultIdx != cvf::UNDEFINED_SIZE_T;
 
     // Get all the actual result values
 
-    std::vector<double>& permXResults = this->cellScalarResults(permXResultIdx)[0];
-    std::vector<double>& permYResults = this->cellScalarResults(permYResultIdx)[0];
-    std::vector<double>& permZResults = this->cellScalarResults(permZResultIdx)[0];
+    std::vector<double>& permXResults = m_cellScalarResults[permXResultIdx][0];
+    std::vector<double>& permYResults = m_cellScalarResults[permYResultIdx][0];
+    std::vector<double>& permZResults = m_cellScalarResults[permZResultIdx][0];
     std::vector<double>& riCombTransResults =
         m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombTrans());
-    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombTrans(), riCombTransScalarResultIndex);
+    m_ownerMainGrid->nncData()->setEclResultAddress(RigNNCData::propertyNameRiCombTrans(), riCombTransEclResAddr);
 
     std::vector<double>* ntgResults = nullptr;
     if (hasNTGResults)
     {
-        ntgResults = &(this->cellScalarResults(ntgResultIdx)[0]);
+        ntgResults = &(m_cellScalarResults[ntgResultIdx][0]);
     }
 
     // Prepare how to index the result values:
@@ -2014,13 +2081,13 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
     ResultIndexFunction permZIdxFunc = nullptr;
     ResultIndexFunction ntgIdxFunc   = nullptr;
     {
-        bool isPermXUsingResIdx = this->isUsingGlobalActiveIndex(permXResultIdx);
-        bool isPermYUsingResIdx = this->isUsingGlobalActiveIndex(permYResultIdx);
-        bool isPermZUsingResIdx = this->isUsingGlobalActiveIndex(permZResultIdx);
+        bool isPermXUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMX"));
+        bool isPermYUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMY"));
+        bool isPermZUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PERMZ"));
         bool isNtgUsingResIdx   = false;
         if (hasNTGResults)
         {
-            isNtgUsingResIdx = this->isUsingGlobalActiveIndex(ntgResultIdx);
+            isNtgUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "NTG"));
         }
 
         // Set up result index function pointers
@@ -2195,26 +2262,25 @@ void RigCaseCellResultsData::computeRiMULTComponent(const QString& riMultCompNam
 
     // Get the needed result indices we depend on
 
-    size_t transResultIdx   = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, transCompName);
-    size_t riTransResultIdx = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, riTransCompName);
+    size_t transResultIdx   = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, transCompName  ));
+    size_t riTransResultIdx = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, riTransCompName));
 
     // Get the result index of the output
 
-    size_t riMultResultIdx = this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, riMultCompName);
+    size_t riMultResultIdx = this->findScalarResultIndexFromAddress( RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, riMultCompName));
     CVF_ASSERT(riMultResultIdx != cvf::UNDEFINED_SIZE_T);
 
     // Get the result count, to handle that one of them might be globally defined
 
-    CVF_ASSERT(this->cellScalarResults(riTransResultIdx)[0].size() == this->cellScalarResults(transResultIdx)[0].size());
+    CVF_ASSERT(m_cellScalarResults[riTransResultIdx][0].size() == m_cellScalarResults[transResultIdx][0].size());
 
-    size_t resultValueCount = this->cellScalarResults(transResultIdx)[0].size();
+    size_t resultValueCount = m_cellScalarResults[transResultIdx][0].size();
 
     // Get all the actual result values
 
-    std::vector<double>& riTransResults = this->cellScalarResults(riTransResultIdx)[0];
-    std::vector<double>& transResults   = this->cellScalarResults(transResultIdx)[0];
-
-    std::vector<double>& riMultResults = this->cellScalarResults(riMultResultIdx)[0];
+    std::vector<double>& riTransResults = m_cellScalarResults[riTransResultIdx][0];
+    std::vector<double>& transResults   = m_cellScalarResults[transResultIdx][0];
+    std::vector<double>& riMultResults  = m_cellScalarResults[riMultResultIdx][0];
 
     // Set up output container to correct number of results
 
@@ -2231,22 +2297,22 @@ void RigCaseCellResultsData::computeRiMULTComponent(const QString& riMultCompNam
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeNncCombRiMULT()
 {
-    size_t riCombMultScalarResultIndex =
-        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiMultResultName());
-    size_t riCombTransScalarResultIndex =
-        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiTranResultName());
-    size_t combTransScalarResultIndex =
-        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
+    auto riCombMultEclResAddr  = RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiMultResultName());
+    auto riCombTransEclResAddr = RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiTranResultName());
+    auto combTransEclResAddr   = RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
 
-    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombMultScalarResultIndex)) return;
+    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombMultEclResAddr)) return;
 
     std::vector<double>& riMultResults =
         m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombMult());
+    
     const std::vector<double>* riTransResults =
-        m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransScalarResultIndex);
+        m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransEclResAddr);
+
     const std::vector<double>* transResults =
-        m_ownerMainGrid->nncData()->staticConnectionScalarResult(combTransScalarResultIndex);
-    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombMult(), riCombMultScalarResultIndex);
+        m_ownerMainGrid->nncData()->staticConnectionScalarResult(combTransEclResAddr);
+    
+    m_ownerMainGrid->nncData()->setEclResultAddress(RigNNCData::propertyNameRiCombMult(), riCombMultEclResAddr);
 
     for (size_t nncConIdx = 0; nncConIdx < riMultResults.size(); ++nncConIdx)
     {
@@ -2286,21 +2352,21 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent(const QString& riTran
 
     // Get the needed result indices we depend on
 
-    size_t tranCompScResIdx = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, transCompName);
+    size_t tranCompScResIdx = findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, transCompName));
 
     // Get the result index of the output
 
-    size_t riTranByAreaScResIdx = this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, riTransByAreaCompResultName);
+    size_t riTranByAreaScResIdx = this->findScalarResultIndexFromAddress( RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, riTransByAreaCompResultName));
     CVF_ASSERT(riTranByAreaScResIdx != cvf::UNDEFINED_SIZE_T);
 
     // Get the result count, to handle that one of them might be globally defined
 
-    size_t resultValueCount = this->cellScalarResults(tranCompScResIdx)[0].size();
+    size_t resultValueCount = m_cellScalarResults[tranCompScResIdx][0].size();
 
     // Get all the actual result values
 
-    std::vector<double>& transResults         = this->cellScalarResults(tranCompScResIdx)[0];
-    std::vector<double>& riTransByAreaResults = this->cellScalarResults(riTranByAreaScResIdx)[0];
+    std::vector<double>& transResults         = m_cellScalarResults[tranCompScResIdx][0];
+    std::vector<double>& riTransByAreaResults = m_cellScalarResults[riTranByAreaScResIdx][0];
 
     // Set up output container to correct number of results
 
@@ -2308,7 +2374,7 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent(const QString& riTran
 
     // Prepare how to index the result values:
 
-    bool isUsingResIdx = this->isUsingGlobalActiveIndex(tranCompScResIdx);
+    bool isUsingResIdx = this->isUsingGlobalActiveIndex(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, transCompName));
 
     // Set up result index function pointers
 
@@ -2367,18 +2433,20 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent(const QString& riTran
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
 {
-    size_t riCombTransByAreaScResIdx =
-        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiAreaNormTranResultName());
-    size_t combTransScalarResultIndex =
-        this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
+    auto riCombTransByAreaEclResAddr =
+        RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiAreaNormTranResultName());
+    auto combTransEclResAddr =
+        RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
 
-    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransByAreaScResIdx)) return;
+    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransByAreaEclResAddr)) return;
 
     std::vector<double>& riAreaNormTransResults =
         m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombTransByArea());
-    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombTransByArea(), riCombTransByAreaScResIdx);
+
+    m_ownerMainGrid->nncData()->setEclResultAddress(RigNNCData::propertyNameRiCombTransByArea(), riCombTransByAreaEclResAddr);
+    
     const std::vector<double>* transResults =
-        m_ownerMainGrid->nncData()->staticConnectionScalarResult(combTransScalarResultIndex);
+        m_ownerMainGrid->nncData()->staticConnectionScalarResult(combTransEclResAddr);
 
     const std::vector<RigConnection>& connections = m_ownerMainGrid->nncData()->connections();
 
@@ -2398,14 +2466,14 @@ void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
 void RigCaseCellResultsData::computeCompletionTypeForTimeStep(size_t timeStep)
 {
     size_t completionTypeResultIndex =
-        this->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
+        this->findScalarResultIndexFromAddress(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName()));
 
-    if (this->cellScalarResults(completionTypeResultIndex).size() < this->maxTimeStepCount())
+    if (m_cellScalarResults[completionTypeResultIndex].size() < this->maxTimeStepCount())
     {
-        this->cellScalarResults(completionTypeResultIndex).resize(this->maxTimeStepCount());
+        m_cellScalarResults[completionTypeResultIndex].resize(this->maxTimeStepCount());
     }
 
-    std::vector<double>& completionTypeResult = this->cellScalarResults(completionTypeResultIndex, timeStep);
+    std::vector<double>& completionTypeResult = m_cellScalarResults[completionTypeResultIndex][timeStep];
 
     size_t resultValues = m_ownerMainGrid->globalCellArray().size();
 
@@ -2437,13 +2505,15 @@ double RigCaseCellResultsData::darchysValue()
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeCellVolumes()
 {
-    size_t cellVolIdx = this->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riCellVolumeResultName(), false);
+    size_t cellVolIdx = this->findOrCreateScalarResultIndex(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, 
+                                                                                    RiaDefines::riCellVolumeResultName()), 
+                                                            false);
 
-    if (this->cellScalarResults(cellVolIdx).empty())
+    if (m_cellScalarResults[cellVolIdx].empty())
     {
-        this->cellScalarResults(cellVolIdx).resize(1);
+    m_cellScalarResults[cellVolIdx].resize(1);
     }
-    std::vector<double>& cellVolumeResults = this->cellScalarResults(cellVolIdx)[0];
+    std::vector<double>& cellVolumeResults = m_cellScalarResults[cellVolIdx][0];
 
     size_t cellResultCount = m_activeCellInfo->reservoirCellResultCount();
     cellVolumeResults.resize(cellResultCount, std::numeric_limits<double>::infinity());
@@ -2471,18 +2541,22 @@ void RigCaseCellResultsData::computeCellVolumes()
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeOilVolumes()
 {
-    size_t cellVolIdx = this->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riCellVolumeResultName(), false);
-    const std::vector<double>& cellVolumeResults = this->cellScalarResults(cellVolIdx)[0];
+    size_t cellVolIdx = this->findOrCreateScalarResultIndex(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, 
+                                                                                    RiaDefines::riCellVolumeResultName()), 
+                                                            false);
+    const std::vector<double>& cellVolumeResults = m_cellScalarResults[cellVolIdx][0];
 
-    size_t soilIdx = this->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-    size_t oilVolIdx = this->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::riOilVolumeResultName(), false);
-    this->cellScalarResults(oilVolIdx).resize(this->maxTimeStepCount());
+    size_t soilIdx = this->findOrLoadKnownScalarResult(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "SOIL"));
+    size_t oilVolIdx = this->findOrCreateScalarResultIndex( RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, 
+                                                                                    RiaDefines::riOilVolumeResultName()), 
+                                                           false);
+    m_cellScalarResults[oilVolIdx].resize(this->maxTimeStepCount());
 
     size_t cellResultCount = m_activeCellInfo->reservoirCellResultCount();
     for (size_t timeStepIdx = 0; timeStepIdx < this->maxTimeStepCount(); timeStepIdx++)
     {
-        const std::vector<double>& soilResults = this->cellScalarResults(soilIdx)[timeStepIdx];
-        std::vector<double>& oilVolumeResults = this->cellScalarResults(oilVolIdx)[timeStepIdx];
+        const std::vector<double>& soilResults = m_cellScalarResults[soilIdx][timeStepIdx];
+        std::vector<double>& oilVolumeResults  = m_cellScalarResults[oilVolIdx][timeStepIdx];
         oilVolumeResults.resize(cellResultCount, 0u);
 
 #pragma omp parallel for
@@ -2523,9 +2597,9 @@ void RigCaseCellResultsData::computeMobilePV()
     multpvResults =
         RigCaseCellResultsData::getResultIndexableStaticResult(this->activeCellInfo(), this, "MULTPV", multpvDataTemp);
 
-    size_t mobPVIdx = this->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName(), false);
+    size_t mobPVIdx = this->findOrCreateScalarResultIndex(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName()), false);
 
-    std::vector<double>& mobPVResults = this->cellScalarResults(mobPVIdx)[0];
+    std::vector<double>& mobPVResults = m_cellScalarResults[mobPVIdx][0];
 
     // Set up output container to correct number of results
     mobPVResults.resize(porvResults->size());
@@ -2578,6 +2652,78 @@ void RigCaseCellResultsData::setHdf5Filename(const QString& hdf5SourSimFilename)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::setActiveFormationNames(RigFormationNames* activeFormationNames)
+{
+    m_activeFormationNamesData  = activeFormationNames;
+
+    size_t totalGlobCellCount = m_ownerMainGrid->globalCellArray().size();
+    this->addStaticScalarResult(RiaDefines::FORMATION_NAMES,
+                                RiaDefines::activeFormationNamesResultName(),
+                                false,
+                                totalGlobCellCount);
+
+    std::vector<double>& fnData =  this->modifiableCellScalarResult(RigEclipseResultAddress(RiaDefines::FORMATION_NAMES, 
+                                                                                            RiaDefines::activeFormationNamesResultName()), 0);
+
+    if (m_activeFormationNamesData.isNull())
+    {
+        for ( size_t cIdx = 0; cIdx < totalGlobCellCount; ++cIdx )
+        {
+            fnData[cIdx] = HUGE_VAL;
+        }
+
+        return;
+    }
+
+    size_t localCellCount = m_ownerMainGrid->cellCount();
+    for (size_t cIdx = 0; cIdx < localCellCount; ++cIdx)
+    {
+        size_t i (cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
+
+        if(!m_ownerMainGrid->ijkFromCellIndex(cIdx, &i, &j, &k)) continue;
+
+        int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx(k);
+        if (formNameIdx != -1)
+        {
+            fnData[cIdx] = formNameIdx;
+        }
+        else
+        {
+            fnData[cIdx] = HUGE_VAL;
+        }
+    }
+
+    for (size_t cIdx = localCellCount; cIdx < totalGlobCellCount; ++cIdx)
+    {
+        size_t mgrdCellIdx =  m_ownerMainGrid->globalCellArray()[cIdx].mainGridCellIndex();
+
+        size_t i (cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
+
+        if(!m_ownerMainGrid->ijkFromCellIndex(mgrdCellIdx, &i, &j, &k)) continue;
+
+        int formNameIdx = activeFormationNames->formationIndexFromKLayerIdx(k);
+        if (formNameIdx != -1)
+        {
+            fnData[cIdx] = formNameIdx;
+        }
+        else
+        {
+            fnData[cIdx] = HUGE_VAL;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFormationNames* RigCaseCellResultsData::activeFormationNames()
+{
+    return m_activeFormationNamesData.p();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///  If we have any results on any time step, assume we have loaded results
 //--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::isDataPresent(size_t scalarResultIndex) const
@@ -2587,7 +2733,7 @@ bool RigCaseCellResultsData::isDataPresent(size_t scalarResultIndex) const
         return false;
     }
 
-    const std::vector<std::vector<double>>& data = this->cellScalarResults(scalarResultIndex);
+    const std::vector<std::vector<double>>& data = m_cellScalarResults[scalarResultIndex];
 
     for (size_t tsIdx = 0; tsIdx < data.size(); ++tsIdx)
     {
@@ -2656,3 +2802,132 @@ void RigCaseCellResultsData::assignValuesToTemporaryLgrs(const QString&       re
         RiaLogging::warning("Detected invalid/undefined cells when assigning result values to temporary LGRs");
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigStatisticsDataCache* RigCaseCellResultsData::statistics(const RigEclipseResultAddress& resVarAddr)
+{
+    return m_statisticsDataCache[findScalarResultIndexFromAddress(resVarAddr)].p();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigCaseCellResultsData::findScalarResultIndexFromAddress(const RigEclipseResultAddress& resVarAddr) const 
+{
+    if (!resVarAddr.isValid())
+    {
+        return cvf::UNDEFINED_SIZE_T;
+    }
+    else if (resVarAddr.m_resultCatType == RiaDefines::UNDEFINED)
+    {
+        RigEclipseResultAddress resVarAddressWithType =  resVarAddr;
+        
+        resVarAddressWithType.m_resultCatType = RiaDefines::STATIC_NATIVE;
+
+        size_t scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddressWithType);
+
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            resVarAddressWithType.m_resultCatType = RiaDefines::DYNAMIC_NATIVE;
+            scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddressWithType);
+        }
+
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            resVarAddressWithType.m_resultCatType = RiaDefines::SOURSIMRL;
+            scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddressWithType);
+        }
+
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            resVarAddressWithType.m_resultCatType = RiaDefines::GENERATED;
+            scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddressWithType);
+        }
+
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            resVarAddressWithType.m_resultCatType = RiaDefines::INPUT_PROPERTY;
+            scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddressWithType);
+        }
+
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            resVarAddressWithType.m_resultCatType = RiaDefines::FORMATION_NAMES;
+            scalarResultIndex = this->findScalarResultIndexFromAddress(resVarAddressWithType);
+        }
+
+        return scalarResultIndex;
+    }
+    else
+    {
+        std::vector<RigEclipseResultInfo>::const_iterator it;
+        for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
+        {
+            if (it->eclipseResultAddress() == resVarAddr)
+            {
+                return it->gridScalarResultIndex();
+            }
+        }
+
+        return cvf::UNDEFINED_SIZE_T;
+    }
+}
+
+#include "RimEclipseResultCase.h"
+
+//--------------------------------------------------------------------------------------------------
+/// Copy result meta data from main case to all other cases in grid case group
+/// This code was originally part of RimStatisticsCaseEvaluator, but moved here to be a general solution
+/// for all cases
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::copyResultsMetaDataFromMainCase(RigEclipseCaseData* mainCaseResultsData,
+                                     RiaDefines::PorosityModelType poroModel,
+                                     std::vector<RimEclipseCase*> destinationCases)
+{
+    std::vector<RigEclipseResultAddress> resAddresses = mainCaseResultsData->results(poroModel)->existingResults();
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos = mainCaseResultsData->results(poroModel)->timeStepInfos(resAddresses[0]);
+
+    const std::vector<RigEclipseResultInfo> resultInfos = mainCaseResultsData->results(poroModel)->infoForEachResultIndex();
+
+    for ( size_t i = 0; i < destinationCases.size(); i++ )
+    {
+        RimEclipseResultCase* rimReservoir = dynamic_cast<RimEclipseResultCase*>(destinationCases[i]);
+
+        if ( !rimReservoir ) continue; // Input reservoir
+        if (mainCaseResultsData == rimReservoir->eclipseCaseData()) continue; // Do not copy ontop of itself
+
+        RigCaseCellResultsData* cellResultsStorage = rimReservoir->results(poroModel);
+
+        for ( size_t resIdx = 0; resIdx < resultInfos.size(); resIdx++ )
+        {
+            RigEclipseResultAddress resVarAddr = resultInfos[resIdx].eclipseResultAddress();
+
+            bool needsToBeStored = resultInfos[resIdx].needsToBeStored();
+            bool mustBeCalculated = resultInfos[resIdx].mustBeCalculated();
+
+            size_t scalarResultIndex = cellResultsStorage->findScalarResultIndexFromAddress(resVarAddr);
+
+            if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
+            {
+                cellResultsStorage->createResultEntry(resVarAddr, needsToBeStored);
+
+                if ( mustBeCalculated )
+                {
+                    scalarResultIndex = cellResultsStorage->findScalarResultIndexFromAddress(resVarAddr);
+                    cellResultsStorage->setMustBeCalculated(scalarResultIndex);
+                }
+
+                cellResultsStorage->setTimeStepInfos(resVarAddr, timeStepInfos);
+
+                std::vector< std::vector<double> >& dataValues = cellResultsStorage->modifiableCellScalarResultTimesteps(resVarAddr);
+                dataValues.resize(timeStepInfos.size());
+            }
+        }
+
+        cellResultsStorage->createPlaceholderResultEntries();
+    }
+}
+

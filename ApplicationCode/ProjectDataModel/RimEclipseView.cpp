@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,8 @@
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
+
+#include "HoloLensCommands/RicExportToSharingServerScheduler.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -38,6 +40,8 @@
 
 #include "Rim2dIntersectionView.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimAnnotationCollection.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
@@ -49,82 +53,81 @@
 #include "RimFaultInViewCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
+#include "RimFracture.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimGridCollection.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
+#include "RimViewNameConfig.h"
 #include "RimVirtualPerforationResults.h"
 #include "RimWellPathCollection.h"
 
+#include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
-#include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
 #include "RivReservoirSimWellsPartMgr.h"
 #include "RivReservoirViewPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
 #include "RivTernarySaturationOverlayItem.h"
-#include "RivWellPathsPartMgr.h" 
-
-#include "RimFracture.h"
-#include "RimFractureTemplateCollection.h"
-#include "RimSimWellFracture.h"
 #include "RivWellFracturePartMgr.h"
-
+#include "RivWellPathsPartMgr.h"
 
 #include "cafCadNavigation.h"
 #include "cafCeetronPlusNavigation.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
-#include "cafPdmUiTreeOrdering.h"
 #include "cafOverlayScalarMapperLegend.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include "cvfDrawable.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfScene.h"
-#include "cvfViewport.h" 
+#include "cvfViewport.h"
 #include "cvfqtUtils.h"
 
 #include <QMessageBox>
 
-#include <limits.h>
-
-
+#include <climits>
 
 CAF_PDM_SOURCE_INIT(RimEclipseView, "ReservoirView");
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseView::RimEclipseView()
 {
-    RiaApplication* app = RiaApplication::instance();
+    RiaApplication* app         = RiaApplication::instance();
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT(preferences);
 
     CAF_PDM_InitObject("Reservoir View", ":/3DView16x16.png", "", "");
- 
-    CAF_PDM_InitFieldNoDefault(&m_cellResult,  "GridCellResult", "Cell Result", ":/CellResult.png", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_cellResult, "GridCellResult", "Cell Result", ":/CellResult.png", "", "");
     m_cellResult = new RimEclipseCellColors();
     m_cellResult.uiCapability()->setUiHidden(true);
+    m_cellResult->setDiffResultOptionsEnabled(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellEdgeResult, "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     m_cellEdgeResult = new RimCellEdgeColors();
     m_cellEdgeResult.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_faultResultSettings,  "FaultResultSettings", "Separate Fault Result", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_faultResultSettings, "FaultResultSettings", "Separate Fault Result", "", "", "");
     m_faultResultSettings = new RimEclipseFaultColors();
     m_faultResultSettings.uiCapability()->setUiHidden(true);
-  
+
     CAF_PDM_InitFieldNoDefault(&m_fractureColors, "StimPlanColors", "Fracture", "", "", "");
     m_fractureColors = new RimStimPlanColors();
     m_fractureColors.uiCapability()->setUiHidden(true);
@@ -141,17 +144,21 @@ RimEclipseView::RimEclipseView()
     m_faultCollection = new RimFaultInViewCollection;
     m_faultCollection.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_annotationCollection, "AnnotationCollection", "Annotations", "", "", "");
+    m_annotationCollection = new RimAnnotationInViewCollection;
+    m_annotationCollection.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "");
     m_propertyFilterCollection = new RimEclipsePropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiHidden(true);
 
     // Visualization fields
-    CAF_PDM_InitField(&m_showMainGrid_OBSOLETE,        "ShowMainGrid",         true,   "Show Main Grid",   "", "", "");
+    CAF_PDM_InitField(&m_showMainGrid_OBSOLETE, "ShowMainGrid", true, "Show Main Grid", "", "", "");
     RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_showMainGrid_OBSOLETE);
 
-    CAF_PDM_InitField(&m_showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
-    CAF_PDM_InitField(&m_showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
-   
+    CAF_PDM_InitField(&m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "");
+    CAF_PDM_InitField(&m_showInvalidCells, "ShowInvalidCells", false, "Show Invalid Cells", "", "", "");
+
     this->cellResult()->setReservoirView(this);
 
     this->cellEdgeResult()->setReservoirView(this);
@@ -160,12 +167,18 @@ RimEclipseView::RimEclipseView()
     this->faultResultSettings()->setReservoirView(this);
 
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
-    m_simWellsPartManager = new RivReservoirSimWellsPartMgr(this);
-    m_eclipseCase = nullptr;
+    m_simWellsPartManager      = new RivReservoirSimWellsPartMgr(this);
+    m_eclipseCase              = nullptr;
+
+    nameConfig()->setCustomName("3D View");
+    nameConfig()->hideCaseNameField(false);
+    nameConfig()->hideAggregationTypeField(true);
+    nameConfig()->hidePropertyField(false);
+    nameConfig()->hideSampleSpacingField(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseView::~RimEclipseView()
 {
@@ -176,15 +189,15 @@ RimEclipseView::~RimEclipseView()
     delete m_propertyFilterCollection;
     delete wellCollection();
     delete faultCollection();
+    delete annotationCollection();
 
     m_reservoirGridPartManager->clearGeometryCache();
 
     m_eclipseCase = nullptr;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors* RimEclipseView::cellResult() const
 {
@@ -192,7 +205,7 @@ RimEclipseCellColors* RimEclipseView::cellResult() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimCellEdgeColors* RimEclipseView::cellEdgeResult() const
 {
@@ -200,7 +213,7 @@ RimCellEdgeColors* RimEclipseView::cellEdgeResult() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseFaultColors* RimEclipseView::faultResultSettings() const
 {
@@ -208,7 +221,7 @@ RimEclipseFaultColors* RimEclipseView::faultResultSettings() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimStimPlanColors* RimEclipseView::fractureColors() const
 {
@@ -216,7 +229,7 @@ RimStimPlanColors* RimEclipseView::fractureColors() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSimWellInViewCollection* RimEclipseView::wellCollection() const
 {
@@ -224,7 +237,7 @@ RimSimWellInViewCollection* RimEclipseView::wellCollection() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFaultInViewCollection* RimEclipseView::faultCollection() const
 {
@@ -232,7 +245,7 @@ RimFaultInViewCollection* RimEclipseView::faultCollection() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimVirtualPerforationResults* RimEclipseView::virtualPerforationResult() const
 {
@@ -244,19 +257,19 @@ RimVirtualPerforationResults* RimEclipseView::virtualPerforationResult() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::clampCurrentTimestep()
 {
-    if (this->currentGridCellResults()) 
+    if (this->currentGridCellResults())
     {
         if (m_currentTimeStep() >= static_cast<int>(this->currentGridCellResults()->maxTimeStepCount()))
         {
-            m_currentTimeStep = static_cast<int>(this->currentGridCellResults()->maxTimeStepCount()) -1;
+            m_currentTimeStep = static_cast<int>(this->currentGridCellResults()->maxTimeStepCount()) - 1;
         }
     }
 
-    if (m_currentTimeStep < 0 ) m_currentTimeStep = 0;
+    if (m_currentTimeStep < 0) m_currentTimeStep = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::setVisibleGridParts(const std::vector<RivCellSetEnum>& cellSets)
 {
@@ -264,18 +277,18 @@ void RimEclipseView::setVisibleGridParts(const std::vector<RivCellSetEnum>& cell
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::setVisibleGridPartsWatertight()
 {
-    for (RivCellSetEnum cellSetType : m_visibleGridParts) 
-    { 
-        m_reservoirGridPartManager->forceWatertightGeometryOnForType(cellSetType); 
-    } 
+    for (RivCellSetEnum cellSetType : m_visibleGridParts)
+    {
+        m_reservoirGridPartManager->forceWatertightGeometryOnForType(cellSetType);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
@@ -291,7 +304,7 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     else if (changedField == &m_showInactiveCells)
     {
         this->updateGridBoxData();
-        
+
         this->scheduleGeometryRegen(INACTIVE);
         this->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
@@ -309,16 +322,16 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         this->scheduleGeometryRegen(PROPERTY_FILTERED);
 
         scheduleCreateDisplayModelAndRedraw();
-    }   
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateScaleTransform()
 {
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
-    scale(2, 2) = scaleZ();
+    scale(2, 2)      = scaleZ();
 
     this->scaleTransform()->setLocalTransform(scale);
     m_simWellsPartManager->setScaleTransform(this->scaleTransform());
@@ -352,7 +365,7 @@ void RimEclipseView::createDisplayModel()
 
     // Find the number of time frames the animation needs to show the requested data.
 
-    if (isTimeStepDependentDataVisible())
+    if (isTimeStepDependentDataVisible() && currentGridCellResults()->maxTimeStepCount() > 0)
     {
         CVF_ASSERT(currentGridCellResults());
 
@@ -361,25 +374,22 @@ void RimEclipseView::createDisplayModel()
         {
             timeStepIndices.push_back(i);
         }
-    } 
-    else if (this->cellResult()->hasStaticResult() 
-        || this->cellEdgeResult()->hasResult() 
-        || this->eclipsePropertyFilterCollection()->hasActiveFilters())
+    }
+    else if (this->cellResult()->hasStaticResult() || this->cellEdgeResult()->hasResult() ||
+             this->eclipsePropertyFilterCollection()->hasActiveFilters())
     {
         // The one and only result entry
         timeStepIndices.push_back(0);
     }
 
-
-
     cvf::Collection<cvf::ModelBasicList> frameModels;
-    size_t timeIdx;
+    size_t                               timeIdx;
     for (timeIdx = 0; timeIdx < timeStepIndices.size(); timeIdx++)
     {
         frameModels.push_back(new cvf::ModelBasicList);
     }
 
-    // Remove all existing animation frames from the viewer. 
+    // Remove all existing animation frames from the viewer.
     // The parts are still cached in the RivReservoir geometry and friends
     m_viewer->removeAllFrames();
 
@@ -389,15 +399,13 @@ void RimEclipseView::createDisplayModel()
     std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
 
     ///
-    // Get or create the parts for "static" type geometry. The same geometry is used 
+    // Get or create the parts for "static" type geometry. The same geometry is used
     // for the different frames. updateCurrentTimeStep updates the colors etc.
-    // For property filtered geometry : just set all the models as empty scenes 
+    // For property filtered geometry : just set all the models as empty scenes
     // updateCurrentTimeStep requests the actual parts
-    
 
-    if (!this->eclipsePropertyFilterCollection()->hasActiveFilters()
-        || ( this->viewController()
-             && this->viewController()->isVisibleCellsOveridden()) )
+    if (!this->eclipsePropertyFilterCollection()->hasActiveFilters() ||
+        (this->viewController() && this->viewController()->isVisibleCellsOveridden()))
     {
         std::vector<RivCellSetEnum> geometryTypesToAdd;
 
@@ -441,7 +449,7 @@ void RimEclipseView::createDisplayModel()
             }
         }
 
-        // NOTE: This assignment must be done here, as m_visibleGridParts is used in code triggered by 
+        // NOTE: This assignment must be done here, as m_visibleGridParts is used in code triggered by
         // m_reservoirGridPartManager->appendStaticGeometryPartsToModel()
         setVisibleGridParts(geometryTypesToAdd);
 
@@ -450,20 +458,21 @@ void RimEclipseView::createDisplayModel()
         {
             for (size_t gtIdx = 0; gtIdx < geometryTypesToAdd.size(); ++gtIdx)
             {
-                if ( isGridVisualizationMode() )
+                if (isGridVisualizationMode())
                 {
-                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), geometryTypesToAdd[gtIdx], gridIndices);
+                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(
+                        frameModels[frameIdx].p(), geometryTypesToAdd[gtIdx], gridIndices);
                 }
                 else
                 {
-                    m_reservoirGridPartManager->ensureStaticGeometryPartsCreated( geometryTypesToAdd[gtIdx]);
+                    m_reservoirGridPartManager->ensureStaticGeometryPartsCreated(geometryTypesToAdd[gtIdx]);
                 }
             }
         }
-        // Set static colors 
+        // Set static colors
         this->updateStaticCellColors();
     }
-    else 
+    else
     {
         std::vector<RivCellSetEnum> empty;
         setVisibleGridParts(empty);
@@ -471,27 +480,26 @@ void RimEclipseView::createDisplayModel()
 
     m_reservoirGridPartManager->clearWatertightGeometryFlags();
 
-    if (   faultCollection()->showFaultCollection()
-        || !this->eclipsePropertyFilterCollection()->hasActiveFilters() )
+    if (faultCollection()->showFaultCollection() || !this->eclipsePropertyFilterCollection()->hasActiveFilters())
     {
         setVisibleGridPartsWatertight();
 
         std::set<RivCellSetEnum> faultGeometryTypesToAppend = allVisibleFaultGeometryTypes();
-        RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend, faultCollection()->isShowingFaultsAndFaultsOutsideFilters());
+        RivCellSetEnum           faultLabelType             = m_reservoirGridPartManager->geometryTypeForFaultLabels(
+            faultGeometryTypesToAppend, faultCollection()->isShowingFaultsAndFaultsOutsideFilters());
 
         for (size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
             for (RivCellSetEnum geometryType : faultGeometryTypesToAppend)
             {
                 if (geometryType == PROPERTY_FILTERED || geometryType == PROPERTY_FILTERED_WELL_CELLS) continue;
-           
+
                 m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameModels[frameIdx].p(), geometryType);
             }
 
             m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultLabelType);
         }
     }
-
 
     // Cross sections
 
@@ -510,13 +518,13 @@ void RimEclipseView::createDisplayModel()
 
     addWellPathsToModel(m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox());
 
-    m_wellPathsPartManager->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox());
+    m_wellPathsPartManager->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p(),
+                                                             currentActiveCellInfo()->geometryBoundingBox());
     m_wellPathPipeVizModel->updateBoundingBoxesRecursive();
     m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
 
     // Create Scenes from the frameModels
     // Animation frames for results display, starts from frame 1
-
 
     size_t frameIndex;
     for (frameIndex = 0; frameIndex < frameModels.size(); frameIndex++)
@@ -545,19 +553,31 @@ void RimEclipseView::createDisplayModel()
         updateLegends();
     }
 
-    std::vector<RimFlowCharacteristicsPlot*> objects;
-    this->objectsWithReferringPtrFieldsOfType(objects);
-    for (auto plot : objects)
+    std::vector<RimFlowCharacteristicsPlot*> characteristicsPlots;
+    this->objectsWithReferringPtrFieldsOfType(characteristicsPlots);
+    for (auto plot : characteristicsPlots)
     {
         if (plot != nullptr)
         {
             plot->viewGeometryUpdated();
         }
     }
+
+    std::vector<RimGridCrossPlotDataSet*> curveSets;
+    this->objectsWithReferringPtrFieldsOfType(curveSets);
+    for (auto curveSet : curveSets)
+    {
+        if (curveSet != nullptr)
+        {
+            curveSet->cellFilterViewUpdated();
+        }
+    }
+
+    RicExportToSharingServerScheduler::instance()->scheduleUpdateSession();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateCurrentTimeStep()
 {
@@ -568,12 +588,14 @@ void RimEclipseView::updateCurrentTimeStep()
     updateVisibleGeometriesAndCellColors();
 
     appendWellsAndFracturesToModel();
-    
+
     m_overlayInfoConfig()->update3DInfo();
 
     // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
     // Visibility of wells differ betweeen time steps, so trigger a rebuild of tree state items
     wellCollection()->updateConnectedEditors();
+
+    RicExportToSharingServerScheduler::instance()->scheduleUpdateSession();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -599,8 +621,10 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
 
         if (isGridVisualizationMode())
         {
-            m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED, m_currentTimeStep, gridIndices);
-            m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
+            m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(
+                frameParts.p(), PROPERTY_FILTERED, m_currentTimeStep, gridIndices);
+            m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(
+                frameParts.p(), PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
         }
         else
         {
@@ -616,7 +640,8 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
         {
             if (geometryType == PROPERTY_FILTERED || geometryType == PROPERTY_FILTERED_WELL_CELLS)
             {
-                m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), geometryType, m_currentTimeStep);
+                m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(
+                    frameParts.p(), geometryType, m_currentTimeStep);
             }
             else
             {
@@ -624,10 +649,12 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
             }
         }
 
-        RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend, faultCollection()->isShowingFaultsAndFaultsOutsideFilters());
+        RivCellSetEnum faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(
+            faultGeometryTypesToAppend, faultCollection()->isShowingFaultsAndFaultsOutsideFilters());
         if (faultLabelType == PROPERTY_FILTERED)
         {
-            m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(frameParts.p(), faultLabelType, m_currentTimeStep);
+            m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(
+                frameParts.p(), faultLabelType, m_currentTimeStep);
         }
         else
         {
@@ -635,15 +662,17 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
         }
 
         // Set the transparency on all the Wellcell parts before setting the result color
-        float opacity = static_cast<float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
-        m_reservoirGridPartManager->updateCellColor(PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, cvf::Color4f(cvf::Color3f(cvf::Color3::WHITE), opacity));
-
+        float opacity = static_cast<float>(1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
+        m_reservoirGridPartManager->updateCellColor(
+            PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, cvf::Color4f(cvf::Color3f(cvf::Color3::WHITE), opacity));
 
         if (this->showInactiveCells())
         {
-            if (this->rangeFilterCollection()->hasActiveFilters()) // Wells not considered, because we do not have a INACTIVE_WELL_CELLS group yet.
+            if (this->rangeFilterCollection()
+                    ->hasActiveFilters()) // Wells not considered, because we do not have a INACTIVE_WELL_CELLS group yet.
             {
-                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RANGE_FILTERED_INACTIVE, gridIndices);
+                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(
+                    frameParts.p(), RANGE_FILTERED_INACTIVE, gridIndices);
 
                 if (!faultCollection()->isShowingFaultsAndFaultsOutsideFilters())
                 {
@@ -699,9 +728,11 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
     {
         if (this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult())
         {
-            m_reservoirGridPartManager->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
+            m_reservoirGridPartManager->updateCellEdgeResultColor(
+                geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
         }
-        else if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
+        else if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) ||
+                 this->cellResult()->isTernarySaturationSelected())
         {
             m_reservoirGridPartManager->updateCellResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult());
         }
@@ -713,12 +744,12 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
 
     this->updateFaultColors();
 
-
-    if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
+    if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) ||
+        this->cellResult()->isTernarySaturationSelected())
     {
         m_crossSectionCollection->updateCellResultColor(m_currentTimeStep,
-            this->cellResult()->legendConfig()->scalarMapper(),
-            this->cellResult()->ternaryLegendConfig()->scalarMapper());
+                                                        this->cellResult()->legendConfig()->scalarMapper(),
+                                                        this->cellResult()->ternaryLegendConfig()->scalarMapper());
     }
     else
     {
@@ -784,7 +815,8 @@ void RimEclipseView::appendWellsAndFracturesToModel()
                     f->firstAncestorOrThisOfType(simWell);
                     if (simWell)
                     {
-                        bool isAnyGeometryPresent = simWell->isWellPipeVisible(m_currentTimeStep) || simWell->isWellSpheresVisible(m_currentTimeStep);
+                        bool isAnyGeometryPresent =
+                            simWell->isWellPipeVisible(m_currentTimeStep) || simWell->isWellSpheresVisible(m_currentTimeStep);
                         if (!isAnyGeometryPresent)
                         {
                             continue;
@@ -802,7 +834,7 @@ void RimEclipseView::appendWellsAndFracturesToModel()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::onLoadDataAndUpdate()
 {
@@ -812,10 +844,10 @@ void RimEclipseView::onLoadDataAndUpdate()
     {
         if (!m_eclipseCase->openReserviorCase())
         {
-            QMessageBox::warning(RiuMainWindow::instance(), 
-                                "Error when opening project file", 
-                                "Could not open the Eclipse Grid file: \n"+ m_eclipseCase->gridFileName());
-            this->setEclipseCase( nullptr);
+            QMessageBox::warning(RiuMainWindow::instance(),
+                                 "Error when opening project file",
+                                 "Could not open the Eclipse Grid file: \n" + m_eclipseCase->gridFileName());
+            this->setEclipseCase(nullptr);
             return;
         }
     }
@@ -839,10 +871,12 @@ void RimEclipseView::onLoadDataAndUpdate()
     m_simWellsPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
-    
+
+    syncronizeLocalAnnotationsFromGlobal();
+
     {
         // Update simulation well fractures after well cell results are imported
-        
+
         std::vector<RimSimWellFracture*> simFractures;
         this->descendantsIncludingThisOfType(simFractures);
         for (auto fracture : simFractures)
@@ -859,10 +893,16 @@ void RimEclipseView::onLoadDataAndUpdate()
     this->scheduleCreateDisplayModelAndRedraw();
 }
 
-
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimEclipseView::userDescriptionField()
+{
+    return nameConfig()->nameField();
+}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::initAfterRead()
 {
@@ -880,27 +920,26 @@ void RimEclipseView::initAfterRead()
     this->updateUiIconFromToggleField();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateStaticCellColors()
 {
-    updateStaticCellColors( OVERRIDDEN_CELL_VISIBILITY);
-    updateStaticCellColors( ACTIVE);
-    updateStaticCellColors( ALL_WELL_CELLS);
-    updateStaticCellColors( VISIBLE_WELL_CELLS);
-    updateStaticCellColors( VISIBLE_WELL_FENCE_CELLS);
-    updateStaticCellColors( VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
-    updateStaticCellColors( VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
-    updateStaticCellColors( INACTIVE);
-    updateStaticCellColors( RANGE_FILTERED);
-    updateStaticCellColors( RANGE_FILTERED_WELL_CELLS);
-    updateStaticCellColors( RANGE_FILTERED_INACTIVE);
+    updateStaticCellColors(OVERRIDDEN_CELL_VISIBILITY);
+    updateStaticCellColors(ACTIVE);
+    updateStaticCellColors(ALL_WELL_CELLS);
+    updateStaticCellColors(VISIBLE_WELL_CELLS);
+    updateStaticCellColors(VISIBLE_WELL_FENCE_CELLS);
+    updateStaticCellColors(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+    updateStaticCellColors(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+    updateStaticCellColors(INACTIVE);
+    updateStaticCellColors(RANGE_FILTERED);
+    updateStaticCellColors(RANGE_FILTERED_WELL_CELLS);
+    updateStaticCellColors(RANGE_FILTERED_INACTIVE);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateStaticCellColors(RivCellSetEnum geometryType)
 {
@@ -919,34 +958,86 @@ void RimEclipseView::updateStaticCellColors(RivCellSetEnum geometryType)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color4f RimEclipseView::colorFromCellCategory(RivCellSetEnum geometryType) const
 {
-    float opacity = static_cast<float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
+    float opacity = static_cast<float>(1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
     cvf::Color4f color(cvf::Color3::ORANGE);
 
     switch (geometryType)
     {
-    case ACTIVE:                      color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-    case ALL_WELL_CELLS:              color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity); break;
-    case VISIBLE_WELL_CELLS:          color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity); break;
-    case VISIBLE_WELL_FENCE_CELLS:    color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-    case VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER:
-        color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity); break;
-    case VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER:
-        color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-    case INACTIVE:                    color = cvf::Color4f(RiaColorTables::undefinedCellColor());  break;
-    case RANGE_FILTERED:              color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-    case RANGE_FILTERED_WELL_CELLS:   color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity); break;
-    case RANGE_FILTERED_INACTIVE:     color = cvf::Color4f(RiaColorTables::undefinedCellColor());  break;
+        case ACTIVE:
+            color = cvf::Color4f(cvf::Color3::ORANGE);
+            break;
+        case ALL_WELL_CELLS:
+            color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity);
+            break;
+        case VISIBLE_WELL_CELLS:
+            color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity);
+            break;
+        case VISIBLE_WELL_FENCE_CELLS:
+            color = cvf::Color4f(cvf::Color3::ORANGE);
+            break;
+        case VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER:
+            color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity);
+            break;
+        case VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER:
+            color = cvf::Color4f(cvf::Color3::ORANGE);
+            break;
+        case INACTIVE:
+            color = cvf::Color4f(RiaColorTables::undefinedCellColor());
+            break;
+        case RANGE_FILTERED:
+            color = cvf::Color4f(cvf::Color3::ORANGE);
+            break;
+        case RANGE_FILTERED_WELL_CELLS:
+            color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity);
+            break;
+        case RANGE_FILTERED_INACTIVE:
+            color = cvf::Color4f(RiaColorTables::undefinedCellColor());
+            break;
     }
 
     return color;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseView::createAutoName() const
+{
+    QStringList autoName;
+
+    if (!nameConfig()->customName().isEmpty())
+    {
+        autoName.push_back(nameConfig()->customName());
+    }
+
+    QStringList generatedAutoTags;
+
+    RimCase* ownerCase = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(ownerCase);
+
+    if (nameConfig()->addCaseName())
+    {
+        generatedAutoTags.push_back(ownerCase->caseUserDescription());
+    }
+
+    if (nameConfig()->addProperty())
+    {
+        generatedAutoTags.push_back(cellResult()->resultVariable());
+    }
+
+    if (!generatedAutoTags.empty())
+    {
+        autoName.push_back(generatedAutoTags.join(", "));
+    }
+    return autoName.join(": ");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateDisplayModelVisibility()
 {
@@ -976,13 +1067,11 @@ RigCaseCellResultsData* RimEclipseView::currentGridCellResults()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RigActiveCellInfo* RimEclipseView::currentActiveCellInfo() const
 {
-    if (m_eclipseCase &&
-        m_eclipseCase->eclipseCaseData()
-        )
+    if (m_eclipseCase && m_eclipseCase->eclipseCaseData())
     {
         return m_eclipseCase->eclipseCaseData()->activeCellInfo(cellResult()->porosityModel());
     }
@@ -990,9 +1079,8 @@ const RigActiveCellInfo* RimEclipseView::currentActiveCellInfo() const
     return nullptr;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 {
@@ -1011,7 +1099,7 @@ void RimEclipseView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::scheduleReservoirGridGeometryRegen()
 {
@@ -1027,9 +1115,8 @@ void RimEclipseView::scheduleSimWellGeometryRegen()
     m_simWellsPartManager->scheduleGeometryRegen();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RimEclipseView::indicesToVisibleGrids() const
 {
@@ -1039,7 +1126,7 @@ std::vector<size_t> RimEclipseView::indicesToVisibleGrids() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateLegends()
 {
@@ -1048,7 +1135,7 @@ void RimEclipseView::updateLegends()
         m_viewer->removeAllColorLegends();
     }
 
-    if (!m_eclipseCase || !m_viewer || !m_eclipseCase->eclipseCaseData() )
+    if (!m_eclipseCase || !m_viewer || !m_eclipseCase->eclipseCaseData())
     {
         return;
     }
@@ -1072,7 +1159,7 @@ void RimEclipseView::updateLegends()
         {
             if (this->cellEdgeResult()->isUsingSingleVariable())
             {
-                this->cellEdgeResult()->singleVarEdgeResultColors()->updateLegendData(m_currentTimeStep);
+                this->cellEdgeResult()->singleVarEdgeResultColors()->updateLegendData(m_eclipseCase, m_currentTimeStep);
             }
             else
             {
@@ -1081,14 +1168,16 @@ void RimEclipseView::updateLegends()
                 this->cellEdgeResult()->minMaxCellEdgeValues(globalMin, globalMax);
                 this->cellEdgeResult()->posNegClosestToZero(globalPosClosestToZero, globalNegClosestToZero);
 
-                this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
+                this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(
+                    globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
                 this->cellEdgeResult()->legendConfig()->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
 
                 if (this->cellEdgeResult()->hasCategoryResult())
                 {
                     if (cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RiaDefines::FORMATION_NAMES)
                     {
-                        cellEdgeResult()->legendConfig()->setIntegerCategories(results->uniqueCellScalarValues(cellEdgeResult()->singleVarEdgeResultColors()->scalarResultIndex()));
+                        cellEdgeResult()->legendConfig()->setIntegerCategories(results->uniqueCellScalarValues(
+                            cellEdgeResult()->singleVarEdgeResultColors()->eclipseResultAddress()));
                     }
                     else
                     {
@@ -1098,27 +1187,45 @@ void RimEclipseView::updateLegends()
                 }
             }
 
-            this->cellEdgeResult()->legendConfig()->setTitle(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariableUiShortName());
+            this->cellEdgeResult()->legendConfig()->setTitle(QString("Edge Results: \n") +
+                                                             this->cellEdgeResult()->resultVariableUiShortName());
             m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig()->titledOverlayFrame());
         }
         else
         {
             this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(0, 0, 0, 0);
-            this->cellEdgeResult()->legendConfig()->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
+            this->cellEdgeResult()->legendConfig()->setAutomaticRanges(
+                cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
         }
     }
 
-    RimRegularLegendConfig* stimPlanLegend = fractureColors()->activeLegend();
-    if (stimPlanLegend && stimPlanLegend->showLegend())
     {
-        fractureColors()->updateLegendData();
-        
-        if (fractureColors()->isChecked() && stimPlanLegend->titledOverlayFrame())
+        bool hasAnyVisibleFractures = false;
         {
-            m_viewer->addColorLegendToBottomLeftCorner(stimPlanLegend->titledOverlayFrame());
+            std::vector<RimFracture*> fractures;
+            RiaApplication::instance()->project()->activeOilField()->descendantsIncludingThisOfType(fractures);
+
+            for (const auto& f : fractures)
+            {
+                if (f->isEnabled()) hasAnyVisibleFractures = true;
+            }
+        }
+
+        if (hasAnyVisibleFractures)
+        {
+            RimRegularLegendConfig* stimPlanLegend = fractureColors()->activeLegend();
+            if (stimPlanLegend && stimPlanLegend->showLegend())
+            {
+                fractureColors()->updateLegendData();
+
+                if (fractureColors()->isChecked() && stimPlanLegend->titledOverlayFrame())
+                {
+                    m_viewer->addColorLegendToBottomLeftCorner(stimPlanLegend->titledOverlayFrame());
+                }
+            }
         }
     }
-    
+
     if (m_virtualPerforationResult->showConnectionFactors() && m_virtualPerforationResult->legendConfig()->showLegend())
     {
         updateVirtualConnectionLegendRanges();
@@ -1129,17 +1236,30 @@ void RimEclipseView::updateLegends()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, 
-                                                          RimEclipseCellColors* resultColors, 
+void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString                 legendLabel,
+                                                          RimEclipseCellColors*   resultColors,
                                                           RigCaseCellResultsData* cellResultsData)
 {
-    resultColors->updateLegendData(m_currentTimeStep);
+    resultColors->updateLegendData(m_eclipseCase, m_currentTimeStep);
 
     if (resultColors->hasResult() && resultColors->legendConfig()->showLegend())
     {
-        resultColors->legendConfig()->setTitle(legendLabel + resultColors->resultVariableUiName());
+        QString title = legendLabel + resultColors->resultVariableUiName();
+        if (!resultColors->diffResultUiShortName().isEmpty())
+        {
+            title += QString("\n%1").arg(resultColors->diffResultUiShortName());
+        }
+
+        if (resultColors->hasDualPorFractureResult())
+        {
+            QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText(resultColors->porosityModel());
+
+            title += QString("\nDual Por : %1").arg(porosityModelText);
+        }
+
+        resultColors->legendConfig()->setTitle(title);
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->titledOverlayFrame());
     }
 
@@ -1155,19 +1275,19 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::setEclipseCase(RimEclipseCase* reservoir)
 {
     m_eclipseCase = reservoir;
     cellResult()->setEclipseCase(reservoir);
     faultResultSettings()->customFaultResult()->setEclipseCase(reservoir);
-    
+
     cellEdgeResult()->setEclipseCase(reservoir);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimEclipseView::eclipseCase() const
 {
@@ -1178,9 +1298,9 @@ RimEclipseCase* RimEclipseView::eclipseCase() const
 //
 /*
     wells vs wellres
-    For all wellres 
+    For all wellres
         find well
-            if no well, create new 
+            if no well, create new
         connect well and wellres
     for all wells not connected
         Delete ?
@@ -1189,12 +1309,11 @@ RimEclipseCase* RimEclipseView::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::syncronizeWellsWithResults()
 {
-    if (!(m_eclipseCase && m_eclipseCase->eclipseCaseData()) ) return;
+    if (!(m_eclipseCase && m_eclipseCase->eclipseCaseData())) return;
 
     cvf::Collection<RigSimWellData> wellResults = m_eclipseCase->eclipseCaseData()->wellResults();
 
- 
-    std::vector<caf::PdmPointer<RimSimWellInView> > newWells;
+    std::vector<caf::PdmPointer<RimSimWellInView>> newWells;
 
     // Clear the possible well results data present
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
@@ -1213,7 +1332,7 @@ void RimEclipseView::syncronizeWellsWithResults()
 
         if (!well)
         {
-            well = new RimSimWellInView;
+            well       = new RimSimWellInView;
             well->name = wellResults[wIdx]->m_wellName;
 
             isAnyWellCreated = true;
@@ -1227,8 +1346,8 @@ void RimEclipseView::syncronizeWellsWithResults()
 
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
-        RimSimWellInView* well = this->wellCollection()->wells()[wIdx];
-        RigSimWellData* simWellData = well->simWellData();
+        RimSimWellInView* well        = this->wellCollection()->wells()[wIdx];
+        RigSimWellData*   simWellData = well->simWellData();
         if (simWellData == nullptr)
         {
             delete well;
@@ -1252,7 +1371,23 @@ void RimEclipseView::syncronizeWellsWithResults()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::syncronizeLocalAnnotationsFromGlobal()
+{
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj && proj->activeOilField())
+    {
+        RimAnnotationCollection* annotColl = proj->activeOilField()->annotationCollection();
+        if (annotColl && annotationCollection())
+        {
+            annotationCollection()->onGlobalCollectionChanged(annotColl);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 const RivReservoirViewPartMgr* RimEclipseView::reservoirGridPartManager() const
 {
@@ -1260,17 +1395,17 @@ const RivReservoirViewPartMgr* RimEclipseView::reservoirGridPartManager() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivReservoirViewPartMgr * RimEclipseView::reservoirGridPartManager()
+RivReservoirViewPartMgr* RimEclipseView::reservoirGridPartManager()
 {
     return m_reservoirGridPartManager.p();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid)
+void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase* grid)
 {
     CVF_ASSERT(visibleCells != nullptr);
 
@@ -1288,13 +1423,13 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     // Loop over the wells and find their contribution
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
-        RimSimWellInView* well =  this->wellCollection()->wells()[wIdx];
+        RimSimWellInView* well = this->wellCollection()->wells()[wIdx];
         if (well->isWellCellsVisible())
         {
             RigSimWellData* simWellData = well->simWellData();
             if (!simWellData) continue;
 
-            const std::vector< RigWellResultFrame >& wellResFrames = simWellData->m_wellCellsTimeSteps;
+            const std::vector<RigWellResultFrame>& wellResFrames = simWellData->m_wellCellsTimeSteps;
             for (size_t wfIdx = 0; wfIdx < wellResFrames.size(); ++wfIdx)
             {
                 // Add all the cells from the branches
@@ -1303,7 +1438,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
                 for (size_t wsIdx = 0; wsIdx < wellResSegments.size(); ++wsIdx)
                 {
                     const std::vector<RigWellResultPoint>& wsResCells = wellResSegments[wsIdx].m_branchResultPoints;
-                    for (size_t cIdx = 0; cIdx < wsResCells.size(); ++ cIdx)
+                    for (size_t cIdx = 0; cIdx < wsResCells.size(); ++cIdx)
                     {
                         if (wsResCells[cIdx].m_gridIndex == grid->gridIndex())
                         {
@@ -1312,7 +1447,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
                                 continue;
                             }
 
-                            size_t gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
+                            size_t gridCellIndex           = wsResCells[cIdx].m_gridCellIndex;
                             (*visibleCells)[gridCellIndex] = true;
 
                             // Calculate well fence cells
@@ -1321,31 +1456,31 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
                                 size_t i, j, k;
                                 grid->ijkFromCellIndex(gridCellIndex, &i, &j, &k);
 
-                                size_t* pI = &i;
-                                size_t *pJ = &j;
-                                size_t *pK = &k;
-                                size_t cellCountFenceDirection = 0;
-                                size_t fIdx = 0;
+                                size_t* pI                      = &i;
+                                size_t* pJ                      = &j;
+                                size_t* pK                      = &k;
+                                size_t  cellCountFenceDirection = 0;
+                                size_t  fIdx                    = 0;
 
                                 if (this->wellCollection()->wellCellFenceType == RimSimWellInViewCollection::K_DIRECTION)
                                 {
                                     cellCountFenceDirection = grid->cellCountK();
-                                    pK = &fIdx;
+                                    pK                      = &fIdx;
                                 }
                                 else if (this->wellCollection()->wellCellFenceType == RimSimWellInViewCollection::J_DIRECTION)
                                 {
                                     cellCountFenceDirection = grid->cellCountJ();
-                                    pJ = &fIdx;
+                                    pJ                      = &fIdx;
                                 }
                                 else if (this->wellCollection()->wellCellFenceType == RimSimWellInViewCollection::I_DIRECTION)
                                 {
                                     cellCountFenceDirection = grid->cellCountI();
-                                    pI = &fIdx;
+                                    pI                      = &fIdx;
                                 }
 
-                                for ( fIdx = 0; fIdx < cellCountFenceDirection; ++fIdx)
+                                for (fIdx = 0; fIdx < cellCountFenceDirection; ++fIdx)
                                 {
-                                    size_t fenceCellIndex = grid->cellIndexFromIJK(*pI,*pJ,*pK);
+                                    size_t fenceCellIndex     = grid->cellIndexFromIJK(*pI, *pJ, *pK);
                                     size_t reservoirCellIndex = grid->reservoirCellIndex(fenceCellIndex);
 
                                     if (activeCellInfo && activeCellInfo->isActive(reservoirCellIndex))
@@ -1363,7 +1498,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateDisplayModelForWellResults()
 {
@@ -1380,13 +1515,11 @@ void RimEclipseView::updateDisplayModelForWellResults()
         m_viewer->animationControl()->setCurrentFrame(m_currentTimeStep);
     }
 
-    RiuMainWindow::instance()->refreshAnimationActions(); 
-   
+    RiuMainWindow::instance()->refreshAnimationActions();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
 {
@@ -1417,7 +1550,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
 
     for (const auto& propFilter : m_propertyFilterCollection()->propertyFilters)
     {
-        if (propFilter->isActive() && propFilter->resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
+        if (propFilter->isActive() && propFilter->resultDefinition()->resultVariable() == RiaDefines::completionTypeResultName())
         {
             isDependingOnCompletionType = true;
         }
@@ -1430,7 +1563,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
         std::vector<RimIntersection*> intersections = m_crossSectionCollection->intersections();
         for (auto intersection : intersections)
         {
-            if ( intersection && intersection->correspondingIntersectionView() )
+            if (intersection && intersection->correspondingIntersectionView())
             {
                 intersection->correspondingIntersectionView()->scheduleCreateDisplayModelAndRedraw();
             }
@@ -1439,7 +1572,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
 
     for (const auto& propFilter : m_propertyFilterCollection()->propertyFilters)
     {
-        if (propFilter->isActive() && propFilter->resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
+        if (propFilter->isActive() && propFilter->resultDefinition()->resultVariable() == RiaDefines::completionTypeResultName())
         {
             propFilter->updateConnectedEditors();
         }
@@ -1447,7 +1580,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseView::isVirtualConnectionFactorGeometryVisible() const
 {
@@ -1461,12 +1594,13 @@ bool RimEclipseView::isVirtualConnectionFactorGeometryVisible() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseView::isMainGridVisible() const
 {
     auto indicesToVisibleGrids = m_gridCollection->indicesToVisibleGrids();
-    bool isMainGridVisible = std::find(indicesToVisibleGrids.begin(), indicesToVisibleGrids.end(), 0) != indicesToVisibleGrids.end();
+    bool isMainGridVisible =
+        std::find(indicesToVisibleGrids.begin(), indicesToVisibleGrids.end(), 0) != indicesToVisibleGrids.end();
 
     if (!isMainGridVisible) return false;
 
@@ -1474,7 +1608,7 @@ bool RimEclipseView::isMainGridVisible() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<RivCellSetEnum>& RimEclipseView::visibleGridParts() const
 {
@@ -1482,7 +1616,7 @@ const std::vector<RivCellSetEnum>& RimEclipseView::visibleGridParts() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -1491,10 +1625,15 @@ void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup("Cell Visibility");
     cellGroup->add(&m_showInactiveCells);
     cellGroup->add(&m_showInvalidCells);
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("View Name");
+    nameConfig()->uiOrdering(uiConfigName, *nameGroup);
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
@@ -1509,8 +1648,8 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
     RimOilField* oilfield = project->activeOilField();
-    
-    if (oilfield && oilfield->fractureDefinitionCollection().notNull())
+
+    if (oilfield && oilfield->fractureDefinitionCollection())
     {
         if (!oilfield->fractureDefinitionCollection()->fractureTemplates().empty())
         {
@@ -1521,15 +1660,16 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(m_virtualPerforationResult);
 
     uiTreeOrdering.add(faultCollection());
+    uiTreeOrdering.add(annotationCollection());
     uiTreeOrdering.add(crossSectionCollection());
-    
+
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
     uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::set<RivCellSetEnum> RimEclipseView::allVisibleFaultGeometryTypes() const
 {
@@ -1551,7 +1691,7 @@ std::set<RivCellSetEnum> RimEclipseView::allVisibleFaultGeometryTypes() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateFaultColors()
 {
@@ -1563,7 +1703,8 @@ void RimEclipseView::updateFaultColors()
     {
         if (this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult())
         {
-            m_reservoirGridPartManager->updateFaultCellEdgeResultColor(cellSetType, m_currentTimeStep, faultResultColors, this->cellEdgeResult());
+            m_reservoirGridPartManager->updateFaultCellEdgeResultColor(
+                cellSetType, m_currentTimeStep, faultResultColors, this->cellEdgeResult());
         }
         else
         {
@@ -1572,20 +1713,19 @@ void RimEclipseView::updateFaultColors()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseView::isTimeStepDependentDataVisible() const
 {
     if (this->cellResult()->hasDynamicResult()) return true;
 
     if (this->eclipsePropertyFilterCollection()->hasActiveDynamicFilters()) return true;
-        
+
     if (this->wellCollection()->hasVisibleWellPipes()) return true;
 
     if (this->cellResult()->isTernarySaturationSelected()) return true;
-    
+
     if (this->faultResultSettings()->showCustomFaultResult())
     {
         if (this->faultResultSettings()->customFaultResult()->hasDynamicResult()) return true;
@@ -1593,16 +1733,15 @@ bool RimEclipseView::isTimeStepDependentDataVisible() const
         if (this->faultResultSettings()->customFaultResult()->isTernarySaturationSelected()) return true;
     }
 
-    if (this->wellPathCollection()->anyWellsContainingPerforationIntervals()) return true;
+    if (this->wellPathCollection() && this->wellPathCollection()->anyWellsContainingPerforationIntervals()) return true;
 
     if (this->hasVisibleTimeStepDependent3dWellLogCurves()) return true;
 
     return false;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors* RimEclipseView::currentFaultResultColors()
 {
@@ -1617,7 +1756,7 @@ RimEclipseCellColors* RimEclipseView::currentFaultResultColors()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::resetLegendsInViewer()
 {
@@ -1628,7 +1767,7 @@ void RimEclipseView::resetLegendsInViewer()
     this->cellEdgeResult()->legendConfig()->recreateLegend();
 
     m_viewer->removeAllColorLegends();
-    
+
     if (cellResultNormalLegendConfig)
     {
         m_viewer->addColorLegendToBottomLeftCorner(cellResultNormalLegendConfig->titledOverlayFrame());
@@ -1638,17 +1777,18 @@ void RimEclipseView::resetLegendsInViewer()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateVirtualConnectionLegendRanges()
 {
     if (!eclipseCase()) return;
 
-    const RigVirtualPerforationTransmissibilities* virtualTransmissibilities = eclipseCase()->computeAndGetVirtualPerforationTransmissibilities();
+    const RigVirtualPerforationTransmissibilities* virtualTransmissibilities =
+        eclipseCase()->computeAndGetVirtualPerforationTransmissibilities();
     if (virtualTransmissibilities)
     {
-        double minValue = HUGE_VAL;
-        double maxValue = -HUGE_VAL;
+        double minValue         = HUGE_VAL;
+        double maxValue         = -HUGE_VAL;
         double posClosestToZero = HUGE_VAL;
         double negClosestToZero = -HUGE_VAL;
 
@@ -1665,7 +1805,7 @@ void RimEclipseView::updateVirtualConnectionLegendRanges()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Transform* RimEclipseView::scaleTransform()
 {
@@ -1673,7 +1813,7 @@ cvf::Transform* RimEclipseView::scaleTransform()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimCase* RimEclipseView::ownerCase() const
 {
@@ -1681,7 +1821,7 @@ RimCase* RimEclipseView::ownerCase() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RimEclipseView::mainGrid() const
 {
@@ -1694,7 +1834,7 @@ RigMainGrid* RimEclipseView::mainGrid() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection* RimEclipseView::eclipsePropertyFilterCollection()
 {
@@ -1709,7 +1849,7 @@ RimEclipsePropertyFilterCollection* RimEclipseView::eclipsePropertyFilterCollect
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RimEclipsePropertyFilterCollection* RimEclipseView::eclipsePropertyFilterCollection() const
 {
@@ -1724,7 +1864,7 @@ const RimEclipsePropertyFilterCollection* RimEclipseView::eclipsePropertyFilterC
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::setOverridePropertyFilterCollection(RimEclipsePropertyFilterCollection* pfc)
 {
@@ -1739,7 +1879,7 @@ void RimEclipseView::setOverridePropertyFilterCollection(RimEclipsePropertyFilte
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep)
 {
@@ -1751,14 +1891,15 @@ void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 
     for (size_t gridIdx = 0; gridIdx < gridCount; ++gridIdx)
     {
-        RigGridBase * grid = this->eclipseCase()->eclipseCaseData()->grid(gridIdx);
-        int gridCellCount = static_cast<int>(grid->cellCount());
+        RigGridBase* grid          = this->eclipseCase()->eclipseCaseData()->grid(gridIdx);
+        int          gridCellCount = static_cast<int>(grid->cellCount());
 
         for (size_t gpIdx = 0; gpIdx < m_visibleGridParts.size(); ++gpIdx)
         {
-            const cvf::UByteArray* visibility =  m_reservoirGridPartManager->cellVisibility(m_visibleGridParts[gpIdx], gridIdx, timeStep);
+            const cvf::UByteArray* visibility =
+                m_reservoirGridPartManager->cellVisibility(m_visibleGridParts[gpIdx], gridIdx, timeStep);
 
-            for (int lcIdx = 0; lcIdx < gridCellCount; ++ lcIdx)
+            for (int lcIdx = 0; lcIdx < gridCellCount; ++lcIdx)
             {
                 (*totalVisibility)[grid->reservoirCellIndex(lcIdx)] |= (*visibility)[lcIdx];
             }
@@ -1767,7 +1908,7 @@ void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
 {
@@ -1785,7 +1926,7 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseView::showActiveCellsOnly()
 {
@@ -1793,11 +1934,11 @@ bool RimEclipseView::showActiveCellsOnly()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts)
 {
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
+    Riu3dSelectionManager*         riuSelManager = Riu3dSelectionManager::instance();
     std::vector<RiuSelectionItem*> items;
     riuSelManager->selectedItems(items);
 
@@ -1811,7 +1952,9 @@ void RimEclipseView::createPartCollectionFromSelection(cvf::Collection<cvf::Part
                 CVF_ASSERT(eclipseSelItem->m_view->eclipseCase());
                 CVF_ASSERT(eclipseSelItem->m_view->eclipseCase()->eclipseCaseData());
 
-                RivSingleCellPartGenerator partGen(eclipseSelItem->m_view->eclipseCase()->eclipseCaseData(), eclipseSelItem->m_gridIndex, eclipseSelItem->m_gridLocalCellIndex);
+                RivSingleCellPartGenerator partGen(eclipseSelItem->m_view->eclipseCase()->eclipseCaseData(),
+                                                   eclipseSelItem->m_gridIndex,
+                                                   eclipseSelItem->m_gridLocalCellIndex);
 
                 cvf::ref<cvf::Part> part = partGen.createPart(eclipseSelItem->m_color);
                 part->setTransform(this->scaleTransform());
@@ -1823,7 +1966,7 @@ void RimEclipseView::createPartCollectionFromSelection(cvf::Collection<cvf::Part
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateIconStateForFilterCollections()
 {
@@ -1836,7 +1979,7 @@ void RimEclipseView::updateIconStateForFilterCollections()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel)
 {
@@ -1848,17 +1991,17 @@ void RimEclipseView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::S
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseView::isUsingFormationNames() const
 {
     if ((cellResult()->resultType() == RiaDefines::FORMATION_NAMES)) return true;
-    
+
     return eclipsePropertyFilterCollection()->isUsingFormationNames();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseView::showInvalidCells() const
 {
@@ -1866,7 +2009,7 @@ bool RimEclipseView::showInvalidCells() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseView::showInactiveCells() const
 {
@@ -1874,7 +2017,7 @@ bool RimEclipseView::showInactiveCells() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RimPropertyFilterCollection* RimEclipseView::propertyFilterCollection() const
 {

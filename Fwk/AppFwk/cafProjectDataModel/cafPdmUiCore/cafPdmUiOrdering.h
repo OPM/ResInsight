@@ -67,6 +67,8 @@ public:
         int leftLabelColumnSpan;
     };
     typedef std::pair<PdmUiItem*, LayoutOptions> FieldAndLayout;
+    typedef std::vector<FieldAndLayout>          RowLayout;
+    typedef std::vector<RowLayout>               TableLayout;
 
     PdmUiOrdering(): m_skipRemainingFields(false) { };
     virtual ~PdmUiOrdering();
@@ -92,10 +94,18 @@ public:
     void                            skipRemainingFields(bool doSkip = true);
 
     // Pdm internal methods
+    
+    const std::vector<PdmUiItem*>            uiItems() const;
+    const std::vector<FieldAndLayout>&       uiItemsWithLayout() const;
 
-    const std::vector<PdmUiItem*>          uiItems() const;
-    const std::vector<FieldAndLayout>&     uiItemsWithLayout() const;
-    int                                    nrOfColumns() const;
+    std::vector<std::vector<FieldAndLayout>> calculateTableLayout(const QString& uiConfigName) const;
+    int                                      nrOfColumns(const TableLayout& tableLayout) const;
+    int                                      nrOfRequiredColumnsInRow(const RowLayout& rowItems) const;
+    int                                      nrOfExpandingItemsInRow(const RowLayout& rowItems) const;
+    void                                     nrOfColumnsRequiredForItem(const FieldAndLayout& fieldAndLayout,
+                                                                        int*                  totalColumnsRequired,
+                                                                        int*                  labelColumnsRequired,
+                                                                        int*                  fieldColumnsRequired) const;
     bool                                   contains(const PdmUiItem* item) const;
     bool                                   isIncludingRemainingFields() const;
 

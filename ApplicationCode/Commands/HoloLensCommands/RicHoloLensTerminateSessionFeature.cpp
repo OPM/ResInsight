@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,10 +18,12 @@
 
 #include "RicHoloLensTerminateSessionFeature.h"
 
+#include "RicHoloLensAutoExportToSharingServerFeature.h"
 #include "RicHoloLensSessionManager.h"
 
 #include "RiaLogging.h"
-#include "RiaQIconTools.h"
+
+#include "cafCmdFeatureManager.h"
 
 #include <QAction>
 
@@ -40,6 +42,13 @@ bool RicHoloLensTerminateSessionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensTerminateSessionFeature::onActionTriggered(bool isChecked)
 {
+    auto* cmdFeature = dynamic_cast<RicHoloLensAutoExportToSharingServerFeature*>(
+        caf::CmdFeatureManager::instance()->getCommandFeature("RicHoloLensAutoExportToSharingServerFeature"));
+    if (cmdFeature)
+    {
+        cmdFeature->setActive(false);
+    }
+
     RicHoloLensSessionManager::instance()->terminateSession();
 
     RicHoloLensSessionManager::refreshToolbarState();
@@ -50,11 +59,7 @@ void RicHoloLensTerminateSessionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensTerminateSessionFeature::setupActionLook(QAction* actionToSetup)
 {
-    QPixmap pixmap(":/hololens.png");
-    QPixmap overlayPixmap(":/minus-sign-red.png");
+    actionToSetup->setIcon(QIcon(":/HoloLensDisconnect24x24.png"));
 
-    QPixmap combinedPixmap = RiaQIconTools::appendPixmapUpperLeft(pixmap, overlayPixmap);
-    actionToSetup->setIcon(QIcon(combinedPixmap));
-
-    actionToSetup->setText("Terminate Session");
+    actionToSetup->setText("Disconnect from HoloLens server");
 }

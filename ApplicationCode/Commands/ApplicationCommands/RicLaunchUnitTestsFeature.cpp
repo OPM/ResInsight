@@ -31,7 +31,11 @@ CAF_CMD_SOURCE_INIT(RicLaunchUnitTestsFeature, "RicLaunchUnitTestsFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicLaunchUnitTestsFeature::isCommandEnabled()
 {
+#ifdef USE_UNIT_TESTS
     return true;
+#else
+    return false;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -44,22 +44,30 @@ public:
         SYMBOL_RECT,
         SYMBOL_DIAMOND,
         SYMBOL_TRIANGLE,
+        SYMBOL_DOWN_TRIANGLE,
         SYMBOL_CROSS,
         SYMBOL_XCROSS,
-        SYMBOL_DOWN_TRIANGLE,
         SYMBOL_LEFT_TRIANGLE,
         SYMBOL_RIGHT_TRIANGLE,
         SYMBOL_LEFT_ANGLED_TRIANGLE,
-        SYMBOL_RIGHT_ANGLED_TRIANGLE
+        SYMBOL_RIGHT_ANGLED_TRIANGLE,
+        SYMBOL_UP_TRIANGLE,
+        SYMBOL_STAR1,
+        SYMBOL_STAR2,
+        SYMBOL_HEXAGON
     };
 
     RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition = LabelAboveSymbol);
-
+    
     void    renderSymbols(QPainter *painter, const QPointF *points, int numPoints) const override;
     void    renderSymbolLabel(QPainter *painter, const QPointF& position) const;
     QString label() const { return m_label; }
+    void    setLabel(const QString& label);
 
     void    setLabelPosition(LabelPosition labelPosition);
+    
+    static PointSymbolEnum cycledSymbolStyle(int indexLevel1, int indexLevel2);
+    static PointSymbolEnum cycledSymbolStyle(int indexLevel);
 private:
     QRect   labelBoundingRect(const QPainter* painter, const QRect& symbolRect) const;
 

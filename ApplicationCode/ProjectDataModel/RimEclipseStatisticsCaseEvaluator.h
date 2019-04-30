@@ -24,7 +24,7 @@
 #include "RimEclipseStatisticsCase.h"
 
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 
 class RimEclipseCase;

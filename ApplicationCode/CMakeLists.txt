@@ -2,6 +2,22 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (ApplicationCode)
 
+# Open GL
+find_package( OpenGL )
+
+if (RESINSIGHT_BUILD_WITH_QT5)
+	find_package(Qt5 COMPONENTS Core QUIET)
+endif(RESINSIGHT_BUILD_WITH_QT5)
+
+if (Qt5Core_FOUND)
+	find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Network Script Widgets)
+    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Script Qt5::Widgets)
+else()
+    set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript)
+	find_package(Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED} REQUIRED)
+    include(${QT_USE_FILE})
+endif(Qt5Core_FOUND)
+
 # NB: The generated file is written to Cmake binary folder to avoid source tree pollution
 # This folder is added to include_directories
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
@@ -11,7 +27,7 @@ CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
   add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
-  message("Add flag to disable warings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
+  message(STATUS "Add flag to disable warings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
 endif()
 
 include_directories(
@@ -29,6 +45,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
+    ${CMAKE_CURRENT_SOURCE_DIR}/Measurement
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
@@ -37,8 +54,11 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface/Core
 
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Annotations
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
+	${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
     
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
@@ -88,9 +108,13 @@ list( APPEND REFERENCED_CMAKE_FILES
     FileInterface/CMakeLists_files.cmake
     
     ProjectDataModel/CMakeLists_files.cmake
+	ProjectDataModel/GridCrossPlots/CMakeLists_files.cmake
+	ProjectDataModel/GridCrossPlots/CellFilters/CMakeLists_files.cmake
     ProjectDataModel/Summary/CMakeLists_files.cmake
     ProjectDataModel/Flow/CMakeLists_files.cmake
+    ProjectDataModel/Annotations/CMakeLists_files.cmake
     ProjectDataModel/Completions/CMakeLists_files.cmake
+    ProjectDataModel/Measurement/CMakeLists_files.cmake
     
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
@@ -103,6 +127,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     
     Commands/CMakeLists_files.cmake
     Commands/ApplicationCommands/CMakeLists_files.cmake
+    Commands/AnnotationCommands/CMakeLists_files.cmake
     Commands/CompletionCommands/CMakeLists_files.cmake
     Commands/CompletionExportCommands/CMakeLists_files.cmake
     Commands/CrossSectionCommands/CMakeLists_files.cmake
@@ -110,9 +135,11 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
     Commands/ExportCommands/CMakeLists_files.cmake
     Commands/FlowCommands/CMakeLists_files.cmake
+	Commands/GridCrossPlotCommands/CMakeLists_files.cmake
     Commands/HoloLensCommands/CMakeLists_files.cmake
     Commands/IntersectionBoxCommands/CMakeLists_files.cmake
     Commands/IntersectionViewCommands/CMakeLists_files.cmake
+    Commands/MeasurementCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
     Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
     Commands/SummaryPlotCommands/CMakeLists_files.cmake
@@ -217,9 +244,14 @@ set ( QT_MOC_HEADERS
     SocketInterface/RiaSocketServer.h
 )
 
-qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
+if (Qt5Core_FOUND)
+	qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
+    qt5_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
+else()
+	qt4_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
+    qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
+endif()
 
-qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
 
 # NOTE! Resources in subfolders must append to QRC_FILES using the following statement
 #   set( QRC_FILES
@@ -234,7 +266,17 @@ set( QRC_FILES
 )
 
 # Runs RCC on specified files
-qt4_add_resources( QRC_FILES_CPP ${QRC_FILES} )
+if ( NOT CMAKE_AUTOMOC)
+	if (Qt5Core_FOUND)
+		qt5_add_resources( QRC_FILES_CPP
+			${QRC_FILES}
+		)
+	else()
+		qt4_add_resources( QRC_FILES_CPP
+			${QRC_FILES}
+		)
+	endif(Qt5Core_FOUND)
+endif(NOT CMAKE_AUTOMOC)
 
 # Adding resource (RC) files for Windows
 if ( MSVC )
@@ -270,7 +312,7 @@ endif()
 set( EXE_FILES
     ${EXE_FILES}
     ${CPP_SOURCES}
-    ${MOC_FILES_CPP}
+    ${MOC_SOURCE_FILES}
     ${FORM_FILES_CPP}
     ${QRC_FILES_CPP}
     ${WIN_RESOURCE}
@@ -278,6 +320,7 @@ set( EXE_FILES
     ${REFERENCED_CMAKE_FILES}
     ../ResInsightVersion.cmake
     ../.clang-format
+    ../.clang-tidy
 )
 
 add_executable( ResInsight ${EXE_FILES} )
@@ -361,20 +404,28 @@ if(RESINSIGHT_ENABLE_COTIRE)
         ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp
 
         # exclude file using Eigen
-        ReservoirDataModel/RigTransmissibilityCondenser.cpp
-        ReservoirDataModel/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
         ReservoirDataModel/RigCellGeometryTools.cpp
+        ReservoirDataModel/Completions/RigTransmissibilityCondenser.cpp
+        ReservoirDataModel/Completions/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
+        ReservoirDataModel/Completions/RigEclipseToStimPlanCalculator.cpp
 
         # exclude file using SolveSpace
-        Application/Tools/RiaSCurveCalculator.cpp
-        
-        # exclude test files due to cotire redefinition error report
-        UnitTests/RifCaseRealizationParametersReader-Test.cpp
+        Application/Tools/WellPathTools/RiaSCurveCalculator.cpp
+
+        # QT 5
+        qrc_cafAnimControl.cpp
+        qrc_ResInsight.cpp
+        ProjectDataModel/RimContourMapView.cpp
+        Commands/CompletionExportCommands/RicExportFractureCompletionsImpl.cpp
     )
 
     foreach (fileToExclude ${COTIRE_EXCLUDE_FILES})
         set_source_files_properties (${fileToExclude} PROPERTIES COTIRE_EXCLUDED TRUE)
     endforeach(fileToExclude)
+
+    foreach (cppFile ${CAF_COTIRE_START_NEW_UNITY_SOURCES})
+        set_source_files_properties (${cppFile} PROPERTIES COTIRE_START_NEW_UNITY_SOURCE TRUE)
+    endforeach(cppFile ${CAF_COTIRE_START_NEW_UNITY_SOURCES})
 
     # disable precompiled headers
     set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
@@ -398,11 +449,19 @@ endif()
 if (MSVC)
 
     # Qt DLLs
-    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd QtScript QtScriptd QtScriptTools QtScriptToolsd)
-    foreach (qtlib ${QTLIBLIST})
-        list(APPEND RI_DLL_FILENAMES ${QT_BINARY_DIR}/${qtlib}4.dll)
-    endforeach( qtlib )
-
+	if (Qt5Core_FOUND)
+        message(STATUS "Creating post build step for copying Qt DLLs")
+		foreach (qtlib ${QT_LIBRARIES})
+			add_custom_command(TARGET ResInsight POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:ResInsight>
+    		)
+		endforeach(qtlib)
+	else()
+ 		set (QTLIBLIST QtCore4 QtCored4 QtGui4 QtGuid4 QtOpenGl4 QtOpenGld4 QtNetwork4 QtNetworkd4 QtScript4 QtScriptd4 QtScriptTools4 QtScriptToolsd4)
+	    foreach (qtlib ${QTLIBLIST})
+        	list(APPEND RI_DLL_FILENAMES ${QT_BINARY_DIR}/${qtlib}.dll)
+    	endforeach( qtlib )
+	endif()
     # Odb Dlls
     if (RESINSIGHT_USE_ODB_API)
         # Find all the dlls
@@ -484,6 +543,56 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
         set (RESINSIGHT_FILES ${RI_DLL_FILENAMES})
 
+        if(Qt5_FOUND AND WIN32 AND TARGET Qt5::qmake AND NOT TARGET Qt5::windeployqt)
+          get_target_property(_qt5_qmake_location Qt5::qmake IMPORTED_LOCATION)
+
+          execute_process(
+            COMMAND "${_qt5_qmake_location}" -query QT_INSTALL_PREFIX
+            RESULT_VARIABLE return_code
+            OUTPUT_VARIABLE qt5_install_prefix
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+          )
+
+          set(imported_location "${qt5_install_prefix}/bin/windeployqt.exe")
+
+          if(EXISTS ${imported_location})
+            add_executable(Qt5::windeployqt IMPORTED)
+
+            set_target_properties(Qt5::windeployqt PROPERTIES
+              IMPORTED_LOCATION ${imported_location}
+            )
+          endif()
+        endif()
+
+        # TODO(wjwwood): find a way to make this optional or to run without "deploying" the
+        #                necessary dlls and stuff to the bin folder.
+        #                see:
+        # https://stackoverflow.com/questions/41193584/deploy-all-qt-dependencies-when-building#41199492
+        if(TARGET Qt5::windeployqt)
+          # execute windeployqt in a tmp directory after build
+          add_custom_command(TARGET ResInsight
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
+            COMMAND set PATH=%PATH%$<SEMICOLON>${qt5_install_prefix}/bin
+            COMMAND
+            Qt5::windeployqt
+			--no-compiler-runtime
+			--no-system-d3d-compiler
+			--no-quick-import
+			--no-translations
+            --verbose 0
+			--dir "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
+            "$<TARGET_FILE_DIR:ResInsight>/$<TARGET_FILE_NAME:ResInsight>"
+          )
+
+          # copy deployment directory during installation
+          install(
+            DIRECTORY
+            "${CMAKE_CURRENT_BINARY_DIR}/windeployqt/"
+            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+          )
+        endif()
+
         # CRT
         set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
         set(CMAKE_INSTALL_OPENMP_LIBRARIES ON)
@@ -541,14 +650,6 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(CPACK_GENERATOR ZIP)
 endif()
 
-if(RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE) 
-    get_filename_component(RESINSIGHT_OCTAVE_DIRECTORY ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} DIRECTORY)
-    
-    execute_process (COMMAND octave-config -v
-        WORKING_DIRECTORY ${RESINSIGHT_OCTAVE_DIRECTORY}
-                    OUTPUT_VARIABLE OCTAVE_VERSION_STRING
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif ()
 
 # Handling of system name on Windows
 if(${CMAKE_SYSTEM_NAME} MATCHES Windows)

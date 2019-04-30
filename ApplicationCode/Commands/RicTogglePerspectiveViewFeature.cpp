@@ -20,7 +20,7 @@
 #include "RicTogglePerspectiveViewFeature.h"
 
 #include "RiuViewer.h"
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "Rim3dView.h"
 #include "RimGridView.h"
 #include "RiuMainWindow.h"
@@ -37,7 +37,7 @@ bool RicTogglePerspectiveViewFeature::isCommandEnabled()
 {
     this->action(); // Retrieve the action to update the looks
     RimGridView* activeGridView = RiaApplication::instance()->activeGridView();
-    RimContourMapView* view2d = dynamic_cast<RimContourMapView*>(activeGridView);
+    RimEclipseContourMapView* view2d = dynamic_cast<RimEclipseContourMapView*>(activeGridView);
     return !view2d && activeGridView && RiaApplication::instance()->activeReservoirView()->viewer();
 }
 

@@ -35,7 +35,7 @@ class RigFemPartResults : public cvf::Object
 {
 public:
     RigFemPartResults();
-    ~RigFemPartResults();
+    ~RigFemPartResults() override;
 
     void initResultSteps(const std::vector<std::string>& stepNames);
 

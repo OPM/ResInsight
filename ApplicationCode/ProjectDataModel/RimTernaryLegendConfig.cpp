@@ -46,7 +46,7 @@ CAF_PDM_SOURCE_INIT(RimTernaryLegendConfig, "RimTernaryLegendConfig");
 //--------------------------------------------------------------------------------------------------
 RimTernaryLegendConfig::RimTernaryLegendConfig() 
 {
-    CAF_PDM_InitObject("Ternary Legend Definition", ":/Legend.png", "", "");
+    CAF_PDM_InitObject("Ternary Color Legend", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_showLegend, "ShowTernaryLegend", true, "Show Ternary Legend", "", "", "");
     m_showLegend.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&precision, "Precision", 2, "Significant digits", "", "The number of significant digits displayed in the legend numbers","");
@@ -226,7 +226,7 @@ void RimTernaryLegendConfig::recreateLegend()
     // has been removed, (and thus the opengl resources has been deleted) The text in 
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
-    cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+    cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
     m_legend = new RivTernarySaturationOverlayItem(standardFont);
     m_legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
 

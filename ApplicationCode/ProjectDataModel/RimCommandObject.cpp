@@ -165,7 +165,7 @@ void RimCommandFactory::createCommandObjects(const caf::PdmObjectGroup& selected
         {
             RimCalcScript* calcScript = dynamic_cast<RimCalcScript*>(pdmObject);
 
-            QFile file(calcScript->absolutePath);
+            QFile file(calcScript->absoluteFileName);
             if (file.open(QIODevice::ReadOnly | QIODevice::Text))
             {
                 QTextStream in(&file);

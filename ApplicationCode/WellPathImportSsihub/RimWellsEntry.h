@@ -44,8 +44,8 @@ public:
     static RimWellPathEntry* createWellPathEntry(const QString& name, const QString& surveyType, const QString& requestUrl, const QString& absolutePath, WellTypeEnum wellType);
 
 
-    virtual caf::PdmFieldHandle*    userDescriptionField();
-    virtual caf::PdmFieldHandle*    objectToggleField();
+    caf::PdmFieldHandle*    userDescriptionField() override;
+    caf::PdmFieldHandle*    objectToggleField() override;
     
     caf::PdmField<QString>                          name;
     caf::PdmField<bool>                             selected;

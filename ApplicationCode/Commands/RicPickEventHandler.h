@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
@@ -19,12 +20,14 @@
 
 #pragma once
 
+#include "RiuPickItemInfo.h"
+
 #include "cafCmdFeature.h"
+#include "cafPickEventHandler.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
-#include "RiuPickItemInfo.h"
 
 namespace cvf { 
     class Part; 
@@ -35,10 +38,10 @@ class Rim3dView;
 //==================================================================================================
 /// 
 //==================================================================================================
-class Ric3DPickEvent
+class Ric3dPickEvent : public caf::PickEvent
 {
 public:
-    Ric3DPickEvent(const std::vector<RiuPickItemInfo>& pickItemInfos, 
+    Ric3dPickEvent(const std::vector<RiuPickItemInfo>& pickItemInfos, 
                    Rim3dView* view)
         : m_pickItemInfos(pickItemInfos)
         , m_view(view)
@@ -56,16 +59,6 @@ public:
 class RicDefaultPickEventHandler
 {
 public:
-    virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) = 0;
-};
-
-//==================================================================================================
-/// A temporary, dynamic pick handler that overrides the default ones
-//==================================================================================================
-class RicPickEventHandler 
-{
-public:
-    virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) = 0;
-    virtual void notifyUnregistered() = 0;
+    virtual bool handle3dPickEvent(const Ric3dPickEvent& eventObject) = 0;
 };
 

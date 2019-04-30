@@ -171,13 +171,13 @@ std::vector<const RigWellPath*> RimSimWellInView::wellPipeBranches() const
     this->firstAncestorOrThisOfTypeAsserted(simWellCollection);
 
     RimEclipseCase* eclipseCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(eclipseCase);
-    RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
-    CVF_ASSERT(caseData);
-    if (caseData)
+    this->firstAncestorOrThisOfType(eclipseCase);
+    if (eclipseCase && eclipseCase->eclipseCaseData())
     {
+        RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
+
         bool includeCellCenters = this->isUsingCellCenterForPipe();
-        bool detectBrances = simWellCollection->isAutoDetectingBranches;
+        bool detectBrances      = simWellCollection->isAutoDetectingBranches;
 
         return caseData->simulationWellBranches(this->name(), includeCellCenters, detectBrances);
     }

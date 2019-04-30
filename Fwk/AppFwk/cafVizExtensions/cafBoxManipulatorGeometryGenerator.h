@@ -23,7 +23,7 @@ class BoxManipulatorGeometryGenerator : public cvf::Object
 {
 public:
     BoxManipulatorGeometryGenerator();
-    ~BoxManipulatorGeometryGenerator();
+    ~BoxManipulatorGeometryGenerator() override;
 
     void setOrigin(const cvf::Vec3d& origin);
     void setSize(const cvf::Vec3d& size);

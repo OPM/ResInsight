@@ -5,6 +5,14 @@ project (cafVizExtensions)
 # Open GL
 find_package( OpenGL )
 
+# Qt
+if (CAF_USE_QT5)
+	find_package(Qt5 COMPONENTS Core Gui OpenGL Widgets REQUIRED)
+else()
+	find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
+    include(${QT_USE_FILE})
+endif(CAF_USE_QT5)
+
 add_library( ${PROJECT_NAME}
     cafDisplayCoordTransform.cpp
     cafDisplayCoordTransform.h
@@ -18,6 +26,8 @@ add_library( ${PROJECT_NAME}
     cafCategoryLegend.h
 	cafOverlayScalarMapperLegend.h
 	cafOverlayScalarMapperLegend.cpp
+	cafOverlayScaleLegend.h
+	cafOverlayScaleLegend.cpp
 	cafInternalLegendRenderTools.h
  	cafInternalLegendRenderTools.cpp
     cafCategoryMapper.cpp
@@ -40,6 +50,11 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+
+if (CAF_USE_QT5)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
+endif(CAF_USE_QT5)
 
 target_link_libraries ( ${PROJECT_NAME}
     LibCore

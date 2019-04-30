@@ -264,7 +264,6 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::allCurveDefi
 
         for (SummarySource* currSource : selectedSummarySources())
         {
-            std::vector<SummarySource*> sourceSources;
             RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(currSource);
             RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(currSource);
 
@@ -321,7 +320,6 @@ std::vector<RiaCurveSetDefinition> RiuSummaryCurveDefSelection::allCurveSetDefin
         RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(currSource);
         if (!ensemble) continue;
 
-        std::vector<SummarySource*> sourceSources;
         std::set<RifEclipseSummaryAddress> addressesFromSource;
 
         // Build case list
@@ -425,7 +423,7 @@ void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<SummaryS
 
     if (allSumCases.size() > 0)
     {
-        RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress();
+        RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress::fieldAddress("FOPT");
 
         std::vector<SummarySource*> selectTheseSources = defaultSources;
         if (selectTheseSources.empty()) selectTheseSources.push_back(allSumCases[0]);
@@ -580,7 +578,6 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
     if (fieldNeedingOptions == &m_selectedSources)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        std::vector<RimSummaryCase*> topLevelCases;
         std::vector<RimOilField*> oilFields;
 
         proj->allOilFields(oilFields);

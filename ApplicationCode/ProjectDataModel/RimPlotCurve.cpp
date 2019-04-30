@@ -96,6 +96,9 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault(&m_customCurveName, "CurveDescription", "Custom Name", "", "", "");
     m_customCurveName.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_legendEntryText, "LegendDescription", "Legend Name", "", "", "");
+    m_legendEntryText.uiCapability()->setUiHidden(true);
+    
     CAF_PDM_InitField(&m_isUsingAutoName, "AutoName", true, "Auto Name", "", "", "");
 
     CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
@@ -106,6 +109,7 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault(&m_curveInterpolation, "CurveInterpolation", "Interpolation", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_lineStyle, "LineStyle", "Line Style", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_pointSymbol, "PointSymbol", "Symbol", "", "", "");
+    CAF_PDM_InitField(&m_symbolEdgeColor, "SymbolEdgeColor", cvf::Color3f(cvf::Color3::BLACK), "Symbol Edge Color", "", "", "");
 
     CAF_PDM_InitField(&m_symbolSkipPixelDistance, "SymbolSkipPxDist", 0.0f, "Symbol Skip Distance", "", "Minimum pixel distance between symbols", "");
 
@@ -159,7 +163,8 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
              || &m_lineStyle == changedField
              || &m_symbolSkipPixelDistance == changedField
              || &m_curveInterpolation == changedField
-             || &m_symbolSize == changedField)
+             || &m_symbolSize == changedField
+             || &m_symbolEdgeColor == changedField)
     {
         updateCurveAppearance();
 
@@ -211,6 +216,26 @@ void RimPlotCurve::setCustomName(const QString& customName)
 {
     m_isUsingAutoName = false;
     m_customCurveName = customName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPlotCurve::legendEntryText() const
+{
+    if (!m_legendEntryText().isEmpty())
+    {
+        return m_legendEntryText;
+    }
+    return m_customCurveName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setLegendEntryText(const QString& legendEntryText)
+{
+    m_legendEntryText = legendEntryText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -287,6 +312,10 @@ void RimPlotCurve::setParentQwtPlotNoReplot(QwtPlot* plot)
     {
         m_qwtPlotCurve->attach(m_parentQwtPlot);
     }
+    else
+    {
+        m_qwtPlotCurve->detach();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -350,9 +379,9 @@ void RimPlotCurve::setCurveVisiblity(bool visible)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateCurveNameAndUpdatePlotLegendAndTitle()
+void RimPlotCurve::updateCurveName()
 {
     if (m_isUsingAutoName)
     {
@@ -363,7 +392,23 @@ void RimPlotCurve::updateCurveNameAndUpdatePlotLegendAndTitle()
         m_curveName = m_customCurveName;
     }
 
-    m_qwtPlotCurve->setTitle(m_curveName);
+    if (!m_legendEntryText().isEmpty())
+    {
+        m_qwtPlotCurve->setTitle(m_legendEntryText);
+    }
+    else
+    {
+        m_qwtPlotCurve->setTitle(m_curveName);
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateCurveNameAndUpdatePlotLegendAndTitle()
+{
+    updateCurveName();
     updateLegendEntryVisibilityAndPlotLegend();
 }
 
@@ -371,17 +416,8 @@ void RimPlotCurve::updateCurveNameAndUpdatePlotLegendAndTitle()
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveNameNoLegendUpdate()
-{
-    if (m_isUsingAutoName)
-    {
-        m_curveName = this->createCurveAutoName();
-    }
-    else
-    {
-        m_curveName = m_customCurveName;
-    }
-
-    m_qwtPlotCurve->setTitle(m_curveName);
+{  
+    updateCurveName();
     updateLegendEntryVisibilityNoPlotUpdate();
 }
 
@@ -419,12 +455,21 @@ void RimPlotCurve::updateLegendsInPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    throw std::logic_error("The method or operation is not implemented.");
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_curveColor);
     uiOrdering.add(&m_pointSymbol);
+    uiOrdering.add(&m_symbolEdgeColor);
     uiOrdering.add(&m_symbolSize);
     uiOrdering.add(&m_symbolSkipPixelDistance);
     uiOrdering.add(&m_lineStyle);
@@ -440,6 +485,22 @@ void RimPlotCurve::curveNameUiOrdering(caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_isUsingAutoName);
     uiOrdering.add(&m_curveName);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateUiIconFromPlotSymbol()
+{
+    if (m_pointSymbol() != RiuQwtSymbol::NoSymbol)
+    {
+        QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
+
+        QSizeF iconSize(24, 24);
+        QwtGraphic graphic = m_qwtPlotCurve->legendIcon(0, iconSize);
+        QPixmap pixmap = graphic.toPixmap();
+        setUiIcon(QIcon(pixmap));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -479,8 +540,7 @@ void RimPlotCurve::updateCurveAppearance()
 {
     CVF_ASSERT(m_qwtPlotCurve);
 
-    QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
-
+    QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());    
     QwtSymbol* symbol = nullptr;
 
     if (m_pointSymbol() != RiuQwtSymbol::SYMBOL_NONE)
@@ -489,6 +549,10 @@ void RimPlotCurve::updateCurveAppearance()
         symbol = new RiuQwtSymbol(m_pointSymbol(), m_symbolLabel, m_symbolLabelPosition);
         symbol->setSize(m_symbolSize, m_symbolSize);
         symbol->setColor(curveColor);
+
+        QColor symbolEdgeColor(m_symbolEdgeColor.value().rByte(), m_symbolEdgeColor.value().gByte(), m_symbolEdgeColor.value().bByte());
+
+        symbol->setPen(symbolEdgeColor);
     }
 
     m_qwtPlotCurve->setAppearance(m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor);
@@ -500,18 +564,21 @@ void RimPlotCurve::updateCurveAppearance()
     // Make sure the legend lines are long enough to distinguish between line types.
     // Standard width in Qwt is 8 which is too short.
     // Use 10 and scale this by curve thickness + add space for displaying symbol.
-    QSize legendIconSize = m_qwtPlotCurve->legendIconSize();
-    
-    int symbolWidth = 0;
-    if (symbol)
+    if (m_lineStyle() != RiuQwtPlotCurve::STYLE_NONE)
     {
-        symbolWidth = symbol->boundingRect().size().width() + 2;
-    }
+        QSize legendIconSize = m_qwtPlotCurve->legendIconSize();
 
-    int width = std::max(10 * m_curveThickness, (symbolWidth * 3) / 2);
-    
-    legendIconSize.setWidth(width);
-    m_qwtPlotCurve->setLegendIconSize(legendIconSize);
+        int symbolWidth = 0;
+        if (symbol)
+        {
+            symbolWidth = symbol->boundingRect().size().width() + 2;
+        }
+
+        int width = std::max(10 * m_curveThickness, (symbolWidth * 3) / 2);
+
+        legendIconSize.setWidth(width);
+        m_qwtPlotCurve->setLegendIconSize(legendIconSize);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -615,6 +682,22 @@ RiuQwtSymbol::PointSymbolEnum RimPlotCurve::symbol()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimPlotCurve::symbolEdgeColor() const
+{
+    return m_symbolEdgeColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSymbolEdgeColor(const cvf::Color3f& edgeColor)
+{
+    m_symbolEdgeColor = edgeColor;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setSymbolSkipDistance(float distance)
@@ -652,6 +735,7 @@ void RimPlotCurve::setLineThickness(int thickness)
 void RimPlotCurve::resetAppearance()
 {
     setColor(cvf::Color3f(cvf::Color3::BLACK));
+    setSymbolEdgeColor(cvf::Color3f(cvf::Color3::BLACK));
     setLineThickness(2);
     setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
     setSymbol(RiuQwtSymbol::SYMBOL_NONE);

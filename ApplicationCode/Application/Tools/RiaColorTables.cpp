@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaColorTables.h"
+#include "RiaColorTools.h"
+
+#include "cvfAssert.h"
 
 #include <QColor>
 
@@ -159,6 +162,16 @@ const caf::ColorTable& RiaColorTables::redWhiteBluePaletteColors()
 const caf::ColorTable& RiaColorTables::categoryPaletteColors()
 {
     static caf::ColorTable colorTable = caf::ColorTable(categoryColors());
+
+    return colorTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const caf::ColorTable& RiaColorTables::contrastCategoryPaletteColors()
+{
+    static caf::ColorTable colorTable = caf::ColorTable(contrastCategoryColors());
 
     return colorTable;
 }
@@ -515,7 +528,7 @@ cvf::Color3f RiaColorTables::undefinedCellColor()
 //--------------------------------------------------------------------------------------------------
 RiaColorTables::WellPathComponentColors RiaColorTables::wellPathComponentColors()
 {
-    return {{RiaDefines::WELL_PATH, cvf::Color3::CEETRON},            
+    return {{RiaDefines::WELL_PATH, cvf::Color3::CEETRON},
             {RiaDefines::PERFORATION_INTERVAL, cvf::Color3::DARK_MAGENTA},
             {RiaDefines::FISHBONES, cvf::Color3::DARK_GREEN},
             {RiaDefines::FRACTURE, cvf::Color3::CRIMSON},
@@ -524,7 +537,67 @@ RiaColorTables::WellPathComponentColors RiaColorTables::wellPathComponentColors(
             {RiaDefines::ICV, cvf::Color3::ORCHID},
             {RiaDefines::CASING, cvf::Color3::SEA_GREEN},
             {RiaDefines::LINER, cvf::Color3::OLIVE},
-            {RiaDefines::PACKER, cvf::Color3::GRAY}};
+            {RiaDefines::PACKER, cvf::Color3::GRAY},
+            {RiaDefines::UNDEFINED_COMPONENT, cvf::Color3::MAGENTA}};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTables::defaultGridLineColor()
+{
+    return cvf::Color3f(0.92f, 0.92f, 0.92f);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTables::defaultFaultLineColor()
+{
+    return cvf::Color3f(0.08f, 0.08f, 0.08f);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTables::defaultWellLabelColor()
+{
+    return cvf::Color3f(0.92f, 0.92f, 0.92f);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTables::defaultViewerBackgroundColor()
+{
+    return cvf::Color3f(0.69f, 0.77f, 0.87f);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::ColorTable RiaColorTables::createBrightnessBasedColorTable(cvf::Color3ub baseColor, int brightnessLevelCount)
+{
+    CVF_ASSERT(brightnessLevelCount >= 1);
+    QColor baseRGB(baseColor.r(), baseColor.g(), baseColor.b());
+    float hueF = baseRGB.hslHueF();
+    float satF = baseRGB.hslSaturationF();
+        
+    std::vector<cvf::Color3ub> colors;
+    if (brightnessLevelCount == 1)
+    {
+        colors.push_back(cvf::Color3ub(RiaColorTools::fromQColorTo3f(QColor::fromHslF(hueF, satF, 0.5))));
+    }
+    else
+    {
+        for (int i = 0; i < brightnessLevelCount; ++i)
+        {
+            float brightness = static_cast<float>(i) / static_cast<float>(brightnessLevelCount - 1);
+            colors.push_back(cvf::Color3ub(RiaColorTools::fromQColorTo3f(QColor::fromHslF(hueF, satF, brightness))));
+        }
+    }
+    return caf::ColorTable(colors);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -557,6 +630,42 @@ std::vector<cvf::Color3ub> RiaColorTables::categoryColors()
         cvf::Color3ub(  0,  83, 138),  // hwb(204,  0%, 46%) strong_blue
         cvf::Color3ub(166, 189, 215),  // hwb(212, 65%, 16%) very_light_blue
         cvf::Color3ub( 46,  76, 224)   // hwb(230, 18%, 12%) medium_blue
+    };
+
+    return colors;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Color3ub> RiaColorTables::contrastCategoryColors()
+{
+    // Based on http://stackoverflow.com/questions/470690/how-to-automatically-generate-n-distinct-colors
+    // and Kelly Colors and sorted by hue
+    // See also http://www.w3schools.com/colors/ for palettes etc.
+
+    static std::vector<cvf::Color3ub> colors{
+        cvf::Color3ub(244, 200, 0), // hwb( 49,  0%,  4%) vivid_greenish_yellow
+        cvf::Color3ub(128, 62, 117), // hwb(310, 24%, 50%) strong_purple
+        cvf::Color3ub(255, 104, 0), // hwb( 24,  0%,  0%) vivid_orange
+        cvf::Color3ub(166, 189, 215), // hwb(212, 65%, 16%) very_light_blue
+        cvf::Color3ub(193, 0, 32), // hwb(350,  0%, 24%) vivid_red
+        cvf::Color3ub(206, 162, 98), // hwb( 36, 38%, 19%) grayish_yellow
+        cvf::Color3ub(129, 112, 102), // hwb( 22, 40%, 49%) medium_gray
+        cvf::Color3ub(0, 125, 52), // hwb(145,  0%, 51%) vivid_green
+        cvf::Color3ub(246, 118, 142), // hwb(349, 46%,  4%) strong_purplish_pink
+        cvf::Color3ub(0, 83, 138), // hwb(204,  0%, 46%) strong_blue
+        cvf::Color3ub(255, 122, 92), // hwb( 11, 36%,  0%) strong_yellowish_pink
+        cvf::Color3ub(212, 28, 132), // hwb(326, 11%, 17%) strong_purplish_red
+        cvf::Color3ub(255, 142, 0), // hwb( 33,  0%,  0%) vivid_orange_yellow
+        cvf::Color3ub(59, 84, 23), // hwb( 85,  9%, 67%) dark_olive_green
+        cvf::Color3ub(127, 24, 13), // hwb(  6,  5%, 50%) strong_reddish_brown
+        cvf::Color3ub(54, 125, 123), // hwb(178, 21%, 51%) vivid_blueish_green
+        cvf::Color3ub(241, 58, 19), // hwb( 11,  7%,  5%) vivid_reddish_orange
+        cvf::Color3ub(147, 170, 0), // hwb( 68,  0%, 33%) vivid_yellowish_green
+        cvf::Color3ub(46, 76, 224), // hwb(230, 18%, 12%) medium_blue
+        cvf::Color3ub(89, 51, 21), // hwb( 26,  8%, 65%) deep_yellowish_brown
+        cvf::Color3ub(0, 0, 0) //     hwb(0, 0%, 100%) black
     };
 
     return colors;

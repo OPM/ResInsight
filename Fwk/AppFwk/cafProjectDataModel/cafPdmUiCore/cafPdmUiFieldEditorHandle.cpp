@@ -112,6 +112,10 @@ void PdmUiFieldEditorHandle::createWidgets(QWidget * parent)
     {
         connect(m_editorWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuRequested(QPoint)));
     }
+    if (m_labelWidget)
+    {
+        m_labelWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,6 +124,14 @@ void PdmUiFieldEditorHandle::createWidgets(QWidget * parent)
 QMargins PdmUiFieldEditorHandle::labelContentMargins() const
 {
     return calculateLabelContentMargins();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int PdmUiFieldEditorHandle::rowStretchFactor() const
+{
+    return isMultiRowEditor() ? 1 : 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,7 +145,7 @@ void PdmUiFieldEditorHandle::setValueToField(const QVariant& newUiValue)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::updateLabelFromField(QLabel* label, const QString& uiConfigName) const
+void PdmUiFieldEditorHandle::updateLabelFromField(QShortenedLabel* label, const QString& uiConfigName /*= ""*/) const
 {
     CAF_ASSERT(label);
     
@@ -163,6 +175,14 @@ void PdmUiFieldEditorHandle::updateLabelFromField(QLabel* label, const QString& 
 QMargins PdmUiFieldEditorHandle::calculateLabelContentMargins() const
 {
     return m_labelWidget->contentsMargins();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiFieldEditorHandle::isMultiRowEditor() const
+{
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

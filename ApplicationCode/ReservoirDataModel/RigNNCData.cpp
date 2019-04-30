@@ -20,6 +20,7 @@
 #include "RigNNCData.h"
 #include "RigMainGrid.h"
 #include "cvfGeometryTools.h"
+#include "RigEclipseResultAddress.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -43,7 +44,6 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
         const RigCell& c1 = mainGrid.globalCellArray()[m_connections[cnIdx].m_c1GlobIdx];
         const RigCell& c2 = mainGrid.globalCellArray()[m_connections[cnIdx].m_c2GlobIdx];
 
-        bool foundAnyOverlap = false;
         std::vector<size_t> connectionPolygon;
         std::vector<cvf::Vec3d> connectionIntersections;
         cvf::StructGridInterface::FaceType connectionFace = cvf::StructGridInterface::NO_FACE;
@@ -52,7 +52,6 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
 
         if (connectionFace != cvf::StructGridInterface::NO_FACE)
         {
-            foundAnyOverlap = true;
             // Found an overlap polygon. Store data about connection
 
             m_connections[cnIdx].m_c1Face = connectionFace;
@@ -200,9 +199,9 @@ std::vector<double>& RigNNCData::makeStaticConnectionScalarResult(QString nncDat
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>* RigNNCData::staticConnectionScalarResult(size_t scalarResultIndex) const
+const std::vector<double>* RigNNCData::staticConnectionScalarResult(const RigEclipseResultAddress& resVarAddr) const
 {
-    QString nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    QString nncDataType = getNNCDataTypeFromScalarResultIndex(resVarAddr);
     if (nncDataType.isNull()) return nullptr;
 
     std::map<QString, std::vector< std::vector<double> > >::const_iterator it = m_connectionResults.find(nncDataType);
@@ -250,9 +249,9 @@ std::vector< std::vector<double> >& RigNNCData::makeDynamicConnectionScalarResul
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector< std::vector<double> >* RigNNCData::dynamicConnectionScalarResult(size_t scalarResultIndex) const
+const std::vector< std::vector<double> >* RigNNCData::dynamicConnectionScalarResult(const RigEclipseResultAddress& resVarAddr) const
 {
-    QString nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    QString nncDataType = getNNCDataTypeFromScalarResultIndex(resVarAddr);
     if (nncDataType.isNull()) return nullptr;
 
     auto it = m_connectionResults.find(nncDataType);
@@ -270,9 +269,9 @@ const std::vector< std::vector<double> >* RigNNCData::dynamicConnectionScalarRes
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>* RigNNCData::dynamicConnectionScalarResult(size_t scalarResultIndex, size_t timeStep) const
+const std::vector<double>* RigNNCData::dynamicConnectionScalarResult(const RigEclipseResultAddress& resVarAddr, size_t timeStep) const
 {
-    QString nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    QString nncDataType = getNNCDataTypeFromScalarResultIndex(resVarAddr);
     if (nncDataType.isNull()) return nullptr;
 
     auto it = m_connectionResults.find(nncDataType);
@@ -329,9 +328,9 @@ std::vector< std::vector<double> >& RigNNCData::makeGeneratedConnectionScalarRes
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector< std::vector<double> >* RigNNCData::generatedConnectionScalarResult(size_t scalarResultIndex) const
+const std::vector< std::vector<double> >* RigNNCData::generatedConnectionScalarResult(const RigEclipseResultAddress& resVarAddr) const
 {
-    QString nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    QString nncDataType = getNNCDataTypeFromScalarResultIndex(resVarAddr);
     if (nncDataType.isNull()) return nullptr;
 
     auto it = m_connectionResults.find(nncDataType);
@@ -349,9 +348,9 @@ const std::vector< std::vector<double> >* RigNNCData::generatedConnectionScalarR
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>* RigNNCData::generatedConnectionScalarResult(size_t scalarResultIndex, size_t timeStep) const
+const std::vector<double>* RigNNCData::generatedConnectionScalarResult(const RigEclipseResultAddress& resVarAddr, size_t timeStep) const
 {
-    QString nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    QString nncDataType = getNNCDataTypeFromScalarResultIndex(resVarAddr);
     if (nncDataType.isNull()) return nullptr;
 
     auto it = m_connectionResults.find(nncDataType);
@@ -369,9 +368,9 @@ const std::vector<double>* RigNNCData::generatedConnectionScalarResult(size_t sc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector< std::vector<double> >* RigNNCData::generatedConnectionScalarResult(size_t scalarResultIndex)
+std::vector< std::vector<double> >* RigNNCData::generatedConnectionScalarResult(const RigEclipseResultAddress& resVarAddr)
 {
-    QString nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    QString nncDataType = getNNCDataTypeFromScalarResultIndex(resVarAddr);
     if (nncDataType.isNull()) return nullptr;
 
     auto it = m_connectionResults.find(nncDataType);
@@ -389,9 +388,9 @@ std::vector< std::vector<double> >* RigNNCData::generatedConnectionScalarResult(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double>* RigNNCData::generatedConnectionScalarResult(size_t scalarResultIndex, size_t timeStep)
+std::vector<double>* RigNNCData::generatedConnectionScalarResult(const RigEclipseResultAddress& resVarAddr, size_t timeStep)
 {
-    QString nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    QString nncDataType = getNNCDataTypeFromScalarResultIndex(resVarAddr);
     if (nncDataType.isNull()) return nullptr;
 
     auto it = m_connectionResults.find(nncDataType);
@@ -493,17 +492,17 @@ std::vector<QString> RigNNCData::availableProperties(NNCResultType resultType) c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::setScalarResultIndex(const QString& nncDataType, size_t scalarResultIndex)
+void RigNNCData::setEclResultAddress(const QString& nncDataType, const RigEclipseResultAddress& resVarAddr)
 {
-    m_resultIndexToNNCDataType[scalarResultIndex] = nncDataType;
+    m_resultAddrToNNCDataType[resVarAddr] = nncDataType;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigNNCData::hasScalarValues(size_t scalarResultIndex)
+bool RigNNCData::hasScalarValues(const RigEclipseResultAddress& resVarAddr)
 {
-    QString nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    QString nncDataType = getNNCDataTypeFromScalarResultIndex(resVarAddr);
     if (nncDataType.isNull()) return false;
 
     auto it = m_connectionResults.find(nncDataType);
@@ -513,10 +512,10 @@ bool RigNNCData::hasScalarValues(size_t scalarResultIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const QString RigNNCData::getNNCDataTypeFromScalarResultIndex(size_t scalarResultIndex) const
+const QString RigNNCData::getNNCDataTypeFromScalarResultIndex(const RigEclipseResultAddress& resVarAddr) const
 {
-    auto it = m_resultIndexToNNCDataType.find(scalarResultIndex);
-    if (it != m_resultIndexToNNCDataType.end())
+    auto it = m_resultAddrToNNCDataType.find(resVarAddr);
+    if (it != m_resultAddrToNNCDataType.end())
     {
         return it->second;
     }

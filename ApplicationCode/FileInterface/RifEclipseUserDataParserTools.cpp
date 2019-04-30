@@ -668,7 +668,6 @@ std::vector<Column> RifEclipseUserDataParserTools::columnInfoFromColumnHeaders(c
 
         std::string quantity = columnLines[0];
         std::string unit;
-        std::string scaling;
 
         size_t startIndex = 1;
 
@@ -681,7 +680,7 @@ std::vector<Column> RifEclipseUserDataParserTools::columnInfoFromColumnHeaders(c
 
         if (isScalingDetected)
         {
-            scaling = columnLines[2];
+            //std::string scaling = columnLines[2];
 
             startIndex = 3;
         }

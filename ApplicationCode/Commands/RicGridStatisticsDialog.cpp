@@ -28,6 +28,7 @@
 
 #include "RiuPlotMainWindow.h"
 #include "RiuSummaryQwtPlot.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuTools.h"
 
 #include <QVBoxLayout>
@@ -69,8 +70,8 @@ RicGridStatisticsDialog::RicGridStatisticsDialog(QWidget* parent)
 
     // Set widget properties
     m_textEdit->setReadOnly(true);
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(m_historgramPlot);
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(m_aggregatedPlot);
+    RiuQwtPlotTools::setCommonPlotBehaviour(m_historgramPlot);
+    RiuQwtPlotTools::setCommonPlotBehaviour(m_aggregatedPlot);
 
     // Define layout
     QVBoxLayout* dialogLayout = new QVBoxLayout();

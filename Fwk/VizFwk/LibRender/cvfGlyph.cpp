@@ -72,7 +72,9 @@ Glyph::Glyph(wchar_t character)
     m_horizontalBearingY(0),
     m_horizontalAdvance(0),
     m_textureImage(new TextureImage),
-    m_textureCoordinates(new FloatArray(8))
+    m_textureCoordinates(new FloatArray(8)),
+    m_minFilter(NEAREST),
+    m_magFilter(NEAREST)
 {
     // Lower left
     m_textureCoordinates->set(0, 0.0f);
@@ -345,8 +347,23 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
             // Use fixed function texture setup
             ref<Texture2D_FF> texture = new Texture2D_FF(m_textureImage.p());
             texture->setWrapMode(Texture2D_FF::CLAMP);
-            texture->setMinFilter(Texture2D_FF::NEAREST);
-            texture->setMagFilter(Texture2D_FF::NEAREST);
+            if (m_minFilter == NEAREST)
+            {
+                texture->setMinFilter(Texture2D_FF::NEAREST);
+            }
+            else
+            {
+                texture->setMinFilter(Texture2D_FF::LINEAR);
+            }
+
+            if (m_magFilter == NEAREST)
+            {
+                texture->setMagFilter(Texture2D_FF::NEAREST);
+            }
+            else
+            {
+                texture->setMagFilter(Texture2D_FF::LINEAR);
+            }
 
             ref<RenderStateTextureMapping_FF> textureMapping = new RenderStateTextureMapping_FF(texture.p());
             textureMapping->setTextureFunction(RenderStateTextureMapping_FF::MODULATE);
@@ -359,8 +376,23 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
         {
             ref<Sampler> sampler = new Sampler;
             sampler->setWrapMode(Sampler::CLAMP_TO_EDGE);
-            sampler->setMinFilter(Sampler::NEAREST);
-            sampler->setMagFilter(Sampler::NEAREST);
+            if (m_minFilter == NEAREST)
+            {
+                sampler->setMinFilter(Sampler::NEAREST);
+            }
+            else
+            {
+                sampler->setMinFilter(Sampler::LINEAR);
+            }
+            
+            if (m_magFilter == NEAREST)
+            {
+                sampler->setMagFilter(Sampler::NEAREST);
+            }
+            else
+            {
+                sampler->setMagFilter(Sampler::LINEAR);
+            }
 
             ref<Texture> texture = new Texture(m_textureImage.p());
 
@@ -375,6 +407,22 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
     {
         m_textureBindings->applyOpenGL(oglContext);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Glyph::setMinFilter(TextureFilter filter)
+{
+    m_minFilter = filter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Glyph::setMagFilter(TextureFilter filter)
+{
+    m_magFilter = filter;
 }
 
 }  // namespace cvf

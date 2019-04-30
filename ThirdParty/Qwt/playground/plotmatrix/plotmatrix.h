@@ -15,8 +15,8 @@ public:
     int numRows() const;
     int numColumns() const;
 
-    QwtPlot* plot( int row, int column );
-    const QwtPlot* plot( int row, int column ) const;
+    QwtPlot* plotAt( int row, int column );
+    const QwtPlot* plotAt( int row, int column ) const;
 
     void enableAxis( int axisId, bool tf = true );
     bool axisEnabled( int axisId ) const;
@@ -24,12 +24,15 @@ public:
     void setAxisScale( int axisId, int rowOrColumn,
         double min, double max, double step = 0 );
 
+protected:
+    void updateLayout();
+
 private Q_SLOTS:
     void scaleDivChanged();
 
 private:
-    void updateLayout();
-    void alignVAxes( int col, int axis );
+    void alignAxes( int rowOrColumn, int axis );
+    void alignScaleBorder( int rowOrColumn, int axis );
 
     class PrivateData;
     PrivateData *d_data;

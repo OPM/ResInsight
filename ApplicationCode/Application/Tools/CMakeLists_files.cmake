@@ -7,6 +7,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaColorTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseUnitTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaImageCompareReporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaImageFileCompare.h
+${CMAKE_CURRENT_LIST_DIR}/RiaImageTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaLogging.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaProjectModifier.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTest.h
@@ -35,9 +36,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaGitDiff.h
-${CMAKE_CURRENT_LIST_DIR}/RiaQIconTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaFieldHandleTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaBoundingBoxTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -48,6 +49,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaColorTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseUnitTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaImageCompareReporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaImageFileCompare.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaImageTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaLogging.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaProjectModifier.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTest.cpp
@@ -73,9 +75,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaGitDiff.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiaQIconTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFieldHandleTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaBoundingBoxTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -46,7 +46,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInViewCollection.h"
 
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include <QTcpSocket>
 
@@ -419,11 +419,11 @@ public:
             canFetchData = false;
         }
 
-        size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
+        RigEclipseResultAddress addrToMaxTimeStepCountResult;
         if (rimCase && rimCase->eclipseCaseData())
         {
-            rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
-            if (scalarIndexWithMaxTimeStepCount == cvf::UNDEFINED_SIZE_T)
+            rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&addrToMaxTimeStepCountResult);
+            if ( !addrToMaxTimeStepCountResult.isValid())
             {
                 canFetchData = false;
             }
@@ -441,7 +441,7 @@ public:
             return true;
         }
 
-        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->timeStepDates(scalarIndexWithMaxTimeStepCount);
+        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->timeStepDates(RigEclipseResultAddress(addrToMaxTimeStepCountResult));
 
         quint64 timeStepCount = timeStepDates.size();
         quint64 byteCount = sizeof(quint64) + 6 * timeStepCount * sizeof(qint32);
@@ -506,11 +506,11 @@ public:
             canFetchData = false;
         }
 
-        size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
+        RigEclipseResultAddress addrToMaxTimeStepCountResult;
         if (rimCase && rimCase->eclipseCaseData())
         {
-            rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
-            if (scalarIndexWithMaxTimeStepCount == cvf::UNDEFINED_SIZE_T)
+            rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&addrToMaxTimeStepCountResult);
+            if (!addrToMaxTimeStepCountResult.isValid() )
             {
                 canFetchData = false;
             }
@@ -528,7 +528,7 @@ public:
             return true;
         }
 
-        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart(scalarIndexWithMaxTimeStepCount);
+        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart(addrToMaxTimeStepCountResult);
 
         quint64 timeStepCount = daysSinceSimulationStart.size();
         quint64 byteCount = sizeof(quint64) + timeStepCount * sizeof(qint32);
@@ -599,7 +599,7 @@ public:
                                  std::vector<qint32>& cellK)
     {
         std::vector<RiuSelectionItem*> items;
-        RiuSelectionManager::instance()->selectedItems(items);
+        Riu3dSelectionManager::instance()->selectedItems(items);
 
         for (const RiuSelectionItem* item : items)
         {

@@ -18,8 +18,8 @@
 
 #include "RicContourMapPickEventHandler.h"
 #include "RimContourMapProjection.h"
-#include "RimContourMapView.h"
-#include "RimEclipseCellColors.h"
+#include "RimGeoMechContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "Rim3dView.h"
 
 #include "RiuMainWindow.h"
@@ -43,7 +43,7 @@ RicContourMapPickEventHandler* RicContourMapPickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicContourMapPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool RicContourMapPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
     if (eventObject.m_pickItemInfos.empty()) return false;
 
@@ -58,25 +58,33 @@ bool RicContourMapPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventO
         {
             RiuMainWindow::instance()->selectAsCurrentItem(contourMap);
 
-            RimContourMapView* view = nullptr;
+            RimGridView* view = nullptr;
             contourMap->firstAncestorOrThisOfTypeAsserted(view);
 
             cvf::Vec2d pickedPoint;
-            cvf::Vec2ui pickedCell;
             double valueAtPoint = 0.0;
-            if (contourMap->checkForMapIntersection(firstPickedItem.globalPickedPoint(), &pickedPoint, &pickedCell, &valueAtPoint))
+            if (contourMap->checkForMapIntersection(firstPickedItem.globalPickedPoint(), &pickedPoint, &valueAtPoint))
             {
                 QString curveText;
                 curveText += QString("%1\n").arg(view->createAutoName());
                 curveText += QString("Picked Point X, Y: %1, %2\n").arg(pickedPoint.x(), 5, 'f', 0).arg(pickedPoint.y(), 5, 'f', 0);
-                curveText += QString("Picked Cell I, J: %1, %2\n").arg(pickedCell.x()).arg(pickedCell.y());
                 curveText += QString("Result Type: %1\n").arg(contourMap->resultDescriptionText());
                 curveText += QString("Aggregated Value: %1\n").arg(valueAtPoint);
 
                 RiuMainWindow::instance()->setResultInfo(curveText);
 
                 contourMap->setPickPoint(pickedPoint);
-                view->updateCurrentTimeStepAndRedraw();
+
+                RimGeoMechContourMapView* geoMechContourView = dynamic_cast<RimGeoMechContourMapView*>(view);
+                RimEclipseContourMapView* eclipseContourView = dynamic_cast<RimEclipseContourMapView*>(view);
+                if (geoMechContourView)
+                {
+                    geoMechContourView->updatePickPointAndRedraw();
+                }
+                else
+                {
+                    eclipseContourView->updatePickPointAndRedraw();
+                }
                 return true;
             }
             contourMap->setPickPoint(cvf::Vec2d::UNDEFINED);

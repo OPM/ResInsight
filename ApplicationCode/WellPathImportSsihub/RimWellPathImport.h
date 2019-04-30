@@ -41,7 +41,7 @@ public:
 
 public:
     RimWellPathImport();
-    ~RimWellPathImport();
+    ~RimWellPathImport() override;
 
     caf::PdmField<bool>                             wellTypeSurvey;
     caf::PdmField<bool>                             wellTypePlans;
@@ -56,9 +56,9 @@ public:
 
     void updateRegions(const QStringList& regions, const QStringList& fields, const QStringList& edmIds);
 
-    virtual void initAfterRead();
-    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
-    virtual void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute * attribute );
+    void initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute * attribute ) override;
 
     void updateFieldVisibility();
 

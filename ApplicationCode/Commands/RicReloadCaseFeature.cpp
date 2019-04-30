@@ -22,8 +22,10 @@
 #include "RiaApplication.h"
 
 #include "RimEclipseCase.h"
+#include "RimReloadCaseTools.h"
+#include "RimTimeStepFilter.h"
 
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
@@ -62,7 +64,15 @@ void RicReloadCaseFeature::onActionTriggered(bool isChecked)
 
     for (RimEclipseCase* selectedCase : selectedEclipseCases)
     {
-        selectedCase->reloadDataAndUpdate();
+        std::vector<RimTimeStepFilter*> timeStepFilter;
+        selectedCase->descendantsIncludingThisOfType(timeStepFilter);
+        if (timeStepFilter.size() == 1)
+        {
+            timeStepFilter[0]->clearFilteredTimeSteps();
+        }
+
+        RimReloadCaseTools::reloadAllEclipseData(selectedCase);
+        selectedCase->updateConnectedEditors();
     }
 }
 

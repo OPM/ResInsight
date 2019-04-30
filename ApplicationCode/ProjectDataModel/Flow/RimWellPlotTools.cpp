@@ -32,7 +32,6 @@
 #include "RimEclipseResultCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimTools.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
@@ -105,21 +104,20 @@ bool RimWellPlotTools::hasPressureData(RimWellPath* wellPath)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<size_t, QString> RimWellPlotTools::pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData)
+std::pair<RigEclipseResultAddress, QString> RimWellPlotTools::pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData)
 {
     if (eclipseCaseData != nullptr)
     {
         for (const auto& pressureDataName : PRESSURE_DATA_NAMES)
         {
-            size_t index = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)
-                               ->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, pressureDataName);
-            if (index != cvf::UNDEFINED_SIZE_T)
+            if (eclipseCaseData->results(RiaDefines::MATRIX_MODEL)
+                    ->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, pressureDataName)))
             {
-                return std::make_pair(index, pressureDataName);
+                return std::make_pair(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, pressureDataName), pressureDataName);
             }
         }
     }
-    return std::make_pair(cvf::UNDEFINED_SIZE_T, "");
+    return std::make_pair(RigEclipseResultAddress(), "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +137,7 @@ bool RimWellPlotTools::isPressureChannel(RimWellLogFileChannel* channel)
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::hasPressureData(RimEclipseResultCase* gridCase)
 {
-    return pressureResultDataInfo(gridCase->eclipseCaseData()).first != cvf::UNDEFINED_SIZE_T;
+    return pressureResultDataInfo(gridCase->eclipseCaseData()).first.isValid();
 }
 //--------------------------------------------------------------------------------------------------
 ///
@@ -228,10 +226,11 @@ bool RimWellPlotTools::hasFlowData(RimEclipseResultCase* gridCase)
 
     for (const QString& channelName : FLOW_DATA_NAMES)
     {
-        size_t resultIndex =
-            eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, channelName);
-
-        if (resultIndex != cvf::UNDEFINED_SIZE_T) return true;
+        if (eclipseCaseData->results(RiaDefines::MATRIX_MODEL)
+                ->hasResultEntry(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, channelName)))
+        {
+            return true;
+        }
     }
     return false;
 }
@@ -412,11 +411,11 @@ std::vector<RimEclipseResultCase*> RimWellPlotTools::rftCasesForWell(const QStri
 //--------------------------------------------------------------------------------------------------
 std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::timeStepsMapFromGridCase(RimEclipseCase* gridCase)
 {
-    const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
-    std::pair<size_t, QString>      resultDataInfo  = pressureResultDataInfo(eclipseCaseData);
+    const RigEclipseCaseData* const             eclipseCaseData = gridCase->eclipseCaseData();
+    std::pair<RigEclipseResultAddress, QString> resultDataInfo  = pressureResultDataInfo(eclipseCaseData);
 
     std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMap;
-    if (resultDataInfo.first != cvf::UNDEFINED_SIZE_T)
+    if (resultDataInfo.first.isValid())
     {
         for (const QDateTime& timeStep : eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates(resultDataInfo.first))
         {
@@ -522,7 +521,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve(const RimWellLogCur
     }
     else if (wellLogFileCurve != nullptr)
     {
-        RimWellLogFile* const    wellLogFile = wellLogFileCurve->wellLogFile();
+        RimWellLogFile* const wellLogFile = wellLogFileCurve->wellLogFile();
 
         if (wellLogFile != nullptr)
         {
@@ -583,7 +582,8 @@ std::set<RiaRftPltCurveDefinition>
     RimWellPlotTools::curveDefsFromTimesteps(const QString&                             simWellName,
                                              const std::vector<QDateTime>&              selectedTimeSteps,
                                              bool                                       firstSimWellTimeStepIsValid,
-                                             const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded)
+                                             const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded,
+                                             const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults)
 {
     std::set<RiaRftPltCurveDefinition> curveDefs;
 
@@ -593,8 +593,7 @@ std::set<RiaRftPltCurveDefinition>
     {
         if (addr.rftReader())
         {
-            std::set<QDateTime> rftTimes = addr.rftReader()->availableTimeSteps(
-                simWellName, {RifEclipseRftAddress::ORAT, RifEclipseRftAddress::WRAT, RifEclipseRftAddress::GRAT});
+            std::set<QDateTime> rftTimes = addr.rftReader()->availableTimeSteps(simWellName, interestingRFTResults);
             for (const QDateTime& time : rftTimes)
             {
                 if (selectedTimeStepSet.count(time))
@@ -937,16 +936,16 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(
         {
             allTimeSteps.push_back(timeStepPair.first);
         }
-        dateFormatString = RimTools::createTimeFormatStringFromDates(allTimeSteps);
+        dateFormatString = RiaQDateTimeTools::createTimeFormatStringFromDates(allTimeSteps);
     }
 
     for (const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources)
     {
         QString optionText = RiaQDateTimeTools::toStringUsingApplicationLocale(timeStepPair.first, dateFormatString);
 
-        bool    hasObs     = false;
-        bool    hasRft     = false;
-        bool    hasGrid    = false;
+        bool hasObs  = false;
+        bool hasRft  = false;
+        bool hasGrid = false;
 
         for (const auto& source : timeStepPair.second)
         {

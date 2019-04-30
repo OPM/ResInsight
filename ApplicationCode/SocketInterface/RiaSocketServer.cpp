@@ -22,6 +22,8 @@
 #include "RiaSocketCommand.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
+#include "RiaPreferences.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -33,10 +35,14 @@
 
 #include "cafFactory.h"
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/qmdisubwindow.h>
+#else
 #include <QtGui>
+#endif
 #include <QtNetwork>
 
-#include <stdlib.h>
+#include <cstdlib>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -50,8 +56,6 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
   m_currentCommand(nullptr),
   m_currentCaseId(-1)
 {
-    m_errorMessageDialog = new QErrorMessage(RiuMainWindow::instance());
-
     // TCP server setup
 
     m_tcpServer = new QTcpServer(this);
@@ -60,16 +64,18 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
     m_nextPendingConnectionTimer->setInterval(100);
     m_nextPendingConnectionTimer->setSingleShot(true);
 
-    if (!m_tcpServer->listen(QHostAddress::LocalHost, 40001)) 
+    if (!m_tcpServer->listen(QHostAddress::LocalHost, 40001))
     {
-        m_errorMessageDialog->showMessage("Octave communication disabled :\n"
-                                          "\n"
-                                          "This instance of ResInsight could not start the Socket Server enabling octave to get and set data.\n"
-                                          "This is probably because you already have a running ResInsight process.\n"
-                                          "Octave can only communicate with one ResInsight process at a time, so the Octave\n"
-                                          "communication in this ResInsight instance will be disabled.\n"
-                                          "\n"
-                                          + tr("The error from the socket system is: %1.").arg(m_tcpServer->errorString()));
+        QString txt;
+        txt = "This instance of ResInsight could not start the Socket Server enabling octave to get and set data.\n "
+              "This is probably because you already have a running ResInsight process.\n"
+              "Octave can only communicate with one ResInsight process at a time, so the Octave\n"
+              "communication in this ResInsight instance will be disabled.\n"
+              "\n" +
+              tr("The error from the socket system is: %1.").arg(m_tcpServer->errorString());
+
+        RiaLogging::error(txt);
+
         return;
     }
 
@@ -116,7 +122,10 @@ void RiaSocketServer::slotNewClientConnection()
 
         if (!isFinshed)
         {
-            m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Warning : The command did not finish up correctly at the presence of a new one."));
+            QString txt;
+            txt = "ResInsight SocketServer : The command did not finish up correctly at the presence of a new one.";
+            
+            RiaLogging::error(txt);
         }
     }
 
@@ -227,7 +236,10 @@ bool RiaSocketServer::readCommandFromOctave()
     }
     else
     {
-        m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
+        QString txt;
+        txt = QString("ResInsight SocketServer: Unknown command: %1").arg(args[0].data());
+
+        RiaLogging::error(txt);
         return true;
     }
 }
@@ -245,7 +257,10 @@ void RiaSocketServer::slotCurrentClientDisconnected()
 
         if (!isFinished)
         {
-            m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Warning : The command was interrupted and did not finish because the connection to octave disconnected."));
+            QString txt;
+            txt = QString("ResInsight SocketServer: The command was interrupted and did not finish because the connection to octave disconnected.");
+
+            RiaLogging::error(txt);
         }
     }
 
@@ -290,6 +305,14 @@ void RiaSocketServer::setCurrentCaseId(int caseId)
 int RiaSocketServer::currentCaseId() const
 {
     return m_currentCaseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::showErrorMessage(const QString& message) const
+{
+    RiaLogging::error(message);
 }
 
 //--------------------------------------------------------------------------------------------------

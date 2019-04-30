@@ -30,10 +30,12 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotSourceStepping.h"
 
-#include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
+#include "RiuQwtPlotCurve.h"
 
 #include "cafPdmUiTreeViewEditor.h"
+
+#include "qwt_plot.h"
 
 #include <QKeyEvent>
 

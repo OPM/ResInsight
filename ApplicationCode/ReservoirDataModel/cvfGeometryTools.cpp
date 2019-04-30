@@ -104,7 +104,7 @@ double GeometryTools::getAngle(const cvf::Vec3d& positiveNormalAxis, const cvf::
     bool isOk = false;
     cvf::Vec3d v1N = v1.getNormalized(&isOk);
     if (!isOk) return 0;
-    cvf::Vec3d v2N = v2.getNormalized();
+    cvf::Vec3d v2N = v2.getNormalized(&isOk);
     if (!isOk) return 0;
 
     double cosAng = v1N * v2N;
@@ -156,6 +156,26 @@ double GeometryTools::getAngle(const cvf::Vec3d& v1, const cvf::Vec3d& v2)
     return angle;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double GeometryTools::signedAreaPlanarPolygon(const cvf::Vec3d& planeNormal, const std::vector<cvf::Vec3d>& polygon)
+{
+    int Z = findClosestAxis(planeNormal);
+    int X = (Z + 1) % 3;
+    int Y = (Z + 2) % 3;
+
+    // Use Shoelace formula to calculate signed area.
+    // https://en.wikipedia.org/wiki/Shoelace_formula
+    double signedArea = 0.0;
+    for (size_t i = 0; i < polygon.size(); ++i)
+    {
+        signedArea += (polygon[(i + 1) % polygon.size()][X] - polygon[i][X]) *
+                      (polygon[(i + 1) % polygon.size()][Y] + polygon[i][Y]);
+    }
+    return signedArea;
+}
+
 /*
    Determine the intersection point of two line segments  
    From Paul Bourke, but modified to really handle coincident lines
@@ -178,7 +198,7 @@ GeometryTools::IntersectionStatus inPlaneLineIntersect(
    numera = (x4-x3) * (y1-y3) - (y4-y3) * (x1-x3);
    numerb = (x2-x1) * (y1-y3) - (y2-y1) * (x1-x3);
 
-    double EPS = 1e-40;
+   double EPS = 1e-40;
 
    // Are the line coincident? 
    if (fabs(numera) < EPS && fabs(numerb) < EPS && fabs(denom) < EPS) 
@@ -199,7 +219,7 @@ GeometryTools::IntersectionStatus inPlaneLineIntersect(
 
        // Check if the p1 p2 line is a point
       
-       if (length12 < EPS )
+       if (length12 < EPS)
        {
            *x = x1;
            *y = y1;

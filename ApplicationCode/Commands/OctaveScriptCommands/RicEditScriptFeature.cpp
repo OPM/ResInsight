@@ -58,7 +58,7 @@ void RicEditScriptFeature::onActionTriggered(bool isChecked)
     if (!scriptEditor.isEmpty())
     {
         QStringList arguments;
-        arguments << calcScript->absolutePath;
+        arguments << calcScript->absoluteFileName;
 
         QProcess* myProcess = new QProcess(this);
         myProcess->start(scriptEditor, arguments);

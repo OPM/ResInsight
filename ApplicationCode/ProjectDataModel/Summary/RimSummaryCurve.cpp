@@ -45,7 +45,6 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
-#include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -53,6 +52,7 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include "qwt_date.h"
+#include "qwt_plot.h"
 
 #include <QMessageBox>
 
@@ -206,6 +206,16 @@ RifEclipseSummaryAddress RimSummaryCurve::summaryAddressY() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setSummaryAddressYAndApplyInterpolation(const RifEclipseSummaryAddress& address)
+{
+    setSummaryAddressY(address);
+    
+    calculateCurveInterpolationFromAddress();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryAddressY(const RifEclipseSummaryAddress& address)
 {
     if (m_yValuesCurveVariable->address() != address)
@@ -216,8 +226,6 @@ void RimSummaryCurve::setSummaryAddressY(const RifEclipseSummaryAddress& address
     m_yValuesCurveVariable->setAddress(address);
 
     m_yValuesSummaryFilter->updateFromAddress(address);
-
-    calculateCurveInterpolationFromAddress();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,7 +289,10 @@ std::vector<double> RimSummaryCurve::errorValuesY() const
     if (!reader) return values;
 
     RifEclipseSummaryAddress addr = errorSummaryAddressY();
-    reader->values(addr, &values);
+    if (reader->hasAddress(addr))
+    {
+        reader->values(addr, &values);
+    }
 
     return values;
 }
@@ -983,7 +994,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                     timeSteps.push_back(first);
                     timeSteps.push_back(last);
 
-                    QString formatString = RimTools::createTimeFormatStringFromDates(timeSteps);
+                    QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates(timeSteps);
 
                     description += QString("Time step range for X : '%1' - '%2'")
                         .arg(first.toString(formatString))
@@ -998,7 +1009,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                     timeSteps.push_back(first);
                     timeSteps.push_back(last);
 
-                    QString formatString = RimTools::createTimeFormatStringFromDates(timeSteps);
+                    QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates(timeSteps);
 
                     description += "\n";
                     description += QString("Time step range for Y : '%1' - '%2'")

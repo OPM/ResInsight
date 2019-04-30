@@ -1,0 +1,41 @@
+@startuml
+
+package cafPickEvents {
+	class caf::PickEventHandler {
+		-caf::PdmObjectHandle* objectBeingModified
+		+bool isObjectBeingModified(caf::PdmObjectHandle*)
+		+void registerAsPickEventHandler()
+        +void unregisterAsPickEventHandler()
+        +bool handlePickEvent(const PickEvent& eventObject)
+        +void notifyUnregistered()		
+		
+	}
+    caf::PickEventHandler --> caf::PickEvent
+}
+package RicPickEvents {
+    caf::PickEventHandler <|-- Ric3dViewPickEventHandler
+    caf::PickEvent <|-- Ric3dPickEvent
+	
+	Ric3dViewPickEventHandler --> Ric3dPickEvent
+	
+	class RicVec3dPEH
+	{
+		-caf::PdmField<cvf::Vec3d>* m_vectorField;
+	}
+	
+    Ric3dViewPickEventHandler <|-- RicVec3dPEH
+    Ric3dViewPickEventHandler <|-- RicCreateWellTargetsPEH
+    Ric3dViewPickEventHandler <|-- RicPolylineTargetsPEH
+    Ric3dViewPickEventHandler <|-- RicMeasurementPEH
+ 
+    RicDefaultPickEventHandler --> Ric3dPickEvent
+}
+package DataModel
+{
+	class caf::PdmObjectHandle
+	class caf::PdmField
+    caf::PickEventHandler --> caf::PdmObjectHandle
+	RicVec3dPEH --> caf::PdmField
+}
+
+@enduml

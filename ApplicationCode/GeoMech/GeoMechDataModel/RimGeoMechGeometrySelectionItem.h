@@ -36,11 +36,11 @@ class RimGeoMechGeometrySelectionItem : public RimGeometrySelectionItem
     CAF_PDM_HEADER_INIT;
 public:
     RimGeoMechGeometrySelectionItem();
-    virtual ~RimGeoMechGeometrySelectionItem() override;
+    ~RimGeoMechGeometrySelectionItem() override;
 
     void            setFromSelectionItem(const RiuGeoMechSelectionItem* selectionItem);
 
-    virtual QString geometrySelectionText() const override;
+    QString geometrySelectionText() const override;
     RimGeoMechCase* geoMechCase() const;
 
 public:

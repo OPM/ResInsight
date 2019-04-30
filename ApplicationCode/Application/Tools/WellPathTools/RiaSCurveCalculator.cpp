@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
-// 
+//  Copyright (C) 2018-     Equinor ASA
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -211,7 +211,6 @@ void RiaSCurveCalculator::initializeByFinding_q1q2(cvf::Vec3d p1, double azi1, d
 
     const int maxIterations = 40;
     const double maxError = 0.01;
-    const double closeError = 40*maxError;
     const double maxStepSize = 1.0e9;
     const double maxLengthToQ = 1.0e10;
     bool enableBackstepping = false;

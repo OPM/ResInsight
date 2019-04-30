@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2017-2018 Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,6 +25,8 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
+#include "Riu3DMainWindowTools.h"
+
 #include "RigMainGrid.h"
 
 #include "Rim3dView.h"
@@ -39,13 +42,17 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
-#include "RimWellPathFractureCollection.h"
 
 #include "RivWellFracturePartMgr.h"
+
+#include "FractureCommands/RicNewEllipseFractureTemplateFeature.h"
+#include "FractureCommands/RicNewStimPlanFractureTemplateFeature.h"
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfBoundingBox.h"
@@ -57,7 +64,7 @@
 #include <QMessageBox>
 #include <QString>
 
-#include <math.h>
+#include <cmath>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
 
@@ -94,6 +101,17 @@ RimFracture::RimFracture()
     CAF_PDM_InitObject("Fracture", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_fractureTemplate, "FractureDef", "Fracture Template", "", "", "");
+    CAF_PDM_InitField(&m_editFractureTemplate, "EditTemplate", false, "Edit", "", "", "");
+    m_editFractureTemplate.uiCapability()->setUiEditorTypeName(caf::PdmUiToolButtonEditor::uiEditorTypeName());
+    m_editFractureTemplate.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    CAF_PDM_InitField(&m_createEllipseFractureTemplate, "CreateEllipseTemplate", false, "No Fracture Templates Found.", "", "", "");
+    m_createEllipseFractureTemplate.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_createEllipseFractureTemplate.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+
+    CAF_PDM_InitField(&m_createStimPlanFractureTemplate, "CreateStimPlanTemplate", false, "Create New Template?", "", "", "");
+    m_createStimPlanFractureTemplate.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_createStimPlanFractureTemplate.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitFieldNoDefault(&m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "");
     m_anchorPosition.uiCapability()->setUiHidden(true);
@@ -210,7 +228,23 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         setFractureTemplate(m_fractureTemplate);
         setDefaultFractureColorResult();
     }
-
+    else if (changedField == &m_editFractureTemplate)
+    {
+        m_editFractureTemplate = false;
+        if (m_fractureTemplate != nullptr)
+        {
+            Riu3DMainWindowTools::selectAsCurrentItem(m_fractureTemplate());
+        }
+    }
+    else if (changedField == &m_createEllipseFractureTemplate)
+    {
+        m_createEllipseFractureTemplate = false;
+        RicNewEllipseFractureTemplateFeature::createNewTemplateForFractureAndUpdate(this);
+    }
+    else if (changedField == &m_createStimPlanFractureTemplate)
+    {
+        RicNewStimPlanFractureTemplateFeature::createNewTemplateForFractureAndUpdate(this);
+    }
     if (   changedField == &m_azimuth 
         || changedField == &m_fractureTemplate 
         || changedField == &m_stimPlanTimeIndexToPlot 
@@ -285,16 +319,6 @@ void RimFracture::ensureValidNonDarcyProperties()
 void RimFracture::clearCachedNonDarcyProperties()
 {
     m_cachedFractureProperties = NonDarcyData();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFracture::isEnabled() const
-{
-    RimWellPathFractureCollection* fractureCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(fractureCollection);
-    return fractureCollection->isChecked() && isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -537,7 +561,7 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
     if (fieldNeedingOptions == &m_fractureTemplate)
     {
         RimOilField* oilField = proj->activeOilField();
-        if (oilField && oilField->fractureDefinitionCollection)
+        if (oilField && oilField->fractureDefinitionCollection())
         {
             RimFractureTemplateCollection* fracDefColl = oilField->fractureDefinitionCollection();
 
@@ -689,6 +713,18 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field,
             myAttr->m_minimum = 0;
             myAttr->m_maximum = 1.0;
         }
+    }
+
+    if (field == &m_createEllipseFractureTemplate)
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+        myAttr->m_buttonText = "Ellipse Template";
+    }
+    
+    if (field == &m_createStimPlanFractureTemplate)
+    {
+        auto myAttr          = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+        myAttr->m_buttonText = "StimPlan Template";
     }
 }
 

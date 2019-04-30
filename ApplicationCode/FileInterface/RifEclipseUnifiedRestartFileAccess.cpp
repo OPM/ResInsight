@@ -249,7 +249,7 @@ bool RifEclipseUnifiedRestartFileAccess::results(const QString& resultName, size
     {
         ecl_file_select_block(m_ecl_file, INTEHEAD_KW, static_cast<int>(timeStep * gridCount + i));
 
-        int namedKeywordCount = ecl_file_get_num_named_kw(m_ecl_file, resultName.toAscii().data());
+        int namedKeywordCount = ecl_file_get_num_named_kw(m_ecl_file, resultName.toLatin1().data());
         for (int iOcc = 0; iOcc < namedKeywordCount; iOcc++)
         {
             std::vector<double> partValues;

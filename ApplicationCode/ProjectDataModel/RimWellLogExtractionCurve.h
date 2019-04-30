@@ -21,11 +21,10 @@
 
 #include "RimWellLogCurve.h"
 
-#include "RigFemResultAddress.h"
-
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
 
+class RigFemResultAddress;
 class RigGeoMechWellLogExtractor;
 class RigWellPath;
 class RimCase;

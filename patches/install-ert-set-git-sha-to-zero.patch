@@ -1,0 +1,30 @@
+From 0157e501cdc44ae354dcf1113012a413ce9858c9 Mon Sep 17 00:00:00 2001
+From: Magne Sjaastad <magne.sjaastad@ceetronsolutions.com>
+Date: Tue, 22 Jan 2019 07:19:25 +0100
+Subject: [PATCH] System : Set git to zero to avoid recompile on every commit
+
+---
+ ThirdParty/Ert/lib/CMakeLists.txt | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/ThirdParty/Ert/lib/CMakeLists.txt b/ThirdParty/Ert/lib/CMakeLists.txt
+index a57e50e21..b0fb796a1 100644
+--- a/ThirdParty/Ert/lib/CMakeLists.txt
++++ b/ThirdParty/Ert/lib/CMakeLists.txt
+@@ -183,6 +183,13 @@ target_include_directories(ecl
+             ${CMAKE_CURRENT_BINARY_DIR}/include
+ )
+ 
++
++if (NOT INSTALL_ERT)
++  # set git info to zero, to avoid recompile of libecl files at every commit
++  set(GIT_COMMIT 0)
++  set(GIT_COMMIT_SHORT 0)
++endif()
++
+ target_compile_definitions(ecl PRIVATE
+             -DGIT_COMMIT=${GIT_COMMIT}
+             -DGIT_COMMIT_SHORT=${GIT_COMMIT_SHORT}
+-- 
+2.20.1.windows.1
+

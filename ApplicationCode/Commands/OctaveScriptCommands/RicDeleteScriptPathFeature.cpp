@@ -82,4 +82,5 @@ void RicDeleteScriptPathFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete Script Path");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
 }

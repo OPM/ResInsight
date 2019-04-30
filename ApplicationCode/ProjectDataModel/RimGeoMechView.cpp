@@ -40,9 +40,10 @@
 #include "RimRegularLegendConfig.h"
 #include "RimTensorResults.h"
 #include "RimViewLinker.h"
+#include "RimViewNameConfig.h"
 
 #include "Riu3DMainWindowTools.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 #include "RiuViewer.h"
 
 #include "RivGeoMechPartMgr.h"
@@ -97,6 +98,12 @@ RimGeoMechView::RimGeoMechView(void)
     m_scaleTransform = new cvf::Transform();
     m_vizLogic = new RivGeoMechVizLogic(this);
     m_tensorPartMgr = new RivTensorResultPartMgr(this);
+
+    nameConfig()->setCustomName("GeoMech View");
+    nameConfig()->hideCaseNameField(false);
+    nameConfig()->hideAggregationTypeField(true);
+    nameConfig()->hidePropertyField(false);
+    nameConfig()->hideSampleSpacingField(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,6 +189,42 @@ void RimGeoMechView::updateScaleTransform()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechView::createAutoName() const
+{
+    QStringList autoName;
+
+    if (!nameConfig()->customName().isEmpty())
+    {
+        autoName.push_back(nameConfig()->customName());
+    }
+
+    QStringList generatedAutoTags;
+
+    RimCase* ownerCase = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(ownerCase);
+
+    if (nameConfig()->addCaseName())
+    {
+        generatedAutoTags.push_back(ownerCase->caseUserDescription());
+    }
+
+    if (nameConfig()->addProperty())
+    {
+        auto resultName = cellResultResultDefinition()->resultFieldName();
+        if(!resultName.isEmpty())
+            generatedAutoTags.push_back(resultName);
+    }
+
+    if (!generatedAutoTags.empty())
+    {
+        autoName.push_back(generatedAutoTags.join(", "));
+    }
+    return autoName.join(": ");
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Create display model,
 /// or at least empty scenes as frames that is delivered to the viewer
 /// The real geometry generation is done inside RivReservoirViewGeometry and friends
@@ -260,6 +303,14 @@ void RimGeoMechView::createDisplayModel()
 
        m_overlayInfoConfig()->update3DInfo();
    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPropertyFilterCollection* RimGeoMechView::nativePropertyFilterCollection()
+{
+    return m_propertyFilterCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -501,6 +552,11 @@ void RimGeoMechView::updateLegendTextAndRanges(RimRegularLegendConfig* legendCon
     if (cellResult->resultFieldName() == "MODULUS")
     {
         legendTitle += " [GPa]";
+    }
+
+    if (!cellResult->diffResultUiShortName().isEmpty())
+    {
+        legendTitle += QString("\nTime Diff:\n%1").arg(cellResult->diffResultUiShortName());
     }
 
     legendConfig->setTitle(legendTitle);
@@ -769,7 +825,7 @@ void RimGeoMechView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts)
 {
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
     std::vector<RiuSelectionItem*> items;
     riuSelManager->selectedItems(items);
     for (size_t i = 0; i < items.size(); i++)
@@ -827,6 +883,17 @@ bool RimGeoMechView::isUsingFormationNames() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimGridView::defineUiOrdering(uiConfigName, uiOrdering);
+
+     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("View Name");
+     nameConfig()->uiOrdering(uiConfigName, *nameGroup);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
@@ -848,7 +915,7 @@ void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechResultDefinition* RimGeoMechView::cellResultResultDefinition()
+RimGeoMechResultDefinition* RimGeoMechView::cellResultResultDefinition() const
 {
     return cellResult();
 }

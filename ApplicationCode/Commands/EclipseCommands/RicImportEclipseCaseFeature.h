@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RicImportGeneralDataFeature.h"
+
 #include "cafCmdFeature.h"
 
 #include <vector>
@@ -26,7 +28,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicImportEclipseCaseFeature : public caf::CmdFeature
+class RicImportEclipseCaseFeature : public RicImportGeneralDataFeature
 {
     CAF_CMD_HEADER_INIT;
 

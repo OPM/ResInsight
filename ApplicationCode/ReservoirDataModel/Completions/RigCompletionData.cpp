@@ -102,6 +102,30 @@ RigCompletionData& RigCompletionData::operator=(const RigCompletionData& other)
     return *this;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCompletionData::isPerforationValve(CompletionType type)
+{
+    return type == PERFORATION_AICD || type == PERFORATION_ICD || type == PERFORATION_ICV;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCompletionData::isValve(CompletionType type)
+{
+    return isPerforationValve(type) || type == FISHBONES_ICD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCompletionData::isWsegValveTypes(CompletionType type)
+{
+    return type == FISHBONES_ICD || type == PERFORATION_ICD || type == PERFORATION_ICV;
+}
+
 //==================================================================================================
 ///
 //==================================================================================================

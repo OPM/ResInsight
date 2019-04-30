@@ -37,7 +37,7 @@ class RimGridInfo : public caf::PdmObject
 
 public:
     RimGridInfo();
-    ~RimGridInfo() {}
+    ~RimGridInfo() override {}
 
     void    setName(const QString& name);
     void    setEclipseGridIndex(int index);
@@ -68,7 +68,7 @@ class RimGridInfoCollection : public caf::PdmObject
 
 public:
     RimGridInfoCollection();
-    ~RimGridInfoCollection() {}
+    ~RimGridInfoCollection() override {}
 
     bool                      isActive() const;
     void                      addGridInfo(RimGridInfo * gridInfo);

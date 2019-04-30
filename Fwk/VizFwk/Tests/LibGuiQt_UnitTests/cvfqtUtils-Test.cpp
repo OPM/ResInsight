@@ -51,7 +51,7 @@ TEST(UtilsTest, toQString)
     const cvf::String str("abc");
     QString qStr = cvfqt::Utils::toQString(str);
 
-    EXPECT_STREQ(str.toAscii().ptr(), (const char*)qStr.toAscii());
+    EXPECT_STREQ(str.toAscii().ptr(), (const char*)qStr.toLatin1());
 }
 
 

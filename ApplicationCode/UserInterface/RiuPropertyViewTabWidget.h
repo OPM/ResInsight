@@ -26,6 +26,7 @@ namespace caf {
     class PdmUiPropertyView;
 }
 
+class QDialogButtonBox;
 class QWidget;
 class QString;
 class QStringList;
@@ -36,8 +37,10 @@ public:
     RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObject* object, const QString& windowTitle, const QStringList& uiConfigNameForTabs);
     ~RiuPropertyViewTabWidget() override;
 
+    QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
-
+    QDialogButtonBox* dialogButtonBox();
 private:
     std::vector<caf::PdmUiPropertyView*> m_pageWidgets;
+    QDialogButtonBox*                    m_dialogButtonBox;
 };

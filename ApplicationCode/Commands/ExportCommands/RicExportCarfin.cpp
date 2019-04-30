@@ -68,7 +68,7 @@ void RicExportCarfin::onActionTriggered(bool isChecked)
     exportCarfinObject->setCase(rimCase);
 
     caf::PdmUiPropertyViewDialog propertyDialog(nullptr, exportCarfinObject, "Export CARFIN to Eclipse Data", "");
-    RicExportFeatureImpl::configureForExport(&propertyDialog);
+    RicExportFeatureImpl::configureForExport(propertyDialog.dialogButtonBox());
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {

@@ -639,7 +639,7 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
 
         cvf::ref<cvf::DrawableText> geo = new cvf::DrawableText;
         
-        cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+        cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
         
         geo->setFont(standardFont);
         geo->setTextColor(m_gridLegendColor);
@@ -741,7 +741,7 @@ cvf::Vec3f RivGridBoxGenerator::cornerDirection(FaceType face1, FaceType face2)
 void RivGridBoxGenerator::updateFromBackgroundColor(const cvf::Color3f& backgroundColor)
 {
     m_gridColor = RiaColorTools::computeOffsetColor(backgroundColor, 0.3f);
-    m_gridLegendColor = RiaColorTools::constrastColor(backgroundColor);
+    m_gridLegendColor = RiaColorTools::contrastColor(backgroundColor);
 }
 
 //--------------------------------------------------------------------------------------------------

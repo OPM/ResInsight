@@ -53,7 +53,7 @@ bool RifReaderInterface::isNNCsEnabled()
 //--------------------------------------------------------------------------------------------------
 const QString RifReaderInterface::faultIncludeFileAbsolutePathPrefix()
 {
-    return readerSettings()->faultIncludeFileAbsolutePathPrefix;
+    return readerSettings()->includeFileAbsolutePathPrefix;
 }
 
 //--------------------------------------------------------------------------------------------------

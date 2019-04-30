@@ -53,12 +53,14 @@ std::vector<RigEclipseTimeStepInfo> RigEclipseTimeStepInfo::createTimeStepInfos(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigEclipseResultInfo::RigEclipseResultInfo(RiaDefines::ResultCatType resultType,
-                       QString resultName, bool needsToBeStored, bool mustBeCalculated, size_t gridScalarResultIndex) : m_resultType(resultType),
-    m_needsToBeStored(needsToBeStored),
-    m_mustBeCalculated(mustBeCalculated),
-    m_resultName(resultName),
-    m_gridScalarResultIndex(gridScalarResultIndex)
+RigEclipseResultInfo::RigEclipseResultInfo(const RigEclipseResultAddress& resultAddress,
+                                           bool needsToBeStored, 
+                                           bool mustBeCalculated, 
+                                           size_t gridScalarResultIndex) 
+    : m_resultAddress(resultAddress)
+    , m_needsToBeStored(needsToBeStored)
+    , m_mustBeCalculated(mustBeCalculated)
+    , m_gridScalarResultIndex(gridScalarResultIndex)
 {
 }
 
@@ -67,7 +69,7 @@ RigEclipseResultInfo::RigEclipseResultInfo(RiaDefines::ResultCatType resultType,
 //--------------------------------------------------------------------------------------------------
 RiaDefines::ResultCatType RigEclipseResultInfo::resultType() const
 {
-    return m_resultType;
+    return m_resultAddress.m_resultCatType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,7 +77,7 @@ RiaDefines::ResultCatType RigEclipseResultInfo::resultType() const
 //--------------------------------------------------------------------------------------------------
 void RigEclipseResultInfo::setResultType(RiaDefines::ResultCatType newType)
 {
-    m_resultType = newType;
+    m_resultAddress.m_resultCatType = newType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +85,7 @@ void RigEclipseResultInfo::setResultType(RiaDefines::ResultCatType newType)
 //--------------------------------------------------------------------------------------------------
 const QString& RigEclipseResultInfo::resultName() const
 {
-    return m_resultName;
+    return m_resultAddress.m_resultName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +93,7 @@ const QString& RigEclipseResultInfo::resultName() const
 //--------------------------------------------------------------------------------------------------
 void RigEclipseResultInfo::setResultName(const QString& name)
 {
-    m_resultName = name;
+    m_resultAddress.m_resultName = name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -194,13 +196,5 @@ std::vector<int> RigEclipseResultInfo::reportNumbers() const
 //--------------------------------------------------------------------------------------------------
 bool RigEclipseResultInfo::operator<(const RigEclipseResultInfo& rhs) const
 {
-    if (m_resultType != rhs.resultType())
-    {
-        return m_resultType < rhs.resultType();
-    }
-    if (m_resultName != rhs.resultName())
-    {
-        return m_resultName < rhs.resultName();
-    }
-    return false;
+     return m_resultAddress < rhs.m_resultAddress;
 }

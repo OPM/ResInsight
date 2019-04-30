@@ -23,6 +23,7 @@
 #include "RifReaderInterface.h"
 
 #include "cvfCollection.h"
+#include "cvfVector3.h"
 
 #include <memory>
 
@@ -57,6 +58,8 @@ public:
     void                    setHdf5FileName(const QString& fileName);
     void                    setFileDataAccess(RifEclipseRestartDataAccess* restartDataAccess);
 
+    static const size_t*    eclipseCellIndexMapping();
+
     virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase);
 
     bool                    staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values) override;
@@ -66,7 +69,17 @@ public:
     std::vector<QDateTime>  allTimeSteps() const;
 
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase);
+    static bool exportGrid(const QString&      gridFileName,
+                           RigEclipseCaseData* eclipseCase,
+                           const cvf::Vec3st&  min,
+                           const cvf::Vec3st&  max,
+                           const cvf::Vec3st&  refinement);
+
     static void             transferCoarseningInfo(const ecl_grid_type* eclGrid, RigGridBase* grid);
+    
+    static void             importEquilData(const QString&      deckFileName,
+                                            const QString&      includeStatementAbsolutePathPrefix,
+                                            RigEclipseCaseData* eclipseCase);
 
     std::set<RiaDefines::PhaseType> availablePhases() const override;
 
@@ -95,7 +108,7 @@ private:
 
     static bool             isEclipseAndSoursimTimeStepsEqual(const QDateTime& eclipseDateTime, const QDateTime& sourSimDateTime);
 
-    ecl_grid_type*          createMainGrid() const;
+    ecl_grid_type*          loadMainGrid() const;
 
 private:
     QString                                 m_fileName;                 // Name of file used to start accessing Eclipse output files

@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2016-2018 Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,6 +24,7 @@
 #include "RimEllipseFractureTemplate.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
@@ -188,6 +190,17 @@ bool RimWellPathFracture::compareByWellPathNameAndMD(const RimWellPathFracture* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellPathFracture::isEnabled() const
+{
+    RimWellPathFractureCollection* fractureCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(fractureCollection);
+
+    return fractureCollection->isChecked() && isChecked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::updatePositionFromMeasuredDepth()
 {
     cvf::Vec3d positionAlongWellpath = cvf::Vec3d::ZERO;
@@ -215,8 +228,29 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 {
     RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
 
-    uiOrdering.add(nameField());
-    uiOrdering.add(&m_fractureTemplate);
+    if (m_fractureTemplate())
+    {
+        uiOrdering.add(nameField(), caf::PdmUiOrdering::LayoutOptions(true, 3, 1));
+        uiOrdering.add(&m_fractureTemplate, {true, 2, 1});
+        uiOrdering.add(&m_editFractureTemplate, {false, 1, 0});
+    }
+    else
+    {
+        uiOrdering.add(nameField());
+        {
+            RimProject* project = nullptr;
+            this->firstAncestorOrThisOfTypeAsserted(project);
+            if (project->allFractureTemplates().empty())
+            {
+                uiOrdering.add(&m_createEllipseFractureTemplate);
+                uiOrdering.add(&m_createStimPlanFractureTemplate, false);
+            }
+            else
+            {
+                uiOrdering.add(&m_fractureTemplate);
+            }
+        }
+    }
 
     caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");
     locationGroup->add(&m_measuredDepth);
@@ -236,6 +270,8 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
     fractureCenterGroup->add(&m_uiAnchorPosition);
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

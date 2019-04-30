@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiListEditor.h"
 
 #include "cafPdmUiDefaultObjectEditor.h"
@@ -43,6 +42,7 @@
 #include "cafPdmField.h"
 
 #include "cafFactory.h"
+#include "cafQShortenedLabel.h"
 
 #include <QApplication>
 #include <QBoxLayout>
@@ -138,7 +138,8 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiListEditor);
 //--------------------------------------------------------------------------------------------------
 PdmUiListEditor::PdmUiListEditor() :
     m_isEditOperationsAvailable(true),
-    m_optionItemCount(0)
+    m_optionItemCount(0),
+    m_isScrollToItemAllowed(true)
 {
 }
 
@@ -147,6 +148,21 @@ PdmUiListEditor::PdmUiListEditor() :
 //--------------------------------------------------------------------------------------------------
 PdmUiListEditor::~PdmUiListEditor()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiListEditor::scrollToSelectedItem() const
+{
+    if (m_isScrollToItemAllowed)
+    {
+        QModelIndex mi = m_listView->currentIndex();
+        if (mi.isValid())
+        {
+            m_listView->scrollTo(mi);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,6 +206,10 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 
         m_listView->setPalette(myPalette);
         m_listView->setHeightHint(attributes.m_heightHint);
+        if (!attributes.m_allowHorizontalScrollBar)
+        {
+            m_listView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        }
     }
 
     MyStringListModel* strListModel = dynamic_cast<MyStringListModel*>(m_model.data());
@@ -266,6 +286,8 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 
         m_listView->selectionModel()->blockSignals(false);
     }
+
+    //ensureCurrentItemIsVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,7 +317,7 @@ QWidget* PdmUiListEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiListEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 
@@ -305,6 +327,8 @@ QWidget* PdmUiListEditor::createLabelWidget(QWidget * parent)
 void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
     if (m_optionItemCount == 0) return;
+
+    m_isScrollToItemAllowed = false;
 
     QVariant fieldValue = uiField()->uiValue();
     if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
@@ -359,6 +383,8 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
 
         this->setValueToField(valuesToSetInField);
     }
+
+    m_isScrollToItemAllowed = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -497,6 +523,14 @@ bool PdmUiListEditor::eventFilter(QObject* object, QEvent * event)
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiListEditor::isMultiRowEditor() const
+{
+    return true;
 }
 
 } // end namespace caf

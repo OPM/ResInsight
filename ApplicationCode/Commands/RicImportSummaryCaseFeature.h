@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RicImportGeneralDataFeature.h"
+
 #include "cafCmdFeature.h"
 
 #include <QString>
@@ -25,10 +27,10 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicImportSummaryCaseFeature : public caf::CmdFeature
+class RicImportSummaryCaseFeature : public RicImportGeneralDataFeature
 {
     CAF_CMD_HEADER_INIT;
-
+    
 protected:
     // Overrides
     bool isCommandEnabled() override;

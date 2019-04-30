@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -149,8 +149,6 @@ double RigEclipseToStimPlanCalculator::areaWeightedMatrixPermeability() const
     RiaWeightedMeanCalculator<double> calc;
 
     {
-        std::map<size_t, double> reservoirCellAndIntersectedArea;
-
         for (const auto& singleCellCalc : m_singleFractureCellCalculators)
         {
             const RigEclipseToStimPlanCellTransmissibilityCalculator& calulator = singleCellCalc.second;

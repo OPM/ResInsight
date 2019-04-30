@@ -22,8 +22,11 @@
 #include "cafCmdFeature.h"
 
 class RimEclipseCase;
-class RimContourMapView;
+class RimGeoMechCase;
+class RimEclipseContourMapView;
+class RimGeoMechContourMapView;
 class RimEclipseView;
+class RimGeoMechView;
 
 //==================================================================================================
 /// 
@@ -38,8 +41,12 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static RimContourMapView* create2dContourMapFromExistingContourMap(RimEclipseCase* eclipseCase, RimContourMapView* existingContourMap);
-    static RimContourMapView* create2dContourMapFrom3dView(RimEclipseCase* eclipseCase, const RimEclipseView* reservoirView);
-    static RimContourMapView* create2dContourMap(RimEclipseCase* eclipseCase);
+    static RimEclipseContourMapView* createEclipseContourMapFromExistingContourMap(RimEclipseCase* eclipseCase, RimEclipseContourMapView* existingContourMap);
+    static RimEclipseContourMapView* createEclipseContourMapFrom3dView(RimEclipseCase* eclipseCase, const RimEclipseView* sourceView);
+    static RimEclipseContourMapView* createEclipseContourMap(RimEclipseCase* eclipseCase);
 
+
+    static RimGeoMechContourMapView* createGeoMechContourMapFromExistingContourMap(RimGeoMechCase* geoMechCase, RimGeoMechContourMapView* existingContourMap);
+    static RimGeoMechContourMapView* createGeoMechContourMapFrom3dView(RimGeoMechCase* geoMechCase, const RimGeoMechView* sourceView);
+    static RimGeoMechContourMapView* createGeoMechContourMap(RimGeoMechCase* geoMechCase);
 };

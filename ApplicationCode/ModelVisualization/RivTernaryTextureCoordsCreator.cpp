@@ -57,9 +57,9 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
 
     RiaDefines::PorosityModelType porosityModel = cellResultColors->porosityModel();
 
-    cvf::ref<RigResultAccessor> soil = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SOIL");
-    cvf::ref<RigResultAccessor> sgas = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SGAS");
-    cvf::ref<RigResultAccessor> swat = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SWAT");
+    cvf::ref<RigResultAccessor> soil = RigResultAccessorFactory::createFromResultAddress(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, RigEclipseResultAddress("SOIL"));
+    cvf::ref<RigResultAccessor> sgas = RigResultAccessorFactory::createFromResultAddress(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, RigEclipseResultAddress("SGAS"));
+    cvf::ref<RigResultAccessor> swat = RigResultAccessorFactory::createFromResultAddress(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, RigEclipseResultAddress("SWAT"));
 
     m_resultAccessor = new RigTernaryResultAccessor();
     m_resultAccessor->setTernaryResultAccessors(soil.p(), sgas.p(), swat.p());
@@ -92,9 +92,9 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
     RiaDefines::PorosityModelType porosityModel = cellResultColors->porosityModel();
 
     size_t gridIndex = 0;
-    cvf::ref<RigResultAccessor> soil = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SOIL");
-    cvf::ref<RigResultAccessor> sgas = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SGAS");
-    cvf::ref<RigResultAccessor> swat = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SWAT");
+    cvf::ref<RigResultAccessor> soil = RigResultAccessorFactory::createFromResultAddress(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, RigEclipseResultAddress("SOIL"));
+    cvf::ref<RigResultAccessor> sgas = RigResultAccessorFactory::createFromResultAddress(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, RigEclipseResultAddress("SGAS"));
+    cvf::ref<RigResultAccessor> swat = RigResultAccessorFactory::createFromResultAddress(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, RigEclipseResultAddress("SWAT"));
 
     m_resultAccessor = new RigTernaryResultAccessor();
     m_resultAccessor->setTernaryResultAccessors(soil.p(), sgas.p(), swat.p());

@@ -66,7 +66,10 @@ public:
         FISHBONES,
         FRACTURE,
         PERFORATION,
-        ICD,
+        FISHBONES_ICD,
+        PERFORATION_ICD,
+        PERFORATION_AICD,
+        PERFORATION_ICV,
         CT_UNDEFINED
     };
 
@@ -77,6 +80,11 @@ public:
 
     bool operator<(const RigCompletionData& other) const;
     RigCompletionData& operator=(const RigCompletionData& other);
+
+
+    static bool isPerforationValve(CompletionType type);
+    static bool isValve(CompletionType type);
+    static bool isWsegValveTypes(CompletionType type);
 
     void        setFromFracture(double transmissibility, double skinFactor, double diameter);
     void        setSecondOrderingValue(double orderingValue);

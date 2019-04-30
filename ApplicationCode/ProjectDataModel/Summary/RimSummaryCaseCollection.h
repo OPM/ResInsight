@@ -25,6 +25,9 @@
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 
+#include <QString>
+
+#include <utility>
 #include <vector>
 
 class RimSummaryCase;
@@ -35,22 +38,34 @@ class RimSummaryCase;
 class EnsembleParameter
 {
 public:
-    enum Type { TYPE_NONE, TYPE_NUMERIC, TYPE_TEXT };
+    typedef std::pair<QString, EnsembleParameter> NameParameterPair;
 
+    enum Type { TYPE_NONE, TYPE_NUMERIC, TYPE_TEXT };
+    enum Bins { LOW_VARIATION, MEDIUM_VARIATION, HIGH_VARIATION, NR_OF_VARIATION_BINS };
     QString                 name;
     Type                    type;
     std::vector<QVariant>   values;
     double                  minValue;
     double                  maxValue;
+    int                     variationBin;
 
     EnsembleParameter() :
         type(TYPE_NONE),
         minValue(std::numeric_limits<double>::infinity()),
-        maxValue(-std::numeric_limits<double>::infinity()) { }
+        maxValue(-std::numeric_limits<double>::infinity()),
+        variationBin(static_cast<int>(MEDIUM_VARIATION))
+    {}
 
     bool isValid() const { return !name.isEmpty() && type != TYPE_NONE; }
     bool isNumeric() const { return type == TYPE_NUMERIC; }
     bool isText() const { return type == TYPE_TEXT; }
+    double normalizedStdDeviation() const;
+
+    static void sortByBinnedVariation(std::vector<NameParameterPair>& parameterVector);
+
+private:
+    double stdDeviation() const;
+
 };
 
 //==================================================================================================

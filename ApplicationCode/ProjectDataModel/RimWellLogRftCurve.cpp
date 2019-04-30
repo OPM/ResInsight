@@ -268,7 +268,7 @@ QString RimWellLogRftCurve::createCurveAutoName()
     }
     if ( !m_timeStep().isNull())
     {
-        name.push_back(m_timeStep().toString(RimTools::dateFormatString()));
+        name.push_back(m_timeStep().toString(RiaQDateTimeTools::dateFormatString()));
     }
 
     return name.join(", ");

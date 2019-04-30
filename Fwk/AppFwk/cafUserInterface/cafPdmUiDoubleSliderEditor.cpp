@@ -40,6 +40,7 @@
 #include "cafPdmField.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
+#include "cafQShortenedLabel.h"
 
 #include <QHBoxLayout>
 #include <QDoubleValidator>
@@ -112,6 +113,7 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_lineEdit->setValidator(pdmValidator);
     m_lineEdit->setText(textValue);
 
+    m_sliderValue = doubleValue;
     updateSliderPosition(doubleValue);
 }
 
@@ -136,7 +138,7 @@ QWidget* PdmUiDoubleSliderEditor::createEditorWidget(QWidget * parent)
     layout->addWidget(m_slider);
 
     connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(slotSliderValueChanged(int)));
-    
+    connect(m_slider, SIGNAL(sliderReleased()),  this, SLOT(slotSliderReleased()));
     return containerWidget;
 }
 
@@ -145,7 +147,7 @@ QWidget* PdmUiDoubleSliderEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiDoubleSliderEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 
@@ -159,6 +161,7 @@ void PdmUiDoubleSliderEditor::slotEditingFinished()
 
     double doubleVal = textValue.toDouble();
     doubleVal = qBound(m_attributes.m_minimum, doubleVal, m_attributes.m_maximum);
+    m_sliderValue = doubleVal;
 
     writeValueToField(doubleVal);
 }
@@ -169,8 +172,24 @@ void PdmUiDoubleSliderEditor::slotEditingFinished()
 void PdmUiDoubleSliderEditor::slotSliderValueChanged(int value)
 {
     double newDoubleValue = convertFromSliderValue(value);
+    m_sliderValue = newDoubleValue;
 
-    writeValueToField(newDoubleValue);
+    if (m_attributes.m_delaySliderUpdateUntilRelease)
+    {
+        m_lineEdit->setText(QString("%1").arg(m_sliderValue));
+    }
+    else
+    {
+        writeValueToField(m_sliderValue);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiDoubleSliderEditor::slotSliderReleased()
+{
+    writeValueToField(m_sliderValue);
 }
 
 //--------------------------------------------------------------------------------------------------

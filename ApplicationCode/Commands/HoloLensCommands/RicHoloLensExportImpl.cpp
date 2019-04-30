@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -38,12 +38,14 @@
 #include "RivMeshLinesSourceInfo.h"
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivSourceInfo.h"
+#include "RivTextLabelSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
 
 #include "cafEffectGenerator.h"
 
 #include "cvfPart.h"
 #include "cvfRenderState.h"
+#include "cvfRenderStateCullFace.h"
 #include "cvfRenderStateTextureBindings.h"
 #include "cvfRenderState_FF.h"
 #include "cvfTexture.h"
@@ -131,6 +133,26 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
                     }
                 }
 
+                if (visiblePart->effect())
+                {
+                    const cvf::RenderStateCullFace* renderStateCullFace = dynamic_cast<const cvf::RenderStateCullFace*>(
+                        visiblePart->effect()->renderStateOfType(cvf::RenderState::CULL_FACE));
+                    if (renderStateCullFace)
+                    {
+                        // The logic below that inverts the culling mode simply does not make sense. We should be able to just utilize the cull mode set
+                        // in the render state. The proper solution is probably to put more effort into correctly determining the winding in further up 
+                        // in this function, but currently there is no clear way to accomplish this.
+                        if (renderStateCullFace->mode() == cvf::RenderStateCullFace::BACK)
+                        {
+                            exportPart.setCullFace(VdeExportPart::CF_FRONT);
+                        }
+                        else if (renderStateCullFace->mode() == cvf::RenderStateCullFace::FRONT)
+                        {
+                            exportPart.setCullFace(VdeExportPart::CF_BACK);
+                        }
+                    }
+                }
+
                 appendTextureImage(exportPart, visiblePart.p());
 
                 exportParts.push_back(exportPart);
@@ -193,6 +215,27 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
     }
 
     return exportParts;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<cvf::Vec3f, cvf::String>> RicHoloLensExportImpl::labelsForExport(const RimGridView& view)
+{
+    std::vector<std::pair<cvf::Vec3f, cvf::String>> labelAndPositions;
+
+    auto visibleParts = view.viewer()->visibleParts();
+
+    for (auto& visiblePart : visibleParts)
+    {
+        const RivTextLabelSourceInfo* textLabel = dynamic_cast<const RivTextLabelSourceInfo*>(visiblePart->sourceInfo());
+        if (textLabel)
+        {
+            labelAndPositions.push_back(std::make_pair(textLabel->textPositionDisplayCoord(), textLabel->text()));
+        }
+    }
+
+    return labelAndPositions;
 }
 
 //--------------------------------------------------------------------------------------------------

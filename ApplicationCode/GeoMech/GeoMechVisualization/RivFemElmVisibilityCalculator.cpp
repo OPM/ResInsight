@@ -52,7 +52,7 @@ void RivFemElmVisibilityCalculator::computeAllVisible(cvf::UByteArray* elmVisibi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFemElmVisibilityCalculator::computeRangeVisibility(cvf::UByteArray* elmVisibilities, RigFemPart* femPart, 
+void RivFemElmVisibilityCalculator::computeRangeVisibility(cvf::UByteArray* elmVisibilities, const RigFemPart* femPart, 
                                                         const cvf::CellRangeFilter& rangeFilter)
 {
     elmVisibilities->resize(femPart->elementCount());

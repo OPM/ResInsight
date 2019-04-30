@@ -26,7 +26,7 @@
 #include "RimGridView.h"
 
 #include "Riu3DMainWindowTools.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 #include "RiuViewer.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -124,7 +124,7 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
     
     m_intersectionCollection->appendIntersectionAndUpdate(intersection);
 
-    RiuSelectionManager::instance()->deleteAllItems();
+    Riu3dSelectionManager::instance()->deleteAllItems();
     Riu3DMainWindowTools::selectAsCurrentItem(intersection);
 }
 

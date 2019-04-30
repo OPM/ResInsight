@@ -24,6 +24,9 @@
 #include "Rim3dView.h"
 #include "RimPerforationInterval.h"
 #include "RimWellPath.h"
+#include "RimWellPathAttribute.h"
+#include "RimWellPathAttributeCollection.h"
+#include "RimWellPathValve.h"
 #include "Rim2dIntersectionView.h"
 
 #include "RiuMainWindow.h"
@@ -32,7 +35,7 @@
 #include "RivWellPathSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
-
+#include "cafSelectionManager.h"
 #include "cvfPart.h"
 #include "cvfVector3.h"
 #include "RivIntersectionPartMgr.h"
@@ -50,7 +53,7 @@ RicWellPathPickEventHandler* RicWellPathPickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool RicWellPathPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
     if (eventObject.m_pickItemInfos.empty()) return false;
 
@@ -94,6 +97,35 @@ bool RicWellPathPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObj
                             }
                         }
                     }
+                }
+                else if (dynamic_cast<RimWellPathValve*>(sourceInfo->object()))
+                {
+                    objectToSelect = sourceInfo->object();
+                    RimWellPath* wellPath = nullptr;
+                    objectToSelect->firstAncestorOrThisOfType(wellPath);
+
+                    RimWellPathValve* valve = static_cast<RimWellPathValve*>(sourceInfo->object());
+
+                    QString valveText = QString("Well Path: %1\nValve: %2\nTemplate: %3").arg(wellPath->name()).arg(valve->name()).arg(valve->valveTemplate()->name());
+
+                    RiuMainWindow::instance()->setResultInfo(valveText);
+                    RiuMainWindow::instance()->selectAsCurrentItem(objectToSelect);
+                }
+                else if (dynamic_cast<RimWellPathAttribute*>(sourceInfo->object()))
+                {
+                    RimWellPath* wellPath = nullptr;
+
+                    RimWellPathAttribute* attribute = static_cast<RimWellPathAttribute*>(sourceInfo->object());
+                    RimWellPathAttributeCollection* collection = nullptr;
+                    attribute->firstAncestorOrThisOfTypeAsserted(collection);
+                    collection->firstAncestorOrThisOfTypeAsserted(wellPath);
+
+                    QString attrText = QString("Well Path: %1\nCasing Design Attribute: %2")
+                        .arg(wellPath->name())
+                        .arg(attribute->componentLabel());
+
+                    RiuMainWindow::instance()->setResultInfo(attrText);
+                    RiuMainWindow::instance()->selectAsCurrentItem(collection);
                 }
             }
 

@@ -37,8 +37,8 @@
 
 #pragma once
 
-#include <QToolBar>
 #include <QPointer>
+#include <QToolBar>
 
 #include "cafFrameAnimationControl.h"
 
@@ -46,9 +46,11 @@ class QComboBox;
 class QLabel;
 class QLineEdit;
 class QSlider;
+class QToolButton;
 
 namespace caf
 {
+class PopupMenuButton;
 
 //==================================================================================================
 /// 
@@ -73,32 +75,32 @@ public:
 
 public slots:
     void slotUpdateTimestepList(int frameCount);
+    void playPauseChanged();
 
 private slots:
     void slotFrameRateSliderChanged(int value);
-    void slotFromStartModeToggled(bool on);
-    void slotFwdBwdModeToggled(bool on);
-    void slotUpdateComboBoxIndex(int value);
+    void slotUpdateAnimationGuiFromFrameIndex(int value);
 
 private:
     void init();
-
+    void updateAnimationButtons();
 private:
-    QAction*    m_animSkipToStartAction;
-    QAction*    m_animStepBackwardAction;
-    QAction*    m_animPlayBwdAction;
-    QAction*    m_animStopAction;  
-    QAction*    m_animPauseAction;  
-    QAction*    m_animPlayAction;  
-    QAction*    m_animStepForwardAction;  
-    QAction*    m_animSkipToEndAction;
+    QAction*     m_animSkipToStartAction;
+    QAction*     m_animStepBackwardAction;
+    QToolButton* m_animPlayPauseButton;
+    QAction*     m_animPauseAction;
+    QAction*     m_animPlayAction;
+    QAction*     m_animStepForwardAction;  
+    QAction*     m_animSkipToEndAction;
 
-    QAction*    m_animRepeatFromStartAction;
-    QAction*    m_animRepeatFwdBwdAction;
+    QAction*     m_animRepeatFromStartAction;
 
-    QSlider*    m_frameRateSlider;
+    PopupMenuButton* m_animSpeedButton;
+    QLabel*      m_frameRateFastLabel;
+    QLabel*      m_frameRateSlowLabel;
+    QSlider*     m_frameRateSlider;
 
-    QComboBox*  m_timestepCombo;
+    QComboBox*   m_timestepCombo;
     
     QPointer<caf::FrameAnimationControl> m_activeAnimationControl;
 

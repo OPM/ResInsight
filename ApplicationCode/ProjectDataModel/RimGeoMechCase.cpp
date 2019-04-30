@@ -33,6 +33,8 @@
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimFormationNames.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechContourMapView.h"
+#include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechResultDefinition.h"
@@ -79,6 +81,10 @@ RimGeoMechCase::RimGeoMechCase(void)
 
     CAF_PDM_InitField(&m_reloadElementPropertyFileCommand, "reloadElementPropertyFileCommand", false, "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_reloadElementPropertyFileCommand);
+
+    CAF_PDM_InitFieldNoDefault(&m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "");
+    m_contourMapCollection = new RimGeoMechContourMapViewCollection;
+    m_contourMapCollection.uiCapability()->setUiTreeHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,6 +164,14 @@ void RimGeoMechCase::reloadDataAndUpdate()
             v->loadDataAndUpdate();
             v->setCurrentTimeStep(v->currentTimeStep());
         }
+
+        for (RimGeoMechContourMapView* contourMap : m_contourMapCollection->views())
+        {
+            CVF_ASSERT(contourMap);
+            contourMap->loadDataAndUpdate();
+            contourMap->updateGridBoxData();
+            contourMap->updateAnnotationItems();
+        }
     }
 }
 
@@ -167,8 +181,6 @@ void RimGeoMechCase::reloadDataAndUpdate()
 RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 {
     RimGeoMechView* gmv = new RimGeoMechView();
-    size_t i = geoMechViews().size();
-    gmv->setName(QString("View %1").arg(i + 1));
     
     gmv->setGeoMechCase(this);
 
@@ -276,6 +288,12 @@ std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
     {
         views.push_back(geoMechViews[vIdx]);
     }
+
+    for (RimGeoMechContourMapView* view : m_contourMapCollection->views())
+    {
+        views.push_back(view);
+    }
+
     return views;
 }
 
@@ -294,7 +312,20 @@ void RimGeoMechCase::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
         uiTreeOrdering.add(&m_2dIntersectionViewCollection);
     }
 
+    if (!m_contourMapCollection->views().empty())
+    {
+        uiTreeOrdering.add(&m_contourMapCollection);
+    }
+
     uiTreeOrdering.skipRemainingChildren(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGeoMechContourMapViewCollection* RimGeoMechCase::contourMapCollection()
+{
+    return m_contourMapCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,6 +352,10 @@ void RimGeoMechCase::initAfterRead()
         riv->setGeoMechCase(this);
     }
 
+    for (RimGeoMechContourMapView* contourMap : m_contourMapCollection->views())
+    {
+        contourMap->setGeoMechCase(this);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

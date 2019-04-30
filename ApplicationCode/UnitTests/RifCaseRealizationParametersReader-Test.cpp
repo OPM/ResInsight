@@ -9,15 +9,15 @@
 #include <numeric>
 
 
-static const QString TEST_DATA_DIRECTORY = QString("%1/RifCaseRealizationParametersReader/").arg(TEST_DATA_DIR);
+static const QString CASE_REAL_TEST_DATA_DIRECTORY = QString("%1/RifCaseRealizationParametersReader/").arg(TEST_DATA_DIR);
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 TEST(RifCaseRealizationParametersReaderTest, LocatorTestSuccess)
 {
-    QString file = RifCaseRealizationParametersFileLocator::locate(TEST_DATA_DIRECTORY + "4/3/2");
-    QString expected = TEST_DATA_DIRECTORY + "parameters.txt";
+    QString file = RifCaseRealizationParametersFileLocator::locate(CASE_REAL_TEST_DATA_DIRECTORY + "4/3/2");
+    QString expected = CASE_REAL_TEST_DATA_DIRECTORY + "parameters.txt";
     EXPECT_EQ(expected.toStdString(), file.toStdString());
 }
 
@@ -26,7 +26,7 @@ TEST(RifCaseRealizationParametersReaderTest, LocatorTestSuccess)
 //--------------------------------------------------------------------------------------------------
 TEST(RifCaseRealizationParametersReaderTest, LocatorTestFailure)
 {
-    QString file = RifCaseRealizationParametersFileLocator::locate(TEST_DATA_DIRECTORY + "4/3/2/1");
+    QString file = RifCaseRealizationParametersFileLocator::locate(CASE_REAL_TEST_DATA_DIRECTORY + "4/3/2/1");
     QString expected = "";
     EXPECT_EQ(expected.toStdString(), file.toStdString());
 }
@@ -36,7 +36,7 @@ TEST(RifCaseRealizationParametersReaderTest, LocatorTestFailure)
 //--------------------------------------------------------------------------------------------------
 TEST(RifCaseRealizationParametersReaderTest, SuccessfulParsing)
 {
-    RifCaseRealizationParametersReader reader(TEST_DATA_DIRECTORY + "parameters.txt");
+    RifCaseRealizationParametersReader reader(CASE_REAL_TEST_DATA_DIRECTORY + "parameters.txt");
 
     try
     {
@@ -68,7 +68,7 @@ TEST(RifCaseRealizationParametersReaderTest, SuccessfulParsing)
 //--------------------------------------------------------------------------------------------------
 TEST(RifCaseRealizationParametersReaderTest, ParseFailed_InvalidFormat)
 {
-    RifCaseRealizationParametersReader reader(TEST_DATA_DIRECTORY + "parameters_invalid_format.txt");
+    RifCaseRealizationParametersReader reader(CASE_REAL_TEST_DATA_DIRECTORY + "parameters_invalid_format.txt");
 
     try
     {
@@ -91,7 +91,7 @@ TEST(RifCaseRealizationParametersReaderTest, ParseFailed_InvalidFormat)
 //--------------------------------------------------------------------------------------------------
 TEST(RifCaseRealizationParametersReaderTest, ParseFailed_InvalidNumberFormat)
 {
-    RifCaseRealizationParametersReader reader(TEST_DATA_DIRECTORY + "parameters_invalid_number_format.txt");
+    RifCaseRealizationParametersReader reader(CASE_REAL_TEST_DATA_DIRECTORY + "parameters_invalid_number_format.txt");
 
     try
     {

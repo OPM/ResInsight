@@ -23,7 +23,7 @@ class PdmProxyValueField : public PdmValueField
 public:
     typedef DataType FieldDataType;
     PdmProxyValueField()                                                { m_valueSetter = NULL; m_valueGetter = NULL; }
-    virtual ~PdmProxyValueField()                                       { if (m_valueSetter) delete m_valueSetter; if (m_valueGetter) delete m_valueGetter; }
+    ~PdmProxyValueField() override                                       { if (m_valueSetter) delete m_valueSetter; if (m_valueGetter) delete m_valueGetter; }
 
     // Assignment 
 
@@ -36,9 +36,9 @@ public:
    
     // Implementation of PdmValueField interface
 
-    virtual QVariant    toQVariant() const                              { DataType val = value(); return PdmValueFieldSpecialization<DataType>::convert(val); }
-    virtual void        setFromQVariant(const QVariant& variant)        { DataType val; PdmValueFieldSpecialization<DataType>::setFromVariant(variant, val);  setValue(val); }
-    virtual bool        isReadOnly() const                              { if (!m_valueSetter) { return true; } else { return false; } }
+    QVariant    toQVariant() const override                              { DataType val = value(); return PdmValueFieldSpecialization<DataType>::convert(val); }
+    void        setFromQVariant(const QVariant& variant) override        { DataType val; PdmValueFieldSpecialization<DataType>::setFromVariant(variant, val);  setValue(val); }
+    bool        isReadOnly() const override                              { if (!m_valueSetter) { return true; } else { return false; } }
 
     // Access operators
 

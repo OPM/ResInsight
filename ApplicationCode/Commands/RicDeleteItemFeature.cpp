@@ -34,6 +34,8 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
 #include "RimGridTimeHistoryCurve.h"
+#include "RimGridCrossPlot.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
@@ -53,13 +55,16 @@
 #include "RimWellLogRftCurve.h"
 #include "RimWellRftPlot.h"
 #include "RimWellPathValve.h"
-
+#include "RimTextAnnotation.h"
+#include "RimReachCircleAnnotation.h"
+#include "RimPolylinesAnnotation.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+
 
 
 #include "cafCmdExecCommandManager.h"
@@ -125,7 +130,11 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimEnsembleCurveFilter*>(uiItem))          return true;
     if (dynamic_cast<RimDerivedEnsembleCaseCollection*>(uiItem)) return true;
     if (dynamic_cast<RimWellPathValve*>(uiItem))                 return true;
-
+    if (dynamic_cast<RimTextAnnotation*>(uiItem))                return true;
+    if (dynamic_cast<RimReachCircleAnnotation*>(uiItem))         return true;
+    if (dynamic_cast<RimPolylinesAnnotation*>(uiItem))           return true;
+    if (dynamic_cast<RimGridCrossPlot*>(uiItem))                 return true;
+    if (dynamic_cast<RimGridCrossPlotDataSet*>(uiItem))         return true;
     return false;    
 }
 
@@ -207,4 +216,5 @@ void RicDeleteItemFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
 }

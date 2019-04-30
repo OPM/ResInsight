@@ -22,6 +22,10 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RimCalcScript.h"
+#include "RimEclipseCase.h"
+#include "RimProject.h"
+
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT(RicfRunOctaveScript, "runOctaveScript");
@@ -41,20 +45,31 @@ RicfRunOctaveScript::RicfRunOctaveScript()
 void RicfRunOctaveScript::execute()
 {
     QString octavePath = RiaApplication::instance()->octavePath();
-    QFileInfo scriptFileInfo(m_path());
-    QStringList processArguments;
 
-    processArguments << "--path" << scriptFileInfo.absolutePath();
-    processArguments << scriptFileInfo.absoluteFilePath();
+    QStringList processArguments = RimCalcScript::createCommandLineArguments(m_path());
+
+    std::vector<int> caseIds = m_caseIds();
+    if (caseIds.empty())
+    {
+        RimProject* project = RiaApplication::instance()->project();
+        if (project)
+        {
+            auto eclipeCases = project->eclipseCases();
+            for (auto c : eclipeCases)
+            {
+                caseIds.push_back(c->caseId());
+            }
+        }
+    }
 
     bool ok;
-    if (m_caseIds().empty())
+    if (caseIds.empty())
     {
         ok = RiaApplication::instance()->launchProcess(octavePath, processArguments);
     }
     else
     {
-        ok = RiaApplication::instance()->launchProcessForMultipleCases(octavePath, processArguments, m_caseIds());
+        ok = RiaApplication::instance()->launchProcessForMultipleCases(octavePath, processArguments, caseIds);
     }
     if (!ok)
     {

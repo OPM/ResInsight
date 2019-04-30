@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,9 +18,11 @@
 
 #pragma once
 
+#include "RicHoloLensSessionObserver.h"
 #include "RicHoloLensRestClient.h"
 
 #include "VdePacketDirectory.h"
+#include "VdeCachingHashedIdFactory.h"
 
 #include <QString>
 #include <QPointer>
@@ -28,7 +30,6 @@
 #include <vector>
 
 class RimGridView;
-
 
 
 //==================================================================================================
@@ -39,9 +40,9 @@ class RimGridView;
 class RicHoloLensSession : public QObject, private RicHoloLensRestResponseHandler
 {
 public:
-    ~RicHoloLensSession();
+    ~RicHoloLensSession() override;
 
-    static RicHoloLensSession*  createSession(const QString& serverUrl, const QString& sessionName);
+    static RicHoloLensSession*  createSession(const QString& serverUrl, const QString& sessionName, const QByteArray& sessionPinCode, RicHoloLensSessionObserver* sessionObserver);
     static RicHoloLensSession*  createDummyFileBackedSession();
     void                        destroySession();
 
@@ -52,9 +53,14 @@ public:
 private:
     RicHoloLensSession();
 
-    virtual void    handleSuccessfulCreateSession() override;
-    virtual void    handleSuccessfulSendMetaData(int metaDataSequenceNumber) override;
-    virtual void    handleError(const QString& errMsg, const QString& url, const QString& serverData) override;
+    void    handleSuccessfulCreateSession() override;
+    void    handleFailedCreateSession() override;
+    void    handleSuccessfulSendMetaData(int metaDataSequenceNumber, const QByteArray& jsonServerResponseString) override;
+    void    handleError(const QString& errMsg, const QString& url, const QString& serverData) override;
+
+    static bool     parseJsonIntegerArray(const QByteArray& jsonString, std::vector<int>* integerArr);
+
+    void            notifyObserver(RicHoloLensSessionObserver::Notification notification);
 
 private:
     bool                            m_isSessionValid;
@@ -62,10 +68,10 @@ private:
 
     int                             m_lastExtractionMetaDataSequenceNumber;
     std::vector<int>                m_lastExtractionAllReferencedPacketIdsArr;
+    VdeCachingHashedIdFactory       m_cachingIdFactory;
     VdePacketDirectory              m_packetDirectory;
 
-    bool                            m_dbgEnableFileExport;
+    RicHoloLensSessionObserver*     m_sessionObserver;
+
+    QString                         m_dbgFileExportDestinationFolder;
 };
-
-
-

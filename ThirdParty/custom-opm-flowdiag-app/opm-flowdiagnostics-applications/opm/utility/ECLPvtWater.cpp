@@ -252,6 +252,13 @@ void
 Opm::ECLPVT::Water::Impl::validateRegIdx(const RegIdx region) const
 {
     if (region >= this->eval_.size()) {
+        if (this->eval_.empty()) {
+            throw std::invalid_argument {
+                "No Water PVT Interpolant Available in Region "
+                + std::to_string(region + 1)
+            };
+        }
+
         throw std::invalid_argument {
             "Region Index " +
             std::to_string(region) +

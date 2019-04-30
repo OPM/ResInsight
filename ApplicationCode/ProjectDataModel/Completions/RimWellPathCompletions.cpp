@@ -32,8 +32,12 @@
 
 #include "cvfAssert.h"
 
+#include "cafPdmDoubleStringValidator.h"
+#include "cafPdmUiDoubleValueEditor.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
+#include <QRegExpValidator>
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +58,37 @@ namespace caf {
 
         setDefault(RimWellPathCompletions::OIL);
     }
-}
+
+    template<>
+    void RimWellPathCompletions::GasInflowEnum::setUp()
+    {
+        addItem(RimWellPathCompletions::STANDARD_EQ, "STD", "Standard");
+        addItem(RimWellPathCompletions::RUSSELL_GOODRICH, "R-G", "Russell-Goodrich");
+        addItem(RimWellPathCompletions::DRY_GAS_PSEUDO_PRESSURE, "P-P", "Dry Gas Pseudo-Pressure");
+        addItem(RimWellPathCompletions::GENERALIZED_PSEUDO_PRESSURE, "GPP", "Generalized Pseudo-Pressure");
+
+        setDefault(RimWellPathCompletions::STANDARD_EQ);
+    }
+
+    template<>
+    void RimWellPathCompletions::AutomaticWellShutInEnum::setUp()
+    {
+        addItem(RimWellPathCompletions::ISOLATE_FROM_FORMATION, "SHUT", "Isolate from Formation");
+        addItem(RimWellPathCompletions::STOP_ABOVE_FORMATION, "STOP", "Stop above Formation");
+
+        setDefault(RimWellPathCompletions::STOP_ABOVE_FORMATION);
+    }
+
+    template<>
+    void RimWellPathCompletions::HydrostaticDensityEnum::setUp()
+    {
+        addItem(RimWellPathCompletions::SEGMENTED, "SEG", "Segmented");
+        addItem(RimWellPathCompletions::AVERAGED, "AVG", "Averaged");
+        
+        setDefault(RimWellPathCompletions::SEGMENTED);
+    }
+
+    }
 
 
 CAF_PDM_SOURCE_INIT(RimWellPathCompletions, "WellPathCompletions");
@@ -78,13 +112,19 @@ RimWellPathCompletions::RimWellPathCompletions()
     m_fractureCollection = new RimWellPathFractureCollection;
     m_fractureCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_wellNameForExport, "WellNameForExport", QString(), "Well Name for Completion Export", "", "", "");
+    CAF_PDM_InitField(&m_wellNameForExport, "WellNameForExport", QString(), "Well Name", "", "", "");
+    m_wellNameForExport.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_wellGroupName, "WellGroupNameForExport", QString(), "Well Group Name for Completion Export", "", "", "");
-
-    CAF_PDM_InitField(&m_referenceDepth, "ReferenceDepthForExport", QString(), "Reference Depth for Completion Export", "", "", "");
-
-    CAF_PDM_InitField(&m_wellType, "WellTypeForExport", WellTypeEnum(), "Well Type for Completion Export", "", "", "");
+    CAF_PDM_InitField(&m_wellGroupName, "WellGroupNameForExport", QString(), "Well Group Name", "", "", "");
+    CAF_PDM_InitField(&m_referenceDepth, "ReferenceDepthForExport", QString(), "Reference Depth for BHP", "", "", "");
+    CAF_PDM_InitField(&m_preferredFluidPhase, "WellTypeForExport", WellTypeEnum(), "Preferred Fluid Phase", "", "", "");
+    CAF_PDM_InitField(&m_drainageRadiusForPI, "DrainageRadiusForPI", QString("0.0"), "Drainage Radius for PI", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_gasInflowEquation, "GasInflowEq", "Gas Inflow Equation", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_automaticWellShutIn, "AutoWellShutIn", "Automatic well shut-in", "", "", "");
+    CAF_PDM_InitField(&m_allowWellCrossFlow, "AllowWellCrossFlow", true, "Allow Well Cross-Flow", "", "", "");
+    CAF_PDM_InitField(&m_wellBoreFluidPVTTable, "WellBoreFluidPVTTable", 0, "Wellbore Fluid PVT table", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_hydrostaticDensity, "HydrostaticDensity", "Hydrostatic Density", "", "", "");
+    CAF_PDM_InitField(&m_fluidInPlaceRegion, "FluidInPlaceRegion", 0, "Fluid In-Place Region", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,6 +154,17 @@ void RimWellPathCompletions::setWellNameForExport(const QString& name)
 {
     auto n = name;
     m_wellNameForExport = n.remove(' ');
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletions::updateWellPathNameHasChanged(const QString& newWellPathName, const QString& previousWellPathName)
+{
+    if (m_wellNameForExport == previousWellPathName)
+    {
+        m_wellNameForExport = newWellPathName;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,7 +201,7 @@ QString RimWellPathCompletions::referenceDepthForExport() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletions::wellTypeNameForExport() const
 {
-    switch (m_wellType.v())
+    switch (m_preferredFluidPhase.v())
     {
     case OIL:       return "OIL";
     case GAS:       return "GAS";
@@ -225,6 +276,62 @@ bool RimWellPathCompletions::hasCompletions() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::drainageRadiusForExport() const
+{
+    return m_drainageRadiusForPI();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::gasInflowEquationForExport() const
+{
+    return m_gasInflowEquation().text();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::automaticWellShutInForExport() const
+{
+    return m_automaticWellShutIn().text();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::allowWellCrossFlowForExport() const
+{
+    return m_allowWellCrossFlow() ? "YES" : "NO";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::wellBoreFluidPVTForExport() const
+{
+    return QString("%1").arg(m_wellBoreFluidPVTTable());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::hydrostaticDensityForExport() const
+{
+    return m_hydrostaticDensity().text();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::fluidInPlaceRegionForExport() const
+{
+    return QString("%1").arg(m_fluidInPlaceRegion());
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletions::setUnitSystemSpecificDefaults()
@@ -232,6 +339,35 @@ void RimWellPathCompletions::setUnitSystemSpecificDefaults()
     m_fishbonesCollection->setUnitSystemSpecificDefaults();
     m_fractureCollection->setUnitSystemSpecificDefaults();
     m_perforationCollection->setUnitSystemSpecificDefaults();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QRegExp RimWellPathCompletions::wellNameForExportRegExp()
+{
+    QRegExp rx("[\\w\\-\\_]{1,8}");
+    return rx;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletions::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* compExportGroup = uiOrdering.addNewGroup("Completion Export Parameters");
+    compExportGroup->add(&m_wellNameForExport);
+    compExportGroup->add(&m_wellGroupName);
+    compExportGroup->add(&m_referenceDepth);
+    compExportGroup->add(&m_preferredFluidPhase);
+    compExportGroup->add(&m_drainageRadiusForPI);
+    compExportGroup->add(&m_gasInflowEquation);
+    compExportGroup->add(&m_automaticWellShutIn);
+    compExportGroup->add(&m_allowWellCrossFlow);
+    compExportGroup->add(&m_wellBoreFluidPVTTable);
+    compExportGroup->add(&m_hydrostaticDensity);
+    compExportGroup->add(&m_fluidInPlaceRegion);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -279,6 +415,40 @@ void RimWellPathCompletions::fieldChangedByUi(const caf::PdmFieldHandle* changed
                 m_referenceDepth = text.replace(',', '.');
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletions::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                   QString                    uiConfigName,
+                                                   caf::PdmUiEditorAttribute* attribute)
+{
+    caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>(attribute);
+    if (field == &m_wellNameForExport && lineEditorAttr)
+    {
+        QRegExpValidator* validator = new QRegExpValidator(nullptr);
+        validator->setRegExp(wellNameForExportRegExp());
+        lineEditorAttr->validator = validator;
+    }
+    else if (field == &m_drainageRadiusForPI && lineEditorAttr)
+    {
+        caf::PdmDoubleStringValidator* validator = new caf::PdmDoubleStringValidator("1*");
+        lineEditorAttr->validator = validator;
+    }
+    else if (field == &m_wellBoreFluidPVTTable && lineEditorAttr)
+    {
+        // Positive integer
+        QIntValidator* validator = new QIntValidator(0, std::numeric_limits<int>::max(), nullptr);
+        lineEditorAttr->validator = validator;
+    }
+    else if (field == &m_fluidInPlaceRegion && lineEditorAttr)
+    {
+        // Any integer
+        QIntValidator* validator  = new QIntValidator(-std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), nullptr);
+        lineEditorAttr->validator = validator;
+
     }
 }
 

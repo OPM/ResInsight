@@ -4,6 +4,8 @@
 
 #include <QString>
 
+#include <vector>
+
 class QXmlStreamReader;
 class QXmlStreamWriter;
 
@@ -15,6 +17,7 @@ class PdmXmlFieldHandle;
 class PdmObjectHandle;
 class PdmObjectFactory;
 class PdmReferenceHelper;
+class PdmFieldHandle;
 
 
 //==================================================================================================
@@ -51,7 +54,8 @@ public:
 
     void                    initAfterReadRecursively()         { initAfterReadRecursively(this->m_owner); };
     void                    setupBeforeSaveRecursively()       { setupBeforeSaveRecursively(this->m_owner); };
-    void                    resolveReferencesRecursively()     { resolveReferencesRecursively(this->m_owner); };
+
+    void                    resolveReferencesRecursively(std::vector<PdmFieldHandle*>* fieldWithFailingResolve = nullptr);
 
 protected: // Virtual 
     /// Method gets called from PdmDocument after all objects are read. 
@@ -68,7 +72,7 @@ protected: // Virtual
 private:
     void                    initAfterReadRecursively(PdmObjectHandle* object);
     void                    setupBeforeSaveRecursively(PdmObjectHandle * object);
-    void                    resolveReferencesRecursively(PdmObjectHandle* object);
+    void                    resolveReferencesRecursively(PdmObjectHandle* object, std::vector<PdmFieldHandle*>* fieldWithFailingResolve);
 
 private:
     friend class PdmObjectHandle ; // Only temporary for void PdmObject::addFieldNoDefault( ) accessing findField

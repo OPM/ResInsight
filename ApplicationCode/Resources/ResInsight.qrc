@@ -28,6 +28,7 @@
     <file>Cases16x16.png</file>
     <file>SummaryCases16x16.png</file>
     <file>SummaryEnsemble16x16.png</file>
+	<file>SummaryEnsemble24x24.png</file>
     <file>SummaryGroup16x16.png</file>
     <file>CreateGridCaseGroup16x16.png</file>
     <file>GridCaseGroup16x16.png</file>
@@ -51,6 +52,9 @@
     <file>draw_style_surface_w_fault_mesh_24x24.png</file>
     <file>InfoBox16x16.png</file>
     <file>GeoMechCase48x48.png</file>
+	<file>GeoMechCase24x24.png</file>
+	<file>GeoMechCaseTime24x24.png</file>
+	<file>GeoMechCasePropTable24x24.png</file>
     <file>GeoMechCases48x48.png</file>
     <file>chain.png</file>
     <file>TileWindows24x24.png</file>
@@ -122,10 +126,10 @@
     <file>statistics.png</file>
     <file>WellTargetPoint16x16.png</file>
     <file>WellTargetPointTangent16x16.png</file>
-    <file>hololens.png</file>
-    <file>minus-sign-red.png</file>
-    <file>plus-sign-green.png</file>
-    <file>arrow-right-green.png</file>
+    <file>HoloLensConnect24x24.png</file>
+    <file>HoloLensDisconnect24x24.png</file>
+    <file>HoloLensSendContinously24x24.png</file>
+    <file>HoloLensSendOnce24x24.png</file>
     <file>2DMap16x16.png</file>
     <file>2DMaps16x16.png</file>
     <file>AICDValve16x16.png</file>
@@ -142,6 +146,14 @@
     <file>ExportCompletionsSymbol16x16.png</file>
     <file>StepUpDown16x16.png</file>
     <file>StepUpDownCorner16x16.png</file>
+    <file>TextAnnotation16x16.png</file>
+    <file>Annotations16x16.png</file>
+    <file>PolylinesFromFile16x16.png</file>
+    <file>ReachCircle16x16.png</file>
+    <file>2DMapProjection16x16.png</file>
+    <file>Ruler24x24.png</file>
+	<file>RulerPoly24x24.png</file>
+	<file>Swap.png</file>
   </qresource>
   <qresource prefix="/Shader/">
     <file>fs_CellFace.glsl</file>

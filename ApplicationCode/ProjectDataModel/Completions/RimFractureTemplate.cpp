@@ -208,7 +208,7 @@ void RimFractureTemplate::setName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::setFractureTemplateUnit(RiaEclipseUnitTools::UnitSystemType unitSystem)
+void RimFractureTemplate::setUnitSystem(RiaEclipseUnitTools::UnitSystemType unitSystem)
 {
     m_fractureTemplateUnit = unitSystem;
 }

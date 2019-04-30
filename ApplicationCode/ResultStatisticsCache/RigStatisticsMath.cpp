@@ -17,11 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigStatisticsMath.h"
+
+#include "cvfBase.h"
+#include "cvfMath.h"
+
 #include <algorithm>
 #include <assert.h>
 #include <math.h>
-#include "cvfBase.h"
-#include "cvfMath.h"
 
 //--------------------------------------------------------------------------------------------------
 /// A function to do basic statistical calculations 
@@ -254,7 +256,12 @@ double RigHistogramCalculator::calculatePercentil(double pVal)
         {
             double domainValueAtEndOfBin = m_min + (binIdx+1) * binWidth;
             double unusedFractionOfLastBin = (double)(accObsCount - pValObservationCount)/binObsCount;
-            return domainValueAtEndOfBin - unusedFractionOfLastBin*binWidth;
+
+            double histogramBasedEstimate = domainValueAtEndOfBin - unusedFractionOfLastBin*binWidth;
+
+            // See https://resinsight.org/docs/casegroupsandstatistics/#percentile-methods for details
+
+            return histogramBasedEstimate;
         }
     }
     assert(false);

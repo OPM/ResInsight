@@ -101,7 +101,9 @@ public:
     {
     }
 
-    const RigWellResultPoint*         findResultCell(size_t gridIndex, size_t gridCellIndex) const;
+    const RigWellResultPoint*         findResultCellWellHeadIncluded(size_t gridIndex, size_t gridCellIndex) const;
+    const RigWellResultPoint*         findResultCellWellHeadExcluded(size_t gridIndex, size_t gridCellIndex) const;
+
 
     RigWellResultPoint                wellHeadOrStartCell() const;
     WellProductionType                m_productionType;

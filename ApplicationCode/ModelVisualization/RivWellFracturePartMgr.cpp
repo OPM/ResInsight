@@ -950,14 +950,8 @@ void RivWellFracturePartMgr::appendFracturePerforationLengthParts(const RimEclip
         }
     }
 
-    std::vector<cvf::Vec3d> displayCoords;
-    {
-        std::vector<cvf::Vec3d> perforationLengthCoord = m_rimFracture->perforationLengthCenterLineCoords();
-        for (const cvf::Vec3d& point : perforationLengthCoord)
-        {
-            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(point));
-        }
-    }
+    std::vector<cvf::Vec3d> displayCoords =
+        displayCoordTransform->transformToDisplayCoords(m_rimFracture->perforationLengthCenterLineCoords());
 
     if (!displayCoords.empty())
     {

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -28,13 +28,16 @@ class RiuWidgetDragger : public QObject
 {
     Q_OBJECT 
 public:
-    RiuWidgetDragger(QWidget* widgetToMove);
+    RiuWidgetDragger(QWidget* widgetToMove, QWidget* widgetToSnapTo = nullptr, int snapMargins = 5);
 
+    void addWidget(QWidget* widget);
     bool eventFilter(QObject * watched, QEvent * event) override;
 
 private:
     QPointer<QWidget> m_widgetToMove;
-    QPoint m_startPos;
+    QPointer<QWidget> m_widgetToSnapTo;
+    int               m_snapMargins;
+    QPoint            m_startPos;    
 };
 
 

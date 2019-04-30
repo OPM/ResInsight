@@ -28,11 +28,15 @@
 class RimEclipseCaseCollection;
 class RimFormationNamesCollection;
 class RimFractureTemplateCollection;
+class RimCompletionTemplateCollection;
+class RimValveTemplateCollection;
 class RimGeoMechModels;
 class RimObservedDataCollection;
 class RimSummaryCase;
 class RimSummaryCaseMainCollection;
 class RimWellPathCollection;
+class RimAnnotationCollection;
+class RimMeasurement;
 
 //==================================================================================================
 ///  
@@ -46,14 +50,27 @@ public:
     RimOilField(void);
     ~RimOilField(void) override;
 
+    RimFractureTemplateCollection* fractureDefinitionCollection();
+    const RimFractureTemplateCollection* fractureDefinitionCollection() const;
+
+    RimValveTemplateCollection*       valveTemplateCollection();
+    const RimValveTemplateCollection* valveTemplateCollection() const;
+
     QString                                                 uniqueShortNameForCase(RimSummaryCase* summaryCase);
 
     caf::PdmChildField<RimEclipseCaseCollection*>           analysisModels;
     caf::PdmChildField<RimGeoMechModels*>                   geoMechModels;
     caf::PdmChildField<RimWellPathCollection*>              wellPathCollection;
-    caf::PdmChildField<RimFractureTemplateCollection*>      fractureDefinitionCollection;
+    caf::PdmChildField<RimCompletionTemplateCollection*>    completionTemplateCollection;
     caf::PdmChildField<RimSummaryCaseMainCollection*>       summaryCaseMainCollection;
     caf::PdmChildField<RimObservedDataCollection*>          observedDataCollection;
     caf::PdmChildField<RimFormationNamesCollection*>        formationNamesCollection;
+    caf::PdmChildField<RimAnnotationCollection*>            annotationCollection;
+    caf::PdmChildField<RimMeasurement*>                     measurement;
 
+protected:
+    void initAfterRead() override;
+
+private:
+    caf::PdmChildField<RimFractureTemplateCollection*>      m_fractureTemplateCollection_OBSOLETE;
 };

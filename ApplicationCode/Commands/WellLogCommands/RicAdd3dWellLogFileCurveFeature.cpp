@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -72,5 +72,5 @@ void RicAdd3dWellLogFileCurveFeature::onActionTriggered(bool isChecked)
 void RicAdd3dWellLogFileCurveFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
-    actionToSetup->setText("Add 3D Well Log LAS Curve");
+    actionToSetup->setText("Create 3D Well Log LAS Curve");
 }

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ RimTensorResults::RimTensorResults()
 {
     CAF_PDM_InitObject("Element Tensor Results", ":/CellResult.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&arrowColorLegendConfig, "LegendDefinition", "Legend Definition", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&arrowColorLegendConfig, "LegendDefinition", "Color Legend", "", "", "");
     this->arrowColorLegendConfig = new RimRegularLegendConfig();
     arrowColorLegendConfig.uiCapability()->setUiHidden(true);
 

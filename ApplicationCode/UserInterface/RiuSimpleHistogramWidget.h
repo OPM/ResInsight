@@ -30,14 +30,14 @@ class QStringList;
 class RiuSimpleHistogramWidget : public QWidget
 {
 public:
-    RiuSimpleHistogramWidget( QWidget * parent = nullptr, Qt::WindowFlags f = nullptr);
+    RiuSimpleHistogramWidget(const QString& objectName, QWidget * parent = nullptr, Qt::WindowFlags f = nullptr);
 
     void                setHistogramData(double min, double max, const std::vector<size_t>& histogram);
     void                setPercentiles(double pmin, double pmax);
     void                setMean(double mean) {m_mean = mean;}
 
 protected:
-     void       paintEvent(QPaintEvent* event) override;
+     void               paintEvent(QPaintEvent* event) override;
 
 private:
     void                draw(QPainter *painter,int x, int y, int width, int height );

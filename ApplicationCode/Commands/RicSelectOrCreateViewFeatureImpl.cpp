@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,22 +22,26 @@
 
 #include "RiaApplication.h"
 
-#include "RimProject.h"
-#include "RimEclipseView.h"
 #include "RimEclipseResultCase.h"
+#include "RimEclipseView.h"
+#include "RimProject.h"
 
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
-RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseResultCase* resultCase, const QString& lastUsedViewKey, const QString& dialogTitle)
+RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseResultCase* resultCase,
+                                                                    const QString&        lastUsedViewKey,
+                                                                    const QString&        newViewName,
+                                                                    const QString&        dialogTitle)
 {
     RimEclipseView* defaultSelectedView = getDefaultSelectedView(resultCase, lastUsedViewKey);
 
     RicSelectViewUI featureUi;
+    featureUi.setNewViewName(newViewName);
     if (defaultSelectedView)
     {
         featureUi.setView(defaultSelectedView);
@@ -69,14 +73,15 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseRe
         viewToManipulate = featureUi.selectedView();
     }
 
-    QString refFromProjectToView = caf::PdmReferenceHelper::referenceFromRootToObject(RiaApplication::instance()->project(), viewToManipulate);
+    QString refFromProjectToView =
+        caf::PdmReferenceHelper::referenceFromRootToObject(RiaApplication::instance()->project(), viewToManipulate);
     RiaApplication::instance()->setCacheDataObject(lastUsedViewKey, refFromProjectToView);
 
     return viewToManipulate;
 }
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 void RicSelectOrCreateViewFeatureImpl::focusView(RimEclipseView* view)
 {
@@ -86,14 +91,16 @@ void RicSelectOrCreateViewFeatureImpl::focusView(RimEclipseView* view)
 }
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
-RimEclipseView* RicSelectOrCreateViewFeatureImpl::getDefaultSelectedView(RimEclipseResultCase* resultCase, const QString& lastUsedViewKey)
+RimEclipseView* RicSelectOrCreateViewFeatureImpl::getDefaultSelectedView(RimEclipseResultCase* resultCase,
+                                                                         const QString&        lastUsedViewKey)
 {
     RimEclipseView* defaultSelectedView = nullptr;
 
-    QString lastUsedViewRef = RiaApplication::instance()->cacheDataObject(lastUsedViewKey).toString();
-    RimEclipseView* lastUsedView = dynamic_cast<RimEclipseView*>(caf::PdmReferenceHelper::objectFromReference(RiaApplication::instance()->project(), lastUsedViewRef));
+    QString         lastUsedViewRef = RiaApplication::instance()->cacheDataObject(lastUsedViewKey).toString();
+    RimEclipseView* lastUsedView    = dynamic_cast<RimEclipseView*>(
+        caf::PdmReferenceHelper::objectFromReference(RiaApplication::instance()->project(), lastUsedViewRef));
     if (lastUsedView)
     {
         RimEclipseResultCase* lastUsedViewResultCase = nullptr;

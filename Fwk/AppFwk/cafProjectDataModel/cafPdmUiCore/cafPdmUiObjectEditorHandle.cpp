@@ -34,10 +34,8 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiObjectEditorHandle.h"
 
-#include "cafPdmObjectHandle.h"
 #include "cafPdmUiObjectHandle.h"
 
 namespace caf
@@ -59,26 +57,6 @@ PdmUiObjectEditorHandle::PdmUiObjectEditorHandle()
 PdmUiObjectEditorHandle::~PdmUiObjectEditorHandle()
 {
     m_sRegisteredObjectEditors.erase(this);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiObjectEditorHandle::getOrCreateWidget(QWidget* parent)
-{
-    if (m_widget.isNull()) 
-    {
-        m_widget = this->createWidget(parent);
-    }
-    return m_widget;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiObjectEditorHandle::widget() const
-{
-    return m_widget;
 }
 
 //--------------------------------------------------------------------------------------------------

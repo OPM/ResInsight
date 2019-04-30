@@ -16,10 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RiuDockedQwtPlot.h"
 #include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuRelativePermeabilityPlotUpdater.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuQwtPlotCurve.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuTextDialog.h"
 
 #include "RiaCurveDataTools.h"
@@ -56,10 +57,10 @@
 //
 //
 //==================================================================================================
-class RelPermQwtPlot : public QwtPlot
+class RelPermQwtPlot : public RiuDockedQwtPlot
 {
 public:
-    RelPermQwtPlot(QWidget* parent) : QwtPlot(parent) {}
+    RelPermQwtPlot(QWidget* parent) : RiuDockedQwtPlot(parent) {}
     QSize sizeHint() const override { return QSize(100, 100); }
     QSize minimumSizeHint() const override { return QSize(0, 0); }
 };
@@ -88,6 +89,7 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel(QDockWidget* 
 {
     m_qwtPlot = new RelPermQwtPlot(this);
     setPlotDefaults(m_qwtPlot);
+    applyFontSizes(false);
 
     m_selectedCurvesButtonGroup = new QButtonGroup(this);
     m_selectedCurvesButtonGroup->setExclusive(false);
@@ -154,12 +156,12 @@ RiuRelativePermeabilityPlotPanel::~RiuRelativePermeabilityPlotPanel()
 //--------------------------------------------------------------------------------------------------
 void RiuRelativePermeabilityPlotPanel::setPlotDefaults(QwtPlot* plot)
 {
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(plot);
+    RiuQwtPlotTools::setCommonPlotBehaviour(plot);
 
     {
         QwtText plotTitle = plot->title();
         QFont titleFont = plotTitle.font();
-        titleFont.setPixelSize(14);
+        titleFont.setPointSize(10);
         plotTitle.setFont(titleFont);
         plot->setTitle(plotTitle);
     }
@@ -226,6 +228,14 @@ void RiuRelativePermeabilityPlotPanel::clearPlot()
 RiuRelativePermeabilityPlotUpdater* RiuRelativePermeabilityPlotPanel::plotUpdater()
 {
     return m_plotUpdater.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuRelativePermeabilityPlotPanel::applyFontSizes(bool replot /*= true*/)
+{
+    m_qwtPlot->applyFontSizes(replot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -465,7 +475,6 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(RiaEclipseUnitTools::Unit
     plot->setAxisTitle(QwtPlot::xBottom, determineXAxisTitleFromCurveCollection(curveArr));
     plot->setAxisTitle(QwtPlot::yLeft, "Kr");
     plot->setAxisTitle(QwtPlot::yRight, QString("Pc [%1]").arg(RiaEclipseUnitTools::unitStringPressure(unitSystem)));
-
     plot->replot();
 }
 

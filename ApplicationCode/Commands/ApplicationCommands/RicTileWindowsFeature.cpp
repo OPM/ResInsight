@@ -52,7 +52,14 @@ void RicTileWindowsFeature::onActionTriggered(bool isChecked)
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     if (mainWindow)
     {
-        mainWindow->tileWindows();
+        if (!mainWindow->subWindowsAreTiled())
+        {
+            mainWindow->tileSubWindows();
+        }
+        else
+        {
+            mainWindow->clearWindowTiling();
+        }
     }
 }
 
@@ -63,9 +70,22 @@ void RicTileWindowsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Tile Windows");
     actionToSetup->setIcon(QIcon(":/TileWindows24x24.png"));
+    actionToSetup->setCheckable(true);
 }
 
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicTileWindowsFeature::isCommandChecked()
+{
+    if (RiaApplication::instance()->mainWindow())
+    {
+        return RiaApplication::instance()->mainWindow()->subWindowsAreTiled();
+    }
+    return false;
+}
 
 CAF_CMD_SOURCE_INIT(RicTilePlotWindowsFeature, "RicTilePlotWindowsFeature");
 
@@ -91,7 +111,14 @@ void RicTilePlotWindowsFeature::onActionTriggered(bool isChecked)
     RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
     if (mainPlotWindow)
     {
-        mainPlotWindow->tileWindows();
+        if (!mainPlotWindow->subWindowsAreTiled())
+        {
+            mainPlotWindow->tileSubWindows();
+        }
+        else
+        {
+            mainPlotWindow->clearWindowTiling();
+        }
     }
 }
 
@@ -102,4 +129,17 @@ void RicTilePlotWindowsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Tile Windows");
     actionToSetup->setIcon(QIcon(":/TileWindows24x24.png"));
+    actionToSetup->setCheckable(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicTilePlotWindowsFeature::isCommandChecked()
+{
+    if (RiaApplication::instance()->mainPlotWindow())
+    {
+        return RiaApplication::instance()->mainPlotWindow()->subWindowsAreTiled();
+    }
+    return false;
 }

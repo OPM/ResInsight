@@ -30,6 +30,7 @@
 #include "RimFishbonesMultipleSubs.h"
 #include "Rim3dView.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 
 #include "RiuMainWindow.h"
 
@@ -94,9 +95,13 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection()
 {
+    std::vector<caf::PdmUiItem*> allSelectedItems;
+    caf::SelectionManager::instance()->selectedItems(allSelectedItems);
+    if (allSelectedItems.size() != 1u) return nullptr;
+
     RimFishbonesCollection* objToFind = nullptr;
     
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+    caf::PdmUiItem* pdmUiItem = allSelectedItems.front();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (objHandle)
@@ -112,6 +117,11 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
         {
             return wellPaths[0]->fishbonesCollection();
         }
+        RimWellPathCompletions* completions = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
+        if (completions)
+        {
+            return completions->fishbonesCollection();
+        }
     }
 
     return objToFind;
@@ -123,7 +133,7 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
 void RicNewFishbonesSubsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FishBoneGroup16x16.png"));
-    actionToSetup->setText("New Fishbones");
+    actionToSetup->setText("Create Fishbones");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,6 +199,7 @@ void RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(RimFishbonesCollectio
     {
         activeView->setScaleZAndUpdate(1.0);
         activeView->scheduleCreateDisplayModelAndRedraw();
+        activeView->updateZScaleLabel();
 
         RiuMainWindow::instance()->updateScaleValue();
     }

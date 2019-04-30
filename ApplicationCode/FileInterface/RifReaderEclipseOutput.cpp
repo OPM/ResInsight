@@ -21,6 +21,7 @@
 #include "RifReaderEclipseOutput.h"
 
 #include "RiaApplication.h"
+#include "RiaCellDividingTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
@@ -37,9 +38,10 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultInfo.h"
+#include "RigEquil.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
-#include "RigEclipseResultInfo.h"
 
 #include "cafProgressInfo.h"
 
@@ -125,8 +127,9 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
     mainGrid->nodes().resize(nodeStartIndex + cellCount*8, cvf::Vec3d(0,0,0));
 
     int progTicks = 100;
-    double cellsPrProgressTick = cellCount/(float)progTicks;
+    int cellsPrProgressTick = std::max(1, cellCount/progTicks);
     caf::ProgressInfo progInfo(progTicks, "");
+
     size_t computedCellCount = 0;
     // Loop over cells and fill them with data
 
@@ -187,10 +190,11 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         //if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() && !cell.isActiveInFractureModel()) ) )
         cell.setInvalid(cell.isLongPyramidCell());
 
-#pragma omp atomic
-        computedCellCount++;
-
-        progInfo.setProgress((int)(computedCellCount/cellsPrProgressTick));
+#pragma omp critical
+        {
+            computedCellCount++;
+            if (computedCellCount % cellsPrProgressTick == 0) progInfo.incrementProgress();
+        }
     }
     return true;
 }
@@ -303,12 +307,11 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
     mainGrid->nodes().reserve(8*totalCellCount);
 
     caf::ProgressInfo progInfo(3 + numLGRs, "");
-    progInfo.setProgressDescription("Main Grid");
-    progInfo.setNextProgressIncrement(3);
 
-    transferGridCellData(mainGrid, activeCellInfo, fractureActiveCellInfo, mainGrid, mainEclGrid, 0, 0);
-
-    progInfo.setProgress(3);
+    {
+        auto task = progInfo.task("Loading Main Grid Data", 3);
+        transferGridCellData(mainGrid, activeCellInfo, fractureActiveCellInfo, mainGrid, mainEclGrid, 0, 0);
+    }
 
     size_t globalMatrixActiveSize = ecl_grid_get_nactive(mainEclGrid);
     size_t globalFractureActiveSize = ecl_grid_get_nactive_fracture(mainEclGrid);
@@ -324,7 +327,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 
     for (lgrIdx = 0; lgrIdx < numLGRs; ++lgrIdx)
     {
-        progInfo.setProgressDescription("LGR number " + QString::number(lgrIdx+1));
+        auto task = progInfo.task("LGR number " + QString::number(lgrIdx + 1), 1);        
 
         ecl_grid_type* localEclGrid = ecl_grid_iget_lgr(mainEclGrid, lgrIdx);
         RigLocalGrid* localGrid = static_cast<RigLocalGrid*>(mainGrid->gridByIndex(lgrIdx+1));
@@ -341,8 +344,6 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         fractureActiveCellInfo->setGridActiveCellCounts(lgrIdx + 1, fractureActiveCellCount);
 
         transferCoarseningInfo(localEclGrid, localGrid);
-
-        progInfo.setProgress(3 + lgrIdx);
     }
 
     mainGrid->initAllSubGridsParentGridPointer();
@@ -358,9 +359,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
-    caf::ProgressInfo progInfo(100, "");
-
-    progInfo.setProgressDescription("Reading Grid");
+    caf::ProgressInfo progress(100, "Reading Grid");    
 
     if (!RifEclipseOutputFileTools::isValidEclipseFileName(fileName))
     {
@@ -370,102 +369,102 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
         return false;
     }
 
-    // Get set of files
     QStringList fileSet;
-    if (!RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(fileName, &fileSet)) return false;
+    {
+        auto task = progress.task("Get set of files");
+        
+        if (!RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(fileName, &fileSet)) return false;
 
-    m_fileName = fileName;
+        m_fileName = fileName;
+    }
     
-    progInfo.incrementProgress();
-
-    progInfo.setNextProgressIncrement(20);
-    // Keep the set of files of interest
-    m_filesWithSameBaseName = fileSet;
-
-    openInitFile();
-
-    // Read geometry
-    // Todo: Needs to check existence of file before calling ert, else it will abort
-    ecl_grid_type* mainEclGrid = createMainGrid();
-    if (!mainEclGrid)
+    ecl_grid_type* mainEclGrid = nullptr;
     {
-        QString errorMessage = QString(" Failed to create a main grid from file\n%1").arg(m_fileName);
-        RiaLogging::error(errorMessage);
+        auto task = progress.task("Open Init File and Load Main Grid", 19);
+        // Keep the set of files of interest
+        m_filesWithSameBaseName = fileSet;
 
-        return false;
+        openInitFile();
+
+        // Read geometry
+        // Todo: Needs to check existence of file before calling ert, else it will abort
+        mainEclGrid = loadMainGrid();
+        if (!mainEclGrid)
+        {
+            QString errorMessage = QString(" Failed to create a main grid from file\n%1").arg(m_fileName);
+            RiaLogging::error(errorMessage);
+
+            return false;
+        }
     }
 
-    progInfo.incrementProgress();
-
-    progInfo.setNextProgressIncrement(10);
-    progInfo.setProgressDescription("Transferring grid geometry");
-
-    if (!transferGeometry(mainEclGrid, eclipseCase)) return false;
-
-    progInfo.incrementProgress();
-    progInfo.setProgressDescription("Reading faults");
-    progInfo.setNextProgressIncrement(10);
-
-    if (isFaultImportEnabled())
     {
-        cvf::Collection<RigFault> faults;
-
-        importFaults(fileSet, &faults);
-
-        RigMainGrid* mainGrid = eclipseCase->mainGrid();
-        mainGrid->setFaults(faults);
+        auto task = progress.task("Transferring grid geometry", 10);
+        if (!transferGeometry(mainEclGrid, eclipseCase)) return false;
     }
 
-    progInfo.incrementProgress();
+    {
+        auto task = progress.task("Reading faults", 10);
+
+        if (isFaultImportEnabled())
+        {
+            cvf::Collection<RigFault> faults;
+
+            importFaults(fileSet, &faults);
+
+            RigMainGrid* mainGrid = eclipseCase->mainGrid();
+            mainGrid->setFaults(faults);
+        }
+    }
 
     m_eclipseCase = eclipseCase;
 
-    // Build results meta data
-    progInfo.setProgressDescription("Reading Result index");
-    progInfo.setNextProgressIncrement(25);
-    buildMetaData(mainEclGrid);
-    progInfo.incrementProgress();
-
-    if (isNNCsEnabled())
     {
-        progInfo.setProgressDescription("Reading NNC data");
-        progInfo.setNextProgressIncrement(4);
-        transferStaticNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
-        progInfo.incrementProgress();
+        auto task = progress.task("Reading Results Meta data", 25);
+        buildMetaData(mainEclGrid);
+    }
 
-        // This test should probably be improved to test more directly for presence of NNC data
-        if (m_eclipseCase->results(RiaDefines::MATRIX_MODEL)->hasFlowDiagUsableFluxes())
+    {
+        auto task = progress.task("Handling NCC data", 20);
+        if (isNNCsEnabled())
         {
-            transferDynamicNNCData(mainEclGrid, eclipseCase->mainGrid());
+            caf::ProgressInfo nncProgress(10, "");
+           
+            {
+                auto subNncTask = nncProgress.task("Reading static NNC data");
+                transferStaticNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
+            }
+
+            // This test should probably be improved to test more directly for presence of NNC data
+            if (m_eclipseCase->results(RiaDefines::MATRIX_MODEL)->hasFlowDiagUsableFluxes())
+            {
+                auto subNncTask = nncProgress.task("Reading dynamic NNC data");
+                transferDynamicNNCData(mainEclGrid, eclipseCase->mainGrid());
+            }
+            
+            {
+                auto subNncTask = nncProgress.task("Processing connections", 8);
+                eclipseCase->mainGrid()->nncData()->processConnections(*(eclipseCase->mainGrid()));
+            }
         }
-        progInfo.incrementProgress();
-
-        progInfo.setProgressDescription("Processing NNC data");
-        progInfo.setNextProgressIncrement(20);
-        eclipseCase->mainGrid()->nncData()->processConnections( *(eclipseCase->mainGrid()));
-        progInfo.incrementProgress();
     }
-    else
+    
     {
-        progInfo.setNextProgressIncrement(25);
-        progInfo.incrementProgress();
+        auto task = progress.task("Handling well information", 10);
+        if (!RiaApplication::instance()->preferences()->readerSettings()->skipWellData())
+        {
+            readWellCells(mainEclGrid, isImportOfCompleteMswDataEnabled());
+        }
+        else
+        {
+            RiaLogging::info("Skipping import of simulation well data");
+        }
     }
 
-    progInfo.setNextProgressIncrement(8);
-    if (!RiaApplication::instance()->preferences()->readerSettings()->skipWellData())
     {
-        progInfo.setProgressDescription("Reading Well information");
-        readWellCells(mainEclGrid, isImportOfCompleteMswDataEnabled());
+        auto task = progress.task("Releasing reader memory", 5);
+        ecl_grid_free(mainEclGrid);
     }
-    else
-    {
-        RiaLogging::info("Skipping import of simulation well data");
-    }
-    progInfo.incrementProgress();
-
-    progInfo.setProgressDescription("Releasing reader memory");
-    ecl_grid_free( mainEclGrid );
-    progInfo.incrementProgress();
 
     return true;
 }
@@ -573,10 +572,12 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
     }
 
     QStringList resultNames = hdf5ReaderInterface->propertyNames();
+
     for (int i = 0; i < resultNames.size(); ++i)
     {
-        size_t resIndex = matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::SOURSIMRL, resultNames[i], false);
-        matrixModelResults->setTimeStepInfos(resIndex, timeStepInfos);
+        RigEclipseResultAddress resAddr(RiaDefines::SOURSIMRL, resultNames[i]);
+        matrixModelResults->createResultEntry(resAddr, false);
+        matrixModelResults->setTimeStepInfos(resAddr, timeStepInfos);
     }
 
     m_hdfReaderInterface = std::move(hdf5ReaderInterface);
@@ -588,6 +589,14 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
 void RifReaderEclipseOutput::setFileDataAccess(RifEclipseRestartDataAccess* restartDataAccess)
 {
     m_dynamicResultsAccess = restartDataAccess;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const size_t* RifReaderEclipseOutput::eclipseCellIndexMapping()
+{
+    return cellMappingECLRi;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -620,6 +629,45 @@ void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Colle
                 this->setFilenamesWithFaults(filenamesWithFaults);
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::importEquilData(const QString&      deckFileName,
+                                             const QString&      includeStatementAbsolutePathPrefix,
+                                             RigEclipseCaseData* eclipseCase)
+{
+    QFile data(deckFileName);
+    if (data.open(QFile::ReadOnly))
+    {
+        const QString                            keyword("EQUIL");
+        const QString                            keywordToStopParsing("SCHEDULE");
+        const qint64                             startPositionInFile = 0;
+        std::vector<std::pair<QString, QString>> pathAliasDefinitions;
+        QStringList                              keywordContent;
+        std::vector<QString>                     fileNamesContainingKeyword;
+        bool                                     isStopParsingKeywordDetected = false;
+
+        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(keyword,
+                                                                                    keywordToStopParsing,
+                                                                                    data,
+                                                                                    startPositionInFile,
+                                                                                    pathAliasDefinitions,
+                                                                                    &keywordContent,
+                                                                                    &fileNamesContainingKeyword,
+                                                                                    &isStopParsingKeywordDetected,
+                                                                                    includeStatementAbsolutePathPrefix);
+        std::vector<RigEquil> equilItems;
+        for (const auto& s : keywordContent)
+        {
+            RigEquil equilRec = RigEquil::parseString(s);
+
+            equilItems.push_back(equilRec);
+        }
+
+        eclipseCase->setEquilData(equilItems);
     }
 }
 
@@ -855,8 +903,9 @@ void RifReaderEclipseOutput::buildMetaData(ecl_grid_type* grid)
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
-                size_t resIndex = matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepInfos(resIndex, timeStepInfos);
+                RigEclipseResultAddress resAddr(RiaDefines::DYNAMIC_NATIVE, matrixResultNames[i]);
+                matrixModelResults->createResultEntry(resAddr, false);
+                matrixModelResults->setTimeStepInfos(resAddr, timeStepInfos);
             }
         }
 
@@ -868,8 +917,9 @@ void RifReaderEclipseOutput::buildMetaData(ecl_grid_type* grid)
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
-                size_t resIndex = fractureModelResults->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepInfos(resIndex, timeStepInfos);
+                RigEclipseResultAddress resAddr(RiaDefines::DYNAMIC_NATIVE, fractureResultNames[i]);
+                fractureModelResults->createResultEntry(resAddr, false);
+                fractureModelResults->setTimeStepInfos(resAddr, timeStepInfos);
             }
         }
     }
@@ -939,8 +989,9 @@ void RifReaderEclipseOutput::buildMetaData(ecl_grid_type* grid)
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
-                size_t resIndex = matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepInfos(resIndex, staticTimeStepInfo);
+                RigEclipseResultAddress resAddr(RiaDefines::STATIC_NATIVE, matrixResultNames[i]);
+                matrixModelResults->createResultEntry(resAddr, false);
+                matrixModelResults->setTimeStepInfos(resAddr, staticTimeStepInfo);
             }
         }
 
@@ -954,8 +1005,9 @@ void RifReaderEclipseOutput::buildMetaData(ecl_grid_type* grid)
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
-                size_t resIndex = fractureModelResults->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepInfos(resIndex, staticTimeStepInfo);
+                RigEclipseResultAddress resAddr(RiaDefines::STATIC_NATIVE, fractureResultNames[i]);
+                fractureModelResults->createResultEntry(resAddr, false);
+                fractureModelResults->setTimeStepInfos(resAddr, staticTimeStepInfo);
             }
         }
     }
@@ -993,7 +1045,7 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, RiaDefines::Por
     {
         std::vector<double> fileValues;
 
-        size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_init_file, result.toAscii().data());
+        size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_init_file, result.toLatin1().data());
         size_t i;
         for (i = 0; i < numOccurrences; i++)
         {
@@ -1884,74 +1936,6 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                 }
 
             } // End of the MSW section
-            else if ( false )
-            {
-                // Code handling None-MSW Wells ... Normal wells that is.
-
-                // Loop over all the grids in the model. If we have connections in one, we will discard
-                // the main grid connections as the well connections are duplicated in the main grid and LGR grids 
-                // Verified on 10 k case JJS. But smarter things could be done, like showing the "main grid well" if turning off the LGR's
-
-                bool hasWellConnectionsInLGR = false;
-
-                for (size_t gridIdx = 1; gridIdx < grids.size(); ++gridIdx)
-                {
-                    RigGridBase* lgrGrid = m_eclipseCase->grid(gridIdx);
-                    if (well_state_has_grid_connections(ert_well_state, lgrGrid->gridName().data()))
-                    {
-                        hasWellConnectionsInLGR = true;
-                        break;
-                    }
-                }
-
-                size_t gridNr = hasWellConnectionsInLGR ? 1 : 0;
-                for (; gridNr < grids.size(); ++gridNr)
-                {
-
-                    // Wellhead. If several grids have a wellhead definition for this well, we use the last one. (Possibly the innermost LGR)
-                    const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
-                    if (ert_wellhead)
-                    {
-                        wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1, wellName);
-                        // HACK: Ert returns open as "this is equally wrong as closed for well heads". 
-                        // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
-                        wellResFrame.m_wellHead.m_isOpen = false; 
-
-                        //std::cout << "Wellhead YES at timeIdx: " << timeIdx <<  " wellIdx: " << wellIdx << " Grid: " << gridNr << std::endl;
-                    }
-                    else
-                    {
-                        // std::cout << "Wellhead NO  at timeIdx: " << timeIdx <<  " wellIdx: " << wellIdx << " Grid: " << gridNr << std::endl;
-                        //CVF_ASSERT(0); // This is just a test assert to see if this condition exists in some files and it does.
-                        // All the grids does not necessarily have a well head definition. 
-                    }
-
-                    const well_conn_collection_type* connections = well_state_get_grid_connections(ert_well_state, this->ertGridName(gridNr).data());
-
-                    // Import all well result cells for all connections
-                    if (connections)
-                    {
-                        int connectionCount = well_conn_collection_get_size(connections);
-                        if (connectionCount)
-                        {
-                            wellResFrame.m_wellResultBranches.push_back(RigWellResultBranch());
-                            RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches.back();
-
-                            wellResultBranch.m_ertBranchId = 0; // Normal wells have only one branch
-
-                            size_t existingCellCount = wellResultBranch.m_branchResultPoints.size();
-                            wellResultBranch.m_branchResultPoints.resize(existingCellCount + connectionCount);
-
-                            for (int connIdx = 0; connIdx < connectionCount; connIdx++)
-                            {
-                                well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
-                                wellResultBranch.m_branchResultPoints[existingCellCount + connIdx] = 
-                                    createWellResultPoint(grids[gridNr], ert_connection, -1, -1, wellName);
-                            }
-                        }
-                    }
-                }
-            }
             else
             {
                 // Code handling None-MSW Wells ... Normal wells that is.
@@ -2194,7 +2178,7 @@ bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual(const QDateTime& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ecl_grid_type* RifReaderEclipseOutput::createMainGrid() const
+ecl_grid_type* RifReaderEclipseOutput::loadMainGrid() const
 {
     ecl_grid_type* mainEclGrid = nullptr;
 
@@ -2250,6 +2234,7 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(RiaDefines:
             actCellInfo->gridActiveCellCounts(i, matrixActiveCellCount);
             fracActCellInfo->gridActiveCellCounts(i, fractureActiveCellCount);
 
+
             if (matrixOrFracture == RiaDefines::MATRIX_MODEL)
             {
                 destinationResultValues->insert(destinationResultValues->end(), 
@@ -2258,9 +2243,16 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(RiaDefines:
             }
             else
             {
-                destinationResultValues->insert(destinationResultValues->end(), 
-                                                sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount, 
-                                                sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount + fractureActiveCellCount);
+                if ((matrixActiveCellCount + fractureActiveCellCount) > sourceResultValues.size())
+                {
+                    // Special handling of the situation where we only have data for one fracture mode
+                    matrixActiveCellCount = 0;
+                }
+
+                destinationResultValues->insert(destinationResultValues->end(),
+                                                sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount,
+                                                sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount +
+                                                    fractureActiveCellCount);
             }
 
             sourceStartPosition += (matrixActiveCellCount + fractureActiveCellCount);

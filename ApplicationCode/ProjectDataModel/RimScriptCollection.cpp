@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,32 +31,34 @@
 CAF_PDM_SOURCE_INIT(RimScriptCollection, "ScriptLocation");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimScriptCollection::RimScriptCollection()
 {
     CAF_PDM_InitObject("ScriptLocation", ":/Folder.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&directory, "ScriptDirectory", "Dir",  "", "", "");
-    CAF_PDM_InitFieldNoDefault(&calcScripts, "CalcScripts", "",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&directory, "ScriptDirectory", "Dir", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&calcScripts, "CalcScripts", "", "", "", "");
     calcScripts.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitFieldNoDefault(&subDirectories, "SubDirectories", "",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&subDirectories, "SubDirectories", "", "", "", "");
     subDirectories.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_searchSubFolders, "SearchSubFolders", false, "Add Subfolders", "", "", "");
 
     directory.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimScriptCollection::~RimScriptCollection()
 {
-   calcScripts.deleteAllChildObjects();
-   subDirectories.deleteAllChildObjects();
+    calcScripts.deleteAllChildObjects();
+    subDirectories.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimScriptCollection::readContentFromDisc()
 {
@@ -79,19 +81,19 @@ void RimScriptCollection::readContentFromDisc()
 
     // Build a list of all scripts in the specified directory
     {
-        QString filter = "*.m";
+        QString     filter   = "*.m";
         QStringList fileList = caf::Utils::getFilesInDirectory(directory, filter, true);
 
         int i;
         for (i = 0; i < fileList.size(); i++)
         {
-            QString fileName = fileList.at(i);
+            const QString& fileName = fileList.at(i);
 
             if (caf::Utils::fileExists(fileName))
             {
                 RimCalcScript* calcScript = new RimCalcScript;
-                calcScript->absolutePath = fileName;
-                
+                calcScript->absoluteFileName  = fileName;
+
                 QFileInfo fi(fileName);
                 calcScript->setUiName(fi.baseName());
 
@@ -100,13 +102,12 @@ void RimScriptCollection::readContentFromDisc()
         }
     }
 
-    // Add subfolders
-    {
-        QDir dir(directory);
-        QFileInfoList fileInfoList = dir.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Readable);
-        subDirectories.deleteAllChildObjects();
+    subDirectories.deleteAllChildObjects();
 
-        QStringList retFileNames;
+    if (m_searchSubFolders())
+    {
+        QDir          dir(directory);
+        QFileInfoList fileInfoList = dir.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Readable);
 
         QListIterator<QFileInfo> it(fileInfoList);
         while (it.hasNext())
@@ -114,10 +115,10 @@ void RimScriptCollection::readContentFromDisc()
             QFileInfo fi = it.next();
 
             RimScriptCollection* scriptLocation = new RimScriptCollection;
-            scriptLocation->directory = fi.absoluteFilePath();
+            scriptLocation->directory           = fi.absoluteFilePath();
             scriptLocation->setUiName(fi.baseName());
             scriptLocation->readContentFromDisc();
-        
+
             subDirectories.push_back(scriptLocation);
         }
     }
@@ -137,7 +138,7 @@ void RimScriptCollection::pathsAndSubPaths(QStringList& pathList)
         }
     }
 
-    for (size_t i= 0; i < this->subDirectories.size(); ++i)
+    for (size_t i = 0; i < this->subDirectories.size(); ++i)
     {
         if (this->subDirectories[i])
         {
@@ -149,7 +150,7 @@ void RimScriptCollection::pathsAndSubPaths(QStringList& pathList)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimScriptCollection * RimScriptCollection::findScriptCollection(const QString& path)
+RimScriptCollection* RimScriptCollection::findScriptCollection(const QString& path)
 {
     if (!this->directory().isEmpty())
     {
@@ -160,9 +161,9 @@ RimScriptCollection * RimScriptCollection::findScriptCollection(const QString& p
 
     for (size_t i = 0; i < this->subDirectories.size(); ++i)
     {
-         RimScriptCollection* foundColl = nullptr;
-         if (this->subDirectories[i]) foundColl = this->subDirectories[i]->findScriptCollection(path);
-         if (foundColl) return foundColl;
+        RimScriptCollection* foundColl = nullptr;
+        if (this->subDirectories[i]) foundColl = this->subDirectories[i]->findScriptCollection(path);
+        if (foundColl) return foundColl;
     }
 
     return nullptr;
@@ -171,7 +172,9 @@ RimScriptCollection * RimScriptCollection::findScriptCollection(const QString& p
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimScriptCollection::fieldChangedByUi(const caf::PdmFieldHandle *changedField, const QVariant &oldValue, const QVariant &newValue)
+void RimScriptCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue)
 {
     if (&directory == changedField)
     {
@@ -179,12 +182,18 @@ void RimScriptCollection::fieldChangedByUi(const caf::PdmFieldHandle *changedFie
         this->setUiName(fi.baseName());
         this->readContentFromDisc();
     }
+    else if (&m_searchSubFolders == changedField)
+    {
+        this->readContentFromDisc();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimScriptCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimScriptCollection::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                QString                    uiConfigName,
+                                                caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &directory)
     {

@@ -22,7 +22,7 @@
 #include "RimViewController.h"
 #include "RimGridView.h"
 #include "RimViewLinker.h"
-
+#include "RimViewLinkerCollection.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT(RicShowAllLinkedViewsFeature, "RicShowAllLinkedViewsFeature"
 //--------------------------------------------------------------------------------------------------
 bool RicShowAllLinkedViewsFeature::isCommandEnabled()
 {
-    return true;
+    return caf::SelectionManager::instance()->selectedItemAncestorOfType<RimViewLinkerCollection>() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -3,8 +3,14 @@ cmake_minimum_required (VERSION 2.8.12)
 project (cafPdmCvf)
 
 # Qt
-find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
-include (${QT_USE_FILE})
+if (CAF_USE_QT5)
+	find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+else()
+	find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
+    include(${QT_USE_FILE})
+endif(CAF_USE_QT5)
+
+add_definitions(-DCVF_USING_CMAKE)
 
 add_library( ${PROJECT_NAME}
     cafPdmCoreColor3f.h
@@ -33,6 +39,11 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+if (CAF_USE_QT5)
+    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+endif(CAF_USE_QT5)
+
 
 target_link_libraries ( ${PROJECT_NAME}
     cafUserInterface

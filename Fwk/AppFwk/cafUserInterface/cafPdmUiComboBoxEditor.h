@@ -58,14 +58,17 @@ class PdmUiComboBoxEditorAttribute : public PdmUiEditorAttribute
 public:
     PdmUiComboBoxEditorAttribute()
     {
-        adjustWidthToContents = false;
+        adjustWidthToContents      = false;
         showPreviousAndNextButtons = false;
+        minimumContentsLength      = 8;
     }
 
 public:
     bool adjustWidthToContents;
     bool showPreviousAndNextButtons;
-    
+    int  minimumContentsLength; // The length of string to adjust to if adjustWidthToContents = false.
+                                // Set to <= 0 to ignore and use AdjustToContentsOnFirstShow instead
+
     QString nextButtonText;
     QString prevButtonText;
 };
@@ -97,7 +100,7 @@ protected slots:
 
 private:
     QPointer<QComboBox> m_comboBox;
-    QPointer<QLabel>    m_label;
+    QPointer<QShortenedLabel>    m_label;
 
     QPointer<QToolButton> m_previousItemButton;
     QPointer<QToolButton> m_nextItemButton;

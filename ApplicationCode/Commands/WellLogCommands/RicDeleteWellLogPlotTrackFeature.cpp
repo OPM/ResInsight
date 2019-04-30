@@ -104,4 +104,5 @@ void RicDeleteWellLogPlotTrackFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Delete Track");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
+    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
 }

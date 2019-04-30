@@ -59,15 +59,7 @@ void RicExecuteScriptFeature::onActionTriggered(bool isChecked)
     QString octavePath = app->octavePath();
     if (!octavePath.isEmpty())
     {
-        // TODO: Must rename RimCalcScript::absolutePath to absoluteFileName, as the code below is confusing
-        // absolutePath() is a function in QFileInfo
-        QFileInfo fi(calcScript->absolutePath());
-        QString octaveFunctionSearchPath = fi.absolutePath();
-
-        QStringList arguments = app->octaveArguments();
-        arguments.append("--path");
-        arguments << octaveFunctionSearchPath;
-        arguments << calcScript->absolutePath();
+        QStringList arguments = RimCalcScript::createCommandLineArguments(calcScript->absoluteFileName());
 
         RiaApplication::instance()->launchProcess(octavePath, arguments);
     }

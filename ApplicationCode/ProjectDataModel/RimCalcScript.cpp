@@ -18,10 +18,14 @@
 
 #include "RimCalcScript.h"
 
+#include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaLogging.h"
 
 #include "cafPdmField.h"
 #include "cafPdmUiFilePathEditor.h"
+
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT(RimCalcScript, "CalcScript");
 
@@ -32,14 +36,48 @@ RimCalcScript::RimCalcScript()
 {
     CAF_PDM_InitObject("CalcScript", ":/OctaveScriptFile16x16.png", "Calc Script", "");
 
-    CAF_PDM_InitField(&absolutePath, "AbsolutePath", QString(), "Location", "", "", "");
+    CAF_PDM_InitField(&absoluteFileName, "AbsolutePath", QString(), "Location", "", "", "");
     CAF_PDM_InitField(&content, "Content", QString(), "Directory", "", "", "");
     RiaFieldhandleTools::disableWriteAndSetFieldHidden(&content);
 
-    absolutePath.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    absoluteFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimCalcScript::~RimCalcScript() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimCalcScript::createCommandLineArguments(const QString& absoluteFileNameScript)
+{
+    QStringList arguments;
+
+    {
+        auto app = RiaApplication::instance();
+
+        arguments = app->octaveArguments();
+        arguments.append("--path");
+    }
+
+    {
+        QFileInfo fi(absoluteFileNameScript);
+        QString   octaveFunctionSearchPath = fi.absolutePath();
+        QString   absFilePath              = fi.absoluteFilePath();
+
+        arguments << octaveFunctionSearchPath;
+        arguments << absFilePath;
+    }
+
+    bool debugPrintArgumentText = false;
+    if (debugPrintArgumentText)
+    {
+        QString argumentString = arguments.join(" ");
+
+        RiaLogging::info("Octave arguments : " + argumentString);
+    }
+
+    return arguments;
+}

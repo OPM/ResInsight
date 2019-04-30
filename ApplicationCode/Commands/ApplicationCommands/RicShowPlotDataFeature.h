@@ -24,6 +24,8 @@
 
 #include <functional>
 
+class RiuTabbedTextProvider;
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -38,7 +40,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 public:
-    static void showTabbedTextWindow(const QString& title, std::function<QString(DateTimePeriod)> textProvider);
+    static void showTabbedTextWindow(RiuTabbedTextProvider* textProvider);
     static void showTextWindow(const QString& title, const QString& text);
 };
 

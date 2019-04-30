@@ -35,15 +35,20 @@ class RigGridManager;
 class RigMainGrid;
 class RigWellPath;
 
+class RimTextAnnotation;
+class RimReachCircleAnnotation;
+class RimPolylinesAnnotation;
 class RimSummaryCalculationCollection;
 class RimCase;
+class RimCommandObject;
 class RimCommandObject;
 class RimDialogData;
 class RimEclipseCase;
 class RimGeoMechCase;
 class RimIdenticalGridCaseGroup;
 class RimMainPlotCollection;
-class RimMultiSnapshotDefinition; 
+class RimMeasurement;
+class RimAdvancedSnapshotExportDefinition; 
 class RimObservedData;
 class RimOilField;
 class RimScriptCollection;
@@ -58,6 +63,9 @@ class RimWellPath;
 class RimWellPathImport;
 class RimFractureTemplateCollection;
 class RimFractureTemplate;
+class RimValveTemplateCollection;
+class RimValveTemplate;
+class RimCompletionTemplateCollection;
 
 namespace caf
 {
@@ -88,7 +96,7 @@ public:
     caf::PdmChildField<RimSummaryCalculationCollection*>       calculationCollection;
     caf::PdmChildArrayField<RimCommandObject*>          commandObjects;
     
-    caf::PdmChildArrayField<RimMultiSnapshotDefinition*> multiSnapshotDefinitions;
+    caf::PdmChildArrayField<RimAdvancedSnapshotExportDefinition*> multiSnapshotDefinitions;
 
     caf::PdmField<QString>                              mainWindowTreeViewState;
     caf::PdmField<QString>                              mainWindowCurrentModelIndexPath;
@@ -112,8 +120,8 @@ public:
     std::vector<RimSummaryCaseCollection*> summaryGroups() const;
     RimSummaryCaseMainCollection*   firstSummaryCaseMainCollection() const;
 
-    void            allVisibleViews(std::vector<Rim3dView*>& views);
-    void            allVisibleGridViews(std::vector<RimGridView*>& views);
+    void            allVisibleViews(std::vector<Rim3dView*>& views) const;
+    void            allVisibleGridViews(std::vector<RimGridView*>& views) const;
     void            allNotLinkedViews(std::vector<RimGridView*>& views);
 
     void            scheduleCreateDisplayModelAndRedrawAllViews();
@@ -129,6 +137,12 @@ public:
     bool            show3DWindow() const;
     bool            showPlotWindow() const;
 
+    bool            subWindowsTiled3DWindow() const;
+    bool            subWindowsTiledPlotWindow() const;
+
+    void            setSubWindowsTiledIn3DWindow(bool tiled);
+    void            setSubWindowsTiledInPlotWindow(bool tiled);
+
     void            reloadCompletionTypeResultsInAllViews();
     void            reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase);
 
@@ -142,13 +156,20 @@ public:
     RimWellPath*                    wellPathFromSimWellName(const QString& simWellName, int branchIndex = -1);
     RimWellPath*                    wellPathByName(const QString& wellPathName) const;
     std::vector<RimWellPath*>       allWellPaths() const;
+    std::vector<RimTextAnnotation*>         textAnnotations() const;
+    std::vector<RimReachCircleAnnotation*>  reachCircleAnnotations() const;
+    std::vector<RimPolylinesAnnotation*>     polylineAnnotations() const;
 
     std::vector<RimGeoMechCase*>    geoMechCases() const;
 
     std::vector<RimFractureTemplateCollection*> allFractureTemplateCollections() const;
-    std::vector<RimFractureTemplate*> allFractureTemplates() const;
+    std::vector<RimFractureTemplate*>           allFractureTemplates() const;
+
+    std::vector<RimValveTemplateCollection*> allValveTemplateCollections() const;
+    std::vector<RimValveTemplate*>           allValveTemplates() const;
 
     RiaEclipseUnitTools::UnitSystemType commonUnitSystemForAllCases() const;
+    RimMeasurement*                     measurement() const;
 
 protected:
     // Overridden methods
@@ -160,7 +181,7 @@ protected:
 
 private:
     template <typename T>
-    void fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields);
+    void fieldContentsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields);
 
 private:
     caf::PdmField<QString>  m_projectFileVersionString;
@@ -170,6 +191,9 @@ private:
 
     caf::PdmField<bool>     m_show3DWindow;
     caf::PdmField<bool>     m_showPlotWindow;
+
+    caf::PdmField<bool>     m_subWindowsTiled3DWindow;
+    caf::PdmField<bool>     m_subWindowsTiledPlotWindow;
 
     caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
     caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from Octave scripts
@@ -182,7 +206,7 @@ private:
 /// 
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void RimProject::fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields)
+void RimProject::fieldContentsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields)
 {
     if (!object) return;
 
@@ -210,6 +234,6 @@ void RimProject::fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typ
 
     for (const auto& child : children)
     {
-        fieldsByType(child, typedFields);
+        fieldContentsByType(child, typedFields);
     }
 }

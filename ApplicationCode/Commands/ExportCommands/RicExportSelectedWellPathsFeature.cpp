@@ -106,7 +106,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStrea
     double endMd = wellPathGeom->measureDepths().back();
 
     RifEclipseDataTableFormatter formatter(stream);
-    formatter.setCommentPrefix("#");
+    formatter.setCommentPrefix("# ");
     formatter.setTableRowPrependText("  ");
 
     if (writeProjectInfo)

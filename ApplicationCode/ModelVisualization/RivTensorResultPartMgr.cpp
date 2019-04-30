@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -218,29 +218,6 @@ void RivTensorResultPartMgr::calculateElementTensors(const RigFemPart&          
 
             (*elmTensors)[elmIdx] = tensorSumOfElmNodes * (1.0 / 8.0);
         }
-    }
-
-    std::array<std::vector<float>, 3>      elmPrincipals;
-    std::vector<std::array<cvf::Vec3f, 3>> elmPrincipalDirections;
-
-    elmPrincipals[0].resize(elmCount);
-    elmPrincipals[1].resize(elmCount);
-    elmPrincipals[2].resize(elmCount);
-
-    elmPrincipalDirections.resize(elmCount);
-
-    for (size_t nIdx = 0; nIdx < elmCount; ++nIdx)
-    {
-        cvf::Vec3f principalDirs[3];
-        cvf::Vec3f principalValues = (*elmTensors)[nIdx].calculatePrincipals(principalDirs);
-
-        elmPrincipals[0][nIdx] = principalValues[0];
-        elmPrincipals[1][nIdx] = principalValues[1];
-        elmPrincipals[2][nIdx] = principalValues[2];
-
-        elmPrincipalDirections[nIdx][0] = principalDirs[0];
-        elmPrincipalDirections[nIdx][1] = principalDirs[1];
-        elmPrincipalDirections[nIdx][2] = principalDirs[2];
     }
 }
 

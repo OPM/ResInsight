@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ class RicHoloLensExportImpl
 {
 public:
     static std::vector<VdeExportPart> partsForExport(const RimGridView& view);
+    static std::vector<std::pair<cvf::Vec3f, cvf::String>> labelsForExport(const RimGridView& view);
 
 private:
     static void    appendTextureImage(VdeExportPart& exportPart, cvf::Part* part);

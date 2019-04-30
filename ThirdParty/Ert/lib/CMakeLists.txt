@@ -183,6 +183,13 @@ target_include_directories(ecl
             ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
+
+if (NOT INSTALL_ERT)
+  # set git info to zero, to avoid recompile of libecl files at every commit
+  set(GIT_COMMIT 0)
+  set(GIT_COMMIT_SHORT 0)
+endif()
+
 target_compile_definitions(ecl PRIVATE
             -DGIT_COMMIT=${GIT_COMMIT}
             -DGIT_COMMIT_SHORT=${GIT_COMMIT_SHORT}

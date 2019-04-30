@@ -42,6 +42,7 @@
 #include "cafPdmField.h"
 
 #include "cafFactory.h"
+#include "cafQShortenedLabel.h"
 
 #include <QApplication>
 #include <QComboBox>
@@ -214,6 +215,11 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
         {
             m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         }
+        else if (attributes.minimumContentsLength > 0)
+        {
+            m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+            m_comboBox->setMinimumContentsLength(attributes.minimumContentsLength);
+        }
 
         m_comboBox->blockSignals(false);
     }
@@ -382,7 +388,7 @@ QWidget* PdmUiComboBoxEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiComboBoxEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 

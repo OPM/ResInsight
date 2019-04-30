@@ -287,7 +287,6 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
         this->loadDataAndUpdate(true);
     }
     else if (changedField == &m_branchDetection ||
-             changedField == &m_branchIndex ||
              changedField == &m_branchIndex)
     {
         clearGeneratedSimWellPaths();

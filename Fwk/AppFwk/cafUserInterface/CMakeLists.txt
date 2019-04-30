@@ -5,15 +5,18 @@ if (MSVC)
     add_definitions(-DNOMINMAX)
 endif (MSVC)
 
-# Qt
-find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
-include (${QT_USE_FILE})
-
 project (cafUserInterface)
 
+# Qt
+if (CAF_USE_QT5)
+	find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+else()
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
+    include(${QT_USE_FILE})
+endif(CAF_USE_QT5)
 
 # These headers need to go through Qt's MOC compiler
-set( QOBJECT_HEADERS    
+set (MOC_HEADER_FILES    
     cafPdmUiCheckBoxDelegate.h
     cafPdmUiCheckBoxEditor.h
     cafPdmUiCheckBoxTristateEditor.h
@@ -41,14 +44,22 @@ set( QOBJECT_HEADERS
     cafPdmUiTreeViewEditor.h
     cafUiProcess.h
     QMinimizePanel.h
+	cafQStyledProgressBar.h
     cafPdmUiTreeSelectionEditor.h
     cafPdmUiTreeSelectionQModel.h
     cafPdmUiFormLayoutObjectEditor.h
     cafPdmUiDoubleValueEditor.h
+    cafPdmUniqueIdValidator.h
+    cafPdmDoubleStringValidator.h
+    cafPdmUiPickableLineEditor.h
 )
 
 if ( NOT CMAKE_AUTOMOC )
-    qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
+	if (CAF_USE_QT5)
+		qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+	else()
+		qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+	endif(CAF_USE_QT5)
 endif()
 
 
@@ -139,17 +150,25 @@ set( PROJECT_FILES
     cafUiProcess.h
     QMinimizePanel.cpp
     QMinimizePanel.h
+	cafQStyledProgressBar.cpp
+	cafQStyledProgressBar.h
     cafQTreeViewStateSerializer.h
     cafQTreeViewStateSerializer.cpp
     cafMemoryInspector.h
     cafMemoryInspector.cpp
+    cafPdmUniqueIdValidator.cpp
+    cafPdmDoubleStringValidator.cpp
+    cafPickEventHandler.h
+    cafPdmUiPickableLineEditor.cpp
+	cafStyleSheetTools.h
+	cafStyleSheetTools.cpp
 )
 
 add_library( ${PROJECT_NAME}
     
  ${PROJECT_FILES}
 
-    ${MOC_FILES_CPP}
+    ${MOC_SOURCE_FILES}
 )
 
 if (MSVC) 
@@ -161,19 +180,18 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+if (CAF_USE_QT5)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+endif(CAF_USE_QT5)
+
 target_link_libraries ( ${PROJECT_NAME}
     cafProjectDataModel
     ${QT_LIBRARIES}
 )
 
-if (COMMAND cotire)
-    cotire(${PROJECT_NAME})
-  
-    # make sure the unity target is included in the active builds to trigger rebuild before debug
-    get_target_property(_unityTargetName ${PROJECT_NAME} COTIRE_UNITY_TARGET_NAME)
-    set_target_properties(${_unityTargetName} PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD FALSE)
-    set_target_properties(${PROJECT_NAME} PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
-
-endif()
-
 source_group("" FILES ${PROJECT_FILES})
+
+# cotire
+if (COMMAND caf_apply_cotire)
+  caf_apply_cotire("${PROJECT_NAME}")
+endif()

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 -    Equinor ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,14 +17,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RimCheckableNamedObject.h"
+#include "RimWellPathAicdParameters.h"
 #include "RimWellPathComponentInterface.h"
+#include "RimValveTemplate.h"
 
 #include "cafPdmObject.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmPtrField.h"
 
 #include <QList>
 #include <QString>
@@ -35,15 +40,27 @@ class RimWellPath;
 class RimWellPathValve : public RimCheckableNamedObject, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
-public:
-    typedef caf::AppEnum<RiaDefines::WellPathComponentType> CompletionTypeEnum;
-
+public:    
     RimWellPathValve();
     ~RimWellPathValve() override;
 
+    void                       perforationIntervalUpdated();
     void                       setMeasuredDepthAndCount(double startMD, double spacing, int valveCount);
-    void                       geometryUpdated();
+    void                       multipleValveGeometryUpdated();
     std::vector<double>        valveLocations() const;
+    double                     orificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
+    double                     flowCoefficient() const;
+    RimValveTemplate*          valveTemplate() const;
+    void                       setValveTemplate(RimValveTemplate* valveTemplate);
+    void                       applyValveLabelAndIcon();
+    const RimWellPathAicdParameters* aicdParameters() const;
+
+    static double convertOrificeDiameter(double                          orificeDiameterUi,
+                                         RiaEclipseUnitTools::UnitSystem wellPathUnitSystem,
+                                         RiaEclipseUnitTools::UnitSystem wantedUnitSystem);
+
+    std::vector<std::pair<double, double>> valveSegments() const;
+
 
     // Overrides from RimWellPathCompletionInterface
     bool                              isEnabled() const override;
@@ -53,7 +70,8 @@ public:
     cvf::Color3f                      defaultComponentColor() const override;
     double                            startMD() const override;
     double                            endMD() const override;
-    
+       
+    void                              templateUpdated();
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -62,10 +80,11 @@ private:
     void                          defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
-    caf::PdmField<CompletionTypeEnum>              m_type;
+    caf::PdmPtrField<RimValveTemplate*>            m_valveTemplate;
     caf::PdmField<double>                          m_measuredDepth;
     caf::PdmChildField<RimMultipleValveLocations*> m_multipleValveLocations;
-
+    caf::PdmField<bool>                            m_editValveTemplate;
+    caf::PdmField<bool>                            m_createValveTemplate;
 };
 
 

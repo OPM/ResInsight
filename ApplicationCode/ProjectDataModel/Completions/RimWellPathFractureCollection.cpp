@@ -23,18 +23,6 @@
 
 #include "cafPdmObject.h"
 
-
-namespace caf {
-    template<>
-    void RimWellPathFractureCollection::ReferenceMDEnum::setUp()
-    {
-        addItem(RimWellPathFractureCollection::AUTO_REFERENCE_MD, "GridIntersectionRefMD", "Grid Entry Point");
-        addItem(RimWellPathFractureCollection::MANUAL_REFERENCE_MD, "ManualRefMD", "User Defined");
-        setDefault(RimWellPathFractureCollection::AUTO_REFERENCE_MD);
-    }
-}
-
-
 CAF_PDM_SOURCE_INIT(RimWellPathFractureCollection, "WellPathFractureCollection");
 
 //--------------------------------------------------------------------------------------------------
@@ -50,12 +38,13 @@ RimWellPathFractureCollection::RimWellPathFractureCollection(void)
     setName("Fractures");
     nameField()->uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_refMDType, "RefMDType", "Reference MD", "", "", "");
-    CAF_PDM_InitField(&m_refMD, "RefMD", 0.0, "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "");
     m_mswParameters = new RimMswCompletionParameters;
     m_mswParameters.uiCapability()->setUiTreeHidden(true);
     m_mswParameters.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitField(&m_refMDType_OBSOLETE, "RefMDType", std::numeric_limits<int>::max(), "Reference MD", "", "", "");
+    CAF_PDM_InitField(&m_refMD_OBSOLETE, "RefMD", std::numeric_limits<double>::infinity(), "", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,26 +87,6 @@ void RimWellPathFractureCollection::setUnitSystemSpecificDefaults()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellPathFractureCollection::ReferenceMDType RimWellPathFractureCollection::referenceMDType() const
-{
-    return m_refMDType();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimWellPathFractureCollection::manualReferenceMD() const
-{
-    if (m_refMDType == AUTO_REFERENCE_MD)
-    {
-        return std::numeric_limits<double>::infinity();
-    }
-    return m_refMD;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPathFracture*> RimWellPathFractureCollection::allFractures() const
@@ -152,12 +121,8 @@ std::vector<RimWellPathFracture*> RimWellPathFractureCollection::activeFractures
 void RimWellPathFractureCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Options");
-
-    mswGroup->add(&m_refMDType);
-    mswGroup->add(&m_refMD);
-    m_refMD.uiCapability()->setUiHidden(m_refMDType == AUTO_REFERENCE_MD);
-
     m_mswParameters->uiOrdering(uiConfigName, *mswGroup);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,5 +139,21 @@ void RimWellPathFractureCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
     else
     {
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFractureCollection::initAfterRead()
+{
+    if (m_refMDType_OBSOLETE() != std::numeric_limits<int>::max())
+    {
+        m_mswParameters->setReferenceMDType((RimMswCompletionParameters::ReferenceMDType) m_refMDType_OBSOLETE());
+    }
+
+    if (m_refMD_OBSOLETE() != std::numeric_limits<double>::infinity())
+    {
+        m_mswParameters->setManualReferenceMD(m_refMD_OBSOLETE());
     }
 }

@@ -18,9 +18,8 @@
 
 #pragma once
 
-#include "RicPickEventHandler.h"
-
 #include "cafCmdExecuteCommand.h"
+#include "cafCmdFeature.h"
 #include "cafPdmPointer.h"
 
 class RimIntersectionCollection;

@@ -67,17 +67,7 @@ static void qwtRenderDots(
 
 static inline int qwtRoundValue( double value )
 {
-#if 1
     return qRound( value );
-#else
-    // A little bit faster, but differs from qRound()
-    // for negative values. Should be no problem as we are
-    // rounding widgets coordinates, where negative values 
-    // are clipped off anyway ( at least when there is no 
-    // painter transformation )
-
-    return static_cast<int>( value + 0.5 );
-#endif
 }
 
 // some functors, so that the compile can inline
@@ -93,7 +83,13 @@ struct QwtRoundF
 {
     inline double operator()( double value )
     {
-        return static_cast<double>( qwtRoundValue( value ) );
+#if 1
+        // MS Windows and at least IRIX does not have C99's nearbyint() function
+        return ( value >= 0.0 ) ? ::floor( value + 0.5 ) : ::ceil( value - 0.5 );
+#else
+        // slightly faster than the code above
+        return nearbyint( value );
+#endif
     }
 };
 

@@ -58,7 +58,6 @@ public:
     const RigCell&                          cellByGridAndGridLocalCellIdx(size_t gridIdx, size_t gridLocalCellIdx) const;
     size_t                                  reservoirCellIndexByGridAndGridLocalCellIndex(size_t gridIdx, size_t gridLocalCellIdx) const;
     size_t                                  findReservoirCellIndexFromPoint(const cvf::Vec3d& point) const;
-    std::vector<size_t>                     findAllReservoirCellIndicesMatching2dPoint(const cvf::Vec2d& point2d) const;
     void                                    addLocalGrid(RigLocalGrid* localGrid);
     
     size_t                                  gridCountOnFile() const;
@@ -71,7 +70,8 @@ public:
    
     RigNNCData*                             nncData();
     void                                    setFaults(const cvf::Collection<RigFault>& faults);
-    const cvf::Collection<RigFault>&        faults();
+    const cvf::Collection<RigFault>&        faults() const;
+    cvf::Collection<RigFault>&              faults();
     void                                    calculateFaults(const RigActiveCellInfo* activeCellInfo);
 
     void distributeNNCsToFaults();
@@ -93,11 +93,19 @@ public:
     bool                                    isTempGrid() const override;
     const std::string&                      associatedWellPathName() const override;
 
+    void                                    setUseMapAxes(bool useMapAxes);
+    bool                                    useMapAxes() const;
+    void                                    setMapAxes(const std::array<double, 6>& mapAxes);
+    const std::array<double, 6>&            mapAxes() const;
+    std::array<float, 6>                    mapAxesF() const;
+
+    cvf::Mat4d                              mapAxisTransform() const;
 private:
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    buildCellSearchTree();
     bool                                    hasFaultWithName(const QString& name) const;
 
+    static std::array<double, 6>            defaultMapAxes();
 private:
     std::vector<cvf::Vec3d>                 m_nodes;        ///< Global vertex table
     std::vector<RigCell>                    m_cells;        ///< Global array of all cells in the reservoir (including the ones in LGR's)
@@ -115,5 +123,8 @@ private:
 
     bool                                    m_flipXAxis;
     bool                                    m_flipYAxis;
+
+    bool                                    m_useMapAxes;
+    std::array<double, 6>                   m_mapAxes;
 };
 

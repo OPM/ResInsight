@@ -17,12 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimViewWindow.h"
-#include "RigFlowDiagResultAddress.h"
-
-#include "RimDataSourceForRftPlt.h"
 #include "RifDataSourceForRftPltQMetaType.h"
-#include "RimPlotCurve.h"
+
 #include "RimWellPlotTools.h"
 
 #include "cafPdmField.h"
@@ -34,9 +30,9 @@
 #include <QPointer>
 #include <QDate>
 #include <QMetaType>
+
 #include <set>
 #include <map>
-#include "RifEclipseRftAddress.h"
 
 class RimEclipseCase;
 class RimEclipseResultCase;
@@ -46,6 +42,8 @@ class RimWellLogPlot;
 class RimWellPath;
 class RiuWellPltPlot;
 class RimWellLogTrack;
+class RiaRftPltCurveDefinition;
+class RimDataSourceForRftPlt;
 
 
 namespace cvf {
@@ -70,63 +68,62 @@ public:
     RimWellPltPlot();
     ~RimWellPltPlot() override;
 
-    void                                            setDescription(const QString& description);
-    QString                                         description() const;
+    void                                setDescription(const QString& description);
+    QString                             description() const;
 
-    QWidget*                                viewWidget() override;
-    void                                    zoomAll() override;
+    QWidget*                            viewWidget() override;
+    void                                zoomAll() override;
 
-    RimWellLogPlot*                                 wellLogPlot() const;
+    RimWellLogPlot*                     wellLogPlot() const;
 
-    void                                            setCurrentWellName(const QString& currWellName);
+    void                                setCurrentWellName(const QString& currWellName);
     
-    static const char*                              plotNameFormatString();
+    static const char*                  plotNameFormatString();
 
 
 protected:
     // Overridden PDM methods
-    caf::PdmFieldHandle*                    userDescriptionField() override { return &m_userName; }
-    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    caf::PdmFieldHandle*                userDescriptionField() override { return &m_userName; }
+    void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
-    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
+    QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                                calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
 
-    QImage                                  snapshotWindowContent() override;
+    QImage                              snapshotWindowContent() override;
 
-    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    void                                    onLoadDataAndUpdate() override;
+    void                                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                                onLoadDataAndUpdate() override;
 
-    void                                    initAfterRead() override;
-    void                                    setupBeforeSave() override;
-    void                                            initAfterLoad();
+    void                                initAfterRead() override;
+    void                                setupBeforeSave() override;
+    void                                initAfterLoad();
 
 private:
+    void                                syncSourcesIoFieldFromGuiField();
+    void                                syncCurvesFromUiSelection();
 
-    void                                            syncSourcesIoFieldFromGuiField();
-    void                                            syncCurvesFromUiSelection();
+    std::set<RiaRftPltCurveDefinition>  selectedCurveDefs() const;
+    void                                addStackedCurve(const QString&             tracerName,
+                                                        const std::vector<double>& depthValues,
+                                                        const std::vector<double>& accFlow,
+                                                        RimWellLogTrack*           plotTrack,
+                                                        cvf::Color3f               color,
+                                                        int                        curveGroupId,
+                                                        bool                       doFillCurve);
 
-    std::set<RiaRftPltCurveDefinition>              selectedCurveDefs() const;
-    void                                            addStackedCurve(const QString& tracerName,
-                                                                    const std::vector<double>& depthValues,
-                                                                    const std::vector<double>& accFlow,
-                                                                    RimWellLogTrack* plotTrack,
-                                                                    cvf::Color3f color,
-                                                                    int curveGroupId,
-                                                                    bool doFillCurve);
-
-    std::vector<RifDataSourceForRftPlt>             selectedSourcesExpanded() const;
+    std::vector<RifDataSourceForRftPlt> selectedSourcesExpanded() const;
 
     // RimViewWindow overrides
 
-    void                                            updateWidgetTitleWindowTitle();
-    QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    void                                    deleteViewWidget() override; 
+    void                                updateWidgetTitleWindowTitle();
+    QWidget*                            createViewWidget(QWidget* mainWindowParent) override; 
+    void                                deleteViewWidget() override; 
 
-    void                                            setPlotXAxisTitles(RimWellLogTrack* plotTrack);
+    void                                setPlotXAxisTitles(RimWellLogTrack* plotTrack);
 
-    void                                            updateFormationsOnPlot() const;
+    void                                updateFormationsOnPlot() const;
 
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
@@ -134,8 +131,8 @@ private:
 
     caf::PdmField<QString>                          m_wellPathName;
 
-    caf::PdmField<std::vector<RifDataSourceForRftPlt>>   m_selectedSources;
-    caf::PdmChildArrayField<RimDataSourceForRftPlt*>         m_selectedSourcesForIo;
+    caf::PdmField<std::vector<RifDataSourceForRftPlt>>  m_selectedSources;
+    caf::PdmChildArrayField<RimDataSourceForRftPlt*>    m_selectedSourcesForIo;
 
     caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;
 

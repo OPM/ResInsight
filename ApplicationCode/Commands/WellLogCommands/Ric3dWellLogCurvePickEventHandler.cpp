@@ -39,7 +39,7 @@ Ric3dWellLogCurvePickEventHandler* Ric3dWellLogCurvePickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Ric3dWellLogCurvePickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool Ric3dWellLogCurvePickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObject)
 {
     if (eventObject.m_pickItemInfos.empty()) return false;
 

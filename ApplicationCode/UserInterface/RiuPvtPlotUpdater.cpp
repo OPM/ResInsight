@@ -19,7 +19,7 @@
 #include "RiuPvtPlotUpdater.h"
 #include "RiuPvtPlotPanel.h"
 #include "RiuRelativePermeabilityPlotUpdater.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
@@ -118,7 +118,7 @@ void RiuPvtPlotUpdater::updateOnTimeStepChanged(Rim3dView* changedView)
     }
 
     // Fetch the current global selection and only continue if the selection's view matches the view with time step change
-    const RiuEclipseSelectionItem* eclipseSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>(RiuSelectionManager::instance()->selectedItem());
+    const RiuEclipseSelectionItem* eclipseSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>(Riu3dSelectionManager::instance()->selectedItem());
     if (eclipseSelectionItem && eclipseSelectionItem->m_view == eclipseView)
     {
         const size_t gridIndex = eclipseSelectionItem->m_gridIndex;
@@ -153,15 +153,15 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot(const RimEclipseView& eclipseView
 
             // The following calls will read results from file in preparation for the queries below
             RigCaseCellResultsData* cellResultsData = eclipseCaseData->results(RiaDefines::MATRIX_MODEL);
-            cellResultsData->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "RS");
-            cellResultsData->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "RV");
-            cellResultsData->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "PRESSURE");
-            cellResultsData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PVTNUM");
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "RS"));
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "RV"));
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PRESSURE"));
+            cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, "PVTNUM"));
 
-            cvf::ref<RigResultAccessor> rsAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "RS", RiaDefines::DYNAMIC_NATIVE);
-            cvf::ref<RigResultAccessor> rvAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "RV", RiaDefines::DYNAMIC_NATIVE);
-            cvf::ref<RigResultAccessor> pressureAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "PRESSURE", RiaDefines::DYNAMIC_NATIVE);
-            cvf::ref<RigResultAccessor> pvtnumAccessor = RigResultAccessorFactory::createFromNameAndType(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, "PVTNUM", RiaDefines::STATIC_NATIVE);
+            cvf::ref<RigResultAccessor> rsAccessor       = RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "RS"       ));
+            cvf::ref<RigResultAccessor> rvAccessor       = RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "RV"       ));
+            cvf::ref<RigResultAccessor> pressureAccessor = RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, RigEclipseResultAddress(RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ));
+            cvf::ref<RigResultAccessor> pvtnumAccessor   = RigResultAccessorFactory::createFromResultAddress(eclipseCaseData, gridIndex, RiaDefines::MATRIX_MODEL, timeStepIndex, RigEclipseResultAddress(RiaDefines::STATIC_NATIVE , "PVTNUM"   ));
 
             RiuPvtPlotPanel::CellValues cellValues;
             cellValues.rs = rsAccessor.notNull() ? rsAccessor->cellScalar(gridLocalCellIndex) : HUGE_VAL;

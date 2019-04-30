@@ -45,6 +45,7 @@
 #include "defaultfeatures/cafCmdAddItemFeature.h"
 
 #include <QAction>
+#include <QKeySequence>
 
 namespace caf
 {
@@ -304,6 +305,29 @@ std::vector<CmdFeature*> CmdFeatureManager::commandFeaturesMatchingSubString(con
         {
             caf::CmdFeature* cmdFeature = commandFeature(keys[i]);
             if (cmdFeature)
+            {
+                matches.push_back(cmdFeature);
+            }
+        }
+    }
+
+    return matches;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<CmdFeature*> CmdFeatureManager::commandFeaturesMatchingKeyboardShortcut(const QKeySequence& keySequence) const
+{
+    std::vector<CmdFeature*> matches;
+
+    std::vector<std::string> keys = CommandFeatureFactory::instance()->allKeys();
+    for (size_t i = 0; i < keys.size(); i++)
+    {
+        caf::CmdFeature* cmdFeature = commandFeature(keys[i]);
+        if (cmdFeature)
+        {
+            if (cmdFeature->action()->shortcut().matches(keySequence) == QKeySequence::ExactMatch)
             {
                 matches.push_back(cmdFeature);
             }

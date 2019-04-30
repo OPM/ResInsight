@@ -28,7 +28,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigSimWellData.h"
 
-#include "RimContourMapView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
@@ -106,6 +106,17 @@ namespace caf
     }
 }
 
+namespace caf
+{
+    template<>
+    void RimSimWellInViewCollection::WellPipeColorsEnum::setUp()
+    {
+        addItem(RimSimWellInViewCollection::WELLPIPE_COLOR_UNIQUE,    "WELLPIPE_COLOR_INDIDUALLY",    "Unique Colors");
+        addItem(RimSimWellInViewCollection::WELLPIPE_COLOR_UNIFORM,      "WELLPIPE_COLOR_UNIFORM",      "Uniform Default Color");
+        setDefault(RimSimWellInViewCollection::WELLPIPE_COLOR_UNIQUE);
+    }
+}
+
 CAF_PDM_SOURCE_INIT(RimSimWellInViewCollection, "Wells");
 
 //--------------------------------------------------------------------------------------------------
@@ -152,13 +163,8 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     CAF_PDM_InitField(&showConnectionStatusColors, "ShowConnectionStatusColors", true, "Color Pipe Connections", "", "", "");
 
     cvf::Color3f defaultApplyColor = cvf::Color3f::YELLOW;
-    CAF_PDM_InitField(&m_wellColorForApply, "WellColorForApply", defaultApplyColor, "", "", "", "");
-
-    CAF_PDM_InitField(&m_applySingleColorToWells, "ApplySingleColorToWells", false, "Uniform Pipe Colors", "", "", "");
-    caf::PdmUiPushButtonEditor::configureEditorForField(&m_applySingleColorToWells);
-
-    CAF_PDM_InitField(&m_applyIndividualColorsToWells, "ApplyIndividualColorsToWells", false, "Unique Pipe Colors", "", "", "");
-    caf::PdmUiPushButtonEditor::configureEditorForField(&m_applyIndividualColorsToWells);
+    CAF_PDM_InitField(&m_defaultWellPipeColor, "WellColorForApply", defaultApplyColor, "Uniform Well Color", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellPipeColors, "WellPipeColors", "Individual Pipe Colors", "", "", "");
 
     CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe Vertex Count", "", "", "");
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden(true);
@@ -415,30 +421,24 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
         }
     }
 
-    if (&m_applyIndividualColorsToWells == changedField)
+    if (&m_wellPipeColors == changedField || &m_defaultWellPipeColor == changedField)
     {
-        assignDefaultWellColors();
-
-        if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-
-        m_applyIndividualColorsToWells = false;
-    }
-
-    if (&m_applySingleColorToWells == changedField)
-    {
-        cvf::Color3f col = m_wellColorForApply();
-
-        for (size_t i = 0; i < wells.size(); i++)
+        if (m_wellPipeColors == WELLPIPE_COLOR_UNIQUE)
         {
-            wells[i]->wellPipeColor = col;
-            wells[i]->updateConnectedEditors();
+            assignDefaultWellColors();
         }
+        else
+        {
+            cvf::Color3f col = m_defaultWellPipeColor();
 
+            for (size_t i = 0; i < wells.size(); i++)
+            {
+                wells[i]->wellPipeColor = col;
+                wells[i]->updateConnectedEditors();
+            }
+            RimSimWellInViewCollection::updateWellAllocationPlots();
+        }
         if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-
-        RimSimWellInViewCollection::updateWellAllocationPlots();
-
-        m_applySingleColorToWells = false;
     }
 
     if (&m_showWellCells == changedField)
@@ -471,8 +471,6 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::assignDefaultWellColors()
 {
-
-
     RimEclipseCase* ownerCase; 
     firstAncestorOrThisOfTypeAsserted(ownerCase);
     
@@ -519,7 +517,7 @@ void RimSimWellInViewCollection::defineUiOrdering(QString uiConfigName, caf::Pdm
 {
     updateStateForVisibilityCheckboxes();
 
-    bool isContourMap = dynamic_cast<const RimContourMapView*>(m_reservoirView) != nullptr;
+    bool isContourMap = dynamic_cast<const RimEclipseContourMapView*>(m_reservoirView) != nullptr;
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Visibility");
     if (!isContourMap)
@@ -549,9 +547,11 @@ void RimSimWellInViewCollection::defineUiOrdering(QString uiConfigName, caf::Pdm
     colorGroup->setCollapsedByDefault(true);
     colorGroup->add(&showConnectionStatusColors);
     colorGroup->add(&wellLabelColor);
-    colorGroup->add(&m_applyIndividualColorsToWells);
-    colorGroup->add(&m_applySingleColorToWells);
-    colorGroup->add(&m_wellColorForApply);
+    colorGroup->add(&m_wellPipeColors);
+    if (m_wellPipeColors == WELLPIPE_COLOR_UNIFORM)
+    {
+        colorGroup->add(&m_defaultWellPipeColor);
+    }
 
     caf::PdmUiGroup* wellPipeGroup = uiOrdering.addNewGroup("Well Pipe Geometry" );
     wellPipeGroup->add(&wellPipeCoordType);
@@ -704,39 +704,6 @@ void RimSimWellInViewCollection::initAfterRead()
         for (RimSimWellInView* w : wells)
         {
             w->showWellCellFence = true;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSimWellInViewCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
-{
-    if (&m_applyIndividualColorsToWells == field)
-    {
-        caf::PdmUiPushButtonEditorAttribute* editorAttr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
-        if (editorAttr)
-        {
-            editorAttr->m_buttonText = "Apply";
-        }
-    }
-
-    if (&m_applySingleColorToWells == field)
-    {
-        caf::PdmUiPushButtonEditorAttribute* editorAttr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
-        if (editorAttr)
-        {
-            QColor col;
-            col.setRgbF(m_wellColorForApply().r(), m_wellColorForApply().g(), m_wellColorForApply().b());
-
-            QPixmap pixmap(20, 20);
-            pixmap.fill(col);
-
-            QIcon colorIcon(pixmap);
-
-            editorAttr->m_buttonIcon = colorIcon;
-            editorAttr->m_buttonText = "Apply";
         }
     }
 }

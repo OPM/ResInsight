@@ -325,7 +325,7 @@ int * ecl_smspec_alloc_mapping( const ecl_smspec_type * self, const ecl_smspec_t
 
 
 const smspec_node_type * ecl_smspec_iget_node( const ecl_smspec_type * smspec , int index ) {
-  return (const smspec_node_type*)vector_iget_const( smspec->smspec_nodes , index );
+  return (const smspec_node_type*)vector_safe_iget_const( smspec->smspec_nodes , index );
 }
 
 int ecl_smspec_num_nodes( const ecl_smspec_type * smspec) {
@@ -822,18 +822,21 @@ static void ecl_smspec_install_special_keys( ecl_smspec_type * ecl_smspec , smsp
 
   switch(var_type) {
   case(ECL_SMSPEC_COMPLETION_VAR):
-    /* Three level indexing: variable -> well -> string(cell_nr)*/
-    if (!hash_has_key(ecl_smspec->well_completion_var_index , well))
-      hash_insert_hash_owned_ref(ecl_smspec->well_completion_var_index , well , hash_alloc() , hash_free__);
+    if (well)
     {
-      hash_type * cell_hash = (hash_type*)hash_get(ecl_smspec->well_completion_var_index , well);
-      char cell_str[16];
-      sprintf(cell_str , "%d" , num);
-      if (!hash_has_key(cell_hash , cell_str))
-        hash_insert_hash_owned_ref(cell_hash , cell_str , hash_alloc() , hash_free__);
+      /* Three level indexing: variable -> well -> string(cell_nr)*/
+      if (!hash_has_key(ecl_smspec->well_completion_var_index , well))
+        hash_insert_hash_owned_ref(ecl_smspec->well_completion_var_index , well , hash_alloc() , hash_free__);
       {
-        hash_type * var_hash = (hash_type*)hash_get(cell_hash , cell_str);
-        hash_insert_ref(var_hash , keyword , smspec_node );
+        hash_type * cell_hash = (hash_type*)hash_get(ecl_smspec->well_completion_var_index , well);
+        char cell_str[16];
+        sprintf(cell_str , "%d" , num);
+        if (!hash_has_key(cell_hash , cell_str))
+          hash_insert_hash_owned_ref(cell_hash , cell_str , hash_alloc() , hash_free__);
+        {
+          hash_type * var_hash = (hash_type*)hash_get(cell_hash , cell_str);
+          hash_insert_ref(var_hash , keyword , smspec_node );
+        }
       }
     }
     break;
@@ -866,11 +869,14 @@ static void ecl_smspec_install_special_keys( ecl_smspec_type * ecl_smspec , smsp
     ecl_smspec->num_regions = util_int_max(ecl_smspec->num_regions , num);
     break;
   case (ECL_SMSPEC_WELL_VAR):
-    if (!hash_has_key(ecl_smspec->well_var_index , well))
-      hash_insert_hash_owned_ref(ecl_smspec->well_var_index , well , hash_alloc() , hash_free__);
+    if (well)
     {
-      hash_type * var_hash = (hash_type*)hash_get(ecl_smspec->well_var_index , well);
-      hash_insert_ref(var_hash , keyword , smspec_node );
+      if (!hash_has_key(ecl_smspec->well_var_index , well))
+        hash_insert_hash_owned_ref(ecl_smspec->well_var_index , well , hash_alloc() , hash_free__);
+      {
+        hash_type * var_hash = (hash_type*)hash_get(ecl_smspec->well_var_index , well);
+        hash_insert_ref(var_hash , keyword , smspec_node );
+      }
     }
     break;
   case(ECL_SMSPEC_MISC_VAR):

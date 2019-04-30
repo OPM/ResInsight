@@ -31,7 +31,7 @@ protected slots:
 
 private:
     QPointer<QCheckBox> m_checkBox;
-    QPointer<QLabel>    m_label;
+    QPointer<QShortenedLabel>    m_label;
 };
 
 

@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2011-2018 Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
 // 
@@ -20,9 +21,11 @@
 
 #include "RiaPreferences.h"
 
+#include "RiaColorTables.h"
 #include "RifReaderSettings.h"
 
 #include "cafPdmFieldCvfColor.h"
+#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
@@ -64,15 +67,20 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&ssihubAddress,                   "ssihubAddress", QString("http://"), "SSIHUB Address", "", "", "");
     ssihubAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
-    CAF_PDM_InitField(&defaultGridLines,                "defaultGridLines", true, "Gridlines", "", "", "");
-    CAF_PDM_InitField(&defaultGridLineColors,           "defaultGridLineColors", cvf::Color3f(0.92f, 0.92f, 0.92f), "Mesh Color", "", "", "");
-    CAF_PDM_InitField(&defaultFaultGridLineColors,      "defaultFaultGridLineColors", cvf::Color3f(0.08f, 0.08f, 0.08f), "Mesh Color Along Faults", "", "", "");
-    CAF_PDM_InitField(&defaultWellLabelColor,           "defaultWellLableColor", cvf::Color3f(0.92f, 0.92f, 0.92f), "Well Label Color", "", "The default well label color in new views", "");
+    CAF_PDM_InitFieldNoDefault(&defaultMeshModeType,    "defaultMeshModeType", "Show Grid Lines", "", "", "");
+    CAF_PDM_InitField(&defaultGridLineColors,           "defaultGridLineColors", RiaColorTables::defaultGridLineColor(), "Mesh Color", "", "", "");
+    CAF_PDM_InitField(&defaultFaultGridLineColors,      "defaultFaultGridLineColors", RiaColorTables::defaultFaultLineColor(), "Mesh Color Along Faults", "", "", "");
+    CAF_PDM_InitField(&defaultWellLabelColor,           "defaultWellLableColor", RiaColorTables::defaultWellLabelColor(), "Well Label Color", "", "The default well label color in new views", "");
 
-    CAF_PDM_InitField(&defaultViewerBackgroundColor,      "defaultViewerBackgroundColor", cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer Background", "", "The viewer background color for new views", "");
+    CAF_PDM_InitField(&defaultViewerBackgroundColor,      "defaultViewerBackgroundColor", RiaColorTables::defaultViewerBackgroundColor(), "Viewer Background", "", "The viewer background color for new views", "");
 
-    CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "");
-    CAF_PDM_InitField(&fontSizeInScene,                 "fontSizeInScene", QString("8"), "Font Size", "", "", "");
+    CAF_PDM_InitField(&defaultScaleFactorZ,                "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&defaultSceneFontSize,     "fontSizeInScene",  "Viewer Font Size", "", "", "");    
+    CAF_PDM_InitFieldNoDefault(&defaultAnnotationFontSize,  "defaultAnnotationFontSize", "Annotation Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&defaultWellLabelFontSize,   "wellLabelFontSize", "Well Label Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&defaultPlotFontSize,        "defaultPlotFontSize", "Plot Font Size", "", "", "");
+    defaultPlotFontSize = RiaFontCache::FONT_SIZE_8;
 
     CAF_PDM_InitField(&showLasCurveWithoutTvdWarning,   "showLasCurveWithoutTvdWarning", true, "Show LAS Curve Without TVD Warning", "", "", "");
     showLasCurveWithoutTvdWarning.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
@@ -90,7 +98,8 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&m_includeFractureDebugInfoFile, "includeFractureDebugInfoFile", false, "Include Fracture Debug Info for Completion Export", "", "", "");
     m_includeFractureDebugInfoFile.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&showLegendBackground, "showLegendBackground", true, "Enable Legend Background", "", "", "");
+    CAF_PDM_InitField(&showLegendBackground, "showLegendBackground", true, "Show Box around Legends", "", "", "");
+    showLegendBackground.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.uiCapability()->setUiHidden(true);
@@ -108,6 +117,12 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitFieldNoDefault(&m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder", "", "", "");
     m_holoLensExportFolder.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_holoLensExportFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&holoLensDisableCertificateVerification, "holoLensDisableCertificateVerification", false, "Disable SSL Certificate Verification (HoloLens)", "", "", "");
+    holoLensDisableCertificateVerification.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    CAF_PDM_InitField(&m_showProjectChangedDialog, "showProjectChangedDialog", true, "Show 'Project has changed' dialog", "", "", "");
+    m_showProjectChangedDialog.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
@@ -154,7 +169,10 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &m_appendFieldKeywordToToolTipText ||
             field == &m_showTestToolbar ||
             field == &m_includeFractureDebugInfoFile ||
-            field == &showLasCurveWithoutTvdWarning)
+            field == &showLasCurveWithoutTvdWarning ||
+            field == &holoLensDisableCertificateVerification ||
+            field == &m_showProjectChangedDialog ||
+            field == &showLegendBackground)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
@@ -170,6 +188,12 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             myAttr->m_selectDirectory = true;
         }
     }
+    if (field == &defaultSceneFontSize || field == &defaultWellLabelFontSize ||
+        field == &defaultAnnotationFontSize || field == &defaultPlotFontSize)
+    {
+        caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);
+        myAttr->minimumContentsLength = 2;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,26 +203,30 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 {
     if (uiConfigName == m_tabNames[0])
     {
-        caf::PdmUiGroup* defaultSettingsGroup = uiOrdering.addNewGroup("Default Settings");
-        defaultSettingsGroup->add(&defaultViewerBackgroundColor);
-        defaultSettingsGroup->add(&defaultGridLines);
-        defaultSettingsGroup->add(&defaultGridLineColors);
-        defaultSettingsGroup->add(&defaultFaultGridLineColors);
-        defaultSettingsGroup->add(&defaultWellLabelColor);
-        defaultSettingsGroup->add(&fontSizeInScene);
-        defaultSettingsGroup->add(&defaultScaleFactorZ);
-        defaultSettingsGroup->add(&showLegendBackground);
-
-        caf::PdmUiGroup* viewsGroup = uiOrdering.addNewGroup("3D Views");
+        caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup("Default Colors");
+        colorGroup->add(&defaultViewerBackgroundColor);
+        colorGroup->add(&defaultGridLineColors, false);
+        colorGroup->add(&defaultFaultGridLineColors);
+        colorGroup->add(&defaultWellLabelColor, false);
+        
+        caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup("Default Font Sizes");
+        fontGroup->add(&defaultSceneFontSize);
+        fontGroup->add(&defaultAnnotationFontSize, false);
+        fontGroup->add(&defaultWellLabelFontSize);
+        fontGroup->add(&defaultPlotFontSize, false);
+        
+        caf::PdmUiGroup* viewsGroup = uiOrdering.addNewGroup("3d Views");
+        viewsGroup->add(&defaultMeshModeType);
         viewsGroup->add(&navigationPolicy);
+        viewsGroup->add(&defaultScaleFactorZ);
+        viewsGroup->add(&showLegendBackground);
         viewsGroup->add(&useShaders);
         viewsGroup->add(&showHud);
-
-
+        
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup("Other");
         otherGroup->add(&ssihubAddress);
         otherGroup->add(&showLasCurveWithoutTvdWarning);
-
+        otherGroup->add(&holoLensDisableCertificateVerification);
     }
     else if (uiConfigName == m_tabNames[1])
     {
@@ -207,7 +235,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         newCaseBehaviourGroup->add(&loadAndShowSoil);
     
         m_readerSettings->defineUiOrdering(uiConfigName, *newCaseBehaviourGroup);
-
+        
         caf::PdmUiGroup* restartBehaviourGroup = uiOrdering.addNewGroup("Origin Files");
         restartBehaviourGroup->add(&summaryRestartFilesShowImportDialog);
         caf::PdmUiGroup* summaryImportOptionGroup = restartBehaviourGroup->addNewGroup("Origin Summary Files");
@@ -229,6 +257,9 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     {
         uiOrdering.add(&m_appendClassNameToUiText);
         uiOrdering.add(&m_appendFieldKeywordToToolTipText);
+
+        uiOrdering.add(&m_showProjectChangedDialog);
+
         uiOrdering.add(&m_showTestToolbar);
         uiOrdering.add(&m_includeFractureDebugInfoFile);
         uiOrdering.add(&m_holoLensExportFolder);
@@ -245,21 +276,7 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if (&fontSizeInScene == fieldNeedingOptions)
-    {
-        QStringList fontSizes;
-        fontSizes <<  "8";
-        fontSizes << "12";
-        fontSizes << "16";
-        fontSizes << "24";
-        fontSizes << "32";
-
-        for (int oIdx = 0; oIdx < fontSizes.size(); ++oIdx)
-        {
-            options.push_back(caf::PdmOptionItemInfo(fontSizes[oIdx], fontSizes[oIdx]));
-        }
-    }
-    else if (fieldNeedingOptions == &gridImportMode)
+    if (fieldNeedingOptions == &gridImportMode)
     {
         // Manual option handling in order to one only a subset of the enum values
         SummaryRestartFilesImportModeType skip(RiaPreferences::NOT_IMPORT);
@@ -323,8 +340,33 @@ bool RiaPreferences::includeFractureDebugInfoFile() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showProjectChangedDialog() const
+{
+    if (!RiaApplication::enableDevelopmentFeatures())
+    {
+        return true;
+    }
+
+    return m_showProjectChangedDialog();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RiaPreferences::holoLensExportFolder() const
 {
     return m_holoLensExportFolder();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::defaultFontSizes() const
+{
+    std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes;
+    fontSizes[RiaDefines::SCENE_FONT]      = defaultSceneFontSize();
+    fontSizes[RiaDefines::ANNOTATION_FONT] = defaultAnnotationFontSize();
+    fontSizes[RiaDefines::WELL_LABEL_FONT] = defaultWellLabelFontSize();
+    fontSizes[RiaDefines::PLOT_FONT]       = defaultPlotFontSize();
+    return fontSizes;
+}

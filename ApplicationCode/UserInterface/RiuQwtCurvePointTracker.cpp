@@ -26,7 +26,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_date_scale_draw.h"
 
-#include <float.h> // For DBL_MAX
+#include <cfloat> // For DBL_MAX
 
 #include <QEvent>
 

@@ -77,7 +77,7 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
     }
     
     caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Export Curve Data to LAS file(s)", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    RicExportFeatureImpl::configureForExport(&propertyDialog);
+    RicExportFeatureImpl::configureForExport(propertyDialog.dialogButtonBox());
     propertyDialog.resize(QSize(400, 330));
     
     if (propertyDialog.exec() == QDialog::Accepted &&

@@ -42,7 +42,6 @@ public:
     void updateAzimuthBasedOnWellAzimuthAngle() override;
 
     double wellAzimuthAtFracturePosition() const override;
-    double wellDipAtFracturePosition();
     double fractureMD() const override
     {
         return m_location;
@@ -56,6 +55,8 @@ public:
     void loadDataAndUpdate() override;
 
     std::vector<cvf::Vec3d> perforationLengthCenterLineCoords() const override;
+
+    bool isEnabled() const override; // RimWellPathCompletionsInterface override
 
 protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

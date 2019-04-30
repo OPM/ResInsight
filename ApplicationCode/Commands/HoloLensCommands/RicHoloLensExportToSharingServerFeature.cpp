@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 #include "RicHoloLensSession.h"
 
 #include "RiaApplication.h"
-#include "RiaQIconTools.h"
 #include "RiaLogging.h"
 
 #include "RimGridView.h"
@@ -74,11 +73,7 @@ void RicHoloLensExportToSharingServerFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensExportToSharingServerFeature::setupActionLook(QAction* actionToSetup)
 {
-    QPixmap pixmap(":/hololens.png");
-    QPixmap overlayPixmap(":/arrow-right-green.png");
+    actionToSetup->setIcon(QIcon(":/HoloLensSendOnce24x24.png"));
 
-    QPixmap combinedPixmap = RiaQIconTools::appendPixmapUpperLeft(pixmap, overlayPixmap);
-    actionToSetup->setIcon(QIcon(combinedPixmap));
-
-    actionToSetup->setText("Export to Sharing Server");
+    actionToSetup->setText("Send to HoloLens Server Once");
 }

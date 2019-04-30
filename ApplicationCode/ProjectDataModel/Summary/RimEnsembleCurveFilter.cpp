@@ -22,6 +22,7 @@
 #include "RimSummaryCase.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
 #include <algorithm>
@@ -46,6 +47,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter() : m_lowerLimit(DOUBLE_INF), m_u
     m_active = true;
 
     CAF_PDM_InitFieldNoDefault(&m_ensembleParameterName, "EnsembleParameter", "Ensemble Parameter", "", "", "");
+    m_ensembleParameterName.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     
     CAF_PDM_InitFieldNoDefault(&m_minValue, "MinValue", "Min", "", "", "");
     m_minValue.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
@@ -133,10 +135,10 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilter::calculateValueOptions(cons
         auto curveSet = parentCurveSet();
         if (curveSet)
         {
-             auto names = curveSet->ensembleParameterNames();
-             for (auto& name : names)
+             auto nameParameterPairs = curveSet->ensembleParameters();
+             for (auto& nameParamPair : nameParameterPairs)
              {
-                 options.push_back(caf::PdmOptionItemInfo(name, name));
+                 options.push_back(caf::PdmOptionItemInfo(RimEnsembleCurveSet::ensembleParameterUiName(nameParamPair), nameParamPair.first));
              }
         }
     }
@@ -348,10 +350,10 @@ void RimEnsembleCurveFilter::setInitialValues(bool forceDefault)
 {
     if (!selectedEnsembleParameter().isValid())
     {
-        auto parameterNames = parentCurveSet()->ensembleParameterNames();
+        auto parameterNames = parentCurveSet()->ensembleParameters();
         if (!parameterNames.empty())
         {
-            m_ensembleParameterName = parameterNames.front();
+            m_ensembleParameterName = parameterNames.front().first;
             updateConnectedEditors();
         }
     }

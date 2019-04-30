@@ -113,6 +113,8 @@ public:
                                CurveInterpolationEnum interpolationType,
                                int curveThickness,
                                const QColor& curveColor);
+    void         setBlackAndWhiteLegendIcon(bool blackAndWhite);
+    QwtGraphic   legendIcon(int index, const QSizeF& size) const override;
 
 protected:
     void drawCurve(QPainter* p, int style,
@@ -138,4 +140,5 @@ private:
     bool                    m_showErrorBars;
     QwtPlotIntervalCurve*   m_errorBars;
     QwtPlot*                m_attachedToPlot;
+    bool                    m_blackAndWhiteLegendIcon;
 };

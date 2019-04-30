@@ -6,15 +6,15 @@ The user interface is tailored for efficient interpretation of reservoir simulat
 
 The main input data is *.GRID and *.EGRID files along with their *.INIT and restart files *.XNNN and *.UNRST. ResInsight also supports selected parts of Eclipse input files and can read grid information and corresponding cell property data sets.
 
-ResInsight has been co-developed by Statoil ASA, Ceetron Solutions AS, and Ceetron AS with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models. The software is copyrighted by Ceetron and Statoil and licensed under GPL 3+. See COPYING for details.
+ResInsight has been co-developed by Equinor ASA, Ceetron Solutions AS, and Ceetron AS with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models. The software is copyrighted by Ceetron and Equinor and licensed under GPL 3+. See COPYING for details.
 
 ### Dependencies
-ResInsight uses the Statoil/libecl (formerly Ensambles/ert) library to access Eclipse result files, and the two projects collaborates closely. The source code of the approved libecl version is embedded in the ResInsight source code tree, making downloading and building simple.
+ResInsight uses the Equinor/libecl (formerly Ensambles/ert) library to access Eclipse result files, and the two projects collaborates closely. The source code of the approved libecl version is embedded in the ResInsight source code tree, making downloading and building simple.
 ResInsight also features an interface to Octave for retrieval of data from ResInsight, processing using Octave, and communication of data back into ResInsight for further handling and visualization.
 
 Octave : [http://www.gnu.org/software/octave/](http://www.gnu.org/software/octave/)
 
-Statoil/libecl : [https://github.com/Statoil/libecl](https://github.com/Statoil/libecl)
+Equinor/libecl : [https://github.com/Equinor/libecl](https://github.com/Equinor/libecl)
 
 ### Supported Platforms
 ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on Linux and Windows platforms. Tested platforms are currently 64 bit RHEL6 and Windows 7/8/10, and we have also received reports on successful builds on Ubuntu based systems.  

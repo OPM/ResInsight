@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,8 @@
 #include "cvfBase.h"
 #include "cvfArray.h"
 
-class RimContourMapProjection;
+class RimAnnotationInViewCollection;
+class RimEclipseContourMapProjection;
 class Rim3dOverlayInfoConfig;
 class RimIntersectionCollection;
 class RimPropertyFilterCollection;
@@ -50,7 +51,9 @@ public:
     void                                              rangeFiltersUpdated();
     RimCellRangeFilterCollection*                     rangeFilterCollection();
     const RimCellRangeFilterCollection*               rangeFilterCollection() const;
-                                                      
+
+    RimAnnotationInViewCollection*                    annotationCollection() const;
+
     bool                                              hasOverridenRangeFilterCollection();
     void                                              setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
     void                                              replaceRangeFilterCollectionWithOverride();
@@ -60,6 +63,10 @@ public:
                                                       
 
     bool                                              isGridVisualizationMode() const override;
+
+
+    bool hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const override;
+    bool applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange = false) override;
 
 protected:
     virtual void                              updateViewFollowingRangeFilterUpdates();
@@ -78,6 +85,8 @@ protected: // Fields
     caf::PdmChildField<RimCellRangeFilterCollection*> m_rangeFilterCollection;
     caf::PdmChildField<RimCellRangeFilterCollection*> m_overrideRangeFilterCollection;
     caf::PdmChildField<RimGridCollection*>            m_gridCollection;
+    caf::PdmChildField<RimAnnotationInViewCollection*> m_annotationCollection;
+
 protected:
     cvf::ref<cvf::UByteArray>                         m_currentReservoirCellVisibility;
 

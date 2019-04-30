@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2016-2018 Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -51,6 +52,8 @@ public:
 
     static bool             compareByWellPathNameAndMD(const RimWellPathFracture* lhs, const RimWellPathFracture* rhs);
 
+    bool                    isEnabled() const override; // RimWellPathCompletionsInterface override
+
 protected:
     void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
@@ -60,4 +63,5 @@ private:
 
 private:
     caf::PdmField<float>    m_measuredDepth;
+
 };

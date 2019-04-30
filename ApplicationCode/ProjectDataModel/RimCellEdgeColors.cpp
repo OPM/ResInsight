@@ -64,7 +64,7 @@ RimCellEdgeColors::RimCellEdgeColors()
     CAF_PDM_InitField(&useYVariable, "UseYVariable", true, "Use Y Values", "", "", "");
     CAF_PDM_InitField(&useZVariable, "UseZVariable", true, "Use Z Values", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Legend Definition", ":/Legend.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Color Legend", ":/Legend.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_singleVarEdgeResultColors, "SingleVarEdgeResult", "Result Property", ":/CellResult.png", "", "");
     m_singleVarEdgeResultColors = new RimEclipseCellColors();
@@ -74,7 +74,7 @@ RimCellEdgeColors::RimCellEdgeColors()
     m_legendConfig = new RimRegularLegendConfig();
 
     m_ignoredResultScalar = cvf::UNDEFINED_DOUBLE;
-    resetResultIndices();
+    resetResultAddresses();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,22 +105,22 @@ void RimCellEdgeColors::loadResult()
     {
         m_singleVarEdgeResultColors->loadResult();;
         
-        size_t resultindex = m_singleVarEdgeResultColors->scalarResultIndex();
+        RigEclipseResultAddress resultAddr = m_singleVarEdgeResultColors->eclipseResultAddress();
         for (int cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
         {
-            m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(m_singleVarEdgeResultColors->resultVariable(), resultindex);
+            m_resultNameToAddressPairs[cubeFaceIdx] = std::make_pair(m_singleVarEdgeResultColors->resultVariable(), resultAddr);
         }
     }
     else
     {
-        resetResultIndices();
+        resetResultAddresses();
         QStringList vars = findResultVariableNames();
         updateIgnoredScalarValue();
 
         int i;
         for (i = 0; i < vars.size(); ++i)
         {
-             size_t resultindex = m_reservoirView->currentGridCellResults()->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, vars[i]);
+             m_reservoirView->currentGridCellResults()->ensureKnownResultLoaded(RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, vars[i]));
              int cubeFaceIdx;
              for (cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
              {
@@ -132,7 +132,7 @@ void RimCellEdgeColors::loadResult()
 
                      if (vars[i].endsWith(varEnd))
                      {
-                         m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(vars[i], resultindex);
+                         m_resultNameToAddressPairs[cubeFaceIdx] = std::make_pair(vars[i], RigEclipseResultAddress(RiaDefines::STATIC_NATIVE, vars[i]));
                      }
                  }
              }
@@ -317,12 +317,12 @@ QStringList RimCellEdgeColors::findResultVariableNames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeColors::gridScalarIndices(size_t resultIndices[6])
+void RimCellEdgeColors::gridScalarIndices(RigEclipseResultAddress resultIndices[6])
 {
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
     {
-        resultIndices[cubeFaceIndex] = m_resultNameToIndexPairs[cubeFaceIndex].second;
+        resultIndices[cubeFaceIndex] = RigEclipseResultAddress(m_resultNameToAddressPairs[cubeFaceIndex].second);
     }
 }
 
@@ -336,7 +336,7 @@ void RimCellEdgeColors::gridScalarResultNames(std::vector<QString>* resultNames)
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
     {
-        resultNames->push_back(m_resultNameToIndexPairs[cubeFaceIndex].first);
+        resultNames->push_back(m_resultNameToAddressPairs[cubeFaceIndex].first);
     }
 }
 
@@ -356,7 +356,7 @@ void RimCellEdgeColors::cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaD
 {
     CVF_ASSERT(metaDataVector);
 
-    size_t resultIndices[6];
+    RigEclipseResultAddress resultIndices[6];
     this->gridScalarIndices(resultIndices);
 
     std::vector<QString> resultNames;
@@ -371,7 +371,7 @@ void RimCellEdgeColors::cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaD
     for (size_t i = 0; i < 6; i++)
     {
         RimCellEdgeMetaData metaData;
-        metaData.m_resultIndex = resultIndices[i];
+        metaData.m_eclipseResultAddress = resultIndices[i];
         metaData.m_resultVariable = resultNames[i];
         metaData.m_isStatic = isStatic;
 
@@ -382,12 +382,12 @@ void RimCellEdgeColors::cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaD
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeColors::resetResultIndices()
+void RimCellEdgeColors::resetResultAddresses()
 {
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
     {
-        m_resultNameToIndexPairs[cubeFaceIndex].second = cvf::UNDEFINED_SIZE_T;
+        m_resultNameToAddressPairs[cubeFaceIndex].second = RigEclipseResultAddress();
     }
 }
 
@@ -407,7 +407,7 @@ bool RimCellEdgeColors::hasResult() const
     int cubeFaceIndex;
     for (cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex)
     {
-        hasResult |=  ((m_resultNameToIndexPairs[cubeFaceIndex].second) != cvf::UNDEFINED_SIZE_T);
+        hasResult |=  m_resultNameToAddressPairs[cubeFaceIndex].second.isValid();
     }
 
     return hasResult;
@@ -450,17 +450,17 @@ void RimCellEdgeColors::minMaxCellEdgeValues(double& min, double& max)
         }
         else
         {
-            size_t resultIndices[6];
-            this->gridScalarIndices(resultIndices);
+            RigEclipseResultAddress resultAddresses[6];
+            this->gridScalarIndices(resultAddresses);
 
-            size_t idx;
-            for (idx = 0; idx < 6; idx++)
+            size_t faceIdx;
+            for (faceIdx = 0; faceIdx < 6; faceIdx++)
             {
-                if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
+                if (!resultAddresses[faceIdx].isValid()) continue;
 
                 {
                     double cMin, cMax;
-                    m_reservoirView->currentGridCellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
+                    m_reservoirView->currentGridCellResults()->minMaxCellScalarValues(resultAddresses[faceIdx], cMin, cMax);
 
                     globalMin = CVF_MIN(globalMin, cMin);
                     globalMax = CVF_MAX(globalMax, cMax);
@@ -481,17 +481,17 @@ void RimCellEdgeColors::posNegClosestToZero(double& pos, double& neg)
     pos = HUGE_VAL;
     neg = -HUGE_VAL;
 
-    size_t resultIndices[6];
-    this->gridScalarIndices(resultIndices);
+    RigEclipseResultAddress resultAddresses[6];
+    this->gridScalarIndices(resultAddresses);
 
-    size_t idx;
-    for (idx = 0; idx < 6; idx++)
+    size_t faceIdx;
+    for (faceIdx = 0; faceIdx < 6; faceIdx++)
     {
-        if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
+        if (!resultAddresses[faceIdx].isValid()) continue;
 
         {
             double localPos, localNeg;
-            m_reservoirView->currentGridCellResults()->posNegClosestToZero(resultIndices[idx], localPos, localNeg);
+            m_reservoirView->currentGridCellResults()->posNegClosestToZero(resultAddresses[faceIdx], localPos, localNeg);
 
             if (localPos > 0 && localPos < pos) pos = localPos;
             if (localNeg < 0 && localNeg > neg) neg = localNeg;

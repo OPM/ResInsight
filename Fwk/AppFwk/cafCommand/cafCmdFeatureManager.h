@@ -45,6 +45,7 @@
 #include <QStringList>
 
 class QAction;
+class QKeySequence;
 
 namespace caf 
 {
@@ -72,7 +73,7 @@ public:
     CmdFeature* getCommandFeature(const std::string& commandId);
 
     std::vector<CmdFeature*> commandFeaturesMatchingSubString(const std::string& subString) const;
-
+    std::vector<CmdFeature*> commandFeaturesMatchingKeyboardShortcut(const QKeySequence& keySequence) const;
 private:
     CmdFeatureManager();
 

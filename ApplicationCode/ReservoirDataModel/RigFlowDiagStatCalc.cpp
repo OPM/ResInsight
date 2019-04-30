@@ -26,7 +26,7 @@
 
 #include "RimEclipseResultCase.h"
 
-#include <math.h>
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -119,10 +119,11 @@ void RigFlowDiagStatCalc::mobileVolumeWeightedMean(size_t timeStepIndex, double&
     if (!eclCase) return;
 
     RigCaseCellResultsData* caseCellResultsData = eclCase->results(RiaDefines::MATRIX_MODEL);
+    RigEclipseResultAddress mobPoreVolResAddr(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
 
-    size_t mobPVResultIndex = caseCellResultsData->findOrLoadScalarResult(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
+    caseCellResultsData->ensureKnownResultLoaded(mobPoreVolResAddr);
 
-    const std::vector<double>& weights = caseCellResultsData->cellScalarResults(mobPVResultIndex, 0);
+    const std::vector<double>& weights = caseCellResultsData->cellScalarResults(mobPoreVolResAddr, 0);
     const std::vector<double>* values = m_resultsData->resultValues(m_resVarAddr, timeStepIndex);
 
     const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo(m_resVarAddr);

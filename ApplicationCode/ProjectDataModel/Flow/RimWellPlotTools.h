@@ -18,17 +18,18 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+#include "RiaRftPltCurveDefinition.h"
 
 #include "RifDataSourceForRftPltQMetaType.h"
-#include "RiaRftPltCurveDefinition.h"
+#include "RifEclipseRftAddress.h"
+
+#include "RimWellLogFile.h"
 
 #include <QMetaType>
 
 #include <map>
 #include <set>
-#include "RifEclipseRftAddress.h"
-#include "RimWellLogFile.h"
-#include "RiaEclipseUnitTools.h"
 
 class RimEclipseCase;
 class RimEclipseResultCase;
@@ -38,6 +39,7 @@ class RimWellLogPlot;
 class RimWellPath;
 class RiuWellRftPlot;
 class RigEclipseCaseData;
+class RigEclipseResultAddress;
 
 //==================================================================================================
 ///  
@@ -62,7 +64,9 @@ public:
     static RimWellPath*                             wellPathByWellPathNameOrSimWellName(const QString& wellPathNameOrSimwellName);
 
 // RFT Only
-    static std::pair<size_t, QString>               pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData);
+private:
+    static std::pair<RigEclipseResultAddress, QString> pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData);
+public:
     static void                                     addTimeStepsToMap(std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& destMap,
                                                                       const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepsToAdd);
     static std::vector<RimWellLogFile*>             wellLogFilesContainingPressure(const QString& wellPathNameOrSimWellName);
@@ -70,9 +74,6 @@ public:
     static RimWellPath*                             wellPathFromWellLogFile(const RimWellLogFile* wellLogFile);
     static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMapFromGridCase(RimEclipseCase* gridCase);
     static RiaRftPltCurveDefinition                 curveDefFromCurve(const RimWellLogCurve* curve);
-
-    template<typename T>
-    static void appendSet(std::set<T>& destSet, const std::set<T>& setToAppend);
 
 // others
     static bool                                     hasFlowData(const RimWellLogFile* wellLogFile);
@@ -96,7 +97,8 @@ public:
     static std::set < RiaRftPltCurveDefinition >    curveDefsFromTimesteps(const QString& simWellName, 
                                                                            const std::vector<QDateTime>& selectedTimeStepVector, 
                                                                            bool firstReportTimeStepIsValid, 
-                                                                           const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded);
+                                                                           const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded,
+                                                                           const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults);
 
     static QString                                  flowPlotAxisTitle(RimWellLogFile::WellFlowCondition condition, 
                                                                       RiaEclipseUnitTools::UnitSystem unitSystem);
@@ -132,13 +134,4 @@ private:
     static std::set<QDateTime>                      availableSimWellTimesteps(RimEclipseCase * eclCase, const QString& simWellName, bool addFirstReportTimeStep);
 
 };
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-template<typename T>
-void RimWellPlotTools::appendSet(std::set<T>& destSet, const std::set<T>& setToAppend)
-{
-    destSet.insert(setToAppend.begin(), setToAppend.end());
-}
 

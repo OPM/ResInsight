@@ -75,7 +75,7 @@ void RicNewWellPathIntersectionFeature::onActionTriggered(bool isChecked)
 void RicNewWellPathIntersectionFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/CrossSection16x16.png"));
-    actionToSetup->setText("New Intersection");
+    actionToSetup->setText("Create Intersection");
 }
 
 //--------------------------------------------------------------------------------------------------

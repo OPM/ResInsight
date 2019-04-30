@@ -43,9 +43,8 @@ RimEclipseFaultColors::RimEclipseFaultColors()
 
     CAF_PDM_InitFieldNoDefault(&m_customFaultResultColors, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
     m_customFaultResultColors = new RimEclipseCellColors();
-
     m_customFaultResultColors.uiCapability()->setUiHidden(true);
-
+    m_customFaultResultColors->setDiffResultOptionsEnabled(true);
 }
 
 //--------------------------------------------------------------------------------------------------

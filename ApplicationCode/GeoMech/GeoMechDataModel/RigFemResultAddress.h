@@ -57,9 +57,9 @@ public:
     int                 timeLapseBaseFrameIdx;
     int                 refKLayerIndex;
 
-    static const int ALL_TIME_LAPSES = -2;
-    static const int NO_TIME_LAPSE = -1;
-    static const int NO_COMPACTION = -1;
+    static constexpr int allTimeLapsesValue() { return ALL_TIME_LAPSES; }
+    static constexpr int noTimeLapseValue()   { return NO_TIME_LAPSE; }
+    static constexpr int noCompactionValue()  { return NO_COMPACTION; }
 
     bool isTimeLapse() const { return timeLapseBaseFrameIdx > NO_TIME_LAPSE;}
     bool representsAllTimeLapses() const { return timeLapseBaseFrameIdx == ALL_TIME_LAPSES;}
@@ -114,6 +114,12 @@ public:
 
         return true;
     }
+
+private:
+    static const int ALL_TIME_LAPSES = -2;
+    static const int NO_TIME_LAPSE   = -1;
+    static const int NO_COMPACTION   = -1;
+
 };
 
 

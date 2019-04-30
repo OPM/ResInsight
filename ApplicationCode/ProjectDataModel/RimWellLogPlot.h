@@ -127,7 +127,7 @@ public:
     void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
     RimWellLogCurveCommonDataSource*        commonDataSource() const;
 protected:
-    void                                    performHolderUpdate() override;
+    void                                    performAutoNameUpdate() override;
 
     // Overridden PDM methods
     void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

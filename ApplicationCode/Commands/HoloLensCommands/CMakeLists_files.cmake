@@ -10,10 +10,14 @@ ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensRestClient.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensServerSettings.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateSessionUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensSession.h
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensSessionObserver.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensSessionManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateDummyFileBackedSessionFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensAutoExportToSharingServerFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportToSharingServerScheduler.h
 
 ${CMAKE_CURRENT_LIST_DIR}/VdeArrayDataPacket.h
+${CMAKE_CURRENT_LIST_DIR}/VdeCachingHashedIdFactory.h
 ${CMAKE_CURRENT_LIST_DIR}/VdeExportPart.h
 ${CMAKE_CURRENT_LIST_DIR}/VdeFileExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/VdePacketDirectory.h
@@ -33,8 +37,11 @@ ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateSessionUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensSession.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensSessionManager.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateDummyFileBackedSessionFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensAutoExportToSharingServerFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportToSharingServerScheduler.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/VdeArrayDataPacket.cpp
+${CMAKE_CURRENT_LIST_DIR}/VdeCachingHashedIdFactory.cpp
 ${CMAKE_CURRENT_LIST_DIR}/VdeExportPart.cpp
 ${CMAKE_CURRENT_LIST_DIR}/VdeFileExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/VdePacketDirectory.cpp
@@ -53,6 +60,7 @@ ${SOURCE_GROUP_SOURCE_FILES}
 set (QT_MOC_HEADERS
 ${QT_MOC_HEADERS}
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensRestClient.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportToSharingServerScheduler.h
 )
 
 

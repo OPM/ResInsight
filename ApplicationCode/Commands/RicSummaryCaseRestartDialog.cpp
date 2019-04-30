@@ -24,16 +24,15 @@
 #include "RiaApplication.h"
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RifReaderEclipseSummary.h"
 #include "RifEclipseSummaryTools.h"
 
 #include "RimEclipseView.h"
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimTools.h"
 
 #include "RiuPlotMainWindow.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuTools.h"
 
 #include <QVBoxLayout>
@@ -57,7 +56,7 @@
 #include <cvfAssert.h>
 
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <thread>
 
 #define DEFAULT_DIALOG_WIDTH        550
@@ -485,9 +484,9 @@ void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout* gridLa
     CVF_ASSERT(gridLayout);
 
     QDateTime startDate = QDateTime::fromTime_t(fileInfo.startDate);
-    QString startDateString = startDate.toString(RimTools::dateFormatString());
+    QString startDateString = startDate.toString(RiaQDateTimeTools::dateFormatString());
     QDateTime endDate = QDateTime::fromTime_t(fileInfo.endDate);
-    QString endDateString = endDate.toString(RimTools::dateFormatString());
+    QString endDateString = endDate.toString(RiaQDateTimeTools::dateFormatString());
     int rowCount = gridLayout->rowCount();
 
     QLabel* fileNameLabel = new QLabel();

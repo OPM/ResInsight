@@ -193,12 +193,12 @@ void RigFemPartResultsCollection::setCalculationParameters(double cohesion, doub
     m_frictionAngleRad = frictionAngleRad;
 
     // Todo, delete all dependent results
-    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "SFI", RigFemResultAddress::ALL_TIME_LAPSES));
-    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "SFI", RigFemResultAddress::ALL_TIME_LAPSES));
-    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "DSM", RigFemResultAddress::ALL_TIME_LAPSES));
-    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "DSM", RigFemResultAddress::ALL_TIME_LAPSES));
-    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "FOS", RigFemResultAddress::ALL_TIME_LAPSES));
-    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "FOS", RigFemResultAddress::ALL_TIME_LAPSES));
+    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "SFI", RigFemResultAddress::allTimeLapsesValue()));
+    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "SFI", RigFemResultAddress::allTimeLapsesValue()));
+    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "DSM", RigFemResultAddress::allTimeLapsesValue()));
+    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "DSM", RigFemResultAddress::allTimeLapsesValue()));
+    this->deleteResult(RigFemResultAddress(RIG_ELEMENT_NODAL,     "SE", "FOS", RigFemResultAddress::allTimeLapsesValue()));
+    this->deleteResult(RigFemResultAddress(RIG_INTEGRATION_POINT, "SE", "FOS", RigFemResultAddress::allTimeLapsesValue()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,7 +224,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult(in
     {
         std::map<std::string, std::vector<float>> elementProperties = m_elementPropertyReader->readAllElementPropertiesInFileContainingField(resVarAddr.fieldName);
         
-        std::vector<RigFemScalarResultFrames*> resultsForEachComponent;
         for (std::pair< std::string, std::vector<float>> elem : elementProperties)
         {
             RigFemResultAddress addressForElement(RIG_ELEMENT, elem.first, "");
@@ -605,7 +604,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
         frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
         frameCountProgress.setNextProgressIncrement(this->frameCount());
 
-        RigFemResultAddress resVarNative(resVarAddr.resultPosType, resVarAddr.fieldName, resVarAddr.componentName, RigFemResultAddress::NO_TIME_LAPSE, resVarAddr.refKLayerIndex);
+        RigFemResultAddress resVarNative(resVarAddr.resultPosType, resVarAddr.fieldName, resVarAddr.componentName, RigFemResultAddress::noTimeLapseValue(), resVarAddr.refKLayerIndex);
         RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, resVarNative);
         RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
@@ -1499,6 +1498,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
     RigFemScalarResultFrames* compactionFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
     const RigFemPart* part = m_femParts->part(partIndex);
+    part->ensureIntersectionSearchTreeIsBuilt();
+
     for (int t = 0; t < u3Frames->frameCount(); t++)
     {
         std::vector<float>& compactionFrame = compactionFrames->frameData(t);
@@ -2262,6 +2263,19 @@ void RigFemPartResultsCollection::deleteResult(const RigFemResultAddress& resVar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::deleteResultFrame(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex)
+{
+    CVF_ASSERT(resVarAddr.isValid());
+    RigFemScalarResultFrames* frames        = m_femPartResults[partIndex]->findScalarResult(resVarAddr);
+    if (frames)
+    {
+        std::vector<float>().swap(frames->frameData(frameIndex));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RigFemResultAddress> RigFemPartResultsCollection::loadedResults() const
 {
     std::vector<RigFemResultAddress> currentResults;
@@ -2775,7 +2789,6 @@ void findReferenceElementForNode(const RigFemPart& part, size_t nodeIdx, size_t 
     part.findIntersectingCells(bb, &refElementCandidates);
 
     const RigFemPartGrid* grid = part.getOrCreateStructGrid();
-    const std::vector<cvf::Vec3f>& nodeCoords = part.nodes().coordinates;
 
     refElement->elementIdx = cvf::UNDEFINED_SIZE_T;
     refElement->intersectionPointToCurrentNodeDistance = std::numeric_limits<float>::infinity();

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RigEclipseResultAddress.h"
+
 #include "RiaDefines.h"
 
 #include <QDateTime>
@@ -49,35 +51,39 @@ public:
 class RigEclipseResultInfo
 {
 public:
-    RigEclipseResultInfo(RiaDefines::ResultCatType resultType,
-                         QString resultName,
+    RigEclipseResultInfo(const RigEclipseResultAddress& resultAddress,
                          bool needsToBeStored = false,
                          bool mustBeCalculated = false,
                          size_t gridScalarResultIndex = 0u);
 
     RiaDefines::ResultCatType   resultType() const;
-    void                        setResultType(RiaDefines::ResultCatType newType);
     const QString&              resultName() const;
-    void                        setResultName(const QString& name);
     bool                        needsToBeStored() const;
-    bool                        mustBeCalculated() const;
-    void                        setMustBeCalculated(bool mustCalculate);
-    size_t                      gridScalarResultIndex() const;
-    
-    const std::vector<RigEclipseTimeStepInfo>& timeStepInfos() const;
-    void                                       setTimeStepInfos(const std::vector<RigEclipseTimeStepInfo>& timeSteps);
 
     std::vector<QDateTime>      dates() const;
     std::vector<double>         daysSinceSimulationStarts() const;
     std::vector<int>            reportNumbers() const;
     
     bool operator<(const RigEclipseResultInfo& rhs) const;
+
+    const RigEclipseResultAddress& eclipseResultAddress() const { return m_resultAddress;}
+
 private:
-    RiaDefines::ResultCatType   m_resultType;
+    friend class RigCaseCellResultsData;
+    void                        setResultType(RiaDefines::ResultCatType newType);
+    void                        setResultName(const QString& name);
+    bool                        mustBeCalculated() const;
+    void                        setMustBeCalculated(bool mustCalculate);
+    size_t                      gridScalarResultIndex() const;
+
+    const std::vector<RigEclipseTimeStepInfo>& timeStepInfos() const;
+    void                                       setTimeStepInfos(const std::vector<RigEclipseTimeStepInfo>& timeSteps);
+
+    RigEclipseResultAddress     m_resultAddress;
+    size_t                      m_gridScalarResultIndex;
+    std::vector<RigEclipseTimeStepInfo> m_timeStepInfos;
+
     bool                        m_needsToBeStored;
     bool                        m_mustBeCalculated;
-    QString                     m_resultName;
-    size_t                      m_gridScalarResultIndex;
     
-    std::vector<RigEclipseTimeStepInfo> m_timeStepInfos;
 };

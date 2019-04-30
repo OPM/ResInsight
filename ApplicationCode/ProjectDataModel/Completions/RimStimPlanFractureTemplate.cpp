@@ -268,14 +268,14 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
         if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_UNKNOWN)
         {
-            setFractureTemplateUnit(m_stimPlanFractureDefinitionData->unitSet());
+            setUnitSystem(m_stimPlanFractureDefinitionData->unitSet());
         }
 
         m_readError = false;
     }
     else
     {
-        setFractureTemplateUnit(RiaEclipseUnitTools::UNITS_UNKNOWN);
+        setUnitSystem(RiaEclipseUnitTools::UNITS_UNKNOWN);
         m_readError = true;
     }
 
@@ -755,7 +755,7 @@ void RimStimPlanFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitS
 {
     if (m_fractureTemplateUnit() == neededUnit) return;
 
-    setFractureTemplateUnit(neededUnit);
+    setUnitSystem(neededUnit);
     RimFractureTemplate::convertToUnitSystem(neededUnit);
 
     m_readError = false;

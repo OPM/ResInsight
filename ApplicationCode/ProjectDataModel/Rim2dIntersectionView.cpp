@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include "RimSimWellInView.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimWellPath.h"
+#include "RimViewNameConfig.h"
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
@@ -41,6 +42,7 @@
 #include "RivWellPathPartMgr.h"
 
 #include "cafDisplayCoordTransform.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include "cvfModelBasicList.h"
 #include "cvfTransform.h"
@@ -51,10 +53,12 @@
 
 CAF_PDM_SOURCE_INIT(Rim2dIntersectionView, "Intersection2dView"); 
 
-const cvf::Mat4d defaultViewMatrix(1, 0, 0, 0,
-                                               0, 0, 1, 0,
-                                               0, -1, 0, 1000,
-                                               0, 0, 0, 1);
+
+const cvf::Mat4d Rim2dIntersectionView::sm_defaultViewMatrix = cvf::Mat4d(1, 0, 0, 0,
+                                                                          0, 0, 1, 0,
+                                                                          0, -1, 0, 1000,
+                                                                          0, 0, 0, 1);
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -66,13 +70,13 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
     CAF_PDM_InitFieldNoDefault(&m_intersection,  "Intersection", "Intersection", ":/CrossSection16x16.png", "", "");
     m_intersection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_legendConfig,  "LegendDefinition", "Legend Definition", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_legendConfig,  "LegendDefinition", "Color Legend", "", "", "");
     m_legendConfig.uiCapability()->setUiHidden(true);
     m_legendConfig.uiCapability()->setUiTreeChildrenHidden(true);
     m_legendConfig.xmlCapability()->disableIO();
     m_legendConfig = new RimRegularLegendConfig();
 
-    CAF_PDM_InitFieldNoDefault(&m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Legend Definition", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Color Legend", "", "", "");
     m_ternaryLegendConfig.uiCapability()->setUiTreeHidden(true);
     m_ternaryLegendConfig.uiCapability()->setUiTreeChildrenHidden(true);
     m_ternaryLegendConfig.xmlCapability()->disableIO();
@@ -81,16 +85,26 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
     CAF_PDM_InitField(&m_showDefiningPoints, "ShowDefiningPoints", true, "Show Points", "", "", "");
     CAF_PDM_InitField(&m_showAxisLines, "ShowAxisLines", false, "Show Axis Lines", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_nameProxy, "NameProxy", "Name", "", "", "");
+    m_nameProxy.xmlCapability()->disableIO();
+    m_nameProxy.registerGetMethod(this, &Rim2dIntersectionView::getName);
+    m_nameProxy.registerSetMethod(this, &Rim2dIntersectionView::setName);
+
     m_showWindow = false;
     m_scaleTransform = new cvf::Transform();
     m_intersectionVizModel = new cvf::ModelBasicList;
 
     hasUserRequestedAnimation = true;
     
-    ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultViewMatrix );
+    ((RiuViewerToViewInterface*)this)->setCameraPosition(sm_defaultViewMatrix );
 
     disableGridBoxField();
     disablePerspectiveProjectionField();
+
+    nameConfig()->hideCaseNameField(true);
+    nameConfig()->hideAggregationTypeField(true);
+    nameConfig()->hidePropertyField(true);
+    nameConfig()->hideSampleSpacingField(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,6 +203,7 @@ void Rim2dIntersectionView::update3dInfo()
         m_viewer->showInfoText(false);
         m_viewer->showHistogram(false);
         m_viewer->showAnimationProgress(false);
+        m_viewer->showVersionInfo(false);
 
         m_viewer->update();
         return;
@@ -427,6 +442,30 @@ int Rim2dIntersectionView::timeStepCount()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim2dIntersectionView::createAutoName() const
+{
+    return nameConfig()->customName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim2dIntersectionView::getName() const
+{
+    return nameConfig()->customName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::setName(const QString& name)
+{
+    nameConfig()->setCustomName(name);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool Rim2dIntersectionView::isWindowVisible()
@@ -514,7 +553,7 @@ void Rim2dIntersectionView::createDisplayModel()
         updateCurrentTimeStep();
     }
 
-    if ( this->viewer()->mainCamera()->viewMatrix() == defaultViewMatrix )
+    if ( this->viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
     {
         this->zoomAll();
     }
@@ -621,7 +660,7 @@ void Rim2dIntersectionView::updateLegends()
     {
         m_legendConfig()->setUiValuesFromLegendConfig(eclView->cellResult()->legendConfig());
         m_ternaryLegendConfig()->setUiValuesFromLegendConfig(eclView->cellResult()->ternaryLegendConfig());
-        eclView->cellResult()->updateLegendData(m_currentTimeStep(), m_legendConfig(), m_ternaryLegendConfig());
+        eclView->cellResult()->updateLegendData(eclView->eclipseCase(), m_currentTimeStep(), m_legendConfig(), m_ternaryLegendConfig());
 
         if ( eclView->cellResult()->isTernarySaturationSelected() )
         {
@@ -664,6 +703,7 @@ void Rim2dIntersectionView::resetLegendsInViewer()
     m_viewer->showAnimationProgress(true);
     m_viewer->showHistogram(false);
     m_viewer->showInfoText(false);
+    m_viewer->showVersionInfo(false);
     m_viewer->showEdgeTickMarksXZ(true, m_showAxisLines());
 
     m_viewer->setMainScene(new cvf::Scene());
@@ -758,6 +798,8 @@ void Rim2dIntersectionView::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_nameProxy);
+
     Rim3dView::defineUiOrdering(uiConfigName, uiOrdering);
     caf::PdmUiGroup* viewGroup = uiOrdering.findGroup("ViewGroup");
     if (viewGroup)
@@ -772,4 +814,12 @@ void Rim2dIntersectionView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
         caf::PdmUiGroup* plGroup = uiOrdering.addNewGroup("Defining Points");
         plGroup->add(&m_showDefiningPoints);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.skipRemainingChildren(true);
 }

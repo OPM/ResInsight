@@ -21,7 +21,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
 
-class RimSummaryCase;
 class RimObservedData;
 class QFile;
 
@@ -39,7 +38,7 @@ public:
     void                            removeObservedData(RimObservedData* observedData);
     RimObservedData*                createAndAddRsmObservedDataFromFile(const QString& fileName, QString* errorText = nullptr);
     RimObservedData*                createAndAddCvsObservedDataFromFile(const QString& fileName, bool useSavedFieldsValuesInDialog, QString* errorText = nullptr);
-    std::vector<RimSummaryCase*>    allObservedData();
+    std::vector<RimObservedData*>   allObservedData();
 
 private:
     bool                            fileExists(const QString& fileName, QString* errorText = nullptr);

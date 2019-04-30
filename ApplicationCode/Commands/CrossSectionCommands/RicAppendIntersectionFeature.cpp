@@ -107,9 +107,6 @@ void RicAppendIntersectionFeatureCmd::redo()
     RimGridView* view = nullptr;
     m_intersectionCollection->firstAncestorOrThisOfTypeAsserted(view);
 
-    //Enable display of grid cells, to be able to show generated property filter
-    view->showGridCells(false);
-
     RimGeoMechView* geoMechView = nullptr;
     geoMechView = dynamic_cast<RimGeoMechView*>(view);
     if (geoMechView)

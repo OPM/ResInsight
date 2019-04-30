@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2011-2018 Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
 // 
@@ -21,6 +22,9 @@
 #pragma once
 
 #include "RiaApplication.h"
+#include "RiaDefines.h"
+#include "RiaFontCache.h"
+
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -29,6 +33,8 @@
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
+
+#include <map>
 
 class RifReaderSettings;
 
@@ -39,6 +45,7 @@ class RiaPreferences : public caf::PdmObject
 public:
     enum SummaryRestartFilesImportMode { IMPORT, NOT_IMPORT, SEPARATE_CASES };
     typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
+    typedef RiaFontCache::FontSizeType FontSizeType;
 
     RiaPreferences(void);
     ~RiaPreferences(void) override;
@@ -52,7 +59,10 @@ public:
     bool appendFieldKeywordToToolTipText() const;
     bool showTestToolbar() const;
     bool includeFractureDebugInfoFile() const;
+    bool showProjectChangedDialog() const;
     QString holoLensExportFolder() const;
+
+    std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;
@@ -65,14 +75,20 @@ public: // Pdm Fields
     
     caf::PdmField<QString>  ssihubAddress;
 
-    caf::PdmField<int>      defaultScaleFactorZ;
-    caf::PdmField<bool>     defaultGridLines;
+    caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>> defaultMeshModeType;
+
+    caf::PdmField<int>          defaultScaleFactorZ;
     caf::PdmField<cvf::Color3f> defaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultFaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultViewerBackgroundColor;
     caf::PdmField<cvf::Color3f> defaultWellLabelColor;
-    caf::PdmField<bool>     showLasCurveWithoutTvdWarning;
-    caf::PdmField<QString>  fontSizeInScene;
+    caf::PdmField<bool>         showLasCurveWithoutTvdWarning;
+
+    caf::PdmField<FontSizeType> defaultSceneFontSize;
+    caf::PdmField<FontSizeType> defaultWellLabelFontSize;
+    caf::PdmField<FontSizeType> defaultAnnotationFontSize;
+    caf::PdmField<FontSizeType> defaultPlotFontSize;
+    
     caf::PdmField<bool>     showLegendBackground;
 
     caf::PdmField<bool>     useShaders;
@@ -87,6 +103,8 @@ public: // Pdm Fields
     caf::PdmField<SummaryRestartFilesImportModeType>    summaryImportMode;
     caf::PdmField<SummaryRestartFilesImportModeType>    gridImportMode;
 
+    caf::PdmField<bool>     holoLensDisableCertificateVerification;
+
 protected:
     void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -96,8 +114,12 @@ private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
     caf::PdmField<bool>                    m_appendClassNameToUiText;
     caf::PdmField<bool>                    m_appendFieldKeywordToToolTipText;
+
+    caf::PdmField<bool>                    m_showProjectChangedDialog;
+
     caf::PdmField<bool>                    m_showTestToolbar;
     caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
     caf::PdmField<QString>                 m_holoLensExportFolder;
-    QStringList m_tabNames;
+    QStringList                            m_tabNames;
+
 };

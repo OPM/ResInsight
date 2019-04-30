@@ -342,10 +342,28 @@ cvf::BoundingBox RigFemPart::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 void RigFemPart::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices) const
 {
+    ensureIntersectionSearchTreeIsBuilt();
+    findIntersectingCellsWithExistingSearchTree(inputBB, elementIndices);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPart::findIntersectingCellsWithExistingSearchTree(const cvf::BoundingBox& inputBB,
+                                                             std::vector<size_t>*    elementIndices) const
+{
+    CVF_ASSERT(m_elementSearchTree.notNull());
+    m_elementSearchTree->findIntersections(inputBB, elementIndices);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPart::ensureIntersectionSearchTreeIsBuilt() const
+{
+    // build tree
     if (m_elementSearchTree.isNull())
     {
-        // build tree
-
         size_t elmCount = elementCount();
 
         std::vector<cvf::BoundingBox> cellBoundingBoxes;
@@ -353,7 +371,7 @@ void RigFemPart::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vec
 
         for (size_t elmIdx = 0; elmIdx < elmCount; ++elmIdx)
         {
-            const int* cellIndices = connectivities(elmIdx);
+            const int*        cellIndices = connectivities(elmIdx);
             cvf::BoundingBox& cellBB = cellBoundingBoxes[elmIdx];
             cellBB.add(m_nodes.coordinates[cellIndices[0]]);
             cellBB.add(m_nodes.coordinates[cellIndices[1]]);
@@ -368,8 +386,6 @@ void RigFemPart::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vec
         m_elementSearchTree = new cvf::BoundingBoxTree;
         m_elementSearchTree->buildTreeFromBoundingBoxes(cellBoundingBoxes, nullptr);
     }
-
-    m_elementSearchTree->findIntersections(inputBB, elementIndices);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RimPlotAxisPropertiesInterface.h"
+
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
@@ -31,18 +33,11 @@
 ///  
 ///  
 //==================================================================================================
-class RimSummaryTimeAxisProperties : public caf::PdmObject
+class RimSummaryTimeAxisProperties : public caf::PdmObject, public RimPlotAxisPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-
-    enum AxisTitlePositionType
-    {
-        AXIS_TITLE_CENTER,
-        AXIS_TITLE_END
-    };
-
     enum TimeModeType
     {
         DATE,
@@ -61,16 +56,19 @@ public:
 public:
     RimSummaryTimeAxisProperties();
 
-    caf::PdmField<int>          titleFontSize;
     caf::PdmField<QString>      title;
     caf::PdmField<bool>         showTitle;
-    caf::PdmField< caf::AppEnum< AxisTitlePositionType > > titlePositionEnum;
-    caf::PdmField<int>          valuesFontSize;
 
-    TimeModeType                            timeMode() const              { return m_timeMode(); }
-    void                                    setTimeMode(TimeModeType val) { m_timeMode = val; }
-    double                                  fromTimeTToDisplayUnitScale();
-    double                                  fromDaysToDisplayUnitScale();
+
+    AxisTitlePositionType titlePosition() const override;
+    int                   titleFontSize() const override;
+    void                  setTitleFontSize(int fontSize) override;
+    int                   valuesFontSize() const override;
+    void                  setValuesFontSize(int fontSize) override;
+    TimeModeType          timeMode() const;
+    void                  setTimeMode(TimeModeType val);
+    double                fromTimeTToDisplayUnitScale();
+    double                fromDaysToDisplayUnitScale();
 
     double visibleRangeMin() const;
     double visibleRangeMax() const;
@@ -104,4 +102,9 @@ private:
     caf::PdmField<double>                   m_visibleTimeRangeMin;
     caf::PdmField<double>                   m_visibleTimeRangeMax;
     caf::PdmField<bool>                     m_isAutoZoom;
+
+    caf::PdmField<int>                                 m_titleFontSize;
+    caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
+    caf::PdmField<int>                                 m_valuesFontSize;
+
 };

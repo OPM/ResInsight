@@ -23,8 +23,9 @@
 #include "cafPdmField.h"
 
 
-class RimViewWindow;
 class RiuMainWindowBase;
+class RiuMdiSubWindow;
+class RimViewWindow;
 struct RimMdiWindowGeometry;
 
 //==================================================================================================
@@ -50,6 +51,7 @@ protected:
 
     RimViewWindow*            viewPdmObject();
     QWidget*                  viewWidget();
+    RiuMdiSubWindow*          viewSubWindow();
     RiuMainWindowBase*        getMainWindow();
  
     // Overridden PDM methods

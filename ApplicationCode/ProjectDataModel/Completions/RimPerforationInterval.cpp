@@ -25,6 +25,7 @@
 
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
 
@@ -96,14 +97,6 @@ void RimPerforationInterval::setCustomStartDate(const QDate& date)
     {
         m_startDate = QDateTime(date);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPerforationInterval::enableCustomEndDate(bool enable)
-{
-    m_useCustomEndDate = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,6 +229,21 @@ std::vector<RimWellPathValve*> RimPerforationInterval::valves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::updateAllReferringTracks()
+{
+    std::vector<RimWellLogTrack*> wellLogTracks;
+
+    this->objectsWithReferringPtrFieldsOfType(wellLogTracks);
+    for (RimWellLogTrack* track : wellLogTracks)
+    {
+        track->loadDataAndUpdate();
+    }
+    this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimPerforationInterval::isEnabled() const
 {
     RimPerforationCollection* perforationCollection;
@@ -298,6 +306,17 @@ void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changed
                                               const QVariant&            oldValue,
                                               const QVariant&            newValue)
 {
+    if (changedField == &m_startMD ||
+        changedField == &m_endMD)
+    {
+        for (RimWellPathValve* valve : m_valves())
+        {
+            valve->perforationIntervalUpdated();
+        }
+    }
+
+    this->updateAllReferringTracks();
+
     RimProject* proj = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->reloadCompletionTypeResultsInAllViews();

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include "Rim3dView.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmProxyValueField.h"
 
 class RimIntersection;
 class RimRegularLegendConfig;
@@ -92,11 +93,16 @@ protected:
 
     void               fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void               defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void               defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
     bool                       hasResults();
     int                        timeStepCount();
 
+private:
+    QString             createAutoName() const override;
+    QString             getName() const;
+    void                setName(const QString& name);
 
     caf::PdmChildField<RimRegularLegendConfig*>        m_legendConfig;
     caf::PdmChildField<RimTernaryLegendConfig*> m_ternaryLegendConfig;
@@ -110,8 +116,11 @@ protected:
     cvf::ref<cvf::ModelBasicList>      m_intersectionVizModel;
     cvf::ref<cvf::Transform>           m_scaleTransform;
 
+    caf::PdmProxyValueField<QString>   m_nameProxy;
     caf::PdmField<bool>                m_showDefiningPoints;
     caf::PdmField<bool>                m_showAxisLines;
 
     caf::PdmPointer<caf::PdmObject>    m_legendObjectToSelect;
+
+    const static cvf::Mat4d            sm_defaultViewMatrix;
 };

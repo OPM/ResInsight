@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -34,7 +34,9 @@ class RicHoloLensRestResponseHandler
 {
 public:
     virtual void handleSuccessfulCreateSession() = 0;
-    virtual void handleSuccessfulSendMetaData(int metaDataSequenceNumber) = 0;
+    virtual void handleFailedCreateSession() = 0;
+
+    virtual void handleSuccessfulSendMetaData(int metaDataSequenceNumber, const QByteArray& jsonServerResponseString) = 0;
 
     virtual void handleError(const QString& errMsg, const QString& url, const QString& serverData) = 0;
 };
@@ -54,20 +56,25 @@ public:
 
     void    clearResponseHandler();
 
-    void    createSession();
+    void    dbgDisableCertificateVerification();
+
+    void    createSession(const QByteArray& sessionPinCode);
     void    deleteSession();
     void    sendMetaData(int metaDataSequenceNumber, const QString& jsonMetaDataString);
-    void    sendBinaryData(const QByteArray& binaryDataArr);
+    void    sendBinaryData(const QByteArray& binaryDataArr, QByteArray dbgTagString);
 
 private:
+    void            addBearerAuthenticationHeaderToRequest(QNetworkRequest* request) const;
     bool            detectAndHandleErrorReply(QString operationName, QNetworkReply* reply);
     static QString  networkErrorCodeAsString(QNetworkReply::NetworkError nwErr);
+    static qint64   getCurrentTimeStamp_ms();
 
 private slots:
     void    slotCreateSessionFinished();
     void    slotDeleteSessionFinished();
     void    slotSendMetaDataFinished();
     void    slotSendBinaryDataFinished();
+    void    slotDbgUploadProgress(qint64 bytesSent, qint64 bytesTotal);
 
     void	slotSslErrors(const QList<QSslError>& errors);
 
@@ -76,4 +83,8 @@ private:
     QString                             m_serverUrl;
     QString                             m_sessionName;
     RicHoloLensRestResponseHandler*     m_responseHandler;
+
+    bool                                m_dbgDisableCertificateVerification;    // Debug option to disable certificate verification. Needed in order to work with self-signed certifiactes
+
+    QByteArray                          m_bearerToken;
 };

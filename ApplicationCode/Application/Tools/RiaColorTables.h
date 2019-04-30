@@ -40,6 +40,7 @@ public:
     static const caf::ColorTable& blueWhiteRedPaletteColors();
     static const caf::ColorTable& redWhiteBluePaletteColors();
     static const caf::ColorTable& categoryPaletteColors();
+    static const caf::ColorTable& contrastCategoryPaletteColors();
     static const caf::ColorTable& tensorWhiteGrayBlackPaletteColors();
     static const caf::ColorTable& tensorOrangeBlueWhitePaletteColors();
     static const caf::ColorTable& tensorsMagentaBrownGrayPaletteColors();
@@ -63,7 +64,16 @@ public:
 
     static WellPathComponentColors wellPathComponentColors();
 
+    // Default 3d View colors
+    static cvf::Color3f defaultGridLineColor();
+    static cvf::Color3f defaultFaultLineColor();
+    static cvf::Color3f defaultWellLabelColor();
+    static cvf::Color3f defaultViewerBackgroundColor();  
+
+
+    static caf::ColorTable createBrightnessBasedColorTable(cvf::Color3ub baseColor, int brightnessLevelCount);
 private:
     static std::vector<cvf::Color3ub> categoryColors();
+    static std::vector<cvf::Color3ub> contrastCategoryColors();
     static std::vector<cvf::Color3ub> invertedCategoryColors();
 };

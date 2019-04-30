@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ RimVirtualPerforationResults::RimVirtualPerforationResults()
     CAF_PDM_InitField(&m_showClosedConnections, "ShowClosedConnections",    true,   "Show On Closed Connections", "", "", "");
     CAF_PDM_InitField(&m_geometryScaleFactor,   "GeometryScaleFactor",      2.0,    "Geometry Scale Factor", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Color Legend", "", "", "");
     m_legendConfig.uiCapability()->setUiHidden(true);
 
     m_legendConfig = new RimRegularLegendConfig();

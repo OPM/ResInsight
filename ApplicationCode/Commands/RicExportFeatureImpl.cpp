@@ -18,17 +18,13 @@
 
 #include "RicExportFeatureImpl.h"
 
-#include "cafPdmUiPropertyViewDialog.h"
-
 #include <QDialogButtonBox>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFeatureImpl::configureForExport(caf::PdmUiPropertyViewDialog* propertyViewDialog)
+void RicExportFeatureImpl::configureForExport(QDialogButtonBox* dialogButtonBox)
 {
-    QDialogButtonBox* dialogButtonBox = propertyViewDialog->dialogButtonBox();
-
     dialogButtonBox->clear();
 
     dialogButtonBox->addButton("Export", QDialogButtonBox::AcceptRole);

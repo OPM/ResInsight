@@ -389,56 +389,62 @@ void QwtPlotShapeItem::draw( QPainter *painter,
         return;
     }
 
-    const QRectF cRect = QwtScaleMap::invTransform(
+    const QRectF cr = QwtScaleMap::invTransform(
         xMap, yMap, canvasRect.toRect() );
 
-    if ( d_data->boundingRect.intersects( cRect ) )
+    const QRectF &br = d_data->boundingRect;
+
+    if ( ( br.left() > cr.right() ) || ( br.right() < cr.left() )
+        || ( br.top() > cr.bottom() ) || ( br.bottom() < cr.top() ) )
     {
-        const bool doAlign = QwtPainter::roundingAlignment( painter );
-
-        QPainterPath path = qwtTransformPath( xMap, yMap, 
-            d_data->shape, doAlign );
-
-        if ( testPaintAttribute( QwtPlotShapeItem::ClipPolygons ) )
-        {
-            qreal pw = qMax( qreal( 1.0 ), painter->pen().widthF());
-            QRectF clipRect = canvasRect.adjusted( -pw, -pw, pw, pw );
-
-            QPainterPath clippedPath;
-            clippedPath.setFillRule( path.fillRule() );
-
-            const QList<QPolygonF> polygons = path.toSubpathPolygons();
-            for ( int i = 0; i < polygons.size(); i++ )
-            {
-                const QPolygonF p = QwtClipper::clipPolygonF(
-                    clipRect, polygons[i], true );
-
-                clippedPath.addPolygon( p );
-
-            }
-
-            path = clippedPath;
-        }
-
-        if ( d_data->renderTolerance > 0.0 )
-        {
-            QwtWeedingCurveFitter fitter( d_data->renderTolerance );
-
-            QPainterPath fittedPath;
-            fittedPath.setFillRule( path.fillRule() );
-
-            const QList<QPolygonF> polygons = path.toSubpathPolygons();
-            for ( int i = 0; i < polygons.size(); i++ )
-                fittedPath.addPolygon( fitter.fitCurve( polygons[ i ] ) );
-
-            path = fittedPath;
-        }
-
-        painter->setPen( d_data->pen );
-        painter->setBrush( d_data->brush );
-
-        painter->drawPath( path );
+        // outside the visisble area
+        return;
     }
+
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
+
+    QPainterPath path = qwtTransformPath( xMap, yMap, 
+        d_data->shape, doAlign );
+
+    if ( testPaintAttribute( QwtPlotShapeItem::ClipPolygons ) )
+    {
+        qreal pw = qMax( qreal( 1.0 ), painter->pen().widthF());
+        QRectF clipRect = canvasRect.adjusted( -pw, -pw, pw, pw );
+
+        QPainterPath clippedPath;
+        clippedPath.setFillRule( path.fillRule() );
+
+        const QList<QPolygonF> polygons = path.toSubpathPolygons();
+        for ( int i = 0; i < polygons.size(); i++ )
+        {
+            const QPolygonF p = QwtClipper::clipPolygonF(
+                clipRect, polygons[i], true );
+
+            clippedPath.addPolygon( p );
+
+        }
+
+        path = clippedPath;
+    }
+
+    if ( d_data->renderTolerance > 0.0 )
+    {
+        QwtWeedingCurveFitter fitter( d_data->renderTolerance );
+
+        QPainterPath fittedPath;
+        fittedPath.setFillRule( path.fillRule() );
+
+        const QList<QPolygonF> polygons = path.toSubpathPolygons();
+        for ( int i = 0; i < polygons.size(); i++ )
+            fittedPath.addPolygon( fitter.fitCurve( polygons[ i ] ) );
+
+        path = fittedPath;
+    }
+
+    painter->setPen( d_data->pen );
+    painter->setBrush( d_data->brush );
+
+    painter->drawPath( path );
 }
 
 /*!

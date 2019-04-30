@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #include "VdeFileExporter.h"
 #include "VdeArrayDataPacket.h"
 #include "VdePacketDirectory.h"
+#include "VdeCachingHashedIdFactory.h"
 
 #include "cvfTrace.h"
 
@@ -72,7 +73,7 @@ bool VdeFileExporter::exportToFile(const QString& modelMetaJsonStr, const VdePac
         }
     }
 
-    cvf::Trace::show("Data exported to folder: %s", m_absOutputFolder.toLatin1().constData());
+    cvf::Trace::show("Data exported (%d packets) to folder: %s", packetIdsToExport.size(), m_absOutputFolder.toLatin1().constData());
 
     return true;
 }
@@ -82,11 +83,12 @@ bool VdeFileExporter::exportToFile(const QString& modelMetaJsonStr, const VdePac
 //--------------------------------------------------------------------------------------------------
 bool VdeFileExporter::exportViewContents(const RimGridView& view)
 {
+    VdeCachingHashedIdFactory localIdFactory;
+    VdeVizDataExtractor extractor(view, &localIdFactory);
+
     QString modelMetaJsonStr;
     std::vector<int> allReferencedArrayIds;
     VdePacketDirectory packetDirectory;
-
-    VdeVizDataExtractor extractor(view);
     extractor.extractViewContents(&modelMetaJsonStr, &allReferencedArrayIds, &packetDirectory);
 
     if (!exportToFile(modelMetaJsonStr, packetDirectory, allReferencedArrayIds))

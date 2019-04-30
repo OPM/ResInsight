@@ -104,6 +104,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 m_hasMovedMouseDuringNavigation = false;
                 isEventHandled = true;
             }
+           forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
     case QEvent::MouseButtonRelease: 
@@ -121,6 +122,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                     
                 }
             }
+            forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
     case QEvent::MouseMove:
@@ -151,11 +153,12 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
         {
             if (inputEvent->modifiers() == Qt::NoModifier)
             {
-                initializeRotationCenter();
+                QWheelEvent* we = static_cast<QWheelEvent*>(inputEvent);
+
+                updatePointOfInterestDuringZoomIfNecessary(we->x(), we->y());
+
                 if (m_isRotCenterInitialized)
                 {
-                    QWheelEvent* we = static_cast<QWheelEvent*> ( inputEvent);
-
                     int translatedMousePosX, translatedMousePosY;
                     cvfEventPos(we->x(), we->y(), &translatedMousePosX, &translatedMousePosY);
 

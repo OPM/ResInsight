@@ -20,6 +20,7 @@
 #include "RiuQwtPlotCurve.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaImageTools.h"
 #include "RiuQwtSymbol.h"
 
 #include "qwt_symbol.h"
@@ -59,6 +60,7 @@ RiuQwtPlotCurve::RiuQwtPlotCurve(const QString &title)
 
     m_showErrorBars = true;
     m_attachedToPlot = nullptr;
+    m_blackAndWhiteLegendIcon = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,15 +322,18 @@ void RiuQwtPlotCurve::setErrorBarsColor(QColor color)
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::setAppearance(LineStyleEnum          lineStyle,
-                                               CurveInterpolationEnum interpolationType,
-                                               int                    curveThickness,
-                                               const QColor&          curveColor)
+                                    CurveInterpolationEnum interpolationType,
+                                    int                    requestedCurveThickness,
+                                    const QColor&          curveColor)
 {
     QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::NoCurve;
-    Qt::PenStyle penStyle = Qt::SolidLine;
+    Qt::PenStyle penStyle = Qt::NoPen;
 
+    // Qwt bug workaround (#4135): need to set 0 curve thickness for STYLE_NONE
+    int curveThickness = 0;
     if (lineStyle != STYLE_NONE)
     {
+        curveThickness = requestedCurveThickness;
         switch (interpolationType)
         {
         case INTERPOLATION_STEP_LEFT:
@@ -366,6 +371,31 @@ void RiuQwtPlotCurve::setAppearance(LineStyleEnum          lineStyle,
 
     setPen(curvePen);
     setStyle(curveStyle);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setBlackAndWhiteLegendIcon(bool blackAndWhite)
+{
+    m_blackAndWhiteLegendIcon = blackAndWhite;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QwtGraphic RiuQwtPlotCurve::legendIcon(int index, const QSizeF& size) const
+{
+    QwtGraphic icon = QwtPlotCurve::legendIcon(index, size);
+    if (m_blackAndWhiteLegendIcon)
+    {
+        QImage image = icon.toImage();
+        RiaImageTools::makeGrayScale(image);
+        
+        QPainter painter(&icon);
+        painter.drawImage(QPoint(0, 0), image);        
+    }
+    return icon;
 }
 
 //--------------------------------------------------------------------------------------------------

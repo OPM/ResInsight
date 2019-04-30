@@ -28,7 +28,7 @@
 #include "RimWellPathCollection.h"
 
 #include "Riu3DMainWindowTools.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "cafSelectionManager.h"
 
@@ -70,8 +70,8 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::onActionTriggered(bool isC
 //--------------------------------------------------------------------------------------------------
 RiuWellPathSelectionItem* RicNewPerforationIntervalAtMeasuredDepthFeature::wellPathSelectionItem()
 {
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
-    RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
+    RiuSelectionItem* selItem = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
 
     RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>(selItem);
 
@@ -83,8 +83,8 @@ RiuWellPathSelectionItem* RicNewPerforationIntervalAtMeasuredDepthFeature::wellP
 //--------------------------------------------------------------------------------------------------
 void RicNewPerforationIntervalAtMeasuredDepthFeature::setupActionLook(QAction* actionToSetup)
 {
-    //actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
-    actionToSetup->setText("New Perforation Interval");
+    actionToSetup->setIcon(QIcon(":/PerforationIntervals16x16.png"));
+    actionToSetup->setText("Create Perforation Interval at this Depth");
 }
 
 //--------------------------------------------------------------------------------------------------

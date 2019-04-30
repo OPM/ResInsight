@@ -1,0 +1,22 @@
+@startuml
+left to right direction
+
+package "Project" {
+RimProject --> RimOilField
+RimOilField --> RimAnnotationCollection
+RimAnnotationCollection --> "n" RimAnnotation
+
+RimAnnotation <|-- RimTextAnnotation
+RimAnnotation <|-- RimCircleAnnotation
+RimAnnotation <|-- RimPolygonAnnotation
+}
+
+package "View" {
+Rim3dView --> RivAnnotationsPartMgr
+Rim3dView <|-- RimGridView
+RimGridView --> RimAnnotationInViewCollection
+RivAnnotationsPartMgr --> "n" RivAnnotationPartMgr
+RivAnnotationPartMgr "injected" --> RimAnnotation
+}
+
+@enduml

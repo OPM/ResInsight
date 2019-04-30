@@ -22,6 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RigMainGrid.h"
+#include "RigFemResultAddress.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"

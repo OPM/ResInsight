@@ -1,6 +1,6 @@
 @startuml
 
-class PdmObject {
+class PdmObjectHandle {
     name()
     fields();
     referencingFields();
@@ -14,16 +14,16 @@ class PdmObject {
 }
 
 
-PdmObject --* "n" PdmObjectCapability
+PdmObjectHandle --* "n" PdmObjectCapability
 
 class PdmUiItem{
 
 }
 
-PdmObjectCapability <|- PdmUiObject
-PdmUiItem <|- PdmUiObject
+PdmObjectCapability <|- PdmUiObjectHandle 
+PdmUiItem <|- PdmUiObjectHandle 
 
-class PdmUiObject{
+class PdmUiObjectHandle {
   uiOrdering() = ?;
   uiTreeOrdering() = ? ;
   editorAttribute() = ?;
@@ -41,24 +41,24 @@ class PdmUiObject{
   m_objectToggleField; 
 }
 
-PdmUiObject <|-- PdmCompleteObject
-PdmObject <|-- PdmCompleteObject
-PdmXmlSerializable <|-- PdmCompleteObject
+PdmUiObjectHandle  <|-- PdmObject
+PdmObjectHandle <|-- PdmObject
+PdmXmlObjectHandle   <|-- PdmObject
 
 
-class PdmXmlSerializable {
+class PdmXmlObjectHandle   {
     classKeyword() = 0;
     readFields ();
     writeFields();
 }	
 
-PdmObjectCapability <|- PdmXmlSerializable
+PdmObjectCapability <|- PdmXmlObjectHandle  
 
 
 
 package FieldHandle{
 
-PdmObject --> "n" PdmFieldHandle
+PdmObjectHandle --> "n" PdmFieldHandle
 
 class PdmFieldHandle{
  name()
@@ -107,56 +107,53 @@ class PdmXmlFieldHandle {
 PdmFieldCapability <|- PdmXmlFieldHandle
 
 
-PdmFieldHandle    <|-- PdmCompleteFieldHandle
-PdmUiFieldHandle  <|-- PdmCompleteFieldHandle
-PdmXmlFieldHandle <|-- PdmCompleteFieldHandle
 
 }
 
 package ToDoFields{
-class "PdmFieldXmlCap<PdmPtrField<T>>"{
+class "InternalPdmXmlFieldCapability<PdmPtrField<T>>"{
 }
 }
 
 package SplittedFields{
 
 PdmFieldHandle <|--- "PdmField<T>"
-"PdmField<T>" --> "PdmFieldUiCap<FieldT>"
-"PdmField<T>" --> "PdmFieldXmlCap<FieldT>"
+"PdmField<T>" --> "InternalPdmUiFieldCapability<FieldT>"
+"PdmField<T>" --> "InternalPdmXmlFieldCapability<FieldT>"
 
 PdmFieldHandle    <|--- "PdmProxyField<T>"
-"PdmProxyField<T>" --> "PdmFieldUiCap<FieldT>"
-"PdmProxyField<T>" --> "PdmFieldXmlCap<FieldT>"
+"PdmProxyField<T>" --> "InternalPdmUiFieldCapability<FieldT>"
+"PdmProxyField<T>" --> "InternalPdmXmlFieldCapability<FieldT>"
 
-PdmUiFieldHandle  <|--- "PdmFieldUiCap<FieldT>"
-PdmXmlFieldHandle <|--- "PdmFieldXmlCap<FieldT>"
+PdmUiFieldHandle  <|--- "InternalPdmUiFieldCapability<FieldT>"
+PdmXmlFieldHandle <|--- "InternalPdmXmlFieldCapability<FieldT>"
 
 PdmFieldHandle <|--- "PdmPtrField<T*>"
-"PdmPtrField<T*>" --> "PdmFieldUiCap<FieldT>"
-"PdmPtrField<T*>" --> "PdmFieldXmlCap<FieldT>"
-"PdmPtrField<T*>" ..> "Todo" "PdmFieldXmlCap<PdmPtrField<T>>"
+"PdmPtrField<T*>" --> "InternalPdmUiFieldCapability<FieldT>"
+"PdmPtrField<T*>" --> "InternalPdmXmlFieldCapability<FieldT>"
+"PdmPtrField<T*>" ..> "Todo" "InternalPdmXmlFieldCapability<PdmPtrField<T>>"
 
 PdmFieldHandle <|--- "PdmChildField<T*>"
-"PdmChildField<T*>"--> "PdmFieldUiCap<PdmField<T*>>"
-"PdmChildField<T*>"--> "PdmFieldXmlCap<PdmField<T*>>"
+"PdmChildField<T*>"--> "InternalPdmUiFieldCapability<PdmField<T*>>"
+"PdmChildField<T*>"--> "InternalPdmXmlFieldCapability<PdmField<T*>>"
 PdmFieldHandle <|--- "PdmChildArrayField<T*>"
-"PdmChildArrayField<T*>"--> "PdmFieldUiCap<PdmPointersField<T*>>"
-"PdmChildArrayField<T*>"--> "PdmFieldXmlCap<PdmPointersField<T*>>"
+"PdmChildArrayField<T*>"--> "InternalPdmUiFieldCapability<PdmPointersField<T*>>"
+"PdmChildArrayField<T*>"--> "InternalPdmXmlFieldCapability<PdmPointersField<T*>>"
 
 }
 
 
 package ToDoFields{
 PdmFieldHandle <|-- "PdmProxyPtrField<T>"
-"PdmProxyPtrField<T>" -->  "PdmFieldUiCap<FieldT>"
-"PdmProxyPtrField<T>" ..> "Todo" "PdmFieldXmlCap<PdmPtrField<T>>"
+"PdmProxyPtrField<T>" -->  "InternalPdmUiFieldCapability<FieldT>"
+"PdmProxyPtrField<T>" ..> "Todo" "InternalPdmXmlFieldCapability<PdmPtrField<T>>"
 
 PdmFieldHandle <|-- "PdmProxyChildField<T*>"
-"PdmProxyChildField<T*>"--> "PdmFieldUiCap<PdmField<T*>>"
-"PdmProxyChildField<T*>"--> "PdmFieldXmlCap<PdmField<T*>>"
+"PdmProxyChildField<T*>"--> "InternalPdmUiFieldCapability<PdmField<T*>>"
+"PdmProxyChildField<T*>"--> "InternalPdmXmlFieldCapability<PdmField<T*>>"
 PdmFieldHandle <|-- "PdmProxyChildArrayField<T*>"
-"PdmProxyChildArrayField<T*>"--> "PdmFieldUiCap<PdmPointersField<T*>>"
-"PdmProxyChildArrayField<T*>"--> "PdmFieldXmlCap<PdmPointersField<T*>>"
+"PdmProxyChildArrayField<T*>"--> "InternalPdmUiFieldCapability<PdmPointersField<T*>>"
+"PdmProxyChildArrayField<T*>"--> "InternalPdmXmlFieldCapability<PdmPointersField<T*>>"
 
 }
 

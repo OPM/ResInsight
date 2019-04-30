@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 
 #include "RiaColorTables.h"
 
-#include "RiuSelectionManager.h"
-#include "RiuSummaryQwtPlot.h"
+#include "Riu3dSelectionManager.h"
+#include "RiuQwtPlotTools.h"
 
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
@@ -62,11 +62,11 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
-    : QwtPlot(parent)
+    : RiuDockedQwtPlot(parent)
     , m_sourceGeoMechViewOfLastPlot(nullptr)
     , m_scheduleUpdateAxisScaleTimer(nullptr)
 {
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(this);
+    RiuQwtPlotTools::setCommonPlotBehaviour(this);
 
     enableAxis(QwtPlot::xBottom, true);
     enableAxis(QwtPlot::yLeft, true);
@@ -75,6 +75,8 @@ RiuMohrsCirclePlot::RiuMohrsCirclePlot(QWidget* parent)
 
     setAxisTitle(QwtPlot::xBottom, "Effective Normal Stress");
     setAxisTitle(QwtPlot::yLeft, "Shear Stress");
+
+    applyFontSizes(false);
 
     // The legend will be deleted in the destructor of the plot or when
     // another legend is inserted.

@@ -60,6 +60,8 @@ RiaRegressionTest::RiaRegressionTest(void)
     CAF_PDM_InitField(
         &useOpenMPForGeometryCreation, "useOpenMPForGeometryCreation", true, "Use OpenMP For Geometry Creation", "", "", "");
 
+    CAF_PDM_InitField(&openReportInBrowser, "openReportInBrowser", false, "Open Generated Report in Browser", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(
         &testFilter,
         "testFilter",
@@ -68,6 +70,9 @@ RiaRegressionTest::RiaRegressionTest(void)
         "If empty, all tests are executed.\nTo execute a subset of tests, specify folder names separated by ;",
         "");
     testFilter.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(
+        &appendTestsAfterTestFilter, "appendTestsAfterTestFilter", false, "Append All Tests After Test Filter", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

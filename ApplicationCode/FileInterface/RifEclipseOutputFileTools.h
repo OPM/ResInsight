@@ -36,7 +36,7 @@
 typedef struct ecl_file_struct ecl_file_type;
 
 class RifEclipseRestartDataAccess;
-
+class QByteArray;
 
 //==================================================================================================
 //
@@ -57,6 +57,7 @@ public:
     static void         timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart);
 
     static bool         isValidEclipseFileName(const QString& fileName);
+    static QByteArray   md5sum(const QString& fileName);
     static bool         findSiblingFilesWithSameBaseName(const QString& fileName, QStringList* fileSet);
 
     static QString      firstFileNameOfType(const QStringList& fileSet, ecl_file_enum fileType);
@@ -78,6 +79,8 @@ public:
     static bool         isExportedFromIntersect(ecl_file_type* ecl_file);
 
     static ecl_kw_type* createActnumFromPorv(ecl_file_type* ecl_file);
+
+    static FILE*        fopen(const QString& filePath, const QString& mode);
 
 private:
     static void         createReportStepsMetaData(std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps);

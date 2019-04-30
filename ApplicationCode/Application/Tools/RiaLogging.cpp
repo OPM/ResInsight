@@ -18,11 +18,16 @@
 
 #include "RiaLogging.h"
 
+#include <iostream>
 #include <sstream>
 
 #ifdef WIN32
 #pragma warning (push)
 #pragma warning (disable: 4668)
+// Define this one to tell windows.h to not define min() and max() as macros
+#if defined WIN32 && !defined NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 #pragma warning (pop)
 #else
@@ -31,7 +36,6 @@
 #endif
 
 #include "QString"
-
 
 
 
@@ -253,3 +257,87 @@ void RiaLogging::debug(const QString& message)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuMessageLoggerBase::RiuMessageLoggerBase()
+    : m_logLevel(RI_LL_WARNING)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuMessageLoggerBase::level() const
+{
+    return m_logLevel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMessageLoggerBase::setLevel(int logLevel)
+{
+    m_logLevel = logLevel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMessageLoggerBase::error(const char* message)
+{
+    writeMessageWithPrefixToLogger("ERROR: ", message);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMessageLoggerBase::warning(const char* message)
+{
+    writeMessageWithPrefixToLogger("warning: ", message);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMessageLoggerBase::info(const char* message)
+{
+    writeMessageWithPrefixToLogger("info: ", message);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMessageLoggerBase::debug(const char* message)
+{
+    writeMessageWithPrefixToLogger("debug: ", message);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMessageLoggerBase::writeMessageWithPrefixToLogger(const char* prefix, const char* message)
+{
+    std::ostringstream oss;
+
+    oss << prefix;
+
+    if (message)
+    {
+        oss << message << std::endl;
+    }
+    else
+    {
+        oss << "<no message>" << std::endl;
+    }
+
+    writeMessageToLogger(oss.str());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaStdOutLogger::writeMessageToLogger(const std::string& str)
+{
+    std::cout << str;
+}

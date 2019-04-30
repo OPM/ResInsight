@@ -31,6 +31,7 @@
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
+#include "RimGridCrossPlotDataSet.h"
 #include "RimIntersectionCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimViewLinker.h"
@@ -125,7 +126,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
         m_localAutoNegClosestToZero(0),
         m_isAllTimeStepsRangeDisabled(false)
 {
-    CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
+    CAF_PDM_InitObject("Color Legend", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Show Legend", "", "", "");    
     m_showLegend.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.","");
@@ -149,7 +150,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
 
     m_categoryMapper = new caf::CategoryMapper;
 
-    cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+    cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
     m_scalarMapperLegend = new caf::OverlayScalarMapperLegend(standardFont);
     m_categoryLegend = new caf::CategoryLegend(standardFont, m_categoryMapper.p());
 
@@ -255,6 +256,14 @@ void RimRegularLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
     if (ensembleCurveSet)
     {
         ensembleCurveSet->onLegendDefinitionChanged();
+    }
+
+    RimGridCrossPlotDataSet* crossPlotCurveSet;
+    firstAncestorOrThisOfType(crossPlotCurveSet);
+    if (crossPlotCurveSet)
+    {
+        crossPlotCurveSet->destroyCurves();
+        crossPlotCurveSet->loadDataAndUpdate(true);
     }
 }
 
@@ -440,6 +449,14 @@ void RimRegularLegendConfig::updateLegend()
 
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::setTickNumberFormat(NumberFormatType numberFormat)
+{
+    m_tickNumberFormat = numberFormat;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::disableAllTimeStepsRange(bool doDisable)
@@ -537,7 +554,7 @@ void RimRegularLegendConfig::recreateLegend()
     // has been removed, (and thus the opengl resources has been deleted) The text in 
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
-    cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+    cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
     m_scalarMapperLegend = new caf::OverlayScalarMapperLegend(standardFont);
     m_categoryLegend = new caf::CategoryLegend(standardFont, m_categoryMapper.p());
 
@@ -715,14 +732,6 @@ bool RimRegularLegendConfig::showLegend() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::setShowLegend(bool show)
-{
-    m_showLegend = show;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame()
@@ -823,6 +832,18 @@ cvf::Color3ubArray RimRegularLegendConfig::colorArrayFromColorType(ColorRangesTy
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    if (uiConfigName == "NumLevelsOnly")
+    {
+        uiOrdering.add(&m_numLevels);
+        uiOrdering.skipRemainingFields(true);
+    }
+    else if (uiConfigName == "NumIntervalsOnly")
+    {
+        m_numLevels.uiCapability()->setUiName("Number of Intervals");
+        uiOrdering.add(&m_numLevels);
+        uiOrdering.skipRemainingFields(true);
+    }
+    else
     {
         caf::PdmUiOrdering * formatGr = uiOrdering.addNewGroup("Format");
         formatGr->add(&m_numLevels);
@@ -836,7 +857,6 @@ void RimRegularLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         mappingGr->add(&m_userDefinedMaxValue);
         mappingGr->add(&m_userDefinedMinValue);
     }
-
     updateFieldVisibility();
 }
 
@@ -856,6 +876,9 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions(cons
     this->firstAncestorOrThisOfType(ensembleCurveSet);
     if (ensembleCurveSet) hasEnsembleCurveSetParent = true;
 
+    RimGridCrossPlotDataSet* crossPlotCurveSet = nullptr;
+    this->firstAncestorOrThisOfType(crossPlotCurveSet);
+
     bool isCategoryResult = false;
     {
         RimEclipseCellColors* eclCellColors = nullptr;
@@ -868,7 +891,8 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions(cons
         if (   ( eclCellColors && eclCellColors->hasCategoryResult())
             || ( gmCellColors && gmCellColors->hasCategoryResult())
             || ( eclCellEdgColors && eclCellEdgColors->hasCategoryResult())
-            || ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT) )
+            || ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT) 
+            || ( crossPlotCurveSet && crossPlotCurveSet->groupingByCategoryResult()))
         {
             isCategoryResult = true;
         }
@@ -881,8 +905,12 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions(cons
         // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
         std::vector<MappingType> mappingTypes;
         mappingTypes.push_back(LINEAR_DISCRETE);
-        mappingTypes.push_back(LINEAR_CONTINUOUS);
-        mappingTypes.push_back(LOG10_CONTINUOUS);
+
+        if (!crossPlotCurveSet)
+        {
+            mappingTypes.push_back(LINEAR_CONTINUOUS);
+            mappingTypes.push_back(LOG10_CONTINUOUS);
+        }
         mappingTypes.push_back(LOG10_DISCRETE);
 
         if (isCategoryResult)

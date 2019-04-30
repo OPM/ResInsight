@@ -40,7 +40,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 
-#include <QtGui/QLineEdit>
+#include <QLineEdit>
 
 #include <QtOpenGL/QGLContext>
 

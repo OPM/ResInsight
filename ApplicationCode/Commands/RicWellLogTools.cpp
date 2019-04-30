@@ -36,7 +36,7 @@
 #include "RifReaderEclipseRft.h"
 
 #include "RiuPlotMainWindowTools.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
@@ -47,7 +47,7 @@
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView* RicWellLogTools::selectedSimulationWell(int *branchIndex)
 {
-    RiuSelectionItem* selItem = RiuSelectionManager::instance()->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
+    RiuSelectionItem* selItem = Riu3dSelectionManager::instance()->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
     RiuSimWellSelectionItem* simWellSelItem = dynamic_cast<RiuSimWellSelectionItem*>(selItem);
     if (simWellSelItem)
     {
@@ -93,8 +93,8 @@ bool RicWellLogTools::wellHasRftData(const QString& wellName)
 //--------------------------------------------------------------------------------------------------
 bool RicWellLogTools::isWellPathOrSimWellSelectedInView()
 {
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
-    RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
+    RiuSelectionItem* selItem = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
 
     RiuSimWellSelectionItem* simWellSelectionItem = dynamic_cast<RiuSimWellSelectionItem*>(selItem);
     if (simWellSelectionItem) return true;

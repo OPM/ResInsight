@@ -87,10 +87,6 @@ RiuWellRftPlot::RiuWellRftPlot(RimWellRftPlot* plotDefinition, QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 RiuWellRftPlot::~RiuWellRftPlot()
 {
-    if (m_plotDefinition)
-    {
-        m_plotDefinition->handleMdiWindowClosed();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

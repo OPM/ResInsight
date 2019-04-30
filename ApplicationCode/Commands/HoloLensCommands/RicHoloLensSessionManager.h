@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,20 +18,19 @@
 
 #pragma once
 
-#include "RicHoloLensRestClient.h"
+#include "RicHoloLensSessionObserver.h"
 
 #include <QPointer>
 
 class RicHoloLensSession;
 
 
-
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RicHoloLensSessionManager
+class RicHoloLensSessionManager : private RicHoloLensSessionObserver
 {
 public:
     static RicHoloLensSessionManager* instance();
@@ -43,6 +42,9 @@ public:
     RicHoloLensSession* session();
 
     static void         refreshToolbarState();
+
+private:
+    void        handleSessionNotification(const RicHoloLensSession* session, Notification notification) override;
 
 private:
     RicHoloLensSessionManager();

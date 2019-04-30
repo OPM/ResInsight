@@ -27,7 +27,7 @@
 #include "RimWellPath.h"
 
 #include "Riu3DMainWindowTools.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "cafSelectionManager.h"
 
@@ -70,8 +70,8 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
 //--------------------------------------------------------------------------------------------------
 RiuWellPathSelectionItem* RicNewFishbonesSubsAtMeasuredDepthFeature::wellPathSelectionItem()
 {
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
-    RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
+    RiuSelectionItem* selItem = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
 
     RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>(selItem);
 
@@ -84,7 +84,7 @@ RiuWellPathSelectionItem* RicNewFishbonesSubsAtMeasuredDepthFeature::wellPathSel
 void RicNewFishbonesSubsAtMeasuredDepthFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FishBoneGroup16x16.png"));
-    actionToSetup->setText("New Fishbones");
+    actionToSetup->setText("Create Fishbones at this Depth");
 }
 
 //--------------------------------------------------------------------------------------------------

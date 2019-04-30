@@ -19,14 +19,16 @@
 
 #include "RiuResultQwtPlot.h"
 
+#include "RiaApplication.h"
 #include "RiaCurveDataTools.h"
+#include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RimContextCommandBuilder.h"
 #include "RimCase.h"
 
 #include "RiuQwtPlotCurve.h"
-#include "RiuSummaryQwtPlot.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuTextDialog.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -50,7 +52,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuResultQwtPlot::RiuResultQwtPlot(QWidget* parent)
-    : QwtPlot(parent)
+    : RiuDockedQwtPlot(parent)
 {
     setDefaults();
 }
@@ -84,6 +86,7 @@ void RiuResultQwtPlot::addCurve(const RimCase* rimCase, const QString& curveName
     m_plotCurves.push_back(plotCurve);
 
     this->setAxisScale( QwtPlot::xTop, QwtDate::toDouble(dateTimes.front()), QwtDate::toDouble(dateTimes.back()));
+    this->applyFontSizes(false);
 
     this->replot();
 
@@ -173,17 +176,19 @@ void RiuResultQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuResultQwtPlot::setDefaults()
 {
-    RiuSummaryQwtPlot::setCommonPlotBehaviour(this);
+    RiuQwtPlotTools::setCommonPlotBehaviour(this);
 
     enableAxis(QwtPlot::xBottom, true);
     enableAxis(QwtPlot::yLeft, true);
     enableAxis(QwtPlot::xTop, false);
     enableAxis(QwtPlot::yRight, false);
 
-    RiuSummaryQwtPlot::enableDateBasedBottomXAxis(this);
+    RiuQwtPlotTools::enableDateBasedBottomXAxis(this);
     
     setAxisMaxMinor(QwtPlot::xBottom, 2);
     setAxisMaxMinor(QwtPlot::yLeft, 3);
+
+    applyFontSizes(false);
 
     // The legend will be deleted in the destructor of the plot or when 
     // another legend is inserted.

@@ -26,8 +26,8 @@
 
 #include "RimEclipseResultCase.h"
 #include "RimGeoMechCase.h"
+#include "RimReloadCaseTools.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimTools.h"
 
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -92,9 +92,17 @@ RimTimeStepFilter::RimTimeStepFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimTimeStepFilter::clearFilteredTimeSteps()
+{
+    m_filteredTimeSteps = std::vector<int>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<QDateTime>& timeSteps)
 {
-    m_dateFormat = RimTools::createTimeFormatStringFromDates(timeSteps);
+    m_dateFormat = RiaQDateTimeTools::createTimeFormatStringFromDates(timeSteps);
     
     std::vector<QString> timeStepStrings;
     for (const QDateTime& date : timeSteps)
@@ -109,7 +117,7 @@ void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<QDateTime>& timeS
 
     if (m_filteredTimeSteps().empty())
     {
-        m_filteredTimeSteps = filteredTimeStepIndicesFromUi();        
+        m_filteredTimeSteps = filteredTimeStepIndicesFromUi();
     }
     m_filteredTimeStepsUi = m_filteredTimeSteps;
 }
@@ -127,7 +135,7 @@ void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<std::pair<QString
             validDates.push_back(stringDatePair.second);
         }
     }
-    m_dateFormat = RimTools::createTimeFormatStringFromDates(validDates);
+    m_dateFormat = RiaQDateTimeTools::createTimeFormatStringFromDates(validDates);
     
     std::vector<QString> timeStepStrings;
     for (auto stringDatePair : timeSteps)
@@ -192,10 +200,9 @@ void RimTimeStepFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     {
         if (updateFilteredTimeStepsFromUi())
         {
-
             if (rimEclipseResultCase)
             {
-                rimEclipseResultCase->reloadDataAndUpdate();
+                RimReloadCaseTools::reloadAllEclipseGridData(rimEclipseResultCase);
             }
             else if (rimGeoMechCase)
             {

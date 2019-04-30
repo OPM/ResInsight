@@ -47,7 +47,7 @@ class RigFemPart : public cvf::Object
 {
 public:
     RigFemPart();
-    virtual ~RigFemPart();
+    ~RigFemPart() override;
 
     int                         elementPartId() const                      { return m_elementPartId; }
     void                        setElementPartId(int partId)               { m_elementPartId = partId; }
@@ -82,6 +82,9 @@ public:
     float                       characteristicElementSize() const;
     const std::vector<int>&     possibleGridCornerElements() const { return m_possibleGridCornerElements; }
     void                        findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices) const;
+    void                        findIntersectingCellsWithExistingSearchTree(const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices) const;
+
+    void                        ensureIntersectionSearchTreeIsBuilt() const;
 
     cvf::Vec3f                  faceNormal(int elmentIndex, int faceIndex) const;
 

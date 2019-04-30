@@ -45,8 +45,8 @@ class RigMainGrid;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
-class RimContourMapView;
-class RimContourMapViewCollection;
+class RimEclipseContourMapView;
+class RimEclipseContourMapViewCollection;
 class RimEclipseView;
 class RigVirtualPerforationTransmissibilities;
 
@@ -69,11 +69,13 @@ public:
     std::vector<QString>                        filesContainingFaults() const;
     void                                        setFilesContainingFaults(const std::vector<QString>& val);
 
+    bool                                        ensureReservoirCaseIsOpen();
     bool                                        openReserviorCase();
     virtual bool                                openEclipseGridFile() = 0;
                                                       
     RigEclipseCaseData*                         eclipseCaseData();
     const RigEclipseCaseData*                   eclipseCaseData() const;
+    void                                        ensureDeckIsParsedForEquilData();
     cvf::Color3f                                defaultWellColor(const QString& wellName);
 
     const RigMainGrid*                          mainGrid() const;
@@ -95,33 +97,32 @@ public:
 
 
     RimCaseCollection*                          parentCaseCollection();
-    RimContourMapViewCollection*                 contourMapCollection();
+    RimEclipseContourMapViewCollection*         contourMapCollection();
 
-    QStringList                         timeStepStrings() const override;
-    QString                             timeStepName(int frameIdx) const override;
-    std::vector<QDateTime>              timeStepDates() const override;
+    QStringList                                 timeStepStrings() const override;
+    QString                                     timeStepName(int frameIdx) const override;
+    std::vector<QDateTime>                      timeStepDates() const override;
 
 
     cvf::BoundingBox                            activeCellsBoundingBox() const override;
     cvf::BoundingBox                            allCellsBoundingBox() const override;
     cvf::Vec3d                                  displayModelOffset() const override;
 
-    void                                        reloadDataAndUpdate();
     virtual void                                reloadEclipseGridFile() = 0;
 
 
-    double                              characteristicCellSize() const override;
+    double                                      characteristicCellSize() const override;
 
-    void                                setFormationNames(RimFormationNames* formationNames) override;
+    void                                        setFormationNames(RimFormationNames* formationNames) override;
 
     std::set<QString>                           sortedSimWellNames() const;    
     
 protected:
     void                                        initAfterRead() override;
     void                                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
-    void                                updateFormationNamesData() override;
+    void                                        updateFormationNamesData() override;
 
     // Internal methods
 protected:
@@ -130,7 +131,7 @@ protected:
 
 private:
     void                                        createTimeStepFormatString();
-    std::vector<Rim3dView*>             allSpecialViews() const override;
+    std::vector<Rim3dView*>                     allSpecialViews() const override;
 
 protected:
     caf::PdmField<bool>                         m_flipXAxis;
@@ -140,7 +141,7 @@ private:
     caf::PdmField<QString>                      m_filesContainingFaultsSemColSeparated;
     caf::PdmField<bool>                         m_releaseResultMemory;
 
-    caf::PdmChildField<RimContourMapViewCollection*> m_contourMapCollection;
+    caf::PdmChildField<RimEclipseContourMapViewCollection*> m_contourMapCollection;
 
     cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
     QString                                     m_timeStepFormatString;

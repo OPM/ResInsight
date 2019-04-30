@@ -19,7 +19,9 @@
 #include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
+#include "RicMswExportInfo.h"
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
+#include "RicWellPathExportMswCompletionsImpl.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCompletionData.h"
@@ -187,31 +189,31 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     // Generate data
     const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
     RicMswExportInfo          exportInfo =
-        RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(settings.caseToApply(), wellPath, false);
+        RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(settings.caseToApply(), wellPath, false);
 
     RiaEclipseUnitTools::UnitSystem unitSystem = caseData->unitsType();
     bool                            isMainBore = false;
 
-    for (const RicMswSegment& location : exportInfo.wellSegmentLocations())
+    for (std::shared_ptr<RicMswSegment> location : exportInfo.wellSegmentLocations())
     {
-        for (const RicMswCompletion& completion : location.completions())
+        for (std::shared_ptr<RicMswCompletion> completion : location->completions())
         {
-            for (const RicMswSubSegment& segment : completion.subSegments())
+            for (std::shared_ptr<RicMswSubSegment> segment : completion->subSegments())
             {
-                for (const RicMswSubSegmentCellIntersection& intersection : segment.intersections())
+                for (std::shared_ptr<RicMswSubSegmentCellIntersection> intersection : segment->intersections())
                 {
-                    double  diameter = location.holeDiameter();
+                    double  diameter = location->holeDiameter();
                     QString completionMetaData =
-                        (location.label() + QString(": Sub: %1 Lateral: %2").arg(location.subIndex()).arg(completion.index()));
+                        (location->label() + QString(": Sub: %1 Lateral: %2").arg(location->subIndex()).arg(completion->index()));
 
                     WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(
-                        intersection.lengthsInCell(), diameter / 2.0, location.skinFactor(), isMainBore, completionMetaData);
+                        intersection->lengthsInCell(), diameter / 2.0, location->skinFactor(), isMainBore, completionMetaData);
 
-                    wellBorePart.intersectionWithWellMeasuredDepth = location.endMD();
-                    wellBorePart.lateralIndex                      = completion.index();
-                    wellBorePart.setSourcePdmObject(location.sourcePdmObject());
+                    wellBorePart.intersectionWithWellMeasuredDepth = location->endMD();
+                    wellBorePart.lateralIndex                      = completion->index();
+                    wellBorePart.setSourcePdmObject(location->sourcePdmObject());
 
-                    wellBorePartsInCells[intersection.globalCellIndex()].push_back(wellBorePart);
+                    wellBorePartsInCells[intersection->globalCellIndex()].push_back(wellBorePart);
                 }
             }
         }

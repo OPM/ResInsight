@@ -44,6 +44,7 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafSelectionManager.h"
+#include "cafQShortenedLabel.h"
 
 #include <QApplication>
 #include <QDate>
@@ -106,7 +107,7 @@ QWidget* PdmUiDateEditor::createEditorWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiDateEditor::createLabelWidget(QWidget* parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 

@@ -205,3 +205,64 @@ TEST(AdvancedObjectTest, FieldWrite)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(AdvancedObjectTest, CopyOfObjects)
+{
+    ContainerPdmObject* root = new ContainerPdmObject;
+    ContainerPdmObject* container = new ContainerPdmObject;
+    ContainerPdmObject* sibling = new ContainerPdmObject;
+    root->m_containers.push_back(container);
+    root->m_containers.push_back(sibling);
+
+    {
+        ItemPdmObject* item = new ItemPdmObject();
+        item->m_name = "Obj A";
+
+        container->m_items.push_back(item);
+    }
+    {
+        ItemPdmObject* item = new ItemPdmObject();
+        item->m_name = "Obj B";
+
+        container->m_items.push_back(item);
+    }
+
+    {
+        ItemPdmObject* item = new ItemPdmObject();
+        item->m_name = "Obj C";
+
+        container->m_items.push_back(item);
+    
+        {
+            {
+                DemoPdmObjectA* a = new DemoPdmObjectA;
+                sibling->m_demoObjs.push_back(a);
+
+                a->m_pointerToItem = container->m_items[1];
+
+                {
+                    auto* objCopy = dynamic_cast<DemoPdmObjectA*>(a->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+                    std::vector<caf::PdmFieldHandle*> fieldWithFailingResolve;
+                    objCopy->resolveReferencesRecursively(&fieldWithFailingResolve);
+                    ASSERT_FALSE(fieldWithFailingResolve.empty());
+                    delete objCopy;
+                }
+
+
+                {
+                    auto* objCopy = dynamic_cast<DemoPdmObjectA*>(a->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+                    
+                    sibling->m_demoObjs.push_back(objCopy);
+
+                    std::vector<caf::PdmFieldHandle*> fieldWithFailingResolve;
+                    objCopy->resolveReferencesRecursively(&fieldWithFailingResolve);
+                    ASSERT_TRUE(fieldWithFailingResolve.empty());
+                    delete objCopy;
+                }
+            }
+        }
+    }
+}
+

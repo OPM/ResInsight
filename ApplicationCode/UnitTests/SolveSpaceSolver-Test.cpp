@@ -622,7 +622,7 @@ TEST(RiaArcCurveCalculator, Basic)
     {
         RiaArcCurveCalculator calc({ 0,0,0 }, 0, 0, { 0, 0,-1000 });
 
-        EXPECT_TRUE(calc.curveStatus() == RiaJCurveCalculator::OK_STRAIGHT_LINE);
+        EXPECT_TRUE(calc.curveStatus() == RiaArcCurveCalculator::OK_STRAIGHT_LINE);
 
         cvf::Vec3d te = calc.endTangent();
         EXPECT_NEAR(0, te.x(), 1e-5);

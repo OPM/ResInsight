@@ -90,11 +90,12 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
             if (ownerCase)
             {
                 ownerCase->setFormationNames(formationName);
+                ownerCase->updateConnectedEditors();
             }
         }
     }
 
-    proj->updateConnectedEditors();
+    fomNameColl->updateConnectedEditors();
 
     if (formationName)
     {

@@ -24,7 +24,7 @@
 
 #include "RimProject.h"
 
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include <QAction>
 
@@ -37,11 +37,8 @@ CAF_CMD_SOURCE_INIT(RicNewWellPathFractureAtPosFeature, "RicNewWellPathFractureA
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj->allFractureTemplates().empty()) return;
-
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
-    RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
+    RiuSelectionItem* selItem = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
 
     RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>(selItem);
     if (!wellPathItem) return;
@@ -58,7 +55,7 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
 void RicNewWellPathFractureAtPosFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
-    actionToSetup->setText("New Fracture");
+    actionToSetup->setText("Create Fracture at this Depth");
 }
  
 //--------------------------------------------------------------------------------------------------
@@ -66,8 +63,5 @@ void RicNewWellPathFractureAtPosFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellPathFractureAtPosFeature::isCommandEnabled()
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj->allFractureTemplates().empty()) return false;
-
     return true;
 }

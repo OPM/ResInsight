@@ -15,7 +15,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainment.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainmentTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureExportSettings.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplate.h
+${CMAKE_CURRENT_LIST_DIR}/RimCompletionTemplateCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplateCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimValveTemplateCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimValveTemplate.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFracture.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFractureCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanFractureTemplate.h
@@ -27,6 +30,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimNonDarcyPerforationParameters.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathComponentInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathValve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMultipleValveLocations.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathAicdParameters.h
+
 )
 
 
@@ -46,7 +51,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainment.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainmentTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureExportSettings.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplate.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimCompletionTemplateCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplateCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimValveTemplateCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimValveTemplate.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFracture.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFractureCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanFractureTemplate.cpp
@@ -57,6 +65,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMswCompletionParameters.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimNonDarcyPerforationParameters.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathValve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMultipleValveLocations.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathAicdParameters.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

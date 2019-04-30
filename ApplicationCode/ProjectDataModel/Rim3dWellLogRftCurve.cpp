@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -124,7 +124,7 @@ QString Rim3dWellLogRftCurve::createAutoName() const
     }
     if (!m_timeStep().isNull())
     {
-        name.push_back(m_timeStep().toString(RimTools::dateFormatString()));
+        name.push_back(m_timeStep().toString(RiaQDateTimeTools::dateFormatString()));
     }
 
     return name.join(", ");

@@ -41,6 +41,7 @@ public:
 public:
     RimMultipleValveLocations();
 
+    void                       perforationIntervalUpdated();
     double                     measuredDepth(size_t valveIndex) const;
     double                     rangeStart() const;
     double                     rangeEnd() const;
@@ -56,14 +57,14 @@ public:
                     int                                    valveCount,
                     const std::vector<double>&             locationOfValves);
 protected:
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     int rangeCountFromSpacing() const;
     double minimumSpacingMeters() const;
-    double rangeMin() const;
-    double rangeMax() const;
+    double perforationStartMD() const;
+    double perforationEndMD() const;
     static std::vector<double>  locationsFromStartSpacingAndCount(double start, double spacing, size_t count);
 
 private:

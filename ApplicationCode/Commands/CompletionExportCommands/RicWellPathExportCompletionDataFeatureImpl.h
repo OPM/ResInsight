@@ -21,7 +21,6 @@
 #include "RigCompletionData.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
-#include "RicMultiSegmentWellExportInfo.h"
 #include "RicWellPathFractureReportItem.h"
 
 #include <QFile>
@@ -33,6 +32,7 @@
 #include <vector>
 #include <memory>
 
+class RicMswCompletion;
 class RigCell;
 class RigEclipseCaseData;
 class RigMainGrid;
@@ -41,6 +41,7 @@ class RimFishbonesMultipleSubs;
 class RimSimWellInView;
 class RimPerforationInterval;
 class RimWellPath;
+class RimWellPathValve;
 class RimWellPathFracture;
 class RimNonDarcyPerforationParameters;
 class RifEclipseDataTableFormatter;
@@ -112,25 +113,6 @@ class RicWellPathExportCompletionDataFeatureImpl
 {
 
 public:
-    static RicMswExportInfo               generateFishbonesMswExportInfo(const RimEclipseCase* caseToApply,
-                                                                         const RimWellPath*    wellPath,
-                                                                         bool                  enableSegmentSplitting);
-
-    static RicMswExportInfo               generateFishbonesMswExportInfo(const RimEclipseCase*                         caseToApply,
-                                                                         const RimWellPath*                            wellPath,
-                                                                         const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs,
-                                                                         bool                                          enableSegmentSplitting);
-
-    static RicMswExportInfo               generateFracturesMswExportInfo(RimEclipseCase*    caseToApply,
-                                                                         const RimWellPath* wellPath);
-
-    static RicMswExportInfo               generateFracturesMswExportInfo(RimEclipseCase*                          caseToApply,
-                                                                         const RimWellPath*                       wellPath,
-                                                                         const std::vector<RimWellPathFracture*>& fractures);
-
-    static RicMswExportInfo               generatePerforationsMswExportInfo(const RicExportCompletionDataSettingsUi& exportSettings,
-                                                                            const RimWellPath*                       wellPath,
-                                                                            const std::vector<const RimPerforationInterval*>& perforationIntervals);
 
     static CellDirection                  calculateCellMainDirection(RimEclipseCase* eclipseCase,
                                                                      size_t globalCellIndex, 
@@ -164,28 +146,12 @@ public:
                                                                                RimEclipseCase* eclipseCase,
                                                                                size_t timeStepIndex);
 
-    static void                           generateWelsegsTable(RifEclipseDataTableFormatter& formatter,
-                                                               const RicMswExportInfo& exportInfo);
-
-    static void                           generateWelsegsSegments(RifEclipseDataTableFormatter &formatter,
-                                                                  const RicMswExportInfo &exportInfo,
-                                                                  const std::set<RigCompletionData::CompletionType>& exportCompletionTypes);
-    static void                           generateWelsegsCompletionCommentHeader(RifEclipseDataTableFormatter &formatter,
-                                                                                 RigCompletionData::CompletionType completionType);
-    static void                           generateCompsegTables(RifEclipseDataTableFormatter& formatter,
-                                                                const RicMswExportInfo& exportInfo);
-    static void                           generateCompsegTable(RifEclipseDataTableFormatter& formatter,
-                                                               const RicMswExportInfo& exportInfo,
-                                                               bool exportSubGridIntersections,
-                                                               const std::set<RigCompletionData::CompletionType>& exportCompletionTypes);
-    static void                           generateCompsegHeader(RifEclipseDataTableFormatter&     formatter,
-                                                                const RicMswExportInfo&           exportInfo,
-                                                                RigCompletionData::CompletionType completionType,
-                                                                bool                              exportSubGridIntersections);
-    static void                           generateWsegvalvTable(RifEclipseDataTableFormatter& formatter,
-                                                                const RicMswExportInfo& exportInfo);
+    static std::vector<RigCompletionData> generatePerforationsCompdatValues(const RimWellPath* wellPath,
+                                                                            const std::vector<const RimPerforationInterval*>& intervals,
+                                                                            const RicExportCompletionDataSettingsUi& settings);
 
 private:
+
     static double                         calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,
                                                                                  double skinFactor,
                                                                                  double wellRadius,
@@ -194,11 +160,6 @@ private:
     
     static RigCompletionData              combineEclipseCellCompletions(const std::vector<RigCompletionData>& completions, 
                                                                         const RicExportCompletionDataSettingsUi& settings);
-
-    static QFilePtr                       openFileForExport(const QString& fullFileName);
-
-    static QFilePtr                       openFileForExport(const QString& folderName,
-                                                            const QString& fileName);
 
     static std::vector<RigCompletionData> mainGridCompletions(std::vector<RigCompletionData>& allCompletions);
 
@@ -236,36 +197,6 @@ private:
                                                                            const QString& gridName,
                                                                            const std::vector<RigCompletionData>& completionData);
 
-    static std::vector<RigCompletionData> generatePerforationsCompdatValues(const RimWellPath* wellPath,
-                                                                            const std::vector<const RimPerforationInterval*>& intervals,
-                                                                            const RicExportCompletionDataSettingsUi& settings);
-
-    static void                           assignFishbonesLateralIntersections(const RimEclipseCase*           caseToApply,
-                                                                              const RimFishbonesMultipleSubs* fishbonesSubs,
-                                                                              RicMswSegment*                  location,
-                                                                              bool*                           foundSubGridIntersections,
-                                                                              double                          maxSegmentLength);
-
-    static void                           assignFractureIntersections(const RimEclipseCase*                 caseToApply,
-                                                                      const RimWellPathFracture*            fracture,
-                                                                      const std::vector<RigCompletionData>& completionData,
-                                                                      RicMswSegment*                        location,
-                                                                      bool*                                 foundSubGridIntersections);
-
-    static void                           assignPerforationIntervalIntersections(const RimEclipseCase*                 caseToApply,
-                                                                                 const RimPerforationInterval*         interval,
-                                                                                 const std::vector<RigCompletionData>& completionData,
-                                                                                 RicMswSegment*                        location,
-                                                                                 const SubSegmentIntersectionInfo*     cellIntInfo,
-                                                                                 bool* foundSubGridIntersections);
-
-    static void                           assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply,
-                                                                        RicMswSegment*        location,
-                                                                        int*                  branchNum,
-                                                                        int*                  segmentNum);
-    static void                           assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply,
-                                                                        RicMswExportInfo* exportInfo);
-
     static void                           appendCompletionData(std::map<size_t, std::vector<RigCompletionData>>* completionData,
                                                                const std::vector<RigCompletionData>& data);
 
@@ -273,22 +204,7 @@ private:
                                                                          const RimWellPath*    wellPath,
                                                                          const QString&        gridName = "");
 
-    static void                           exportWellSegments(RimEclipseCase* eclipseCase,
-                                                             QFilePtr exportFile,
-                                                             const RimWellPath* wellPath,
-                                                             const std::vector<RimWellPathFracture*>& fractures);
-
-    static void                           exportWellSegments(RimEclipseCase* eclipseCase,
-                                                             QFilePtr exportFile,
-                                                             const RimWellPath* wellPath,
-                                                             const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
-
-    static void                           exportWellSegments(const RicExportCompletionDataSettingsUi& exportSettings,
-                                                             QFilePtr exportFile,
-                                                             const RimWellPath* wellPath,
-                                                             const std::vector<const RimPerforationInterval*>& perforationIntervals);
-
     static void                           exportCarfinForTemporaryLgrs(const RimEclipseCase* sourceCase, const QString& folder);
 
-    static bool                           isCompletionWellPathEqual(const RigCompletionData& completion, const RimWellPath* wellPath);
+    static bool                           isCompletionWellPathEqual(const RigCompletionData& completion, const RimWellPath* wellPath);    
 };

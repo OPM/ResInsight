@@ -1,0 +1,25 @@
+From b5fb3a0199fefb80f2ec1267f78d982a98fa4aa3 Mon Sep 17 00:00:00 2001
+From: Gaute Lindkvist <lindkvis@gmail.com>
+Date: Mon, 1 Apr 2019 11:39:05 +0200
+Subject: [PATCH] #4259 Make libecl always export MAPAXES if available
+
+---
+ ThirdParty/Ert/lib/ecl/ecl_grid.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ThirdParty/Ert/lib/ecl/ecl_grid.cpp b/ThirdParty/Ert/lib/ecl/ecl_grid.cpp
+index ed0830b8f..9883cba1b 100644
+--- a/ThirdParty/Ert/lib/ecl/ecl_grid.cpp
++++ b/ThirdParty/Ert/lib/ecl/ecl_grid.cpp
+@@ -6947,7 +6947,7 @@ void ecl_grid_fprintf_grdecl2(ecl_grid_type * grid , FILE * stream , ert_ecl_uni
+     fprintf(stream , "\n");
+   }
+ 
+-  if (grid->use_mapaxes) {
++  if (grid->mapaxes != NULL) {
+     ecl_kw_type * mapaxes_kw = ecl_grid_alloc_mapaxes_kw( grid );
+     ecl_kw_fprintf_grdecl( mapaxes_kw , stream );
+     ecl_kw_free( mapaxes_kw );
+-- 
+2.16.2.windows.1
+
