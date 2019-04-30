@@ -22,12 +22,22 @@ GCC version 4.9 or later is supported. On RedHat Linux 6 you need to install dev
     
     source /opt/rh/devtoolset-3/enable
 
-### Qt
+### Qt4
 
-[Qt](http://download.qt.io/archive/qt/) Qt4 version 4.6.2 or later is supported. Qt5 is not supported yet, but we are currently working on moving ResInsight to Qt5. On Windows we recommend Qt-4.8.7, while the default installation will do under Linux. 
+[Qt](http://download.qt.io/archive/qt/) Qt4 version 4.6.2 or later is supported. On Windows we recommend Qt-4.8.7, while the default installation will do under Linux. 
 
 You will need to patch the Qt sources in order to make them build using Visual Studio 2015 using this : 
 [Qt-patch](https://github.com/appleseedhq/appleseed/wiki/Making-Qt-4.8.7-compile-with-Visual-Studio-2015) 
+
+### Qt5 (BETA)
+Qt5 is now supported as beta functionality. To use Qt5, specify the cmake variable 
+
+`RESINSIGHT_BUILD_WITH_QT5=TRUE`
+
+and then specify location of Qt5
+
+`Qt5_DIR=d:\Qt\5.11.3\msvc2017_64\lib\cmake\Qt5`
+
 
 ### CMake
 [CMake](https://cmake.org/download/) version 2.8 or later is supported.
@@ -51,7 +61,6 @@ This makes it easier to see all of the options for ResInsight.
 ResInsight has been verified to build and run on Windows 7/8/10 using Microsoft Visual Studio 2015/2017. 
 Typical usage on Windows is to follow the build instructions above, and then open the generated 
 solution file in Visual Studio to build the application.
-
 
 ### Linux
 
@@ -80,8 +89,6 @@ You will find the ResInsight binary under the Install directory in your build di
 | `RESINSIGHT_BUILD_DOCUMENTATION`                  | OFF     | Use Doxygen to create the HTML based API documentation. Doxygen must be properly installed. |
 | `RESINSIGHT_HDF5_DIR`                             | Blank   | Windows Only: Optional path to HDF5 libraries on Windows |
 | `RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS`       | OFF     | Include Application Code Unit Tests |
-| `RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE`  			| Blank   | Optional path to the Octave tool mkoctfile used to compile Octave plugins. Needed for octave support |
-| `RESINSIGHT_OCTAVE_PLUGIN_QMAKE`                  | Blank   | Windows Only: Set this equal to RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE |
 | `RESINSIGHT_ODB_API_DIR`                          | Blank   | Optional path to the ABAQUS ODB API from Simulia. Needed for support of geomechanical models |
 | `RESINSIGHT_USE_OPENMP`                           | ON      | Enable OpenMP parallellization in the code |
 
@@ -89,25 +96,26 @@ You will find the ResInsight binary under the Install directory in your build di
 
 | CMake Name                                        | Default | Description                              |
 |---------------------------------------------------|---------|--------------------------------------------------------|
-| `RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES`   | ON     | Enable Fracture features |
 | `RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING`     | ON     | Enable Souring features |
 | `RESINSIGHT_PRIVATE_INSTALL`                      | ON      | Linux only: Install the libecl shared libraries along the executable |
 | `RESINSIGHT_ENABLE_COTIRE`                        | OFF     | Experimental speedup of compilation using cotire |
-| `RESINSIGHT_OCTAVE_PLUGIN_32_BIT`                 | OFF     | Windows Only: Set 32-bit MSVC compiler environment while running mkoctfile |
+| `RESINSIGHT_HDF5_BUNDLE_LIBRARIES`                | OFF     | Bundle HDF5 libraries with ResInsight  |
 
 ### Optional Libraries and features
 
 #### HDF5
 
-HDF5 is used to read SourSimRL result files. On windows this is optional, while on linux the installed HDF5 library will be used if present.
+HDF5 is used to read SourSimRL result files. On Windows this is optional, while on Linux the installed HDF5 library will be used if present.
+
+Use an advanced flag RESINSIGHT_HDF5_BUNDLE_LIBRARIES to enable bundling of HDF5 libraries.
 
 Tested with 1.8.18 on windows, and default installation on RedHat 6.
 
 #### Octave
 
-To be able to compile the Octave plugins, the path to the Octave development tool _`mkoctfile`_ must be provided in the RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE. On linux this is populated automatically if Octave is installed.
+Octave is now detected searching the file system, and will usually find Octave on Linux. If Octave is not detected, the following file path variable must be defined
 
-The path to a compatible qt library must also be provided, controlled by RESINSIGHT_OCTAVE_PLUGIN_QMAKE. On linux this can be left blank. 
+`OCTAVE_CONFIG_EXECUTABLE : d:\octave\Octave-4.0.0\bin\octave-config.exe`
 
 It is possible to build ResInsight without compiling the Octave plugins. This can be done by specifying blank for 
 the Octave CMake options. The Octave plugin module will not be built, and CMake will show warnings like 'Failed to find mkoctfile'. 

@@ -51,7 +51,7 @@ A selected subset of actions are presented as controls in the toolbar. The diffe
 
 In the main area of the application, several 3D views or plot windows can be open at the same time. One of them will be active and the active view can be either maximized to use the whole main area, or restored so that you can see the open windows.
 
-Standard window management for applying minimized, normal and maximized state is available in the upper right corner.
+Standard window management for applying normal and maximized state is available in the upper right corner.
 
 ![Restore Down]({{ site.baseurl }}/images/RestoreDown.PNG)
 
@@ -61,6 +61,8 @@ Commands to arrange the windows in the standard ways are available from the **Wi
   - The order of the tiled windows are determined by the window positions and the type of view at the time of running the tile command. The leftmost window are tiled first, then the next leftmost and so on. Master views are tiled before slave views.
 - **Cascade Windows** -- organize all open view windows slightly offset on top of each other
 - **Close All Windows** -- close all open view windows
+
+When **Tile Windows** is activated, the windows will remain tiled until a view window is manually resized or another window arranging is selected.
 
 #### Editing 3D Views and Plot Windows Content
 

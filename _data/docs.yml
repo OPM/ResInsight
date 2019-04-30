@@ -2,6 +2,7 @@
   docs:
   - home
   releasenotes:
+  - releasenotes_2019_04
   - releasenotes_2018_11
    
 - title: Getting Started
@@ -33,8 +34,11 @@
   - contourmaps
   - formations
   - casegroupsandstatistics 
+  - annotations
+  - measurement
   - preferences
   - memorymanagement
+  - keyboard
   
 - title: Plot Window
   docs:
@@ -49,6 +53,8 @@
   - rftplot
   - pltplot
   - flowdiagnosticsplots
+  - gridcrossplots
+  - saturationpressureplots
      
 - title: Import 
   docs:
@@ -64,6 +70,7 @@
   - exportfluxnummultnum
   - completionexport
   - exportwellpaths
+  - exportsectormodel
   
 - title: Scripting
   docs:

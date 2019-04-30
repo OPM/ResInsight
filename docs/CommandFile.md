@@ -43,6 +43,7 @@ Once the command file is finished executing, ResInsight will exit.
 * [setFractureContainment](#setfracturecontainment)
 * [createMultipleFractures](#createmultiplefractures)
 * [createLgrForCompletions](#createlgrforcompletions)
+* [createSaturationPressurePlots](#createSaturationPressurePlots)
 
 ## Syntax
 
@@ -445,3 +446,17 @@ Create temporary LGRs for completions on the selected well paths. The splitType 
 
 `createLgrForCompletions(caseId=0, timeStep=0, wellPathNames=["B-1H", "B-2H"], `
 `refinementI=2, refinementJ=3, refinementK=4, splitType=LGR_PER_WELL)`
+
+
+### createSaturationPressurePlots
+
+Create saturation pressure plots for the specified cases.
+
+| Parameter               | Description                                                                  | Type           | Required |
+|-------------------------|------------------------------------------------------------------------------|----------------|----------|
+| caseIds   | IDs of cases to create plots for. Default is all cases  | List of Integer |          |
+
+
+#### Example
+
+`createSaturationPressurePlots(caseIds=[0])`

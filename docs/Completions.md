@@ -35,7 +35,7 @@ A combined view of well connection factors and the derived result **Completion T
 
 ## Perforation Intervals
 
-A new perforation interval on a well can be set up by right-clicking on the well in the **3D View** or in the **Project Tree**, and choosing the command **New Perforation interval**. 
+A new perforation interval on a well can be set up by right-clicking on the well in the **3D View** or in the **Project Tree**, and choosing the command **Create Perforation interval** in the **Create Completions** sub-menu. In the 3D View the completion will be created at the specific depth the right-click occured at.
 
 ![]({{ site.baseurl }}/images/CreateCompletionOnWellPath.png)
 
@@ -82,6 +82,45 @@ There are three options for Non-Darcy Flow. **None**, **User defined D-factor** 
   - **Permeability Scaling Factor**
   - **Porosity Scaling Factor**
   
+### Perforation Interval Valves
+
+Perforation Intervals can have valves (ICDs/AICDs/ICVs) associated with them.
+
+![]({{ site.baseurl }}/images/ValveVisualisation.png)  
+
+These valves can be created by right-clicking on the Perforation Interval and selecting **Create Valve**.
+
+![]({{ site.baseurl }}/images/NewValve.png)  
+
+Each Valve require a **Valve Template** containing properties which can be shared among multiple Valves. If you have no Valve Template, a new one can be created by clicking the **New** button next to the Valve Template selection list.
+
+![]({{ site.baseurl }}/images/NewValveWithoutTemplate.png)  
+
+This will create a new **Valve Template** which can be of three different types:
+- **ICD** - In-flow Control Device, allowing the setting of **Orifice Diameter** and **Flow Coefficient**. ICDs are displayed in Orange.
+- **AICD** - Autonomous In-flow Control Device, providing several more parameters associated with the Eclipse simulation and seen in the picture below. AICDs are displayed in Dark Purple.
+- **ICV** - Interval Control Valves. Contains the same parameters as ICDs. The difference between the two in ResInsight is that many ICDs can be added at the same time, while there is only expected to be one ICV per perforation interval. ICVs are displayed in Pink.
+  
+An example of the ICD parameters can be seen below:
+![]({{ site.baseurl }}/images/ValveTemplate.png)  
+
+An example of the AICD parameters:
+![]({{ site.baseurl }}/images/ValveTemplate_AICD.png)  
+
+New templates can also be added by selecting the **New Valve Template** option from the context menu of the **Valve Templates** entry in the **Completion Templates** Project Tree item.
+
+![]({{ site.baseurl }}/images/NewValveTemplate.png)  
+
+For ICDs and AICDs, multiple valves can be added in the same go by specifying the number of valves, spacing of valves or specific positions of valves as chosen in the **Location Defined By** drop down list.
+
+![]({{ site.baseurl }}/images/ValveProperties_ICD.png)
+
+For ICVs only one valve is added at a time so only the measured depth of that valve can be chosen.
+
+![]({{ site.baseurl }}/images/ValveProperties_ICV.png)
+
+When you have a valid valve template selected, there is an **Edit** button next to the valve template selection. Clicking this will take you straight to modify the valve template.
+
 ### Import Perforation Intervals
 
 Perforation intervals can be imported into ResInsight from _`*.ev`_ files. These files consist of a list of wells, and their corresponding measured depth values for perforation start and end. 
@@ -122,10 +161,10 @@ Here is an example:
 
 ## Fishbones
 
-Fishbones are completions created by drilling or etching a set of small holes nearly perpendicular to the main bore.
-Each set of holes is created in the same operation and is callea a _sub_ while each individual hole is called a _lateral_.
+Fishbones are completions created by drilling or by jetting a set of small lateral holes with a high deviation from the main bore.
+Each set of holes created at the same location along the main bore, is referred to as a _sub_ while each individual hole is called a _lateral_.
 
-For each well path there is a top level folder in the **Project Tree** containing all the fish bone definitions containing settings that applies to all the fishbones for this well path. 
+For each well path there is a top level folder in the **Project Tree** containing all the Fishbones definitions containing settings that applies to all the fishbones for this well path. To make use of the Multi Segment Well option for pressure loss along laterals, the grid resolution needs to be fine enough to allow a grid cell to be connected to only one lateral. 
 
 ![]({{ site.baseurl }}/images/Fishbones_PropEdit.png)
 
@@ -148,7 +187,7 @@ To add new fishbones completions, select the **New Fishbones Subs Definition** c
 
 ![]({{ site.baseurl }}/images/CreateCompletionOnWellPath.png)
 
-The new **Fishbones Subs Definition** (a group of fishbone subs) is created in the Project tree. Several subs definitions can be created on the same well trajectory to give more flexibility in placing of the fishbones. 
+The new **Fishbones Subs Definition** (a group of fishbone subs) is created in the Project tree. Several subs definitions can be created on the same well trajectory to give more flexibility in placing of the fishbones. The default sub definition is based on the Fishbones Drilling System with 3 laterals exiting per sub in a 8 1/2" main bore. 
 
 ![]({{ site.baseurl }}/images/Fishbones_SubDefPropEdit.png)
 - **Appearance**
@@ -215,13 +254,15 @@ The **Fractures** item in the **Project Tree** controls whether to show the mode
   
 ### Fracture Templates
 
-To create a fracture you first need a **Fracture Template**. The template collects settings that are likely to be shared among several fractures, most importantly the fracture geometry. A fracture at a particular place refers to the template, and it is thereby possible to share fracture geometry and other settings between fracture instances. 
+To create a functioning fracture you first need a **Fracture Template**. The template collects settings that are likely to be shared among several fractures, most importantly the fracture geometry. A fracture at a particular place refers to the template, and it is thereby possible to share fracture geometry and other settings between fracture instances. 
 
-Fracture Templates are listed in a folder with the same name in the **Project Tree**
+Fracture Templates are listed in a folder with the same name in the **Project Tree**.
 
 ![]({{ site.baseurl }}/images/FractureTemplates.png)
 
-To create a new fracture template, right-click the **Fracture Template** item in the tree, and select either **New Ellipse Fracture Template** or **New StimPlan Fracture Template**. 
+To create a new fracture template, right-click the **Fracture Template** item in the tree, and select either **New Ellipse Fracture Template** or **New StimPlan Fracture Template**. If you have no existing fracture templates, you will be given the opportunity to create such templates through two buttons in the Fracture Property Editor as seen below.
+
+![]({{ site.baseurl }}/images/CreateFractureTemplate.png)
 
 #### Common Fracture Template Options
 
@@ -314,13 +355,14 @@ Instances of fractures can be created along well paths and simulation wells by r
 ![]({{ site.baseurl }}/images/FractureInstancePropertyPanel.png)
 
 - **Name** -- User editable name
+- **Fracture Template** -- Select the fracture template to use for this fracture. Click the **Edit** shortcut next to the template selection list to go directly to modify the selected template.
 - **Location/Orientation**
   - **Measured depth Location** -- The measured depth
   - **Azimuth** -- Azimuth orientation of fracture. 
   - **Dip** -- Dip of fracture plane
   - **Tilt** -- Rotation of fracture about its plane normal
 - **Properties**
-  - **Fracture Template** -- Select the fracture template to use for this fracture.
+  - **Fracture Unit System** -- Read only display of the units used for the current template
   - **StimPlan Time Step** -- Displays the time step used by the template 
   - **Perforation Length** / **Perforation Efficiency** / **Well Diameter** -- These values are copied from the new template when selecting a different one. See [Common Fracture Template Options]({{ site.baseurl }}/docs/completions#common-fracture-template-options)  
 - **Fracture Center Info** -- This group displays info on where the center of the fracture is positioned. The center is defined to be where the well path intersects the fracture.

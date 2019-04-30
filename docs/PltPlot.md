@@ -91,18 +91,21 @@ Please see the [full documentation]({{site.baseurl}}/docs/formations) on the for
 ![]({{site.baseurl}}/images/PltLegendAndAxis.png)
 
 This property editor lets the user control visual properties for the legend and axis.
-- **Depth Type** -- Select depth type, _Measured Depth_ or _Pseudo Length_
-- **Depth Unit** -- Select depth unit, _Meter_ or _Feet_
-- **Show Legends** -- Toggle on/off legends in plot
-- Visible X Axis Range
-  - **Auto Scale** -- Automatically set X axis range based on data values
-  - **Logarithmic Scale** -- Toggle between linear and logarithmic X axis
+- Title and Legends
+  - **Show Title** -- Toggle on/off title in plot
+  - **Show Legends** -- Toggle on/off legend in plot
+  - **Legend Orientation** -- Vertical or horizontal
+- X Axis Settings
+  - **Logarithmic Scale** -- Toggle between linear and logarithmic
   - **Min** -- Set X axis minimum value
   - **Max** -- Set X axis maximum value
-- Visible Depth Range
-  - **Auto Scale** -- Automatically set depth axis range based on data values
+  - **Show Grid Lines** -- Enable grid lines in background in plot
+- Depth Axis
+  - **Type** -- Toggle between True Vertical Depth (MSL) or Measured Depth (MD)
+  - **Unit** -- 
   - **Min** -- Set depth axis minimum value
   - **Max** -- Set depth axis maximum value
+  - **Show Grid Lines** -- Enable grid lines in background in plot
   
 ### Plot
 The PLT plot displays groups of curves. A group consists of the components oil, gas and water. The curves within a group are stacked, the biggest component first.

@@ -77,10 +77,15 @@ Open Simulation Wells will be drawn with a slightly larger radius than closed we
 
 ![]({{ site.baseurl }}/images/SimulationWellsColorsProperties.png)
 
+![]({{ site.baseurl }}/images/SimulationWellsColorsProperties_Uniform.png)
+
 - **Color Pipe Connections** -- Applies a red, green, blue or gray color to the section of the pipe touching a connection cell indicating the production status of the connection. Gas injection, oil production, water injection or closed respectively.  
 - **Label Color** -- Sets the well label color in the 3D view.
-- **Unique Pipe Colors** -- Pushing this apply button will apply unique colors to all the wells, overwriting the colors they had.
-- **Uniform Pipe Colors** -- Pushing the apply button will apply the displayed color to all the wells.
+- **Individual Pipe Colors** - Select how each pipe will be colored.
+
+The **Individual Pipe Color** setting has two different options:
+- **Unique Colors** -- Selecting this will apply unique colors from a pre-defined color palette to all the wells, overwriting the colors they had.
+- **Uniform Default Color** -- Selecting this will apply the same color (made available in the **Uniform Well Color** option to all simulation wells.
 
 ### Well Pipe Geometry
 
