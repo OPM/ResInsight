@@ -25,7 +25,9 @@
 #include "RiaColorTables.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
+#ifdef ENABLE_GRPC
 #include "RiaGrpcServer.h"
+#endif
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -182,8 +184,6 @@ RiaGuiApplication::RiaGuiApplication(int& argc, char** argv)
     setWindowIcon(QIcon(":/AppLogo48x48.png"));
 
     m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);  
-    m_grpcServer.reset(new RiaGrpcServer);
-    m_grpcServer->runInThread();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -571,6 +571,14 @@ void RiaGuiApplication::initialize()
     RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(m_mainWindow->messagePanel()));
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
     m_socketServer = new RiaSocketServer(this);
+
+#ifdef ENABLE_GRPC
+    m_grpcServer.reset(new RiaGrpcServer);
+    m_grpcServer->runInThread();
+    m_idleTimer = new QTimer(this);
+    connect(m_idleTimer, SIGNAL(timeout()), this, SLOT(runIdleProcessing()));
+    m_idleTimer->start(0);
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1644,6 +1652,14 @@ void RiaGuiApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitSt
         m_socketServer->setCurrentCaseId(-1);
         m_runningWorkerProcess = false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::runIdleProcessing()
+{
+    m_grpcServer->processOneRequest();
 }
 
 //--------------------------------------------------------------------------------------------------

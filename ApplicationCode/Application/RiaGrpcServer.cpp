@@ -134,7 +134,7 @@ RiaGrpcServer::~RiaGrpcServer()
 {
     m_thread.join();
     m_server->Shutdown();
-    m_commandQueue->Shutdown();
+    m_completionQueue->Shutdown();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ void RiaGrpcServer::run()
     initialize();
     while (true)
     {
-        blockForNextRequest();
+        waitForNextRequest();
     }
 }
 
@@ -155,7 +155,7 @@ void RiaGrpcServer::run()
 void RiaGrpcServer::runInThread()
 {
     initialize();
-    m_thread = std::thread(&RiaGrpcServer::blockForNextRequestAsync, this);
+    m_thread = std::thread(&RiaGrpcServer::waitForNextRequest, this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,38 +172,28 @@ void RiaGrpcServer::initialize()
     // clients. In this case it corresponds to an *synchronous* service.
     builder.RegisterService(&m_service);
 
-    m_commandQueue = builder.AddCompletionQueue();
+    m_completionQueue = builder.AddCompletionQueue();
 
     // Finally assemble the server.
     m_server = builder.BuildAndStart();
 
     RiaLogging::info(QString("Server listening on %1").arg(QString::fromStdString(server_address)));
     // Spawn new CallData instances to serve new clients.
-    m_callMethods.push_back(new RiaGrpcServerCallData<Case, Vec3i>("dimensions"));
-    m_callMethods.push_back(new RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>("results"));
-    m_callMethods.push_back(new RiaGrpcServerCallData<Case, Int32Message>("numberOfTimeSteps"));
-
-    for (auto callMethod : m_callMethods)
-    {
-        process(callMethod);
-    }
+    process(new RiaGrpcServerCallData<Case, Vec3i>("dimensions"));
+    process(new RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>("results"));
+    process(new RiaGrpcServerCallData<Case, Int32Message>("numberOfTimeSteps"));
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::blockForNextRequest()
+void RiaGrpcServer::processOneRequest()
 {
-    void* tag;
-    bool  ok = false;
-
-    while (m_commandQueue->Next(&tag, &ok))
+    std::lock_guard<std::mutex> requestLock(m_requestMutex);
+    if (!m_receivedRequests.empty())
     {
-        if (!ok)
-        {
-            return;
-        }
-        RiaGrpcServerCallMethod* method = static_cast<RiaGrpcServerCallMethod*>(tag);
+        RiaGrpcServerCallMethod* method = m_receivedRequests.front();
+        m_receivedRequests.pop_front();
         process(method);
     }
 }
@@ -211,19 +201,20 @@ void RiaGrpcServer::blockForNextRequest()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::blockForNextRequestAsync()
+void RiaGrpcServer::waitForNextRequest()
 {
     void* tag;
     bool  ok = false;
 
-    while (m_commandQueue->Next(&tag, &ok))
+    while (m_completionQueue->Next(&tag, &ok))
     {
         if (!ok)
         {
             return;
         }
+        std::lock_guard<std::mutex> requestLock(m_requestMutex);
         RiaGrpcServerCallMethod* method = static_cast<RiaGrpcServerCallMethod*>(tag);
-        process(method);
+        m_receivedRequests.push_back(method);
     }
 }
 
@@ -244,8 +235,8 @@ void RiaGrpcServer::process(RiaGrpcServerCallMethod* method)
             m_service.Requestdimensions(&(dimCd->context()),
                                         &(dimCd->request()),
                                         &(dimCd->responder()),
-                                        m_commandQueue.get(),
-                                        m_commandQueue.get(),
+                                        m_completionQueue.get(),
+                                        m_completionQueue.get(),
                                         dimCd);                                       
         }
         else if (resultsCd)
@@ -253,8 +244,8 @@ void RiaGrpcServer::process(RiaGrpcServerCallMethod* method)
             m_service.Requestresults(&(resultsCd->context()),
                                      &(resultsCd->request()),
                                      &(resultsCd->responder()),
-                                     m_commandQueue.get(),
-                                     m_commandQueue.get(),
+                                     m_completionQueue.get(),
+                                     m_completionQueue.get(),
                                      resultsCd);
         }
         else if (tsCd)
@@ -262,8 +253,8 @@ void RiaGrpcServer::process(RiaGrpcServerCallMethod* method)
             m_service.RequestnumberOfTimeSteps(&(tsCd->context()),
                                                &(tsCd->request()),
                                                &(tsCd->responder()),
-                                               m_commandQueue.get(),
-                                               m_commandQueue.get(),
+                                               m_completionQueue.get(),
+                                               m_completionQueue.get(),
                                                tsCd);
         }
     }

@@ -166,10 +166,14 @@ private:
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void                runIdleProcessing();
 private:
     RiuMainWindow*                      m_mainWindow;
     RiuPlotMainWindow*                  m_mainPlotWindow;
+#ifdef ENABLE_GRPC
     std::unique_ptr<RiaGrpcServer>      m_grpcServer;
+    QPointer<QTimer>                    m_idleTimer;
+#endif
 
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
 
