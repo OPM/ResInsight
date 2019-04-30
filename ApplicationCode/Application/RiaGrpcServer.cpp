@@ -24,6 +24,8 @@
 #include "RimEclipseCase.h"
 #include "RimProject.h"
 
+#include <QTcpServer>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -163,21 +165,26 @@ void RiaGrpcServer::runInThread()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::initialize()
 {
-    std::string        server_address("localhost:50051");
+    int port = 50051;
+    {
+        QTcpServer serverTest;
+        while (!serverTest.listen(QHostAddress::LocalHost, port))
+        {
+            port++;
+        }
+    }
+
+    QString serverAddress = QString("localhost:%1").arg(port);
 
     ServerBuilder builder;
-    // Listen on the given address without any authentication mechanism.
-    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-    // Register "service" as the instance through which we'll communicate with
-    // clients. In this case it corresponds to an *synchronous* service.
+    builder.AddListeningPort(serverAddress.toStdString(), grpc::InsecureServerCredentials());
     builder.RegisterService(&m_service);
-
     m_completionQueue = builder.AddCompletionQueue();
-
-    // Finally assemble the server.
     m_server = builder.BuildAndStart();
 
-    RiaLogging::info(QString("Server listening on %1").arg(QString::fromStdString(server_address)));
+
+    CVF_ASSERT(m_server);
+    RiaLogging::info(QString("Server listening on %1").arg(serverAddress));
     // Spawn new CallData instances to serve new clients.
     process(new RiaGrpcServerCallData<Case, Vec3i>("dimensions"));
     process(new RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>("results"));

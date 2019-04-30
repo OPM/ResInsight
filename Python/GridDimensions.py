@@ -1,12 +1,16 @@
 from ResInsight import ResInsight
 import grpc
+import sys
 		
 def run():
     # NOTE(gRPC Python Team): .close() is possible on a channel and should be
     # used in circumstances in which the with statement does not fit the needs
     # of the code.
 	try:
-		resInsight  = ResInsight('localhost:50051')
+		port = 50051
+		if len(sys.argv) > 1:
+			port = sys.argv[1]
+		resInsight  = ResInsight("localhost:" + port)
 		response = resInsight.grid.dimensions(ResInsight.Case(id=0))			
 		print("Grid Dimensions received: " + str(response.i) + ", " + str(response.j) + ", " + str(response.k))
 	except grpc.RpcError as e:

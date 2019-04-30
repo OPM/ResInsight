@@ -1,6 +1,7 @@
 from ResInsight import ResInsight
-import grpc, sys
+import grpc
 import logging
+import sys
 		
 def run():
     # NOTE(gRPC Python Team): .close() is possible on a channel and should be
@@ -9,7 +10,10 @@ def run():
 	logging.basicConfig()
 	
 	try:
-		resInsight  = ResInsight('localhost:50051')
+		port = 50051
+		if len(sys.argv) > 1:
+			port = sys.argv[1]
+		resInsight  = ResInsight("localhost:" + port)
 		timeStepsInfo = resInsight.grid.numberOfTimeSteps(ResInsight.Case(id=0))
 		print ("Number of time steps: " + str(timeStepsInfo.value))
 		resultsAllTimeSteps = []
