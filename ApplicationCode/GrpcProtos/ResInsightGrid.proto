@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package ResInsight;
+
+service Grid {
+  // Sends a greeting
+  rpc dimensions (Case) returns (Vec3i) {}
+  rpc numberOfTimeSteps(Case) returns (Int32Message) {}
+  rpc results(EclipseResultRequest) returns (DoubleResult) {}
+}
+
+message Case {
+  int32 id = 1;
+}
+
+message Vec3i {
+  int32 i = 1;
+  int32 j = 2;
+  int32 k = 3;
+}
+
+enum ResultCatType
+{
+	DYNAMIC_NATIVE     = 0;
+	STATIC_NATIVE      = 1;
+	SOURSIMRL          = 2;
+	GENERATED          = 3;
+	INPUT_PROPERTY     = 4;
+	FORMATION_NAMES    = 5;
+	FLOW_DIAGNOSTICS   = 6;
+	INJECTION_FLOODING = 7;
+	REMOVED            = 8;
+	UNDEFINED          = 999;
+}
+
+message Int32Message
+{
+	int32 value = 1;
+}
+
+message EclipseResultAddress
+{
+	ResultCatType  result_cat_type  = 1;
+	string         result_name      = 2;
+	// Wrapping a value in a message is a way of creating optional values
+	// You can then check for their existence with a has_time_lapse_frame() method
+	Int32Message   time_lapse_frame = 3;
+	Int32Message   difference_case  = 4;
+}
+
+message EclipseResultRequest
+{
+	Case                 result_case    = 1;
+	EclipseResultAddress result_address = 2;
+	int32                time_step      = 3;
+}
+
+message DoubleResult
+{
+	repeated double value = 1 [packed=true];
+}
