@@ -184,6 +184,8 @@ RiaGuiApplication::RiaGuiApplication(int& argc, char** argv)
     setWindowIcon(QIcon(":/AppLogo48x48.png"));
 
     m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);  
+
+    connect(this, SIGNAL(aboutToQuit()), this, SLOT(onProgramExit()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1384,10 +1386,9 @@ void RiaGuiApplication::onProjectClosed()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::cleanupBeforeProgramExit()
+void RiaGuiApplication::onProgramExit()
 {
-    closeAllWindows();
-    invokeProcessEvents();
+    m_grpcServer->quit();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1659,7 +1660,10 @@ void RiaGuiApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitSt
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::runIdleProcessing()
 {
-    m_grpcServer->processOneRequest();
+    if (!caf::ProgressInfoStatic::isRunning())
+    {
+        m_grpcServer->processOneRequest();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
         app->showErrorMessage(RiaApplication::commandLineParameterHelp() +
                               cvfqt::Utils::toQString(usageText) +
                               unknownOptionsText.join("\n"));
-        app->cleanupBeforeProgramExit();
         if (dynamic_cast<RiaGuiApplication*>(app.get()) == nullptr)
         {
             return 1;
