@@ -55,6 +55,17 @@ using ResInsight::DoubleResult;
 
 class RimEclipseCase;
 
+
+class RiaGridServiceImpl final : public ResInsight::Grid::AsyncService
+{
+public:
+    RimEclipseCase* getCase(int caseId) const;
+
+    Status dimensions(ServerContext* context, const Case* request, Vec3i* reply) override;
+    Status results(ServerContext* context, const EclipseResultRequest* request, DoubleResult* result) override;
+    Status numberOfTimeSteps(ServerContext* context, const Case* request, Int32Message* reply) override;
+};
+
 class RiaGrpcServerCallMethod
 {
 public:
@@ -73,8 +84,11 @@ public:
     }
 
     virtual ~RiaGrpcServerCallMethod() {}
+    virtual RiaGrpcServerCallMethod* clone() const = 0;
+    virtual Status callMethod() = 0;
+    virtual void   callRequest() = 0;
 
-    const std::string& callMethodName() const
+    const std::string& methodName() const
     {
         return m_methodName;
     }
@@ -92,9 +106,16 @@ template<typename RequestT, typename ReplyT>
 class RiaGrpcServerCallData : public RiaGrpcServerCallMethod
 {
 public:
-    RiaGrpcServerCallData(const std::string& methodName)
+    typedef std::function<Status(RiaGridServiceImpl&, ServerContext*, const RequestT*, ReplyT*)> MethodImpl;
+    typedef std::function<void(ServerContext*, RequestT*, ServerAsyncResponseWriter<ReplyT>*, CompletionQueue*, ServerCompletionQueue*, void*)> MethodRequest;
+    RiaGrpcServerCallData(RiaGridServiceImpl* service, ServerCompletionQueue* cq, const std::string& methodName, MethodImpl methodImpl, MethodRequest methodRequest)
         : RiaGrpcServerCallMethod(methodName)
+        , m_service(service)
+        , m_completionQueue(cq)
         , m_responder(&m_context)
+        , m_methodImpl(methodImpl)
+        , m_methodRequest(methodRequest)
+
     {
         RiaLogging::info(QString("Listening for %1").arg(QString::fromStdString(methodName)));
     }
@@ -112,26 +133,38 @@ public:
         return m_reply;
     }
 
+    RiaGrpcServerCallMethod* clone() const override
+    {
+        return new RiaGrpcServerCallData<RequestT, ReplyT>(m_service, m_completionQueue, methodName(), m_methodImpl, m_methodRequest);
+    }
+
+    Status callMethod() override
+    {
+        CVF_ASSERT(m_methodImpl);
+        Status status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply);
+        responder().Finish(m_reply, status, this);
+    }
+
+    void callRequest() override
+    {
+        CVF_ASSERT(m_methodRequest);
+        m_methodRequest(*m_service, &m_context, &m_request, &m_responder, &m_completionQueue, m_completionQueue, this);
+    }
+
     ServerAsyncResponseWriter<ReplyT>& responder()
     {
         return m_responder;
     }
 
 private:
+    RiaGridServiceImpl*               m_service;
+    ServerCompletionQueue*            m_completionQueue;
     ServerContext                     m_context;
     RequestT                          m_request;
     ReplyT                            m_reply;
     ServerAsyncResponseWriter<ReplyT> m_responder;
-};
-
-class RiaGridServiceImpl final : public ResInsight::Grid::AsyncService
-{
-public:
-    RimEclipseCase* getCase(int caseId) const;
-
-    Status dimensions(ServerContext* context, const Case* request, Vec3i* reply) override;
-    Status results(ServerContext* context, const EclipseResultRequest* request, DoubleResult* result) override;
-    Status numberOfTimeSteps(ServerContext* context, const Case* request, Int32Message* reply) override;
+    MethodImpl                        m_methodImpl;
+    MethodRequest                     m_methodRequest;
 };
 
 class RiaGrpcServer
