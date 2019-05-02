@@ -42,6 +42,7 @@
 using grpc::Server;
 using grpc::ServerAsyncResponseWriter;
 using grpc::ServerBuilder;
+using grpc::CompletionQueue;
 using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
 using grpc::Status;
@@ -85,8 +86,9 @@ public:
 
     virtual ~RiaGrpcServerCallMethod() {}
     virtual RiaGrpcServerCallMethod* clone() const = 0;
-    virtual Status callMethod() = 0;
-    virtual void   callRequest() = 0;
+    virtual void                     createRequest() = 0;
+    virtual Status                   processRequest() = 0;
+    virtual void                     finishRequest() {}
 
     const std::string& methodName() const
     {
@@ -106,9 +108,11 @@ template<typename RequestT, typename ReplyT>
 class RiaGrpcServerCallData : public RiaGrpcServerCallMethod
 {
 public:
+    typedef ServerAsyncResponseWriter<ReplyT> ResponseWriterT;
     typedef std::function<Status(RiaGridServiceImpl&, ServerContext*, const RequestT*, ReplyT*)> MethodImpl;
-    typedef std::function<void(ServerContext*, RequestT*, ServerAsyncResponseWriter<ReplyT>*, CompletionQueue*, ServerCompletionQueue*, void*)> MethodRequest;
-    RiaGrpcServerCallData(RiaGridServiceImpl* service, ServerCompletionQueue* cq, const std::string& methodName, MethodImpl methodImpl, MethodRequest methodRequest)
+    typedef std::function<void(RiaGridServiceImpl&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)> RequestImpl;
+
+    RiaGrpcServerCallData(RiaGridServiceImpl* service, ServerCompletionQueue* cq, const std::string& methodName, MethodImpl methodImpl, RequestImpl methodRequest)
         : RiaGrpcServerCallMethod(methodName)
         , m_service(service)
         , m_completionQueue(cq)
@@ -117,7 +121,6 @@ public:
         , m_methodRequest(methodRequest)
 
     {
-        RiaLogging::info(QString("Listening for %1").arg(QString::fromStdString(methodName)));
     }
 
     ServerContext& context()
@@ -138,17 +141,16 @@ public:
         return new RiaGrpcServerCallData<RequestT, ReplyT>(m_service, m_completionQueue, methodName(), m_methodImpl, m_methodRequest);
     }
 
-    Status callMethod() override
+    void createRequest() override
     {
-        CVF_ASSERT(m_methodImpl);
-        Status status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply);
-        responder().Finish(m_reply, status, this);
+        m_methodRequest(*m_service, &m_context, &m_request, &m_responder, m_completionQueue, m_completionQueue, this);
     }
 
-    void callRequest() override
+    Status processRequest() override
     {
-        CVF_ASSERT(m_methodRequest);
-        m_methodRequest(*m_service, &m_context, &m_request, &m_responder, &m_completionQueue, m_completionQueue, this);
+        Status status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply);
+        responder().Finish(m_reply, status, this);
+        return status;
     }
 
     ServerAsyncResponseWriter<ReplyT>& responder()
@@ -164,7 +166,7 @@ private:
     ReplyT                            m_reply;
     ServerAsyncResponseWriter<ReplyT> m_responder;
     MethodImpl                        m_methodImpl;
-    MethodRequest                     m_methodRequest;
+    RequestImpl                       m_methodRequest;
 };
 
 class RiaGrpcServer
