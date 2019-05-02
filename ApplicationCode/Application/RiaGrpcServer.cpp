@@ -186,9 +186,9 @@ void RiaGrpcServer::initialize()
     CVF_ASSERT(m_server);
     RiaLogging::info(QString("Server listening on %1").arg(serverAddress));
     // Spawn new CallData instances to serve new clients.
-    process(new RiaGrpcServerCallData<Case, Vec3i>(&m_service, m_completionQueue.get(), std::string("dimensions"), &RiaGridServiceImpl::dimensions, &RiaGridServiceImpl::Requestdimensions));
-    process(new RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>(&m_service, m_completionQueue.get(), std::string("results"), &RiaGridServiceImpl::results, &RiaGridServiceImpl::Requestresults));
-    process(new RiaGrpcServerCallData<Case, Int32Message>(&m_service, m_completionQueue.get(), std::string("numberOfTimeSteps"), &RiaGridServiceImpl::numberOfTimeSteps, &RiaGridServiceImpl::RequestnumberOfTimeSteps));
+    process(new RiaGrpcServerCallData<Case, Vec3i>(&m_service, m_completionQueue.get(), "dimensions", &RiaGridServiceImpl::dimensions, &RiaGridServiceImpl::Requestdimensions));
+    process(new RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>(&m_service, m_completionQueue.get(), "results", &RiaGridServiceImpl::results, &RiaGridServiceImpl::Requestresults));
+    process(new RiaGrpcServerCallData<Case, Int32Message>(&m_service, m_completionQueue.get(), "numberOfTimeSteps", &RiaGridServiceImpl::numberOfTimeSteps, &RiaGridServiceImpl::RequestnumberOfTimeSteps));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,11 +233,12 @@ void RiaGrpcServer::process(RiaGrpcServerCallMethod* method)
     if (method->callStatus() == RiaGrpcServerCallMethod::CREATE)
     {
         method->callStatus() = RiaGrpcServerCallMethod::PROCESS;
-        method->callRequest();
+        method->initializeRequest();
     }
     else if (method->callStatus() == RiaGrpcServerCallMethod::PROCESS)
     {
         method->callStatus() = RiaGrpcServerCallMethod::FINISH;
+        method->callMethod();
         process(method->clone());
     }
     else
