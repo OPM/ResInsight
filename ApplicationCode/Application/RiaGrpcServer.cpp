@@ -186,9 +186,9 @@ void RiaGrpcServer::initialize()
     CVF_ASSERT(m_server);
     RiaLogging::info(QString("Server listening on %1").arg(serverAddress));
     // Spawn new CallData instances to serve new clients.
-    process(new RiaGrpcServerCallData<Case, Vec3i>("dimensions"));
-    process(new RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>("results"));
-    process(new RiaGrpcServerCallData<Case, Int32Message>("numberOfTimeSteps"));
+    process(new RiaGrpcServerCallData<Case, Vec3i>(&m_service, m_completionQueue.get(), std::string("dimensions"), &RiaGridServiceImpl::dimensions, &RiaGridServiceImpl::Requestdimensions));
+    process(new RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>(&m_service, m_completionQueue.get(), std::string("results"), &RiaGridServiceImpl::results, &RiaGridServiceImpl::Requestresults));
+    process(new RiaGrpcServerCallData<Case, Int32Message>(&m_service, m_completionQueue.get(), std::string("numberOfTimeSteps"), &RiaGridServiceImpl::numberOfTimeSteps, &RiaGridServiceImpl::RequestnumberOfTimeSteps));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,63 +230,15 @@ void RiaGrpcServer::waitForNextRequest()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::process(RiaGrpcServerCallMethod* method)
 {
-    RiaGrpcServerCallData<Case, Vec3i>* dimCd = dynamic_cast<RiaGrpcServerCallData<Case, Vec3i>*>(method);
-    RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>* resultsCd = dynamic_cast<RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>*>(method);
-    RiaGrpcServerCallData<Case, Int32Message>* tsCd = dynamic_cast<RiaGrpcServerCallData<Case, Int32Message>*>(method);
-
     if (method->callStatus() == RiaGrpcServerCallMethod::CREATE)
     {
         method->callStatus() = RiaGrpcServerCallMethod::PROCESS;
-        if (dimCd)
-        {
-            m_service.Requestdimensions(&(dimCd->context()),
-                                        &(dimCd->request()),
-                                        &(dimCd->responder()),
-                                        m_completionQueue.get(),
-                                        m_completionQueue.get(),
-                                        dimCd);                                       
-        }
-        else if (resultsCd)
-        {
-            m_service.Requestresults(&(resultsCd->context()),
-                                     &(resultsCd->request()),
-                                     &(resultsCd->responder()),
-                                     m_completionQueue.get(),
-                                     m_completionQueue.get(),
-                                     resultsCd);
-        }
-        else if (tsCd)
-        {
-            m_service.RequestnumberOfTimeSteps(&(tsCd->context()),
-                                               &(tsCd->request()),
-                                               &(tsCd->responder()),
-                                               m_completionQueue.get(),
-                                               m_completionQueue.get(),
-                                               tsCd);
-        }
+        method->callRequest();
     }
     else if (method->callStatus() == RiaGrpcServerCallMethod::PROCESS)
     {
         method->callStatus() = RiaGrpcServerCallMethod::FINISH;
-        if (dimCd)
-        {
-            process(new RiaGrpcServerCallData<Case, Vec3i>("dimensions"));
-            Status status = m_service.dimensions(&(dimCd->context()), &(dimCd->request()), &(dimCd->reply()));
-            dimCd->responder().Finish(dimCd->reply(), status, dimCd);
-            
-        }
-        else if (resultsCd)
-        {
-            process(new RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>("results"));
-            Status status = m_service.results(&(resultsCd->context()), &(resultsCd->request()), &(resultsCd->reply()));
-            resultsCd->responder().Finish(resultsCd->reply(), status, resultsCd);
-        }
-        else if (tsCd)
-        {
-            process(new RiaGrpcServerCallData<Case, Int32Message>("numberOfTimeSteps"));
-            Status status = m_service.numberOfTimeSteps(&(tsCd->context()), &(tsCd->request()), &(tsCd->reply()));
-            tsCd->responder().Finish(tsCd->reply(), status, tsCd);
-        }
+        process(method->clone());
     }
     else
     {
