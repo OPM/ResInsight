@@ -57,7 +57,7 @@ using ResInsight::DoubleResult;
 class RimEclipseCase;
 
 
-class RiaGridServiceImpl final : public ResInsight::Grid::AsyncService
+class RiaGrpcGridServiceImpl final : public ResInsight::Grid::AsyncService
 {
 public:
     RimEclipseCase* getCase(int caseId) const;
@@ -109,10 +109,10 @@ class RiaGrpcServerCallData : public RiaGrpcServerCallMethod
 {
 public:
     typedef ServerAsyncResponseWriter<ReplyT> ResponseWriterT;
-    typedef std::function<Status(RiaGridServiceImpl&, ServerContext*, const RequestT*, ReplyT*)> MethodImpl;
-    typedef std::function<void(RiaGridServiceImpl&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)> RequestImpl;
+    typedef std::function<Status(RiaGrpcGridServiceImpl&, ServerContext*, const RequestT*, ReplyT*)> MethodImpl;
+    typedef std::function<void(RiaGrpcGridServiceImpl&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)> RequestImpl;
 
-    RiaGrpcServerCallData(RiaGridServiceImpl* service, ServerCompletionQueue* cq, const std::string& methodName, MethodImpl methodImpl, RequestImpl methodRequest)
+    RiaGrpcServerCallData(RiaGrpcGridServiceImpl* service, ServerCompletionQueue* cq, const std::string& methodName, MethodImpl methodImpl, RequestImpl methodRequest)
         : RiaGrpcServerCallMethod(methodName)
         , m_service(service)
         , m_completionQueue(cq)
@@ -159,7 +159,7 @@ public:
     }
 
 private:
-    RiaGridServiceImpl*               m_service;
+    RiaGrpcGridServiceImpl*               m_service;
     ServerCompletionQueue*            m_completionQueue;
     ServerContext                     m_context;
     RequestT                          m_request;
@@ -177,6 +177,7 @@ public:
     void runInThread();
     void initialize();
     void processOneRequest();
+    void quit();
 private:
     void waitForNextRequest();
     void process(RiaGrpcServerCallMethod* method);
@@ -184,9 +185,8 @@ private:
 private:
     std::unique_ptr<ServerCompletionQueue> m_completionQueue;
     std::unique_ptr<Server>                m_server;
-    RiaGridServiceImpl                     m_service;
+    RiaGrpcGridServiceImpl                 m_service;
     std::list<RiaGrpcServerCallMethod*>    m_receivedRequests;
-    std::thread                            m_thread;    
     std::mutex                             m_requestMutex;
 };
 

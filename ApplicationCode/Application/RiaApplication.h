@@ -178,7 +178,6 @@ public:
     virtual void addToRecentFiles(const QString& fileName) {}
     virtual void showInformationMessage(const QString& infoText) = 0;
     virtual void showErrorMessage(const QString& errMsg) = 0;
-    virtual void cleanupBeforeProgramExit() {}
 
 protected:
     // Protected implementation specific overrides

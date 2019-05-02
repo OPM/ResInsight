@@ -135,7 +135,7 @@ public:
     void                addToRecentFiles(const QString& fileName) override;
     void                showInformationMessage(const QString& text) override;
     void                showErrorMessage(const QString& errMsg) override;
-    void                cleanupBeforeProgramExit() override;
+
 protected:
     // Protected RiaApplication overrides
     void                invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;    
@@ -167,6 +167,8 @@ private:
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void                runIdleProcessing();
+    void                onProgramExit();
+
 private:
     RiuMainWindow*                      m_mainWindow;
     RiuPlotMainWindow*                  m_mainPlotWindow;
