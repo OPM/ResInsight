@@ -147,7 +147,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
                 }
                 else
                 {
-                    fieldEditor = caf::PdmUiFieldEditorHelper::fieldEditorForField(field->uiCapability(), uiConfigName);
+                    fieldEditor = caf::PdmUiFieldEditorHelper::createFieldEditorForField(field->uiCapability(), uiConfigName);
 
                     addSpace = true;
                 }
@@ -156,6 +156,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
             if (fieldEditor)
             {
                 m_fieldViews[field->keyword()] = fieldEditor;
+                fieldEditor->setUiField(uiFieldHandle);
                 fieldEditor->createWidgets(nullptr);
                 m_actions.push_back(m_toolbar->addWidget(fieldEditor->editorWidget()));
 
@@ -166,7 +167,6 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
                     m_toolbar->addWidget(widget);
                 }
 
-                fieldEditor->setUiField(uiFieldHandle);
                 fieldEditor->updateUi(uiConfigName);
             }
         }

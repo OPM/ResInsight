@@ -176,16 +176,18 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
             }
             else
             {
-                // Also assign required item space that isn't taken up by field and label
-                spareColumnsToAssign += minimumItemColumnSpan - (minimumLabelColumnSpan + minimumFieldColumnSpan);
-
+                PdmUiFieldEditorHandle* fieldEditor = nullptr;
                 PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*>(currentItem);
 
-                PdmUiFieldEditorHandle* fieldEditor = findOrCreateFieldEditor(containerWidgetWithGridLayout, field, uiConfigName);
+                if (field) fieldEditor = findOrCreateFieldEditor(containerWidgetWithGridLayout, field, uiConfigName);
 
                 if (fieldEditor)
                 {
-                    fieldEditor->setUiField(field);
+                    // Mark this field as used in the editor
+                    m_usedFields.insert(field->fieldHandle());
+
+                    // Also assign required item space that isn't taken up by field and label
+                    spareColumnsToAssign += minimumItemColumnSpan - (minimumLabelColumnSpan + minimumFieldColumnSpan);
 
                     // Place the widget(s) into the correct parent and layout
                     QWidget* fieldCombinedWidget = fieldEditor->combinedWidget();
@@ -390,11 +392,12 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
 
     if (it == m_fieldViews.end())
     {
-        fieldEditor = PdmUiFieldEditorHelper::fieldEditorForField(field, uiConfigName);
+        fieldEditor = PdmUiFieldEditorHelper::createFieldEditorForField(field, uiConfigName);
 
         if (fieldEditor)
         {
             m_fieldViews[field->fieldHandle()] = fieldEditor;
+            fieldEditor->setUiField(field);
             fieldEditor->createWidgets(parent);
         }
         else
@@ -497,11 +500,8 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi(const QString& uiCon
     }
 
     // Set all fieldViews to be unvisited
-    std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
-    for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
-    {
-        it->second->setUiField(nullptr);
-    }
+
+    m_usedFields.clear();
 
     // Set all group Boxes to be unvisited
     m_newGroupBoxes.clear();
@@ -511,13 +511,13 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi(const QString& uiCon
     // Remove all fieldViews not mentioned by the configuration from the layout
 
     std::vector<PdmFieldHandle*> fvhToRemoveFromMap;
-    for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
+    for (auto oldFvIt = m_fieldViews.begin(); oldFvIt != m_fieldViews.end(); ++oldFvIt)
     {
-        if (it->second->uiField() == nullptr)
+        if (m_usedFields.count(oldFvIt->first) == 0)
         {
-            PdmUiFieldEditorHandle* fvh = it->second;
-            delete fvh;
-            fvhToRemoveFromMap.push_back(it->first);
+            // The old field editor is not present anymore, get rid of it
+            delete oldFvIt->second;
+            fvhToRemoveFromMap.push_back(oldFvIt->first);
         }
     }
 
