@@ -397,6 +397,7 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
         if (fieldEditor)
         {
             m_fieldViews[field->fieldHandle()] = fieldEditor;
+            fieldEditor->setParentEditor(this);
             fieldEditor->setUiField(field);
             fieldEditor->createWidgets(parent);
         }
