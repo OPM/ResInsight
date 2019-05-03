@@ -59,8 +59,8 @@ bool RiaArgumentParser::parseArguments()
     progOpt.registerOption("last", "", "Open last used project.");
     progOpt.registerOption("project", "<filename>", "Open project file <filename>.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("case",
-                           "<casename>",
-                           "Import Eclipse case <casename> (do not include the .GRID/.EGRID extension.)",
+                           "<case name without extension or filename>",
+                           "If case or grid filename, import simulation grid data. If summary file name, import summary data",
                            cvf::ProgramOptions::MULTI_VALUE);
     progOpt.registerOption("startdir", "<folder>", "Set startup directory.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("savesnapshots",
