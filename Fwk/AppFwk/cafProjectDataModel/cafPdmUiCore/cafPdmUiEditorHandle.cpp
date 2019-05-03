@@ -88,16 +88,14 @@ void PdmUiEditorHandle::updateUi()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiEditorHandle::updateUiIncludingParent()
+PdmUiEditorHandle* PdmUiEditorHandle::topMostContainingEditor()
 {
-    if (m_parentEditor)
+    if (m_containingEditor)
     {
-        m_parentEditor->updateUiIncludingParent();
+        return m_containingEditor->topMostContainingEditor();
     }
-    else
-    {
-        this->updateUi();
-    }
+
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -613,8 +613,7 @@ void PdmUiItem::updateConnectedEditors() const
     std::set<PdmUiEditorHandle*>::iterator it;
     for (it = m_editors.begin(); it != m_editors.end(); ++it)
     {
-        (*it)->updateUiIncludingParent();
-        //(*it)->updateUi();
+        (*it)->updateUi();
 
     }
 }
@@ -671,6 +670,14 @@ std::vector<PdmUiEditorHandle*> PdmUiItem::connectedEditors() const
     }
 
     return editors;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiItem::hasEditor(PdmUiEditorHandle* editor) const
+{
+    return m_editors.count(editor) > 0;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -276,6 +276,8 @@ public:
     std::vector<PdmUiEditorHandle*>
                     connectedEditors() const;
 
+    bool            hasEditor(PdmUiEditorHandle* editor) const;
+
     static bool     showExtraDebugText();
     static void     enableExtraDebugText(bool enable);
 

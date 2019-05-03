@@ -62,7 +62,7 @@ public:
     void        updateUi(const QString& uiConfigName);;
     void        updateUi();
 
-    void        updateUiIncludingParent();
+    PdmUiEditorHandle* topMostContainingEditor();
 
 signals:
     void uiUpdated();
@@ -80,14 +80,14 @@ protected:
     PdmUiItem*          pdmItem()       { return m_pdmItem; }
     const PdmUiItem*    pdmItem() const { return m_pdmItem; }
 public: // PDM Internal
-    void                setParentEditor(PdmUiEditorHandle* parentEditor) { m_parentEditor = parentEditor; }
+    void                setContainingEditor(PdmUiEditorHandle* containingEditor) { m_containingEditor = containingEditor; }
 
 private:
     friend PdmUiItem::~PdmUiItem();
     PdmUiItem*          m_pdmItem;
     QString             m_currentConfigName;
 
-    QPointer<PdmUiEditorHandle> m_parentEditor; // Editor containing this editor. Will be asked to updateUi (instead of this) if it exists
+    QPointer<PdmUiEditorHandle> m_containingEditor; // Editor containing this editor. Will be asked to updateUi (instead of this) if it exists
 
     bool m_isConfiguringUi; 
 };
