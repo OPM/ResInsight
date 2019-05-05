@@ -29,9 +29,14 @@
 #include "cvfBase.h"
 #include "cvfVector3.h"
 
+namespace caf
+{
+class QIconProvider;
+}
+
 namespace cvf
 {
-    class BoundingBox;
+class BoundingBox;
 }
 
 class RimViewController;
@@ -83,8 +88,7 @@ public:
 
     void                                    addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const;
 
-    static void                             applyIconEnabledState(caf::PdmObject* obj, const QIcon& icon, bool disable);
-    static void                             findNameAndIconFromView(QString* name, QIcon* icon, RimGridView* view);
+    static void                             findNameAndIconFromView(QString* name, caf::QIconProvider* icon, RimGridView* view);
 
     void                                    updateCursorPosition(const RimGridView* sourceView, const cvf::Vec3d& domainCoord);
 
@@ -103,5 +107,4 @@ private:
     caf::PdmChildArrayField<RimViewController*>   m_viewControllers;
     caf::PdmPtrField<RimGridView*>                m_masterView;
     caf::PdmField<QString>                        m_name;
-    QIcon                                         m_originalIcon;
 };

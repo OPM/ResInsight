@@ -927,7 +927,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotDataSet::calculateValueOptions(con
             for (RimEclipseView* view : eclipseCase->reservoirViews.childObjects())
             {
                 CVF_ASSERT(view && "Really always should have a valid view pointer in ReservoirViews");
-                options.push_back(caf::PdmOptionItemInfo(view->name(), view, false, view->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo(view->name(), view, false, view->uiIconProvider()));
             }
         }
     }

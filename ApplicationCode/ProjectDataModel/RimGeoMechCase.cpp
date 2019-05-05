@@ -814,7 +814,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions(const caf::P
     {
         for (size_t i = 0; i < m_elementPropertyFileNames.v().size(); i++)
         {
-            options.push_back(caf::PdmOptionItemInfo(m_elementPropertyFileNames.v().at(i).path(), (int)i, true, QIcon()));
+            options.push_back(caf::PdmOptionItemInfo(m_elementPropertyFileNames.v().at(i).path(), (int)i, true));
         }
     }
 

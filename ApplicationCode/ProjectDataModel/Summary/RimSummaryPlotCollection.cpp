@@ -88,10 +88,8 @@ void RimSummaryPlotCollection::summaryPlotItemInfos(QList<caf::PdmOptionItemInfo
 {
     for (RimSummaryPlot* plot : summaryPlots())
     {
-        QIcon icon = plot->uiCapability()->uiIcon();
         QString displayName = plot->description();
-
-        optionInfos->push_back(caf::PdmOptionItemInfo(displayName, plot, false, icon));
+        optionInfos->push_back(caf::PdmOptionItemInfo(displayName, plot, false, plot->uiCapability()->uiIconProvider()));
     }
 }
 
