@@ -153,7 +153,7 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions(const caf::PdmField
         {
             for(RimFormationNames* fnames : proj->activeOilField()->formationNamesCollection()->formationNamesList())
             {
-                options.push_back(caf::PdmOptionItemInfo(fnames->fileNameWoPath(), fnames, false, fnames->uiCapability()->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo(fnames->fileNameWoPath(), fnames, false, fnames->uiCapability()->uiIconProvider()));
             }
         }
 

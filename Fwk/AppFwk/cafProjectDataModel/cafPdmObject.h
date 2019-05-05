@@ -61,6 +61,7 @@ class QXmlStreamWriter;
 #include "cafInternalPdmXmlFieldCapability.h"
 
 #include "cafPdmUiFieldSpecialization.h"
+#include "cafQIconProvider.h"
 
 
 namespace caf 

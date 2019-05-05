@@ -43,7 +43,7 @@ void RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName(Rim3dView* vi
 
     QString displayName = caseName + " : " + view->name();
 
-    QIcon icon = view->uiCapability()->uiIcon();
+    caf::QIconProvider iconProvider = view->uiCapability()->uiIconProvider();
 
-    optionItems->push_back(caf::PdmOptionItemInfo(displayName, view, false, icon));
+    optionItems->push_back(caf::PdmOptionItemInfo(displayName, view, false, iconProvider));
 }
