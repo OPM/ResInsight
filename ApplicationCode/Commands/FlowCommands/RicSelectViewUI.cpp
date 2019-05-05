@@ -104,10 +104,10 @@ QList<caf::PdmOptionItemInfo> RicSelectViewUI::calculateValueOptions(const caf::
         {
             for (Rim3dView* v : m_currentCase->views())
             {
-                QIcon icon = v->uiCapability()->uiIcon();
+                caf::QIconProvider iconProvider = v->uiCapability()->uiIconProvider();
                 QString displayName = v->name();
 
-                options.push_back(caf::PdmOptionItemInfo(displayName, v, false, icon));
+                options.push_back(caf::PdmOptionItemInfo(displayName, v, false, iconProvider));
             }
         }
     }

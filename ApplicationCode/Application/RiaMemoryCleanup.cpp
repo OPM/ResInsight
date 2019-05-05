@@ -223,13 +223,13 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions(const caf:
             std::vector<RimEclipseCase*> eclipseCases = proj->eclipseCases();
             for (RimEclipseCase* c : eclipseCases)
             {
-                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIconProvider()));
             }
 
             std::vector<RimGeoMechCase*> geoMechCases = proj->geoMechCases();
             for (RimGeoMechCase* c : geoMechCases)
             {
-                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIconProvider()));
             }
         }
     }

@@ -594,7 +594,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
     {
         std::set<QString> sortedWellNames = this->findSortedWellNames();
 
-        QIcon simWellIcon(":/Well.png");
+        caf::QIconProvider simWellIcon(":/Well.png");
         for ( const QString& wname: sortedWellNames )
         {
             options.push_back(caf::PdmOptionItemInfo(wname, wname, false, simWellIcon));
@@ -630,7 +630,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
 
             for (RimEclipseResultCase* c : cases)
             {
-                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIconProvider()));
             }
         }
     }

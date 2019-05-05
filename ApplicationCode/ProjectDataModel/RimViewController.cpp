@@ -506,8 +506,10 @@ void RimViewController::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateDisplayNameAndIcon()
 {
-    RimViewLinker::findNameAndIconFromView(&m_name.v(), &m_originalIcon, managedView());
-    RimViewLinker::applyIconEnabledState(this, m_originalIcon, !m_isActive());
+    caf::QIconProvider iconProvider;
+    RimViewLinker::findNameAndIconFromView(&m_name.v(), &iconProvider, managedView());
+    iconProvider.setActive(m_isActive());
+    setUiIcon(iconProvider);
 }
 
 //--------------------------------------------------------------------------------------------------

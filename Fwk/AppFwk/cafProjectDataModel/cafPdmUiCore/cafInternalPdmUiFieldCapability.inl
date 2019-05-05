@@ -209,7 +209,7 @@ QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions(bool* useOp
             {
                 if(!uiBasedQVariant.toString().isEmpty())
                 {
-                    m_optionEntryCache.push_front(PdmOptionItemInfo(uiBasedQVariant.toString(), uiBasedQVariant, true, QIcon()));
+                    m_optionEntryCache.push_front(PdmOptionItemInfo(uiBasedQVariant.toString(), uiBasedQVariant, true));
                 }
             }
             else // The field value is a list of values 
@@ -228,7 +228,7 @@ QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions(bool* useOp
 
                     if(!isFound && !valuesSelectedInField[i].toString().isEmpty())
                     {
-                        m_optionEntryCache.push_front(PdmOptionItemInfo(valuesSelectedInField[i].toString(), valuesSelectedInField[i], true, QIcon()));
+                        m_optionEntryCache.push_front(PdmOptionItemInfo(valuesSelectedInField[i].toString(), valuesSelectedInField[i], true));
                     }
                 }
             }

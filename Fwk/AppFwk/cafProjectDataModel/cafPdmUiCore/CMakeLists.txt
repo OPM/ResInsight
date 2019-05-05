@@ -76,6 +76,8 @@ set( PROJECT_FILES
 	cafPdmUiSelection3dEditorVisualizer.cpp
 	cafQShortenedLabel.cpp
 	cafQShortenedLabel.h
+	cafQIconProvider.cpp
+	cafQIconProvider.h
 
 )
 

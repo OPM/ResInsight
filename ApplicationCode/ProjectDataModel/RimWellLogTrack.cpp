@@ -240,7 +240,7 @@ void RimWellLogTrack::simWellOptionItems(QList<caf::PdmOptionItemInfo>* options,
         sortedWellNames = eclipseCase->eclipseCaseData()->findSortedWellNames();
     }
 
-    QIcon simWellIcon(":/Well.png");
+    caf::QIconProvider simWellIcon(":/Well.png");
     for (const QString& wname : sortedWellNames)
     {
         options->push_back(caf::PdmOptionItemInfo(wname, wname, false, simWellIcon));

@@ -70,13 +70,14 @@ caf::PdmFieldHandle* RimCellFilter::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimCellFilter::updateIconState()
 {
-    // HEADLESS HACK
-    if (!RiaGuiApplication::isRunning()) return;
-
     // Reset dynamic icon
-    this->setUiIcon(QIcon());
+    this->setUiIcon(caf::QIconProvider());
     // Get static one
-    QIcon icon = this->uiIcon();
+    caf::QIconProvider iconProvider = this->uiIconProvider();
+
+    if (iconProvider.isNull()) return;
+
+    QIcon icon = iconProvider.icon();
 
     // Get a pixmap, and modify it
 
@@ -98,14 +99,9 @@ void RimCellFilter::updateIconState()
         painter.drawPixmap(0,0, sign);
     }
 
-    if (!isActive || isActive.uiCapability()->isUiReadOnly())
-    {
-        QIcon temp(icPixmap);
-        icPixmap = temp.pixmap(16, 16, QIcon::Disabled);
-    }
-
-    QIcon newIcon(icPixmap);
-    this->setUiIcon(newIcon);
+    iconProvider.setPixmap(icPixmap);
+    iconProvider.setActive(isActive && !isActive.uiCapability()->isUiReadOnly());
+    this->setUiIcon(iconProvider);
 }
 
 //--------------------------------------------------------------------------------------------------

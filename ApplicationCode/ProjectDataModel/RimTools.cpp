@@ -238,7 +238,7 @@ void RimTools::wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options)
     {
         caf::PdmChildArrayField<RimWellPath*>& wellPaths = wellPathColl->wellPaths;
 
-        QIcon wellIcon(":/Well.png");
+        caf::QIconProvider wellIcon(":/Well.png");
         for (RimWellPath* wellPath : wellPaths)
         {
             options->push_back(caf::PdmOptionItemInfo(wellPath->name(), wellPath, false, wellIcon));
@@ -257,7 +257,7 @@ void RimTools::wellPathWithFormationsOptionItems(QList<caf::PdmOptionItemInfo>* 
     std::vector<RimWellPath*> wellPaths;
     RimTools::wellPathWithFormations(&wellPaths);
 
-    QIcon wellIcon(":/Well.png");
+    caf::QIconProvider wellIcon(":/Well.png");
     for (RimWellPath* wellPath : wellPaths)
     {
         options->push_back(caf::PdmOptionItemInfo(wellPath->name(), wellPath, false, wellIcon));
@@ -300,7 +300,7 @@ void RimTools::caseOptionItems(QList<caf::PdmOptionItemInfo>* options)
 
         for (RimCase* c : cases)
         {
-            options->push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+            options->push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIconProvider()));
         }
     }
 }
@@ -324,7 +324,7 @@ void RimTools::eclipseCaseOptionItems(QList<caf::PdmOptionItemInfo>* options)
             RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(c);
             if (eclipseCase)
             {
-                options->push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+                options->push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIconProvider()));
             }
         }
     }

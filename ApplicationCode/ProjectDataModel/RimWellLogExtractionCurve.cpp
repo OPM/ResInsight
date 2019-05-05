@@ -582,7 +582,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
     {
         std::set<QString> sortedWellNames = this->sortedSimWellNames();
 
-        QIcon simWellIcon(":/Well.png");
+        caf::QIconProvider simWellIcon(":/Well.png");
         for ( const QString& wname: sortedWellNames )
         {
             options.push_back(caf::PdmOptionItemInfo(wname, wname, false, simWellIcon));

@@ -46,6 +46,7 @@
 #include "RiuViewer.h"
 
 #include "cafPdmUiTreeOrdering.h"
+#include "cafQIconProvider.h"
 #include "cvfCamera.h"
 #include "cvfMatrix4.h"
 #include "cvfScene.h"
@@ -397,30 +398,13 @@ bool RimViewLinker::isActive() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Hande icon update locally as PdmUiItem::updateUiIconFromState works only for static icons
-//--------------------------------------------------------------------------------------------------
-void RimViewLinker::applyIconEnabledState(caf::PdmObject* obj, const QIcon& icon, bool disable)
-{
-    QPixmap icPixmap;
-    icPixmap = icon.pixmap(16, 16, QIcon::Normal);
-
-    if (disable)
-    {
-        QIcon temp(icPixmap);
-        icPixmap = temp.pixmap(16, 16, QIcon::Disabled);
-    }
-
-    QIcon newIcon(icPixmap);
-    obj->setUiIcon(newIcon);
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateUiNameAndIcon()
 {
-    RimViewLinker::findNameAndIconFromView(&m_name.v(), &m_originalIcon, m_masterView);
-    RimViewLinker::applyIconEnabledState(this, m_originalIcon, false);
+    caf::QIconProvider iconProvider;
+    RimViewLinker::findNameAndIconFromView(&m_name.v(), &iconProvider, m_masterView);
+    setUiIcon(iconProvider);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -448,7 +432,7 @@ void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimGridView* view)
+void RimViewLinker::findNameAndIconFromView(QString* name, caf::QIconProvider* icon, RimGridView* view)
 {
     CVF_ASSERT(name && icon);
 
@@ -461,20 +445,20 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimGridV
 
         if (dynamic_cast<RimGeoMechCase*>(rimCase))
         {
-            *icon = QIcon(":/GeoMechCase48x48.png");
+            *icon = caf::QIconProvider(":/GeoMechCase48x48.png");
         }
         else if (dynamic_cast<RimEclipseResultCase*>(rimCase))
         {
-            *icon = QIcon(":/Case48x48.png");
+            *icon = caf::QIconProvider(":/Case48x48.png");
         }
         else if (dynamic_cast<RimEclipseInputCase*>(rimCase))
         {
-            *icon = QIcon(":/EclipseInput48x48.png");
+            *icon = caf::QIconProvider(":/EclipseInput48x48.png");
         }
     }
     else
     {
-        *icon = QIcon();
+        *icon = caf::QIconProvider();
     }
 }
 

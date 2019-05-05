@@ -684,7 +684,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
                             QString("%1 (#%2)").arg(otherCase->caseUserDescription()).arg(otherCase->caseId()),
                             otherCase,
                             false,
-                            otherCase->uiIcon()));
+                            otherCase->uiIconProvider()));
                     }
                 }
             }
