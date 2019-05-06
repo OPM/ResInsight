@@ -49,14 +49,14 @@ public:
     explicit RiaSocketServer(QObject *parent = nullptr);
     ~RiaSocketServer() override;
 
-    bool                isOk() const;
-    QString             errMsg() const;
     unsigned short      serverPort();
     RimEclipseCase*     findReservoir(int caseId);
     QTcpSocket*         currentClient() { return m_currentClient; }
 
     void                setCurrentCaseId(int caseId);
     int                 currentCaseId() const;
+
+    void                showErrorMessage(const QString& message) const;
 
 private slots:
     void                slotNewClientConnection();
@@ -70,7 +70,6 @@ private:
 
 private:
     QTcpServer*         m_tcpServer;
-    QString             m_errMsg;
 
     QTcpSocket*         m_currentClient;
     qint64              m_currentCommandSize; ///< The size in bytes of the command we are currently reading.

@@ -52,7 +52,6 @@ RiaConsoleApplication::RiaConsoleApplication(int& argc, char** argv)
     , RiaApplication()
 {
     installEventFilter(this);
-    m_socketServer = new RiaSocketServer(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,13 +80,10 @@ void RiaConsoleApplication::initialize()
 
     RiaApplication::initialize();
 
-    if (!m_socketServer->isOk())
-    {
-        showErrorMessage(m_socketServer->errMsg());
-    }
     RiaLogging::setLoggerInstance(new RiaStdOutLogger);
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
 
+    m_socketServer = new RiaSocketServer(this);
 }
 
 //--------------------------------------------------------------------------------------------------

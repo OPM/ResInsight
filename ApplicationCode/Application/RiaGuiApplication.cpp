@@ -184,9 +184,7 @@ RiaGuiApplication::RiaGuiApplication(int& argc, char** argv)
 
     setWindowIcon(QIcon(":/AppLogo48x48.png"));
 
-    m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);
-  
-    m_socketServer = new RiaSocketServer(this);
+    m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -571,12 +569,10 @@ void RiaGuiApplication::initialize()
     // The plot window is created to be able to set expanded state on created objects, but hidden by default
     getOrCreateAndShowMainWindow();
     getOrCreateMainPlotWindow();
-    if (!m_socketServer->isOk())
-    {
-        showErrorMessage(m_socketServer->errMsg());
-    }
     RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(m_mainWindow->messagePanel()));
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
+
+    m_socketServer = new RiaSocketServer(this);
 }
 
 //--------------------------------------------------------------------------------------------------
