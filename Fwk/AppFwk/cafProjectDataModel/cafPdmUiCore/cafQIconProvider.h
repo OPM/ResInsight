@@ -39,6 +39,8 @@
 #include <QPixmap>
 #include <QString>
 
+#include <memory>
+
 namespace caf
 {
 //==================================================================================================
@@ -61,13 +63,14 @@ public:
     void         setPixmap(const QPixmap& pixmap);
 
 protected:
+    bool          hasValidPixmap() const;
     virtual QIcon generateIcon() const;
     static bool   isGuiApplication();
 
 protected:
-    QString       m_iconResourceString;
-    QPixmap       m_iconPixmap;
-    mutable QIcon m_icon;
-    bool          m_active;
+    QString                  m_iconResourceString;
+    std::unique_ptr<QPixmap> m_iconPixmap;
+    mutable QIcon            m_icon;
+    bool                     m_active;
 };
 }

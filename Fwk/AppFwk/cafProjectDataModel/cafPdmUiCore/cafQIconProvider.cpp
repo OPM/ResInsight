@@ -29,7 +29,7 @@ QIconProvider::QIconProvider(const QString& iconResourceString)
 ///
 //--------------------------------------------------------------------------------------------------
 QIconProvider::QIconProvider(const QPixmap& pixmap)
-    : m_iconPixmap(pixmap)
+    : m_iconPixmap(new QPixmap(pixmap))
 {
 }
 
@@ -64,7 +64,7 @@ QIcon QIconProvider::icon() const
         m_icon = generateIcon();
     }
 
-    if (!m_active)
+    if (!m_active && isGuiApplication())
     {
         QPixmap disabledPixmap = m_icon.pixmap(16, 16, QIcon::Disabled);
         return QIcon(disabledPixmap);
@@ -80,7 +80,7 @@ bool QIconProvider::isNull() const
 {
     if (!isGuiApplication()) return true;
 
-    if (m_iconPixmap.isNull() && m_iconResourceString.isEmpty()) return true;
+    if (!hasValidPixmap() && m_iconResourceString.isEmpty()) return true;
 
     return icon().isNull();
 }
@@ -107,7 +107,7 @@ void QIconProvider::setIconResourceString(const QString& iconResourceString)
 //--------------------------------------------------------------------------------------------------
 void QIconProvider::setPixmap(const QPixmap& pixmap)
 {
-    m_iconPixmap = pixmap;
+    m_iconPixmap.reset(new QPixmap(pixmap));
     m_icon = QIcon();
 }
 
@@ -119,9 +119,9 @@ QIcon QIconProvider::generateIcon() const
 {
     if (isGuiApplication())
     {
-        if (!m_iconPixmap.isNull())
+        if (hasValidPixmap())
         {
-            return QIcon(m_iconPixmap);
+            return QIcon(*m_iconPixmap);
         }
         return QIcon(m_iconResourceString);
     }
@@ -134,4 +134,12 @@ QIcon QIconProvider::generateIcon() const
 bool QIconProvider::isGuiApplication()
 {
     return dynamic_cast<QApplication*>(QCoreApplication::instance()) != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool QIconProvider::hasValidPixmap() const
+{
+    return m_iconPixmap && !m_iconPixmap->isNull();
 }
