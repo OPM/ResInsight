@@ -594,8 +594,15 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::Progra
     if (cvf::Option o = progOpt->option("unittest"))
     {
         int testReturnValue = launchUnitTestsWithConsole();
-
-        return testReturnValue == 0 ? RiaApplication::EXIT_COMPLETED : RiaApplication::EXIT_WITH_ERROR;
+        if (testReturnValue == 0)
+        {
+            return RiaApplication::EXIT_COMPLETED;
+        }
+        else
+        {
+            RiaLogging::error("Error running unit tests");
+            return RiaApplication::EXIT_WITH_ERROR;
+        }
     }
 
     if (cvf::Option o = progOpt->option("regressiontest"))

@@ -49,9 +49,22 @@ int main(int argc, char *argv[])
 
     if (!result)
     {
+        std::vector<cvf::String> unknownOptions = progOpt.unknownOptions();
+        QStringList unknownOptionsText;
+        for (cvf::String option : unknownOptions)
+        {
+            unknownOptionsText += QString("Unknown option: %1").arg(cvfqt::Utils::toQString(option));
+        }
+
         const cvf::String usageText = progOpt.usageText(110, 30);
-        app->showInformationMessage(RiaApplication::commandLineParameterHelp() + cvfqt::Utils::toQString(usageText));
+        app->showErrorMessage(RiaApplication::commandLineParameterHelp() +
+                              cvfqt::Utils::toQString(usageText) +
+                              unknownOptionsText.join('\n'));
         app->cleanupBeforeProgramExit();
+        if (dynamic_cast<RiaGuiApplication*>(app.get()) == nullptr)
+        {
+            return 1;
+        }
     }
   
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
@@ -64,7 +77,7 @@ int main(int argc, char *argv[])
     }
     else if (status == RiaApplication::EXIT_WITH_ERROR)
     {
-        return 1;
+        return 2;
     }
     else if (status == RiaApplication::KEEP_GOING)
     {
