@@ -2,15 +2,13 @@ syntax = "proto3";
 
 package ResInsight;
 
+import "CaseInfo.proto";
+
 service Grid {
   // Sends a greeting
   rpc dimensions (Case) returns (Vec3i) {}
   rpc numberOfTimeSteps(Case) returns (Int32Message) {}
   rpc results(EclipseResultRequest) returns (DoubleResult) {}
-}
-
-message Case {
-  int32 id = 1;
 }
 
 message Vec3i {

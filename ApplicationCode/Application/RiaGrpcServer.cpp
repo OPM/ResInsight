@@ -131,6 +131,17 @@ Status RiaGrpcGridServiceImpl::numberOfTimeSteps(ServerContext* context, const C
     return Status(grpc::NOT_FOUND, "Invalid case id");
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Status RiaGrpcProjectInfoServiceImpl::GetCurrentCase(ServerContext* context, const Empty* request, Case* reply)
+{
+    reply->set_id(1);
+    return Status::OK;
+}
+
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -177,17 +188,20 @@ void RiaGrpcServer::initialize()
 
     ServerBuilder builder;
     builder.AddListeningPort(serverAddress.toStdString(), grpc::InsecureServerCredentials());
+
     builder.RegisterService(&m_service);
+    builder.RegisterService(&m_projectService);
     m_completionQueue = builder.AddCompletionQueue();
     m_server = builder.BuildAndStart();
 
     CVF_ASSERT(m_server);
     RiaLogging::info(QString("Server listening on %1").arg(serverAddress));
     // Spawn new CallData instances to serve new clients.
-    process(new RiaGrpcServerCallData<Case, Vec3i>(&m_service, m_completionQueue.get(), "dimensions", &RiaGrpcGridServiceImpl::dimensions, &RiaGrpcGridServiceImpl::Requestdimensions));
-    process(new RiaGrpcServerCallData<EclipseResultRequest, DoubleResult>(&m_service, m_completionQueue.get(), "results", &RiaGrpcGridServiceImpl::results, &RiaGrpcGridServiceImpl::Requestresults));
-    process(new RiaGrpcServerCallData<Case, Int32Message>(&m_service, m_completionQueue.get(), "numberOfTimeSteps", &RiaGrpcGridServiceImpl::numberOfTimeSteps, &RiaGrpcGridServiceImpl::RequestnumberOfTimeSteps));
+    process(new RiaGrpcServerCallData<RiaGrpcGridServiceImpl, Case, Vec3i>(&m_service, m_completionQueue.get(), "dimensions", &RiaGrpcGridServiceImpl::dimensions, &RiaGrpcGridServiceImpl::Requestdimensions));
+    process(new RiaGrpcServerCallData<RiaGrpcGridServiceImpl, EclipseResultRequest, DoubleResult>(&m_service, m_completionQueue.get(), "results", &RiaGrpcGridServiceImpl::results, &RiaGrpcGridServiceImpl::Requestresults));
+    process(new RiaGrpcServerCallData<RiaGrpcGridServiceImpl, Case, Int32Message>(&m_service, m_completionQueue.get(), "numberOfTimeSteps", &RiaGrpcGridServiceImpl::numberOfTimeSteps, &RiaGrpcGridServiceImpl::RequestnumberOfTimeSteps));
 
+    process(new RiaGrpcServerCallData<RiaGrpcProjectInfoServiceImpl, Empty, Case>(&m_projectService, m_completionQueue.get(), "GetCurrentCase", &RiaGrpcProjectInfoServiceImpl::GetCurrentCase, &RiaGrpcProjectInfoServiceImpl::RequestGetCurrentCase));
 }
 
 //--------------------------------------------------------------------------------------------------

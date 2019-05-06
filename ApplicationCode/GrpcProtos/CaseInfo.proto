@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package ResInsight;
+
+message Case {
+  int32 id = 1;
+}
+
+message Empty
+{
+}
