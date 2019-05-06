@@ -2,7 +2,7 @@
 
 #include "cafAssert.h"
 
-#include <QGuiApplication>
+#include <QApplication>
 
 using namespace caf;
 
@@ -133,5 +133,5 @@ QIcon QIconProvider::generateIcon() const
 //--------------------------------------------------------------------------------------------------
 bool QIconProvider::isGuiApplication()
 {
-    return dynamic_cast<QGuiApplication*>(QCoreApplication::instance()) != nullptr;
+    return dynamic_cast<QApplication*>(QCoreApplication::instance()) != nullptr;
 }
