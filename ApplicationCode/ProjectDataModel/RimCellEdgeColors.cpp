@@ -148,6 +148,7 @@ void RimCellEdgeColors::loadResult()
 void RimCellEdgeColors::initAfterRead()
 {
     m_singleVarEdgeResultColors->initAfterRead();
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,6 +159,11 @@ void RimCellEdgeColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     loadResult();
 
     if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
+
+    if (changedField == objectToggleField())
+    {
+        updateUiIconFromToggleField();
+    }
 }
 
 namespace caf
