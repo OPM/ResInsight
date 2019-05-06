@@ -183,9 +183,6 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
 
                 if (fieldEditor)
                 {
-                    // Mark this field as used in the editor
-                    m_usedFields.insert(field->fieldHandle());
-
                     // Also assign required item space that isn't taken up by field and label
                     spareColumnsToAssign += minimumItemColumnSpan - (minimumLabelColumnSpan + minimumFieldColumnSpan);
 
@@ -418,6 +415,11 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateField
     else
     {
         fieldEditor = it->second;
+    }
+
+    if (fieldEditor)
+    {
+        m_usedFields.insert(field->fieldHandle());
     }
 
     return fieldEditor;
