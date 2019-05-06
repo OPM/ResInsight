@@ -60,24 +60,6 @@ using ResInsight::Empty;
 
 class RimEclipseCase;
 
-
-class RiaGrpcGridServiceImpl final : public ResInsight::Grid::AsyncService
-{
-public:
-    RimEclipseCase* getCase(int caseId) const;
-
-    Status dimensions(ServerContext* context, const Case* request, Vec3i* reply) override;
-    Status results(ServerContext* context, const EclipseResultRequest* request, DoubleResult* result) override;
-    Status numberOfTimeSteps(ServerContext* context, const Case* request, Int32Message* reply) override;
-};
-
-class RiaGrpcProjectInfoServiceImpl final : public ResInsight::ProjectInfo::AsyncService
-{
-public:
-    Status GetCurrentCase(ServerContext* context, const Empty* request, Case* reply) override;
-};
-
-
 class RiaGrpcServerCallMethod
 {
 public:
@@ -96,8 +78,8 @@ public:
     }
 
     virtual ~RiaGrpcServerCallMethod() {}
-    virtual RiaGrpcServerCallMethod* clone() const = 0;
-    virtual void                     createRequest() = 0;
+    virtual RiaGrpcServerCallMethod* clone() const    = 0;
+    virtual void                     createRequest()  = 0;
     virtual Status                   processRequest() = 0;
     virtual void                     finishRequest() {}
 
@@ -113,6 +95,32 @@ public:
 private:
     std::string m_methodName;
     CallStatus  m_status;
+};
+
+class RiaGrpcServiceInterface
+{
+public:
+    virtual std::vector<RiaGrpcServerCallMethod*> createCallbacks(ServerCompletionQueue*) = 0;
+};
+
+class RiaGrpcGridServiceImpl final : public ResInsight::Grid::AsyncService, public RiaGrpcServiceInterface
+{
+public:
+    RimEclipseCase* getCase(int caseId) const;
+
+    Status dimensions(ServerContext* context, const Case* request, Vec3i* reply) override;
+    Status results(ServerContext* context, const EclipseResultRequest* request, DoubleResult* result) override;
+    Status numberOfTimeSteps(ServerContext* context, const Case* request, Int32Message* reply) override;
+
+    std::vector<RiaGrpcServerCallMethod*> createCallbacks(ServerCompletionQueue* cq) override;
+};
+
+class RiaGrpcProjectInfoServiceImpl final : public ResInsight::ProjectInfo::AsyncService, public RiaGrpcServiceInterface
+{
+public:
+    Status GetCurrentCase(ServerContext* context, const Empty* request, Case* reply) override;
+
+    std::vector<RiaGrpcServerCallMethod*> createCallbacks(ServerCompletionQueue* cq) override;
 };
 
 template<typename ServiceT, typename RequestT, typename ReplyT>
