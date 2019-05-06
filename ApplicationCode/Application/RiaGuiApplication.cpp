@@ -1442,7 +1442,7 @@ void RiaGuiApplication::applyGuiPreferences(const RiaPreferences* oldPreferences
                     }
 
                     RimGridView* gridView = dynamic_cast<RimGridView*>(rim3dView);
-                    if (gridView)
+                    if (gridView && gridView->annotationCollection())
                     {
                         RiaFontCache::FontSize oldFontSize = oldPreferences->defaultAnnotationFontSize();
                         existingObjectsWithCustomFonts =

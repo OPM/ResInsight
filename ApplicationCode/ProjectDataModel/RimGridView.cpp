@@ -296,8 +296,11 @@ bool RimGridView::hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType
     if (fontSettingType == RiaDefines::ANNOTATION_FONT)
     {
         auto                   annotations         = annotationCollection();
-        RiaFontCache::FontSize defaultFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(defaultFontSize);
-        hasCustomFonts = annotations->hasTextAnnotationsWithCustomFontSize(defaultFontSizeEnum) || hasCustomFonts;
+        if (annotations)
+        {
+            RiaFontCache::FontSize defaultFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(defaultFontSize);
+            hasCustomFonts = annotations->hasTextAnnotationsWithCustomFontSize(defaultFontSizeEnum) || hasCustomFonts;
+        }
     }
     return hasCustomFonts;
 }
@@ -314,13 +317,16 @@ bool RimGridView::applyFontSize(RiaDefines::FontSettingType fontSettingType,
     if (fontSettingType == RiaDefines::ANNOTATION_FONT)
     {
         auto                   annotations = annotationCollection();
-        RiaFontCache::FontSize oldFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(oldFontSize);
-        RiaFontCache::FontSize newFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(fontSize);
-        bool applyFontSizes = forceChange || !annotations->hasTextAnnotationsWithCustomFontSize(oldFontSizeEnum);
-
-        if (applyFontSizes)
+        if (annotations)
         {
-            anyChange = annotations->applyFontSizeToAllTextAnnotations(oldFontSizeEnum, newFontSizeEnum, forceChange) || anyChange;
+            RiaFontCache::FontSize oldFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(oldFontSize);
+            RiaFontCache::FontSize newFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(fontSize);
+            bool applyFontSizes = forceChange || !annotations->hasTextAnnotationsWithCustomFontSize(oldFontSizeEnum);
+
+            if (applyFontSizes)
+            {
+                anyChange = annotations->applyFontSizeToAllTextAnnotations(oldFontSizeEnum, newFontSizeEnum, forceChange) || anyChange;
+            }
         }
     }
     return anyChange;
