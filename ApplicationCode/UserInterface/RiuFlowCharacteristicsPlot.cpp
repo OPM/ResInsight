@@ -113,20 +113,23 @@ RiuFlowCharacteristicsPlot::~RiuFlowCharacteristicsPlot()
 //--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::setLorenzCurve(const QStringList& dateTimeStrings, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
 {
-    initializeColors(dateTimes);
-
     m_lorenzPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
 
-    for (size_t tsIdx = 0; tsIdx < dateTimes.size(); ++tsIdx)
+    if (!dateTimes.empty())
     {
-        if (timeHistoryValues[tsIdx] == HUGE_VAL) continue;
+        initializeColors(dateTimes);
 
-        QDateTime dateTime = dateTimes[tsIdx];
-        double timeHistoryValue = timeHistoryValues[tsIdx];
+        for (size_t tsIdx = 0; tsIdx < dateTimes.size(); ++tsIdx)
+        {
+            if (timeHistoryValues[tsIdx] == HUGE_VAL) continue;
 
-        QString curveName = dateTimeStrings[static_cast<int>(tsIdx)];
+            QDateTime dateTime = dateTimes[tsIdx];
+            double timeHistoryValue = timeHistoryValues[tsIdx];
 
-        RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(m_lorenzPlot, curveName, m_dateToColorMap[dateTime], dateTime, timeHistoryValue);
+            QString curveName = dateTimeStrings[static_cast<int>(tsIdx)];
+
+            RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(m_lorenzPlot, curveName, m_dateToColorMap[dateTime], dateTime, timeHistoryValue);
+        }
     }
 
     m_lorenzPlot->replot();
