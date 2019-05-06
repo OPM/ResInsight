@@ -295,12 +295,9 @@ bool RimGridView::hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType
     bool hasCustomFonts = Rim3dView::hasCustomFontSizes(fontSettingType, defaultFontSize);
     if (fontSettingType == RiaDefines::ANNOTATION_FONT)
     {
-        auto annotations = annotationCollection();
-        if (annotations)
-        {
-            RiaFontCache::FontSize defaultFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(defaultFontSize);
-            hasCustomFonts = annotations->hasTextAnnotationsWithCustomFontSize(defaultFontSizeEnum) || hasCustomFonts;
-        }
+        auto                   annotations         = annotationCollection();
+        RiaFontCache::FontSize defaultFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(defaultFontSize);
+        hasCustomFonts = annotations->hasTextAnnotationsWithCustomFontSize(defaultFontSizeEnum) || hasCustomFonts;
     }
     return hasCustomFonts;
 }
@@ -316,18 +313,14 @@ bool RimGridView::applyFontSize(RiaDefines::FontSettingType fontSettingType,
     bool anyChange = Rim3dView::applyFontSize(fontSettingType, oldFontSize, fontSize, forceChange);
     if (fontSettingType == RiaDefines::ANNOTATION_FONT)
     {
-        auto annotations = annotationCollection();
-        if (annotations)
-        {
-            RiaFontCache::FontSize oldFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(oldFontSize);
-            RiaFontCache::FontSize newFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(fontSize);
-            bool applyFontSizes = forceChange || !annotations->hasTextAnnotationsWithCustomFontSize(oldFontSizeEnum);
+        auto                   annotations = annotationCollection();
+        RiaFontCache::FontSize oldFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(oldFontSize);
+        RiaFontCache::FontSize newFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(fontSize);
+        bool applyFontSizes = forceChange || !annotations->hasTextAnnotationsWithCustomFontSize(oldFontSizeEnum);
 
-            if (applyFontSizes)
-            {
-                anyChange =
-                    annotations->applyFontSizeToAllTextAnnotations(oldFontSizeEnum, newFontSizeEnum, forceChange) || anyChange;
-            }
+        if (applyFontSizes)
+        {
+            anyChange = annotations->applyFontSizeToAllTextAnnotations(oldFontSizeEnum, newFontSizeEnum, forceChange) || anyChange;
         }
     }
     return anyChange;
