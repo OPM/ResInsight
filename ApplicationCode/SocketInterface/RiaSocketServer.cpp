@@ -22,6 +22,7 @@
 #include "RiaSocketCommand.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 
 #include "RimEclipseCase.h"
@@ -35,7 +36,6 @@
 #include "cafFactory.h"
 
 #if QT_VERSION >= 0x050000
-#include <QtWidgets/qerrormessage.h>
 #include <QtWidgets/qmdisubwindow.h>
 #else
 #include <QtGui>
@@ -51,7 +51,6 @@
 RiaSocketServer::RiaSocketServer(QObject* parent)
 : QObject(parent),
   m_tcpServer(nullptr),
-  m_errMsg(""),
   m_currentClient(nullptr),
   m_currentCommandSize(0),
   m_currentCommand(nullptr),
@@ -65,16 +64,18 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
     m_nextPendingConnectionTimer->setInterval(100);
     m_nextPendingConnectionTimer->setSingleShot(true);
 
-    if (!m_tcpServer->listen(QHostAddress::LocalHost, 40001)) 
+    if (!m_tcpServer->listen(QHostAddress::LocalHost, 40001))
     {
-        m_errMsg = "Octave communication disabled :\n"
-                                              "\n"
-                                              "This instance of ResInsight could not start the Socket Server enabling octave to get and set data.\n"
-                                              "This is probably because you already have a running ResInsight process.\n"
-                                              "Octave can only communicate with one ResInsight process at a time, so the Octave\n"
-                                              "communication in this ResInsight instance will be disabled.\n"
-                                              "\n"
-                 + tr("The error from the socket system is: %1.").arg(m_tcpServer->errorString());
+        QString txt;
+        txt = "This instance of ResInsight could not start the Socket Server enabling octave to get and set data.\n "
+              "This is probably because you already have a running ResInsight process.\n"
+              "Octave can only communicate with one ResInsight process at a time, so the Octave\n"
+              "communication in this ResInsight instance will be disabled.\n"
+              "\n" +
+              tr("The error from the socket system is: %1.").arg(m_tcpServer->errorString());
+
+        RiaLogging::error(txt);
+
         return;
     }
 
@@ -88,22 +89,6 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
 RiaSocketServer::~RiaSocketServer()
 {
     assert (m_currentCommand == nullptr);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaSocketServer::isOk() const
-{
-    return m_errMsg.isEmpty();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaSocketServer::errMsg() const
-{
-    return m_errMsg;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,7 +122,10 @@ void RiaSocketServer::slotNewClientConnection()
 
         if (!isFinshed)
         {
-            RiaApplication::instance()->showErrorMessage(tr("ResInsight SocketServer: \n") + tr("Warning : The command did not finish up correctly at the presence of a new one."));
+            QString txt;
+            txt = "ResInsight SocketServer : The command did not finish up correctly at the presence of a new one.";
+            
+            RiaLogging::error(txt);
         }
     }
 
@@ -248,7 +236,10 @@ bool RiaSocketServer::readCommandFromOctave()
     }
     else
     {
-        RiaApplication::instance()->showErrorMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
+        QString txt;
+        txt = QString("ResInsight SocketServer: Unknown command: %1").arg(args[0].data());
+
+        RiaLogging::error(txt);
         return true;
     }
 }
@@ -266,7 +257,10 @@ void RiaSocketServer::slotCurrentClientDisconnected()
 
         if (!isFinished)
         {
-            RiaApplication::instance()->showErrorMessage(tr("ResInsight SocketServer: \n") + tr("Warning : The command was interrupted and did not finish because the connection to octave disconnected."));
+            QString txt;
+            txt = QString("ResInsight SocketServer: The command was interrupted and did not finish because the connection to octave disconnected.");
+
+            RiaLogging::error(txt);
         }
     }
 
@@ -311,6 +305,14 @@ void RiaSocketServer::setCurrentCaseId(int caseId)
 int RiaSocketServer::currentCaseId() const
 {
     return m_currentCaseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::showErrorMessage(const QString& message) const
+{
+    RiaLogging::error(message);
 }
 
 //--------------------------------------------------------------------------------------------------
