@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+import "CaseInfo.proto";
+
+package ResInsight;
+
+service ProjectInfo {
+  rpc GetCurrentCase(Empty) returns (Case) {}
+}

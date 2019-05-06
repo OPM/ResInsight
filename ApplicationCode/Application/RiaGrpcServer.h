@@ -37,6 +37,8 @@
 #include <iostream>
 #include <mutex>
 
+#include "CaseInfo.grpc.pb.h"
+#include "ProjectInfo.grpc.pb.h"
 #include "ResInsightGrid.grpc.pb.h"
 
 using grpc::Server;
@@ -47,12 +49,14 @@ using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
 using grpc::Status;
 using ResInsight::Grid;
+using ResInsight::ProjectInfo;
 using ResInsight::Case;
 using ResInsight::Int32Message;
 using ResInsight::Vec3i;
 using ResInsight::EclipseResultRequest;
 using ResInsight::EclipseResultAddress;
 using ResInsight::DoubleResult;
+using ResInsight::Empty;
 
 class RimEclipseCase;
 
@@ -66,6 +70,13 @@ public:
     Status results(ServerContext* context, const EclipseResultRequest* request, DoubleResult* result) override;
     Status numberOfTimeSteps(ServerContext* context, const Case* request, Int32Message* reply) override;
 };
+
+class RiaGrpcProjectInfoServiceImpl final : public ResInsight::ProjectInfo::AsyncService
+{
+public:
+    Status GetCurrentCase(ServerContext* context, const Empty* request, Case* reply) override;
+};
+
 
 class RiaGrpcServerCallMethod
 {
@@ -104,15 +115,15 @@ private:
     CallStatus  m_status;
 };
 
-template<typename RequestT, typename ReplyT>
+template<typename ServiceT, typename RequestT, typename ReplyT>
 class RiaGrpcServerCallData : public RiaGrpcServerCallMethod
 {
 public:
     typedef ServerAsyncResponseWriter<ReplyT> ResponseWriterT;
-    typedef std::function<Status(RiaGrpcGridServiceImpl&, ServerContext*, const RequestT*, ReplyT*)> MethodImpl;
-    typedef std::function<void(RiaGrpcGridServiceImpl&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)> RequestImpl;
+    typedef std::function<Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*)> MethodImpl;
+    typedef std::function<void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)> RequestImpl;
 
-    RiaGrpcServerCallData(RiaGrpcGridServiceImpl* service, ServerCompletionQueue* cq, const std::string& methodName, MethodImpl methodImpl, RequestImpl methodRequest)
+    RiaGrpcServerCallData(ServiceT* service, ServerCompletionQueue* cq, const std::string& methodName, MethodImpl methodImpl, RequestImpl methodRequest)
         : RiaGrpcServerCallMethod(methodName)
         , m_service(service)
         , m_completionQueue(cq)
@@ -138,7 +149,7 @@ public:
 
     RiaGrpcServerCallMethod* clone() const override
     {
-        return new RiaGrpcServerCallData<RequestT, ReplyT>(m_service, m_completionQueue, methodName(), m_methodImpl, m_methodRequest);
+        return new RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>(m_service, m_completionQueue, methodName(), m_methodImpl, m_methodRequest);
     }
 
     void createRequest() override
@@ -159,7 +170,7 @@ public:
     }
 
 private:
-    RiaGrpcGridServiceImpl*               m_service;
+    ServiceT*                         m_service;
     ServerCompletionQueue*            m_completionQueue;
     ServerContext                     m_context;
     RequestT                          m_request;
@@ -186,6 +197,7 @@ private:
     std::unique_ptr<ServerCompletionQueue> m_completionQueue;
     std::unique_ptr<Server>                m_server;
     RiaGrpcGridServiceImpl                 m_service;
+    RiaGrpcProjectInfoServiceImpl          m_projectService;
     std::list<RiaGrpcServerCallMethod*>    m_receivedRequests;
     std::mutex                             m_requestMutex;
 };
