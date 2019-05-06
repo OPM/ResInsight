@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
         const cvf::String usageText = progOpt.usageText(110, 30);
         app->showErrorMessage(RiaApplication::commandLineParameterHelp() +
                               cvfqt::Utils::toQString(usageText) +
-                              unknownOptionsText.join('\n'));
+                              unknownOptionsText.join("\n"));
         app->cleanupBeforeProgramExit();
         if (dynamic_cast<RiaGuiApplication*>(app.get()) == nullptr)
         {
