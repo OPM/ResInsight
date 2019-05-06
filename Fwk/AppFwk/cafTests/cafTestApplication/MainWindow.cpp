@@ -148,7 +148,7 @@ public:
             options.push_back(caf::PdmOptionItemInfo(text, text));
 
             text = "Second";
-            options.push_back(caf::PdmOptionItemInfo::createHeader(text, false, QIcon(QString(":/images/win/textbold.png"))));
+            options.push_back(caf::PdmOptionItemInfo::createHeader(text, false, caf::QIconProvider(":/images/win/textbold.png")));
 
             {
                 text = "Second_a";
@@ -159,7 +159,7 @@ public:
 
             {
                 text = "Second_b";
-                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text, false, QIcon(QString(":/images/win/filenew.png")));
+                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text, false, caf::QIconProvider(":/images/win/filenew.png"));
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }
