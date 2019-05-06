@@ -106,7 +106,9 @@ bool RiaArgumentParser::parseArguments(cvf::ProgramOptions* progOpt)
     progOpt->registerOption("?", "", "Displays help text.");
     progOpt->registerOption("regressiontest", "<folder>", "System command", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt->registerOption("updateregressiontestbase", "<folder>", "System command", cvf::ProgramOptions::SINGLE_VALUE);
+#ifdef USE_UNIT_TESTS
     progOpt->registerOption("unittest", "", "System command");
+#endif
     progOpt->registerOption("ignoreArgs", "", "Ignore all arguments. Mostly for testing purposes");
 
     progOpt->setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
