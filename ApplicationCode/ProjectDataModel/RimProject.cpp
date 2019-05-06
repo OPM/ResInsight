@@ -174,7 +174,7 @@ RimProject::RimProject(void)
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.uiCapability()->setUiHidden(true);
     scriptCollection->uiCapability()->setUiName("Scripts");
-    scriptCollection->uiCapability()->setUiIcon(":/octave.png");
+    scriptCollection->uiCapability()->setUiIconFromResourceString(":/octave.png");
 
     mainPlotCollection = new RimMainPlotCollection();
 

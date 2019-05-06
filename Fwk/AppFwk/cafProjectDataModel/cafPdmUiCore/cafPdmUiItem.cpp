@@ -279,7 +279,7 @@ void PdmUiItem::setUiIcon(const QIconProvider& uiIconProvider, const QString& ui
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiItem::setUiIcon(const QString& uiIconResourceName, const QString& uiConfigName /*= ""*/)
+void PdmUiItem::setUiIconFromResourceString(const QString& uiIconResourceName, const QString& uiConfigName /*= ""*/)
 {
     setUiIcon(caf::QIconProvider(uiIconResourceName), uiConfigName);
 }

@@ -256,15 +256,15 @@ void RimValveTemplate::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderi
     this->setName(fullLabel());
     if (m_type() == RiaDefines::ICV)
     {
-        this->setUiIcon(":/ICVValve16x16.png");
+        this->setUiIconFromResourceString(":/ICVValve16x16.png");
     }
     else if (m_type() == RiaDefines::ICD)
     {
-        this->setUiIcon(":/ICDValve16x16.png");
+        this->setUiIconFromResourceString(":/ICDValve16x16.png");
     }
     else if (m_type() == RiaDefines::AICD)
     {
-        this->setUiIcon(":/AICDValve16x16.png");
+        this->setUiIconFromResourceString(":/AICDValve16x16.png");
     }
 
 }

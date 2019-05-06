@@ -227,7 +227,7 @@ public:
     const QIcon         uiIcon(const QString& uiConfigName = "") const;
     const QIconProvider uiIconProvider(const QString& uiConfigName = "") const;
     void                setUiIcon(const QIconProvider& uiIcon, const QString& uiConfigName = ""); 
-    void                setUiIcon(const QString& uiIconResourceName, const QString& uiConfigName = "");
+    void                setUiIconFromResourceString(const QString& uiIconResourceName, const QString& uiConfigName = "");
 
     const QColor     uiContentTextColor(const QString& uiConfigName = "") const;
     void             setUiContentTextColor(const QColor& uiIcon, const QString& uiConfigName = ""); 

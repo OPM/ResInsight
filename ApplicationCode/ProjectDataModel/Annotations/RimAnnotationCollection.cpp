@@ -62,9 +62,9 @@ RimAnnotationCollection::RimAnnotationCollection()
     m_userDefinedPolylineAnnotations->uiCapability()->setUiName(RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME);
     m_polylineFromFileAnnotations->uiCapability()->setUiName(RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME);
 
-    m_reachCircleAnnotations->uiCapability()->setUiIcon(":/ReachCircle16x16.png");
-    m_userDefinedPolylineAnnotations->uiCapability()->setUiIcon(":/PolylinesFromFile16x16.png");
-    m_polylineFromFileAnnotations->uiCapability()->setUiIcon(":/PolylinesFromFile16x16.png");
+    m_reachCircleAnnotations->uiCapability()->setUiIconFromResourceString(":/ReachCircle16x16.png");
+    m_userDefinedPolylineAnnotations->uiCapability()->setUiIconFromResourceString(":/PolylinesFromFile16x16.png");
+    m_polylineFromFileAnnotations->uiCapability()->setUiIconFromResourceString(":/PolylinesFromFile16x16.png");
 
 }
 

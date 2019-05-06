@@ -105,10 +105,10 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
     m_globalUserDefinedPolylineAnnotations->uiCapability()->setUiName("Global User Defined Polylines Annotations");
     m_globalPolylineFromFileAnnotations->uiCapability()->setUiName("Global Polylines From File Annotations");
 
-    m_globalTextAnnotations->uiCapability()->setUiIcon(":/TextAnnotation16x16.png");
-    m_globalReachCircleAnnotations->uiCapability()->setUiIcon(":/ReachCircle16x16.png");
-    m_globalUserDefinedPolylineAnnotations->uiCapability()->setUiIcon(":/PolylinesFromFile16x16.png");
-    m_globalPolylineFromFileAnnotations->uiCapability()->setUiIcon(":/PolylinesFromFile16x16.png");
+    m_globalTextAnnotations->uiCapability()->setUiIconFromResourceString(":/TextAnnotation16x16.png");
+    m_globalReachCircleAnnotations->uiCapability()->setUiIconFromResourceString(":/ReachCircle16x16.png");
+    m_globalUserDefinedPolylineAnnotations->uiCapability()->setUiIconFromResourceString(":/PolylinesFromFile16x16.png");
+    m_globalPolylineFromFileAnnotations->uiCapability()->setUiIconFromResourceString(":/PolylinesFromFile16x16.png");
 }
 
 //--------------------------------------------------------------------------------------------------
