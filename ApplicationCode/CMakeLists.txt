@@ -44,6 +44,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
+	${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/Measurement
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
@@ -96,6 +97,12 @@ list( APPEND CPP_SOURCES
      ${SOCKET_INTERFACE_FILES}
      ${UNIT_TEST_FILES}
 )
+
+if (RESINSIGHT_ENABLE_GRPC)
+	list( APPEND REFERENCED_CMAKE_FILES
+		GrpcInterface/CMakeLists_files.cmake
+	)
+endif(RESINSIGHT_ENABLE_GRPC)
 
 list( APPEND REFERENCED_CMAKE_FILES
     Application/CMakeLists_files.cmake
@@ -152,7 +159,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     CommandFileInterface/Core/CMakeLists_files.cmake
     Commands/FractureCommands/CMakeLists_files.cmake
 )
-
+	
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
 if (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
     add_definitions(-DUSE_UNIT_TESTS)
@@ -229,66 +236,6 @@ endif()
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     add_definitions(-DENABLE_SOURING)
 endif()
-
-if (RESINSIGHT_ENABLE_GRPC)
-	if (MSVC)
-		add_definitions(-D_WIN32_WINNT=0x600)		
-	endif()
-
-    add_definitions(-DENABLE_GRPC)
-	# Find Protobuf installation
-	# Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
-	set(protobuf_MODULE_COMPATIBLE ON CACHE BOOL "")
-	find_package(Protobuf CONFIG 3.0 REQUIRED)
-	message(STATUS "Using protobuf ${protobuf_VERSION}")
-
-	set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-	set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
-
-	# Find gRPC installation
-	# Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
-	find_package(gRPC CONFIG REQUIRED NO_MODULE)
-	message(STATUS "Using gRPC ${gRPC_VERSION}")
-	
-	set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure)
-	set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)	
-	set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
-
-	# Proto files
-	set(PROTO_FILES
-	    "CaseInfo"
-		"ProjectInfo"
-		"ResInsightGrid"		
-	)
-	
-	foreach(proto_file ${PROTO_FILES})		
-		get_filename_component(hw_proto "GrpcProtos/${proto_file}.proto" ABSOLUTE)
-		get_filename_component(hw_proto_path "${hw_proto}" PATH)
-
-		set(hw_proto_srcs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.pb.cc")
-		set(hw_proto_hdrs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.pb.h")
-		set(hw_grpc_srcs  "${CMAKE_BINARY_DIR}/Generated/${proto_file}.grpc.pb.cc")
-		set(hw_grpc_hdrs  "${CMAKE_BINARY_DIR}/Generated/${proto_file}.grpc.pb.h")
-
-		add_custom_command(
-			OUTPUT "${hw_proto_srcs}" "${hw_proto_hdrs}" "${hw_grpc_srcs}" "${hw_grpc_hdrs}"
-			COMMAND ${_PROTOBUF_PROTOC}
-			ARGS --grpc_out "${CMAKE_BINARY_DIR}/Generated/"
-				--cpp_out "${CMAKE_BINARY_DIR}/Generated/"
-				-I "${hw_proto_path}"
-				--plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
-				"${hw_proto}"
-			DEPENDS "${hw_proto}"
-		)
-
-		list( APPEND CPP_SOURCES
-			 ${hw_proto_srcs}
-			${hw_grpc_srcs}
-		)
-	endforeach(proto_file)
-
-	
-endif(RESINSIGHT_ENABLE_GRPC)
 
 #############################################################################
 # Qt specifics: Moc, ui, resources
@@ -370,6 +317,8 @@ elseif (APPLE)
 endif()
 set( EXE_FILES
     ${EXE_FILES}
+	${GENERATED_HEADER_FILES}
+	${GENERATED_CPP_SOURCES}
     ${CPP_SOURCES}
     ${MOC_SOURCE_FILES}
     ${FORM_FILES_CPP}
