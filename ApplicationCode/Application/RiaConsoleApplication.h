@@ -44,7 +44,7 @@ public:
 
 protected:
     // Protected implementation specific overrides
-    void handleEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;
+    void invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;
     void onProjectOpeningError(const QString& errMsg) override;
     void onProjectOpened();
     void onProjectClosed();

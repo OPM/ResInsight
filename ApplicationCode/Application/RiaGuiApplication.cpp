@@ -1230,7 +1230,7 @@ void RiaGuiApplication::showErrorMessage(const QString& errMsg)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::handleEvents(QEventLoop::ProcessEventsFlags flags)
+void RiaGuiApplication::invokeProcessEvents(QEventLoop::ProcessEventsFlags flags)
 {
     processEvents(flags);
 }
@@ -1374,7 +1374,7 @@ void RiaGuiApplication::onProjectClosed()
 void RiaGuiApplication::cleanupBeforeProgramExit()
 {
     closeAllWindows();
-    handleEvents();
+    invokeProcessEvents();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -135,7 +135,7 @@ public:
     void                cleanupBeforeProgramExit() override;
 protected:
     // Protected RiaApplication overrides
-    void                handleEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;    
+    void                invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;    
     void                onChangedActiveReservoirView() override;
     void                onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) override;
     void                onProjectBeingOpened() override;

@@ -1163,7 +1163,7 @@ void RiaApplication::waitUntilCommandObjectsHasBeenProcessed()
 
     while (!mutexLockedSuccessfully)
     {
-        handleEvents();
+        invokeProcessEvents();
 
         mutexLockedSuccessfully = m_commandQueueLock.tryLock();
     }

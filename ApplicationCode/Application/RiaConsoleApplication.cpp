@@ -335,7 +335,7 @@ void RiaConsoleApplication::showErrorMessage(const QString& errMsg)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaConsoleApplication::handleEvents(QEventLoop::ProcessEventsFlags flags /*= QEventLoop::AllEvents*/)
+void RiaConsoleApplication::invokeProcessEvents(QEventLoop::ProcessEventsFlags flags /*= QEventLoop::AllEvents*/)
 {
     processEvents(flags);
 }
