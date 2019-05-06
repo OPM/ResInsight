@@ -37,6 +37,7 @@
 
 #pragma once
 
+#include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfFont.h"
 #include "cvfGlyph.h"

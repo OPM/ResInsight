@@ -18,7 +18,7 @@
 
 #include "RicCloseSummaryCaseInCollectionFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RicCloseSummaryCaseFeature.h"
 
@@ -94,7 +94,7 @@ void RicCloseSummaryCaseInCollectionFeature::onActionTriggered(bool isChecked)
         RicCloseSummaryCaseFeature::deleteSummaryCases(collectionSummaryCases);
     }
 
-    RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateSummaryPlotToolBar();
 }
 

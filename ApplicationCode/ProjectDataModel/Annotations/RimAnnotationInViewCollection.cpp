@@ -105,10 +105,10 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
     m_globalUserDefinedPolylineAnnotations->uiCapability()->setUiName("Global User Defined Polylines Annotations");
     m_globalPolylineFromFileAnnotations->uiCapability()->setUiName("Global Polylines From File Annotations");
 
-    m_globalTextAnnotations->uiCapability()->setUiIcon(QIcon(":/TextAnnotation16x16.png"));
-    m_globalReachCircleAnnotations->uiCapability()->setUiIcon(QIcon(":/ReachCircle16x16.png"));
-    m_globalUserDefinedPolylineAnnotations->uiCapability()->setUiIcon(QIcon(":/PolylinesFromFile16x16.png"));
-    m_globalPolylineFromFileAnnotations->uiCapability()->setUiIcon(QIcon(":/PolylinesFromFile16x16.png"));
+    m_globalTextAnnotations->uiCapability()->setUiIcon(":/TextAnnotation16x16.png");
+    m_globalReachCircleAnnotations->uiCapability()->setUiIcon(":/ReachCircle16x16.png");
+    m_globalUserDefinedPolylineAnnotations->uiCapability()->setUiIcon(":/PolylinesFromFile16x16.png");
+    m_globalPolylineFromFileAnnotations->uiCapability()->setUiIcon(":/PolylinesFromFile16x16.png");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,6 +296,10 @@ void RimAnnotationInViewCollection::defineUiOrdering(QString uiConfigName, caf::
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (changedField == &m_isActive)
+    {
+        updateUiIconFromToggleField();
+    }
     scheduleRedrawOfRelevantViews();
 }
 

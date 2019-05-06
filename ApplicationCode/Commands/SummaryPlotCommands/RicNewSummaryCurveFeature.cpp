@@ -18,7 +18,7 @@
 
 #include "RicNewSummaryCurveFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
 
 #include "RiaSummaryTools.h"
@@ -117,7 +117,8 @@ bool RicNewSummaryCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+    RimProject* project = app->project();
     CVF_ASSERT(project);
 
     RimSummaryPlot* plot = selectedSummaryPlot();
@@ -133,9 +134,9 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
 
         plot->updateConnectedEditors();
 
-        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
+        app->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
 
-        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 }

@@ -18,7 +18,7 @@
 
 #include "RivPolylineAnnotationPartMgr.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaBoundingBoxTools.h"
 
 #include "Rim3dView.h"
@@ -134,7 +134,7 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
             }
 
             cvf::ref<cvf::DrawableVectors> vectorDrawable;
-            if (RiaApplication::instance()->useShaders())
+            if (RiaGuiApplication::instance()->useShaders())
             {
                 // NOTE: Drawable vectors must be rendered using shaders when the rest of the application is rendered using
                 // shaders Drawing vectors using fixed function when rest of the application uses shaders causes visual artifacts

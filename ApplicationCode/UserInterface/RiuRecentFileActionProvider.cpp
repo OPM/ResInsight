@@ -18,7 +18,7 @@
 
 #include "RiuRecentFileActionProvider.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaFilePathTools.h"
 
 #include <QAction>
@@ -125,7 +125,7 @@ void RiuRecentFileActionProvider::slotOpenRecentFile()
     {
         QString fileName = RiaFilePathTools::toInternalSeparator(action->data().toString());
 
-        RiaApplication* app = RiaApplication::instance();
+        RiaGuiApplication* app = RiaGuiApplication::instance();
         if (RiaApplication::hasValidProjectFileExtension(fileName))
         {
             if (!app->askUserToSaveModifiedProject()) return;

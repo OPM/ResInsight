@@ -40,7 +40,7 @@ CAF_CMD_SOURCE_INIT(RicImportGeneralDataFeature, "RicImportGeneralDataFeature");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openEclipseFilesFromFileNames(const QStringList& fileNames)
+RicImportGeneralDataFeature::OpenCaseResults RicImportGeneralDataFeature::openEclipseFilesFromFileNames(const QStringList& fileNames)
 {
     CVF_ASSERT(!fileNames.empty());
 
@@ -66,23 +66,35 @@ bool RicImportGeneralDataFeature::openEclipseFilesFromFileNames(const QStringLis
         }
     }
 
-    bool allSucceeded = true;
+    OpenCaseResults results;
     if (!eclipseCaseFiles.empty())
     {
-        allSucceeded = allSucceeded && openEclipseCaseFromFileNames(eclipseCaseFiles);
-        RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ECLIPSE_EGRID_FILE), defaultDir);
+        if (!openEclipseCaseFromFileNames(eclipseCaseFiles))
+        {
+            return OpenCaseResults();
+        }
+        results.eclipseCaseFiles = eclipseCaseFiles;
+        RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ECLIPSE_EGRID_FILE), defaultDir);        
     }
     if (!eclipseInputFiles.empty())
     {
-        allSucceeded = allSucceeded && openInputEclipseCaseFromFileNames(eclipseInputFiles);
-        RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ECLIPSE_INPUT_FILE), defaultDir);
+        if (!openInputEclipseCaseFromFileNames(eclipseInputFiles))
+        {
+            return OpenCaseResults();
+        }
+        results.eclipseInputFiles = eclipseInputFiles;
+        RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ECLIPSE_INPUT_FILE), defaultDir);        
     }
     if (!eclipseSummaryFiles.empty())
     {
-        allSucceeded = allSucceeded && openSummaryCaseFromFileNames(eclipseSummaryFiles);
+        if (!openSummaryCaseFromFileNames(eclipseSummaryFiles))
+        {
+            return OpenCaseResults();
+        }
+        results.eclipseSummaryFiles = eclipseSummaryFiles;
         RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ECLIPSE_SUMMARY_FILE), defaultDir);
     }
-    return allSucceeded;
+    return results;
 }
 
 

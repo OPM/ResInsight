@@ -18,7 +18,7 @@
 
 #include "RicPasteGridCrossPlotDataSetFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RiuPlotMainWindowTools.h"
@@ -70,7 +70,7 @@ void RicPasteGridCrossPlotDataSetFeature::onActionTriggered(bool isChecked)
             }
 
 
-            RiaApplication::instance()->getOrCreateMainPlotWindow();
+            RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
             crossPlot->updateAllRequiredEditors();
             crossPlot->loadDataAndUpdate();
 

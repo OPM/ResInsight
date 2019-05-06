@@ -19,7 +19,7 @@
 
 #include "RimObservedDataCollection.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
 #include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
@@ -108,7 +108,7 @@ void updateNewSummaryObjectCreated(caf::PdmObject* object)
 
     caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 
-    RiuPlotMainWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
     if (mpw) mpw->updateSummaryPlotToolBar();
 }
 

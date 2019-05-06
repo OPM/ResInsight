@@ -218,8 +218,8 @@ void RimPlotAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axis ax
     m_name = name;
     m_axis = axis;
 
-    if (axis == QwtPlot::yRight) this->setUiIcon(QIcon(":/RightAxis16x16.png"));
-    if (axis == QwtPlot::xBottom) this->setUiIcon(QIcon(":/BottomAxis16x16.png"));
+    if (axis == QwtPlot::yRight) this->setUiIcon(":/RightAxis16x16.png");
+    if (axis == QwtPlot::xBottom) this->setUiIcon(":/BottomAxis16x16.png");
 }
 
 //--------------------------------------------------------------------------------------------------

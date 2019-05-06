@@ -23,7 +23,8 @@
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 
 #include "RiuMainWindow.h"
 
@@ -57,10 +58,16 @@ RicfExportSnapshots::RicfExportSnapshots()
 //--------------------------------------------------------------------------------------------------
 void RicfExportSnapshots::execute()
 {
+    if (!RiaGuiApplication::isRunning())
+    {
+        RiaLogging::error(QString("RicfExportSnapshot: Command cannot run without a GUI"));
+        return;
+    }
+
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     CVF_ASSERT(mainWnd);
     mainWnd->hideAllDockWindows();
-    RiaApplication::instance()->processEvents();
+    RiaGuiApplication::instance()->processEvents();
 
     QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::SNAPSHOTS);
     if (absolutePathToSnapshotDir.isNull())
@@ -77,5 +84,5 @@ void RicfExportSnapshots::execute()
     }
 
     mainWnd->loadWinGeoAndDockToolBarLayout();
-    RiaApplication::instance()->processEvents();
+    RiaGuiApplication::instance()->processEvents();
 }

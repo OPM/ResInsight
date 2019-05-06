@@ -18,7 +18,7 @@
 
 #include "RicCloseSummaryCaseFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
@@ -70,7 +70,7 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases(std::vector<RimSummaryCase*>
 
     summaryCaseMainCollection->updateAllRequiredEditors();
 
-    RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateSummaryPlotToolBar();
 
     caf::AsyncPdmObjectVectorDeleter<RimSummaryCase> summaryCaseDeleter(cases);

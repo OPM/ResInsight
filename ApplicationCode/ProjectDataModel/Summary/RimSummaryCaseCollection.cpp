@@ -576,8 +576,8 @@ QString RimSummaryCaseCollection::nameAndItemCount() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::updateIcon()
 {
-    if (m_isEnsemble) setUiIcon(QIcon(":/SummaryEnsemble16x16.png"));
-    else              setUiIcon(QIcon(":/SummaryGroup16x16.png"));
+    if (m_isEnsemble) setUiIcon(":/SummaryEnsemble16x16.png");
+    else              setUiIcon(":/SummaryGroup16x16.png");
 }
 
 //--------------------------------------------------------------------------------------------------

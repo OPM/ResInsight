@@ -18,7 +18,7 @@
 
 #include "RimSummaryCurve.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaDefines.h"
 
 #include "RifReaderEclipseSummary.h"
@@ -584,9 +584,12 @@ void RimSummaryCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderin
     RimPlotCurve::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
 
     // Reset dynamic icon
-    this->setUiIcon(QIcon());
+    this->setUiIcon(caf::QIconProvider());
     // Get static one
-    QIcon icon = this->uiIcon();
+    caf::QIconProvider iconProvider = this->uiIconProvider();
+    if (iconProvider.isNull()) return;
+
+    QIcon icon = iconProvider.icon();
 
     RimSummaryCurveCollection* coll = nullptr;
     this->firstAncestorOrThisOfType(coll);
@@ -596,11 +599,9 @@ void RimSummaryCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderin
         QPainter painter(&combined);
         QPixmap updownpixmap(":/StepUpDownCorner16x16.png");
         painter.drawPixmap(0,0,updownpixmap);
-
-        icon = QIcon(combined);
+        iconProvider.setPixmap(combined);
+        setUiIcon(iconProvider);
     }
-
-    this->setUiIcon(icon);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -872,7 +873,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         plot->updatePlotTitle();
         plot->updateConnectedEditors();
 
-        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
 
         if (m_showCurve() == true)
@@ -1030,7 +1031,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         plot->updatePlotTitle();
         plot->updateConnectedEditors();
 
-        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 

@@ -18,7 +18,7 @@
 
 #include "RicNewSummaryEnsembleCurveSetFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
 
 #include "RiaSummaryTools.h"
@@ -77,7 +77,7 @@ RimEnsembleCurveSet* RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSet(Ri
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetAndUpdate(RimSummaryCaseCollection* ensemble)
 {
-    RiaApplication* app  = RiaApplication::instance();
+    RiaGuiApplication* app  = RiaGuiApplication::instance();
     RimProject*     proj = app->project();
 
     RimSummaryPlotCollection* summaryPlotCollection = proj->mainPlotCollection->summaryPlotCollection();

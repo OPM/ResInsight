@@ -22,6 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cafQIconProvider.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -130,6 +131,5 @@ private:
     caf::PdmField<bool>                     m_syncVisibleCells;
     caf::PdmField<bool>                     m_syncPropertyFilters;
 
-    QIcon                                   m_originalIcon;
     cvf::ref<RigCaseToCaseCellMapper>       m_caseToCaseCellMapper;
 };

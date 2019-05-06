@@ -38,9 +38,10 @@
 #pragma once
 
 #include "cafPdmUiFieldSpecialization.h"
+#include "cafQIconProvider.h"
 
+#include <QApplication>
 #include <QString>
-#include <QIcon>
 #include <QVariant>
 #include <set>
 
@@ -55,6 +56,13 @@ namespace caf
 class PdmUiItemInfo
 {
 public:  
+    enum LabelPosType
+    {
+        LEFT,
+        TOP,
+        HIDDEN
+    };
+
     PdmUiItemInfo()
         : m_editorTypeName("")
         , m_isHidden(-1)
@@ -64,26 +72,25 @@ public:
         , m_isCustomContextMenuEnabled(-1)
     {}
 
-    PdmUiItemInfo(const QString& uiName, QIcon icon = QIcon(), QString toolTip = "", QString whatsThis = "", QString extraDebugText = "")
-        : m_uiName(uiName)
-        , m_icon(icon)
-        , m_toolTip(toolTip)
-        , m_whatsThis(whatsThis)
-        , m_extraDebugText(extraDebugText)
-        , m_editorTypeName("")
-        , m_isHidden(false)
-        , m_isTreeChildrenHidden(false)
-        , m_isReadOnly(false)
-        , m_labelAlignment(LEFT)
-        , m_isCustomContextMenuEnabled(false)
-    { }
+    PdmUiItemInfo(const QString& uiName,
+                  QString        iconResourceLocation = "",
+                  QString        toolTip        = "",
+                  QString        whatsThis      = "",
+                  QString        extraDebugText = "");
 
-    enum LabelPosType { LEFT, TOP, HIDDEN };
+    PdmUiItemInfo(const QString& uiName,
+                  QIconProvider  iconProvider   = QIconProvider(),
+                  QString        toolTip        = "",
+                  QString        whatsThis      = "",
+                  QString        extraDebugText = "");
+
+    QIcon                icon() const;
+    const QIconProvider& iconProvider() const;
 
 private: 
     friend class PdmUiItem;
     QString         m_uiName;
-    QIcon           m_icon;
+    QIconProvider   m_iconProvider;
     QColor          m_contentTextColor;     ///< Color of a fields value text. Invalid by default. An Invalid color is not used.
     QString         m_toolTip;
     QString         m_whatsThis;
@@ -104,10 +111,10 @@ private:
 class PdmOptionItemInfo
 {
 public:
-    PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool isReadOnly = false, QIcon anIcon = QIcon());
-    PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool isReadOnly = false, QIcon anIcon = QIcon());
+    PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool isReadOnly = false, const QIconProvider& anIcon = QIconProvider());
+    PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool isReadOnly = false, const QIconProvider& anIcon = QIconProvider());
 
-    static PdmOptionItemInfo createHeader(const QString& anOptionUiText, bool isReadOnly = false, QIcon anIcon = QIcon());
+    static PdmOptionItemInfo createHeader(const QString& anOptionUiText, bool isReadOnly = false, const QIconProvider& anIcon = QIconProvider());
 
     void            setLevel(int level);
 
@@ -128,11 +135,11 @@ public:
                                       std::vector<unsigned int>& foundIndexes);
 
 private:
-    QString     m_optionUiText;
-    QVariant    m_value;
-    bool        m_isReadOnly;
-    QIcon       m_icon;
-    int         m_level;
+    QString       m_optionUiText;
+    QVariant      m_value;
+    bool          m_isReadOnly;
+    QIconProvider m_iconProvider;
+    int           m_level;
 };
 
 class PdmUiEditorHandle;
@@ -217,8 +224,10 @@ public:
     const QString    uiName(const QString& uiConfigName = "") const;
     void             setUiName(const QString& uiName, const QString& uiConfigName = ""); 
 
-    const QIcon      uiIcon(const QString& uiConfigName = "") const;
-    void             setUiIcon(const QIcon& uiIcon, const QString& uiConfigName = ""); 
+    const QIcon         uiIcon(const QString& uiConfigName = "") const;
+    const QIconProvider uiIconProvider(const QString& uiConfigName = "") const;
+    void                setUiIcon(const QIconProvider& uiIcon, const QString& uiConfigName = ""); 
+    void                setUiIcon(const QString& uiIconResourceName, const QString& uiConfigName = "");
 
     const QColor     uiContentTextColor(const QString& uiConfigName = "") const;
     void             setUiContentTextColor(const QColor& uiIcon, const QString& uiConfigName = ""); 

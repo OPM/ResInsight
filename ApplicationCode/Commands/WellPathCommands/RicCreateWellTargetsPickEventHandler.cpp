@@ -18,7 +18,7 @@
 
 #include "RicCreateWellTargetsPickEventHandler.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaOffshoreSphericalCoords.h"
 
 #include "RigFemPart.h"
@@ -70,7 +70,7 @@ RicCreateWellTargetsPickEventHandler::~RicCreateWellTargetsPickEventHandler() {}
 //--------------------------------------------------------------------------------------------------
 void RicCreateWellTargetsPickEventHandler::registerAsPickEventHandler()
 {
-    RiaApplication::instance()->setOverrideCursor(Qt::CrossCursor);
+    RiaGuiApplication::instance()->setOverrideCursor(Qt::CrossCursor);
     Ric3dViewPickEventHandler::registerAsPickEventHandler();
 }
 
@@ -79,7 +79,7 @@ void RicCreateWellTargetsPickEventHandler::registerAsPickEventHandler()
 //--------------------------------------------------------------------------------------------------
 void RicCreateWellTargetsPickEventHandler::notifyUnregistered()
 {
-    RiaApplication::instance()->restoreOverrideCursor();
+    RiaGuiApplication::instance()->restoreOverrideCursor();
 }
 
 //--------------------------------------------------------------------------------------------------

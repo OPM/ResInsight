@@ -19,7 +19,7 @@
 #include "RicCreateSaturationPressurePlotsFeature.h"
 #include "RicSaturationPressureUi.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
 
@@ -147,7 +147,7 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
             RicSaturationPressureUi saturationPressureUi;
             saturationPressureUi.setSelectedCase(eclipseCases[0]);
 
-            RiuPlotMainWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
+            RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
 
             caf::PdmUiPropertyViewDialog propertyDialog(
                 plotwindow, &saturationPressureUi, "Select Case to create Pressure Saturation plots", "");
@@ -182,7 +182,7 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered(bool isChecked)
     }
 
     collection->updateAllRequiredEditors();
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
 
     if (objectToSelect)
     {

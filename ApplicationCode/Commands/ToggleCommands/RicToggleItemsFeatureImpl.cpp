@@ -21,7 +21,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiItem.h"
@@ -161,7 +161,7 @@ caf::PdmUiTreeOrdering* RicToggleItemsFeatureImpl::findTreeItemFromSelectedUiIte
     QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex(uiItem);
     if(!modIndex.isValid())
     {
-        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         if(mainPlotWindow)
         {
             modIndex = mainPlotWindow->projectTreeView()->findModelIndex(uiItem);

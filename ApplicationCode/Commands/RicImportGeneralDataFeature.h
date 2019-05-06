@@ -22,6 +22,8 @@
 
 #include "cafCmdFeature.h"
 
+#include <QStringList>
+
 #include <vector>
 
 //==================================================================================================
@@ -32,7 +34,19 @@ class RicImportGeneralDataFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static bool openEclipseFilesFromFileNames(const QStringList& fileNames);
+    struct OpenCaseResults
+    {
+        QStringList eclipseCaseFiles;
+        QStringList eclipseInputFiles;
+        QStringList eclipseSummaryFiles;
+
+        operator bool() const
+        {
+            return !(eclipseCaseFiles.empty() && eclipseInputFiles.empty() && eclipseSummaryFiles.empty());
+        }
+    };
+
+    static OpenCaseResults openEclipseFilesFromFileNames(const QStringList& fileNames);
 
 protected:
 

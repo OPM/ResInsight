@@ -130,13 +130,13 @@ bool RiaSocketTools::writeBlockData(RiaSocketServer* server, QTcpSocket* socket,
     {
         for (int i = 0; i < errorMessages.size(); i++)
         {
-            server->showErrorMessage(errorMessages[i]);
+            RiaApplication::instance()->showErrorMessage(errorMessages[i]);
         }
 
 //         double totalTimeMS = timer.time() * 1000.0;
 //         QString resultInfo = QString("Total time '%1 ms'").arg(totalTimeMS);
 // 
-//         server->showMessage(resultInfo);
+//         RiaApplication::instance()->showErrorMessage(resultInfo);
     }
 
     return writeSucceded;

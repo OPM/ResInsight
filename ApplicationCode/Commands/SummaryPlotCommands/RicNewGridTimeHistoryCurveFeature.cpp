@@ -18,7 +18,7 @@
 
 #include "RicNewGridTimeHistoryCurveFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaSummaryTools.h"
 
 #include "RigFemResultAddress.h"
@@ -82,14 +82,16 @@ void RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem(const RiuSe
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 {
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+
     const QString lastUsedSummaryPlotKey("lastUsedSummaryPlotKey");
 
     RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
     RimSummaryPlot* defaultSelectedPlot = nullptr;
     {
-        QString lastUsedPlotRef = RiaApplication::instance()->cacheDataObject(lastUsedSummaryPlotKey).toString();
-        RimSummaryPlot* lastUsedPlot = dynamic_cast<RimSummaryPlot*>(caf::PdmReferenceHelper::objectFromReference(RiaApplication::instance()->project(), lastUsedPlotRef));
+        QString lastUsedPlotRef = app->cacheDataObject(lastUsedSummaryPlotKey).toString();
+        RimSummaryPlot* lastUsedPlot = dynamic_cast<RimSummaryPlot*>(caf::PdmReferenceHelper::objectFromReference(app->project(), lastUsedPlotRef));
         if (lastUsedPlot)
         {
             defaultSelectedPlot = lastUsedPlot;
@@ -97,7 +99,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 
         if (!defaultSelectedPlot)
         {
-            defaultSelectedPlot = dynamic_cast<RimSummaryPlot*>( RiaApplication::instance()->activePlotWindow() );
+            defaultSelectedPlot = dynamic_cast<RimSummaryPlot*>( app->activePlotWindow() );
         }
 
         if (!defaultSelectedPlot && summaryPlotColl->summaryPlots().size() > 0)
@@ -136,8 +138,8 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
         summaryPlot = featureUi.selectedSummaryPlot();
     }
     
-    QString refFromProjectToView = caf::PdmReferenceHelper::referenceFromRootToObject(RiaApplication::instance()->project(), summaryPlot);
-    RiaApplication::instance()->setCacheDataObject(lastUsedSummaryPlotKey, refFromProjectToView);
+    QString refFromProjectToView = caf::PdmReferenceHelper::referenceFromRootToObject(app->project(), summaryPlot);
+    app->setCacheDataObject(lastUsedSummaryPlotKey, refFromProjectToView);
 
     return summaryPlot;
 }
@@ -147,7 +149,6 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 //--------------------------------------------------------------------------------------------------
 QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
 {
-
     QString resultName;
     {
         Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();

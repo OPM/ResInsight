@@ -18,7 +18,7 @@
 
 #include "RicImportSummaryGroupFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
 #include "RicImportSummaryCasesFeature.h"
@@ -60,7 +60,7 @@ bool RicImportSummaryGroupFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryGroupFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication* app   = RiaApplication::instance();
+    RiaGuiApplication* app   = RiaGuiApplication::instance();
     QString pathCacheName = "INPUT_FILES";
     QStringList fileNames = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog("Import Summary Case Group", pathCacheName);
     

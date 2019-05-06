@@ -21,7 +21,7 @@
 #include "RicDeleteItemExec.h"
 #include "RicDeleteItemExecData.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "Rim3dView.h"
 #include "RimAnnotationCollection.h"
@@ -204,7 +204,7 @@ void RicDeleteItemExec::redo()
         {
             wellLogPlot->calculateAvailableDepthRange();
             wellLogPlot->updateDepthZoom();
-            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateWellLogPlotToolBar();
         }
 
@@ -213,7 +213,7 @@ void RicDeleteItemExec::redo()
         if (wellLogPlotTrack)
         {
             wellLogPlotTrack->calculateXZoomRangeAndUpdateQwt();
-            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateWellLogPlotToolBar();
         }
         
@@ -232,7 +232,7 @@ void RicDeleteItemExec::redo()
                     project->updateConnectedEditors();
                 }
             }
-            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateWellLogPlotToolBar();
         }
         
@@ -273,7 +273,7 @@ void RicDeleteItemExec::redo()
         if (summaryPlotCollection)
         {
             summaryPlotCollection->updateSummaryNameHasChanged();
-            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateSummaryPlotToolBar();
         }
 
@@ -281,7 +281,7 @@ void RicDeleteItemExec::redo()
         parentObj->firstAncestorOrThisOfType(summaryCrossPlotCollection);
         if (summaryCrossPlotCollection)
         {
-            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateSummaryPlotToolBar();
         }
 

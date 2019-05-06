@@ -18,7 +18,7 @@
 
 #include "RicSaveProjectFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include <QAction>
 
@@ -39,7 +39,7 @@ void RicSaveProjectFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    RiaApplication* app = RiaApplication::instance();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
 
     app->saveProject();
 }

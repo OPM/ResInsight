@@ -20,7 +20,7 @@
 
 #include "RimProject.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaFilePathTools.h"
@@ -89,6 +89,7 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfBoundingBox.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QMenu>
 
@@ -173,14 +174,12 @@ RimProject::RimProject(void)
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.uiCapability()->setUiHidden(true);
     scriptCollection->uiCapability()->setUiName("Scripts");
-    scriptCollection->uiCapability()->setUiIcon(QIcon(":/octave.png"));
+    scriptCollection->uiCapability()->setUiIcon(":/octave.png");
 
     mainPlotCollection = new RimMainPlotCollection();
 
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back(new RimOilField);
-
-    initScriptDirectories();
 
     this->setUiHidden(true);
 }
@@ -238,14 +237,11 @@ void RimProject::close()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::initScriptDirectories()
+void RimProject::initScriptDirectories(const QString& scriptDirectories)
 {
     //
     // TODO : Must store content of scripts in project file and notify user if stored content is different from disk on execute and edit
     // 
-    RiaApplication* app = RiaApplication::instance();
-    QString scriptDirectories = app->scriptDirectories();
-
     this->setScriptDirectories(scriptDirectories);
 
     // Find largest used caseId read from file and make sure all cases have a valid caseId
@@ -318,8 +314,6 @@ void RimProject::initScriptDirectories()
 //--------------------------------------------------------------------------------------------------
 void RimProject::initAfterRead()
 {
-    initScriptDirectories();
-
     // Create an empty oil field in case the project did not contain one
     if (oilFields.size() < 1)
     {
@@ -384,16 +378,12 @@ void RimProject::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimProject::setupBeforeSave()
 {
-    m_show3DWindow = RiuMainWindow::instance()->isVisible();
+    RiaGuiApplication* guiApp = RiaGuiApplication::instance();
 
-    if (RiaApplication::instance()->mainPlotWindow() &&
-        RiaApplication::instance()->mainPlotWindow()->isVisible())
+    if (guiApp)
     {
-        m_showPlotWindow = true;
-    }
-    else
-    {
-        m_showPlotWindow = false;
+        m_show3DWindow = guiApp->mainWindow()->isVisible();
+        m_showPlotWindow = guiApp->mainPlotWindow() && guiApp->mainPlotWindow()->isVisible();
     }
 
     m_projectFileVersionString = STRPRODUCTVER;

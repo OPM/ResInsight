@@ -80,6 +80,7 @@ public:
     QString       caseInfoText();
     QString       resultInfoText(const HistogramData& histData);
 
+    RicGridStatisticsDialog* getOrCreateGridStatisticsDialog();
     void          showStatisticsInfoDialog(bool raise = true);
     QImage        statisticsDialogScreenShotImage();
 
@@ -101,7 +102,7 @@ public:
         ALL_CELLS,
         VISIBLE_CELLS
     };
-
+    
 private:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     caf::PdmFieldHandle* objectToggleField() override;

@@ -20,6 +20,10 @@
 
 #include <QString>
 
+namespace cvf
+{
+class ProgramOptions;
+}
 //==================================================================================================
 //
 // 
@@ -28,10 +32,6 @@
 class RiaArgumentParser
 {
 public:
-    static bool parseArguments();
-
-private:
-    static void executeCommandFile(const QString& commandFile);
-    static bool openCaseFromCommandLineParameter(const QString& parameter);
+    static bool parseArguments(cvf::ProgramOptions* progOpt);
 };
 

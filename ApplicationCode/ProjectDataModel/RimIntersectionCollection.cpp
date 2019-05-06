@@ -279,6 +279,8 @@ void RimIntersectionCollection::fieldChangedByUi(const caf::PdmFieldHandle* chan
 {
     if (changedField == &isActive)
     {
+        updateUiIconFromToggleField();
+
         Rim3dView* rimView = nullptr;
         firstAncestorOrThisOfType(rimView);
         if (rimView)

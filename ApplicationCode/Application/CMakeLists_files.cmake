@@ -1,6 +1,8 @@
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RiaApplication.h
+${CMAKE_CURRENT_LIST_DIR}/RiaConsoleApplication.h
+${CMAKE_CURRENT_LIST_DIR}/RiaGuiApplication.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaDefines.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaFractureDefines.h
@@ -17,6 +19,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseFileNameTools.h
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RiaApplication.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaConsoleApplication.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaGuiApplication.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaDefines.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFractureDefines.cpp
@@ -42,7 +46,8 @@ ${SOURCE_GROUP_SOURCE_FILES}
 
 set (QT_MOC_HEADERS
 ${QT_MOC_HEADERS}
-${CMAKE_CURRENT_LIST_DIR}/RiaApplication.h
+${CMAKE_CURRENT_LIST_DIR}/RiaConsoleApplication.h
+${CMAKE_CURRENT_LIST_DIR}/RiaGuiApplication.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.h
 )

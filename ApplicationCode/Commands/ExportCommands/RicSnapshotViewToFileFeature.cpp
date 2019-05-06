@@ -18,7 +18,7 @@
 
 #include "RicSnapshotViewToFileFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
 #include "RimMainPlotCollection.h"
@@ -135,7 +135,7 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
     // If this is done after the file save dialog is displayed (and closed)
     // app->activeViewWindow() returns nullptr on Linux
 
-    RimViewWindow* viewWindow = RiaApplication::activeViewWindow();
+    RimViewWindow* viewWindow = RiaGuiApplication::activeViewWindow();
     if (!viewWindow)
     {
         RiaLogging::error("No view window is available, nothing to do");

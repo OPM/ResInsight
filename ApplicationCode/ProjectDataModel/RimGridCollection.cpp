@@ -260,18 +260,18 @@ RimGridCollection::RimGridCollection()
     m_mainGrid = new RimGridInfo();
     m_mainGrid->setUiName("Main Grid");
     m_mainGrid->uiCapability()->setUiTreeHidden(true);
-    m_mainGrid->setUiIcon(QIcon(":/MainGrid16x16.png"));
+    m_mainGrid->setUiIcon(":/MainGrid16x16.png");
 
     CAF_PDM_InitFieldNoDefault(&m_persistentLgrs, "PersistentLgrs", "Persistent LGRs", "", "", "");
     m_persistentLgrs = new RimGridInfoCollection();
     m_persistentLgrs->setUiName(persistentGridUiName());
-    m_persistentLgrs->setUiIcon(QIcon(":/LGR16x16.png"));
+    m_persistentLgrs->setUiIcon(":/LGR16x16.png");
 
     CAF_PDM_InitFieldNoDefault(&m_temporaryLgrs, "TemporaryLgrs", "Temporary LGRs", "", "", "");
     m_temporaryLgrs.xmlCapability()->disableIO();
     m_temporaryLgrs = new RimGridInfoCollection();
     m_temporaryLgrs->setUiName(temporaryGridUiName());
-    m_temporaryLgrs->setUiIcon(QIcon(":/TempLGR16x16.png"));
+    m_temporaryLgrs->setUiIcon(":/TempLGR16x16.png");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -390,7 +390,7 @@ void RimGridCollection::syncFromMainEclipseGrid()
                     auto gridInfo = new RimGridInfo();
                     gridInfo->setName(gridName);
                     gridInfo->setEclipseGridIndex((int)gridIndex);
-                    gridInfo->setUiIcon(QIcon(":/TempLGR16x16.png"));
+                    gridInfo->setUiIcon(":/TempLGR16x16.png");
                     m_temporaryLgrs->addGridInfo(gridInfo);
                 }
             }
@@ -405,7 +405,7 @@ void RimGridCollection::syncFromMainEclipseGrid()
                     auto gridInfo = new RimGridInfo();
                     gridInfo->setName(gridName);
                     gridInfo->setEclipseGridIndex((int)gridIndex);
-                    gridInfo->setUiIcon(QIcon(":/LGR16x16.png"));
+                    gridInfo->setUiIcon(":/LGR16x16.png");
                     m_persistentLgrs->addGridInfo(gridInfo);
                 }
             }
