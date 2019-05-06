@@ -131,6 +131,26 @@ Status RiaGrpcGridServiceImpl::numberOfTimeSteps(ServerContext* context, const C
     return Status(grpc::NOT_FOUND, "Invalid case id");
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaGrpcServerCallMethod*> RiaGrpcGridServiceImpl::createCallbacks(ServerCompletionQueue* cq)
+{
+    std::vector<RiaGrpcServerCallMethod*> callbacks;
+
+    callbacks.push_back(new RiaGrpcServerCallData<RiaGrpcGridServiceImpl, Case, Vec3i>(
+        this, cq, "dimensions", &RiaGrpcGridServiceImpl::dimensions, &RiaGrpcGridServiceImpl::Requestdimensions));
+    callbacks.push_back(new RiaGrpcServerCallData<RiaGrpcGridServiceImpl, EclipseResultRequest, DoubleResult>(
+        this, cq, "results", &RiaGrpcGridServiceImpl::results, &RiaGrpcGridServiceImpl::Requestresults));
+    callbacks.push_back(
+        new RiaGrpcServerCallData<RiaGrpcGridServiceImpl, Case, Int32Message>(this,
+                                                                              cq,
+                                                                              "numberOfTimeSteps",
+                                                                              &RiaGrpcGridServiceImpl::numberOfTimeSteps,
+                                                                              &RiaGrpcGridServiceImpl::RequestnumberOfTimeSteps));
+
+    return callbacks;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -141,6 +161,20 @@ Status RiaGrpcProjectInfoServiceImpl::GetCurrentCase(ServerContext* context, con
     return Status::OK;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaGrpcServerCallMethod*> RiaGrpcProjectInfoServiceImpl::createCallbacks(ServerCompletionQueue* cq)
+{
+    std::vector<RiaGrpcServerCallMethod*> callbacks;
+    callbacks.push_back(new RiaGrpcServerCallData<RiaGrpcProjectInfoServiceImpl, Empty, Case>(
+        this,
+        cq,
+        "GetCurrentCase",
+        &RiaGrpcProjectInfoServiceImpl::GetCurrentCase,
+        &RiaGrpcProjectInfoServiceImpl::RequestGetCurrentCase));
+    return callbacks;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -197,11 +231,14 @@ void RiaGrpcServer::initialize()
     CVF_ASSERT(m_server);
     RiaLogging::info(QString("Server listening on %1").arg(serverAddress));
     // Spawn new CallData instances to serve new clients.
-    process(new RiaGrpcServerCallData<RiaGrpcGridServiceImpl, Case, Vec3i>(&m_service, m_completionQueue.get(), "dimensions", &RiaGrpcGridServiceImpl::dimensions, &RiaGrpcGridServiceImpl::Requestdimensions));
-    process(new RiaGrpcServerCallData<RiaGrpcGridServiceImpl, EclipseResultRequest, DoubleResult>(&m_service, m_completionQueue.get(), "results", &RiaGrpcGridServiceImpl::results, &RiaGrpcGridServiceImpl::Requestresults));
-    process(new RiaGrpcServerCallData<RiaGrpcGridServiceImpl, Case, Int32Message>(&m_service, m_completionQueue.get(), "numberOfTimeSteps", &RiaGrpcGridServiceImpl::numberOfTimeSteps, &RiaGrpcGridServiceImpl::RequestnumberOfTimeSteps));
-
-    process(new RiaGrpcServerCallData<RiaGrpcProjectInfoServiceImpl, Empty, Case>(&m_projectService, m_completionQueue.get(), "GetCurrentCase", &RiaGrpcProjectInfoServiceImpl::GetCurrentCase, &RiaGrpcProjectInfoServiceImpl::RequestGetCurrentCase));
+    for (auto callback : m_service.createCallbacks(m_completionQueue.get()))
+    {
+        process(callback);
+    }
+    for (auto callback : m_projectService.createCallbacks(m_completionQueue.get()))
+    {
+        process(callback);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
