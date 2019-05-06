@@ -17,6 +17,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcServer.h"
 
+#ifdef WIN32
+// GRPC does a lot of tricks that give warnings on MSVC but works fine
+#pragma warning(push)
+#pragma warning(disable : 4251 4702 4005 4244)
+#endif
+
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RigCaseCellResultsData.h"
@@ -155,30 +161,6 @@ std::vector<RiaGrpcServerCallMethod*> RiaGrpcGridServiceImpl::createCallbacks(Se
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Status RiaGrpcProjectInfoServiceImpl::GetCurrentCase(ServerContext* context, const Empty* request, Case* reply)
-{
-    reply->set_id(1);
-    return Status::OK;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RiaGrpcServerCallMethod*> RiaGrpcProjectInfoServiceImpl::createCallbacks(ServerCompletionQueue* cq)
-{
-    std::vector<RiaGrpcServerCallMethod*> callbacks;
-    callbacks.push_back(new RiaGrpcServerCallData<RiaGrpcProjectInfoServiceImpl, Empty, Case>(
-        this,
-        cq,
-        "GetCurrentCase",
-        &RiaGrpcProjectInfoServiceImpl::GetCurrentCase,
-        &RiaGrpcProjectInfoServiceImpl::RequestGetCurrentCase));
-    return callbacks;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiaGrpcServer::~RiaGrpcServer()
 {
 }
@@ -209,7 +191,7 @@ void RiaGrpcServer::runInThread()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::initialize()
 {
-    int port = 50051;
+    quint16 port = 50051u;
     {
         QTcpServer serverTest;
         while (!serverTest.listen(QHostAddress::LocalHost, port))
@@ -306,3 +288,7 @@ void RiaGrpcServer::process(RiaGrpcServerCallMethod* method)
         delete method;
     }
 }
+
+#ifdef WIN32
+#pragma warning(pop)
+#endif
