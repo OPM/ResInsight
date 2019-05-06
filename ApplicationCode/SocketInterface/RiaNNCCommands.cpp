@@ -44,6 +44,7 @@
 #include "RimSimWellInViewCollection.h"
 
 #include <QTcpSocket>
+#include <QErrorMessage>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -147,7 +148,7 @@ public:
 
             if (timeStepReadError)
             {
-                server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetDynamicNNCValues : \n") + RiaSocketServer::tr("An error occurred while interpreting the requested time steps."));
+                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetDynamicNNCValues : \n") + RiaSocketServer::tr("An error occurred while interpreting the requested time steps."));
             }
         }
         else
@@ -318,7 +319,7 @@ public:
         if (!(rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid()))
         {
             QString caseId = args[1];
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find case with id %1").arg(caseId));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find case with id %1").arg(caseId));
             return true;
         }
 
@@ -346,7 +347,7 @@ public:
             bool ok = createIJKCellResults(rimCase->results(m_porosityModelEnum), propertyName);
             if (!ok)
             {
-                server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the property named: \"%2\"").arg(propertyName));
+                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the property named: \"%2\"").arg(propertyName));
                 return true;
             }
             RigEclipseResultAddress resAddr(QString("%1IJK").arg(propertyName));
@@ -385,7 +386,7 @@ public:
 
             if (timeStepReadError)
             {
-                server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: riSetNNCProperty : \n") +
+                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riSetNNCProperty : \n") +
                                                           RiaSocketServer::tr("An error occurred while interpreting the requested time steps."));
             }
 
@@ -393,7 +394,7 @@ public:
 
         if (! m_requestedTimesteps.size())
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("No time steps specified"));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("No time steps specified"));
 
             return true;
         }
@@ -465,7 +466,7 @@ public:
 
         if (connectionCountFromOctave != connectionCount)
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
                                                       RiaSocketServer::tr("The number of connections in the data coming from octave does not match the case: '%1'\n").arg(m_currentReservoir->caseUserDescription()) +
                                                       RiaSocketServer::tr("   Octave: %1\n").arg(connectionCountFromOctave) +
                                                       RiaSocketServer::tr("  %1: Connection count: %2").arg(m_currentReservoir->caseUserDescription()).arg(connectionCount));
@@ -498,7 +499,7 @@ public:
             {
                 for (int i = 0; i < errorMessages.size(); i++)
                 {
-                    server->showErrorMessage(errorMessages[i]);
+                    server->errorMessageDialog()->showMessage(errorMessages[i]);
                 }
 
                 currentClient->abort();

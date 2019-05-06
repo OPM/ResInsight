@@ -221,6 +221,8 @@ RiaApplication::RiaApplication(int& argc, char** argv)
 
     setWindowIcon(QIcon(":/AppLogo48x48.png"));
 
+    m_socketServer = new RiaSocketServer(this);
+
 #ifdef WIN32
     m_startupDefaultDirectory = QDir::homePath();
 #else
@@ -238,8 +240,6 @@ RiaApplication::RiaApplication(int& argc, char** argv)
 
     RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(m_mainWindow->messagePanel()));
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
-
-    m_socketServer = new RiaSocketServer(this);
 }
 
 //--------------------------------------------------------------------------------------------------

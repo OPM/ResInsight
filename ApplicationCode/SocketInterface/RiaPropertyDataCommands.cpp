@@ -47,6 +47,8 @@
 #include "RiuProcessMonitor.h"
 #include "Riu3dSelectionManager.h"
 
+#include <QErrorMessage>
+
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -83,7 +85,7 @@ public:
 
         if (scalarResultFrames == nullptr)
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") 
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") 
                                                     + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
         }
 
@@ -128,7 +130,7 @@ public:
 
                 if (timeStepReadError)
                 {
-                    server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetActiveCellProperty : \n") + RiaSocketServer::tr("An error occured while interpreting the requested timesteps."));
+                    server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetActiveCellProperty : \n") + RiaSocketServer::tr("An error occured while interpreting the requested timesteps."));
                 }
 
             }
@@ -226,7 +228,7 @@ public:
         RimEclipseCase*rimCase = server->findReservoir(caseId);
         if (rimCase == nullptr)
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID: \"%1\"").arg(caseId));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID: \"%1\"").arg(caseId));
 
             // No data available
             socketStream << (quint64)0 << (quint64)0 <<  (quint64)0  << (quint64)0 ;
@@ -245,7 +247,7 @@ public:
 
         if (gridIdx < 0  || rimCase->eclipseCaseData()->gridCount() <= (size_t)gridIdx)
         {
-            server->showErrorMessage("ResInsight SocketServer: riGetGridProperty : \n"
+            server->errorMessageDialog()->showMessage("ResInsight SocketServer: riGetGridProperty : \n"
                                                       "The gridIndex \"" + QString::number(gridIdx) + "\" does not point to an existing grid." );
         }
         else
@@ -259,7 +261,7 @@ public:
 
         if (!isResultsLoaded)
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
 
             // No data available
             socketStream << (quint64)0 << (quint64)0 <<  (quint64)0  << (quint64)0 ;
@@ -299,7 +301,7 @@ public:
 
             if (timeStepReadError)
             {
-                server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetGridProperty : \n")
+                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetGridProperty : \n")
                                                           + RiaSocketServer::tr("An error occured while interpreting the requested timesteps."));
             }
 
@@ -430,7 +432,7 @@ public:
 
         if (scalarResultFrames == nullptr)
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
             return true;
         }
 
@@ -479,14 +481,14 @@ public:
 
             if (timeStepReadError)
             {
-                server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetActiveCellProperty : \n") + RiaSocketServer::tr("An error occured while interpreting the requested timesteps."));
+                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetActiveCellProperty : \n") + RiaSocketServer::tr("An error occured while interpreting the requested timesteps."));
             }
 
         }
 
         if (! m_requestedTimesteps.size())
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("No time steps specified").arg(porosityModelName).arg(propertyName));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("No time steps specified").arg(porosityModelName).arg(propertyName));
 
             return true;
         }
@@ -534,7 +536,7 @@ public:
 
         if (cellCountFromOctave != activeCellCountReservoir )
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
                                               RiaSocketServer::tr("The number of cells in the data coming from octave does not match the case") + ":\""  + m_currentReservoir->caseUserDescription() + "\"\n"
                                               "   Octave: " + QString::number(cellCountFromOctave) + "\n"
                                               "  " + m_currentReservoir->caseUserDescription() + ": Active cell count: " + QString::number(activeCellCountReservoir) + " Total cell count: " +  QString::number(totalCellCount)) ;
@@ -598,7 +600,7 @@ public:
             {
                 for (int i = 0; i < errorMessages.size(); i++)
                 {
-                    server->showErrorMessage(errorMessages[i]);
+                    server->errorMessageDialog()->showMessage(errorMessages[i]);
                 }
 
                 currentClient->abort();
@@ -738,7 +740,7 @@ public:
         RimEclipseCase* rimCase = server->findReservoir(caseId);
         if (!rimCase)
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
 
             return true;
         }
@@ -755,7 +757,7 @@ public:
         RigGridBase* grid = rimCase->eclipseCaseData()->grid(m_currentGridIndex);
         if (!grid)
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the grid index : %1").arg(m_currentGridIndex));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the grid index : %1").arg(m_currentGridIndex));
             return true;
         }
 
@@ -777,7 +779,7 @@ public:
             grid->cellCountJ() != cellCountJ ||
             grid->cellCountK() != cellCountK)
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Destination grid size do not match incoming grid size for grid index : %1").arg(m_currentGridIndex));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Destination grid size do not match incoming grid size for grid index : %1").arg(m_currentGridIndex));
             return true;
         }
 
@@ -786,7 +788,7 @@ public:
 
         if (m_timeStepCountToRead == 0 || m_bytesPerTimeStepToRead == 0)
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
                 RiaSocketServer::tr("Zero data to read for ") + ":\"" + m_currentReservoir->caseUserDescription() + "\"\n");
 
             return true;
@@ -814,7 +816,7 @@ public:
 
         if (scalarResultFrames == nullptr)
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
             return true;
         }
 
@@ -850,7 +852,7 @@ public:
 
             if (timeStepReadError)
             {
-                server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetActiveCellProperty : \n") + RiaSocketServer::tr("An error occured while interpreting the requested timesteps."));
+                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetActiveCellProperty : \n") + RiaSocketServer::tr("An error occured while interpreting the requested timesteps."));
                 return true;
             }
 
@@ -858,7 +860,7 @@ public:
 
         if (! m_requestedTimesteps.size())
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("No time steps specified").arg(porosityModelName).arg(propertyName));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("No time steps specified").arg(porosityModelName).arg(propertyName));
 
             return true;
         }
@@ -891,7 +893,7 @@ public:
         RigGridBase* grid = m_currentReservoir->eclipseCaseData()->grid(m_currentGridIndex);
         if (!grid)
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
                 RiaSocketServer::tr("No grid found") + ":\"" + m_currentReservoir->caseUserDescription() + "\"\n");
 
             m_invalidDataDetected = true;
@@ -912,7 +914,7 @@ public:
 
         if (cellCountFromOctave != grid->cellCount())
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
                 RiaSocketServer::tr("Mismatch between expected and received data. Expected : %1, Received : %2").arg(grid->cellCount()).arg(cellCountFromOctave));
 
             m_invalidDataDetected = true;
@@ -963,7 +965,7 @@ public:
             {
                 for (int i = 0; i < errorMessages.size(); i++)
                 {
-                    server->showErrorMessage(errorMessages[i]);
+                    server->errorMessageDialog()->showMessage(errorMessages[i]);
                 }
 
                 currentClient->abort();
@@ -1091,7 +1093,7 @@ public:
         RimEclipseCase* rimCase = server->findReservoir(caseId);
         if (!rimCase)
         {
-            server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
 
             return true;
         }
@@ -1223,7 +1225,7 @@ public:
 
             if (timeStepReadError)
             {
-                server->showErrorMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetGridProperty : \n")
+                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetGridProperty : \n")
                                                           + RiaSocketServer::tr("An error occurred while interpreting the requested time steps."));
             }
 

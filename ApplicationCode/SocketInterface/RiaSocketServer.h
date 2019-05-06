@@ -31,6 +31,7 @@ class QPushButton;
 class QTcpServer;
 class QTcpSocket;
 class QNetworkSession;
+class QErrorMessage;
 class QTimer;
 class RimEclipseCase;
 class RiaSocketCommand;
@@ -50,13 +51,12 @@ public:
     ~RiaSocketServer() override;
 
     unsigned short      serverPort();
-    RimEclipseCase*     findReservoir(int caseId);
+    RimEclipseCase*            findReservoir(int caseId);
+    QErrorMessage*      errorMessageDialog() { return m_errorMessageDialog; }
     QTcpSocket*         currentClient() { return m_currentClient; }
 
     void                setCurrentCaseId(int caseId);
     int                 currentCaseId() const;
-
-    void                showErrorMessage(const QString& message) const;
 
 private slots:
     void                slotNewClientConnection();
@@ -70,6 +70,7 @@ private:
 
 private:
     QTcpServer*         m_tcpServer;
+    QErrorMessage*      m_errorMessageDialog;
 
     QTcpSocket*         m_currentClient;
     qint64              m_currentCommandSize; ///< The size in bytes of the command we are currently reading.
