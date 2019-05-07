@@ -61,23 +61,18 @@ foreach(proto_file ${PROTO_FILES})
 		DEPENDS "${hw_proto}"
 	)
 
-	list( APPEND GENERATED_HEADER_FILES
+	list( APPEND GRPC_HEADER_FILES
 		 ${hw_proto_hdrs}
 		${hw_grpc_hdrs}
 	)
 	
-	list( APPEND GENERATED_CPP_SOURCES
+	list( APPEND GRPC_CPP_SOURCES
 		 ${hw_proto_srcs}
 		${hw_grpc_srcs}
 	)
 endforeach(proto_file)
 
-list(APPEND CODE_HEADER_FILES
-${SOURCE_GROUP_HEADER_FILES}
-)
-
-list(APPEND CODE_SOURCE_FILES
-${SOURCE_GROUP_SOURCE_FILES}
-)
+list ( APPEND GRPC_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
+list ( APPEND GRPC_CPP_SOURCES ${SOURCE_GROUP_SOURCE_FILES})
 
 source_group( "GrpcInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

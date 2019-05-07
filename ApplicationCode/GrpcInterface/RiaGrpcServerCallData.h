@@ -26,6 +26,11 @@ using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
 using grpc::Status;
 
+//==================================================================================================
+//
+// Base class for all gRPC-callbacks
+//
+//==================================================================================================
 class RiaGrpcServerCallMethod
 {
 public:
@@ -63,6 +68,11 @@ private:
     CallStatus  m_status;
 };
 
+//==================================================================================================
+//
+// Templated gRPC-callback calling service implementation callbacks
+//
+//==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT>
 class RiaGrpcServerCallData : public RiaGrpcServerCallMethod
 {

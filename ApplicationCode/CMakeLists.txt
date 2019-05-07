@@ -312,13 +312,14 @@ source_group( "UnitTests"           FILES ${UNIT_TEST_FILES} )
 
 if (MSVC)
     set( EXE_FILES WIN32)
+	set_source_files_properties(${GRPC_CPP_SOURCES} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125")
 elseif (APPLE)
     set( EXE_FILES MACOSX_BUNDLE)
 endif()
 set( EXE_FILES
     ${EXE_FILES}
-	${GENERATED_HEADER_FILES}
-	${GENERATED_CPP_SOURCES}
+	${GRPC_HEADER_FILES}
+	${GRPC_CPP_SOURCES}
     ${CPP_SOURCES}
     ${MOC_SOURCE_FILES}
     ${FORM_FILES_CPP}

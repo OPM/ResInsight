@@ -2,10 +2,36 @@ syntax = "proto3";
 
 package ResInsight;
 
+
+
+message Empty
+{
+}
+
 message Case {
   int32 id = 1;
 }
 
-message Empty
+message CaseInfo
 {
+  int32    id       = 1;
+  int32    group_id = 2;
+  string   name     = 3;
+  string   type     = 4;
+}
+
+message CaseInfos
+{
+  repeated CaseInfo case_info = 1;
+}
+
+message CaseGroup
+{
+  int32 id    = 1;
+  string name = 2;  
+}
+
+message CaseGroups
+{
+  repeated CaseGroup case_group = 2;
 }
