@@ -15,13 +15,13 @@
 //  for more details.
 //
 //////////////////////////////////////////////////////////////////////////////////
-#include "RiaGrpcServer.h"
-
 #ifdef WIN32
 // GRPC does a lot of tricks that give warnings on MSVC but works fine
 #pragma warning(push)
 #pragma warning(disable : 4251 4702 4005 4244)
 #endif
+
+#include "RiaGrpcServer.h"
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
@@ -33,6 +33,24 @@
 #include "grpc/impl/codegen/gpr_types.h"
 
 #include <QTcpServer>
+
+using grpc::CompletionQueue;
+using grpc::Server;
+using grpc::ServerAsyncResponseWriter;
+using grpc::ServerBuilder;
+using grpc::ServerCompletionQueue;
+using grpc::ServerContext;
+using grpc::Status;
+using ResInsight::Case;
+using ResInsight::DoubleResult;
+using ResInsight::EclipseResultAddress;
+using ResInsight::EclipseResultRequest;
+using ResInsight::Empty;
+using ResInsight::Grid;
+using ResInsight::Int32Message;
+using ResInsight::ProjectInfo;
+using ResInsight::Empty;
+using ResInsight::Vec3i;
 
 //--------------------------------------------------------------------------------------------------
 ///

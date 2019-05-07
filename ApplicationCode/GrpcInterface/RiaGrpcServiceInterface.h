@@ -26,6 +26,11 @@ namespace grpc
     class ServerCompletionQueue;    
 }
 
+//==================================================================================================
+//
+// gRPC-service interface which all gRPC-services has to implement
+//
+//==================================================================================================
 class RiaGrpcServiceInterface
 {
 public:

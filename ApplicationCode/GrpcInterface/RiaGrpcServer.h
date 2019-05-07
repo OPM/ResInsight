@@ -45,23 +45,6 @@
 #include "ProjectInfo.grpc.pb.h"
 #include "ResInsightGrid.grpc.pb.h"
 
-using grpc::Server;
-using grpc::ServerAsyncResponseWriter;
-using grpc::ServerBuilder;
-using grpc::CompletionQueue;
-using grpc::ServerCompletionQueue;
-using grpc::ServerContext;
-using grpc::Status;
-using ResInsight::Grid;
-using ResInsight::ProjectInfo;
-using ResInsight::Case;
-using ResInsight::Int32Message;
-using ResInsight::Vec3i;
-using ResInsight::EclipseResultRequest;
-using ResInsight::EclipseResultAddress;
-using ResInsight::DoubleResult;
-using ResInsight::Empty;
-
 class RimEclipseCase;
 
 // TODO: REMOVE
@@ -70,13 +53,18 @@ class RiaGrpcGridServiceImpl final : public ResInsight::Grid::AsyncService, publ
 public:
     RimEclipseCase* getCase(int caseId) const;
 
-    Status dimensions(ServerContext* context, const Case* request, Vec3i* reply) override;
-    Status results(ServerContext* context, const EclipseResultRequest* request, DoubleResult* result) override;
-    Status numberOfTimeSteps(ServerContext* context, const Case* request, Int32Message* reply) override;
+    grpc::Status dimensions(grpc::ServerContext* context, const ResInsight::Case* request, ResInsight::Vec3i* reply) override;
+    grpc::Status results(grpc::ServerContext* context, const ResInsight::EclipseResultRequest* request, ResInsight::DoubleResult* result) override;
+    grpc::Status numberOfTimeSteps(grpc::ServerContext* context, const ResInsight::Case* request, ResInsight::Int32Message* reply) override;
 
     std::vector<RiaGrpcServerCallMethod*> createCallbacks(ServerCompletionQueue* cq) override;
 };
 
+//==================================================================================================
+//
+// The GRPC server implementation
+//
+//==================================================================================================
 class RiaGrpcServer
 {
 public:
@@ -91,12 +79,12 @@ private:
     void process(RiaGrpcServerCallMethod* method);
 
 private:
-    std::unique_ptr<ServerCompletionQueue> m_completionQueue;
-    std::unique_ptr<Server>                m_server;
-    RiaGrpcGridServiceImpl                 m_service;
-    RiaGrpcProjectInfoServiceImpl          m_projectService;
-    std::list<RiaGrpcServerCallMethod*>    m_receivedRequests;
-    std::mutex                             m_requestMutex;
+    std::unique_ptr<grpc::ServerCompletionQueue> m_completionQueue;
+    std::unique_ptr<grpc::Server>                m_server;
+    RiaGrpcGridServiceImpl                       m_service;
+    RiaGrpcProjectInfoService                m_projectService;
+    std::list<RiaGrpcServerCallMethod*>          m_receivedRequests;
+    std::mutex                                   m_requestMutex;
 };
 
 #ifdef WIN32

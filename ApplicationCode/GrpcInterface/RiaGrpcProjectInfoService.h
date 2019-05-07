@@ -25,24 +25,25 @@
 namespace ResInsight
 {
 class Empty;
-class Case;
+class CaseInfo;
 }
-
-using grpc::Status;
-using grpc::ServerContext;
-using grpc::ServerCompletionQueue;
 
 //==================================================================================================
 //
 // gRPC-service answering requests about project information
 //
 //==================================================================================================
-class RiaGrpcProjectInfoServiceImpl final : public ResInsight::ProjectInfo::AsyncService, public RiaGrpcServiceInterface
+class RiaGrpcProjectInfoService final : public ResInsight::ProjectInfo::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    Status GetCurrentCase(ServerContext* context, const ResInsight::Empty* request, ResInsight::Case* reply) override;
+    grpc::Status CurrentCase(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseInfo* reply) override;
+    grpc::Status SelectedCases(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseInfos* reply) override;
+    grpc::Status AllCaseGroups(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseGroups* reply) override;
+    grpc::Status AllCases(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseInfos* reply) override;
+    grpc::Status CasesInGroup(grpc::ServerContext* context, const ResInsight::CaseGroup* request, ResInsight::CaseInfos* reply) override;
 
-    std::vector<RiaGrpcServerCallMethod*> createCallbacks(ServerCompletionQueue* cq) override;
+public:
+    std::vector<RiaGrpcServerCallMethod*> createCallbacks(grpc::ServerCompletionQueue* cq) override;
 };
 
 

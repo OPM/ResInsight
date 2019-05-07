@@ -27,6 +27,7 @@ class QTcpSocket;
 
 #include <QList>
 #include <QByteArray>
+#include <vector>
 
 #define PMonLog( MessageString ) RiuMainWindow::instance()->processMonitor()->addStringToLog( MessageString );
 
@@ -34,7 +35,7 @@ class RiaSocketTools
 {
 public:
     static RimEclipseCase* findCaseFromArgs(RiaSocketServer* server, const QList<QByteArray>& args);
-    static void getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId);
-    
+    static void getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId);    
+    static void getCaseInfoFromCases(std::vector<RimCase*>& cases, std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std::vector<QString>& caseTypes, std::vector<qint64>& caseGroupIds);
     static bool writeBlockData(RiaSocketServer* server, QTcpSocket* socket, const char* data, quint64 bytesToWrite);
 };
