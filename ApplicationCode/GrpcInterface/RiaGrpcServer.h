@@ -27,6 +27,7 @@
 
 #include "RiaGrpcServerCallData.h"
 #include "RiaGrpcServiceInterface.h"
+#include "RiaGrpcGridInfoService.h"
 #include "RiaGrpcProjectInfoService.h"
 
 #include <QString>
@@ -43,22 +44,8 @@
 
 #include "CaseInfo.grpc.pb.h"
 #include "ProjectInfo.grpc.pb.h"
-#include "ResInsightGrid.grpc.pb.h"
 
 class RimEclipseCase;
-
-// TODO: REMOVE
-class RiaGrpcGridServiceImpl final : public ResInsight::Grid::AsyncService, public RiaGrpcServiceInterface
-{
-public:
-    RimEclipseCase* getCase(int caseId) const;
-
-    grpc::Status dimensions(grpc::ServerContext* context, const ResInsight::Case* request, ResInsight::Vec3i* reply) override;
-    grpc::Status results(grpc::ServerContext* context, const ResInsight::EclipseResultRequest* request, ResInsight::DoubleResult* result) override;
-    grpc::Status numberOfTimeSteps(grpc::ServerContext* context, const ResInsight::Case* request, ResInsight::Int32Message* reply) override;
-
-    std::vector<RiaGrpcServerCallMethod*> createCallbacks(ServerCompletionQueue* cq) override;
-};
 
 //==================================================================================================
 //
@@ -81,8 +68,8 @@ private:
 private:
     std::unique_ptr<grpc::ServerCompletionQueue> m_completionQueue;
     std::unique_ptr<grpc::Server>                m_server;
-    RiaGrpcGridServiceImpl                       m_service;
-    RiaGrpcProjectInfoService                m_projectService;
+    RiaGrpcProjectInfoService                    m_projectService;
+    RiaGrpcGridInfoService                       m_gridService;
     std::list<RiaGrpcServerCallMethod*>          m_receivedRequests;
     std::mutex                                   m_requestMutex;
 };

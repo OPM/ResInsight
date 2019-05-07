@@ -22,10 +22,29 @@ using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
 using grpc::Status;
 
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Status RiaGrpcProjectInfoService::CurrentCase(ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseInfo* reply)
+Status RiaGrpcProjectInfoService::CurrentCase(ServerContext* context, const ResInsight::Empty* request, ResInsight::Case* reply)
+{
+    RimGridView* view = RiaApplication::instance()->activeGridView();
+    if (view)
+    {
+        RimCase* currentCase = view->ownerCase();
+        if (currentCase)
+        {
+            reply->set_id(currentCase->caseId());
+            return Status::OK;
+        }
+    }
+    return Status(grpc::NOT_FOUND, "No current case found");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Status RiaGrpcProjectInfoService::CurrentCaseInfo(ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseInfo* reply)
 {
     RimGridView* view = RiaApplication::instance()->activeGridView();
     if (view)
@@ -46,6 +65,30 @@ Status RiaGrpcProjectInfoService::CurrentCase(ServerContext* context, const ResI
         }
     }
     return Status(grpc::NOT_FOUND, "No current case found");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcProjectInfoService::CaseInfoFromCase(grpc::ServerContext*    context,
+                                                         const ResInsight::Case* request,
+                                                         ResInsight::CaseInfo*   reply)
+{
+    RimCase* rimCase = findCase(request->id());
+    if (rimCase)
+    {
+        qint64  caseId = rimCase->caseId();
+        qint64  caseGroupId = -1;
+        QString caseName, caseType;
+        RiaSocketTools::getCaseInfoFromCase(rimCase, caseId, caseName, caseType, caseGroupId);
+
+        reply->set_id(caseId);
+        reply->set_group_id(caseGroupId);
+        reply->set_name(caseName.toStdString());
+        reply->set_type(caseType.toStdString());
+        return Status::OK;
+    }
+    return Status(grpc::NOT_FOUND, "No cases found");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,8 +241,14 @@ grpc::Status RiaGrpcProjectInfoService::CasesInGroup(grpc::ServerContext*       
 std::vector<RiaGrpcServerCallMethod*> RiaGrpcProjectInfoService::createCallbacks(ServerCompletionQueue* cq)
 {
     std::vector<RiaGrpcServerCallMethod*> callbacks;
-    callbacks.push_back(new RiaGrpcServerCallData<RiaGrpcProjectInfoService, ResInsight::Empty, ResInsight::CaseInfo>(
+    callbacks.push_back(new RiaGrpcServerCallData<RiaGrpcProjectInfoService, ResInsight::Empty, ResInsight::Case>(
         this, cq, "CurrentCase", &RiaGrpcProjectInfoService::CurrentCase, &RiaGrpcProjectInfoService::RequestCurrentCase));
+
+    callbacks.push_back(new RiaGrpcServerCallData<RiaGrpcProjectInfoService, ResInsight::Empty, ResInsight::CaseInfo>(
+        this, cq, "CurrentCaseInfo", &RiaGrpcProjectInfoService::CurrentCaseInfo, &RiaGrpcProjectInfoService::RequestCurrentCaseInfo));
+
+    callbacks.push_back(new RiaGrpcServerCallData<RiaGrpcProjectInfoService, ResInsight::Case, ResInsight::CaseInfo>(
+        this, cq, "CaseInfoFromCase", &RiaGrpcProjectInfoService::CaseInfoFromCase, &RiaGrpcProjectInfoService::RequestCaseInfoFromCase));
 
     callbacks.push_back(new RiaGrpcServerCallData<RiaGrpcProjectInfoService, ResInsight::Empty, ResInsight::CaseInfos>(
         this, cq, "SelectedCases", &RiaGrpcProjectInfoService::SelectedCases, &RiaGrpcProjectInfoService::RequestSelectedCases));

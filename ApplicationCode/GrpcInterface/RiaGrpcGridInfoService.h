@@ -17,27 +17,35 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "GridInfo.grpc.pb.h"
+#include "RiaGrpcServiceInterface.h"
+
+#include <grpcpp/grpcpp.h>
 #include <vector>
 
-class RiaGrpcServerCallMethod;
-class RimCase;
-
-namespace grpc
+namespace ResInsight
 {
-    class ServerCompletionQueue;    
+class Case;
 }
 
+class RiaGrpcServerCallMethod;
+
 //==================================================================================================
 //
-// gRPC-service interface which all gRPC-services has to implement
+// gRPC-service answering requests about grid information for a given case
 //
 //==================================================================================================
-class RiaGrpcServiceInterface
+class RiaGrpcGridInfoService final : public ResInsight::GridInfo::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    virtual std::vector<RiaGrpcServerCallMethod*> createCallbacks(grpc::ServerCompletionQueue*) = 0;
+    grpc::Status GridCount(grpc::ServerContext* context, const ResInsight::Case* request, ResInsight::GridCountInfo* reply) override;
+    grpc::Status AllDimensions(grpc::ServerContext* context, const ResInsight::Case* request, ResInsight::AllGridDimensions* reply) override;
+    grpc::Status AllActiveCellInfos(grpc::ServerContext* context, const ResInsight::ActiveCellInfoRequest* request, ResInsight::ActiveCellInfos* reply) override;
 
-    static RimCase* findCase(int caseId);
+public:
+    std::vector<RiaGrpcServerCallMethod*> createCallbacks(grpc::ServerCompletionQueue* cq) override;
 };
+
+
 
 

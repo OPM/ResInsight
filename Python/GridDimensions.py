@@ -7,12 +7,16 @@ def run():
     # used in circumstances in which the with statement does not fit the needs
     # of the code.
 	try:
-		port = 50051
+		port = str(50051)
 		if len(sys.argv) > 1:
 			port = sys.argv[1]
 		resInsight  = ResInsight("localhost:" + port)
-		response = resInsight.grid.dimensions(ResInsight.Case(id=0))			
-		print("Grid Dimensions received: " + str(response.i) + ", " + str(response.j) + ", " + str(response.k))
+		gridCount = resInsight.GridInfo.GridCount(ResInsight.Case(id=0))
+		print("Number of grids: " + str(gridCount.count))
+		gridDimensions = resInsight.GridInfo.AllDimensions(ResInsight.Case(id=0))
+		for dimensions in gridDimensions.dimensions:
+			print("Grid Dimensions received: " + str(dimensions.i) + ", " + str(dimensions.j) + ", " + str(dimensions.k))
+
 	except grpc.RpcError as e:
 		if e.code() == grpc.StatusCode.NOT_FOUND:
 			print("Case id not found")

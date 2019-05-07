@@ -41,140 +41,6 @@ using grpc::ServerBuilder;
 using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
 using grpc::Status;
-using ResInsight::Case;
-using ResInsight::DoubleResult;
-using ResInsight::EclipseResultAddress;
-using ResInsight::EclipseResultRequest;
-using ResInsight::Empty;
-using ResInsight::Grid;
-using ResInsight::Int32Message;
-using ResInsight::ProjectInfo;
-using ResInsight::Empty;
-using ResInsight::Vec3i;
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEclipseCase* RiaGrpcGridServiceImpl::getCase(int caseId) const
-{
-    std::vector<RimEclipseCase*> cases = RiaApplication::instance()->project()->eclipseCases();
-    for (const auto& rimCase : cases)
-    {
-        if (rimCase->caseId() == caseId)
-        {
-            return rimCase;
-        }
-    }
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Status RiaGrpcGridServiceImpl::dimensions(ServerContext* context, const Case* request, Vec3i* reply)
-{
-    int caseId = request->id();
-    RiaLogging::debug("Got dimension request");
-
-    RimEclipseCase* rimCase = getCase(caseId);
-    if (rimCase)
-    {
-        RiaLogging::debug("Sending back dimensions");
-        reply->set_i((int)rimCase->mainGrid()->cellCountI());
-        reply->set_j((int)rimCase->mainGrid()->cellCountJ());
-        reply->set_k((int)rimCase->mainGrid()->cellCountK());
-        return Status::OK;
-    }
-    return Status(grpc::NOT_FOUND, "Invalid case id");
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Status RiaGrpcGridServiceImpl::results(ServerContext* context, const EclipseResultRequest* request, DoubleResult* result)
-{
-    int caseId = request->result_case().id();
-    RiaLogging::debug("GRPC: Got result request");
-    RimEclipseCase* rimCase = getCase(caseId);
-    if (rimCase)
-    {
-        RigCaseCellResultsData* eclipseResults = rimCase->results(RiaDefines::MATRIX_MODEL);
-        EclipseResultAddress    msgAddress     = request->result_address();
-        int timeLapseStepFrameIdx = -1, difference_case_id = -1;
-        if (msgAddress.has_time_lapse_frame())
-        {
-            timeLapseStepFrameIdx = msgAddress.time_lapse_frame().value();            
-        }
-        if (msgAddress.has_difference_case())
-        {
-            difference_case_id = msgAddress.difference_case().value();
-        }
-
-        RigEclipseResultAddress resAddress(RiaDefines::ResultCatType(msgAddress.result_cat_type()),
-                                           QString::fromStdString(msgAddress.result_name()),
-                                           timeLapseStepFrameIdx,
-                                           difference_case_id);
-        if (eclipseResults->hasResultEntry(resAddress))
-        {
-            size_t timeStep = (size_t)request->time_step();
-            const std::vector<std::vector<double>>& resultValues = eclipseResults->cellScalarResults(resAddress);
-            if (timeStep < resultValues.size())
-            {
-                result->mutable_value()->Reserve((int) resultValues[timeStep].size());
-                for (size_t i = 0; i < resultValues[timeStep].size(); ++i)
-                {
-                    result->add_value(resultValues[timeStep][i]);
-                }
-                return Status::OK;
-            }
-            RiaLogging::error("GRPC: Invalid Time Step");
-            return Status(grpc::NOT_FOUND, "Invalid Time Step");
-        }
-        RiaLogging::error("GRPC: Invalid Result Address");
-        return Status(grpc::NOT_FOUND, "Invalid Result Address");
-    }
-    RiaLogging::error("GRPC: Invalid Case Id");
-    return Status(grpc::NOT_FOUND, "Invalid case id");
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Status RiaGrpcGridServiceImpl::numberOfTimeSteps(ServerContext* context, const Case* request, Int32Message* reply)
-{
-    int caseId = request->id();
-    RiaLogging::debug("GRPC: Got time steps request");
-
-    RimEclipseCase* rimCase = getCase(caseId);
-    if (rimCase)
-    {
-        reply->set_value(rimCase->timeStepStrings().size());
-        return Status::OK;
-    }
-    RiaLogging::error("GRPC: Invalid Case Id");
-    return Status(grpc::NOT_FOUND, "Invalid case id");
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RiaGrpcServerCallMethod*> RiaGrpcGridServiceImpl::createCallbacks(ServerCompletionQueue* cq)
-{
-    std::vector<RiaGrpcServerCallMethod*> callbacks;
-
-    callbacks.push_back(new RiaGrpcServerCallData<RiaGrpcGridServiceImpl, Case, Vec3i>(
-        this, cq, "dimensions", &RiaGrpcGridServiceImpl::dimensions, &RiaGrpcGridServiceImpl::Requestdimensions));
-    callbacks.push_back(new RiaGrpcServerCallData<RiaGrpcGridServiceImpl, EclipseResultRequest, DoubleResult>(
-        this, cq, "results", &RiaGrpcGridServiceImpl::results, &RiaGrpcGridServiceImpl::Requestresults));
-    callbacks.push_back(
-        new RiaGrpcServerCallData<RiaGrpcGridServiceImpl, Case, Int32Message>(this,
-                                                                              cq,
-                                                                              "numberOfTimeSteps",
-                                                                              &RiaGrpcGridServiceImpl::numberOfTimeSteps,
-                                                                              &RiaGrpcGridServiceImpl::RequestnumberOfTimeSteps));
-
-    return callbacks;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -223,19 +89,20 @@ void RiaGrpcServer::initialize()
     ServerBuilder builder;
     builder.AddListeningPort(serverAddress.toStdString(), grpc::InsecureServerCredentials());
 
-    builder.RegisterService(&m_service);
     builder.RegisterService(&m_projectService);
+    builder.RegisterService(&m_gridService);
+
     m_completionQueue = builder.AddCompletionQueue();
     m_server = builder.BuildAndStart();
 
     CVF_ASSERT(m_server);
     RiaLogging::info(QString("Server listening on %1").arg(serverAddress));
     // Spawn new CallData instances to serve new clients.
-    for (auto callback : m_service.createCallbacks(m_completionQueue.get()))
+    for (auto callback : m_projectService.createCallbacks(m_completionQueue.get()))
     {
         process(callback);
     }
-    for (auto callback : m_projectService.createCallbacks(m_completionQueue.get()))
+    for (auto callback : m_gridService.createCallbacks(m_completionQueue.get()))
     {
         process(callback);
     }
