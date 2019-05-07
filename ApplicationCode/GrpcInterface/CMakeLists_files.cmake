@@ -3,11 +3,14 @@ set ( SOURCE_GROUP_HEADER_FILES
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServerCallData.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServerCallData.inl
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.h
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridInfoService.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.h
 )
 
 set ( SOURCE_GROUP_SOURCE_FILES
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServer.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridInfoService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.cpp
 )
 
@@ -37,8 +40,8 @@ set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
 # Proto files
 set(PROTO_FILES
 	"CaseInfo"
+	"GridInfo"
 	"ProjectInfo"
-	"ResInsightGrid"		
 )
 
 foreach(proto_file ${PROTO_FILES})		

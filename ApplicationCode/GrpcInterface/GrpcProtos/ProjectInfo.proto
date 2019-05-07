@@ -5,7 +5,9 @@ import "CaseInfo.proto";
 package ResInsight;
 
 service ProjectInfo {
-  rpc CurrentCase(Empty) returns (CaseInfo) {}
+  rpc CurrentCase(Empty) returns (Case) {}
+  rpc CurrentCaseInfo(Empty) returns (CaseInfo) {}
+  rpc CaseInfoFromCase(Case) returns (CaseInfo) {}
   rpc SelectedCases(Empty) returns (CaseInfos) {}
   rpc AllCaseGroups(Empty) returns (CaseGroups) {}
   rpc AllCases(Empty) returns (CaseInfos) {}

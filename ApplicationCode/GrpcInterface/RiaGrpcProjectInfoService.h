@@ -36,7 +36,9 @@ class CaseInfo;
 class RiaGrpcProjectInfoService final : public ResInsight::ProjectInfo::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status CurrentCase(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseInfo* reply) override;
+    grpc::Status CurrentCase(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::Case* reply) override;
+    grpc::Status CurrentCaseInfo(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseInfo* reply) override;
+    grpc::Status CaseInfoFromCase(grpc::ServerContext* context, const ResInsight::Case* request, ResInsight::CaseInfo* reply) override;
     grpc::Status SelectedCases(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseInfos* reply) override;
     grpc::Status AllCaseGroups(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseGroups* reply) override;
     grpc::Status AllCases(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseInfos* reply) override;

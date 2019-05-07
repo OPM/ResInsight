@@ -15,29 +15,26 @@
 //  for more details.
 //
 //////////////////////////////////////////////////////////////////////////////////
-#pragma once
+#include "RiaGrpcServiceInterface.h"
 
-#include <vector>
+#include "RiaApplication.h"
+#include "RimProject.h"
+#include "RimCase.h"
 
-class RiaGrpcServerCallMethod;
-class RimCase;
-
-namespace grpc
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCase* RiaGrpcServiceInterface::findCase(int caseId)
 {
-    class ServerCompletionQueue;    
+    std::vector<RimCase*> cases;
+    RiaApplication::instance()->project()->allCases(cases);
+
+    for (RimCase* rimCase : cases)
+    {
+        if (caseId == rimCase->caseId())
+        {
+            return rimCase;
+        }
+    }
+    return nullptr;
 }
-
-//==================================================================================================
-//
-// gRPC-service interface which all gRPC-services has to implement
-//
-//==================================================================================================
-class RiaGrpcServiceInterface
-{
-public:
-    virtual std::vector<RiaGrpcServerCallMethod*> createCallbacks(grpc::ServerCompletionQueue*) = 0;
-
-    static RimCase* findCase(int caseId);
-};
-
-
