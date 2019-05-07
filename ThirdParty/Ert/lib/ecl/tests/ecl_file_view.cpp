@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2017  Statoil ASA, Norway.
+   Copyright (C) 2017  Equinor ASA, Norway.
 
    The file 'ecl_file_view.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -59,7 +59,7 @@ void test_create_file_kw() {
   test_assert_int_equal( ecl_file_kw_get_size( file_kw0 ) , 1000 );
   test_assert_true( ecl_type_is_equal( ecl_file_kw_get_data_type( file_kw0 ) , ECL_FLOAT ));
   {
-    test_work_area_type * work_area = test_work_area_alloc("file_kw");
+    ecl::util::TestArea ta("file_kw");
     {
       FILE * ostream = util_fopen("file_kw" , "w");
       ecl_file_kw_fwrite( file_kw0 , ostream );
@@ -101,7 +101,6 @@ void test_create_file_kw() {
       test_assert_NULL( ecl_file_kw_fread_alloc_multiple( istream , 10));
       fclose( istream );
     }
-    test_work_area_free( work_area );
   }
   ecl_file_kw_free( file_kw0 );
   ecl_file_kw_free( file_kw1 );

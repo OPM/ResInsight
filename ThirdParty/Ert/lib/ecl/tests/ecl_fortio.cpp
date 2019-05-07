@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'ecl_fortio.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -111,7 +111,7 @@ void test_open_close_read( const char * filename ) {
 
 
 void test_fread_truncated_data() {
-  test_work_area_type * work_area = test_work_area_alloc("fortio_truncated" );
+  ecl::util::TestArea work_area("fortio_truncated");
   {
     const size_t buffer_size = 1000;
     char * buffer = (char *) util_malloc( buffer_size );
@@ -136,11 +136,10 @@ void test_fread_truncated_data() {
     }
     free( buffer );
   }
-  test_work_area_free( work_area );
 }
 
 void test_fread_truncated_head() {
-  test_work_area_type * work_area = test_work_area_alloc("fortio_truncated" );
+  ecl::util::TestArea work_area("fortio_truncated");
   {
     {
       FILE * stream = util_fopen("PRESSURE" , "w");
@@ -156,12 +155,11 @@ void test_fread_truncated_head() {
       fortio_fclose( fortio );
     }
   }
-  test_work_area_free( work_area );
 }
 
 
 void test_fread_truncated_tail() {
-  test_work_area_type * work_area = test_work_area_alloc("fortio_truncated2" );
+  ecl::util::TestArea work_area("fortio_truncated3");
   {
     const size_t buffer_size = 1000;
     char * buffer = (char *) util_malloc( buffer_size );
@@ -183,12 +181,11 @@ void test_fread_truncated_tail() {
     }
     free( buffer );
   }
-  test_work_area_free( work_area );
 }
 
 
 void test_fread_invalid_tail() {
-  test_work_area_type * work_area = test_work_area_alloc("fortio_invalid" );
+  ecl::util::TestArea work_area("fortio_invalid");
   int record_size = 10;
   char * buffer = (char *) util_malloc( record_size );
   {
@@ -215,13 +212,12 @@ void test_fread_invalid_tail() {
   }
 
   free( buffer );
-  test_work_area_free( work_area );
 }
 
 
 
 void test_at_eof() {
-  test_work_area_type * work_area = test_work_area_alloc("fortio_truncated2" );
+  ecl::util::TestArea work_area("fortio_truncated3");
   {
     fortio_type * fortio = fortio_open_writer("PRESSURE" , false , true);
     char * buffer = (char *) util_malloc( 100 );
@@ -242,13 +238,11 @@ void test_at_eof() {
 
     fortio_fclose( fortio );
   }
-
-  test_work_area_free( work_area );
 }
 
 
 void test_fseek() {
-  test_work_area_type * work_area = test_work_area_alloc("fortio_fseek" );
+  ecl::util::TestArea work_area("fortio_fseek");
   {
     fortio_type * fortio = fortio_open_writer("PRESSURE" , false , true);
     char * buffer = (char *) util_malloc( 100 );
@@ -261,8 +255,6 @@ void test_fseek() {
   {
     fortio_type * fortio = fortio_open_reader("PRESSURE" , false , true);
 
-
-    printf("Starting fssek test \n");
     test_assert_true( fortio_fseek( fortio , 0 , SEEK_SET ));
     test_assert_true( fortio_fseek( fortio , 0 , SEEK_END ));
     test_assert_false( fortio_fseek( fortio , 100000 , SEEK_END));
@@ -270,14 +262,12 @@ void test_fseek() {
 
     fortio_fclose( fortio );
   }
-
-  test_work_area_free( work_area );
 }
 
 
 
 void test_write_failure() {
-  test_work_area_type * work_area = test_work_area_alloc("fortio_fseek" );
+  ecl::util::TestArea work_area("fortio_truncated");
   {
     fortio_type * fortio = fortio_open_writer("PRESSURE" , false , true);
     char * buffer = (char *) util_malloc( 100 );
@@ -292,7 +282,6 @@ void test_write_failure() {
     test_assert_false( util_file_exists( "PRESSURE"));
 
   }
-  test_work_area_free( work_area );
 }
 
 
@@ -317,10 +306,9 @@ int main( int argc , char ** argv) {
 
     test_write( "/tmp/path/does/not/exist" , false );
     {
-      test_work_area_type * work_area = test_work_area_alloc("ecl_fortio.write" );
+      ecl::util::TestArea work_area("ecl_fortio_write");
       util_make_path("path");
       test_write( "path/file.x" , true );
-      test_work_area_free( work_area );
     }
 
     test_write_failure();

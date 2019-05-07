@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway.
+   Copyright (C) 2012  Equinor ASA, Norway.
 
    The file 'ert_util_PATH_test.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <pwd.h>
 
+#include <ert/util/util.hpp>
 #include <ert/util/test_util.hpp>
 #include <ert/util/test_work_area.hpp>
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2016  Statoil ASA, Norway.
+   Copyright (C) 2016  Equinor ASA, Norway.
 
    The file 'ecl_init_file.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -36,8 +36,8 @@ void test_write_header() {
   int ny = 10;
   int nz = 5;
 
+  ecl::util::TestArea ta("WRITE_header");
   int_vector_type * actnum = int_vector_alloc( nx*ny*nz , 1 );
-  test_work_area_type * test_area = test_work_area_alloc( "ecl_init_file" );
   time_t start_time = util_make_date_utc(15 , 12 , 2010 );
   ecl_grid_type * ecl_grid;
 
@@ -84,7 +84,8 @@ void test_write_header() {
     ecl_init_file_fwrite_header( f , ecl_grid , NULL , ECL_METRIC_UNITS, 7 , start_time );
     fortio_fclose( f );
   }
-  test_work_area_free( test_area );
+  ecl_grid_free( ecl_grid );
+  int_vector_free( actnum );
 }
 
 

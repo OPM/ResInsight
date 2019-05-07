@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway.
+   Copyright (C) 2014  Equinor ASA, Norway.
 
    The file 'fault_block_layer.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -67,6 +67,8 @@ fault_block_type * fault_block_layer_add_block( fault_block_layer_type * layer ,
     fault_block_type * block = fault_block_alloc( layer , block_id );
     int storage_index = vector_get_size( layer->blocks );
 
+    if (block_id >= int_vector_size(layer->block_map))
+      int_vector_resize(layer->block_map, block_id+1, -1);
     int_vector_iset( layer->block_map , block_id , storage_index );
     vector_append_owned_ref( layer->blocks , block , fault_block_free__ );
 

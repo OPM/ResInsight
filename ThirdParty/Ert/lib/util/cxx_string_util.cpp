@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2018  Equinor Statoil ASA, Norway.
+  Copyright (C) 2018  Equinor Equinor ASA, Norway.
 
   The file 'cxx_string_util.cpp' is part of ERT - Ensemble based Reservoir Tool.
 

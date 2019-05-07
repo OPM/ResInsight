@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2011  Statoil ASA, Norway. 
+#  Copyright (C) 2011  Equinor ASA, Norway. 
 #   
 #  The file 'sum_test.py' is part of ERT - Ensemble based Reservoir Tool. 
 #   
@@ -29,11 +29,11 @@ from ecl.summary import EclNPV , NPVPriceVector
 
 from ecl.util.util import StringList, TimeVector, DoubleVector , CTime
 from ecl.util.test import TestAreaContext
-from tests import EclTest, statoil_test
+from tests import EclTest, equinor_test
 
 
 base = "ECLIPSE"
-path = "Statoil/ECLIPSE/Gurbat"
+path = "Equinor/ECLIPSE/Gurbat"
 case = "%s/%s" % (path, base)
 
 def callable(x):
@@ -45,7 +45,7 @@ def linear1(x):
 def linear2(x):
     return 2*x
 
-@statoil_test()
+@equinor_test()
 class NPVTest(EclTest):
     def setUp(self):
         self.case = self.createTestPath(case)

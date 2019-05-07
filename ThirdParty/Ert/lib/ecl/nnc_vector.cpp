@@ -1,6 +1,6 @@
 
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'nnc_vector.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -19,10 +19,11 @@
 
 #include <stdlib.h>
 
+#include <vector>
+
 #include <ert/util/util.h>
 #include <ert/util/vector.hpp>
 #include <ert/util/type_macros.hpp>
-#include <ert/util/int_vector.hpp>
 
 #include <ert/ecl/nnc_vector.hpp>
 
@@ -33,9 +34,9 @@
 
 struct nnc_vector_struct {
   UTIL_TYPE_ID_DECLARATION;
-  int                lgr_nr;
-  int_vector_type * grid_index_list;
-  int_vector_type * nnc_index_list;
+  int              lgr_nr;
+  std::vector<int> grid_index_list;
+  std::vector<int> nnc_index_list;
 };
 
 
@@ -45,21 +46,19 @@ static UTIL_SAFE_CAST_FUNCTION(nnc_vector , NNC_VECTOR_TYPE_ID)
 
 
 nnc_vector_type * nnc_vector_alloc(int lgr_nr) {
-  nnc_vector_type * nnc_vector = (nnc_vector_type*)util_malloc( sizeof * nnc_vector );
+  nnc_vector_type * nnc_vector = new nnc_vector_type();
   UTIL_TYPE_ID_INIT(nnc_vector , NNC_VECTOR_TYPE_ID);
-  nnc_vector->grid_index_list = int_vector_alloc(0,0);
-  nnc_vector->nnc_index_list  = int_vector_alloc(0,0);
   nnc_vector->lgr_nr = lgr_nr;
   return nnc_vector;
 }
 
 nnc_vector_type * nnc_vector_alloc_copy(const nnc_vector_type * src_vector) {
-  nnc_vector_type * copy_vector =  (nnc_vector_type*)util_malloc( sizeof * src_vector );
+  nnc_vector_type * copy_vector =  new nnc_vector_type();
   UTIL_TYPE_ID_INIT(copy_vector , NNC_VECTOR_TYPE_ID);
 
   copy_vector->lgr_nr = src_vector->lgr_nr;
-  copy_vector->grid_index_list = int_vector_alloc_copy( src_vector->grid_index_list );
-  copy_vector->nnc_index_list  = int_vector_alloc_copy( src_vector->nnc_index_list );
+  copy_vector->grid_index_list = src_vector->grid_index_list;
+  copy_vector->nnc_index_list  = src_vector->nnc_index_list;
   return copy_vector;
 }
 
@@ -75,10 +74,10 @@ bool nnc_vector_equal( const nnc_vector_type * nnc_vector1 , const nnc_vector_ty
     if (nnc_vector1->lgr_nr != nnc_vector2->lgr_nr)
       return false;
 
-    if (!int_vector_equal( nnc_vector1->grid_index_list , nnc_vector2->grid_index_list))
+    if (nnc_vector1->grid_index_list != nnc_vector2->grid_index_list)
       return false;
 
-    if (!int_vector_equal( nnc_vector1->nnc_index_list , nnc_vector2->nnc_index_list))
+    if (nnc_vector1->nnc_index_list != nnc_vector2->nnc_index_list)
       return false;
 
     return true;
@@ -87,9 +86,7 @@ bool nnc_vector_equal( const nnc_vector_type * nnc_vector1 , const nnc_vector_ty
 
 
 void nnc_vector_free( nnc_vector_type * nnc_vector ) {
-  int_vector_free( nnc_vector->grid_index_list );
-  int_vector_free( nnc_vector->nnc_index_list );
-  free( nnc_vector );
+  delete nnc_vector;
 }
 
 
@@ -100,21 +97,21 @@ void nnc_vector_free__(void * arg) {
 
 
 void nnc_vector_add_nnc(nnc_vector_type * nnc_vector, int global_cell_number , int nnc_index) {
-  int_vector_append( nnc_vector->grid_index_list , global_cell_number );
-  int_vector_append( nnc_vector->nnc_index_list , nnc_index);
+  nnc_vector->grid_index_list.push_back( global_cell_number );
+  nnc_vector->nnc_index_list.push_back(nnc_index);
 }
 
 
-const int_vector_type * nnc_vector_get_grid_index_list(const nnc_vector_type * nnc_vector) {
+const std::vector<int>& nnc_vector_get_grid_index_list(const nnc_vector_type * nnc_vector) {
   return nnc_vector->grid_index_list;
 }
 
-const int_vector_type * nnc_vector_get_nnc_index_list(const nnc_vector_type * nnc_vector) {
+const std::vector<int>& nnc_vector_get_nnc_index_list(const nnc_vector_type * nnc_vector) {
   return nnc_vector->nnc_index_list;
 }
 
 int nnc_vector_get_size( const nnc_vector_type * nnc_vector ) {
-  return int_vector_size( nnc_vector->grid_index_list );
+  return nnc_vector->grid_index_list.size();
 }
 
 int nnc_vector_get_lgr_nr( const nnc_vector_type * nnc_vector ) {
@@ -122,9 +119,9 @@ int nnc_vector_get_lgr_nr( const nnc_vector_type * nnc_vector ) {
 }
 
 int nnc_vector_iget_nnc_index( const nnc_vector_type * nnc_vector , int index ) {
-  return int_vector_iget( nnc_vector->nnc_index_list , index );
+  return nnc_vector->nnc_index_list[index];
 }
 
 int nnc_vector_iget_grid_index( const nnc_vector_type * nnc_vector , int index ) {
-  return int_vector_iget( nnc_vector->grid_index_list , index );
+  return nnc_vector->grid_index_list[index];
 }

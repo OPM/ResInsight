@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway.
+   Copyright (C) 2014  Equinor ASA, Norway.
 
    The file 'ecl_grid_layer_contains' is part of ERT - Ensemble based Reservoir Tool.
 

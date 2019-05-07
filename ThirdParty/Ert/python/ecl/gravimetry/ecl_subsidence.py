@@ -1,4 +1,4 @@
-#  Copyright (C) 2011  Statoil ASA, Norway.
+#  Copyright (C) 2011  Equinor ASA, Norway.
 #
 #  The file 'ecl_subsidence.py' is part of ERT - Ensemble based
 #  Reservoir Tool.
@@ -49,6 +49,7 @@ class EclSubsidence(BaseCClass):
     _add_survey_PRESSURE = EclPrototype("void*  ecl_subsidence_add_survey_PRESSURE( ecl_subsidence , char* , ecl_file_view )")
     _eval                = EclPrototype("double ecl_subsidence_eval( ecl_subsidence , char* , char* , ecl_region , double , double , double, double, double)")
     _eval_geertsma       = EclPrototype("double ecl_subsidence_eval_geertsma( ecl_subsidence , char* , char* , ecl_region , double , double , double, double, double, double)")
+    _eval_geertsma_rporv = EclPrototype("double ecl_subsidence_eval_geertsma_rporv( ecl_subsidence , char* , char* , ecl_region , double , double , double, double, double, double)")
     _has_survey          = EclPrototype("bool  ecl_subsidence_has_survey( ecl_subsidence , char*)")
 
     def __init__( self, grid, init_file ):
@@ -102,6 +103,17 @@ class EclSubsidence(BaseCClass):
                 raise KeyError("No such survey: %s" % monitor_survey)
 
         return self._eval_geertsma(base_survey, monitor_survey, region, pos[0], pos[1], pos[2], youngs_modulus, poisson_ratio, seabed)
+
+    def eval_geertsma_rporv(self, base_survey, monitor_survey, pos, youngs_modulus, poisson_ratio, seabed, region=None):
+        if not base_survey in self:
+            raise KeyError("No such survey: %s" % base_survey)
+
+        if monitor_survey is not None:
+            if not monitor_survey in self:
+                raise KeyError("No such survey: %s" % monitor_survey)
+
+        return self._eval_geertsma_rporv(base_survey, monitor_survey, region, pos[0], pos[1], pos[2], youngs_modulus, poisson_ratio, seabed)
+
 
     def eval(self, base_survey, monitor_survey, pos, compressibility, poisson_ratio, region=None):
         """

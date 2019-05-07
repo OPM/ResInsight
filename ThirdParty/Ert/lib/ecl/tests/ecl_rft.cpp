@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'ecl_rft.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -40,10 +40,9 @@ void test_rft_read_write(const char * rft_file){
     ecl_rft_node_type * old_node = ecl_rft_file_iget_node(rft, 0);
     ecl_rft_node_type * new_node = ecl_rft_node_alloc_new("DUMMY", "R", ecl_rft_node_get_date(old_node), ecl_rft_node_get_days(old_node));
     nodes[2]=new_node;
-    test_work_area_type * work_area = test_work_area_alloc("RFT_RW");
+    ecl::util::TestArea ta("rft");
 
     ecl_rft_file_update("eclipse.rft", nodes,3, ECL_METRIC_UNITS);
-    test_work_area_free(work_area);
     free(nodes);
 }
 
@@ -81,8 +80,6 @@ void test_rft( const char * rft_file ) {
       test_assert_ptr_equal( cell1 , cell2 );
     }
   }
-  ecl_rft_node_inplace_sort_cells( rft_node );
-
   ecl_rft_file_free( rft );
 }
 
@@ -94,7 +91,6 @@ void test_plt_msw( const char * plt_file ) {
   test_assert_true( ecl_rft_node_is_PLT( plt_node ));
   test_assert_true( ecl_rft_node_is_MSW( plt_node ));
   test_assert_int_equal( 22 , ecl_rft_node_get_size( plt_node ));
-  ecl_rft_node_inplace_sort_cells( plt_node );
   {
     int i;
     for (i=1; i < ecl_rft_node_get_size( plt_node ); i++) {
@@ -143,7 +139,6 @@ void test_plt( const char * plt_file ) {
 
       test_assert_ptr_equal( cell1 , cell2 );
     }
-    ecl_rft_node_inplace_sort_cells( plt_node );
   }
 
   ecl_rft_file_free( plt );
@@ -159,7 +154,7 @@ void test_simple_load_rft(const char * filename) {
 int main( int argc , char ** argv) {
   const char * rft_file = argv[1];
   const char * mode_string = argv[2];
-
+  util_install_signals();
 
   if (strcmp( mode_string , "RFT") == 0)
     test_rft( rft_file );

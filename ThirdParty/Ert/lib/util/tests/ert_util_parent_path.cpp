@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway.
+   Copyright (C) 2012  Equinor ASA, Norway.
 
    The file 'ert_util_parent_path.c' is part of ERT - Ensemble based Reservoir Tool.
 

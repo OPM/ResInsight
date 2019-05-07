@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'ert_util_binary_split.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -25,18 +25,22 @@ void test_split(const char * test_string , bool split_on_first , const char * tr
   char * part1;
   char * part2;
 
-
   util_binary_split_string( test_string , ":" , split_on_first , &part1 , &part2 );
   test_assert_string_equal( true1 , part1 );
   test_assert_string_equal( true2 , part2 );
+  free(part1);
+  free(part2);
 
   util_binary_split_string( test_string , ":;" , split_on_first , &part1 , &part2 );
   test_assert_string_equal( true1 , part1 );
   test_assert_string_equal( true2 , part2 );
+  free(part1);
+  free(part2);
 
   util_binary_split_string( test_string , ";" , split_on_first , &part1 , &part2 );
   test_assert_string_equal( test_string , part1 );
   test_assert_string_equal( NULL , part2 );
+  free(part1);
 }
 
 int main(int argc , char ** argv) {

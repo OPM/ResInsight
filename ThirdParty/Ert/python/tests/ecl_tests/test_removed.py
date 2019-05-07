@@ -16,8 +16,6 @@ class Removed_2_1_Test(EclTest):
             with openFortIO("TEST" , mode = FortIO.WRITE_MODE) as f:
                 kw.fwrite( f )
 
-            t.sync()
-            
             f = EclFile( "TEST" )
             with self.assertRaises(NotImplementedError):
                 f.select_block( "KW" , 100 )
@@ -33,4 +31,4 @@ class Removed_2_1_Test(EclTest):
 
             with self.assertRaises(NotImplementedError):
                 EclFile.restart_block( "TEST" )
-                
+

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'ecl_kw_cmp_string.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -39,6 +39,7 @@ void test_cmp_string() {
   test_assert_false( ecl_kw_icmp_string( ecl_kw , 0 , ""));
   test_assert_false( ecl_kw_icmp_string( ecl_kw , 0 , ""));
 
+  ecl_kw_free(ecl_kw);
 }
 
 

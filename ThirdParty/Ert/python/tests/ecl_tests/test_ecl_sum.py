@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2014  Statoil ASA, Norway.
+#  Copyright (C) 2014  Equinor ASA, Norway.
 #
 #  The file 'test_ecl_sum.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -24,14 +24,14 @@ from cwrap import Prototype, load, open as copen
 from ecl.eclfile import EclFile, FortIO, openFortIO, openEclFile, EclKW
 from ecl.summary import EclSum, EclSumKeyWordVector
 from ecl.util.test import TestAreaContext
-from tests import EclTest, statoil_test
+from tests import EclTest, equinor_test
 
-@statoil_test()
+@equinor_test()
 class EclSumTest(EclTest):
 
 
     def setUp(self):
-        self.test_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.SMSPEC")
+        self.test_file = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.SMSPEC")
         self.ecl_sum = EclSum(self.test_file)
 
 
@@ -71,7 +71,7 @@ class EclSumTest(EclTest):
     def test_truncated_smspec(self):
         with TestAreaContext("EclSum/truncated_smspec") as ta:
             ta.copy_file(self.test_file)
-            ta.copy_file(self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.UNSMRY"))
+            ta.copy_file(self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.UNSMRY"))
 
             file_size = os.path.getsize("ECLIPSE.SMSPEC")
             with open("ECLIPSE.SMSPEC","r+") as f:
@@ -84,7 +84,7 @@ class EclSumTest(EclTest):
     def test_truncated_data(self):
         with TestAreaContext("EclSum/truncated_data") as ta:
             ta.copy_file(self.test_file)
-            ta.copy_file(self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.UNSMRY"))
+            ta.copy_file(self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.UNSMRY"))
 
 
             file_size = os.path.getsize("ECLIPSE.UNSMRY")
@@ -98,7 +98,7 @@ class EclSumTest(EclTest):
     def test_missing_smspec_keyword(self):
         with TestAreaContext("EclSum/truncated_data") as ta:
             ta.copy_file(self.test_file)
-            ta.copy_file(self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.UNSMRY"))
+            ta.copy_file(self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.UNSMRY"))
 
             with openEclFile("ECLIPSE.SMSPEC") as f:
                 kw_list = []
@@ -118,7 +118,7 @@ class EclSumTest(EclTest):
     def test_missing_unsmry_keyword(self):
         with TestAreaContext("EclSum/truncated_data") as ta:
             ta.copy_file(self.test_file)
-            ta.copy_file(self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.UNSMRY"))
+            ta.copy_file(self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.UNSMRY"))
 
             with openEclFile("ECLIPSE.UNSMRY") as f:
                 kw_list = []
@@ -140,7 +140,7 @@ class EclSumTest(EclTest):
 
 
     def test_labscale(self):
-        case = self.createTestPath("Statoil/ECLIPSE/LabScale/HDMODEL")
+        case = self.createTestPath("Equinor/ECLIPSE/LabScale/HDMODEL")
         sum = EclSum(case, lazy_load=True)
         self.assertEqual(sum.getStartTime(), datetime.datetime(2013,1,1,0,0,0))
         self.assertEqual(sum.getEndTime()  , datetime.datetime(2013,1,1,19,30,0))

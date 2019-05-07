@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'ecl_grid_lgr_name.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -41,8 +41,6 @@
 
   Name ..................: LG003014
   Grid nr ...............: 110
-
-  Name ..................: /private/joaho/ERT/git/ert/test-data/Statoil/ECLIPSE/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3.EGRID
 */
 
 

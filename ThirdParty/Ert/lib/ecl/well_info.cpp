@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'well_info.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -21,10 +21,10 @@
 
 #include <string>
 #include <vector>
+#include <map>
+#include <algorithm>
 
 #include <ert/util/util.h>
-#include <ert/util/hash.hpp>
-#include <ert/util/int_vector.hpp>
 
 #include <ert/ecl/ecl_rsthead.hpp>
 #include <ert/ecl/ecl_file.hpp>
@@ -182,7 +182,7 @@
 
 
 struct well_info_struct {
-  hash_type                * wells;                /* Hash table of well_ts_type instances; indexed by well name. */
+  std::map<std::string, well_ts_type*> wells;      /* std::map of well_ts_type instances; indexed by well name. */
   std::vector<std::string>   well_names;           /* A list of all the well names. */
   const ecl_grid_type      * grid;
 };
@@ -195,23 +195,25 @@ struct well_info_struct {
 
 well_info_type * well_info_alloc( const ecl_grid_type * grid) {
   well_info_type * well_info = new well_info_type();
-  well_info->wells      = hash_alloc();
   well_info->grid       = grid;
   return well_info;
 }
 
 
 bool well_info_has_well( well_info_type * well_info , const char * well_name ) {
-  return hash_has_key( well_info->wells , well_name );
+  const auto it = well_info->wells.find(well_name);
+  if (it == well_info->wells.end())
+    return false;
+  return true;
 }
 
 well_ts_type * well_info_get_ts( const well_info_type * well_info , const char *well_name) {
-  return (well_ts_type*)hash_get( well_info->wells , well_name );
+  return well_info->wells.at( well_name );
 }
 
 static void well_info_add_new_ts( well_info_type * well_info , const char * well_name) {
   well_ts_type * well_ts = well_ts_alloc( well_name ) ;
-  hash_insert_hash_owned_ref( well_info->wells , well_name , well_ts , well_ts_free__);
+  well_info->wells[well_name] = well_ts;
   well_info->well_names.push_back( well_name );
 }
 
@@ -353,7 +355,9 @@ void well_info_load_rst_eclfile( well_info_type * well_info , ecl_file_type * ec
 }
 
 void well_info_free( well_info_type * well_info ) {
-  hash_free( well_info->wells );
+  for (const auto& pair : well_info->wells)
+    well_ts_free(pair.second);
+
   delete well_info;
 }
 

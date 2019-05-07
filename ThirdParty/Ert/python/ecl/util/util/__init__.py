@@ -1,4 +1,4 @@
-#  Copyright (C) 2011  Statoil ASA, Norway.
+#  Copyright (C) 2011  Equinor ASA, Norway.
 #
 #  The file '__init__.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -71,7 +71,7 @@ from .cwd_context import CWDContext
 ###  the process of changing camelCase function names to snake_case function
 ###  names.
 ###
-###  See https://github.com/Statoil/libecl/issues/142 for a discussion and for
+###  See https://github.com/Equinor/libecl/issues/142 for a discussion and for
 ###  usage.
 ###
 

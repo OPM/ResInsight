@@ -1,4 +1,4 @@
-#  Copyright (C) 2013  Statoil ASA, Norway.
+#  Copyright (C) 2013  Equinor ASA, Norway.
 #
 #  The file 'test_work_area.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -20,8 +20,7 @@ from ecl import EclPrototype
 
 
 class TestArea(BaseCClass):
-    _test_area_alloc           = EclPrototype("void* test_work_area_alloc( char* )" , bind = False)
-    _test_area_alloc_relative  = EclPrototype("void* test_work_area_alloc_relative( char* , char* )" , bind = False)
+    _test_area_alloc           = EclPrototype("void* test_work_area_alloc__( char*, bool )" , bind = False)
     _free                      = EclPrototype("void test_work_area_free( test_area )")
     _install_file              = EclPrototype("void test_work_area_install_file( test_area , char* )")
     _copy_directory            = EclPrototype("void test_work_area_copy_directory( test_area , char* )")
@@ -31,22 +30,13 @@ class TestArea(BaseCClass):
     _copy_parent_content       = EclPrototype("void test_work_area_copy_parent_content( test_area , char* )")
     _get_cwd                   = EclPrototype("char* test_work_area_get_cwd( test_area )")
     _get_original_cwd          = EclPrototype("char* test_work_area_get_original_cwd( test_area )")
-    _set_store                 = EclPrototype("void test_work_area_set_store( test_area , bool)")
-    _sync                      = EclPrototype("void test_work_area_sync( test_area )")
 
-    def __init__(self, test_name, prefix = None , store_area=False , c_ptr = None):
+    def __init__(self, test_name, store_area=False , c_ptr = None):
 
         if c_ptr is None:
-            if prefix:
-                if os.path.exists( prefix ):
-                    c_ptr = self._test_area_alloc_relative(prefix , test_name)
-                else:
-                    raise IOError("The prefix path:%s must exist" % prefix)
-            else:
-                c_ptr = self._test_area_alloc(test_name)
+            c_ptr = self._test_area_alloc(test_name, store_area)
 
         super(TestArea, self).__init__(c_ptr)
-        self.set_store( store_area )
 
 
     def get_original_cwd(self):
@@ -111,10 +101,6 @@ class TestArea(BaseCClass):
         self._free()
 
 
-    def set_store(self, store):
-        self._set_store(store)
-
-
     def getFullPath(self , path):
         if not os.path.exists( path ):
             raise IOError("Path not found:%s" % path)
@@ -125,22 +111,17 @@ class TestArea(BaseCClass):
         return os.path.join( self.get_cwd() , path )
 
 
-    def sync(self):
-        return self._sync( )
-
-
 
 class TestAreaContext(object):
-    def __init__(self, test_name, prefix = None , store_area=False):
+    def __init__(self, test_name, store_area=False):
         self.test_name = test_name
         self.store_area = store_area
-        self.prefix = prefix
 
     def __enter__(self):
         """
          @rtype: TestArea
         """
-        self.test_area = TestArea(self.test_name, prefix = self.prefix , store_area = self.store_area )
+        self.test_area = TestArea(self.test_name, store_area = self.store_area )
         return self.test_area
 
 

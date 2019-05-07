@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway.
+   Copyright (C) 2014  Equinor ASA, Norway.
 
    The file 'ecl_fault_block_layer.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -98,6 +98,7 @@ void test_trace_edge( const ecl_grid_type * grid) {
   test_assert_int_equal( 1 , int_vector_size( cell_list ));
   test_assert_int_equal( 0 , int_vector_iget( cell_list , 0));
 
+  fault_block_layer_free(layer);
   int_vector_free( cell_list );
   double_vector_free( x_list );
   double_vector_free( y_list );

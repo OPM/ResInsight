@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway.
+   Copyright (C) 2012  Equinor ASA, Norway.
 
    The file 'ert_util_string_util.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -60,6 +60,7 @@ void test_active_list() {
 
   test_assert_true( string_util_update_active_list("4-6" , active_list) );
   test_int_vector( active_list , 13 , 0,1,3,4,5,6,7,8,9,10,14,15,16);
+  int_vector_free(active_list);
 }
 
 

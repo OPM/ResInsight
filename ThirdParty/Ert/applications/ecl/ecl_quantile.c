@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'ecl_quantile.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -812,7 +812,6 @@ void usage() {
   printf("All filenames in the configuration file will be interpreted relative to\n");
   printf("the location of the configuration file, i.e. irrespective of the current\n");
   printf("working directory when invoking the ecl_quantile program.\n\n");
-  printf("ecl_quantile is written by Joakim Hove / joaho@statoil.com / 92 68 57 04.\n");
   exit(0);
 }
 

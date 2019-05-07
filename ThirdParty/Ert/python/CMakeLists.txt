@@ -35,3 +35,6 @@ if (BUILD_TESTS)
    add_subdirectory( tests )
 endif()
 
+if(RST_DOC)
+  add_subdirectory( docs )
+endif()

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway.
+   Copyright (C) 2012  Equinor ASA, Norway.
 
    The file 'test_util.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -37,6 +37,7 @@ void test_error_exit( const char * fmt , ...) {
   s = util_alloc_sprintf_va(fmt , ap);
   va_end(ap);
   fprintf(stderr, "%s", s);
+  free(s);
   exit(1);
 }
 

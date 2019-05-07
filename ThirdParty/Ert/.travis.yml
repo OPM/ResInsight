@@ -1,82 +1,70 @@
-language: c
-
-compiler:
-  - gcc
-  - clang
+language: python
+python:
+  - 2.7
+  - 3.6
 
 os:
   - linux
-  - osx
 
-osx_image: xcode7.3
-sudo: false
-dist: trusty
+sudo: required
+services: docker
 
 env:
   global:
     - ERT_SHOW_BACKTRACE=1
-    - LD_LIBRARY_PATH="$(pwd)/install/lib64"
+    - MB_PYTHON_VERSION=$TRAVIS_PYTHON_VERSION
   matrix:
-    - PYTHON_VERSION=2.7 TEST_SUITE="-LE SLOW"  # Run all tests not labeled as slow
-    - PYTHON_VERSION=2.7 TEST_SUITE="-L SLOW_1" # Run all tests labeled as SLOW in group 1
-    - PYTHON_VERSION=2.7 TEST_SUITE="-L SLOW_2" # Run all tests labeled as SLOW in group 2
-    - PYTHON_VERSION=3.6                        # Run all tests
+    - TEST_SUITE="-LE SLOW"  # Run all tests not labeled as slow
+    - TEST_SUITE="-L SLOW_1" # Run all tests labeled as SLOW in group 1
+    - TEST_SUITE="-L SLOW_2" # Run all tests labeled as SLOW in group 2
 
 matrix:
   fast_finish: true
-  exclude:
+  include:
     - os: osx
-      compiler: gcc
-    - os: linux
-      compiler: clang
+      language: generic
+      python: 2.7
+      env:
+        - MB_PYTHON_VERSION=2.7
+        - TEST_SUITE=""
+    - os: osx
+      language: generic
+      python: 3.6
+      env:
+        - MB_PYTHON_VERSION=3.6
+        - TEST_SUITE=""
 
 addons:
   apt:
-    sources:
-    - ubuntu-toolchain-r-test
     packages:
     - liblapack-dev
-    - valgrind
-    - gcc-4.8
-    - g++-4.8
-    - clang
-    - cmake
-    - cmake-data
 
+before_install:
+  - unset -f pushd
+  - unset -f popd
+  - source multibuild/common_utils.sh
+  - source multibuild/travis_steps.sh
+  - before_install
 
 install:
-  - if [[ "$CC" == "gcc" ]]; then export CXX="g++-4.8"; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      export CONDA_OS=MacOSX;
-    else
-      export CONDA_OS=Linux;
-    fi
-  - if [[ $PYTHON_VERSION == 2.7 ]]; then
-      export TRAVIS_PYTHON_VERSION="2.7";
-    fi
-  - if [[ $PYTHON_VERSION == 3.6 ]]; then
-      export TRAVIS_PYTHON_VERSION="3.6";
-    fi
-  # We do this conditionally because it saves us some downloading if the version is the same.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-${CONDA_OS}-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-4.4.10-${CONDA_OS}-x86_64.sh -O miniconda.sh;
-    fi
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export CONDA_HOME="$HOME/miniconda"
-  - export PATH="$CONDA_HOME/bin:$PATH"
-  - hash -r
-  - python --version
   - pip install -r requirements.txt
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  - conda info -a  # Useful for debugging any issues with conda
-  - wget https://raw.githubusercontent.com/Statoil/ert/master/travis/install_python_packages.py
-  - python install_python_packages.py
-
-before_script:
-  - wget https://raw.githubusercontent.com/Statoil/ert/master/travis/build_total.py
 
 script:
-  - python build_total.py ecl ${TEST_SUITE}
+  - mkdir build
+  - pushd build
+  - cmake .. -DBUILD_TESTS=ON
+             -DENABLE_PYTHON=ON
+             -DINSTALL_CWRAP=OFF
+             -DBUILD_APPLICATIONS=ON
+             -DINSTALL_ERT_LEGACY=ON
+             -DERT_USE_OPENMP=ON
+             -DCMAKE_C_FLAGS='-Werror=all'
+             -DCMAKE_CXX_FLAGS='-Werror -Wno-unused-result'
+  - make
+  - sudo make install
+  - which python
+  - export PYTHONPATH="/usr/local/lib/python$MB_PYTHON_VERSION/site-packages:/usr/local/lib/python$MB_PYTHON_VERSION/dist-packages:$PYTHONPATH"
+  - python -c "import sys; print('\n'.join(sys.path))"
+  - set -e; python -c "import ecl"; set +e
+  - ctest --output-on-failure $TEST_SUITE
+  - popd

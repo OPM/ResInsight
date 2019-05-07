@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2017  statoil asa, norway.
+   Copyright (c) 2017  equinor asa, norway.
 
    The file 'ecl_nnc_geometry.c' is part of ert - ensemble based reservoir tool.
 
@@ -61,8 +61,8 @@ static void ecl_nnc_geometry_add_pairs( const ecl_nnc_geometry_type * nnc_geo , 
 
     for (int lgr_index2 = 0; lgr_index2 < nnc_info_get_size( nnc_info ); lgr_index2++) {
       const nnc_vector_type * nnc_vector = nnc_info_iget_vector( nnc_info , lgr_index2 );
-      const int_vector_type * grid2_index_list = nnc_vector_get_grid_index_list( nnc_vector );
-      const int_vector_type * nnc_index_list = nnc_vector_get_nnc_index_list( nnc_vector );
+      const std::vector<int>& grid2_index_list = nnc_vector_get_grid_index_list( nnc_vector );
+      const std::vector<int>& nnc_index_list = nnc_vector_get_nnc_index_list( nnc_vector );
       int lgr_nr2 = nnc_vector_get_lgr_nr( nnc_vector );
 
       for (int index2 = 0; index2 < nnc_vector_get_size( nnc_vector ); index2++) {
@@ -70,8 +70,8 @@ static void ecl_nnc_geometry_add_pairs( const ecl_nnc_geometry_type * nnc_geo , 
         pair.grid_nr1 = lgr_nr1;
         pair.global_index1 = global_index1;
         pair.grid_nr2 = lgr_nr2;
-        pair.global_index2 = int_vector_iget( grid2_index_list , index2 );
-        pair.input_index = int_vector_iget( nnc_index_list, index2 );
+        pair.global_index2 = grid2_index_list[index2];
+        pair.input_index = nnc_index_list[index2];
         nnc_geo->data->push_back(pair);
       }
     }

@@ -1,0 +1,618 @@
+Table of contents: 
+
+  1. Static and shared libraries 
+  2. About gen_data / gen_param and gen_obs.
+  3. Some tips for implementing a obs_script
+  4. About the ERT filesystem
+  5. Installing ERT software in Equinor
+
+**********************************************************************
+
+1. Static and shared libraries 
+------------------------------ 
+
+The ert application is based on the internal libraries
+libutil,libecl,librms,libsched,libconfig,libplot,libjob_queue and
+libenkf. When creating a final ert executable this is done by linking
+in static versions of all these libraries. The consistent use of
+static libraries makes the system much more robust for updates, and
+also easier to have several versions of ERT installed side-by-side.
+
+The gcc linker will by default link with the shared version of a
+library, so if both libXXX.a and libXXX.so are found the shared
+version libXXX.so will be used. When linking ert the linker is told
+where to locate the internal libraries, but no further -dynamic /
+-static options are given. Since only static versions of the internal
+libraries can be found the resulting linking will be:
+
+   * All the internal libraries are linked statically.
+   
+   * All standard libraries like libz, libpthread and liblapack are
+     linked dynamically.
+
+This has worked quite OK for a long time, but the advent of Python
+bindings, both for the Python wrapper and for the gui have increased
+the complexity, the Python bindings require shared
+libraries. Currently the shared libraries are just installed in a
+slib/ subdirectory beside the lib/ directory, i.e. for e.g. libecl we
+have:
+
+   libecl/src/...
+   libecl/include/...
+   libecl/lib/libecl.a
+   libecl/slib/libecl.so
+
+The normal unix way is to have the shared and static libraries located
+in the same place, but that will not work with the current ert link
+procedure:
+
+   * Just putting libXXX.so and libXXX.a in the same location without
+     any updates to the link routine will result in the linker using
+     the shared versions.
+
+   * Passing the -static link option to gcc will result in a fully
+     static ert, i.e. also the standard libraries will be linked in
+     statically.
+
+Both of these solutions are unsatisfactory. Currently the shared
+libaries are installed globally as:
+
+   /project/res/x86_64_RH_X/lib/python/lib/libXXX.so
+
+This location is used both by the Python wrappers and the gui.
+---
+
+It is not entirely clear to me how to achieve the goals:
+
+  * The main ert application links with the static version of the
+    internal libraries.
+
+  * The shared and static version of the internal libraries can
+    coexist in the same location.
+
+One solution might be to pass the library to link with explicitly to
+the linker, i.e. instead of the normal link command:
+
+   gcc -o exe object1.o object2.o -L/path/to/lib1 -L/path/to/lib2 -l1 -l2
+
+where you tell gcc where to search and which libraries to use, you can
+alteranatively specify the library files fully on the link command like:
+
+   gcc -o exe object1.o object2.o /path/to/lib1/lib1.a /path/to/lib2/lib2.a
+
+But how to tell SCons this?
+
+**********************************************************************
+
+2. About gen_data / gen_param and gen_obs.
+-----------------------------------------
+
+The most general datatype in ert is the GEN_DATA type. ERT will just
+treat this as a vector of numbers, with no structure assigned to
+it. In the configuration file both GEN_DATA and GEN_PARAM can be used:
+
+   GEN_PARAM: For parameters which are not changed by the forward
+      model, i.e. like porosity and permeability.
+
+   GEN_DATA: Data which is changed by the forward model, and therefore
+      must be loaded at the end of each timestep. The arch-typical
+      example of a GEN_DATA instance would be seismic data.
+
+Internally in ERT everything is implemented as gen_data. The
+flexibility of the gen_data implementation is a good thing, however
+there are some significant disdvantages:
+
+  * Since the gen_data_config object contains very limited meta-data
+    information it is difficult to capture user error. Typically what
+    happens is that:
+
+     - The user error is not discovered before long out in the
+       simulation, and when discovered possibly only as a 
+       util_abort().
+    
+     - User error is not discovered at all - the user just gets other
+       results than anticipated.
+
+  * The implementation is quite complex, and "different" from the
+    other datatypes. This has led to numerous bugs in the past; and
+    there are probably still bugs and inconsistenceis buried in the
+    gen_data implementation.
+
+When configuring a gen_data instance you tell ERT which file to look
+for when loading the results from the forward model. When the forward
+model is complete and loading of results starts the following
+happens:
+
+  1. The gen_data instance will look for the specified filename; if
+     the file is found it will be loaded.
+
+  2. If the file is not found, we will just assume size == 0 and
+     continue. That the file is not found is perfectly OK.
+
+  3. When the size of the gen_data instance has been verified the
+     gen_data will call the functions gen_data_config_assert_size()
+     which will assert that all ensemble members have the same size -
+     if not things will go belly up with util_abort().
+
+Potential problems with this (the strict mapping between size and
+report_step can be fucked up):
+
+  1. If you have problems with your forward model and are "trying
+     again" old files left lying around can create problems.
+
+  2. If your forward model is a multi step model, where several steps
+     have gen_data content there will be a conflict.
+
+Both of the problems can be reduced by using a gen_data result file
+with an embedded %d format specifier, this will be replaced with the
+report_step when looking for a result file.
+
+
+The final complexity twist is the ability for the forward model to
+signal that some datapoints are missing - for whatever reason. If for
+instance the forward model should produce the file "DATA" it can
+optionally also prouce the file "DATA_active" which should be a
+formatted file with 0 and 1 to denote inactive and active elements
+respectively. Before the gen_data instance can be used in EnKF
+updating the active/inactive statis must be the same for all ensemble
+members, this is achieved by calling the function
+gen_data_config_update_active() which will collect active/inactive
+statistics according to AND:
+
+     activ[index] = AND( active[index,iens=0] , active[index,iens=1] ,
+     ...)
+
+The final active mask is stored with an enkf_fs_case_tstep() call, so
+that it can be recovered for a later manual analysis step. This code
+is from september/october 2010 - and there are rumors to be a bug or
+two here, my first suspect is with save/restore functionality in the
+functions gen_data_config_update_active() and
+gen_data_config_load_active().
+ 
+**********************************************************************
+
+3. Some tips for implementing a obs_script
+------------------------------------------
+
+There are two different configuration systems present in the ERT
+code. libconfig/src/config.c implements the "config" system, whereas
+the "conf" system is implememented in libconfig/src/conf.c. The "conf"
+system is only used in the observation system, whereas the "config"
+system is used for the main configuration file and also some other
+small areas of the code. The occurence of two different config systems
+is of course a major embarressement, it should all have been xml :-(
+
+Since the observation file is implemented with the "conf" system, that
+is what applies in this case.
+
+Concrete tips:
+
+  1. Modify the "enkf_conf_class" instance which is created in the
+     enkf_obs_get_obs_conf_class() function to allow for two
+     additional arguments, for instance OBS_SCRIPT and SCRIPT_ARG.
+     It is probably also necessary to relax some of the constraints in
+     the gen_obs_class definition??
+
+     Observe that the "conf" system is strongly key=value oriented,
+     that means that it is difficult to set a list of arguments with
+     one key, to solve this I suggest using quotes and a util function
+     to split on " ".
+
+        .....
+        OBS_SCRIPT = /path/to/som/script/make_obs.py
+        SCRIPT_ARG = "ARG1 ARG2 ARG3 ...ARG17"
+        ....
+
+  2. I suggest that the only "rule" for the script is that it should
+     produce a stdout stream like:
+  
+        value1
+        value2
+        value3
+        ....
+        error1
+        error2
+        error3
+        ....
+     
+     this can then be easily captured to a temporary file by setting
+     the stdout redirection of the util_spawn() function, and then
+     subsequently the 100% normal way of creating a gen_obs instance
+     can be used. Input arguments / input files / e.t.c. to the
+     OBS_SCRIPT should be given in the SCRIPT_ARG option - fully
+     specified by the user.
+
+**********************************************************************
+
+4. About the ERT filesystem
+--------------------------- 
+
+The system for storing information in ert is quite large and
+complex. The top level system is implemented in the file enkf_fs.c,
+seen from ERT everything should be accessible as enkf_fs_xxxx()
+functions.
+
+4.1 The different data types
+
+The storage system in ERT operates with three different types of
+data/keywords:
+
+  static: These are static fields from the ECLIPSE restart files which
+     are needed to be able to restart an ECLIPSE simulation. These
+     keywords are only interesting for the ability to restart, and
+     never inspected by ERT itself. Corresponds to the enkf_var_type
+     (see enkf_types.h) of STATIC_STATE.
+
+  parameter: These are the parameter which we are updating with EnKF
+     like e.g. the permx field and for instance a MULTFLT
+     multiplier. Corresponding to an enkf_var_type value of PARAMETER.
+
+  dynamic: These represent data which are updated by the forward
+     model, this amounts to both state data like e.g. the pressure
+     (enkf_var_type == DYNAMIC_STATE) and result data like e.g. the
+     watercut in a well (enkf_var_type == DYNAMIC_RESULT).
+
+
+4.2 The coordinates: (kw , iens , tstep , state )
+
+To uniquely specify an enkf_node instance we need three/four
+coordinates, all the enkf_fs functions take these parameters as
+input. The required coordinates are:
+
+  kw: This is the string the keyword is given in the config file,
+     i.e. for the pressure this is "PRESSURE" and for the watercut in
+     well P-5 it is WWCT:P-5. Many of the enkf_fs functions take an
+     enkf_node instance as argument, and then the kw is obviously read
+     off directly from the node and not passed explicitly as a parameter.
+
+  iens: This is just the member number we are after, observe that the
+     counting starts with offset zero.
+
+  tstep: This is the timestep we are after, this numbering is the
+     ECLIPSE report steps (ECLIPSE is unfortunately not just any FORWARD
+     model, but still has severe influence on the structure of ERT :-( )
+
+Observe that the state "coordindate" is not treated like a first class
+coordinate in the same manner as iens and tstep. Exactly how the state
+coordinate is handled differs for the different data types:
+
+   static: Ignores the state flag completely.
+
+   dynamic: For the dynamic data the enkf_fs layer will select either
+      the dynamic_forecast or the dynamic_analyzed driver depending on
+      the value of state.
+
+   parameter: For parameters which do not have an intrinsic internal
+      dynamics the enkf_fs layer will use the enkf identity:
+
+               Forecast( X(t) ) = Analyzed( X(t-1) )
+ 
+      so if you ask for the analyzed at step 't' the enkf_fs layer
+      will query the database for (iens , 't'), whereas if you ask for
+      the forecast at tstep 't' the enkf_fs layer will go looking for
+      (iens , 't - 1').  When it comes to parameters the enkf_fs layer
+      will continue looking for (t , t-1 , t-2 , ... , 0) all the way
+      back to the initially sampled values.
+    
+
+4.3 Reading and writing enkf_node state.
+
+The most important piece of information to read and write for ERT are
+the enkf_node instances, i.e. the parameters we are sampling/updating
+and the data we are loading from the forward model. The saving of an
+enkf_node goes roughly like this:
+
+ 1. The function enkf_node_store( ) is called. The enkf_node_store()
+    function will use the store() function pointer and invoke one of
+    type specific store functions: field_store() / summary_store() /
+    ... which does the actual work.
+
+ 2. The enkf_node_store() function gets a buffer_type (buffer_type is
+    implemented in libutil/src/buffer.c) instance as input argument,
+    and everything stored by enkf_node_store() and store() function
+    pointer should be "written" as bytes into this buffer. NOT
+    directly to the filesystem in any way.
+
+ 3. When the enkf_node_store() function has returned the enkf_fs layer
+    will take the now full buffer_type instance and pass this on to the
+    fs driver which will actually store the buffer in whatever way it
+    implements.
+
+Loading an enkf_node is essentially the reverse process, with store
+<-> load.
+
+
+4.4 Reading and writing the index - kw_list
+
+The ERT filesystem implements something called alternatively "index"
+or "kw_list". This a quite crufty and inelegant consequence of to much
+ECLIPSE focus. The topic is related to storing/reassembling ECLIPSE
+restart information. The story goes about like this:
+
+ 1. A forward model has completed, and ERT loads an ECLIPSE restart
+    file. The ECLIPSE restart file might contain e.g. the keywords
+    (example only):
+
+      SEQNUM , INTEHEAD, DOUBHEAD, SGRP, PRESSURE, SWAT, SOMAX, RPORV
+
+    These keywords come in three categories:
+
+      a) Keywords we are updating with ERT, i.e. typically "PRESSURE"
+         and "SWAT" in the example above.
+
+      b) Keywords which are needed to perform a restart,
+         e.g. INTEHEAD, DOUBHEAD and SGRP.
+
+      c) Keywords which can be ignored, e.g. SOMAX and RPORV.
+
+    ERT uses the function ecl_config_include_static_kw() to
+    differentiate between cases b) and c). 
+
+ 2. For the static keywords which ERT determines it needs to store,
+    i.e. case b) above ERT will automatically create the corresponding
+    enkf_node instances (if they do not already exists), and then
+    subsequently store the results. I.e. for the case above we will
+    get the pseudo code:
+
+        enkf_node_store( "PRESSURE" )
+        enkf_node_store( "SWAT" )
+
+        if (!has_node( "INTEHEAD")) 
+           create_node( "INTEHEAD" )
+        enkf_node_store( "INTEHEAD" ) 
+
+        if (!has_node( "DOUBHEAD")) 
+           create_node( "DOUBHEAD" )
+        enkf_node_store( "DOUBHEAD" ) 
+
+        if (!has_node( "SGRP")) 
+           create_node( "SGRP" )
+        enkf_node_store( "SGRP" ) 
+
+ 3. When we want to create a corresponding restart files, we must
+    reassemble the keywords:
+
+        INTEHEAD, DOUBHEAD, SGRP, PRESSURE, SWAT
+
+    in the right order.
+
+Now - the point is that when we store the nodes in the database we
+loose track of the ordering of the keywords - and then ECLIPSE goes
+belly up. I.e. we must keep track of the original order of the
+keywords, that is what the index/kw_list is used for.
+    
+
+4.5 The different driver types 
+
+The enkf_fs layer does not directly store nodes to disk, instead that
+task is passed on to a driver. When the enkf_fs layer has completed
+filling up a buffer instance with the data to store, that buffer is
+passed on to the apropriate driver. The driver is a structure with
+function pointers to functions for doing the very basic low-level
+read/write operations and also whatever state needed by the
+driver. The use of these pluggable drivers for read and write
+operations certainly increase the complexity quite a lot, however it
+also certainly gives good flexibility. At the moment someone could
+implement BDB storage (a good idea) or Amazon S3 storage (a bad idea)
+with only very limited modifications to enkf_fs.c and essentially no
+changes whatsoever to the rest of the ERT code.
+
+The drivers are included in the enkf_fs structure as:
+
+  ....  
+  fs_driver_type         * dynamic_forecast;
+  fs_driver_type         * dynamic_analyzed;
+  fs_driver_type         * parameter;
+  fs_driver_type         * eclipse_static;
+  fs_driver_index_type   * index;
+  ....
+
+I.e. all the different variable types in section 4.1 have their own
+private driver. The index variable is used for storing the kw_list
+(see section 4.4). fs_driver_type is an abstract type without any
+implementation (I think !). 
+
+
+4.5.1 The plain driver
+
+The first driver was the plain driver; this driver creates a deep
+directory structure and stores all nodes in a separate file. This has
+the following characteristica:
+
+  * Surprisingly good write performance
+  * Catastrophic read performance
+  * The excessive number of small files (~ 10^7 for a large
+    simulation) is *totally* unacceptable.
+
+All in all the plain driver should not be used for serious work. The
+plain driver was obviously bad design already when written, but as
+long as the enkf_fs layer was written with abstract drivers the design
+of a more suitable fs driver could easily be postponed!
+
+
+4.5.2 The block_fs driver
+
+The block_fs driver is based on creating block_fs instances
+(block_fs_type is implemented in libutil/src/block_fs.c). The block_fs
+instances are binary files which are open through the duration of the
+program, the block_fs system then has an api for reading and writing
+(key,value) pairs to this file.
+
+The block_fs_driver/block_fs combination is quite complex, but it has
+not had any hickups for about 1.5 years of extensive use in
+Equinor. Observe that if you pull the plug on ERT you might loose some
+of the data which has been stored with the block_fs driver, but partly
+written and malformed data will be detected and discarded at the next
+boot. You are therefore guaranteed (add as many quotes you like to the
+guarantee - but this has at least worked 100% up until now) that no
+bogus data will be loaded after an unclean shutdown. When shut down
+cleanly the block_fs will create an index file which can be used for
+faster startup next time, in the case of an unclean shutdown the index
+must be built from the data file. In the case of large files this can
+take some time <= 30 seconds?
+
+If you have set storage root to "Storage" the case "Prior" will create
+the following directory structure with the block_fs driver:
+
+   Storage/Prior/mod_0
+                /mod_1
+                /mod_2
+                ....
+                /mod_31
+
+Each of the mod_xx directories will contain block_fs mount/data/index
+files for each of the drivers. The reason to use the mod_xxx
+directories is mainly to increase multithreaded performance during
+both read and write, in addition the resulting files do not get that
+large (2GB limit and so on). The mod_xxx is used as follows:
+
+    Ensemble member iens is stored in directory: mod_(mod(iens,32))
+
+I.e. ensemble members 0,32,64,96,.. are stored in directory mod_0,
+whereas ensemble members 7,39,71 and 103 are stored in mod_7.
+
+
+The resulting files are quite opaque, and impossible to work with by
+using normal filesystem/editor/shell commands. In
+libutil/applications/block_fs/ there are some utilities for working
+with these files which can be used for various forms of crash
+recovery, problem inspection and so on.
+
+In addition an sqlite based driver has been written, it worked ok but
+performance turned out to be quite poor. 
+
+
+4.6 Filesystem metadata
+
+The metadata required to instantiate (i.e. "mount") a enkf_fs
+filesystem is contained in the file "enkf_mount_info"; this is a
+binary file with the following content:
+
+    FS_MAGIC_ID           /* A magic number */
+    CURRENT_FS_VERSION    /* The version of the filesystem; 
+                             has been 104 since september 2009. */
+      -------
+     / DRIVER_CATEGORY            /* Element from fs_driver_enum in fs_types.h */
+     | DRIVER_IMPLEMENTATION      /* Element from fs_driver_impl in fs_types.h
+     \ Extra driver info          /* Whatever information needed by the driver
+      -------                        implementation given by DRIVER_IMPLEMENTATION. */  
+
+    CASES      
+
+The block [DRIVER_CATEGORY, DRIVER_IMPLEMENTATION, Extra ..] is
+repeated five times to cover all the driver categories
+DRIVER_PARAMETR, DRIVER_STATIC, DRIVE_DYNAMIC_FORECAST,
+DRIVER_DYNAMIC_ANALYZED and INDEX.
+
+Unfortunately there have been some hickups with the enkf_mount_info
+file in the past, it should probably have been an ascii file. If there
+are problems with it it is "quite safe" to just delete the mount info
+file and then restart ERT. When ERT finds old data files (in the case
+of block_fs) it will just load these and continue. However if you do
+this you must use the ERT menu option to recreate all your cases, ERT
+will then find the existing data and continue (more or less) happily.
+
+
+4.7 Reading and writing "other" files
+
+The main part (i.e. more than 99%) of the enkf_fs implementation is
+devoted to reading and writing of enkf_node instances. However there
+are typically some other situations during a simulation where it is
+interesting to store filenames with per member or per timestep
+information - this is available thorugh the functions at the bottom of
+enkf_fs. Not very important functions, but convenient enough.
+
+**********************************************************************
+
+5. Installing ERT software in Equinor
+-------------------------------------
+
+Installation of research software in Equinor is according to the
+general guideline:
+
+ 1. Log in to a computer in Trondheim with the correct version of
+    RedHat installed; the files will be automagically distributed to
+    other locations within a couple of minutes.
+
+ 2. Copy the files you want to copy into the
+    /project/res/x86_64_RH_??/ directory.
+
+ 3. Update the metadata on the files you copy:
+    
+    a) chgrp res
+    b) chmod a+r g+w
+    c) For executables: chmod a+x 
+
+For the simple programs like the ECLIPSE programs summary.x &
+convert.x this can be easily achieved with the SDP_INSTALL of
+SConstruct files:
+
+    bash% scons SDP_INSTALL
+
+Unfortunately it has been a major pain in the ass to get SCons to
+behave according to the requirements listed above; for the more
+extensive installation procedures there are therefore simple Python
+scripts "install.py" which should be invoked after the SCons build is
+complete.
+
+
+5.1 Installing ert - the tui
+
+In the directory libenkf/applications/ert_tui there is a install.py
+script. This script will do the following:
+
+  1. Copy the "ert" binary found in the current directory to:
+
+          /project/res/x86_64_RH_???/bin/ert_release/ert_<SVN>
+
+     where <SVN> is the current svn version number. Observe that the
+     script will refuse to install if the svn version number is not
+     "pure", i.e. "3370" is okay, "3370M" or "3100:3370" is not OK.
+
+
+  2. Update the permissions & ownsherhip on the target file.
+
+
+  3. Update the symlink:
+
+        /project/res/x86_64_RH_??/bin/ert_latest_and_greatest 
+      
+     to point to the newly installed file.
+
+
+5.2 Installing python code (including gert)
+
+The approach to installing Python code is the same for both the gui
+(which is mainly Python) and for ERT Python. The installation scripts
+are:
+
+    python/ctypes/install.py
+    libenkf/applications/ert_gui/bin/install.py
+
+These scripts will (should ??):
+
+  1. Install the ERT shared libraries like libecl.so and so on to
+   
+        /project/res/x86_64_RH_???/lib/python/lib
+   
+     These shared libraries are the same for both ERT Python and gert.
+
+  2. Install python files (with directories) to
+
+        /project/res/x86_64_RH_???/lib/python
+
+     All Python files are byte compiled, producing the pyc files -
+     observe that this might induce permission problems.
+
+  3. Update the modes and ownership on all installed files.
+
+
+
+5.3 Installing the etc files
+
+In the directory etc/ there is a install.py script. This script will:
+
+ 1. Copy the full content of the etc/ERT directory to
+    /project/res/etc/ERT.
+
+ 2. Update the modes and ownership on all installed files.

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'fortio.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -29,8 +29,6 @@
 #include <ecl/fortio.h>
 
 #define FORTIO_ID  345116
-
-extern int errno;
 
 /**
 The fortio struct is implemented to handle fortran io. The problem is

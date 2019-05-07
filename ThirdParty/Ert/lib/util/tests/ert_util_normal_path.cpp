@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2017  Statoil ASA, Norway.
+   Copyright (C) 2017  Equinor ASA, Norway.
 
    The file 'ert_util_normal_path.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -32,7 +32,7 @@ void test_path(const char * input_path, const char * expected_path) {
 
 
 void test_relative() {
-  test_work_area_type * work_area = test_work_area_alloc("Work");
+  ecl::util::TestArea ta("relative_path");
   util_make_path("level0/level1/level2");
 
   test_path( "level0/level1/../", "level0");
@@ -48,11 +48,10 @@ void test_relative() {
   util_chdir("level0/level1");
   test_path("../../level0/level1/level2/../file.txt" , "file.txt");
   test_path("../../level0/level1/level2/../" , "");
-  test_work_area_free( work_area );
 }
 
 void test_beyond_root() {
-  test_work_area_type * work_area = test_work_area_alloc("Work");
+  ecl::util::TestArea("beyond_root");
   char * cwd = util_alloc_cwd( );
   char * backref_cwd1 = util_alloc_sprintf("../../../../../../../../../../../%s" , cwd );
   char * backref_cwd2 = util_alloc_sprintf("/../../../../../../../../../../../%s" , cwd );
@@ -61,7 +60,6 @@ void test_beyond_root() {
   free( backref_cwd1 );
   free( backref_cwd2 );
   free( cwd );
-  test_work_area_free( work_area );
 }
 
 

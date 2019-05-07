@@ -19,7 +19,6 @@ build_script:
     - cmake %W64% -DBUILD_SHARED_LIBS=ON
                   -DCMAKE_BUILD_TYPE=Release
                   -DENABLE_PYTHON=ON
-                  -DERT_BUILD_CXX=OFF
                   -DBUILD_APPLICATIONS=ON
     - cmake --build . --config %configuration% --target install
 

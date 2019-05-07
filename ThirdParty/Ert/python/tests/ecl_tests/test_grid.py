@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2014  Statoil ASA, Norway.
+#  Copyright (C) 2014  Equinor ASA, Norway.
 #
 #  The file 'test_grid.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -122,8 +122,8 @@ def average(points):
     return [elem/float(len(points)) for elem in p]
 
 # This test class should only have test cases which do not require
-# external test data. Tests involving Statoil test data are in the
-# test_grid_statoil module.
+# external test data. Tests involving Equinor test data are in the
+# test_grid_equinor module.
 class GridTest(EclTest):
 
     def test_oom_grid(self):

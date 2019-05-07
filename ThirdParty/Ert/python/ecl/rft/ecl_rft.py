@@ -1,4 +1,4 @@
-#  Copyright (C) 2011  Statoil ASA, Norway.
+#  Copyright (C) 2011  Equinor ASA, Norway.
 #
 #  The file 'ecl_rft.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -53,8 +53,6 @@ class EclRFT(BaseCClass):
     _get_date         = EclPrototype("time_t ecl_rft_node_get_date( ecl_rft )")
     _get_size         = EclPrototype("int ecl_rft_node_get_size( ecl_rft )")
     _iget_cell        = EclPrototype("void* ecl_rft_node_iget_cell( ecl_rft )")
-    _iget_cell_sorted = EclPrototype("void* ecl_rft_node_iget_cell_sorted( ecl_rft )")
-    _sort_cells       = EclPrototype("void* ecl_rft_node_inplace_sort_cells( ecl_rft )")
     _iget_depth       = EclPrototype("double ecl_rft_node_iget_depth( ecl_rft )")
     _iget_pressure    = EclPrototype("double ecl_rft_node_iget_pressure(ecl_rft)")
     _iget_ijk         = EclPrototype("void ecl_rft_node_iget_ijk( ecl_rft , int , int*, int*, int*)")
@@ -165,6 +163,9 @@ class EclRFT(BaseCClass):
         The return value from the __getitem__() method is either an
         EclRFTCell instance or a EclPLTCell instance, depending on the
         type of this particular RFT object.
+
+        For MSW wells the cells will come in sorted order along the wellpath,
+        for other well types the cells will come sorted in input order.
         """
         self.assert_cell_index( index )
         cell_ptr = self._iget_cell( index )
@@ -173,46 +174,6 @@ class EclRFT(BaseCClass):
 
     def iget( self , index ):
         return self[index]
-
-
-    def iget_sorted( self , index ):
-        """
-        Will return the cell nr @index in the list of sorted cells.
-
-        See method sort() for further documentation.
-        """
-        self.assert_cell_index( index )
-        cell_ptr = self._iget_cell_sorted( index )
-        return self.__cell_ref( cell_ptr )
-
-
-    def sort(self):
-        """
-        Will sort cells in RFT; currently only applies to MSW wells.
-
-        By default the cells in the RFT come in the order they are
-        specified in the ECLIPSE input file; that is not necessarily
-        in a suitable order. In the case of MSW wells it is possible
-        to sort the connections after distance along the wellpath. To
-        access the cells in sort order you have two options:
-
-           1. Sort the cells using the sort() method, and then
-              subsequently access them sequentially:
-
-                rft.sort()
-                for cell in rft:
-                    print cell
-
-           2. Let the rft object stay unsorted, but access the cells
-              using the iget_sorted() method:
-
-                 for i in range(len(rft)):
-                     cell = rft.iget_sorted( i )
-
-        Currently only MSW/PLTs are sorted, based on the CONLENST
-        keyword; for other wells the sort() method does nothing.
-        """
-        self._sort_cells( )
 
 
     # ijk are zero offset

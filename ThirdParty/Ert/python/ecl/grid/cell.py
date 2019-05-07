@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2017  Statoil ASA, Norway.
+#  Copyright (C) 2017  Equinor ASA, Norway.
 #
 #  This file is part of ERT - Ensemble based Reservoir Tool.
 #

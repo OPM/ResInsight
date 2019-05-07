@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway.
+   Copyright (C) 2014  Equinor ASA, Norway.
 
    The file 'geo_polygon_collection.c' is part of ERT - Ensemble based Reservoir Tool.
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway.
+   Copyright (C) 2012  Equinor ASA, Norway.
 
    The file 'ert_util_stringlist_test.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -36,15 +36,25 @@ void test_char() {
   {
     char ** copy = stringlist_alloc_char_copy( s );
     int i;
+    bool equal = true;
 
     for (i=0; i < stringlist_get_size( s ); i++) {
       if (strcmp( stringlist_iget( s , i ) , copy[i]) != 0)
-        exit(1);
-
+        equal = false;
+      free(copy[i]);
     }
+    free(copy);
+    if (!equal)
+      test_assert_false("Bug in test_char() function\n");
   }
+  stringlist_free(s);
 }
 
+void test_alloc_join(const stringlist_type * s, const char * sep, const char * expected) {
+  char * j = stringlist_alloc_joined_string(s, sep);
+  test_assert_string_equal(j, expected);
+  free(j);
+}
 
 void test_join() {
   const char * elt0 = "AAA";
@@ -55,13 +65,8 @@ void test_join() {
   const char * elt5 = "FFF";
 
   stringlist_type * s = stringlist_alloc_new();
+  test_alloc_join(s, "!!!", "");
 
-  {
-    // empty join
-    const char* empty_join = stringlist_alloc_joined_string(s, "!!!");
-    test_assert_not_NULL(empty_join);
-    test_assert_string_equal("", empty_join);
-  }
 
   stringlist_append_copy( s , elt0 );
   stringlist_append_copy( s , elt1 );
@@ -71,28 +76,37 @@ void test_join() {
   const char * sep1 = "!!!";
   const char * sep2 = " abc ";
 
-  const char * j0 = stringlist_alloc_joined_string( s, sep0);
-  const char * j1 = stringlist_alloc_joined_string( s, sep1);
-  const char * j2 = stringlist_alloc_joined_string( s, sep2);
+  test_alloc_join(s, sep0,  "AAABBBCCC");
+  test_alloc_join(s, sep1,  "AAA!!!BBB!!!CCC");
+  test_alloc_join(s, sep2,  "AAA abc BBB abc CCC");
 
-  test_assert_string_equal( j0, "AAABBBCCC");
-  test_assert_string_equal( j1, "AAA!!!BBB!!!CCC");
-  test_assert_string_equal( j2, "AAA abc BBB abc CCC");
+  {
+    stringlist_type * s1 = stringlist_alloc_new();
 
-  stringlist_type * s1 = stringlist_alloc_new();
-  stringlist_append_copy( s1 , elt0 );
-  test_assert_string_equal( "AAA", stringlist_alloc_joined_string( s1, sep0));
-  test_assert_string_equal( "AAA", stringlist_alloc_joined_string( s1, sep1));
-  test_assert_string_equal( "AAA", stringlist_alloc_joined_string( s1, sep2));
+    stringlist_append_copy( s1 , elt0 );
+    test_alloc_join(s1, sep0,  "AAA");
+    test_alloc_join(s1, sep1,  "AAA");
+    test_alloc_join(s1, sep2,  "AAA");
 
-  stringlist_type * sub = stringlist_alloc_new();
-  stringlist_append_copy( sub , elt0 );
-  stringlist_append_copy( sub , elt1 );
-  stringlist_append_copy( sub , elt2 );
-  stringlist_append_copy( sub , elt3 );
-  stringlist_append_copy( sub , elt4 );
-  stringlist_append_copy( sub , elt5 );
-  test_assert_string_equal( "CCC:DDD:EEE", stringlist_alloc_joined_substring( sub, 2, 5, ":"));
+    stringlist_free(s1);
+  }
+  {
+    stringlist_type * sub = stringlist_alloc_new();
+    stringlist_append_copy( sub , elt0 );
+    stringlist_append_copy( sub , elt1 );
+    stringlist_append_copy( sub , elt2 );
+    stringlist_append_copy( sub , elt3 );
+    stringlist_append_copy( sub , elt4 );
+    stringlist_append_copy( sub , elt5 );
+    {
+      char * j = stringlist_alloc_joined_substring( sub, 2, 5, ":");
+      test_assert_string_equal( "CCC:DDD:EEE", j);
+      free(j);
+    }
+
+    stringlist_free(sub);
+  }
+  stringlist_free(s);
 }
 
 
@@ -112,6 +126,8 @@ void test_reverse() {
   test_assert_string_equal( s2 , stringlist_iget(s , 0 ));
   test_assert_string_equal( s1 , stringlist_iget(s , 1 ));
   test_assert_string_equal( s0 , stringlist_iget(s , 2 ));
+
+  stringlist_free(s);
 }
 
 
@@ -136,6 +152,7 @@ void test_iget_as_int() {
     value = stringlist_iget_as_int( s , 2 , NULL);
     test_assert_int_equal( value , -1);
   }
+  stringlist_free(s);
 }
 
 
@@ -161,6 +178,7 @@ void test_iget_as_double() {
     test_assert_double_equal( value , -1);
     test_assert_false( valid );
   }
+  stringlist_free(s);
 }
 
 
@@ -235,12 +253,14 @@ void test_iget_as_bool() {
     test_assert_false( value );
     test_assert_false( valid );
   }
+  stringlist_free(s);
 }
 
 
 void test_empty() {
   stringlist_type * s = stringlist_alloc_new();
   stringlist_fprintf( s , "\n" , stdout );
+  stringlist_free(s);
 }
 
 void test_front_back() {
@@ -347,7 +367,7 @@ bool not_FILE_predicate(const char * name, const void * arg) {
 
 
 void test_predicate_matching() {
-  test_work_area_type * work_area = test_work_area_alloc("predicate_test");
+  ecl::util::TestArea ta("stringlist");
   stringlist_type * s = stringlist_alloc_new();
   stringlist_append_copy(s, "s");
   stringlist_select_files(s, "does/not/exist", NULL, NULL);
@@ -358,7 +378,7 @@ void test_predicate_matching() {
     FILE * f = util_fopen("FILE.txt", "w");
     fclose(f);
   }
-  stringlist_select_files(s , test_work_area_get_cwd(work_area), NULL, NULL);
+  stringlist_select_files(s , ta.test_cwd().c_str(), NULL, NULL);
   test_assert_int_equal(1, stringlist_get_size(s));
   {
     char * exp = util_alloc_abs_path("FILE.txt");
@@ -370,7 +390,7 @@ void test_predicate_matching() {
   test_assert_int_equal(1, stringlist_get_size(s));
   test_assert_string_equal( "FILE.txt", stringlist_iget(s, 0));
 
-  stringlist_select_files(s , test_work_area_get_cwd(work_area), FILE_predicate, NULL);
+  stringlist_select_files(s , ta.test_cwd().c_str(), FILE_predicate, NULL);
   test_assert_int_equal(1, stringlist_get_size(s));
   {
     char * exp = util_alloc_abs_path("FILE.txt");
@@ -378,11 +398,10 @@ void test_predicate_matching() {
     free(exp);
   }
 
-  stringlist_select_files(s , test_work_area_get_cwd(work_area), not_FILE_predicate, NULL);
+  stringlist_select_files(s , ta.test_cwd().c_str(), not_FILE_predicate, NULL);
   test_assert_int_equal(0, stringlist_get_size(s));
 
   stringlist_free(s);
-  test_work_area_free(work_area);
 }
 
 
@@ -399,6 +418,7 @@ void test_unique() {
 
   stringlist_append_copy( s, "S2");
   test_assert_false( stringlist_unique( s ));
+  stringlist_free(s);
 }
 
 int main( int argc , char ** argv) {

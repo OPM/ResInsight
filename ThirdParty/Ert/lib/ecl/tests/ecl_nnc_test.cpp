@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'ecl_nnc_test.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -18,9 +18,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <vector>
+
 #include <ert/util/test_util.hpp>
 #include <ert/util/util.h>
 #include <ert/util/int_vector.hpp>
+#include <ert/util/vector_util.hpp>
 
 #include <ert/ecl/ecl_grid.hpp>
 #include <ert/ecl/nnc_info.hpp>
@@ -55,9 +58,9 @@ void test_scan( const char * grid_filename) {
 
             if (g2 < ecl_grid_get_global_size( lgr )) {  // Skipping matrix <-> fracture link in dual poro.
               const nnc_info_type * nnc_info = ecl_grid_get_cell_nnc_info1( lgr , g1 );
-              const int_vector_type * index_list = nnc_info_get_grid_index_list( nnc_info , lgr_nr);
+              const std::vector<int>& index_list = nnc_info_get_grid_index_list( nnc_info , lgr_nr);
               test_assert_not_NULL( nnc_info );
-              test_assert_int_not_equal( -1 , int_vector_index( index_list , g2 ));
+              test_assert_int_not_equal( -1 , vector_util_index<int>( index_list , g2 ));
             }
           }
         }
@@ -79,9 +82,9 @@ void test_scan( const char * grid_filename) {
           const nnc_info_type * nnc_info = ecl_grid_get_cell_nnc_info1( ecl_grid , g );
           test_assert_not_NULL( nnc_info );
           {
-            const int_vector_type * index_list = nnc_info_get_grid_index_list( nnc_info , lgr_nr );
-            test_assert_not_NULL( index_list );
-            test_assert_int_not_equal( -1 , int_vector_index( index_list , l ));
+            const std::vector<int>& index_list = nnc_info_get_grid_index_list( nnc_info , lgr_nr );
+            test_assert_true(nnc_info_has_grid_index_list( nnc_info , lgr_nr ) );
+            test_assert_int_not_equal( -1 , vector_util_index<int>( index_list , l ));
           }
         }
       }
@@ -102,9 +105,9 @@ void test_scan( const char * grid_filename) {
           const int g2 = ecl_kw_iget_int( nnc2_kw , i ) - 1;
 
           const nnc_info_type * nnc_info = ecl_grid_get_cell_nnc_info1( lgr1 , g1 );
-          const int_vector_type * index_list = nnc_info_get_grid_index_list( nnc_info , lgr_nr2);
+          const std::vector<int>& index_list = nnc_info_get_grid_index_list( nnc_info , lgr_nr2);
           test_assert_not_NULL( nnc_info );
-          test_assert_int_not_equal( -1 , int_vector_index( index_list , g2 ));
+          test_assert_int_not_equal( -1 , vector_util_index<int>( index_list , g2 ));
         }
       }
     }

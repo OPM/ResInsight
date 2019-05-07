@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'util.h' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -96,16 +96,9 @@ typedef bool (walk_dir_callback_ftype)   (const char * , /* The current director
                                           void *);       /* Arbitrary argument */
 
 
-
-typedef enum {left_pad   = 0,
-              right_pad  = 1,
-              center_pad = 2} string_alignement_type;
-
-  //#define UTIL_CXX_MALLOC(var , num_elm) (typeof (var)) util_malloc( (num_elm) * sizeof var)
   char       * util_get_timezone(void);
   time_t       util_make_datetime_utc(int , int , int , int , int , int );
   bool         util_make_datetime_utc_validated(int sec, int min, int hour , int mday , int month , int year, time_t * t);
-  void         util_fprintf_date_utc(time_t  , FILE * );
   time_t       util_make_date_utc(int , int , int);
   time_t       util_make_pure_date_utc(time_t t);
   void         util_inplace_forward_seconds_utc(time_t * t , double seconds);
@@ -128,9 +121,6 @@ typedef enum {left_pad   = 0,
   char       * util_alloc_sprintf_va(const char * fmt , va_list ap);
   char       * util_alloc_sprintf(const char *  , ...);
   char       * util_realloc_sprintf(char * , const char *  , ...);
-  void         util_fprintf_int(int , int , FILE * );
-  void         util_fprintf_string(const char *  , int , string_alignement_type ,  FILE * );
-  void         util_fprintf_double(double , int , int , char , FILE *);
   bool         util_fscanf_date_utc(FILE * , time_t *);
   bool         util_sscanf_date_utc(const char * , time_t *);
   bool         util_sscanf_isodate(const char * , time_t *);
@@ -237,7 +227,6 @@ typedef enum {left_pad   = 0,
   char       * util_alloc_filename(const char * , const char *  , const char * );
   char       * util_realloc_filename(char *  , const char *  , const char *  , const char * );
   char       * util_alloc_strip_copy(const char *);
-  void         util_set_strip_copy(char * , const char *);
   char       * util_alloc_string_sum(const char **  , int);
   char       * util_strcat_realloc(char *, const char * );
   char       * util_alloc_string_copy(const char *);

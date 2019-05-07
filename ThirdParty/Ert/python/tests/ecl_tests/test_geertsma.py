@@ -22,7 +22,7 @@ def create_init(grid, case):
         porv.fwrite(f)
 
 
-def create_restart(grid, case, p1, p2=None):
+def create_restart(grid, case, p1, p2=None, rporv1=None, rporv2=None):
     with openFortIO("%s.UNRST" % case, mode=FortIO.WRITE_MODE) as f:
         seq_hdr = EclKW("SEQNUM", 1, EclDataType.ECL_FLOAT)
         seq_hdr[0] = 10
@@ -39,6 +39,13 @@ def create_restart(grid, case, p1, p2=None):
         header.fwrite(f)
         p.fwrite(f)
 
+        if rporv1:
+            rp = EclKW("RPORV", grid.getNumActive(), EclDataType.ECL_FLOAT)
+            for idx, val in enumerate(rporv1):
+                rp[idx] = val
+
+            rp.fwrite(f)
+
         if p2:
             seq_hdr[0] = 20
             header[66] = 2010
@@ -48,6 +55,13 @@ def create_restart(grid, case, p1, p2=None):
             seq_hdr.fwrite(f)
             header.fwrite(f)
             p.fwrite(f)
+
+        if rporv2:
+            rp = EclKW("RPORV", grid.getNumActive(), EclDataType.ECL_FLOAT)
+            for idx, val in enumerate(rporv2):
+                rp[idx] = val
+
+            rp.fwrite(f)
 
 
 class GeertsmaTest(EclTest):
@@ -145,4 +159,62 @@ class GeertsmaTest(EclTest):
             dz = subsidence.evalGeertsma("S1", None, receiver, youngs_modulus, poisson_ratio, seabed)
             np.testing.assert_almost_equal(dz, 5.819790154474284e-08)
 
+    @staticmethod
+    def test_geertsma_kernel_seabed():
+        grid = EclGrid.createRectangular(dims=(1, 1, 1), dV=(50, 50, 50))
+        with TestAreaContext("Subsidence"):
+            p1 = [1]
+            create_restart(grid, "TEST", p1)
+            create_init(grid, "TEST")
 
+            init = EclFile("TEST.INIT")
+            restart_file = EclFile("TEST.UNRST")
+
+            restart_view1 = restart_file.restartView(sim_time=datetime.date(2000, 1, 1))
+
+            subsidence = EclSubsidence(grid, init)
+            subsidence.add_survey_PRESSURE("S1", restart_view1)
+
+            youngs_modulus = 5E8
+            poisson_ratio = 0.3
+            seabed = 300
+            above = 100
+            topres = 2000
+            receiver = (1000, 1000, topres - seabed - above)
+
+            dz = subsidence.evalGeertsma("S1", None, receiver, youngs_modulus, poisson_ratio, seabed)
+            np.testing.assert_almost_equal(dz, 5.819790154474284e-08)
+
+    def test_geertsma_rporv_kernel_2_source_points_2_vintages(self):
+        grid = EclGrid.createRectangular(dims=(2, 1, 1), dV=(100, 100, 100))
+
+        with TestAreaContext("Subsidence"):
+            p1 = [1, 10]
+            p2 = [10, 20]
+            create_restart(grid, "TEST",
+                    p1, p2,
+                    rporv1=[10**5, 10**5], rporv2=[9*10**4, 9*10**4]
+                    )
+            create_init(grid, "TEST")
+
+            init = EclFile("TEST.INIT")
+            restart_file = EclFile("TEST.UNRST")
+
+            restart_view1 = restart_file.restartView(sim_time=datetime.date(2000, 1, 1))
+            restart_view2 = restart_file.restartView(sim_time=datetime.date(2010, 1, 1))
+
+            subsidence = EclSubsidence(grid, init)
+            subsidence.add_survey_PRESSURE("S1", restart_view1)
+            subsidence.add_survey_PRESSURE("S2", restart_view2)
+
+            youngs_modulus = 5E8
+            poisson_ratio = 0.3
+            seabed = 0
+            receiver = (1000, 1000, 0)
+
+            dz1 = subsidence.eval_geertsma_rporv("S1", None, receiver, youngs_modulus, poisson_ratio, seabed)
+            dz2 = subsidence.eval_geertsma_rporv("S2", None, receiver, youngs_modulus, poisson_ratio, seabed)
+            dz = subsidence.eval_geertsma_rporv("S1", "S2", receiver, youngs_modulus, poisson_ratio, seabed)
+
+            np.testing.assert_almost_equal(dz, dz1-dz2)
+            self.assertTrue(dz > 0)

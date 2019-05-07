@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway.
+   Copyright (C) 2014  Equinor ASA, Norway.
 
    The file 'ecl_kw_fwrite.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -37,12 +37,72 @@ void test_fwrite_EGRID(ecl_grid_type * grid ) {
   test_work_area_free( work_area );
 }
 
+namespace {
+  void test_fwrite_fmt_vs_unfmt( ) {
+    ecl::util::TestArea ta( "fmt_file" );
+    ecl_grid_type * ecl_grid = ecl_grid_alloc_rectangular( 5 , 5 , 5 , 1 , 1 , 1 , nullptr);
+
+    /* .FEGRID -> formatted */
+    {
+      ecl_grid_fwrite_EGRID2( ecl_grid , "CASE.FEGRID" , ECL_METRIC_UNITS );
+      test_assert_true( util_fmt_bit8( "CASE.FEGRID" ) );
+    }
+
+    /* .EGRID -> unformatted */
+    {
+      ecl_grid_fwrite_EGRID2( ecl_grid , "CASE.EGRID" , ECL_METRIC_UNITS );
+      test_assert_false( util_fmt_bit8( "CASE.EGRID" ) );
+    }
+
+    /* Unknown -> unformatted */
+    {
+      ecl_grid_fwrite_EGRID2( ecl_grid , "CASE.UNKNOWN" , ECL_METRIC_UNITS );
+      test_assert_false( util_fmt_bit8( "CASE.UNKNOWN" ) );
+    }
+
+    /* Abuse: .FUNRST -> formatted */
+    {
+      ecl_grid_fwrite_EGRID2( ecl_grid , "CASE.FUNRST" , ECL_METRIC_UNITS );
+      test_assert_true( util_fmt_bit8( "CASE.FUNRST" ) );
+    }
+
+    /* Abuse: .FSMSPEC -> formatted */
+    {
+      ecl_grid_fwrite_EGRID2( ecl_grid , "CASE.FSMSPEC" , ECL_METRIC_UNITS );
+      test_assert_true( util_fmt_bit8( "CASE.FSMSPEC" ) );
+    }
+
+    /* Abuse: .F0001 -> formatted */
+    {
+      ecl_grid_fwrite_EGRID2( ecl_grid , "CASE.F0001" , ECL_METRIC_UNITS );
+      test_assert_true( util_fmt_bit8( "CASE.F0001" ) );
+    }
+
+    /* Abuse: .X1234 -> unformatted */
+    {
+      ecl_grid_fwrite_EGRID2( ecl_grid , "CASE.X1234" , ECL_METRIC_UNITS );
+      test_assert_false( util_fmt_bit8( "CASE.X1234" ) );
+    }
+
+    /* Abuse: .UNSMRY -> unformatted */
+    {
+      ecl_grid_fwrite_EGRID2( ecl_grid , "CASE.UNSMRY" , ECL_METRIC_UNITS );
+      test_assert_false( util_fmt_bit8( "CASE.UNSMRY" ) );
+    }
+
+    ecl_grid_free( ecl_grid );
+  }
+}
 
 int main( int argc , char **argv) {
-  const char * src_file = argv[1];
-  ecl_grid_type * grid = ecl_grid_alloc( src_file );
+  if (argc > 1) {
+    const char * src_file = argv[1];
+    ecl_grid_type * grid = ecl_grid_alloc( src_file );
 
-  test_fwrite_EGRID( grid );
+    test_fwrite_EGRID( grid );
 
-  ecl_grid_free( grid );
+    ecl_grid_free( grid );
+  }
+
+  test_fwrite_fmt_vs_unfmt( );
 }

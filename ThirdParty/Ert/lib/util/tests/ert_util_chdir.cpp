@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2017  Statoil ASA, Norway.
+   Copyright (C) 2017  Equinor ASA, Norway.
 
    The file 'ert_util_chdir.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -24,8 +24,8 @@
 
 
 void test_chdir() {
-  test_work_area_type * work_area = test_work_area_alloc("test-area");
-  const char * cwd = test_work_area_get_cwd( work_area );
+  ecl::util::TestArea ta("chdir");
+  const char * cwd = ta.test_cwd().c_str();
 
   test_assert_false( util_chdir_file( "/file/does/not/exist"));
   test_assert_false( util_chdir_file( cwd ));
@@ -34,8 +34,13 @@ void test_chdir() {
     fclose( stream );
   }
   test_assert_true( util_chdir_file( "path/FILE" ));
-  test_assert_string_equal( util_alloc_cwd() , util_alloc_filename( cwd, "path", NULL));
-  test_work_area_free( work_area );
+  {
+    char * new_cwd = util_alloc_cwd();
+    char * fname = util_alloc_filename(cwd, "path", NULL);
+    test_assert_string_equal( new_cwd, fname );
+    free(new_cwd);
+    free(fname);
+  }
 }
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2013  Statoil ASA, Norway. 
+#  Copyright (C) 2013  Equinor ASA, Norway. 
 #   
 #  The file 'test_rft_cell.py' is part of ERT - Ensemble based Reservoir Tool.
 #   
@@ -27,8 +27,8 @@ from tests import EclTest
 
 class RFTCellTest(EclTest):
     def setUp(self):
-        self.RFT_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.RFT")
-        self.PLT_file = self.createTestPath("Statoil/ECLIPSE/RFT/TEST1_1A.RFT")
+        self.RFT_file = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.RFT")
+        self.PLT_file = self.createTestPath("Equinor/ECLIPSE/RFT/TEST1_1A.RFT")
 
     def test_RFT_cell(self):
         i = 10

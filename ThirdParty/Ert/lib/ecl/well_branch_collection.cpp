@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'well_branch_collection.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -18,10 +18,10 @@
 
 #include <stdbool.h>
 
+#include <vector>
+
 #include <ert/util/util.h>
 #include <ert/util/type_macros.hpp>
-#include <ert/util/vector.hpp>
-#include <ert/util/int_vector.hpp>
 
 #include <ert/ecl_well/well_const.hpp>
 #include <ert/ecl_well/well_conn.hpp>
@@ -33,8 +33,8 @@
 struct well_branch_collection_struct {
   UTIL_TYPE_ID_DECLARATION;
 
-  vector_type     *  __start_segments;
-  int_vector_type *  index_map;
+  std::vector<well_segment_type*> __start_segments;
+  std::vector<int> index_map;
 };
 
 
@@ -43,19 +43,24 @@ static UTIL_SAFE_CAST_FUNCTION( well_branch_collection , WELL_BRANCH_COLLECTION_
 
 
 well_branch_collection_type * well_branch_collection_alloc() {
-  well_branch_collection_type * branch_collection = (well_branch_collection_type*)util_malloc( sizeof * branch_collection );
+  well_branch_collection_type * branch_collection = new well_branch_collection_type();
   UTIL_TYPE_ID_INIT( branch_collection , WELL_BRANCH_COLLECTION_TYPE_ID );
-  branch_collection->__start_segments = vector_alloc_new();
-  branch_collection->index_map = int_vector_alloc(0 , -1 );
   return branch_collection;
 }
 
+namespace {
 
+int well_branch_collection_safe_iget_index( const well_branch_collection_type * branches, int index ) {
+  if (index >= (int)branches->index_map.size())
+    return -1;
+  else
+    return branches->index_map[index];
+}
+
+}
 
 void well_branch_collection_free( well_branch_collection_type * branches ) {
-  vector_free( branches->__start_segments );
-  int_vector_free( branches->index_map );
-  free( branches );
+  delete branches;
 }
 
 
@@ -67,12 +72,12 @@ void well_branch_collection_free__( void * arg ) {
 
 
 int well_branch_collection_get_size( const well_branch_collection_type * branches ) {
-  return vector_get_size( branches->__start_segments );
+  return branches->__start_segments.size();
 }
 
 
 bool well_branch_collection_has_branch( const well_branch_collection_type * branches , int branch_id) {
-  if (int_vector_safe_iget( branches->index_map , branch_id) >= 0)
+  if (well_branch_collection_safe_iget_index( branches , branch_id) >= 0)
     return true;
   else
     return false;
@@ -81,8 +86,8 @@ bool well_branch_collection_has_branch( const well_branch_collection_type * bran
 
 
 const well_segment_type * well_branch_collection_iget_start_segment( const well_branch_collection_type * branches , int index ) {
-  if (index < vector_get_size( branches->__start_segments))
-    return (const well_segment_type*)vector_iget_const( branches->__start_segments , index);
+  if (index < static_cast<int>(branches->__start_segments.size()))
+    return branches->__start_segments[index];
   else
     return NULL;
 }
@@ -90,7 +95,7 @@ const well_segment_type * well_branch_collection_iget_start_segment( const well_
 
 
 const well_segment_type * well_branch_collection_get_start_segment( const well_branch_collection_type * branches , int branch_id) {
-  int internal_index = int_vector_safe_iget( branches->index_map , branch_id);
+  int internal_index = well_branch_collection_safe_iget_index( branches , branch_id);
   if (internal_index >= 0)
     return well_branch_collection_iget_start_segment( branches , internal_index );
   else
@@ -98,16 +103,18 @@ const well_segment_type * well_branch_collection_get_start_segment( const well_b
 }
 
 
-bool well_branch_collection_add_start_segment( well_branch_collection_type * branches , const well_segment_type * start_segment) {
+bool well_branch_collection_add_start_segment( well_branch_collection_type * branches , well_segment_type * start_segment) {
   if ((well_segment_get_link_count( start_segment ) == 0) && (well_segment_get_outlet(start_segment))) {
     int branch_id = well_segment_get_branch_id( start_segment );
-    int current_index = int_vector_safe_iget( branches->index_map , branch_id);
+    int current_index = well_branch_collection_safe_iget_index( branches , branch_id);
     if (current_index >= 0)
-      vector_iset_ref( branches->__start_segments , current_index , start_segment);
+      branches->__start_segments[current_index] = start_segment;
     else {
-      int new_index = vector_get_size( branches->__start_segments );
-      vector_append_ref( branches->__start_segments , start_segment);
-      int_vector_iset( branches->index_map , branch_id , new_index);
+      int new_index = branches->__start_segments.size();
+      branches->__start_segments.push_back(start_segment);
+      if (branch_id >= (int)branches->index_map.size())
+        branches->index_map.resize(branch_id+1, -1);
+      branches->index_map[branch_id] = new_index;
     }
 
     return true;

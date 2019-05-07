@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2016  Statoil ASA, Norway.
+   Copyright (C) 2016  Equinor ASA, Norway.
 
    The file 'ert_util_spawn.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -59,7 +59,7 @@ bool check_script(const char* script) {
 }
 
 void test_spawn_no_redirect() {
-  test_work_area_type * test_area = test_work_area_alloc("spawn1");
+  ecl::util::TestArea ta("spawn1");
   {
     int status;
     make_script("script" , stdout_msg , stderr_msg);
@@ -77,7 +77,6 @@ void test_spawn_no_redirect() {
       test_assert_int_equal( status , 0 );
     }
   }
-  test_work_area_free( test_area );
 }
 
 
@@ -136,7 +135,7 @@ void * test_spawn_redirect__( const char * path ) {
 
 
 void test_spawn_redirect() {
-  test_work_area_type * test_area = test_work_area_alloc("spawn1");
+  ecl::util::TestArea ta("test_redirect");
   {
     make_script("script" , stdout_msg , stderr_msg);
     util_addmode_if_owner( "script" , S_IRUSR + S_IWUSR + S_IXUSR + S_IRGRP + S_IWGRP + S_IXGRP + S_IROTH + S_IXOTH);  /* u:rwx  g:rwx  o:rx */
@@ -144,14 +143,13 @@ void test_spawn_redirect() {
 
     test_spawn_redirect__( NULL );
   }
-  test_work_area_free( test_area );
 }
 
 void test_spawn_redirect_threaded() {
    const int num = 128;
 
    // Generate the scripts on disk first
-   test_work_area_type * test_area = test_work_area_alloc("spawn1_threaded");
+   ecl::util::TestArea("spawn1_threaded");
    int * path_codes = (int *)util_calloc(num, sizeof *path_codes);
    stringlist_type * script_fullpaths = stringlist_alloc_new();
    for (int i=0; i < num; i++) {
@@ -180,7 +178,6 @@ void test_spawn_redirect_threaded() {
 
    stringlist_free(script_fullpaths);
    free(path_codes);
-   test_work_area_free( test_area );
 }
 
 

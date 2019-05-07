@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2016  Statoil ASA, Norway.
+   Copyright (C) 2016  Equinor ASA, Norway.
 
    This file is part of ERT - Ensemble based Reservoir Tool.
 
@@ -81,8 +81,8 @@ typedef struct ecl_file_transaction_struct ecl_file_transaction_type;
   void      ecl_file_view_fwrite( const ecl_file_view_type * ecl_file_view , fortio_type * target , int offset);
   int       ecl_file_view_iget_occurence( const ecl_file_view_type * ecl_file_view , int global_index);
   void      ecl_file_view_fprintf_kw_list(const ecl_file_view_type * ecl_file_view , FILE * stream);
-  ecl_file_view_type * ecl_file_view_add_blockview(const ecl_file_view_type * ecl_file_view , const char * header, int occurence);
-  ecl_file_view_type * ecl_file_view_add_blockview2(const ecl_file_view_type * ecl_file_view , const char * start_kw, const char * end_kw, int occurence);
+  ecl_file_view_type * ecl_file_view_add_blockview(ecl_file_view_type * ecl_file_view , const char * header, int occurence);
+  ecl_file_view_type * ecl_file_view_add_blockview2(ecl_file_view_type * ecl_file_view , const char * start_kw, const char * end_kw, int occurence);
   ecl_file_view_type * ecl_file_view_add_restart_view(ecl_file_view_type * file_view , int seqnum_index, int report_step , time_t sim_time, double sim_days);
   ecl_file_view_type * ecl_file_view_alloc_blockview(const ecl_file_view_type * ecl_file_view , const char * header, int occurence);
   ecl_file_view_type * ecl_file_view_alloc_blockview2(const ecl_file_view_type * ecl_file_view , const char * start_kw, const char * end_kw, int occurence);

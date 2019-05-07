@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'ecl_nnc_info_test.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -17,6 +17,8 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
+
+#include <vector>
 
 #include <ert/util/test_util.hpp>
 #include <ert/util/util.h>
@@ -53,6 +55,8 @@ void test_equal( ) {
   nnc_info_add_nnc( nnc_info1 , lgr_nr + 2 , 11 , 11 );
   nnc_info_add_nnc( nnc_info2 , lgr_nr + 1 , 10 , 10 );
   test_assert_true( nnc_info_equal( nnc_info1 , nnc_info2 ));
+  nnc_info_free( nnc_info1 );
+  nnc_info_free( nnc_info2 );
 }
 
 
@@ -91,23 +95,22 @@ void basic_test() {
 
 
   nnc_vector_type * nnc_vector = nnc_info_get_vector( nnc_info , 1);
-  const int_vector_type * nnc_cells = nnc_info_get_grid_index_list(nnc_info, 1);
-  test_assert_int_equal(int_vector_size(nnc_cells), 2);
-  test_assert_ptr_equal( nnc_cells , nnc_vector_get_grid_index_list( nnc_vector ));
+  const std::vector<int>& nnc_cells = nnc_info_get_grid_index_list(nnc_info, 1);
+  test_assert_int_equal(nnc_cells.size(), 2);
+  test_assert_ptr_equal( nnc_cells.data() , nnc_vector_get_grid_index_list( nnc_vector ).data());
 
 
   nnc_vector_type * nnc_vector_null  = nnc_info_get_vector( nnc_info , 2);
-  const int_vector_type * nnc_cells_null = nnc_info_get_grid_index_list(nnc_info, 2);
-  test_assert_NULL(nnc_cells_null);
+  test_assert_true( !nnc_info_has_grid_index_list(nnc_info, 2) );
   test_assert_NULL(nnc_vector_null);
 
   nnc_vector_type * nnc_vector_self  = nnc_info_get_self_vector( nnc_info );
   const nnc_vector_type * nnc_vector_77  = nnc_info_get_vector( nnc_info , lgr_nr );
   test_assert_ptr_equal( nnc_vector_77 , nnc_vector_self );
 
-  const int_vector_type * nnc_cells_77 = nnc_info_get_grid_index_list(nnc_info, lgr_nr);
-  const int_vector_type * nnc_cells_self = nnc_info_get_self_grid_index_list(nnc_info);
-  test_assert_ptr_equal( nnc_cells_77 , nnc_cells_self );
+  const std::vector<int>& nnc_cells_77 = nnc_info_get_grid_index_list(nnc_info, lgr_nr);
+  const std::vector<int>& nnc_cells_self = nnc_info_get_self_grid_index_list(nnc_info);
+  test_assert_ptr_equal( nnc_cells_77.data() , nnc_cells_self.data() );
 
 
   test_assert_int_equal( 2 , nnc_info_get_size( nnc_info ));

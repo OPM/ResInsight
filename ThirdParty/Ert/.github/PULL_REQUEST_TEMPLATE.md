@@ -1,10 +1,5 @@
-**Task**
-_Short description of the task_
-
+**Issue**
+Resolves #<Issue id>
 
 **Approach**
 _Short description of the approach_
-
-
-**Pre un-WIP checklist**
-- [ ] Statoil tests pass locally

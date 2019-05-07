@@ -1,0 +1,19 @@
+Welcome to ert's documentation!
+===============================
+
+Contents:
+
+.. toctree::
+   :maxdepth: 1
+   :numbered: 
+              
+   code/index
+   api/ecl
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+

@@ -54,12 +54,6 @@ if (ZLIB_FOUND)
     list(APPEND opt_srcs util/util_zlib.cpp)
 endif ()
 
-if (ERT_BUILD_CXX)
-    list(APPEND opt_srcs ecl/FortIO.cpp
-                         ecl/Smspec.cpp
-                         ecl/EclFilename.cpp
-)
-endif ()
 
 configure_file(build_config.h.in   include/ert/util/build_config.h)
 configure_file(ert_api_config.h.in include/ert/util/ert_api_config.h)
@@ -145,6 +139,8 @@ add_library(ecl util/rng.cpp
                 ecl/well_segment_collection.cpp
                 ecl/well_branch_collection.cpp
                 ecl/well_rseg_loader.cpp
+                ecl/FortIO.cpp
+                ecl/EclFilename.cpp
 
                 geometry/geo_surface.cpp
                 geometry/geo_util.cpp
@@ -183,13 +179,6 @@ target_include_directories(ecl
             ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
-
-if (NOT INSTALL_ERT)
-  # set git info to zero, to avoid recompile of libecl files at every commit
-  set(GIT_COMMIT 0)
-  set(GIT_COMMIT_SHORT 0)
-endif()
-
 target_compile_definitions(ecl PRIVATE
             -DGIT_COMMIT=${GIT_COMMIT}
             -DGIT_COMMIT_SHORT=${GIT_COMMIT_SHORT}
@@ -211,7 +200,7 @@ endif ()
 set_target_properties(ecl PROPERTIES
                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
                           SOVERSION ${ECL_VERSION_MAJOR})
-if (INSTALL_ERT)
+
 install(TARGETS ecl
         EXPORT  ecl-config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -219,24 +208,10 @@ install(TARGETS ecl
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(DIRECTORY include/
         DESTINATION include
-        PATTERN *.h
-)
-install(DIRECTORY include/
-        DESTINATION include
-        PATTERN *.hpp EXCLUDE
 )
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
         DESTINATION include
-        PATTERN *.h
 )
-
-if (ERT_BUILD_CXX)
-    install(DIRECTORY include/
-            DESTINATION include
-            PATTERN *.hpp
-)
-endif ()
-endif()
 
 if (NOT BUILD_TESTS)
     return ()
@@ -277,6 +252,7 @@ foreach (name   ert_util_alloc_file_components
                 ert_util_datetime
                 ert_util_normal_path
                 ert_util_mkdir_p
+                test_area
         )
 
     add_executable(${name} util/tests/${name}.cpp)
@@ -353,11 +329,14 @@ foreach (name   ecl_alloc_cpgrid
                 ecl_grid_copy
                 ecl_grid_create
                 ecl_grid_DEPTHZ
+                ecl_grid_fwrite
                 ecl_grid_unit_system
                 ecl_grid_export
                 ecl_grid_init_fwrite
                 ecl_grid_reset_actnum
                 ecl_grid_ext_actnum
+                ecl_nnc_export_intersect
+                ecl_sum_restart
                 ecl_sum_data_intermediate_test
                 ecl_grid_cell_contains
                 ecl_unsmry_loader_test
@@ -436,26 +415,24 @@ foreach (name geo_util_xlines geo_polygon geo_polygon_collection)
     add_test(NAME ${name} COMMAND ${name})
 endforeach ()
 
-if (ERT_BUILD_CXX)
-    foreach (test ert_util_unique_ptr)
-        add_executable(${test} util/tests/${test}.cpp)
-        target_link_libraries(${test} ecl)
-        add_test(NAME ${test} COMMAND ${test})
-    endforeach()
+foreach (test ert_util_unique_ptr)
+    add_executable(${test} util/tests/${test}.cpp)
+    target_link_libraries(${test} ecl)
+    add_test(NAME ${test} COMMAND ${test})
+endforeach()
 
-    foreach (test eclxx_kw eclxx_fortio eclxx_smspec eclxx_filename eclxx_types)
-        add_executable(${test} ecl/tests/${test}.cpp)
-        target_link_libraries(${test} ecl)
-        add_test(NAME ${test} COMMAND ${test})
-    endforeach ()
-endif ()
+foreach (test eclxx_kw eclxx_fortio eclxx_filename eclxx_types)
+    add_executable(${test} ecl/tests/${test}.cpp)
+    target_link_libraries(${test} ecl)
+    add_test(NAME ${test} COMMAND ${test})
+endforeach ()
 
 foreach(name ecl_coarse_test
              ecl_grid_layer_contains
              ecl_restart_test
              ecl_nnc_export
              ecl_nnc_export_get_tran
-             ecl_nnc_data_statoil_root
+             ecl_nnc_data_equinor_root
              ecl_sum_case_exists
              ecl_grid_lgr_name
              ecl_region
@@ -467,19 +444,19 @@ foreach(name ecl_coarse_test
              ecl_grid_dims
              ecl_nnc_test
              ecl_lgr_test
-             ecl_layer_statoil
+             ecl_layer_equinor
              ecl_dualp
              ecl_grid_dx_dy_dz
              ecl_sum_test
              ecl_sum_report_step_equal
              ecl_sum_report_step_compatible
-             ecl_file_statoil
+             ecl_file_equinor
              ecl_fmt
              ecl_rsthead
              ecl_smspec
              ecl_rft
-             ecl_grid_copy_statoil
-             ecl_fault_block_layer_statoil
+             ecl_grid_copy_equinor
+             ecl_fault_block_layer_equinor
              well_state_load
              well_state_load_missing_RSEG
              well_segment_load
@@ -497,7 +474,7 @@ foreach(name ecl_coarse_test
 endforeach()
 
 
-if (NOT STATOIL_TESTDATA_ROOT)
+if (NOT EQUINOR_TESTDATA_ROOT)
     return ()
 endif()
 
@@ -531,7 +508,7 @@ add_test(NAME ecl_nnc_export7 COMMAND ecl_nnc_export ${_eclpath}/TYRIHANS/BASE20
 add_test(NAME ecl_nnc_export_get_tran COMMAND ecl_nnc_export_get_tran
     ${_eclpath}/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3)
 
-add_test(NAME ecl_nnc_data_statoil_root COMMAND ecl_nnc_data_statoil_root
+add_test(NAME ecl_nnc_data_equinor_root COMMAND ecl_nnc_data_equinor_root
     ${_eclpath}/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3
     ${_eclpath}/flow-nnc/Simple4/SIMPLE_SUMMARY4
     ${_eclpath}/flow-nnc/Gullfaks/GF_ACT_NEW_TEMP)
@@ -572,7 +549,7 @@ add_test(NAME ecl_grid_simple COMMAND ecl_grid_simple ${_eclpath}/Gurbat/ECLIPSE
 add_test(NAME ecl_grid_ecl2015_2 COMMAND ecl_grid_simple
     ${_eclpath}/Eclipse2015_NNC_BUG/FF15_2015B2_LGRM_RDI15_HIST_RDIREAL1_20142.EGRID)
 
-add_test(NAME ecl_grid_export_statoil
+add_test(NAME ecl_grid_export_equinor
     COMMAND ecl_grid_export ${_eclpath}/Gurbat/ECLIPSE.EGRID)
 
 add_test(NAME ecl_grid_volume1 COMMAND ecl_grid_volume ${_eclpath}/Gurbat/ECLIPSE)
@@ -600,7 +577,7 @@ add_test(NAME ecl_nnc_test3 COMMAND ecl_nnc_test ${_eclpath}/Troll/MSW_LGR/2BRAN
 add_test(NAME ecl_nnc_test4 COMMAND ecl_nnc_test ${_eclpath}/DualPoro/DUAL_DIFF.EGRID )
 add_test(NAME ecl_nnc_test5 COMMAND ecl_nnc_test ${_eclpath}/nestedLGRcase/TESTCASE_NESTEDLGR.EGRID)
 
-add_test(NAME ecl_layer_statoil COMMAND ecl_layer_statoil
+add_test(NAME ecl_layer_equinor COMMAND ecl_layer_equinor
     ${_eclpath}/Mariner/MARINER.EGRID
     ${_eclpath}/Mariner/faultblock.grdecl)
 
@@ -622,8 +599,8 @@ add_test(NAME ecl_sum_report_step_compatible4 COMMAND ecl_sum_report_step_compat
 add_test(NAME ecl_sum_report_step_compatible5 COMMAND ecl_sum_report_step_compatible ${_eclpath}/Gurbat/ECLIPSE ${_eclpath}/modGurbat/enkf/ECLIPSE TRUE)
 add_test(NAME ecl_sum_report_step_compatible6 COMMAND ecl_sum_report_step_equal      ${_eclpath}/Snorre/SNORRE  ${_eclpath}/Snorre2/SNORRE2 FALSE)
 
-add_test(NAME ecl_file_statoil
-         COMMAND ecl_file_statoil ${_eclpath}/Gurbat/ECLIPSE.UNRST ECLIPSE.UNRST)
+add_test(NAME ecl_file_equinor
+         COMMAND ecl_file_equinor ${_eclpath}/Gurbat/ECLIPSE.UNRST ECLIPSE.UNRST)
 
 add_test(NAME ecl_fmt COMMAND ecl_fmt
     ${_eclpath}/Gurbat/ECLIPSE.UNRST
@@ -645,12 +622,12 @@ add_test(NAME ecl_rft_plt    COMMAND ecl_rft ${_eclpath}/RFT/TEST1_1A.RFT PLT)
 add_test(NAME ecl_rft_mswplt COMMAND ecl_rft ${_eclpath}/RFT/RFT2.RFT MSW-PLT)
 add_test(NAME ecl_rft_alloc  COMMAND ecl_rft ${_eclpath}/RFT/NORNE_ATW2013_RFTPLT_V2.RFT SIMPLE)
 
-add_test(NAME ecl_grid_copy_statoil1 COMMAND ecl_grid_copy_statoil ${_eclpath}/Gurbat/ECLIPSE.EGRID)
-add_test(NAME ecl_grid_copy_statoil2 COMMAND ecl_grid_copy_statoil ${_eclpath}/Mariner/MARINER.EGRID)
-add_test(NAME ecl_grid_copy_statoil3 COMMAND ecl_grid_copy_statoil ${_eclpath}/LGCcase/LGC_TESTCASE2.EGRID)
-add_test(NAME ecl_grid_copy_statoil4 COMMAND ecl_grid_copy_statoil ${_eclpath}/10kcase/TEST10K_FLT_LGR_NNC.EGRID)
+add_test(NAME ecl_grid_copy_equinor1 COMMAND ecl_grid_copy_equinor ${_eclpath}/Gurbat/ECLIPSE.EGRID)
+add_test(NAME ecl_grid_copy_equinor2 COMMAND ecl_grid_copy_equinor ${_eclpath}/Mariner/MARINER.EGRID)
+add_test(NAME ecl_grid_copy_equinor3 COMMAND ecl_grid_copy_equinor ${_eclpath}/LGCcase/LGC_TESTCASE2.EGRID)
+add_test(NAME ecl_grid_copy_equinor4 COMMAND ecl_grid_copy_equinor ${_eclpath}/10kcase/TEST10K_FLT_LGR_NNC.EGRID)
 
-add_test(NAME ecl_fault_block_layer_statoil COMMAND ecl_fault_block_layer_statoil
+add_test(NAME ecl_fault_block_layer_equinor COMMAND ecl_fault_block_layer_equinor
     ${_eclpath}/Mariner/MARINER.EGRID
     ${_eclpath}/Mariner/faultblock.grdecl)
 
@@ -684,7 +661,9 @@ add_test(NAME well_segment_load
 add_test(NAME well_segment_branch_conn_load
          COMMAND well_segment_branch_conn_load ${_eclpath}/MSWcase/MSW_CASE.X0021)
 
-add_test(NAME well_info COMMAND well_info ${_eclpath}/Gurbat/ECLIPSE.EGRID)
+add_test(NAME well_info1 COMMAND well_info ${_eclpath}/Gurbat/ECLIPSE.EGRID)
+add_test(NAME well_info2 COMMAND well_info ${_eclpath}/well_info_rio/BMS8_TMPL_1-BMS8_105DST_EMBED_T0_1.EGRID
+                                           ${_eclpath}/well_info_rio/BMS8_TMPL_1-BMS8_105DST_EMBED_T0_1.UNRST)
 
 add_test(NAME well_conn_CF COMMAND well_conn_CF ${_eclpath}/Gurbat/ECLIPSE.X0060)
 
