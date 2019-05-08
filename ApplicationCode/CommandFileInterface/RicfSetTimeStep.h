@@ -34,9 +34,13 @@ class RicfSetTimeStep : public RicfCommandObject
 public:
     RicfSetTimeStep();
 
+    void setCaseId(int caseId);
+    void setTimeStepIndex(int timeStepIndex);
+
     void execute() override;
 
 private:
+
     caf::PdmField<int> m_caseId;
     caf::PdmField<int> m_timeStepIndex;
 };

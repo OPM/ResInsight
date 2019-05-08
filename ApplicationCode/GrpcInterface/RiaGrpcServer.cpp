@@ -15,22 +15,23 @@
 //  for more details.
 //
 //////////////////////////////////////////////////////////////////////////////////
-#ifdef WIN32
-// GRPC does a lot of tricks that give warnings on MSVC but works fine
-#pragma warning(push)
-#pragma warning(disable : 4251 4702 4005 4244)
-#endif
 
 #include "RiaGrpcServer.h"
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
+
+#include "RiaGrpcServerCallData.h"
+#include "RiaGrpcServiceInterface.h"
+#include "RiaGrpcGridInfoService.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigMainGrid.h"
 #include "RimEclipseCase.h"
 #include "RimProject.h"
 
-#include "grpc/impl/codegen/gpr_types.h"
+#include <grpc/support/log.h>
+#include <grpcpp/grpcpp.h>
 
 #include <QTcpServer>
 
@@ -42,17 +43,44 @@ using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
 using grpc::Status;
 
+//==================================================================================================
+//
+// The GRPC server implementation
+//
+//==================================================================================================
+class RiaGrpcServerImpl
+{
+public:
+    ~RiaGrpcServerImpl();
+    void run();
+    void runInThread();
+    void initialize();
+    void processOneRequest();
+    void quit();
+
+private:
+    void waitForNextRequest();
+    void process(RiaGrpcServerCallMethod* method);
+
+private:
+    std::unique_ptr<grpc::ServerCompletionQueue>        m_completionQueue;
+    std::unique_ptr<grpc::Server>                       m_server;
+    std::list<std::shared_ptr<RiaGrpcServiceInterface>> m_services;
+    std::list<RiaGrpcServerCallMethod*>                 m_receivedRequests;
+    std::mutex                                          m_requestMutex;
+};
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaGrpcServer::~RiaGrpcServer()
+RiaGrpcServerImpl::~RiaGrpcServerImpl()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::run()
+void RiaGrpcServerImpl::run()
 {
     initialize();
     while (true)
@@ -64,16 +92,16 @@ void RiaGrpcServer::run()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::runInThread()
+void RiaGrpcServerImpl::runInThread()
 {
     initialize();
-    std::thread(&RiaGrpcServer::waitForNextRequest, this).detach();
+    std::thread(&RiaGrpcServerImpl::waitForNextRequest, this).detach();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::initialize()
+void RiaGrpcServerImpl::initialize()
 {
     quint16 port = 50051u;
     {
@@ -89,29 +117,33 @@ void RiaGrpcServer::initialize()
     ServerBuilder builder;
     builder.AddListeningPort(serverAddress.toStdString(), grpc::InsecureServerCredentials());
 
-    builder.RegisterService(&m_projectService);
-    builder.RegisterService(&m_gridService);
+    for (auto key : RiaGrpcServiceFactory::instance()->allKeys())
+    {
+        std::shared_ptr<RiaGrpcServiceInterface> service(RiaGrpcServiceFactory::instance()->create(key));
+        builder.RegisterService(dynamic_cast<grpc::Service*>(service.get()));
+        m_services.push_back(service);
+    }
 
     m_completionQueue = builder.AddCompletionQueue();
     m_server = builder.BuildAndStart();
 
     CVF_ASSERT(m_server);
     RiaLogging::info(QString("Server listening on %1").arg(serverAddress));
+    
     // Spawn new CallData instances to serve new clients.
-    for (auto callback : m_projectService.createCallbacks(m_completionQueue.get()))
+    for (auto service : m_services)
     {
-        process(callback);
-    }
-    for (auto callback : m_gridService.createCallbacks(m_completionQueue.get()))
-    {
-        process(callback);
+        for (auto callback : service->createCallbacks())
+        {
+            process(callback);
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::processOneRequest()
+void RiaGrpcServerImpl::processOneRequest()
 {
     std::lock_guard<std::mutex> requestLock(m_requestMutex);
     if (!m_receivedRequests.empty())
@@ -125,7 +157,7 @@ void RiaGrpcServer::processOneRequest()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::quit()
+void RiaGrpcServerImpl::quit()
 {
     m_server->Shutdown();
     m_completionQueue->Shutdown();
@@ -134,7 +166,7 @@ void RiaGrpcServer::quit()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::waitForNextRequest()
+void RiaGrpcServerImpl::waitForNextRequest()
 {
     void* tag;
     bool  ok = false;
@@ -155,18 +187,18 @@ void RiaGrpcServer::waitForNextRequest()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::process(RiaGrpcServerCallMethod* method)
+void RiaGrpcServerImpl::process(RiaGrpcServerCallMethod* method)
 {
     if (method->callStatus() == RiaGrpcServerCallMethod::CREATE)
     {
         method->callStatus() = RiaGrpcServerCallMethod::PROCESS;
-        method->createRequest();
+        method->createRequest(m_completionQueue.get());
     }
     else if (method->callStatus() == RiaGrpcServerCallMethod::PROCESS)
     {
         method->callStatus() = RiaGrpcServerCallMethod::FINISH;
         method->processRequest();
-        process(method->clone());
+        process(method->createNewFromThis());
     }
     else
     {
@@ -174,6 +206,59 @@ void RiaGrpcServer::process(RiaGrpcServerCallMethod* method)
     }
 }
 
-#ifdef WIN32
-#pragma warning(pop)
-#endif
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaGrpcServer::RiaGrpcServer()
+{
+    m_serverImpl = new RiaGrpcServerImpl;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaGrpcServer::~RiaGrpcServer()
+{
+    delete m_serverImpl;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServer::run()
+{
+    m_serverImpl->run();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServer::runInThread()
+{
+    m_serverImpl->runInThread();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServer::initialize()
+{
+    m_serverImpl->initialize();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServer::processOneRequest()
+{
+    m_serverImpl->processOneRequest();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServer::quit()
+{
+    m_serverImpl->quit();
+}

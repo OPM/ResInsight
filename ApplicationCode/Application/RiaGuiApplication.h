@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
+#include "RiaGrpcServer.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
@@ -42,7 +43,6 @@ class Drawable;
 
 class RIProcess;
 
-class RiaGrpcServer;
 class RiaPreferences;
 class RiaProjectModifier;
 class RiaSocketServer;

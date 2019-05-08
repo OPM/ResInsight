@@ -25,6 +25,7 @@ class RimCase;
 namespace grpc
 {
     class ServerCompletionQueue;    
+    class Service;
 }
 
 //==================================================================================================
@@ -35,9 +36,11 @@ namespace grpc
 class RiaGrpcServiceInterface
 {
 public:
-    virtual std::vector<RiaGrpcServerCallMethod*> createCallbacks(grpc::ServerCompletionQueue*) = 0;
+    virtual std::vector<RiaGrpcServerCallMethod*> createCallbacks() = 0;
 
     static RimCase* findCase(int caseId);
 };
 
+#include "cafFactory.h"
+typedef caf::Factory<RiaGrpcServiceInterface, size_t> RiaGrpcServiceFactory;
 

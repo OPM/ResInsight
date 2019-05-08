@@ -20,18 +20,54 @@
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::RiaGrpcServerCallData(ServiceT*              service,
-                                                                         ServerCompletionQueue* cq,
-                                                                         const std::string&     methodName,
-                                                                         MethodImpl             methodImpl,
-                                                                         RequestImpl            methodRequest)
-    : RiaGrpcServerCallMethod(methodName)
+RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::RiaGrpcServerCallData(ServiceT*     service,
+                                                                         MethodImpl    methodImpl,
+                                                                         MethodRequest methodRequest)
+    : RiaGrpcServerCallMethod()
     , m_service(service)
-    , m_completionQueue(cq)
     , m_responder(&m_context)
     , m_methodImpl(methodImpl)
     , m_methodRequest(methodRequest)
 {
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template<typename ServiceT, typename RequestT, typename ReplyT>
+const char* RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::name() const
+{
+    return typeid(ServiceT).name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template<typename ServiceT, typename RequestT, typename ReplyT>
+RiaGrpcServerCallMethod* RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::createNewFromThis() const
+{
+    return new RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>(m_service, m_methodImpl, m_methodRequest);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template<typename ServiceT, typename RequestT, typename ReplyT>
+void RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::createRequest(ServerCompletionQueue* completionQueue)
+{
+    m_methodRequest(*m_service, &m_context, &m_request, &m_responder, completionQueue, completionQueue, this);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template<typename ServiceT, typename RequestT, typename ReplyT>
+Status RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::processRequest()
+{
+    Status status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply);
+    responder().Finish(m_reply, status, this);
+    return status;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,15 +77,6 @@ template<typename ServiceT, typename RequestT, typename ReplyT>
 ServerContext& RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::context()
 {
     return m_context;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template<typename ServiceT, typename RequestT, typename ReplyT>
-RequestT& RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::request()
-{
-    return m_request;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,34 +95,4 @@ template<typename ServiceT, typename RequestT, typename ReplyT>
 ServerAsyncResponseWriter<ReplyT>& RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::responder()
 {
     return m_responder;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template<typename ServiceT, typename RequestT, typename ReplyT>
-RiaGrpcServerCallMethod* RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::clone() const
-{
-    return new RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>(
-        m_service, m_completionQueue, methodName(), m_methodImpl, m_methodRequest);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template<typename ServiceT, typename RequestT, typename ReplyT>
-void RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::createRequest()
-{
-    m_methodRequest(*m_service, &m_context, &m_request, &m_responder, m_completionQueue, m_completionQueue, this);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template<typename ServiceT, typename RequestT, typename ReplyT>
-Status RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::processRequest()
-{
-    Status status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply);
-    responder().Finish(m_reply, status, this);
-    return status;
 }

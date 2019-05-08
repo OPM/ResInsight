@@ -23,29 +23,38 @@
 #include <grpcpp/grpcpp.h>
 #include <vector>
 
-namespace ResInsight
+namespace rips
 {
 class Case;
 }
 
 class RiaGrpcServerCallMethod;
 
+template<typename ServiceT, typename RequestT, typename ReplyT>
+class RiaGrpcServerCallData;
+
 //==================================================================================================
 //
 // gRPC-service answering requests about grid information for a given case
 //
 //==================================================================================================
-class RiaGrpcGridInfoService final : public ResInsight::GridInfo::AsyncService, public RiaGrpcServiceInterface
+class RiaGrpcGridCountService final : public rips::GridCount::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status GridCount(grpc::ServerContext* context, const ResInsight::Case* request, ResInsight::GridCountInfo* reply) override;
-    grpc::Status AllDimensions(grpc::ServerContext* context, const ResInsight::Case* request, ResInsight::AllGridDimensions* reply) override;
-    grpc::Status AllActiveCellInfos(grpc::ServerContext* context, const ResInsight::ActiveCellInfoRequest* request, ResInsight::ActiveCellInfos* reply) override;
-
-public:
-    std::vector<RiaGrpcServerCallMethod*> createCallbacks(grpc::ServerCompletionQueue* cq) override;
+    grpc::Status Get(grpc::ServerContext* context, const rips::Case* request, rips::GridCountInfo* reply) override;
+    std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
 };
 
+class RiaGrpcAllGridDimensionsService final : public rips::AllGridDimensions::AsyncService, public RiaGrpcServiceInterface
+{
+public:
+    grpc::Status Get(grpc::ServerContext* context, const rips::Case* request, rips::AllDimensions* reply) override;
+    std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
+};
 
-
-
+class RiaGrpcActiveCellInfoService final : public rips::ActiveCellInfo::AsyncService, public RiaGrpcServiceInterface
+{
+public:
+    grpc::Status Get(grpc::ServerContext* context, const rips::ActiveCellInfoRequest* request, rips::CellInfos* reply) override;
+    std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
+};

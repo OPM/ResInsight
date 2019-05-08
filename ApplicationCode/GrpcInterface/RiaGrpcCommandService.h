@@ -17,31 +17,26 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaLogging.h"
+#include "RiaGrpcServiceInterface.h"
 
-#include <iostream>
-#include <list>
-#include <memory>
-#include <mutex>
+#include "Commands.grpc.pb.h"
 
-class RiaGrpcServerImpl;
+#include <grpcpp/grpcpp.h>
+#include <vector>
 
-//==================================================================================================
-//
-// The GRPC server.
-//
-//==================================================================================================
-class RiaGrpcServer
+namespace rips
+{
+class Empty;
+}
+
+class RiaGrpcServerCallMethod;
+
+template<typename ServiceT, typename RequestT, typename ReplyT>
+class RiaGrpcServerCallData;
+
+class RiaGrpcCommandService : public rips::Commands::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    RiaGrpcServer();
-    ~RiaGrpcServer();
-    void run();
-    void runInThread();
-    void initialize();
-    void processOneRequest();
-    void quit();
-    
-private:    
-    RiaGrpcServerImpl* m_serverImpl;
+    grpc::Status Execute(grpc::ServerContext* context, const rips::CommandParams* request, rips::Empty* reply) override;
+    std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
 };

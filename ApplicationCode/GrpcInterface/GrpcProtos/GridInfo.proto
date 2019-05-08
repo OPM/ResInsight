@@ -2,17 +2,32 @@ syntax = "proto3";
 
 import "CaseInfo.proto";
 
-package ResInsight;
+package rips;
 
-service GridInfo
-{
+//service GridInfo
+//{
 	// This function returns a two dimensional matrix: One row for each grid, starting with the main grid.
-	rpc GridCount(Case) returns (GridCountInfo) {}
-	rpc AllDimensions(Case) returns (AllGridDimensions) {}
-	rpc AllActiveCellInfos(ActiveCellInfoRequest) returns (ActiveCellInfos) {}
-	rpc AllCoarseningInfos(Case) returns (CoarseningInfos) {}
-	rpc TimeSteps(Case) returns (TimeStepDates) {}
-	rpc TimeStepDaysSinceStart(Case) returns (DoubleDates) {}
+//	rpc AllDimensions(Case) returns (AllGridDimensions) {}
+	//rpc AllActiveCellInfos(ActiveCellInfoRequest) returns (ActiveCellInfos) {}
+//	rpc AllCoarseningInfos(Case) returns (CoarseningInfos) {}
+//	rpc TimeSteps(Case) returns (TimeStepDates) {}
+//	rpc TimeStepDaysSinceStart(Case) returns (DoubleDates) {}
+//}
+
+
+service GridCount
+{
+	rpc Get(Case) returns (GridCountInfo) {}
+}
+
+service AllGridDimensions
+{
+	rpc Get(Case) returns (AllDimensions) {}
+}
+
+service ActiveCellInfo
+{
+	rpc Get(ActiveCellInfoRequest) returns (CellInfos) {}
 }
 
 message GridCountInfo
@@ -20,9 +35,9 @@ message GridCountInfo
 	int32 count = 1;
 }
 
-message AllGridDimensions
+message AllDimensions
 {
-	repeated Vec3i dimensions = 1;
+	repeated Vec3i grid_dimensions = 1;
 }
 
 message Vec3i {
@@ -44,12 +59,12 @@ message ActiveCellInfoRequest
 	
 }
 
-message ActiveCellInfos
+message CellInfos
 {
-	repeated ActiveCellInfo data = 1;
+	repeated CellInfo data = 1;
 }
 
-message ActiveCellInfo
+message CellInfo
 {
 	int32 grid_index           = 1;
 	int32 parent_grid_index    = 2;
