@@ -30,6 +30,7 @@
 #include <QAction>
 #include <QDesktopServices>
 #include <QErrorMessage>
+#include <QSslSocket>
 #include <QUrl>
 
 CAF_CMD_SOURCE_INIT(RicHelpAboutFeature, "RicHelpAboutFeature");
@@ -89,6 +90,36 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
     dlg.addVersionEntry(" ", QString("   ") + caf::AboutDialog::versionStringForcurrentOpenGLContext());
     dlg.addVersionEntry(" ", caf::Viewer::isShadersSupported() ? "   Hardware OpenGL" : "   Software OpenGL");
     dlg.addVersionEntry(" ", QString("   Octave ") + QString(RESINSIGHT_OCTAVE_VERSION));
+
+    bool isAbleToUseSsl = false;
+    bool isSslSupported = false;
+#ifndef QT_NO_OPENSSL
+    isAbleToUseSsl = true;
+    isSslSupported = QSslSocket::supportsSsl();
+#endif
+
+    {
+        QString txt;
+
+        if (isAbleToUseSsl)
+        {
+            txt = "   Use of SSL is available";
+            if (isSslSupported)
+            {
+                txt += " and supported";
+            }
+            else
+            {
+                txt += ", but not supported";
+            }
+        }
+        else
+        {
+            txt = "   SSL is not available";
+        }
+
+        dlg.addVersionEntry(" ", txt);
+    }
 
     if (RiaApplication::enableDevelopmentFeatures())
     {
