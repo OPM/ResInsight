@@ -1,8 +1,6 @@
 syntax = "proto3";
 
-package ResInsight;
-
-
+package rips;
 
 message Empty
 {
@@ -33,5 +31,5 @@ message CaseGroup
 
 message CaseGroups
 {
-  repeated CaseGroup case_group = 2;
+  repeated CaseGroup case_group = 1;
 }

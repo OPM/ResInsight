@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "CaseInfo.proto";
 
-package ResInsight;
+package rips;
 
 service ProjectInfo {
   rpc CurrentCase(Empty) returns (Case) {}

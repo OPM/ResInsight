@@ -39,6 +39,22 @@ RicfSetTimeStep::RicfSetTimeStep()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicfSetTimeStep::setCaseId(int caseId)
+{
+    m_caseId = caseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicfSetTimeStep::setTimeStepIndex(int timeStepIndex)
+{
+    m_timeStepIndex = timeStepIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RicfSetTimeStep::execute()
@@ -66,5 +82,6 @@ void RicfSetTimeStep::execute()
     for (Rim3dView* view : eclipseCase->views())
     {
         view->setCurrentTimeStepAndUpdate(m_timeStepIndex);
+        view->createDisplayModelAndRedraw();
     }
 }

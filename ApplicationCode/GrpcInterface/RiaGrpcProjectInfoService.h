@@ -22,30 +22,35 @@
 
 #include <grpcpp/grpcpp.h>
 
-namespace ResInsight
+namespace rips
 {
 class Empty;
 class CaseInfo;
 }
+
+class RiaGrpcServerCallMethod;
+
+template<typename ServiceT, typename RequestT, typename ReplyT>
+class RiaGrpcServerCallData;
 
 //==================================================================================================
 //
 // gRPC-service answering requests about project information
 //
 //==================================================================================================
-class RiaGrpcProjectInfoService final : public ResInsight::ProjectInfo::AsyncService, public RiaGrpcServiceInterface
+class RiaGrpcProjectInfoService final : public rips::ProjectInfo::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status CurrentCase(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::Case* reply) override;
-    grpc::Status CurrentCaseInfo(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseInfo* reply) override;
-    grpc::Status CaseInfoFromCase(grpc::ServerContext* context, const ResInsight::Case* request, ResInsight::CaseInfo* reply) override;
-    grpc::Status SelectedCases(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseInfos* reply) override;
-    grpc::Status AllCaseGroups(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseGroups* reply) override;
-    grpc::Status AllCases(grpc::ServerContext* context, const ResInsight::Empty* request, ResInsight::CaseInfos* reply) override;
-    grpc::Status CasesInGroup(grpc::ServerContext* context, const ResInsight::CaseGroup* request, ResInsight::CaseInfos* reply) override;
+    grpc::Status CurrentCase(grpc::ServerContext* context, const rips::Empty* request, rips::Case* reply) override;
+    grpc::Status CurrentCaseInfo(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfo* reply) override;
+    grpc::Status CaseInfoFromCase(grpc::ServerContext* context, const rips::Case* request, rips::CaseInfo* reply) override;
+    grpc::Status SelectedCases(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfos* reply) override;
+    grpc::Status AllCaseGroups(grpc::ServerContext* context, const rips::Empty* request, rips::CaseGroups* reply) override;
+    grpc::Status AllCases(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfos* reply) override;
+    grpc::Status CasesInGroup(grpc::ServerContext* context, const rips::CaseGroup* request, rips::CaseInfos* reply) override;
 
 public:
-    std::vector<RiaGrpcServerCallMethod*> createCallbacks(grpc::ServerCompletionQueue* cq) override;
+    std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
 };
 
 

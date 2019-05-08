@@ -21,6 +21,8 @@
 #include "RimProject.h"
 #include "RimCase.h"
 
+#include <grpcpp/grpcpp.h>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -38,3 +40,4 @@ RimCase* RiaGrpcServiceInterface::findCase(int caseId)
     }
     return nullptr;
 }
+

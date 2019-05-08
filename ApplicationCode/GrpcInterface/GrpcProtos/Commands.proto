@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+import "CaseInfo.proto";
+
+package rips;
+
+service Commands
+{
+	rpc Execute(CommandParams) returns(Empty) {}
+}
+
+message SetTimeStepParams
+{
+	int32 caseId   = 1;
+	int32 timeStep = 2;
+}
+
+message SetMainWindowSizeParams
+{
+	int32 height = 1;
+	int32 width  = 2;
+}
+
+message CommandParams
+{
+	oneof params
+	{
+		SetTimeStepParams       setTimeStep       = 1;
+		SetMainWindowSizeParams setMainWindowSize = 2;
+	}
+}
+

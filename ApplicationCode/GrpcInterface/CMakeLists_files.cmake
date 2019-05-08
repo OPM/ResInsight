@@ -5,6 +5,7 @@ set ( SOURCE_GROUP_HEADER_FILES
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridInfoService.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.h
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.h
 )
 
 set ( SOURCE_GROUP_SOURCE_FILES
@@ -12,6 +13,7 @@ set ( SOURCE_GROUP_SOURCE_FILES
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridInfoService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.cpp
 )
 
 if (MSVC)
@@ -42,6 +44,7 @@ set(PROTO_FILES
 	"CaseInfo"
 	"GridInfo"
 	"ProjectInfo"
+	"Commands"
 )
 
 foreach(proto_file ${PROTO_FILES})		

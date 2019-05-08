@@ -11,10 +11,10 @@ def run():
 		if len(sys.argv) > 1:
 			port = sys.argv[1]
 		resInsight  = ResInsight("localhost:" + port)
-		gridCount = resInsight.GridInfo.GridCount(ResInsight.Case(id=0))
+		gridCount = resInsight.GridCount.Get(ResInsight.Case(id=0))
 		print("Number of grids: " + str(gridCount.count))
-		gridDimensions = resInsight.GridInfo.AllDimensions(ResInsight.Case(id=0))
-		for dimensions in gridDimensions.dimensions:
+		gridDimensions = resInsight.AllGridDimensions.Get(ResInsight.Case(id=0))
+		for dimensions in gridDimensions.grid_dimensions:
 			print("Grid Dimensions received: " + str(dimensions.i) + ", " + str(dimensions.j) + ", " + str(dimensions.k))
 
 	except grpc.RpcError as e:

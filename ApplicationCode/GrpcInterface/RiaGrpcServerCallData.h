@@ -26,6 +26,8 @@ using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
 using grpc::Status;
 
+class RiaGrpcServiceInterface;
+
 //==================================================================================================
 //
 // Base class for all gRPC-callbacks
@@ -42,29 +44,24 @@ public:
     };
 
 public:
-    RiaGrpcServerCallMethod(const std::string& methodName)
-        : m_methodName(methodName)
-        , m_status(CREATE)
+    RiaGrpcServerCallMethod()
+        : m_status(CREATE)
     {
     }
 
     virtual ~RiaGrpcServerCallMethod() {}
-    virtual RiaGrpcServerCallMethod* clone() const    = 0;
-    virtual void                     createRequest()  = 0;
-    virtual Status                   processRequest() = 0;
+    virtual const char*              name() const                                          = 0;
+    virtual RiaGrpcServerCallMethod* createNewFromThis() const = 0;
+    virtual void                     createRequest(ServerCompletionQueue* completionQueue) = 0;
+    virtual Status                   processRequest()                                      = 0;
     virtual void                     finishRequest() {}
 
-    const std::string& methodName() const
-    {
-        return m_methodName;
-    }
     CallStatus& callStatus()
     {
         return m_status;
     }
 
 private:
-    std::string m_methodName;
     CallStatus  m_status;
 };
 
@@ -77,39 +74,34 @@ template<typename ServiceT, typename RequestT, typename ReplyT>
 class RiaGrpcServerCallData : public RiaGrpcServerCallMethod
 {
 public:
-    typedef ServerAsyncResponseWriter<ReplyT>                                          ResponseWriterT;
+	typedef ServerAsyncResponseWriter<ReplyT>                                          ResponseWriterT;
     typedef std::function<Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*)> MethodImpl;
-    typedef std::function<
-        void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)>
-        RequestImpl;
+    typedef std::function<void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*,
+        CompletionQueue*, ServerCompletionQueue*, void*)>                              MethodRequest;
+    typedef ServerAsyncResponseWriter<ReplyT>                                          ResponseWriterT;
 
     RiaGrpcServerCallData(ServiceT*              service,
-                          ServerCompletionQueue* cq,
-                          const std::string&     methodName,
                           MethodImpl             methodImpl,
-                          RequestImpl            methodRequest);
+                          MethodRequest          methodRequest);
 
-    ServerContext& context();
-    RequestT& request();
-    ReplyT& reply();
+    const char*              name() const override;
+    RiaGrpcServerCallMethod* createNewFromThis() const override;
+    void                     createRequest(ServerCompletionQueue* completionQueue) override;
+    Status                   processRequest() override;
 
-    RiaGrpcServerCallMethod* clone() const override;
-
-    void createRequest() override;
-
-    Status processRequest() override;
-
+    ServerContext&                     context();
+    RequestT&                          request();
+    ReplyT&                            reply();
     ServerAsyncResponseWriter<ReplyT>& responder();
 
 private:
     ServiceT*                         m_service;
-    ServerCompletionQueue*            m_completionQueue;
     ServerContext                     m_context;
     RequestT                          m_request;
     ReplyT                            m_reply;
     ServerAsyncResponseWriter<ReplyT> m_responder;
     MethodImpl                        m_methodImpl;
-    RequestImpl                       m_methodRequest;
+    MethodRequest                     m_methodRequest;
 };
 
 #include "RiaGrpcServerCallData.inl"
