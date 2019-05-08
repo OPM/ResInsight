@@ -39,9 +39,16 @@ grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const 
     if (paramsCase != CommandParams::PARAMS_NOT_SET)
     {
         auto field = descriptor->FindFieldByNumber((int) paramsCase);
-        RiaLogging::info(QString("Found Command Parameters: %1").arg(QString::fromStdString(field->name())));
+        QString fieldName = QString::fromStdString(field->name());
+        RiaLogging::info(QString("Found Command Parameters: %1").arg(fieldName));
+        auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create(fieldName);
+        if (pdmObjectHandle)
+        {
+            return Status::OK;
+        }
     }
-    return Status::OK;
+    return grpc::Status(grpc::NOT_FOUND, "Command not found");    
+
     /*
 
     //RicfSetTimeStep* timeStepCommand = dynamic_cast<RicfSetTimeStep*>(caf::PdmDefaultObjectFactory::instance()->create("setTimeStep"));
