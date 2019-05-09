@@ -232,6 +232,8 @@ static const char* smspec_required_keywords[] = {
 namespace {
 
 const ecl::smspec_node * ecl_smspec_get_var_node( const node_map& mp, const char * var) {
+    if (!var) return nullptr;
+
     const auto it = mp.find(var);
     if (it == mp.end())
       return nullptr;
@@ -699,10 +701,15 @@ static void ecl_smspec_install_special_keys( ecl_smspec_type * ecl_smspec , cons
       ecl_smspec_get_well_var_index( smspec , well_name , var );
   */
 
-  const char * well            = smspec_node_get_wgname( &smspec_node );
-  const char * group           = well;
-  const int num                = smspec_node_get_num(&smspec_node);
-  const char * keyword         = smspec_node_get_keyword(&smspec_node);
+  std::string well;
+  if (smspec_node_get_wgname(&smspec_node)) well = smspec_node_get_wgname(&smspec_node);
+
+  std::string group = well;
+  const int num = smspec_node_get_num(&smspec_node);
+
+  std::string keyword;
+  if (smspec_node_get_keyword(&smspec_node)) keyword = smspec_node_get_keyword(&smspec_node);
+
   ecl_smspec_var_type var_type = smspec_node_get_var_type(&smspec_node );
 
   switch(var_type) {

@@ -329,7 +329,7 @@ std::string smspec_alloc_completion_ijk_key( const char * join_string , const st
                                join_string ,
                                i , j , k );
   else
-    return NULL;
+    return "";
 }
 
 
@@ -343,7 +343,7 @@ std::string smspec_alloc_completion_num_key( const char * join_string , const st
                               join_string ,
                               num );
   else
-    return NULL;
+    return "";
 }
 
 /*
@@ -406,7 +406,7 @@ std::string smspec_alloc_segment_key( const char * join_string , const std::stri
                               join_string ,
                               num );
   else
-    return NULL;
+    return "";
 }
 
 
@@ -419,7 +419,7 @@ std::string smspec_alloc_local_well_key( const char * join_string , const std::s
                                join_string ,
                                wgname.c_str());
   else
-    return NULL;
+    return "";
 }
 
 std::string smspec_alloc_local_completion_key( const char * join_string, const std::string& keyword , const std::string& lgr_name , const std::string& wgname , int i , int j , int k) {
@@ -433,7 +433,7 @@ std::string smspec_alloc_local_completion_key( const char * join_string, const s
                               join_string ,
                               i,j,k);
   else
-    return NULL;
+    return "";
 }
 
 /*****************************************************************/
