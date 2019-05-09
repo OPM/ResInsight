@@ -4,38 +4,23 @@ import "CaseInfo.proto";
 
 package rips;
 
-//service GridInfo
-//{
+service GridInfo
+{
 	// This function returns a two dimensional matrix: One row for each grid, starting with the main grid.
-//	rpc AllDimensions(Case) returns (AllGridDimensions) {}
-	//rpc AllActiveCellInfos(ActiveCellInfoRequest) returns (ActiveCellInfos) {}
-//	rpc AllCoarseningInfos(Case) returns (CoarseningInfos) {}
-//	rpc TimeSteps(Case) returns (TimeStepDates) {}
-//	rpc TimeStepDaysSinceStart(Case) returns (DoubleDates) {}
-//}
-
-
-service GridCount
-{
-	rpc Get(Case) returns (GridCountInfo) {}
+	rpc GetGridCount(Case) returns(GridCount) {}
+	rpc GetAllGridDimensions(Case) returns (AllGridDimensions) {}
+	rpc GetAllActiveCellInfos(ActiveCellInfoRequest) returns (ActiveCellInfos) {}
+	rpc GetAllCoarseningInfos(Case) returns (CoarseningInfos) {}
+	rpc GetTimeSteps(Case) returns (TimeStepDates) {}
+	rpc GetTimeStepDaysSinceStart(Case) returns (DoubleDates) {}
 }
 
-service AllGridDimensions
-{
-	rpc Get(Case) returns (AllDimensions) {}
-}
-
-service ActiveCellInfo
-{
-	rpc Get(ActiveCellInfoRequest) returns (CellInfos) {}
-}
-
-message GridCountInfo
+message GridCount
 {
 	int32 count = 1;
 }
 
-message AllDimensions
+message AllGridDimensions
 {
 	repeated Vec3i grid_dimensions = 1;
 }
@@ -55,16 +40,15 @@ enum PorosityModelType
 message ActiveCellInfoRequest
 {
 	int32             case_id        = 1;
-	PorosityModelType porosity_model = 2;
-	
+	PorosityModelType porosity_model = 2;	
 }
 
-message CellInfos
+message ActiveCellInfos
 {
-	repeated CellInfo data = 1;
+	repeated ActiveCellInfo data = 1;
 }
 
-message CellInfo
+message ActiveCellInfo
 {
 	int32 grid_index           = 1;
 	int32 parent_grid_index    = 2;
