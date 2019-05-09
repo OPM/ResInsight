@@ -45,12 +45,15 @@ class Instance:
 		
 	def Case(id):
 		return CaseInfo_pb2.Case(id=id)
-	
-	def Empty():
-		return CaseInfo_pb2.Empty();
-	
+		
 	def setTimeStep(self, caseId, timeStep):
 		return CommandExecutor(self.channel, Commands_pb2.CommandParams(setTimeStep=Commands_pb2.SetTimeStepParams(caseId=caseId, timeStep=timeStep))).execute()
 		
 	def setMainWindowSize(self, width, height):
 		return CommandExecutor(self.channel, Commands_pb2.CommandParams(setMainWindowSize=Commands_pb2.SetMainWindowSizeParams(width=width, height=height))).execute()
+		
+	def openProject(self, path):
+		return CommandExecutor(self.channel, Commands_pb2.CommandParams(openProject=Commands_pb2.FilePathRequest(path=path))).execute()
+		
+	def closeProject(self):
+		return CommandExecutor(self.channel, Commands_pb2.CommandParams(closeProject=CaseInfo_pb2.Empty())).execute()
