@@ -241,22 +241,6 @@ std::string stringFromPointer(const char* pointerToChar)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string wellNameFromNode(const ecl::smspec_node* ertSumVarNode)
-{
-    return stringFromPointer(smspec_node_get_wgname(ertSumVarNode));
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string lgrNameFromNode(const ecl::smspec_node* ertSumVarNode)
-{
-    return stringFromPointer(smspec_node_get_lgr_name(ertSumVarNode));
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress addressFromErtSmSpecNode(const ecl::smspec_node& ertSumVarNode)
 {
     if (ertSumVarNode.get_var_type() == ECL_SMSPEC_INVALID_VAR)
