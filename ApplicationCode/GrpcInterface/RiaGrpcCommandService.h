@@ -29,6 +29,20 @@ namespace rips
 class Empty;
 }
 
+namespace caf
+{
+class PdmValueField;
+}
+
+namespace google
+{
+namespace protobuf
+{
+class FieldDescriptor;
+class Message;
+}
+}
+
 class RiaGrpcServerCallMethod;
 
 template<typename ServiceT, typename RequestT, typename ReplyT>
@@ -39,4 +53,6 @@ class RiaGrpcCommandService : public rips::Commands::AsyncService, public RiaGrp
 public:
     grpc::Status Execute(grpc::ServerContext* context, const rips::CommandParams* request, rips::Empty* reply) override;
     std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
+private:
+    void assignFieldValue(caf::PdmValueField* pdmValueField, const google::protobuf::Message& params, const google::protobuf::FieldDescriptor* paramDescriptor);
 };

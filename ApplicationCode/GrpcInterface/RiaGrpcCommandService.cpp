@@ -20,59 +20,62 @@
 #include "RiaLogging.h"
 
 #include "RiaGrpcServerCallData.h"
-#include "cafPdmDefaultObjectFactory.h"
 
 #include "RicfSetTimeStep.h"
 
+#include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmValueField.h"
+#include "cafAssert.h"
+
 using namespace rips;
+using namespace google::protobuf;
+
+#ifdef WIN32
+#ifdef GetMessage
+#undef GetMessage
+#endif
+#endif
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const CommandParams* request, Empty* reply)
 {
-    auto descriptor = request->descriptor();
-    RiaLogging::info(QString::fromStdString(descriptor->name()));
-    int numFields = descriptor->field_count();
+    auto requestDescriptor = request->descriptor();
+    RiaLogging::info(QString::fromStdString(requestDescriptor->name()));
     
     CommandParams::ParamsCase paramsCase = request->params_case();
     if (paramsCase != CommandParams::PARAMS_NOT_SET)
     {
-        auto field = descriptor->FindFieldByNumber((int) paramsCase);
-        QString fieldName = QString::fromStdString(field->name());
-        RiaLogging::info(QString("Found Command Parameters: %1").arg(fieldName));
-        auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create(fieldName);
-        if (pdmObjectHandle)
+        auto grpcOneOfMessage = requestDescriptor->FindFieldByNumber((int) paramsCase);
+        CAF_ASSERT(grpcOneOfMessage->type() == FieldDescriptor::TYPE_MESSAGE);
+
+        const Message& params = request->GetReflection()->GetMessage(*request, grpcOneOfMessage);
+        QString grpcOneOfMessageName = QString::fromStdString(grpcOneOfMessage->name());
+        RiaLogging::info(QString("Found Command: %1").arg(grpcOneOfMessageName));
+        auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create(grpcOneOfMessageName);
+        auto commandHandle = dynamic_cast<RicfCommandObject*>(pdmObjectHandle);
+        if (commandHandle)
         {
+            auto subMessageDescriptor = grpcOneOfMessage->message_type();
+            int  numParameters = subMessageDescriptor->field_count();
+            for (int i = 0; i < numParameters; ++i)
+            {
+                auto parameter = subMessageDescriptor->field(i);
+                QString parameterName = QString::fromStdString(parameter->name());
+                auto pdmValueFieldHandle = dynamic_cast<caf::PdmValueField*>(pdmObjectHandle->findField(parameterName));
+                if (pdmValueFieldHandle)
+                {
+                    RiaLogging::info(QString("Found Matching Parameter: %1").arg(parameterName));
+                    assignFieldValue(pdmValueFieldHandle, params, parameter);
+                }
+            }
+            commandHandle->execute();
+
             return Status::OK;
         }
     }
-    return grpc::Status(grpc::NOT_FOUND, "Command not found");    
-
-    /*
-
-    //RicfSetTimeStep* timeStepCommand = dynamic_cast<RicfSetTimeStep*>(caf::PdmDefaultObjectFactory::instance()->create("setTimeStep"));
-    if (timeStepCommand)
-    {
-        auto descriptor = request->descriptor();        
-        RiaLogging::info(QString::fromStdString(descriptor->name()));
-        int numFields = descriptor->field_count();
-        RiaLogging::info(QString("Has %1").arg(numFields));
-        for (int i = 0; i < numFields; ++i)
-        {
-            auto field = descriptor->FindFieldByNumber(i + 1);
-            if (field)
-            {
-                RiaLogging::info(QString("Found field: %1").arg(QString::fromStdString(field->name())));
-            }
-        }
-
-        timeStepCommand->setCaseId(request->case_id());
-        timeStepCommand->setTimeStepIndex(request->time_step());
-        timeStepCommand->execute();
-        return Status::OK;
-    }
-    return grpc::Status(grpc::NOT_FOUND, "Time step command not found"); */
+    return grpc::Status(grpc::NOT_FOUND, "Command not found");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,6 +87,40 @@ std::vector<RiaGrpcServerCallMethod*> RiaGrpcCommandService::createCallbacks()
 
     return { new RiaGrpcServerCallData<Self, CommandParams, Empty>(this, &Self::Execute, &Self::RequestExecute) };
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcCommandService::assignFieldValue(caf::PdmValueField*    pdmValueField,
+                                             const Message&         params,
+                                             const FieldDescriptor* paramDescriptor)
+{
+    FieldDescriptor::Type fieldDataType = paramDescriptor->type();
+    QVariant value;
+    switch (fieldDataType)
+    {
+    case FieldDescriptor::TYPE_BOOL:
+    {
+        bool boolVal = params.GetReflection()->GetBool(params, paramDescriptor);
+        value = QVariant(boolVal);
+        break;
+    }
+    case FieldDescriptor::TYPE_INT32:
+    {
+        int intVal = params.GetReflection()->GetInt32(params, paramDescriptor);
+        value = QVariant(intVal);
+        break;
+    }
+    case FieldDescriptor::TYPE_STRING:
+    {
+        std::string stringVal = params.GetReflection()->GetString(params, paramDescriptor);
+        value = QVariant(QString::fromStdString(stringVal));
+        break;
+    }
+    }
+    pdmValueField->setFromQVariant(value);
+}
+
 
 static bool RiaGrpcCommandService_init =
     RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcCommandService>(typeid(RiaGrpcCommandService).hash_code());
