@@ -22,6 +22,8 @@
 
 using grpc::CompletionQueue;
 using grpc::ServerAsyncResponseWriter;
+using grpc::ServerAsyncWriter;
+using grpc::ServerWriter;
 using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
 using grpc::Status;
@@ -67,39 +69,84 @@ private:
 
 //==================================================================================================
 //
-// Templated gRPC-callback calling service implementation callbacks
+// Templated gRPC-callback
 //
 //==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT>
-class RiaGrpcServerCallData : public RiaGrpcServerCallMethod
+class RiaGrpcServerAbstractCallData : public RiaGrpcServerCallMethod
+{
+public:
+    RiaGrpcServerAbstractCallData(ServiceT* service);
+
+    const char* name() const override;
+    const RequestT&  request() const;
+
+protected:
+    ServiceT*       m_service;
+    ServerContext   m_context;
+    RequestT        m_request;
+
+};
+
+//==================================================================================================
+//
+// Templated gRPC-callback for non-streaming services
+//
+//==================================================================================================
+template<typename ServiceT, typename RequestT, typename ReplyT>
+class RiaGrpcServerCallData : public RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>
 {
 public:
 	typedef ServerAsyncResponseWriter<ReplyT>                                          ResponseWriterT;
     typedef std::function<Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*)> MethodImpl;
     typedef std::function<void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*,
         CompletionQueue*, ServerCompletionQueue*, void*)>                              MethodRequest;
-    typedef ServerAsyncResponseWriter<ReplyT>                                          ResponseWriterT;
 
     RiaGrpcServerCallData(ServiceT*              service,
                           MethodImpl             methodImpl,
                           MethodRequest          methodRequest);
 
-    const char*              name() const override;
     RiaGrpcServerCallMethod* createNewFromThis() const override;
     void                     createRequest(ServerCompletionQueue* completionQueue) override;
     Status                   processRequest() override;
 
-    ServerContext&                     context();
-    RequestT&                          request();
-    ReplyT&                            reply();
-    ServerAsyncResponseWriter<ReplyT>& responder();
+    ReplyT&                  reply();
 
 private:
-    ServiceT*                         m_service;
-    ServerContext                     m_context;
-    RequestT                          m_request;
     ReplyT                            m_reply;
-    ServerAsyncResponseWriter<ReplyT> m_responder;
+    ResponseWriterT                   m_responder;
+    MethodImpl                        m_methodImpl;
+    MethodRequest                     m_methodRequest;
+};
+
+//==================================================================================================
+//
+// Templated *streaming* gRPC-callback calling service implementation callbacks
+//
+//==================================================================================================
+template<typename ServiceT, typename RequestT, typename ReplyT>
+class RiaGrpcServerStreamingCallData : public RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>
+{
+public:
+    typedef ServerAsyncWriter<ReplyT> ResponseWriterT;
+    typedef ServerWriter<ReplyT>      ServerWriterT;
+
+    typedef std::function<
+        Status(ServiceT&, ServerContext*, const RequestT*, ServerWriterT*)> MethodImpl;
+    typedef std::function<
+        void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*,
+            CompletionQueue*, ServerCompletionQueue*, void*)>               MethodRequest;
+
+    RiaGrpcServerStreamingCallData(ServiceT* service, MethodImpl methodImpl, MethodRequest methodRequest);
+
+    RiaGrpcServerCallMethod* createNewFromThis() const override;
+    void                     createRequest(ServerCompletionQueue* completionQueue) override;
+    Status                   processRequest() override;
+    void                     finishRequest() override;
+
+private:
+    ServerWriterT                     m_serverWriter;
+    ResponseWriterT                   m_responder;
     MethodImpl                        m_methodImpl;
     MethodRequest                     m_methodRequest;
 };
