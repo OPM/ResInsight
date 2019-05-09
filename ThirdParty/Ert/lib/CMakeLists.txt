@@ -200,7 +200,7 @@ endif ()
 set_target_properties(ecl PROPERTIES
                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
                           SOVERSION ${ECL_VERSION_MAJOR})
-
+if (INSTALL_ERT)
 install(TARGETS ecl
         EXPORT  ecl-config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -212,6 +212,7 @@ install(DIRECTORY include/
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
         DESTINATION include
 )
+endif()
 
 if (NOT BUILD_TESTS)
     return ()
