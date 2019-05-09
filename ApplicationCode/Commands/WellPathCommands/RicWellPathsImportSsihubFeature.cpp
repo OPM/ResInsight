@@ -89,7 +89,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
         QString ssihubPassword = "resinsight";
 #else
         QString ssihubUsername = app->cacheDataObject("ssihub_username").toString();
-        QString ssihubPassword = app->cacheDataObject("ssihub_password").toString();
+        QString ssihubPassword;
 #endif
         wellImportwizard.setCredentials(ssihubUsername, ssihubPassword);
     }
@@ -104,7 +104,6 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
         }
 
         app->setCacheDataObject("ssihub_username", wellImportwizard.field("username"));
-        app->setCacheDataObject("ssihub_password", wellImportwizard.field("password"));
     }
     else
     {
