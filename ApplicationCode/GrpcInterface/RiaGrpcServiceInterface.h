@@ -37,7 +37,7 @@ class RiaGrpcServiceInterface
 {
 public:
     virtual std::vector<RiaGrpcServerCallMethod*> createCallbacks() = 0;
-
+    virtual ~RiaGrpcServiceInterface() = default;
     static RimCase* findCase(int caseId);
 };
 
