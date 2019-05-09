@@ -66,8 +66,9 @@ private:
     std::unique_ptr<grpc::ServerCompletionQueue>        m_completionQueue;
     std::unique_ptr<grpc::Server>                       m_server;
     std::list<std::shared_ptr<RiaGrpcServiceInterface>> m_services;
-    std::list<RiaGrpcServerCallMethod*>                 m_receivedRequests;
+    std::list<RiaGrpcServerCallMethod*>                 m_unprocessedRequests;
     std::mutex                                          m_requestMutex;
+    std::thread                                         m_thread;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -75,6 +76,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 RiaGrpcServerImpl::~RiaGrpcServerImpl()
 {
+    quit();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,7 +97,7 @@ void RiaGrpcServerImpl::run()
 void RiaGrpcServerImpl::runInThread()
 {
     initialize();
-    std::thread(&RiaGrpcServerImpl::waitForNextRequest, this).detach();
+    m_thread = std::thread(&RiaGrpcServerImpl::waitForNextRequest, this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,21 +148,43 @@ void RiaGrpcServerImpl::initialize()
 void RiaGrpcServerImpl::processOneRequest()
 {
     std::lock_guard<std::mutex> requestLock(m_requestMutex);
-    if (!m_receivedRequests.empty())
+    if (!m_unprocessedRequests.empty())
     {
-        RiaGrpcServerCallMethod* method = m_receivedRequests.front();
-        m_receivedRequests.pop_front();
+        RiaGrpcServerCallMethod* method = m_unprocessedRequests.front();
+        m_unprocessedRequests.pop_front();
         process(method);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Gracefully shut down the GRPC server. The internal order is important.
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServerImpl::quit()
 {
-    m_server->Shutdown();
-    m_completionQueue->Shutdown();
+    if (m_server)
+    {
+        // Clear unhandled requests
+        while (!m_unprocessedRequests.empty())
+        {
+            RiaGrpcServerCallMethod* method = m_unprocessedRequests.front();
+            m_unprocessedRequests.pop_front();
+            delete method;
+        }
+
+        // Shutdown server and queue
+        m_server->Shutdown();
+        m_completionQueue->Shutdown();
+
+        // Wait for thread to join after handling the shutdown call
+        m_thread.join();
+
+        // Must destroy server before services
+        m_server.reset();
+        m_completionQueue.reset();
+
+        // Finally clear services
+        m_services.clear();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,13 +198,11 @@ void RiaGrpcServerImpl::waitForNextRequest()
     while (m_completionQueue->Next(&tag, &ok))
     {
         RiaGrpcServerCallMethod* method = static_cast<RiaGrpcServerCallMethod*>(tag);
-        if (!ok)
+        if (ok)
         {
-            method->callStatus() = RiaGrpcServerCallMethod::FINISH;
-            process(method);
+            std::lock_guard<std::mutex> requestLock(m_requestMutex);
+            m_unprocessedRequests.push_back(method);
         }
-        std::lock_guard<std::mutex> requestLock(m_requestMutex);
-        m_receivedRequests.push_back(method);
     }
 }
 
