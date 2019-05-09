@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'well_branch_collection.h' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -40,7 +40,7 @@ extern "C" {
   int                           well_branch_collection_get_size( const well_branch_collection_type * branches );
   const well_segment_type     * well_branch_collection_iget_start_segment( const well_branch_collection_type * branches , int index );
   const well_segment_type     * well_branch_collection_get_start_segment( const well_branch_collection_type * branches , int branch_id);
-  bool                          well_branch_collection_add_start_segment( well_branch_collection_type * branches , const well_segment_type * start_segment);
+  bool                          well_branch_collection_add_start_segment( well_branch_collection_type * branches , well_segment_type * start_segment);
 
   UTIL_IS_INSTANCE_HEADER( well_branch_collection );
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2012  statoil asa, norway.
+   Copyright (c) 2012  equinor asa, norway.
 
    The file 'ecl_coarse_cell.c' is part of ert - ensemble based reservoir tool.
 

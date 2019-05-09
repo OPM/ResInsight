@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2015  Statoil ASA, Norway.
+#  Copyright (C) 2015  Equinor ASA, Norway.
 #
 #  The file 'test_kw_function.py' is part of ERT - Ensemble based Reservoir Tool.
 #

@@ -11,6 +11,7 @@ parser.add_argument("input_case", metavar="input_case", type=str)
 parser.add_argument("output_case", metavar="output_case", type=str)
 parser.add_argument("--num-timestep", type=int, default=50)
 parser.add_argument("--refcase", metavar="refcase", type=str)
+parser.add_argument("--extrapolation", action="store_true")
 args = parser.parse_args()
 
 input_case = EclSum(args.input_case)
@@ -23,5 +24,8 @@ else:
     end_time = input_case.get_end_time()
     time_points = TimeVector.create_linear(CTime(start_time), CTime(end_time), args.num_timestep)
 
-output_case = input_case.resample(args.output_case, time_points)
+output_case = input_case.resample(args.output_case,
+                                  time_points,
+                                  lower_extrapolation=args.extrapolation,
+                                  upper_extrapolation=args.extrapolation)
 output_case.fwrite( )

@@ -4,18 +4,18 @@ import os.path
 from ecl.eclfile import EclFile
 from ecl.grid import EclGrid
 from ecl.summary import EclSum
-from tests import EclTest, statoil_test
+from tests import EclTest, equinor_test
 from ecl.util.util.ctime import CTime
 from ecl.well import WellInfo, WellConnection, WellTypeEnum, WellConnectionDirectionEnum, WellSegment
 
-@statoil_test()
+@equinor_test()
 class EclWellTest3(EclTest):
     grid = None
 
     def test_rates(self):
-        grid_path = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID")
-        rst_path = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.UNRST")
-        sum_path = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.SMSPEC")
+        grid_path = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.EGRID")
+        rst_path = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.UNRST")
+        sum_path = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.SMSPEC")
 
         grid = EclGrid(grid_path)
         well_info = WellInfo(grid, rst_path)

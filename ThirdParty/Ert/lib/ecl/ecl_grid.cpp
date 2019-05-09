@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2011  statoil asa, norway.
+   Copyright (c) 2011  equinor asa, norway.
 
    The file 'ecl_grid.c' is part of ert - ensemble based reservoir tool.
 
@@ -21,12 +21,14 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
+
 #include <vector>
+#include <unordered_map>
+#include <string>
 
 #include <ert/util/util.h>
 #include <ert/util/double_vector.hpp>
 #include <ert/util/int_vector.hpp>
-#include <ert/util/hash.hpp>
 #include <ert/util/vector.hpp>
 #include <ert/util/stringlist.hpp>
 
@@ -726,7 +728,7 @@ struct ecl_grid_struct {
 
   char                * parent_name;   /* the name of the parent for a nested lgr - for the main grid, and also a
                                           lgr descending directly from the main grid this will be NULL. */
-  hash_type           * children;      /* a table of lgr children for this grid. */
+  std::unordered_map<std::string, ecl_grid_type*> children;
   const ecl_grid_type * parent_grid;   /* the parent grid for this (lgr) - NULL for the main grid. */
   const ecl_grid_type * global_grid;   /* the global grid - NULL for the main grid. */
 
@@ -739,7 +741,7 @@ struct ecl_grid_struct {
   */
   vector_type         * LGR_list;      /* a vector of ecl_grid instances for LGRs - the index corresponds to the order LGRs are read from file*/
   int_vector_type     * lgr_index_map; /* a vector that maps LGR-nr for EGRID files to index into the LGR_list.*/
-  hash_type           * LGR_hash;      /* a hash of pointers to ecl_grid instances - for name based lookup of lgr. */
+  std::unordered_map<std::string, ecl_grid_type*> LGR_hash;  /* a hash of pointers to ecl_grid instances - for name based lookup of lgr. */
   int                   parent_box[6]; /* integers i1,i2, j1,j2, k1,k2 of the parent grid region containing this lgr. the indices are inclusive - zero offset */
                                        /* not used yet .. */
 
@@ -1534,7 +1536,7 @@ static ecl_grid_type * ecl_grid_alloc_empty(ecl_grid_type * global_grid,
                                             int nz,
                                             int lgr_nr,
                                             bool init_valid) {
-  ecl_grid_type * grid = (ecl_grid_type*)util_malloc(sizeof * grid );
+  ecl_grid_type * grid = new ecl_grid_type();
   UTIL_TYPE_ID_INIT(grid , ECL_GRID_ID);
   grid->total_active   = 0;
   grid->total_active_fracture = 0;
@@ -1586,16 +1588,13 @@ static ecl_grid_type * ecl_grid_alloc_empty(ecl_grid_type * global_grid,
   if (ECL_GRID_MAINGRID_LGR_NR == lgr_nr) {  /* this is the main grid */
     grid->LGR_list      = vector_alloc_new();
     grid->lgr_index_map = int_vector_alloc(0,0);
-    grid->LGR_hash      = hash_alloc();
   } else {
     grid->LGR_list      = NULL;
     grid->lgr_index_map = NULL;
-    grid->LGR_hash      = NULL;
   }
   grid->name            = NULL;
   grid->parent_name     = NULL;
   grid->parent_grid     = NULL;
-  grid->children        = hash_alloc();
   grid->coarse_cells    = vector_alloc_new();
   grid->eclipse_version = 0;
 
@@ -2104,13 +2103,15 @@ static void ecl_grid_init_mapaxes( ecl_grid_type * ecl_grid , bool apply_mapaxes
 
 static void ecl_grid_add_lgr( ecl_grid_type * main_grid , ecl_grid_type * lgr_grid) {
   vector_append_owned_ref( main_grid->LGR_list , lgr_grid , ecl_grid_free__);
+  if ( lgr_grid->lgr_nr >= int_vector_size(main_grid->lgr_index_map) )
+    int_vector_resize( main_grid->lgr_index_map, lgr_grid->lgr_nr+1 , 0);
   int_vector_iset(main_grid->lgr_index_map, lgr_grid->lgr_nr, vector_get_size(main_grid->LGR_list)-1);
-  hash_insert_ref( main_grid->LGR_hash , lgr_grid->name , lgr_grid);
+  main_grid->LGR_hash[lgr_grid->name] = lgr_grid;
 }
 
 
 static void ecl_grid_install_lgr_common(ecl_grid_type * host_grid , ecl_grid_type * lgr_grid) {
-  hash_insert_ref( host_grid->children , lgr_grid->name , lgr_grid);
+  host_grid->children[lgr_grid->name] = lgr_grid;
   lgr_grid->parent_grid = host_grid;
 }
 
@@ -3027,12 +3028,12 @@ static ecl_grid_type * ecl_grid_alloc_EGRID__( ecl_grid_type * main_grid , const
   */
   const int * actnum_data = NULL;
   if (ext_actnum)
-      actnum_data = ext_actnum;
+    actnum_data = ext_actnum;
   else {
-      if (ecl_file_get_num_named_kw(ecl_file, ACTNUM_KW) > grid_nr) {
-          actnum_kw = ecl_file_iget_named_kw(ecl_file, ACTNUM_KW, grid_nr);
-          actnum_data = ecl_kw_get_int_ptr(actnum_kw);
-      }
+    if (ecl_file_get_num_named_kw(ecl_file , ACTNUM_KW) > grid_nr) {
+      actnum_kw = ecl_file_iget_named_kw( ecl_file , ACTNUM_KW    , grid_nr);
+      actnum_data = ecl_kw_get_int_ptr(actnum_kw);
+    }
   }
 
   if (grid_nr == 0) {
@@ -4625,17 +4626,15 @@ void ecl_grid_free(ecl_grid_type * grid) {
   if (ECL_GRID_MAINGRID_LGR_NR == grid->lgr_nr) { /* This is the main grid. */
     vector_free( grid->LGR_list );
     int_vector_free( grid->lgr_index_map);
-    hash_free( grid->LGR_hash );
   }
   if (grid->coord_kw != NULL)
     ecl_kw_free( grid->coord_kw );
 
   vector_free( grid->coarse_cells );
-  hash_free( grid->children );
   free( grid->parent_name );
   free( grid->visited );
   free( grid->name );
-  free( grid );
+  delete grid;
 }
 
 
@@ -5284,7 +5283,7 @@ ecl_grid_type * ecl_grid_get_lgr(const ecl_grid_type * main_grid, const char * _
   __assert_main_grid( main_grid );
   {
     char * lgr_name          = util_alloc_strip_copy( __lgr_name );
-    ecl_grid_type * lgr_grid = (ecl_grid_type*)hash_get(main_grid->LGR_hash , lgr_name);
+    ecl_grid_type * lgr_grid = main_grid->LGR_hash.at(lgr_name);
     free(lgr_name);
     return lgr_grid;
   }
@@ -5303,7 +5302,7 @@ bool ecl_grid_has_lgr(const ecl_grid_type * main_grid, const char * __lgr_name) 
   __assert_main_grid( main_grid );
   {
     char * lgr_name          = util_alloc_strip_copy( __lgr_name );
-    bool has_lgr             = hash_has_key( main_grid->LGR_hash , lgr_name );
+    bool has_lgr             = main_grid->LGR_hash.count(lgr_name ) > 0;
     free(lgr_name);
     return has_lgr;
   }
@@ -5425,7 +5424,10 @@ const ecl_grid_type * ecl_grid_get_global_grid( const ecl_grid_type * grid ) {
 stringlist_type * ecl_grid_alloc_lgr_name_list(const ecl_grid_type * ecl_grid) {
   __assert_main_grid( ecl_grid );
   {
-    return hash_alloc_stringlist( ecl_grid->LGR_hash );
+    stringlist_type * s = stringlist_alloc_new();
+    for (const auto& lgr_pair : ecl_grid->LGR_hash)
+      stringlist_append_copy(s, lgr_pair.first.c_str());
+    return s;
   }
 }
 
@@ -5892,14 +5894,12 @@ static bool ecl_grid_test_lgr_consistency2( const ecl_grid_type * parent , const
 
 
 bool ecl_grid_test_lgr_consistency( const ecl_grid_type * ecl_grid ) {
-  hash_iter_type * lgr_iter = hash_iter_alloc( ecl_grid->children );
   bool consistent = true;
-  while (!hash_iter_is_complete( lgr_iter )) {
-    const ecl_grid_type * lgr = (const ecl_grid_type*)hash_iter_get_next_value( lgr_iter );
+  for (const auto& lgr_pair : ecl_grid->children) {
+    const ecl_grid_type * lgr = lgr_pair.second;
     consistent &= ecl_grid_test_lgr_consistency2( ecl_grid , lgr );
     consistent &= ecl_grid_test_lgr_consistency( lgr );
   }
-  hash_iter_free( lgr_iter );
   return consistent;
 }
 
@@ -6208,6 +6208,8 @@ static void ecl_grid_fwrite_GRID__( const ecl_grid_type * grid , int coords_size
         }
       }
     }
+    ecl_kw_free(coords_kw);
+    ecl_kw_free(corners_kw);
   }
 }
 
@@ -6217,7 +6219,7 @@ void ecl_grid_fwrite_GRID2( const ecl_grid_type * grid , const char * filename, 
   bool fmt_file   = false;
 
   fortio_type * fortio = fortio_open_writer( filename , fmt_file , ECL_ENDIAN_FLIP );
-  if (hash_get_size( grid->children ) > 0)
+  if (grid->children.size() > 0)
     coords_size = 7;
 
   if (grid->coarsening_active)
@@ -6852,6 +6854,12 @@ static void ecl_grid_fwrite_EGRID__( ecl_grid_type * grid , fortio_type * fortio
 
 void ecl_grid_fwrite_EGRID2( ecl_grid_type * grid , const char * filename, ert_ecl_unit_enum output_unit) {
   bool fmt_file        = false;
+  {
+    bool is_fmt;
+
+    if (ecl_util_get_file_type( filename , &is_fmt, NULL ) != ECL_OTHER_FILE)
+      fmt_file = is_fmt;
+  }
   fortio_type * fortio = fortio_open_writer( filename , fmt_file , ECL_ENDIAN_FLIP );
 
   ecl_grid_fwrite_EGRID__( grid , fortio, output_unit);

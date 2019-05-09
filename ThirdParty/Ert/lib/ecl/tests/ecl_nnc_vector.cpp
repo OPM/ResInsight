@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'ecl_nnc_vector.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -17,6 +17,8 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
+
+#include <vector>
 
 #include <ert/util/test_util.hpp>
 #include <ert/util/int_vector.hpp>
@@ -41,17 +43,17 @@ void test_basic() {
   test_assert_int_equal( 6 , nnc_vector_get_size( vector ));
 
   {
-    const int_vector_type * grid_index_list = nnc_vector_get_grid_index_list( vector );
-    const int_vector_type * nnc_index_list = nnc_vector_get_nnc_index_list( vector );
+    const std::vector<int>& grid_index_list = nnc_vector_get_grid_index_list( vector );
+    const std::vector<int>& nnc_index_list = nnc_vector_get_nnc_index_list( vector );
 
-    test_assert_int_equal( 6   , int_vector_size( nnc_index_list ));
-    test_assert_int_equal( 1 , int_vector_iget( nnc_index_list , 0 ));
-    test_assert_int_equal( 6 , int_vector_iget( nnc_index_list , 5 ));
+    test_assert_int_equal( 6   , nnc_index_list.size() );
+    test_assert_int_equal( 1 , nnc_index_list[0] );
+    test_assert_int_equal( 6 , nnc_index_list[5] );
 
-    test_assert_int_equal( 6   , int_vector_size( grid_index_list ));
-    test_assert_int_equal( 100 , int_vector_iget( grid_index_list , 0 ));
-    test_assert_int_equal( 200 , int_vector_iget( grid_index_list , 1 ));
-    test_assert_int_equal( 300 , int_vector_iget( grid_index_list , 2 ));
+    test_assert_int_equal( 6   , grid_index_list.size() );
+    test_assert_int_equal( 100 , grid_index_list[0] );
+    test_assert_int_equal( 200 , grid_index_list[1] );
+    test_assert_int_equal( 300 , grid_index_list[2] );
   }
 
   nnc_vector_free( vector );

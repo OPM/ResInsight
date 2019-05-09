@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2017  Statoil ASA, Norway.
+   Copyright (C) 2017  Equinor ASA, Norway.
 
    The file 'ecl_grid_cell_contains_wellpath.c' is part of ERT -
    Ensemble based Reservoir Tool.

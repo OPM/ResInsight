@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2017  Statoil ASA, Norway.
+   Copyright (C) 2017  Equinor ASA, Norway.
 
    The file 'test_ecl_file_index.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -34,7 +34,7 @@ void test_load_nonexisting_file() {
 
 void test_create_and_load_index_file() {
 
-   test_work_area_type * work_area = test_work_area_alloc("ecl_file_index_testing");
+   ecl::util::TestArea ta("Load_index");
    {
       const char * file_name = "initial_data_file";
       const char * index_file_name = "index_file";
@@ -98,7 +98,6 @@ void test_create_and_load_index_file() {
       ecl_kw_free(kw2);
       ecl_file_close( ecl_file_index );
    }
-   test_work_area_free( work_area );
 }
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2011  Statoil ASA, Norway.
+#  Copyright (C) 2011  Equinor ASA, Norway.
 #
 #  The file 'sum_test.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -18,18 +18,18 @@ from _ctypes import ArgumentError
 import os
 import datetime
 from ecl.eclfile import EclFile
-from tests import EclTest, statoil_test
+from tests import EclTest, equinor_test
 
 
 
 
-@statoil_test()
+@equinor_test()
 class RestartTest(EclTest):
     def setUp(self):
-        self.xfile0 = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.X0000")
-        self.u_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.UNRST")
-        self.fmt_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.FUNRST")
-        self.grid_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID")
+        self.xfile0 = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.X0000")
+        self.u_file = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.UNRST")
+        self.fmt_file = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.FUNRST")
+        self.grid_file = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.EGRID")
         self.file_list = []
 
     def addFile( self, filename ):

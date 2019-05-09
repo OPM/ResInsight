@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    This file is part of ERT - Ensemble based Reservoir Tool.
 
@@ -20,9 +20,11 @@
 #include <math.h>
 #include <stdbool.h>
 
+#include <unordered_map>
+#include <vector>
+#include <string>
+
 #include <ert/util/util.h>
-#include <ert/util/hash.hpp>
-#include <ert/util/vector.hpp>
 
 #include <ert/ecl/ecl_kw.hpp>
 #include <ert/ecl/ecl_util.hpp>
@@ -69,12 +71,10 @@ struct ecl_grav_struct {
   const ecl_file_type      * init_file;    /* The init file - a shared reference owned by calling scope. */
   ecl::ecl_grid_cache      * grid_cache;   /* An internal specialized structure to facilitate fast grid lookup. */
   bool                     * aquifer_cell; /* Numerical aquifer cells should be ignored. */
-  hash_type                * surveys;      /* A hash table containg ecl_grav_survey_type instances; one instance
-                                              for each interesting time. */
-  hash_type                * std_density;  /* Hash table indexed with "SWAT" , "SGAS" and "SOIL"; each element
-                                              is a double_vector() instance which is indexed by PVTNUM
-                                              values. Used to lookup standard condition mass densities. Must
-                                              be suuplied by user __BEFORE__ adding a FIP based survey. */
+
+  std::unordered_map<std::string, ecl_grav_survey_type *> surveys;
+  std::unordered_map<std::string, double> default_density;
+  std::unordered_map<std::string, std::vector<double>> std_density;
 };
 
 
@@ -90,10 +90,10 @@ struct ecl_grav_survey_struct {
   UTIL_TYPE_ID_DECLARATION;
   const ecl::ecl_grid_cache      * grid_cache;
   const bool                     * aquifer_cell;
-  char                           * name;           /* Name of the survey - arbitrary string. */
-  double                         * porv;           /* Reference shared by the ecl_grav_phase structures - i.e. it must not be updated. */
-  vector_type                    * phase_list;     /* ecl_grav_phase_type objects - one for each phase present in the model. */
-  hash_type                      * phase_map;      /* The same objects as in the phase_list vector - accessible by the "SWAT", "SGAS" and "SOIL" keys. */
+  char                           * name;                 /* Name of the survey - arbitrary string. */
+  double                         * porv;                 /* Reference shared by the ecl_grav_phase structures - i.e. it must not be updated. */
+  std::vector<ecl_grav_phase_type*> phase_list;          /* ecl_grav_phase_type objects - one for each phase present in the model. */
+  std::unordered_map<std::string, ecl_grav_phase_type*> phase_map; /* The same objects as in the phase_list vector - accessible by the "SWAT", "SGAS" and "SOIL" keys. */
 };
 
 
@@ -106,9 +106,9 @@ struct ecl_grav_phase_struct {
   UTIL_TYPE_ID_DECLARATION;
   const ecl::ecl_grid_cache  * grid_cache;
   const bool                 * aquifer_cell;
-  double                          * fluid_mass;  /* The total fluid in place (mass) of this phase - for each active cell.*/
-  double                           * work;           /* Temporary used in the summation over all cells. */
-  ecl_phase_enum                    phase;
+  double                     * fluid_mass;     /* The total fluid in place (mass) of this phase - for each active cell.*/
+  double                     * work;           /* Temporary used in the summation over all cells. */
+  ecl_phase_enum               phase;
 };
 
 
@@ -213,7 +213,7 @@ static ecl_grav_phase_type * ecl_grav_phase_alloc( ecl_grav_type * ecl_grav ,
   const ecl::ecl_grid_cache * grid_cache = ecl_grav->grid_cache;
   const char * sat_kw_name               = ecl_util_get_phase_name( phase );
   {
-    ecl_grav_phase_type * grav_phase = (ecl_grav_phase_type*)util_malloc( sizeof * grav_phase );
+    ecl_grav_phase_type * grav_phase = new ecl_grav_phase_type();
     const int size                   = grid_cache->size();
 
     UTIL_TYPE_ID_INIT( grav_phase , ECL_GRAV_PHASE_TYPE_ID );
@@ -225,7 +225,7 @@ static ecl_grav_phase_type * ecl_grav_phase_alloc( ecl_grav_type * ecl_grav ,
 
     if (calc_type == GRAV_CALC_FIP) {
       ecl_kw_type * pvtnum_kw = ecl_file_iget_named_kw( init_file , PVTNUM_KW , 0 );
-      double_vector_type * std_density = (double_vector_type*)hash_get( ecl_grav->std_density , ecl_util_get_phase_name( phase ));
+      const std::vector<double> std_density = ecl_grav->std_density[std::string(ecl_util_get_phase_name(phase))];
       ecl_kw_type * fip_kw;
 
       if ( phase == ECL_OIL_PHASE)
@@ -240,7 +240,7 @@ static ecl_grav_phase_type * ecl_grav_phase_alloc( ecl_grav_type * ecl_grav ,
         for (iactive=0; iactive < size; iactive++) {
           double fip    = ecl_kw_iget_as_double( fip_kw , iactive );
           int    pvtnum = ecl_kw_iget_int( pvtnum_kw , iactive );
-          grav_phase->fluid_mass[ iactive ] = fip * double_vector_safe_iget( std_density , pvtnum );
+          grav_phase->fluid_mass[ iactive ] = fip * std_density[pvtnum];
         }
       }
     } else {
@@ -307,23 +307,18 @@ static ecl_grav_phase_type * ecl_grav_phase_alloc( ecl_grav_type * ecl_grav ,
 static void ecl_grav_phase_free( ecl_grav_phase_type * grav_phase ) {
   free( grav_phase->work );
   free( grav_phase->fluid_mass );
-  free( grav_phase );
+  delete grav_phase;
 }
 
-static UTIL_SAFE_CAST_FUNCTION( ecl_grav_phase , ECL_GRAV_PHASE_TYPE_ID )
 
-static void ecl_grav_phase_free__( void * __grav_phase) {
-  ecl_grav_phase_type * grav_phase = ecl_grav_phase_safe_cast( __grav_phase );
-  ecl_grav_phase_free( grav_phase );
-}
 
 
 /*****************************************************************/
 
 
 static void ecl_grav_survey_add_phase( ecl_grav_survey_type * survey, ecl_phase_enum phase , ecl_grav_phase_type * grav_phase ) {
-  vector_append_owned_ref( survey->phase_list , grav_phase , ecl_grav_phase_free__ );
-  hash_insert_ref( survey->phase_map , ecl_util_get_phase_name( phase ) , grav_phase );
+  survey->phase_list.push_back(grav_phase);
+  survey->phase_map[std::string(ecl_util_get_phase_name(phase))] = grav_phase;
 }
 
 
@@ -349,13 +344,11 @@ static void ecl_grav_survey_add_phases( ecl_grav_type * ecl_grav , ecl_grav_surv
 static ecl_grav_survey_type * ecl_grav_survey_alloc_empty(const ecl_grav_type * ecl_grav ,
                                                           const char * name ,
                                                           grav_calc_type calc_type) {
-  ecl_grav_survey_type * survey = (ecl_grav_survey_type*)util_malloc( sizeof * survey );
+  ecl_grav_survey_type * survey = new ecl_grav_survey_type();
   UTIL_TYPE_ID_INIT( survey , ECL_GRAV_SURVEY_ID );
   survey->grid_cache   = ecl_grav->grid_cache;
   survey->aquifer_cell = ecl_grav->aquifer_cell;
   survey->name         = util_alloc_string_copy( name );
-  survey->phase_list   = vector_alloc_new();
-  survey->phase_map    = hash_alloc();
 
   if (calc_type & GRAV_CALC_USE_PORV)
     survey->porv       = (double*)util_calloc( ecl_grav->grid_cache->size() , sizeof * survey->porv );
@@ -364,8 +357,6 @@ static ecl_grav_survey_type * ecl_grav_survey_alloc_empty(const ecl_grav_type * 
 
   return survey;
 }
-
-static UTIL_SAFE_CAST_FUNCTION( ecl_grav_survey , ECL_GRAV_SURVEY_ID )
 
 
 /**
@@ -530,15 +521,12 @@ static ecl_grav_survey_type * ecl_grav_survey_alloc_RFIP(ecl_grav_type * ecl_gra
 static void ecl_grav_survey_free( ecl_grav_survey_type * grav_survey ) {
   free( grav_survey->name );
   free( grav_survey->porv );
-  vector_free( grav_survey->phase_list );
-  hash_free( grav_survey->phase_map );
-  free( grav_survey );
+  for (auto * phase : grav_survey->phase_list)
+    ecl_grav_phase_free( phase );
+
+  delete grav_survey;
 }
 
-static void ecl_grav_survey_free__( void * __grav_survey ) {
-  ecl_grav_survey_type * grav_survey = ecl_grav_survey_safe_cast( __grav_survey );
-  ecl_grav_survey_free( grav_survey );
-}
 
 
 
@@ -546,13 +534,12 @@ static double ecl_grav_survey_eval( const ecl_grav_survey_type * base_survey,
                                     const ecl_grav_survey_type * monitor_survey ,
                                     ecl_region_type * region ,
                                     double utm_x , double utm_y , double depth, int phase_mask) {
-  int phase_nr;
   double deltag = 0;
-  for (phase_nr = 0; phase_nr < vector_get_size( base_survey->phase_list ); phase_nr++) {
-    ecl_grav_phase_type * base_phase    = (ecl_grav_phase_type*)vector_iget( base_survey->phase_list , phase_nr );
+  for (std::size_t phase_nr = 0; phase_nr < base_survey->phase_list.size(); phase_nr++) {
+    ecl_grav_phase_type * base_phase    = base_survey->phase_list[phase_nr];
     if (base_phase->phase & phase_mask) {
       if (monitor_survey != NULL) {
-        const ecl_grav_phase_type * monitor_phase = (const ecl_grav_phase_type*)vector_iget_const( monitor_survey->phase_list , phase_nr );
+        const ecl_grav_phase_type * monitor_phase = monitor_survey->phase_list[phase_nr];
         deltag += ecl_grav_phase_eval( base_phase , monitor_phase , region , utm_x , utm_y , depth );
       } else
         deltag += ecl_grav_phase_eval( base_phase , NULL , region , utm_x , utm_y , depth );
@@ -570,20 +557,19 @@ static double ecl_grav_survey_eval( const ecl_grav_survey_type * base_survey,
 */
 
 ecl_grav_type * ecl_grav_alloc( const ecl_grid_type * ecl_grid, const ecl_file_type * init_file) {
-  ecl_grav_type * ecl_grav = (ecl_grav_type*)util_malloc( sizeof * ecl_grav );
+  ecl_grav_type * ecl_grav = new ecl_grav_type();
+
   ecl_grav->init_file      = init_file;
   ecl_grav->grid_cache     = new ecl::ecl_grid_cache(ecl_grid);
   ecl_grav->aquifer_cell   = ecl_grav_common_alloc_aquifer_cell( *(ecl_grav->grid_cache) , ecl_grav->init_file );
 
-  ecl_grav->surveys        = hash_alloc();
-  ecl_grav->std_density    = hash_alloc();
   return ecl_grav;
 }
 
 
 
 static void ecl_grav_add_survey__( ecl_grav_type * grav , const char * name , ecl_grav_survey_type * survey) {
-  hash_insert_hash_owned_ref( grav->surveys , name , survey , ecl_grav_survey_free__ );
+  grav->surveys[name] = survey;
 }
 
 
@@ -618,17 +604,15 @@ static ecl_grav_survey_type * ecl_grav_get_survey( const ecl_grav_type * grav , 
   if (name == NULL)
     return NULL;  // Calling scope must determine if this is OK?
   else {
-    if (hash_has_key( grav->surveys , name))
-      return (ecl_grav_survey_type*)hash_get( grav->surveys , name );
+    if (grav->surveys.count(name) > 0)
+      return grav->surveys.at(name);
     else {
-      hash_iter_type * survey_iter = hash_iter_alloc( grav->surveys );
       fprintf(stderr,"Survey name:%s not registered. Available surveys are: \n\n     " , name);
-      while (!hash_iter_is_complete( survey_iter )) {
-        const char * survey = hash_iter_get_next_key( survey_iter );
-        fprintf(stderr,"%s ",survey);
-      }
+
+      for (const auto& survey_pair : grav->surveys)
+        fprintf(stderr,"%s ",survey_pair.first.c_str());
+
       fprintf(stderr,"\n\n");
-      hash_iter_free( survey_iter );
       exit(1);
     }
   }
@@ -660,8 +644,7 @@ double ecl_grav_eval( const ecl_grav_type * grav , const char * base, const char
 
 void ecl_grav_new_std_density( ecl_grav_type * grav , ecl_phase_enum phase , double default_density) {
   const char * phase_key = ecl_util_get_phase_name( phase );
-  if (!hash_has_key( grav->std_density , phase_key ))
-    hash_insert_hash_owned_ref( grav->std_density , phase_key , double_vector_alloc( 0 , default_density ) , double_vector_free__ );
+  grav->default_density[std::string(phase_key)] = default_density;
 }
 
 /**
@@ -680,8 +663,10 @@ void ecl_grav_new_std_density( ecl_grav_type * grav , ecl_phase_enum phase , dou
 
 
 void ecl_grav_add_std_density( ecl_grav_type * grav , ecl_phase_enum phase , int pvtnum , double density) {
-  double_vector_type * std_density = (double_vector_type*)hash_get( grav->std_density , ecl_util_get_phase_name( phase ));
-  double_vector_iset( std_density , pvtnum , density );
+  std::vector<double>& std_density = grav->std_density[ std::string(ecl_util_get_phase_name(phase)) ];
+  if (std_density.size() <= static_cast<std::size_t>(pvtnum))
+    std_density.resize(pvtnum + 1, grav->default_density[ std::string(ecl_util_get_phase_name(phase)) ]);
+  std_density[pvtnum] = density;
 }
 
 
@@ -689,7 +674,9 @@ void ecl_grav_add_std_density( ecl_grav_type * grav , ecl_phase_enum phase , int
 void ecl_grav_free( ecl_grav_type * ecl_grav ) {
   delete ecl_grav->grid_cache;
   free( ecl_grav->aquifer_cell );
-  hash_free( ecl_grav->surveys );
-  hash_free( ecl_grav->std_density );
-  free( ecl_grav );
+
+  for (const auto& survey_pair : ecl_grav->surveys)
+    ecl_grav_survey_free( survey_pair.second );
+
+  delete ecl_grav;
 }

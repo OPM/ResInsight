@@ -1,4 +1,4 @@
-#  Copyright (C) 2011  Statoil ASA, Norway.
+#  Copyright (C) 2011  Equinor ASA, Norway.
 #
 #  The file '__init__.py' is part of ERT - Ensemble based Reservoir Tool.
 #

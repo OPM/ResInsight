@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2016  Statoil ASA, Norway.
+   Copyright (C) 2016  Equinor ASA, Norway.
 
    This file is part of ERT - Ensemble based Reservoir Tool.
 
@@ -23,28 +23,13 @@
 #include <ert/ecl/ecl_sum.hpp>
 #include <ert/ecl/ecl_smspec.hpp>
 
-void test_sort( ecl_smspec_type * smspec )
-{
-  int num_nodes = ecl_smspec_num_nodes( smspec );
-  ecl_smspec_sort( smspec );
-  test_assert_int_equal( num_nodes, ecl_smspec_num_nodes( smspec ));
-
-  for (int i=1; i < ecl_smspec_num_nodes( smspec ); i++) {
-    const smspec_node_type * node1 = ecl_smspec_iget_node( smspec, i - 1 );
-    const smspec_node_type * node2 = ecl_smspec_iget_node( smspec, i );
-    test_assert_true( smspec_node_cmp( node1 , node2 ) <= 0 );
-
-    test_assert_int_equal( smspec_node_get_params_index( node1 ) , i - 1 );
-  }
-}
-
 
 void test_copy(const ecl_smspec_type * smspec1) {
   ecl_sum_type * ecl_sum2 = ecl_sum_alloc_writer("CASE", false, true, ":", 0, true, 100, 100, 100);
   const ecl_smspec_type * smspec2 = ecl_sum_get_smspec(ecl_sum2);
   for (int i=0; i < ecl_smspec_num_nodes(smspec1); i++) {
-    const smspec_node_type * node = ecl_smspec_iget_node(smspec1, i);
-    ecl_sum_add_smspec_node(ecl_sum2, node);
+    const ecl::smspec_node& node = ecl_smspec_iget_node_w_node_index(smspec1, i);
+    ecl_sum_add_smspec_node(ecl_sum2, &node);
   }
   test_assert_true( ecl_smspec_equal(smspec1, smspec2));
   ecl_sum_free(ecl_sum2);
@@ -63,8 +48,6 @@ int main(int argc, char ** argv) {
   test_assert_false( ecl_smspec_equal( smspec1 , smspec2 ));
   test_assert_false( ecl_smspec_equal( smspec2 , smspec1 ));
 
-  test_sort( smspec1 );
-  test_sort( smspec2 );
   ecl_smspec_free( smspec1 );
   ecl_smspec_free( smspec2 );
 }

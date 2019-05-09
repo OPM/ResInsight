@@ -141,7 +141,7 @@ private:
   void                 build_index();
   void                 fwrite_report( int report_step , fortio_type * fortio) const;
   bool                 check_file( ecl_file_type * ecl_file );
-  void                 add_ecl_file(int report_step, const ecl_file_view_type * summary_view, const ecl_smspec_type * smspec);
+  void                 add_ecl_file(int report_step, const ecl_file_view_type * summary_view);
 };
 
 

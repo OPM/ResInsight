@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'well_state_load_missing_RSEG.c' is part of ERT - Ensemble based Reservoir Tool.
 

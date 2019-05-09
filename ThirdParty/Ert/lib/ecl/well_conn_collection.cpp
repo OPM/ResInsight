@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'well_conn_collection.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -18,9 +18,10 @@
 
 #include <stdbool.h>
 
+#include <vector>
+
 #include <ert/util/util.h>
 #include <ert/util/type_macros.hpp>
-#include <ert/util/vector.hpp>
 
 #include <ert/ecl/ecl_kw.hpp>
 #include <ert/ecl/ecl_rsthead.hpp>
@@ -34,7 +35,8 @@
 
 struct well_conn_collection_struct {
   UTIL_TYPE_ID_DECLARATION;
-  vector_type * connection_list;
+  std::vector<well_conn_type*> connection_list;
+  std::vector<bool>            connection_list_owned;
 };
 
 
@@ -43,9 +45,8 @@ static UTIL_SAFE_CAST_FUNCTION( well_conn_collection , WELL_CONN_COLLECTION_TYPE
 
 
 well_conn_collection_type * well_conn_collection_alloc() {
-  well_conn_collection_type * wellcc = (well_conn_collection_type*)util_malloc( sizeof * wellcc );
+  well_conn_collection_type * wellcc = new well_conn_collection_type();
   UTIL_TYPE_ID_INIT( wellcc , WELL_CONN_COLLECTION_TYPE_ID );
-  wellcc->connection_list = vector_alloc_new();
   return wellcc;
 }
 
@@ -55,7 +56,8 @@ well_conn_collection_type * well_conn_collection_alloc() {
 */
 
 void well_conn_collection_add( well_conn_collection_type * wellcc , well_conn_type * conn) {
-  vector_append_owned_ref( wellcc->connection_list , conn , well_conn_free__);
+  wellcc->connection_list.push_back(conn);
+  wellcc->connection_list_owned.push_back(true);
 }
 
 /*
@@ -63,13 +65,16 @@ void well_conn_collection_add( well_conn_collection_type * wellcc , well_conn_ty
 */
 
 void well_conn_collection_add_ref( well_conn_collection_type * wellcc , well_conn_type * conn) {
-  vector_append_ref( wellcc->connection_list , conn );
+  wellcc->connection_list.push_back(conn);
+  wellcc->connection_list_owned.push_back(false); 
 }
 
 
 void well_conn_collection_free( well_conn_collection_type * wellcc ) {
-  vector_free( wellcc->connection_list );
-  free( wellcc );
+  for (size_t i = 0; i < wellcc->connection_list.size(); i++)
+    if (wellcc->connection_list_owned[i])
+      well_conn_free(wellcc->connection_list[i]);
+  delete wellcc;
 }
 
 void well_conn_collection_free__( void * arg ) {
@@ -79,14 +84,14 @@ void well_conn_collection_free__( void * arg ) {
 
 
 int well_conn_collection_get_size( const well_conn_collection_type * wellcc ) {
-  return vector_get_size( wellcc->connection_list );
+  return wellcc->connection_list.size();
 }
 
 
 const well_conn_type * well_conn_collection_iget_const(const well_conn_collection_type * wellcc , int index) {
   int size = well_conn_collection_get_size( wellcc );
   if (index < size)
-    return (const well_conn_type*)vector_iget_const( wellcc->connection_list , index );
+    return wellcc->connection_list[index];
   else
     return NULL;
 }
@@ -95,7 +100,7 @@ const well_conn_type * well_conn_collection_iget_const(const well_conn_collectio
 well_conn_type * well_conn_collection_iget(const well_conn_collection_type * wellcc , int index) {
   int size = well_conn_collection_get_size( wellcc );
   if (index < size)
-    return (well_conn_type*)vector_iget( wellcc->connection_list , index );
+    return wellcc->connection_list[index];
   else
     return NULL;
 }

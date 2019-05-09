@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway.
+   Copyright (C) 2014  Equinor ASA, Norway.
 
    The file 'ecl_grid_export.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -154,7 +154,7 @@ void export_mapaxes( const ecl_grid_type * grid , ecl_file_type * ecl_file ) {
 
 
 int main(int argc , char ** argv) {
-  test_work_area_type * work_area = test_work_area_alloc("grid_export");
+  ecl::util::TestArea ta("grid_export");
   {
     const char * test_grid = "TEST.EGRID";
     const char * grid_file;
@@ -181,5 +181,4 @@ int main(int argc , char ** argv) {
       ecl_grid_free( ecl_grid );
     }
   }
-  test_work_area_free( work_area );
 }

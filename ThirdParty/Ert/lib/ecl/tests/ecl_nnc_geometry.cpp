@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2017  Statoil ASA, Norway.
+   Copyright (C) 2017  Equinor ASA, Norway.
 
    The file 'ecl_nnc_geometry.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -36,7 +36,7 @@ void test_create_empty() {
 }
 
 void test_create_simple() {
-  test_work_area_type * work_area = test_work_area_alloc("nnc-INIT");
+  ecl::util::TestArea ta("nnc_geometry");
   {
     int nx = 10;
     int ny = 10;
@@ -64,10 +64,10 @@ void test_create_simple() {
         fortio_fclose( f );
         ecl_kw_free( trann_nnc );
       }
+      ecl_nnc_geometry_free(nnc_geo);
     }
     ecl_grid_free( grid0 );
   }
-  test_work_area_free( work_area );
 }
 
 

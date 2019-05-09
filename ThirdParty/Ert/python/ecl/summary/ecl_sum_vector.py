@@ -1,4 +1,4 @@
-#  Copyright (C) 2017  Statoil ASA, Norway.
+#  Copyright (C) 2017  Equinor ASA, Norway.
 #
 #  This file is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -46,7 +46,7 @@ class EclSumVector(object):
 
         self.__dates = parent.get_dates(report_only)
         self.__days = parent.get_days(report_only)
-        self.__mpl_dates = parent.get_mpl_dates(report_only)
+        self.__numpy_dates = parent.numpy_dates
         self.__report_step = parent.get_report_step(report_only)
         self.__values = None
 
@@ -99,8 +99,21 @@ class EclSumVector(object):
     def mpl_dates(self):
         """
         All the dates as numpy vector of dates in matplotlib format.
+        This property will be replaced by numpy_dates, but is kept for
+        backwards-compatibility for the time-being. Usage will trigger
+        a depreciation warning.
         """
-        return self.__mpl_dates
+        warnings.warn("The mpl_dates property has been deprecated - use numpy_dates instead",
+                     DeprecationWarning)
+
+        return self.parent.get_mpl_dates(self.report_only)
+
+    @property
+    def numpy_dates(self):
+        """
+        All the dates as numpy vector of dates in numpy format.
+        """
+        return self.__numpy_dates
 
     @property
     def report_step(self):
@@ -119,7 +132,7 @@ class EclSumVector(object):
         return EclSumNode(self.__report_step[index],
                           self.__days[index],
                           self.__dates[index],
-                          self.__mpl_dates[index],
+                          self.mpl_dates[index],
                           self.__values[index])
 
 

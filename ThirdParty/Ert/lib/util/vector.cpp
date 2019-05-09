@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'vector.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -589,6 +589,7 @@ int_vector_type * vector_alloc_sort_perm(const vector_type * vector , vector_cmp
   vector_sort_node_type * sort_data = vector_alloc_sort_data( vector , cmp );
   int_vector_type * sort_perm = int_vector_alloc(0,0);
   int i;
+  int_vector_resize( sort_perm, vector->size, 0 );
   for (i = 0; i < vector->size; i++)
     int_vector_iset( sort_perm , i , sort_data[i].index);
 

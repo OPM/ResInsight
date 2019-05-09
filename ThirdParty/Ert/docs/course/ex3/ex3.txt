@@ -1,2 +1,0 @@
-Iterate through all the forward models which have been installed and
-get the configuration file and executable.

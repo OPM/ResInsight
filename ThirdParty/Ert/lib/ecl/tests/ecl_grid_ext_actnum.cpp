@@ -12,7 +12,7 @@
 
 void test_1() {
 
-  test_work_area_type * work_area = test_work_area_alloc("ext_actnum_main_grid");
+  ecl::util::TestArea ta("test1");
   {
     const char * filename = "FILE.EGRID";
 
@@ -41,21 +41,18 @@ void test_1() {
 
     std::vector<int> ext_actnum = {0, 1, 0, 1, 1, 1};
     ecl_grid_type * grid = ecl_grid_alloc_ext_actnum(filename1, ext_actnum.data());
-    test_assert_int_equal( 2, ecl_grid_get_nactive(grid) );
-    test_assert_int_equal( 1, ecl_grid_get_nactive_fracture(grid) );
+    test_assert_int_equal( 4, ecl_grid_get_nactive(grid) );
+    test_assert_int_equal( 0, ecl_grid_get_nactive_fracture(grid) );
     test_assert_true( !ecl_grid_cell_active1(grid, 0) );
 
     test_assert_true( !ecl_grid_cell_active1(grid, 2) );
-    test_assert_true( !ecl_grid_cell_active1(grid, 3) );
+    test_assert_true(  ecl_grid_cell_active1(grid, 3) );
     test_assert_true(  ecl_grid_cell_active1(grid, 4) );
     test_assert_true(  ecl_grid_cell_active1(grid, 5) );
 
     ecl_grid_free( grid );
 
   }
-  test_work_area_free( work_area );
-  
-
 }
 
 

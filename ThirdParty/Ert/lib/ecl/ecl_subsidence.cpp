@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'ecl_subsidence.c' is part of ERT - Ensemble based
    Reservoir Tool.
@@ -75,6 +75,7 @@ struct ecl_subsidence_survey_struct {
   char                      * name;           /* Name of the survey - arbitrary string. */
   double                    * porv;           /* Reference pore volume */
   double                    * pressure;              /* Pressure in each grid cell at survey time */
+  double                    * dynamic_porevolume; /* Porevolume in each grid cell at survey time */
 };
 
 
@@ -92,6 +93,7 @@ static ecl_subsidence_survey_type * ecl_subsidence_survey_alloc_empty(const ecl_
 
   survey->porv     = (double*) util_calloc( sub->grid_cache->size()  , sizeof * survey->porv     );
   survey->pressure = (double*) util_calloc( sub->grid_cache->size()  , sizeof * survey->pressure );
+  survey->dynamic_porevolume = NULL;
 
   return survey;
 }
@@ -111,9 +113,18 @@ static ecl_subsidence_survey_type * ecl_subsidence_survey_alloc_PRESSURE(ecl_sub
   ecl_kw_type * init_porv_kw = ecl_file_iget_named_kw( ecl_subsidence->init_file , PORV_KW , 0); /*Global indexing*/
   ecl_kw_type * pressure_kw = ecl_file_view_iget_named_kw( restart_view , PRESSURE_KW , 0); /*Active indexing*/
 
+  ecl_kw_type * rporv_kw = NULL;
+  if(ecl_file_view_has_kw(restart_view, RPORV_KW)) {
+      survey->dynamic_porevolume = (double*) util_calloc( ecl_subsidence->grid_cache->size() , sizeof * survey->dynamic_porevolume);
+      rporv_kw = ecl_file_view_iget_named_kw(restart_view, RPORV_KW, 0);
+  }
+
   for (active_index = 0; active_index < size; active_index++){
     survey->porv[ active_index ] = ecl_kw_iget_float( init_porv_kw , global_index[active_index] );
     survey->pressure[ active_index ] = ecl_kw_iget_float( pressure_kw , active_index );
+
+    if(rporv_kw)
+      survey->dynamic_porevolume[ active_index ] = ecl_kw_iget_float(rporv_kw, active_index);
   }
   return survey;
 }
@@ -126,6 +137,7 @@ static void ecl_subsidence_survey_free( ecl_subsidence_survey_type * subsidence_
   free( subsidence_survey->name );
   free( subsidence_survey->porv );
   free( subsidence_survey->pressure );
+  free( subsidence_survey->dynamic_porevolume );
   free( subsidence_survey );
 }
 
@@ -193,6 +205,47 @@ static double ecl_subsidence_survey_eval_geertsma( const ecl_subsidence_survey_t
 }
 
 
+static double ecl_subsidence_survey_eval_geertsma_rporv( const ecl_subsidence_survey_type * base_survey ,
+                                                   const ecl_subsidence_survey_type * monitor_survey,
+                                                   ecl_region_type * region ,
+                                                   double utm_x , double utm_y , double depth,
+                                                   double youngs_modulus, double poisson_ratio, double seabed) {
+
+  const ecl::ecl_grid_cache& grid_cache = *(base_survey->grid_cache);
+  std::vector<double> weight(grid_cache.size());
+
+  if(!base_survey->dynamic_porevolume) {
+    util_abort(
+        "%s: Keyword RPORV not defined in .UNRST file for %s. Please add RPORV keyword to output in RPTRST clause in .DATA file.\n",
+        __func__, base_survey->name);
+  }
+
+  if(monitor_survey && !monitor_survey->dynamic_porevolume) {
+    util_abort(
+        "%s: Keyword RPORV not defined in .UNRST file for %s. Please add RPORV keyword to output in RPTRST clause in .DATA file.\n",
+        __func__, monitor_survey->name);
+  }
+
+  for (size_t index = 0; index < weight.size(); ++index) {
+    if (monitor_survey)
+        weight[index] = (base_survey->dynamic_porevolume[index] - monitor_survey->dynamic_porevolume[index]) / (4*M_PI);
+    else
+        weight[index] = base_survey->dynamic_porevolume[index] / (4*M_PI);
+  }
+
+  return ecl_grav_common_eval_geertsma(
+          grid_cache,
+          region,
+          base_survey->aquifer_cell,
+          weight.data(),
+          utm_x,
+          utm_y,
+          depth,
+          poisson_ratio,
+          seabed
+          );
+}
+
 
 /*****************************************************************/
 /**
@@ -252,6 +305,14 @@ double ecl_subsidence_eval_geertsma( const ecl_subsidence_type * subsidence , co
   ecl_subsidence_survey_type * base_survey    = ecl_subsidence_get_survey( subsidence , base );
   ecl_subsidence_survey_type * monitor_survey = ecl_subsidence_get_survey( subsidence , monitor );
   return ecl_subsidence_survey_eval_geertsma( base_survey , monitor_survey , region , utm_x , utm_y , depth , youngs_modulus, poisson_ratio, seabed);
+}
+
+double ecl_subsidence_eval_geertsma_rporv( const ecl_subsidence_type * subsidence , const char * base, const char * monitor , ecl_region_type * region ,
+                                     double utm_x, double utm_y , double depth,
+                                     double youngs_modulus, double poisson_ratio, double seabed) {
+  ecl_subsidence_survey_type * base_survey    = ecl_subsidence_get_survey( subsidence , base );
+  ecl_subsidence_survey_type * monitor_survey = ecl_subsidence_get_survey( subsidence , monitor );
+  return ecl_subsidence_survey_eval_geertsma_rporv( base_survey , monitor_survey , region , utm_x , utm_y , depth , youngs_modulus, poisson_ratio, seabed);
 }
 
 void ecl_subsidence_free( ecl_subsidence_type * ecl_subsidence ) {

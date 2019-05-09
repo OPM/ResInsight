@@ -53,7 +53,7 @@ int unsmry_loader::length() const {
 
 std::vector<double> unsmry_loader::get_vector(int pos) const {
   if (pos >= size)
-     throw std::invalid_argument("unsmry_loader::get_vector: argument 'pos' mst be less than size of PARAMS.");
+    throw std::out_of_range("unsmry_loader::get_vector pos: " + std::to_string(pos) + " PARAMS_SIZE: " + std::to_string(size));
 
   std::vector<double> data(this->length());
   int_vector_type * index_map = int_vector_alloc( 1 , pos);

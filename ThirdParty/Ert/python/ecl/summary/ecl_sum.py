@@ -1,4 +1,4 @@
-#  Copyright (C) 2011  Statoil ASA, Norway.
+#  Copyright (C) 2011  Equinor ASA, Norway.
 #
 #  The file 'ecl_sum.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -26,6 +26,8 @@ import numpy
 import datetime
 import os.path
 import ctypes
+import pandas
+import re
 
 # Observe that there is some convention conflict with the C code
 # regarding order of arguments: The C code generally takes the time
@@ -90,7 +92,7 @@ class EclSum(BaseCClass):
     _fread_alloc                   = EclPrototype("void*     ecl_sum_fread_alloc(char*, stringlist, char*, bool)", bind=False)
     _create_restart_writer         = EclPrototype("ecl_sum_obj  ecl_sum_alloc_restart_writer2(char*, char*, int, bool, bool, char*, time_t, bool, int, int, int)", bind = False)
     _create_writer                 = EclPrototype("ecl_sum_obj  ecl_sum_alloc_writer(char*, bool, bool, char*, time_t, bool, int, int, int)", bind = False)
-    _resample                      = EclPrototype("ecl_sum_obj  ecl_sum_alloc_resample( ecl_sum, char*, time_t_vector)")
+    _resample                      = EclPrototype("ecl_sum_obj  ecl_sum_alloc_resample( ecl_sum, char*, time_t_vector, bool, bool)")
     _iiget                         = EclPrototype("double   ecl_sum_iget(ecl_sum, int, int)")
     _free                          = EclPrototype("void     ecl_sum_free(ecl_sum)")
     _data_length                   = EclPrototype("int      ecl_sum_get_data_length(ecl_sum)")
@@ -303,9 +305,8 @@ class EclSum(BaseCClass):
             raise TypeError('Parameter sim_days should be float, was %r' % sim_days)
 
         sim_seconds = sim_days * 24 * 60 * 60
-
-        return self._add_tstep(report_step, sim_seconds).setParent(parent=self)
-
+        tstep = self._add_tstep(report_step, sim_seconds).setParent(parent=self)
+        return tstep
 
 
 
@@ -500,7 +501,6 @@ class EclSum(BaseCClass):
               ....
         """
         from ecl.summary import EclSumKeyWordVector
-        import pandas
         if column_keys is None:
             keywords = EclSumKeyWordVector(self, add_keywords = True)
         else:
@@ -523,6 +523,61 @@ class EclSum(BaseCClass):
 
         frame = pandas.DataFrame(index = time_index, columns=list(keywords), data=data)
         return frame
+
+    @staticmethod
+    def _compile_headers_list(headers, dims):
+        var_list = []
+        for key in headers:
+            lst = re.split(':', key)
+            kw = lst[0]
+            wgname = None
+            num = 0;
+            unit = "UNIT"
+            if len(lst) > 1:
+                nums = []
+                if lst[1][0].isdigit():       
+                    nums = re.split(',', lst[1])
+                else:
+                    wgname = lst[1]
+                if len(lst) == 3:
+                    nums = re.split(",", lst[2])
+                if len(nums) == 3:
+                    i = int(nums[0])-1
+                    j = int(nums[1])-1
+                    k = int(nums[2])-1
+                    if dims is None:
+                        raise ValueError("For key %s When using indexing i,j,k you must supply a valid value for the dims argument" % key)
+                    num = i + j * dims[0] + k * dims[0]*dims[1] + 1
+                elif len(nums) == 1:
+                    num = int(nums[0])
+                      
+            var_list.append( [kw, wgname, num, unit] )     
+        return var_list   
+
+    @classmethod
+    def from_pandas(cls, case, frame, dims = None, headers = None):
+        start_time = frame.index[0]    
+        var_list = []        
+        if headers is None:
+             header_list = EclSum._compile_headers_list( frame.columns.values, dims )
+        else:
+             header_list = EclSum._compile_headers_list( headers, dims )
+        if dims is None:
+             dims = [1,1,1];
+        ecl_sum = EclSum.writer(case,
+                                start_time.to_pydatetime(),
+                                dims[0], dims[1], dims[2])  
+        for kw, wgname, num, unit in header_list:
+             var_list.append( ecl_sum.addVariable( kw , wgname = wgname , num = num, unit =unit).getKey1() )
+
+        for i, time in enumerate(frame.index):
+            days = (time - start_time).days
+            t_step = ecl_sum.addTStep( i+1 , days )
+
+            for var in var_list:
+                t_step[var] = frame.iloc[i][var]
+
+        return ecl_sum
 
 
     def get_key_index(self, key):
@@ -1481,8 +1536,12 @@ are advised to fetch vector as a numpy vector and then scale that yourself:
 
 
 
-    def resample(self, new_case_name, time_points):
-        return self._resample(new_case_name, time_points)
+    def resample(self, new_case_name, time_points, lower_extrapolation=False, upper_extrapolation=False):
+        new_case = self._resample(new_case_name, time_points, lower_extrapolation, upper_extrapolation)
+        if new_case is None:
+            raise ValueError("Failed to create new resampled case:{}".format(new_case_name))
+
+        return new_case
 
 
 import ecl.summary.ecl_sum_keyword_vector

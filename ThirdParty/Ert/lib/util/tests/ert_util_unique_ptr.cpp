@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2016 Statoil ASA, Norway.
+   Copyright (C) 2016 Equinor ASA, Norway.
 
    This is part of ERT - Ensemble based Reservoir Tool.
 

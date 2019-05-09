@@ -1,4 +1,4 @@
-#  Copyright (C) 2014  Statoil ASA, Norway.
+#  Copyright (C) 2014  Equinor ASA, Norway.
 #
 #  The file 'vector_template.py' is part of ERT - Ensemble based Reservoir Tool.
 #

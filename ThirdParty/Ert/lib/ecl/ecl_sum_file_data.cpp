@@ -471,7 +471,8 @@ void ecl_sum_file_data::fwrite_report( int report_step , fortio_type * fortio) c
     auto range = this->report_range( report_step );
     for (int index = range.first; index <= range.second; index++) {
       const ecl_sum_tstep_type * tstep = iget_ministep( index );
-      ecl_sum_tstep_fwrite( tstep , ecl_smspec_get_index_map( ecl_smspec ) , fortio );
+      //ecl_sum_tstep_fwrite( tstep , ecl_smspec_get_index_map( ecl_smspec ) , fortio );
+      ecl_sum_tstep_fwrite( tstep , ecl_smspec_get_index_map(ecl_smspec) , ecl_smspec_num_nodes(ecl_smspec), fortio );
     }
   }
 }
@@ -553,7 +554,7 @@ bool ecl_sum_file_data::check_file( ecl_file_type * ecl_file ) {
    calling routine will read the unified summary file partly.
 */
 
-void ecl_sum_file_data::add_ecl_file(int report_step, const ecl_file_view_type * summary_view, const ecl_smspec_type * smspec) {
+void ecl_sum_file_data::add_ecl_file(int report_step, const ecl_file_view_type * summary_view) {
 
   int num_ministep  = ecl_file_view_get_num_named_kw( summary_view , PARAMS_KW);
   if (num_ministep > 0) {
@@ -569,7 +570,7 @@ void ecl_sum_file_data::add_ecl_file(int report_step, const ecl_file_view_type *
                                                                     ministep_nr ,
                                                                     params_kw ,
                                                                     ecl_file_view_get_src_file( summary_view ),
-                                                                    smspec );
+                                                                    this->ecl_smspec );
 
         if (tstep)
             append_tstep( tstep );
@@ -600,7 +601,7 @@ bool ecl_sum_file_data::fread(const stringlist_type * filelist, bool lazy_load, 
       {
         ecl_file_type * ecl_file = ecl_file_open( data_file , 0);
         if (ecl_file && check_file( ecl_file )) {
-          add_ecl_file( report_step , ecl_file_get_global_view( ecl_file ) , ecl_smspec);
+          this->add_ecl_file( report_step , ecl_file_get_global_view( ecl_file ));
           ecl_file_close( ecl_file );
         }
       }
@@ -632,7 +633,7 @@ bool ecl_sum_file_data::fread(const stringlist_type * filelist, bool lazy_load, 
         */
           ecl_file_view_type * summary_view = ecl_file_get_summary_view(ecl_file , block_index);
           if (summary_view) {
-            add_ecl_file(block_index + first_report_step , summary_view , ecl_smspec);
+            this->add_ecl_file(block_index + first_report_step , summary_view);
             block_index++;
           } else break;
         }

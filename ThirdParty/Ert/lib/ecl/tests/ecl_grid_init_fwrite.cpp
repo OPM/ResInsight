@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2016  Statoil ASA, Norway.
+   Copyright (C) 2016  Equinor ASA, Norway.
 
    This file is part of ERT - Ensemble based Reservoir Tool.
 
@@ -31,7 +31,7 @@
 
 
 void test_write_depth(const ecl_grid_type * grid) {
-  test_work_area_type * test_area = test_work_area_alloc("write_depth");
+  ecl::util::TestArea ta("write_depth");
   {
     fortio_type * init_file = fortio_open_writer( "INIT" , false , ECL_ENDIAN_FLIP );
     ecl_grid_fwrite_depth( grid , init_file , ECL_METRIC_UNITS);
@@ -47,12 +47,11 @@ void test_write_depth(const ecl_grid_type * grid) {
 
     ecl_file_close(init_file);
   }
-  test_work_area_free( test_area );
 }
 
 
 void test_write_dims(const ecl_grid_type * grid) {
-  test_work_area_type * test_area = test_work_area_alloc("write_dims");
+  ecl::util::TestArea ta("write_dims");
   {
     fortio_type * init_file = fortio_open_writer( "INIT" , false , ECL_ENDIAN_FLIP );
     ecl_grid_fwrite_dims( grid , init_file , ECL_METRIC_UNITS );
@@ -74,7 +73,6 @@ void test_write_dims(const ecl_grid_type * grid) {
     }
     ecl_file_close(init_file);
   }
-  test_work_area_free( test_area );
 }
 
 

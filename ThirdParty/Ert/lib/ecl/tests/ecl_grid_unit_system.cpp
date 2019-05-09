@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2018  Statoil ASA, Norway.
+  Copyright (C) 2018  Equinor ASA, Norway.
 
   The file 'ecl_grid_unit_system.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -52,12 +52,10 @@ void test_GRID(const char * filename, ert_ecl_unit_enum unit_system) {
 
 
 int main(int argc, char **argv) {
-  test_work_area_type * work_area = test_work_area_alloc("grid_export");
+  ecl::util::TestArea ta("grid_unit_system");
 
   test_EGRID("METRIC.EGRID", ECL_METRIC_UNITS);
   test_EGRID("FIELD.EGRID", ECL_FIELD_UNITS);
   test_GRID("METRIC.GRID", ECL_METRIC_UNITS);
   test_GRID("FIELD.GRID", ECL_FIELD_UNITS);
-
-  test_work_area_free(work_area);
 }

@@ -1,4 +1,4 @@
-# libecl [![Build Status](https://travis-ci.org/Statoil/libecl.svg?branch=master)](https://travis-ci.org/Statoil/libecl)
+# libecl [![Build Status](https://travis-ci.org/Equinor/libecl.svg?branch=master)](https://travis-ci.org/Equinor/libecl)
 
 
 *libecl* is a package for reading and writing the result files from
@@ -11,7 +11,7 @@ is a portability layer which ensures that most of the functionality is
 available on *Windows*. The main functionality is written in C/C++, and
 should typically be linked in in other compiled programs. *libecl* was
 initially developed as part of the [Ensemble Reservoir
-Tool](http://github.com/Statoil/ert), other applications using
+Tool](http://github.com/Equinor/ert), other applications using
 *libecl* are the reservoir simulator flow and Resinsight from the [OPM
 project](http://github.com/OPM/).
 
@@ -30,7 +30,7 @@ configured with `-DCMAKE_INSTALL_PREFIX=/path/to/install`.
 *libecl* uses CMake as build system:
 
 ```bash
-git clone https://github.com/Statoil/libecl
+git clone https://github.com/Equinor/libecl
 cd libecl
 mkdir build
 cd build
@@ -50,7 +50,7 @@ rudimentary "build system" which does a basic Python syntax check and configures
 files to correctly set up the interaction between the Python classes and the
 shared libraries built from the C code:
 ```bash
-git clone https://github.com/Statoil/libecl
+git clone https://github.com/Equinor/libecl
 cd libecl
 sudo pip install -r requirements.txt
 mkdir build
@@ -78,5 +78,6 @@ fopt = summary.numpy_vector("FOPT")
 
 ```
 
+The installation with Python enabled is described in a [YouTube video](https://www.youtube.com/watch?v=Qqy1vA1PSk8) by Carl Fredrik Berg.
 
 [1]: The exact paths here will depend on your system and Python version. The example given is for a RedHat system with Python version 2.7.

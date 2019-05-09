@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2016  Statoil ASA, Norway.
+   Copyright (C) 2016  Equinor ASA, Norway.
 
    The file 'ecl_sum_writer.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -32,10 +32,13 @@
 double write_summary( const char * name , time_t start_time , int nx , int ny , int nz , int num_dates, int num_ministep, double ministep_length) {
   ecl_sum_type * ecl_sum = ecl_sum_alloc_writer( name , false , true , ":" , start_time , true , nx , ny , nz );
   double sim_seconds = 0;
+  ecl_smspec_type * smspec = ecl_sum_get_smspec( ecl_sum );
 
-  smspec_node_type * node1 = ecl_sum_add_var( ecl_sum , "FOPT" , NULL   , 0   , "Barrels" , 99.0 );
-  smspec_node_type * node2 = ecl_sum_add_var( ecl_sum , "BPR"  , NULL   , 567 , "BARS"    , 0.0  );
-  smspec_node_type * node3 = ecl_sum_add_var( ecl_sum , "WWCT" , "OP-1" , 0   , "(1)"     , 0.0  );
+  test_assert_int_equal( ecl_smspec_get_params_size( smspec ), 1);
+  const ecl::smspec_node * node1 = ecl_smspec_add_node( smspec , "FOPT" , "Barrels", 99.0);
+  const ecl::smspec_node * node2 = ecl_smspec_add_node( smspec , "BPR"  , 567 , "BARS", 0.0  );
+  const ecl::smspec_node * node3 = ecl_smspec_add_node( smspec , "WWCT" , "OP-1" , "(1)"     , 0.0  );
+  test_assert_int_equal( ecl_smspec_get_params_size( smspec ), 4);
 
   for (int report_step = 0; report_step < num_dates; report_step++) {
     for (int step = 0; step < num_ministep; step++) {
@@ -43,13 +46,13 @@ double write_summary( const char * name , time_t start_time , int nx , int ny , 
 
       {
         ecl_sum_tstep_type * tstep = ecl_sum_add_tstep( ecl_sum , report_step + 1 , sim_seconds );
-        ecl_sum_tstep_set_from_node( tstep , node1 , sim_seconds );
-        ecl_sum_tstep_set_from_node( tstep , node2 , 10*sim_seconds );
-        ecl_sum_tstep_set_from_node( tstep , node3 , 100*sim_seconds );
+        ecl_sum_tstep_set_from_node( tstep , *node1 , sim_seconds );
+        ecl_sum_tstep_set_from_node( tstep , *node2 , 10*sim_seconds );
+        ecl_sum_tstep_set_from_node( tstep , *node3 , 100*sim_seconds );
 
-        test_assert_double_equal( ecl_sum_tstep_get_from_node( tstep , node1 ), sim_seconds );
-        test_assert_double_equal( ecl_sum_tstep_get_from_node( tstep , node2 ), sim_seconds*10 );
-        test_assert_double_equal( ecl_sum_tstep_get_from_node( tstep , node3 ), sim_seconds*100 );
+        test_assert_double_equal( ecl_sum_tstep_get_from_node( tstep , *node1 ), sim_seconds );
+        test_assert_double_equal( ecl_sum_tstep_get_from_node( tstep , *node2 ), sim_seconds*10 );
+        test_assert_double_equal( ecl_sum_tstep_get_from_node( tstep , *node3 ), sim_seconds*100 );
       }
       sim_seconds += ministep_length;
     }
@@ -61,20 +64,20 @@ double write_summary( const char * name , time_t start_time , int nx , int ny , 
 
 int write_restart_summary(const char * name, const char * restart_name , int start_report_step, double sim_seconds, time_t start_time , int nx , int ny , int nz , int num_dates, int num_ministep, double ministep_length) {
   ecl_sum_type * ecl_sum = ecl_sum_alloc_restart_writer( name , restart_name, false , true , ":" , start_time , true , nx , ny , nz );
+  ecl_smspec_type * smspec = ecl_sum_get_smspec( ecl_sum );
 
-
-  smspec_node_type * node1 = ecl_sum_add_var( ecl_sum , "FOPT" , NULL   , 0   , "Barrels" , 99.0 );
-  smspec_node_type * node2 = ecl_sum_add_var( ecl_sum , "BPR"  , NULL   , 567 , "BARS"    , 0.0  );
-  smspec_node_type * node3 = ecl_sum_add_var( ecl_sum , "WWCT" , "OP-1" , 0   , "(1)"     , 0.0  );
+  const ecl::smspec_node * node1 = ecl_smspec_add_node( smspec , "FOPT", "Barrels" , 99.0 );
+  const ecl::smspec_node * node2 = ecl_smspec_add_node( smspec , "BPR"  , 567 , "BARS" , 0.0  );
+  const ecl::smspec_node * node3 = ecl_smspec_add_node( smspec , "WWCT" , "OP-1" , "(1)", 0.0  );
 
   int num_report_steps = start_report_step + num_dates;
   for (int report_step = start_report_step; report_step < num_report_steps; report_step++) {
     for (int step = 0; step < num_ministep; step++) {
       {
         ecl_sum_tstep_type * tstep = ecl_sum_add_tstep( ecl_sum , report_step + 1 , sim_seconds );
-        ecl_sum_tstep_set_from_node( tstep , node1 , sim_seconds);
-        ecl_sum_tstep_set_from_node( tstep , node2 , 10*sim_seconds );
-        ecl_sum_tstep_set_from_node( tstep , node3 , 100*sim_seconds );
+        ecl_sum_tstep_set_from_node( tstep , *node1 , sim_seconds);
+        ecl_sum_tstep_set_from_node( tstep , *node2 , 10*sim_seconds );
+        ecl_sum_tstep_set_from_node( tstep , *node3 , 100*sim_seconds );
 
       }
       sim_seconds += ministep_length;
@@ -97,17 +100,24 @@ void test_write_read( ) {
   int num_ministep = 10;
   double ministep_length = 86400; // Seconds - numerical value chosen to avoid rounding problems when converting between seconds and days.
   {
-    test_work_area_type * work_area = test_work_area_alloc("sum/write");
     ecl_sum_type * ecl_sum;
 
-    write_summary( name , start_time , nx , ny , nz , num_dates , num_ministep , ministep_length);
+    auto seconds = write_summary( name , start_time , nx , ny , nz , num_dates , num_ministep , ministep_length);
     ecl_sum = ecl_sum_fread_alloc_case( name , ":" );
     test_assert_true( ecl_sum_is_instance( ecl_sum ));
+
+    printf("days: %g \n", seconds / 86400.0 );
 
     /* Time direction */
     test_assert_time_t_equal( start_time , ecl_sum_get_start_time(ecl_sum));
     test_assert_time_t_equal( start_time , ecl_sum_get_data_start(ecl_sum));
     util_inplace_forward_seconds_utc(&end_time, (num_dates * num_ministep - 1) * ministep_length );
+    {
+      time_t et = ecl_sum_get_end_time(ecl_sum);
+      printf("days: %g \n", 1.0 * (et - start_time) / 86400);
+      printf("days: %g \n", 1.0 * (end_time - start_time) / 86400);
+      printf("%ld  %ld   diff:%ld   fraction:%g \n", end_time, et, end_time - et , 1.0 * et / end_time);
+    }
     test_assert_time_t_equal( end_time , ecl_sum_get_end_time(ecl_sum));
 
     /* Keys */
@@ -126,14 +136,13 @@ void test_write_read( ) {
     }
 
     ecl_sum_free( ecl_sum );
-    test_work_area_free( work_area );
+    //test_work_area_free( work_area );
   }
 }
 
 
 void test_ecl_sum_alloc_restart_writer() {
-
-   test_work_area_type * work_area = test_work_area_alloc("sum_write_restart");
+   ecl::util::TestArea ta("sum_write_restart");
    {
       const char * name1 = "CASE1";
       const char * name2 = "CASE2";
@@ -170,7 +179,6 @@ void test_ecl_sum_alloc_restart_writer() {
       ecl_file_close(restart_file);
 
    }
-   test_work_area_free( work_area );
 }
 
 
@@ -182,7 +190,7 @@ void test_long_restart_names() {
       strcat(restart_case, s);
    }
    const char * name = "THE_CASE";
-   test_work_area_type * work_area = test_work_area_alloc("sum_write_restart_long_name");
+   ecl::util::TestArea ta("suM_write_restart_long_name");
    {
        int restart_step = 77;
        time_t start_time = util_make_date_utc( 1,1,2010 );
@@ -210,12 +218,10 @@ void test_long_restart_names() {
          ecl_smspec_free( smspec);
        }
    }
-
-   test_work_area_free( work_area );
-
 }
 
 int main( int argc , char ** argv) {
+  util_install_signals();
   test_write_read();
   test_ecl_sum_alloc_restart_writer();
   test_long_restart_names();

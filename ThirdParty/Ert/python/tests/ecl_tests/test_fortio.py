@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2011  Statoil ASA, Norway.
+#  Copyright (C) 2011  Equinor ASA, Norway.
 #
 #  This file is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -77,8 +77,7 @@ class FortIOTest(EclTest):
                 kw1.fwrite(f)
                 pos1 = f.getPosition( )
                 kw2.fwrite(f)
-            
-            t.sync( ) 
+
             # Truncate file in read mode; should fail hard.
             with openFortIO("file") as f:
                 with self.assertRaises(IOError):
@@ -120,8 +119,6 @@ class FortIOTest(EclTest):
             with openFortIO("file" , mode = FortIO.WRITE_MODE) as f:
                 kw1.fwrite( f )
                 self.assertEqual( f.filename() , "file")
-
-            t.sync( ) 
 
             with openFortIO("file") as f:
                 kw2 = EclKW.fread( f )

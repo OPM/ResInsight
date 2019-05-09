@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway.
+   Copyright (C) 2012  Equinor ASA, Norway.
 
    The file 'ecl_fmt.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -25,18 +25,17 @@
 
 #include <ert/ecl/ecl_util.hpp>
 
-void test_content( test_work_area_type * work_area , const char * src_file , bool fmt_file ) {
-  test_work_area_install_file( work_area , src_file );
+void test_content( const ecl::util::TestArea& ta , const char * src_file , bool fmt_file ) {
+  ta.copy_file(src_file);
   {
     char * base_name;
     bool fmt;
     util_alloc_file_components( src_file , NULL , &base_name , NULL);
-    util_copy_file( src_file , base_name );
-
     test_assert_true( ecl_util_fmt_file( base_name , &fmt ));
     test_assert_bool_equal( fmt , fmt_file );
   }
 }
+
 
 
 
@@ -56,7 +55,7 @@ void test_small( ) {
 
 
 int main(int argc , char ** argv) {
-  test_work_area_type * work_area = test_work_area_alloc( "ecl_fmt");
+  ecl::util::TestArea ta("ecl_fmt");
   {
     const char * binary_file = argv[1];
     const char * text_file = argv[2];
@@ -78,10 +77,9 @@ int main(int argc , char ** argv) {
 
     test_assert_false(ecl_util_fmt_file( "TEST_DOES_NOT_EXIST" , &fmt_file ));
 
-    test_content( work_area , binary_file , false );
-    test_content( work_area , text_file , true );
+    test_content( ta , binary_file , false );
+    test_content( ta , text_file , true );
     test_small( );
   }
-  test_work_area_free( work_area );
   exit(0);
 }

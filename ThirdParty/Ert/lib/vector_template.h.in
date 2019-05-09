@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'vector_template.h' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -61,7 +61,7 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   int                  @TYPE@_vector_get_min_index(const @TYPE@_vector_type * vector, bool reverse);
   int                  @TYPE@_vector_get_max_index(const @TYPE@_vector_type * vector, bool reverse);
   @TYPE@               @TYPE@_vector_iadd( @TYPE@_vector_type * vector , int index , @TYPE@ delta);
-  void                 @TYPE@_vector_resize( @TYPE@_vector_type * vector , int new_size );
+  void                 @TYPE@_vector_resize( @TYPE@_vector_type * vector , int new_size , @TYPE@ default_value );
   void                 @TYPE@_vector_iset(@TYPE@_vector_type *       , int , @TYPE@);
   void                 @TYPE@_vector_iset_block(@TYPE@_vector_type * vector , int index , int block_size , @TYPE@ value);
   void                 @TYPE@_vector_idel_block( @TYPE@_vector_type * vector , int index , int block_size);

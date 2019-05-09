@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2016  Statoil ASA, Norway.
+   Copyright (C) 2016  Equinor ASA, Norway.
 
    The file 'ecl_grid_add_nnc.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -60,14 +60,13 @@ void simple_test() {
 
   verify_simple_nnc( grid0 );
   {
-    test_work_area_type * test_area = test_work_area_alloc("ecl_grid_nnc");
+    ecl::util::TestArea ta("simple_nnc");
     ecl_grid_type * grid1;
     ecl_grid_fwrite_EGRID2( grid0 , "TEST.EGRID" , ECL_METRIC_UNITS);
     grid1 = ecl_grid_alloc( "TEST.EGRID" );
 
     verify_simple_nnc( grid1 );
     ecl_grid_free( grid1 );
-    test_work_area_free( test_area );
   }
   ecl_grid_free( grid0 );
 }
@@ -90,14 +89,13 @@ void overwrite_test() {
 
   verify_simple_nnc( grid0 );
   {
-    test_work_area_type * test_area = test_work_area_alloc("ecl_grid_nnc");
+    ecl::util::TestArea ta("overwrite");
     ecl_grid_type * grid1;
     ecl_grid_fwrite_EGRID2( grid0 , "TEST.EGRID" , ECL_METRIC_UNITS);
     grid1 = ecl_grid_alloc( "TEST.EGRID" );
 
     verify_simple_nnc( grid1 );
     ecl_grid_free( grid1 );
-    test_work_area_free( test_area );
   }
   ecl_grid_free( grid0 );
 }
@@ -118,15 +116,16 @@ void list_test() {
 
   verify_simple_nnc( grid0 );
   {
-    test_work_area_type * test_area = test_work_area_alloc("ecl_grid_nnc");
+    ecl::util::TestArea ta("list_test");
     ecl_grid_type * grid1;
     ecl_grid_fwrite_EGRID2( grid0 , "TEST.EGRID" , ECL_METRIC_UNITS);
     grid1 = ecl_grid_alloc( "TEST.EGRID" );
 
     verify_simple_nnc( grid1 );
     ecl_grid_free( grid1 );
-    test_work_area_free( test_area );
   }
+  int_vector_free(g1);
+  int_vector_free(g2);
   ecl_grid_free( grid0 );
 }
 

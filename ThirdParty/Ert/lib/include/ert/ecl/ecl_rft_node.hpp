@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'ecl_rft_node.h' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -62,7 +62,8 @@ double ecl_rft_node_iget_sgas( const ecl_rft_node_type * rft_node , int index);
 double ecl_rft_node_iget_soil( const ecl_rft_node_type * rft_node , int index);
 void   ecl_rft_node_fwrite(const ecl_rft_node_type * rft_node, fortio_type * fortio, ert_ecl_unit_enum unit_set);
 double ecl_rft_node_get_days(const ecl_rft_node_type * rft_node );
-int ecl_rft_node_cmp( const ecl_rft_node_type * n1 , const ecl_rft_node_type * n2);
+int  ecl_rft_node_cmp( const ecl_rft_node_type * n1 , const ecl_rft_node_type * n2);
+bool ecl_rft_node_lt(const ecl_rft_node_type * n1, const ecl_rft_node_type * n2);
 
 void ecl_rft_node_append_cell( ecl_rft_node_type * rft_node , ecl_rft_cell_type * cell);
 ecl_rft_node_type * ecl_rft_node_alloc_new(const char * well_name, const char * data_type_string, const time_t recording_date, const double days);

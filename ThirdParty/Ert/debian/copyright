@@ -3,7 +3,7 @@ Upstream-Name: libert.ecl
 Source: https://github.com/Ensembles/ert
 
 Files: *
-Copyright: 2013 Statoil
+Copyright: 2013 Equinor
 License: GPL-3+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

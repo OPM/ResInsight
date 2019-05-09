@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2013  Statoil ASA, Norway.
+#  Copyright (C) 2013  Equinor ASA, Norway.
 #
 #  The file 'test_ecl_sum_vector.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -23,14 +23,14 @@ except ImportError:
 import warnings
 
 from ecl.summary import EclSumVector, EclSum
-from tests import EclTest, statoil_test
+from tests import EclTest, equinor_test
 
-@statoil_test()
+@equinor_test()
 class EclSumVectorTest(EclTest):
 
 
     def setUp(self):
-        self.test_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.SMSPEC")
+        self.test_file = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.SMSPEC")
         self.ecl_sum = EclSum(self.test_file)
 
     def test_reportOnly_warns(self):
@@ -38,7 +38,7 @@ class EclSumVectorTest(EclTest):
             warnings.simplefilter("always")
 
             vector = EclSumVector(self.ecl_sum, "FOPT", True)
-            self.assertEqual(len(w), 2)
+            self.assertEqual(len(w), 1)
             assert issubclass(w[-1].category, DeprecationWarning)
 
 

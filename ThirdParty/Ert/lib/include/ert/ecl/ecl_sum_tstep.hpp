@@ -1,5 +1,5 @@
  /*
-   Copyright (C) 2012  Statoil ASA, Norway.
+   Copyright (C) 2012  Equinor ASA, Norway.
 
    The file 'ecl_sum_tstep.h' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -19,14 +19,14 @@
 #ifndef ERT_ECL_SUM_TSTEP_H
 #define ERT_ECL_SUM_TSTEP_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <ert/util/int_vector.hpp>
 
 #include <ert/ecl/ecl_smspec.hpp>
 #include <ert/ecl/ecl_kw.hpp>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct ecl_sum_tstep_struct ecl_sum_tstep_type;
 
@@ -42,6 +42,9 @@ typedef struct ecl_sum_tstep_struct ecl_sum_tstep_type;
 
   ecl_sum_tstep_type * ecl_sum_tstep_alloc_new( int report_step , int ministep , float sim_seconds , const ecl_smspec_type * smspec );
 
+  void   ecl_sum_tstep_set_from_node( ecl_sum_tstep_type * tstep , const ecl::smspec_node& smspec_node , float value);
+  double ecl_sum_tstep_get_from_node( const ecl_sum_tstep_type * tstep , const ecl::smspec_node& smspec_node);
+
   double ecl_sum_tstep_iget(const ecl_sum_tstep_type * ministep , int index);
   time_t ecl_sum_tstep_get_sim_time(const ecl_sum_tstep_type * ministep);
   double ecl_sum_tstep_get_sim_days(const ecl_sum_tstep_type * ministep);
@@ -50,7 +53,7 @@ typedef struct ecl_sum_tstep_struct ecl_sum_tstep_type;
   int  ecl_sum_tstep_get_report(const ecl_sum_tstep_type * ministep);
   int  ecl_sum_tstep_get_ministep(const ecl_sum_tstep_type * ministep);
 
-  void ecl_sum_tstep_fwrite( const ecl_sum_tstep_type * ministep , const int_vector_type * index_map , fortio_type * fortio);
+  void ecl_sum_tstep_fwrite( const ecl_sum_tstep_type * ministep , const int * index_map , int index_map_size, fortio_type * fortio);
   void ecl_sum_tstep_iset( ecl_sum_tstep_type * tstep , int index , float value);
 
   /// scales with value; equivalent to iset( iget() * scalar)
@@ -59,8 +62,6 @@ typedef struct ecl_sum_tstep_struct ecl_sum_tstep_type;
   /// adds addend to tstep[index]; equivalent to iset( iget() + addend)
   void ecl_sum_tstep_ishift(ecl_sum_tstep_type * tstep, int index, float addend);
 
-  void ecl_sum_tstep_set_from_node( ecl_sum_tstep_type * tstep , const smspec_node_type * smspec_node , float value);
-  double ecl_sum_tstep_get_from_node( const ecl_sum_tstep_type * tstep , const smspec_node_type * smspec_node);
 
   void ecl_sum_tstep_set_from_key( ecl_sum_tstep_type * tstep , const char * gen_key , float value);
   double ecl_sum_tstep_get_from_key( const ecl_sum_tstep_type * tstep , const char * gen_key);
@@ -75,5 +76,7 @@ typedef struct ecl_sum_tstep_struct ecl_sum_tstep_type;
 
 #ifdef __cplusplus
 }
+
+
 #endif
 #endif

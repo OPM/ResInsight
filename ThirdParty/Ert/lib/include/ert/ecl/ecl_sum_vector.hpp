@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014  Statoil ASA, Norway.
+  Copyright (C) 2014  Equinor ASA, Norway.
 
   The file 'ecl_sum_vector.h' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -19,13 +19,13 @@
 #ifndef ERT_ECL_SUM_VECTOR_H
 #define ERT_ECL_SUM_VECTOR_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <ert/util/type_macros.hpp>
 
 #include <ert/ecl/ecl_sum.hpp>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct ecl_sum_vector_struct ecl_sum_vector_type;
 

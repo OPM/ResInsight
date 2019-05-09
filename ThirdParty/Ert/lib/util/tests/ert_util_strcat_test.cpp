@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway.
+   Copyright (C) 2012  Equinor ASA, Norway.
 
    The file 'ert_util_strcat_test.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -28,8 +28,11 @@ void test_strcat(char * s1 , const char *s2 , const char * expected) {
   char * cat = util_strcat_realloc(s1 , s2 );
   if (test_check_string_equal( cat , expected ))
     free( cat );
-  else
-    test_error_exit("util_strcat_realloc(%s,%s) Got:%s  expected:%s \n",s1,s2,cat , expected);
+  else {
+    fprintf(stderr, "util_strcat_realloc(%s,%s) Got:%s  expected:%s \n",s1,s2,cat , expected);
+    free(cat);
+    exit(1);
+  }
 }
 
 

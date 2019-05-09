@@ -685,7 +685,7 @@ ECL::loadNNC(const ecl_grid_type* G,
 
     auto nncData = std::vector<ecl_nnc_type>{};
 
-    const auto numNNC = make_szt(ecl_nnc_export_get_size(G));
+    const auto numNNC = make_szt(ecl_nnc_export_get_size(G, init));
 
     if (numNNC > 0) {
         nncData.resize(numNNC);

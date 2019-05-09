@@ -1,5 +1,5 @@
- /*
-   Copyright (C) 2012  Statoil ASA, Norway.
+/*
+   Copyright (C) 2012  Equinor ASA, Norway.
 
    The file 'ecl_sum_tstep.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -18,6 +18,8 @@
 
 #include <time.h>
 #include <math.h>
+
+#include <vector>
 
 #include <ert/util/util.h>
 #include <ert/util/type_macros.hpp>
@@ -59,12 +61,11 @@ Header direction: ecl_smspec   DAYS     WWCT:OP_3     FOPT     BPR:15,10,25
 
 struct ecl_sum_tstep_struct {
   UTIL_TYPE_ID_DECLARATION;
-  float                  * data;            /* A memcpy copy of the PARAMS vector in ecl_kw instance - the raw data. */
+  std::vector<float>       data;            /* A memcpy copy of the PARAMS vector in ecl_kw instance - the raw data. */
   time_t                   sim_time;        /* The true time (i.e. 20.th of october 2010) of corresponding to this timestep. */
   int                      ministep;        /* The ECLIPSE internal time-step number; one ministep per numerical timestep. */
   int                      report_step;     /* The report step this time-step is part of - in general there can be many timestep for each report step. */
   double                   sim_seconds;     /* Accumulated simulation time up to this ministep. */
-  int                      data_size;       /* Number of elements in data - only used for checking indices. */
   int                      internal_index;  /* Used for lookups of the next / previous ministep based on an existing ministep. */
   const ecl_smspec_type  * smspec;          /* The smespec header information for this tstep - must be compatible. */
 };
@@ -72,11 +73,13 @@ struct ecl_sum_tstep_struct {
 
 ecl_sum_tstep_type * ecl_sum_tstep_alloc_remap_copy( const ecl_sum_tstep_type * src , const ecl_smspec_type * new_smspec, float default_value , const int * params_map) {
   int params_size = ecl_smspec_get_params_size( new_smspec );
-  ecl_sum_tstep_type * target = (ecl_sum_tstep_type*)util_alloc_copy(src , sizeof * src );
+  ecl_sum_tstep_type * target = new ecl_sum_tstep_type();
+  UTIL_TYPE_ID_INIT( target , ECL_SUM_TSTEP_ID);
+  target->report_step = src->report_step;
+  target->ministep    = src->ministep;
 
   target->smspec = new_smspec;
-  target->data = (float*)util_malloc( params_size * sizeof * target->data );
-  target->data_size = params_size;
+  target->data.resize(params_size);
   for (int i=0; i < params_size; i++) {
 
     if (params_map[i] >= 0)
@@ -89,20 +92,23 @@ ecl_sum_tstep_type * ecl_sum_tstep_alloc_remap_copy( const ecl_sum_tstep_type * 
 }
 
 ecl_sum_tstep_type * ecl_sum_tstep_alloc_copy( const ecl_sum_tstep_type * src ) {
-  ecl_sum_tstep_type * target = (ecl_sum_tstep_type*)util_alloc_copy(src , sizeof * src );
-  target->data = (float*)util_alloc_copy( src->data , src->data_size * sizeof * src->data );
+  ecl_sum_tstep_type * target = new ecl_sum_tstep_type();
+  UTIL_TYPE_ID_INIT( target , ECL_SUM_TSTEP_ID);
+  target->smspec      = src->smspec;
+  target->report_step = src->report_step;
+  target->ministep    = src->ministep;
+  target->data        = src->data;
   return target;
 }
 
 
 static ecl_sum_tstep_type * ecl_sum_tstep_alloc( int report_step , int ministep_nr , const ecl_smspec_type * smspec) {
-  ecl_sum_tstep_type * tstep = (ecl_sum_tstep_type*)util_malloc( sizeof * tstep );
+  ecl_sum_tstep_type * tstep = new ecl_sum_tstep_type();
   UTIL_TYPE_ID_INIT( tstep , ECL_SUM_TSTEP_ID);
   tstep->smspec      = smspec;
   tstep->report_step = report_step;
   tstep->ministep    = ministep_nr;
-  tstep->data_size   = ecl_smspec_get_params_size( smspec );
-  tstep->data        = (float*)util_calloc( tstep->data_size , sizeof * tstep->data );
+  tstep->data.resize( ecl_smspec_get_params_size( smspec ) );
   return tstep;
 }
 
@@ -112,8 +118,7 @@ UTIL_SAFE_CAST_FUNCTION_CONST( ecl_sum_tstep , ECL_SUM_TSTEP_ID)
 
 
 void ecl_sum_tstep_free( ecl_sum_tstep_type * ministep ) {
-  free( ministep->data );
-  free( ministep );
+  delete ministep;
 }
 
 
@@ -201,7 +206,7 @@ ecl_sum_tstep_type * ecl_sum_tstep_alloc_from_file( int report_step    ,
 
   if (data_size == ecl_smspec_get_params_size( smspec )) {
     ecl_sum_tstep_type * ministep = ecl_sum_tstep_alloc( report_step , ministep_nr , smspec);
-    ecl_kw_get_memcpy_data( params_kw , ministep->data );
+    ecl_kw_get_memcpy_data( params_kw , ministep->data.data() );
     ecl_sum_tstep_set_time_info( ministep , smspec );
     return ministep;
   } else {
@@ -211,7 +216,11 @@ ecl_sum_tstep_type * ecl_sum_tstep_alloc_from_file( int report_step    ,
        ecl_smspec_load_restart() function and the restart case
        discarded.
     */
-    fprintf(stderr , "** Warning size mismatch between timestep loaded from:%s and header:%s - timestep discarded.\n" , src_file , ecl_smspec_get_header_file( smspec ));
+    fprintf(stderr , "** Warning size mismatch between timestep loaded from:%s(%d) and header:%s(%d) - timestep discarded.\n" ,
+            src_file ,
+            data_size,
+            ecl_smspec_get_header_file( smspec ),
+            ecl_smspec_get_params_size( smspec ));
     return NULL;
   }
 }
@@ -223,8 +232,7 @@ ecl_sum_tstep_type * ecl_sum_tstep_alloc_from_file( int report_step    ,
 
 ecl_sum_tstep_type * ecl_sum_tstep_alloc_new( int report_step , int ministep , float sim_seconds , const ecl_smspec_type * smspec ) {
   ecl_sum_tstep_type * tstep = ecl_sum_tstep_alloc( report_step , ministep , smspec );
-  const float_vector_type * default_data = ecl_smspec_get_params_default( smspec );
-  float_vector_memcpy_data( tstep->data , default_data );
+  tstep->data = ecl_smspec_get_params_default( smspec );
 
   ecl_sum_tstep_set_time_info_from_seconds( tstep , ecl_smspec_get_start_time( smspec ) , sim_seconds );
   ecl_sum_tstep_iset( tstep , ecl_smspec_get_time_index( smspec ) , sim_seconds / ecl_smspec_get_time_seconds( smspec ) );
@@ -235,10 +243,10 @@ ecl_sum_tstep_type * ecl_sum_tstep_alloc_new( int report_step , int ministep , f
 
 
 double ecl_sum_tstep_iget(const ecl_sum_tstep_type * ministep , int index) {
-  if ((index >= 0) && (index < ministep->data_size))
+  if ((index >= 0) && (index < (int)ministep->data.size()))
     return ministep->data[index];
   else {
-    util_abort("%s: param index:%d invalid: Valid range: [0,%d) \n",__func__ , index , ministep->data_size);
+    util_abort("%s: param index:%d invalid: Valid range: [0,%d) \n",__func__ , index , ministep->data.size());
     return -1;
   }
 }
@@ -269,7 +277,7 @@ int ecl_sum_tstep_get_ministep(const ecl_sum_tstep_type * ministep) {
 
 /*****************************************************************/
 
-void ecl_sum_tstep_fwrite( const ecl_sum_tstep_type * ministep , const int_vector_type * index_map , fortio_type * fortio) {
+void ecl_sum_tstep_fwrite( const ecl_sum_tstep_type * ministep , const int * index_map , int index_map_size, fortio_type * fortio) {
   {
     ecl_kw_type * ministep_kw = ecl_kw_alloc( MINISTEP_KW , 1 , ECL_INT );
     ecl_kw_iset_int( ministep_kw , 0 , ministep->ministep );
@@ -278,16 +286,15 @@ void ecl_sum_tstep_fwrite( const ecl_sum_tstep_type * ministep , const int_vecto
   }
 
   {
-    int compact_size = int_vector_size( index_map );
+    int compact_size = index_map_size;
     ecl_kw_type * params_kw = ecl_kw_alloc( PARAMS_KW , compact_size , ECL_FLOAT );
 
-    const int * index = int_vector_get_ptr( index_map );
     float * data      = (float*)ecl_kw_get_ptr( params_kw );
 
     {
       int i;
       for (i=0; i < compact_size; i++)
-        data[i] = ministep->data[ index[i] ];
+        data[i] = ministep->data[ index_map[i] ];
     }
     ecl_kw_fwrite( params_kw , fortio );
     ecl_kw_free( params_kw );
@@ -298,10 +305,10 @@ void ecl_sum_tstep_fwrite( const ecl_sum_tstep_type * ministep , const int_vecto
 /*****************************************************************/
 
 void ecl_sum_tstep_iset( ecl_sum_tstep_type * tstep , int index , float value) {
-  if ((index < tstep->data_size) && (index >= 0))
+  if ((index < static_cast<int>(tstep->data.size())) && (index >= 0)  )
     tstep->data[index] = value;
   else
-    util_abort("%s: index:%d invalid. Valid range: [0,%d) \n",__func__  ,index , tstep->data_size);
+    util_abort("%s: index:%d invalid. Valid range: [0,%d) \n",__func__  ,index , tstep->data.size());
 }
 
 void ecl_sum_tstep_iscale(ecl_sum_tstep_type * tstep, int index, float scalar) {
@@ -312,24 +319,24 @@ void ecl_sum_tstep_ishift(ecl_sum_tstep_type * tstep, int index, float addend) {
   ecl_sum_tstep_iset(tstep, index, ecl_sum_tstep_iget(tstep, index) + addend);
 }
 
-void ecl_sum_tstep_set_from_node( ecl_sum_tstep_type * tstep , const smspec_node_type * smspec_node , float value) {
-  int data_index = smspec_node_get_params_index( smspec_node );
+void ecl_sum_tstep_set_from_node( ecl_sum_tstep_type * tstep , const ecl::smspec_node& smspec_node , float value) {
+  int data_index = smspec_node_get_params_index( &smspec_node );
   ecl_sum_tstep_iset( tstep , data_index , value);
 }
 
-double ecl_sum_tstep_get_from_node( const ecl_sum_tstep_type * tstep , const smspec_node_type * smspec_node) {
-  int data_index = smspec_node_get_params_index( smspec_node );
+double ecl_sum_tstep_get_from_node( const ecl_sum_tstep_type * tstep , const ecl::smspec_node& smspec_node) {
+  int data_index = smspec_node_get_params_index( &smspec_node );
   return ecl_sum_tstep_iget( tstep , data_index);
 }
 
 
 void ecl_sum_tstep_set_from_key( ecl_sum_tstep_type * tstep , const char * gen_key , float value) {
-  const smspec_node_type * smspec_node = ecl_smspec_get_general_var_node( tstep->smspec , gen_key );
+  const ecl::smspec_node& smspec_node = ecl_smspec_get_general_var_node( tstep->smspec , gen_key );
   ecl_sum_tstep_set_from_node( tstep , smspec_node , value);
 }
 
 double ecl_sum_tstep_get_from_key(const ecl_sum_tstep_type * tstep , const char * gen_key) {
-  const smspec_node_type * smspec_node = ecl_smspec_get_general_var_node( tstep->smspec , gen_key );
+  const ecl::smspec_node& smspec_node = ecl_smspec_get_general_var_node( tstep->smspec , gen_key );
   return ecl_sum_tstep_get_from_node(tstep , smspec_node );
 }
 
