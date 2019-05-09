@@ -30,9 +30,9 @@ using namespace rips;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridCountService::Get(grpc::ServerContext*             context,
-                                          const rips::Case*          request,
-                                          rips::GridCountInfo*       reply)
+grpc::Status RiaGrpcGridInfoService::GetGridCount(grpc::ServerContext*   context,
+                                                  const rips::Case*      request,
+                                                  rips::GridCount*       reply)
 {
     RimCase* rimCase = findCase(request->id());
 
@@ -41,30 +41,18 @@ grpc::Status RiaGrpcGridCountService::Get(grpc::ServerContext*             conte
     if (eclipseCase)
     {
         gridCount = eclipseCase->mainGrid()->gridCount();
+        reply->set_count((int)gridCount);
+        return Status::OK;
     }
-    reply->set_count((int)gridCount);
-    return Status::OK;
+    return grpc::Status(grpc::NOT_FOUND, "Eclipse Case not found");
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaGrpcServerCallMethod*> RiaGrpcGridCountService::createCallbacks()
-{
-    typedef RiaGrpcGridCountService Self;
-    return { new RiaGrpcServerCallData<Self, Case, GridCountInfo>(this, &Self::Get, &Self::RequestGet) };
-}
-
-static bool RiaGrpcGridCountService_init =
-    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcGridCountService>(typeid(RiaGrpcGridCountService).hash_code());
-
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcAllGridDimensionsService::Get(grpc::ServerContext*        context,
-                                                  const rips::Case*     request,
-                                                  rips::AllDimensions* reply)
+grpc::Status RiaGrpcGridInfoService::GetAllGridDimensions(grpc::ServerContext* context,
+                                                          const rips::Case*    request,
+                                                          rips::AllGridDimensions* reply)
 {
     RimCase* rimCase = findCase(request->id());
 
@@ -89,23 +77,9 @@ grpc::Status RiaGrpcAllGridDimensionsService::Get(grpc::ServerContext*        co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaGrpcServerCallMethod*> RiaGrpcAllGridDimensionsService::createCallbacks()
-{
-    typedef RiaGrpcAllGridDimensionsService Self;
-
-    return { new RiaGrpcServerCallData<Self, Case, AllDimensions>(this, &Self::Get, &Self::RequestGet) };
-}
-
-static bool RiaGrpcAllGridDimensionsService_init =
-    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcAllGridDimensionsService>(typeid(RiaGrpcAllGridDimensionsService).hash_code());
-
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcActiveCellInfoService::Get(grpc::ServerContext*                     context,
-                                               const rips::ActiveCellInfoRequest* request,
-                                               rips::CellInfos*             reply)
+grpc::Status RiaGrpcGridInfoService::GetAllActiveCellInfos(grpc::ServerContext*               context,
+                                                           const rips::ActiveCellInfoRequest* request,
+                                                           rips::ActiveCellInfos*             reply)
 {
     RimCase* rimCase = findCase(request->case_id());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
@@ -165,7 +139,7 @@ grpc::Status RiaGrpcActiveCellInfoService::Get(grpc::ServerContext*             
                 CVF_ASSERT(parentGrid != nullptr);
                 parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
             }
-            rips::CellInfo* cellInfo = reply->add_data();
+            rips::ActiveCellInfo* cellInfo = reply->add_data();
             
             cellInfo->set_grid_index((int)grid->gridIndex());
             cellInfo->set_parent_grid_index((int)parentGrid->gridIndex());
@@ -202,13 +176,17 @@ grpc::Status RiaGrpcActiveCellInfoService::Get(grpc::ServerContext*             
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaGrpcServerCallMethod*> RiaGrpcActiveCellInfoService::createCallbacks()
+std::vector<RiaGrpcServerCallMethod*> RiaGrpcGridInfoService::createCallbacks()
 {
-    typedef RiaGrpcActiveCellInfoService Self;
-
-    return { new RiaGrpcServerCallData<Self, ActiveCellInfoRequest, CellInfos>(this, &Self::Get, &Self::RequestGet) };
+    typedef RiaGrpcGridInfoService Self;
+    
+    return 
+    {
+        new RiaGrpcServerCallData<Self, Case, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
+        new RiaGrpcServerCallData<Self, Case, AllGridDimensions>(this, &Self::GetAllGridDimensions, &Self::RequestGetAllGridDimensions),
+        new RiaGrpcServerCallData<Self, ActiveCellInfoRequest, ActiveCellInfos>(this, &Self::GetAllActiveCellInfos, &Self::RequestGetAllActiveCellInfos)
+    };
 }
 
-static bool RiaGrpcActiveCellInfoService_init =
-    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcActiveCellInfoService>(
-        typeid(RiaGrpcActiveCellInfoService).hash_code());
+static bool RiaGrpcGridInfoService_init =
+    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcGridInfoService>(typeid(RiaGrpcGridInfoService).hash_code());

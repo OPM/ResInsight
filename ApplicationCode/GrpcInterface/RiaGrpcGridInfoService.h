@@ -38,23 +38,11 @@ class RiaGrpcServerCallData;
 // gRPC-service answering requests about grid information for a given case
 //
 //==================================================================================================
-class RiaGrpcGridCountService final : public rips::GridCount::AsyncService, public RiaGrpcServiceInterface
+class RiaGrpcGridInfoService final : public rips::GridInfo::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status Get(grpc::ServerContext* context, const rips::Case* request, rips::GridCountInfo* reply) override;
-    std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
-};
-
-class RiaGrpcAllGridDimensionsService final : public rips::AllGridDimensions::AsyncService, public RiaGrpcServiceInterface
-{
-public:
-    grpc::Status Get(grpc::ServerContext* context, const rips::Case* request, rips::AllDimensions* reply) override;
-    std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
-};
-
-class RiaGrpcActiveCellInfoService final : public rips::ActiveCellInfo::AsyncService, public RiaGrpcServiceInterface
-{
-public:
-    grpc::Status Get(grpc::ServerContext* context, const rips::ActiveCellInfoRequest* request, rips::CellInfos* reply) override;
+    grpc::Status GetGridCount(grpc::ServerContext* context, const rips::Case* request, rips::GridCount* reply) override;
+    grpc::Status GetAllGridDimensions(grpc::ServerContext* context, const rips::Case* request, rips::AllGridDimensions* reply) override;
+    grpc::Status GetAllActiveCellInfos(grpc::ServerContext* context, const rips::ActiveCellInfoRequest* request, rips::ActiveCellInfos* reply) override;
     std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
 };
