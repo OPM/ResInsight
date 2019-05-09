@@ -228,6 +228,8 @@ private:
 
     QString     getValue(const QString& key, const QString& stringContent);
 
+    QProgressDialog* progressDialog();
+    void             hideProgressDialog();
 
 private:
     QString                 m_webServiceAddress;

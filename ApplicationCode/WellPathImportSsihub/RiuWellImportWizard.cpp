@@ -56,7 +56,7 @@ RiuWellImportWizard::RiuWellImportWizard(const QString& webServiceAddress, const
     m_destinationFolder = downloadFolder;
     m_webServiceAddress = webServiceAddress;
 
-    m_myProgressDialog = new QProgressDialog(this);
+    m_myProgressDialog = nullptr;
     m_firstTimeRequestingAuthentication = true;
 
 
@@ -164,7 +164,7 @@ void RiuWellImportWizard::httpFinished()
             m_file = nullptr;
         }
         m_reply->deleteLater();
-        m_myProgressDialog->hide();
+        hideProgressDialog();
         return;
     }
 
@@ -228,11 +228,11 @@ void RiuWellImportWizard::httpFinished()
                 }
             }
 
-            m_myProgressDialog->setLabelText(QString("Downloaded well path : %1").arg(wellPathName));
+            progressDialog()->setLabelText(QString("Downloaded well path : %1").arg(wellPathName));
         }
 
-        int newValue = m_myProgressDialog->maximum() - m_wellRequestQueue.size();
-        m_myProgressDialog->setValue(newValue);
+        int newValue = progressDialog()->maximum() - m_wellRequestQueue.size();
+        progressDialog()->setValue(newValue);
     }
 
     m_reply->deleteLater();
@@ -371,6 +371,32 @@ QString RiuWellImportWizard::getValue(const QString& key, const QString& stringC
 
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QProgressDialog* RiuWellImportWizard::progressDialog()
+{
+    if (!m_myProgressDialog)
+    {
+        m_myProgressDialog = new QProgressDialog(this);
+    }
+
+    return m_myProgressDialog;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellImportWizard::hideProgressDialog()
+{
+    if (m_myProgressDialog)
+    {
+        m_myProgressDialog->hide();
+
+        QCoreApplication::processEvents();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::updateFieldsModel()
@@ -476,9 +502,9 @@ void RiuWellImportWizard::downloadWellPaths()
 
     m_currentDownloadState = DOWNLOAD_WELL_PATH;
 
-    m_myProgressDialog->setMaximum(m_wellRequestQueue.size());
-    m_myProgressDialog->setValue(0);
-    m_myProgressDialog->show();
+    progressDialog()->setMaximum(m_wellRequestQueue.size());
+    progressDialog()->setValue(0);
+    progressDialog()->show();
 
 
     checkDownloadQueueAndIssueRequests();
@@ -505,7 +531,7 @@ void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
 
     if (m_currentDownloadState == DOWNLOAD_WELLS)
     {
-        m_myProgressDialog->hide();
+        hideProgressDialog();
 
         // Update UI with downloaded wells
 
@@ -538,7 +564,7 @@ void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
 
     m_currentDownloadState = DOWNLOAD_UNDEFINED;
 
-    m_myProgressDialog->hide();
+    hideProgressDialog();
 }
 
 //--------------------------------------------------------------------------------------------------
