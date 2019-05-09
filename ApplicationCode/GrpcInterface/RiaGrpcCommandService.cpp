@@ -41,7 +41,7 @@ using namespace google::protobuf;
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const CommandParams* request, Empty* reply)
 {
-    auto requestDescriptor = request->descriptor();
+    auto requestDescriptor = request->GetDescriptor();
     RiaLogging::info(QString::fromStdString(requestDescriptor->name()));
     
     CommandParams::ParamsCase paramsCase = request->params_case();
@@ -62,12 +62,15 @@ grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const 
             for (int i = 0; i < numParameters; ++i)
             {
                 auto parameter = subMessageDescriptor->field(i);
-                QString parameterName = QString::fromStdString(parameter->name());
-                auto pdmValueFieldHandle = dynamic_cast<caf::PdmValueField*>(pdmObjectHandle->findField(parameterName));
-                if (pdmValueFieldHandle)
+                if (parameter)
                 {
-                    RiaLogging::info(QString("Found Matching Parameter: %1").arg(parameterName));
-                    assignFieldValue(pdmValueFieldHandle, params, parameter);
+                    QString parameterName = QString::fromStdString(parameter->name());
+                    auto pdmValueFieldHandle = dynamic_cast<caf::PdmValueField*>(pdmObjectHandle->findField(parameterName));
+                    if (pdmValueFieldHandle)
+                    {
+                        RiaLogging::info(QString("Found Matching Parameter: %1").arg(parameterName));
+                        assignFieldValue(pdmValueFieldHandle, params, parameter);
+                    }
                 }
             }
             commandHandle->execute();
@@ -96,29 +99,65 @@ void RiaGrpcCommandService::assignFieldValue(caf::PdmValueField*    pdmValueFiel
                                              const FieldDescriptor* paramDescriptor)
 {
     FieldDescriptor::Type fieldDataType = paramDescriptor->type();
-    QVariant value;
+    QVariant qValue;
     switch (fieldDataType)
     {
     case FieldDescriptor::TYPE_BOOL:
     {
-        bool boolVal = params.GetReflection()->GetBool(params, paramDescriptor);
-        value = QVariant(boolVal);
+        auto value = params.GetReflection()->GetBool(params, paramDescriptor);
+        qValue = QVariant(value);
         break;
     }
     case FieldDescriptor::TYPE_INT32:
     {
-        int intVal = params.GetReflection()->GetInt32(params, paramDescriptor);
-        value = QVariant(intVal);
+        auto value = params.GetReflection()->GetInt32(params, paramDescriptor);
+        qValue = QVariant(value);
+        break;
+    }
+    case FieldDescriptor::TYPE_UINT32:
+    {
+        auto value = params.GetReflection()->GetUInt32(params, paramDescriptor);
+        qValue = QVariant(value);
+        break;
+    }
+    case FieldDescriptor::TYPE_INT64:
+    {
+        auto value = params.GetReflection()->GetInt64(params, paramDescriptor);
+        qValue = QVariant(value);
+        break;
+    }
+    case FieldDescriptor::TYPE_UINT64:
+    {
+        auto value = params.GetReflection()->GetUInt64(params, paramDescriptor);
+        qValue = QVariant(value);
         break;
     }
     case FieldDescriptor::TYPE_STRING:
     {
-        std::string stringVal = params.GetReflection()->GetString(params, paramDescriptor);
-        value = QVariant(QString::fromStdString(stringVal));
+        auto value = params.GetReflection()->GetString(params, paramDescriptor);
+        qValue = QVariant(QString::fromStdString(value));
+        break;
+    }
+    case FieldDescriptor::TYPE_FLOAT:
+    {
+        auto value = params.GetReflection()->GetFloat(params, paramDescriptor);
+        qValue = QVariant(value);
+        break;
+    }
+    case FieldDescriptor::TYPE_DOUBLE:
+    {
+        auto value = params.GetReflection()->GetDouble(params, paramDescriptor);
+        qValue = QVariant(value);
+        break;
+    }
+    case FieldDescriptor::TYPE_ENUM:
+    {
+        auto value = params.GetReflection()->GetEnumValue(params, paramDescriptor);
+        qValue = QVariant(value);
         break;
     }
     }
-    pdmValueField->setFromQVariant(value);
+    pdmValueField->setFromQVariant(qValue);
 }
 
 
