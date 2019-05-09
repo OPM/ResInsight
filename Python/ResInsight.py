@@ -15,19 +15,47 @@ import ProjectInfo_pb2_grpc
 MAX_MESSAGE_LENGTH = 32 * 1024 * 1024
 
 class CommandExecutor:
-	def __init__(self, channel, commandParams):
+	def __init__(self, channel):
 		self.commands      = Commands_pb2_grpc.CommandsStub(channel)
-		self.commandParams = commandParams
-	def execute(self):
+		
+	def execute(self, commandParams):
 		try:
-			self.commands.Execute(self.commandParams)	
+			self.commands.Execute(commandParams)	
 		except grpc.RpcError as e:
 			if e.code() == grpc.StatusCode.NOT_FOUND:
 				print("Command not found")
 			else:
 				print("Other error")
 
+	def setTimeStep(self, caseId, timeStep):
+		return self.execute(Commands_pb2.CommandParams(setTimeStep=Commands_pb2.SetTimeStepParams(caseId=caseId, timeStep=timeStep)))
+		
+	def setMainWindowSize(self, width, height):
+		return self.execute(Commands_pb2.CommandParams(setMainWindowSize=Commands_pb2.SetMainWindowSizeParams(width=width, height=height)))
 
+	def openProject(self, path):
+		return self.execute(Commands_pb2.CommandParams(openProject=Commands_pb2.FilePathRequest(path=path)))
+		
+	def closeProject(self):
+		return self.execute(Commands_pb2.CommandParams(closeProject=CaseInfo_pb2.Empty()))
+
+class GridInfo:
+	def __init__(self, channel):
+		self.gridInfo = GridInfo_pb2_grpc.GridInfoStub(channel)		
+	
+	def getGridCount(self, caseId=0):
+		return self.gridInfo.GetGridCount(CaseInfo_pb2.Case(id=caseId)).count
+		
+	def getAllGridDimensions(self, caseId=0):
+		return self.gridInfo.GetAllGridDimensions(CaseInfo_pb2.Case(id=caseId)).grid_dimensions
+		
+	def getAllActiveCellInfos(self, caseId=0):
+		return self.gridInfo.GetAllActiveCellInfos(CaseInfo_pb2.Case(id=caseId)).data
+		
+class ProjectInfo:
+	def __init__(self, channel):
+		self.projectInfo = ProjectInfo_pb2_grpc.ProjectInfoStub(channel)
+		
 class Instance:
 	def __init__(self, port=None):
 		if port is None:
@@ -37,23 +65,10 @@ class Instance:
 		if port is None:
 			port = str(50051)
 		location = "localhost:" + port
-		self.channel = grpc.insecure_channel(location, options=[('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH)])
-		self.GridCount = GridInfo_pb2_grpc.GridCountStub(self.channel)		
-		self.AllGridDimensions = GridInfo_pb2_grpc.AllGridDimensionsStub(self.channel)		
-		self.ProjectInfo = ProjectInfo_pb2_grpc.ProjectInfoStub(self.channel)
-		self.Commands = Commands_pb2_grpc.CommandsStub(self.channel)
+		self.channel = grpc.insecure_channel(location, options=[('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH)])		
 		
-	def Case(id):
-		return CaseInfo_pb2.Case(id=id)
-		
-	def setTimeStep(self, caseId, timeStep):
-		return CommandExecutor(self.channel, Commands_pb2.CommandParams(setTimeStep=Commands_pb2.SetTimeStepParams(caseId=caseId, timeStep=timeStep))).execute()
-		
-	def setMainWindowSize(self, width, height):
-		return CommandExecutor(self.channel, Commands_pb2.CommandParams(setMainWindowSize=Commands_pb2.SetMainWindowSizeParams(width=width, height=height))).execute()
-		
-	def openProject(self, path):
-		return CommandExecutor(self.channel, Commands_pb2.CommandParams(openProject=Commands_pb2.FilePathRequest(path=path))).execute()
-		
-	def closeProject(self):
-		return CommandExecutor(self.channel, Commands_pb2.CommandParams(closeProject=CaseInfo_pb2.Empty())).execute()
+		# Service packages
+		self.commands    = CommandExecutor(self.channel)
+		self.gridInfo    = GridInfo(self.channel)
+		self.projectInfo = ProjectInfo(self.channel)
+
