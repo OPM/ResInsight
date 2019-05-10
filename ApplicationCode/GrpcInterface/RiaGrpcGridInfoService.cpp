@@ -122,16 +122,15 @@ grpc::Status RiaGrpcGridInfoService::GetAllActiveCellInfos(grpc::ServerContext* 
     return Status::OK;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcGridInfoService::StreamActiveCellInfo(grpc::ServerContext*                           context,
-                                                           const rips::ActiveCellInfoRequest*             request,
-                                                           rips::ActiveCellInfo*                          reply,
-                                                           size_t*                                        count)
+                                                          const rips::ActiveCellInfoRequest*             request,
+                                                          rips::ActiveCellInfo*                          reply,
+                                                          size_t*                                        streamIndex)
 {
-    CAF_ASSERT(count);
+    CAF_ASSERT(streamIndex);
     RimCase*        rimCase     = findCase(request->case_id());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
 
@@ -161,20 +160,77 @@ grpc::Status RiaGrpcGridInfoService::StreamActiveCellInfo(grpc::ServerContext*  
 
     const std::vector<RigCell>& reservoirCells = eclipseCase->eclipseCaseData()->mainGrid()->globalCellArray();
 
-    while (*count < reservoirCells.size())
+    while (*streamIndex < reservoirCells.size())
     {
-        if (activeCellInfo->isActive(*count))
+        if (activeCellInfo->isActive(*streamIndex))
         {
-            assignActiveCellInfoData(reply, reservoirCells, *count, globalCoarseningBoxIndexStart);
-            (*count)++;
+            assignActiveCellInfoData(reply, reservoirCells, *streamIndex, globalCoarseningBoxIndexStart);
+            (*streamIndex)++;
             return Status::OK;
         }
-        (*count)++;
+        (*streamIndex)++;
     }
     return Status(grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished");
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcGridInfoService::StreamActiveCellInfos(grpc::ServerContext*               context,
+                                                           const rips::ActiveCellInfoRequest* request,
+                                                           rips::ActiveCellInfos*             reply,
+                                                           size_t*                            streamIndex)
+{
+    CAF_ASSERT(streamIndex);
+    RimCase*        rimCase     = findCase(request->case_id());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
 
+    if (!eclipseCase) return grpc::Status(grpc::NOT_FOUND, "Eclipse Case not found");
+    if (!eclipseCase->eclipseCaseData() || !eclipseCase->eclipseCaseData()->mainGrid())
+    {
+        return grpc::Status(grpc::NOT_FOUND, "Eclipse Case Data not found");
+    }
+    RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType(request->porosity_model());
+
+    RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo(porosityModel);
+
+    std::vector<size_t> globalCoarseningBoxIndexStart;
+    {
+        size_t globalCoarseningBoxCount = 0;
+
+        for (size_t gridIdx = 0; gridIdx < eclipseCase->eclipseCaseData()->gridCount(); gridIdx++)
+        {
+            globalCoarseningBoxIndexStart.push_back(globalCoarseningBoxCount);
+
+            RigGridBase* grid = eclipseCase->eclipseCaseData()->grid(gridIdx);
+
+            size_t localCoarseningBoxCount = grid->coarseningBoxCount();
+            globalCoarseningBoxCount += localCoarseningBoxCount;
+        }
+    }
+
+    const std::vector<RigCell>& reservoirCells = eclipseCase->eclipseCaseData()->mainGrid()->globalCellArray();
+
+    const size_t packageSize = 1024u;
+    size_t packageIndex = 0u;
+    reply->mutable_data()->Reserve(packageSize);
+    while (*streamIndex < reservoirCells.size() && packageIndex < packageSize)
+    {
+        if (activeCellInfo->isActive(*streamIndex))
+        {
+            rips::ActiveCellInfo* cellData = reply->add_data();
+            assignActiveCellInfoData(cellData, reservoirCells, *streamIndex, globalCoarseningBoxIndexStart);
+            packageIndex++;
+        }
+        (*streamIndex)++;
+    }
+
+    if (packageIndex > 0u)
+    {
+        return Status::OK;
+    }
+    return Status(grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished");
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -249,7 +305,8 @@ std::vector<RiaGrpcServerCallMethod*> RiaGrpcGridInfoService::createCallbacks()
         new RiaGrpcServerCallData<Self, Case, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
         new RiaGrpcServerCallData<Self, Case, AllGridDimensions>(this, &Self::GetAllGridDimensions, &Self::RequestGetAllGridDimensions),
         new RiaGrpcServerCallData<Self, ActiveCellInfoRequest, ActiveCellInfos>(this, &Self::GetAllActiveCellInfos, &Self::RequestGetAllActiveCellInfos),
-        new RiaGrpcServerStreamingCallData<Self, ActiveCellInfoRequest, rips::ActiveCellInfo>(this, &Self::StreamActiveCellInfo, &Self::RequestStreamActiveCellInfo)
+        new RiaGrpcServerStreamingCallData<Self, ActiveCellInfoRequest, rips::ActiveCellInfo>(this, &Self::StreamActiveCellInfo, &Self::RequestStreamActiveCellInfo),
+        new RiaGrpcServerStreamingCallData<Self, ActiveCellInfoRequest, rips::ActiveCellInfos>(this, &Self::StreamActiveCellInfos, &Self::RequestStreamActiveCellInfos)
     };
 }
 

@@ -168,6 +168,7 @@ template<typename ServiceT, typename RequestT, typename ReplyT>
 void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT>::processRequest()
 {
     m_reply = ReplyT(); // Make sure it is reset
+
     m_status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply, &m_dataCount);
     if (m_status.ok())
     {
