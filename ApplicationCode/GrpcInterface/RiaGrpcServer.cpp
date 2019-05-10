@@ -211,13 +211,20 @@ void RiaGrpcServerImpl::waitForNextRequest()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServerImpl::process(RiaGrpcServerCallMethod* method)
 {
-    if (method->callState() == RiaGrpcServerCallMethod::CREATE)
+    if (method->callState() == RiaGrpcServerCallMethod::CREATE_HANDLER)
     {
-        method->createRequest(m_completionQueue.get());
+        method->createRequestHandler(m_completionQueue.get());
     }
-    else if (method->callState() == RiaGrpcServerCallMethod::PROCESS)
+    else if (method->callState() == RiaGrpcServerCallMethod::INIT_REQUEST)
     {
-        method->processRequest();        
+        // Perform initialization and immediately process the request
+        // The initialization is necessary for streaming services
+        method->initRequest();
+        method->processRequest();
+    }
+    else if (method->callState() == RiaGrpcServerCallMethod::PROCESS_REQUEST)
+    {
+        method->processRequest();       
     }
     else
     {

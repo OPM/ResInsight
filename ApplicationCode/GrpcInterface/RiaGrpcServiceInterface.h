@@ -17,16 +17,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include <grpcpp/grpcpp.h>
+
 #include <vector>
 
 class RiaGrpcServerCallMethod;
 class RimCase;
-
-namespace grpc
-{
-    class ServerCompletionQueue;    
-    class Service;
-}
 
 //==================================================================================================
 //
@@ -35,14 +31,6 @@ namespace grpc
 //==================================================================================================
 class RiaGrpcServiceInterface
 {
-public:
-    enum StreamStatus
-    {
-        KEEP_STREAM_GOING = 0,
-        FINISH_STREAM,
-        FINISH_AND_WRITE_STREAM,
-        STREAM_ERROR
-    };
 public:
     virtual std::vector<RiaGrpcServerCallMethod*> createCallbacks() = 0;
     virtual ~RiaGrpcServiceInterface() = default;
