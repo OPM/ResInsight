@@ -126,7 +126,7 @@ grpc::Status RiaGrpcGridInfoService::GetAllActiveCellInfos(grpc::ServerContext* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridInfoService::StreamActiveCellInfos(grpc::ServerContext*                           context,
+grpc::Status RiaGrpcGridInfoService::StreamActiveCellInfo(grpc::ServerContext*                           context,
                                                            const rips::ActiveCellInfoRequest*             request,
                                                            rips::ActiveCellInfo*                          reply,
                                                            size_t*                                        count)
@@ -249,7 +249,7 @@ std::vector<RiaGrpcServerCallMethod*> RiaGrpcGridInfoService::createCallbacks()
         new RiaGrpcServerCallData<Self, Case, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
         new RiaGrpcServerCallData<Self, Case, AllGridDimensions>(this, &Self::GetAllGridDimensions, &Self::RequestGetAllGridDimensions),
         new RiaGrpcServerCallData<Self, ActiveCellInfoRequest, ActiveCellInfos>(this, &Self::GetAllActiveCellInfos, &Self::RequestGetAllActiveCellInfos),
-        new RiaGrpcServerStreamingCallData<Self, ActiveCellInfoRequest, rips::ActiveCellInfo>(this, &Self::StreamActiveCellInfos, &Self::RequestStreamActiveCellInfos)
+        new RiaGrpcServerStreamingCallData<Self, ActiveCellInfoRequest, rips::ActiveCellInfo>(this, &Self::StreamActiveCellInfo, &Self::RequestStreamActiveCellInfo)
     };
 }
 
