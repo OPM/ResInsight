@@ -53,6 +53,7 @@ public:
     grpc::Status       assignNextActiveCellInfoData(rips::ActiveCellInfo* cellInfo);
     void               assignActiveCellInfoData(rips::ActiveCellInfo* cellInfo, const std::vector<RigCell>& reservoirCells, size_t cellIdx);
     RigActiveCellInfo* activeCellInfo() const;
+    const std::vector<RigCell>& reservoirCells() const;
 protected:
     const rips::ActiveCellInfoRequest* m_request;
     RimEclipseCase*                    m_eclipseCase;
