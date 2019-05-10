@@ -211,19 +211,18 @@ void RiaGrpcServerImpl::waitForNextRequest()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServerImpl::process(RiaGrpcServerCallMethod* method)
 {
-    if (method->callStatus() == RiaGrpcServerCallMethod::CREATE)
+    if (method->callState() == RiaGrpcServerCallMethod::CREATE)
     {
-        method->callStatus() = RiaGrpcServerCallMethod::PROCESS;
         method->createRequest(m_completionQueue.get());
     }
-    else if (method->callStatus() == RiaGrpcServerCallMethod::PROCESS)
+    else if (method->callState() == RiaGrpcServerCallMethod::PROCESS)
     {
-        method->callStatus() = RiaGrpcServerCallMethod::FINISH;
-        method->processRequest();
-        process(method->createNewFromThis());
+        method->processRequest();        
     }
     else
     {
+        method->finishRequest();
+        process(method->createNewFromThis());
         delete method;
     }
 }

@@ -51,6 +51,9 @@ class GridInfo:
 		
 	def getAllActiveCellInfos(self, caseId=0):
 		return self.gridInfo.GetAllActiveCellInfos(CaseInfo_pb2.Case(id=caseId)).data
+
+	def streamAllActiveCellInfos(self, caseId=0):
+		return self.gridInfo.StreamActiveCellInfos(CaseInfo_pb2.Case(id=caseId))
 		
 class ProjectInfo:
 	def __init__(self, channel):

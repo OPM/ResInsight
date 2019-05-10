@@ -16,6 +16,36 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
+inline RiaGrpcServerCallMethod::RiaGrpcServerCallMethod()
+    : m_state(CREATE)
+    , m_status(Status::OK)
+{
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaGrpcServerCallMethod::CallState RiaGrpcServerCallMethod::callState() const
+{
+    return m_state;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const Status& RiaGrpcServerCallMethod::status() const
+{
+    return m_status;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+inline void RiaGrpcServerCallMethod::setCallState(CallState state)
+{
+    m_state = state;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -48,6 +78,15 @@ const RequestT& RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::reque
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
+ReplyT& RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::reply()
+{
+    return m_reply;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template<typename ServiceT, typename RequestT, typename ReplyT>
 RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::RiaGrpcServerCallData(ServiceT*     service,
                                                                          MethodImpl    methodImpl,
                                                                          MethodRequest methodRequest)
@@ -74,26 +113,18 @@ template<typename ServiceT, typename RequestT, typename ReplyT>
 void RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::createRequest(ServerCompletionQueue* completionQueue)
 {
     m_methodRequest(*m_service, &m_context, &m_request, &m_responder, completionQueue, completionQueue, this);
+    setCallState(RiaGrpcServerCallMethod::PROCESS);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-Status RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::processRequest()
+void RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::processRequest()
 {
-    Status status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply);
-    m_responder.Finish(m_reply, status, this);
-    return status;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template<typename ServiceT, typename RequestT, typename ReplyT>
-ReplyT& RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::reply()
-{
-    return m_reply;
+    m_status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply);
+    m_responder.Finish(m_reply, m_status, this);
+    setCallState(RiaGrpcServerCallMethod::FINISH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,11 +134,11 @@ template<typename ServiceT, typename RequestT, typename ReplyT>
 RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT>::RiaGrpcServerStreamingCallData(ServiceT*     service,
                                                                                            MethodImpl    methodImpl,
                                                                                            MethodRequest methodRequest)
-    : RiaGrpcServerCallData(service)
+    : RiaGrpcServerAbstractCallData(service)
     , m_responder(&m_context)
     , m_methodImpl(methodImpl)
     , m_methodRequest(methodRequest)
-    , m_serverWriter(&m_context)
+    , m_dataCount(0u)
 {
 }
 
@@ -127,22 +158,31 @@ template<typename ServiceT, typename RequestT, typename ReplyT>
 void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT>::createRequest(ServerCompletionQueue* completionQueue)
 {
     m_methodRequest(*m_service, &m_context, &m_request, &m_responder, completionQueue, completionQueue, this);
+    setCallState(RiaGrpcServerCallMethod::PROCESS);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-Status RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT>::processRequest()
+void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT>::processRequest()
 {
-    return m_methodImpl(*m_service, &m_context, &m_request, &m_reply);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template<typename ServiceT, typename RequestT, typename ReplyT>
-void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT>::finishRequest()
-{
-    m_responder.Finish(status, this);
+    m_reply = ReplyT(); // Make sure it is reset
+    m_status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply, &m_dataCount);
+    if (m_status.ok())
+    {
+        m_responder.Write(m_reply, this);
+    }
+    else
+    {
+        setCallState(FINISH);
+        // Out of range means we're finished but it isn't an error
+        if (m_status.error_code() == grpc::OUT_OF_RANGE)
+        {
+            RiaLogging::info(QString("Finished sending data packages"));
+            m_status = Status::OK;
+        }
+        RiaLogging::info(QString("Send finished response"));
+        m_responder.Finish(m_status, this);
+    }
 }

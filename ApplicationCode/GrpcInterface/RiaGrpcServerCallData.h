@@ -20,6 +20,8 @@
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
 
+#include "RiaLogging.h"
+
 using grpc::CompletionQueue;
 using grpc::ServerAsyncResponseWriter;
 using grpc::ServerAsyncWriter;
@@ -38,7 +40,7 @@ class RiaGrpcServiceInterface;
 class RiaGrpcServerCallMethod
 {
 public:
-    enum CallStatus
+    enum CallState
     {
         CREATE,
         PROCESS,
@@ -46,25 +48,24 @@ public:
     };
 
 public:
-    RiaGrpcServerCallMethod()
-        : m_status(CREATE)
-    {
-    }
+    inline RiaGrpcServerCallMethod();
 
     virtual ~RiaGrpcServerCallMethod() {}
     virtual const char*              name() const                                          = 0;
     virtual RiaGrpcServerCallMethod* createNewFromThis() const = 0;
     virtual void                     createRequest(ServerCompletionQueue* completionQueue) = 0;
-    virtual Status                   processRequest()                                      = 0;
+    virtual void                     processRequest()                                      = 0;
     virtual void                     finishRequest() {}
 
-    CallStatus& callStatus()
-    {
-        return m_status;
-    }
+    inline CallState callState() const;
+    inline const Status& status() const;
 
-private:
-    CallStatus  m_status;
+protected:
+    inline void setCallState(CallState state);
+
+protected:
+    CallState  m_state;
+    Status     m_status;
 };
 
 //==================================================================================================
@@ -78,14 +79,15 @@ class RiaGrpcServerAbstractCallData : public RiaGrpcServerCallMethod
 public:
     RiaGrpcServerAbstractCallData(ServiceT* service);
 
-    const char* name() const override;
+    const char*      name() const override;
     const RequestT&  request() const;
+    ReplyT&          reply();
 
 protected:
     ServiceT*       m_service;
     ServerContext   m_context;
     RequestT        m_request;
-
+    ReplyT          m_reply;
 };
 
 //==================================================================================================
@@ -108,12 +110,9 @@ public:
 
     RiaGrpcServerCallMethod* createNewFromThis() const override;
     void                     createRequest(ServerCompletionQueue* completionQueue) override;
-    Status                   processRequest() override;
-
-    ReplyT&                  reply();
+    void                     processRequest() override;
 
 private:
-    ReplyT                            m_reply;
     ResponseWriterT                   m_responder;
     MethodImpl                        m_methodImpl;
     MethodRequest                     m_methodRequest;
@@ -129,10 +128,9 @@ class RiaGrpcServerStreamingCallData : public RiaGrpcServerAbstractCallData<Serv
 {
 public:
     typedef ServerAsyncWriter<ReplyT> ResponseWriterT;
-    typedef ServerWriter<ReplyT>      ServerWriterT;
 
     typedef std::function<
-        Status(ServiceT&, ServerContext*, const RequestT*, ServerWriterT*)> MethodImpl;
+        Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*, size_t*)> MethodImpl;
     typedef std::function<
         void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*,
             CompletionQueue*, ServerCompletionQueue*, void*)>               MethodRequest;
@@ -141,14 +139,13 @@ public:
 
     RiaGrpcServerCallMethod* createNewFromThis() const override;
     void                     createRequest(ServerCompletionQueue* completionQueue) override;
-    Status                   processRequest() override;
-    void                     finishRequest() override;
+    void                     processRequest() override;
 
 private:
-    ServerWriterT                     m_serverWriter;
     ResponseWriterT                   m_responder;
     MethodImpl                        m_methodImpl;
     MethodRequest                     m_methodRequest;
+    size_t                            m_dataCount; // This is used to keep track of progress. Only one item is sent for each invocation.
 };
 
 #include "RiaGrpcServerCallData.inl"

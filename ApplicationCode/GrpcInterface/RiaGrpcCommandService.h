@@ -45,9 +45,6 @@ class Message;
 
 class RiaGrpcServerCallMethod;
 
-template<typename ServiceT, typename RequestT, typename ReplyT>
-class RiaGrpcServerCallData;
-
 class RiaGrpcCommandService : public rips::Commands::AsyncService, public RiaGrpcServiceInterface
 {
 public:
