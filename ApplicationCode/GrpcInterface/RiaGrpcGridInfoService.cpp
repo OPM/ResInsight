@@ -46,7 +46,7 @@ grpc::Status RiaAbstractActiveCellInfoReplyCreator::init(const rips::ActiveCellI
 {
     CAF_ASSERT(request);
     m_request = request;
-
+    
     m_porosityModel  = RiaDefines::PorosityModelType(m_request->porosity_model());
     RimCase* rimCase = RiaGrpcServiceInterface::findCase(m_request->case_id());
     m_eclipseCase    = dynamic_cast<RimEclipseCase*>(rimCase);
@@ -108,9 +108,9 @@ grpc::Status RiaAbstractActiveCellInfoReplyCreator::assignNextActiveCellInfoData
 //--------------------------------------------------------------------------------------------------
 void RiaAbstractActiveCellInfoReplyCreator::assignActiveCellInfoData(rips::ActiveCellInfo* cellInfo, const std::vector<RigCell>& reservoirCells, size_t cellIdx)
 {
-    RigGridBase* grid = reservoirCells[m_currentCellIdx].hostGrid();
+    RigGridBase* grid = reservoirCells[cellIdx].hostGrid();
     CVF_ASSERT(grid != nullptr);
-    size_t cellIndex = reservoirCells[m_currentCellIdx].gridLocalCellIndex();
+    size_t cellIndex = reservoirCells[cellIdx].gridLocalCellIndex();
 
     size_t i, j, k;
     grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
@@ -127,7 +127,7 @@ void RiaAbstractActiveCellInfoReplyCreator::assignActiveCellInfoData(rips::Activ
     }
     else
     {
-        size_t parentCellIdx = reservoirCells[m_currentCellIdx].parentCellIndex();
+        size_t parentCellIdx = reservoirCells[cellIdx].parentCellIndex();
         parentGrid           = (static_cast<RigLocalGrid*>(grid))->parentGrid();
         CVF_ASSERT(parentGrid != nullptr);
         parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
@@ -136,7 +136,7 @@ void RiaAbstractActiveCellInfoReplyCreator::assignActiveCellInfoData(rips::Activ
     cellInfo->set_grid_index((int)grid->gridIndex());
     cellInfo->set_parent_grid_index((int)parentGrid->gridIndex());
 
-    size_t coarseningIdx = reservoirCells[m_currentCellIdx].coarseningBoxIndex();
+    size_t coarseningIdx = reservoirCells[cellIdx].coarseningBoxIndex();
     if (coarseningIdx != cvf::UNDEFINED_SIZE_T)
     {
         size_t globalCoarseningIdx = m_globalCoarseningBoxIndexStart[grid->gridIndex()] + coarseningIdx;
@@ -168,6 +168,15 @@ void RiaAbstractActiveCellInfoReplyCreator::assignActiveCellInfoData(rips::Activ
 RigActiveCellInfo* RiaAbstractActiveCellInfoReplyCreator::activeCellInfo() const
 {
     return m_activeCellInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<RigCell>& RiaAbstractActiveCellInfoReplyCreator::reservoirCells() const
+{
+    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->globalCellArray();
+    return reservoirCells;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -286,13 +295,14 @@ grpc::Status RiaGrpcGridInfoService::GetAllActiveCellInfos(grpc::ServerContext* 
 
     reply->mutable_data()->Reserve((int) activeCellInfo->reservoirActiveCellCount());
 
-    size_t reservoirCellCount = activeCellInfo->reservoirCellCount();
+    const std::vector<RigCell>& reservoirCells = stateHandler.reservoirCells();
+    size_t reservoirCellCount = reservoirCells.size();
     for (size_t cIdx = 0; cIdx < reservoirCellCount; ++cIdx)
     {
         if (stateHandler.activeCellInfo()->isActive(cIdx))
         {
             rips::ActiveCellInfo* cellInfo = reply->add_data();
-            stateHandler.assignNextActiveCellInfoData(cellInfo);
+            stateHandler.assignActiveCellInfoData(cellInfo, reservoirCells, cIdx);
         }
     }
     return Status::OK;

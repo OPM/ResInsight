@@ -12,6 +12,8 @@ import GridInfo_pb2_grpc
 import ProjectInfo_pb2
 import ProjectInfo_pb2_grpc
 
+MAX_MESSAGE_LENGTH = 32 * 1024 * 1024
+
 class CommandExecutor:
 	def __init__(self, channel):
 		self.commands      = Commands_pb2_grpc.CommandsStub(channel)
@@ -69,7 +71,7 @@ class Instance:
 		if port is None:
 			port = str(50051)
 		location = "localhost:" + port
-		self.channel = grpc.insecure_channel(location)
+		self.channel = grpc.insecure_channel(location, options=[('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH)])
 		
 		# Service packages
 		self.commands    = CommandExecutor(self.channel)
