@@ -30,9 +30,6 @@ class CaseInfo;
 
 class RiaGrpcServerCallMethod;
 
-template<typename ServiceT, typename RequestT, typename ReplyT>
-class RiaGrpcServerCallData;
-
 //==================================================================================================
 //
 // gRPC-service answering requests about project information

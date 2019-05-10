@@ -115,62 +115,126 @@ grpc::Status RiaGrpcGridInfoService::GetAllActiveCellInfos(grpc::ServerContext* 
     {
         if (activeCellInfo->isActive(cIdx))
         {
-            RigGridBase* grid = reservoirCells[cIdx].hostGrid();
-            CVF_ASSERT(grid != nullptr);
-            size_t cellIndex = reservoirCells[cIdx].gridLocalCellIndex();
-
-            size_t i, j, k;
-            grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
-
-            size_t       pi, pj, pk;
-            RigGridBase* parentGrid = nullptr;
-
-            if (grid->isMainGrid())
-            {
-                pi         = i;
-                pj         = j;
-                pk         = k;
-                parentGrid = grid;
-            }
-            else
-            {
-                size_t parentCellIdx = reservoirCells[cIdx].parentCellIndex();
-                parentGrid           = (static_cast<RigLocalGrid*>(grid))->parentGrid();
-                CVF_ASSERT(parentGrid != nullptr);
-                parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
-            }
             rips::ActiveCellInfo* cellInfo = reply->add_data();
-            
-            cellInfo->set_grid_index((int)grid->gridIndex());
-            cellInfo->set_parent_grid_index((int)parentGrid->gridIndex());
-
-            size_t coarseningIdx = reservoirCells[cIdx].coarseningBoxIndex();
-            if (coarseningIdx != cvf::UNDEFINED_SIZE_T)
-            {
-                size_t globalCoarseningIdx = globalCoarseningBoxIndexStart[grid->gridIndex()] + coarseningIdx;
-                cellInfo->set_coarsening_box_index((int) globalCoarseningIdx);
-            }
-            else
-            {
-                cellInfo->set_coarsening_box_index(-1);
-            }
-            {
-                rips::Vec3i* local_ijk = new rips::Vec3i;
-                local_ijk->set_i((int)i);
-                local_ijk->set_j((int)j);
-                local_ijk->set_k((int)k);
-                cellInfo->set_allocated_local_ijk(local_ijk);
-            }
-            {
-                rips::Vec3i* parent_ijk = new rips::Vec3i;
-                parent_ijk->set_i((int)pi);
-                parent_ijk->set_j((int)pj);
-                parent_ijk->set_k((int)pk);
-                cellInfo->set_allocated_parent_ijk(parent_ijk);
-            }
+            assignActiveCellInfoData(cellInfo, reservoirCells, cIdx, globalCoarseningBoxIndexStart);
         }
     }
     return Status::OK;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcGridInfoService::StreamActiveCellInfos(grpc::ServerContext*                           context,
+                                                           const rips::ActiveCellInfoRequest*             request,
+                                                           rips::ActiveCellInfo*                          reply,
+                                                           size_t*                                        count)
+{
+    CAF_ASSERT(count);
+    RimCase*        rimCase     = findCase(request->case_id());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
+
+    if (!eclipseCase) return grpc::Status(grpc::NOT_FOUND, "Eclipse Case not found");
+    if (!eclipseCase->eclipseCaseData() || !eclipseCase->eclipseCaseData()->mainGrid())
+    {
+        return grpc::Status(grpc::NOT_FOUND, "Eclipse Case Data not found");
+    }
+    RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType(request->porosity_model());
+
+    RigActiveCellInfo* activeCellInfo  = eclipseCase->eclipseCaseData()->activeCellInfo(porosityModel);
+
+    std::vector<size_t> globalCoarseningBoxIndexStart;
+    {
+        size_t globalCoarseningBoxCount = 0;
+
+        for (size_t gridIdx = 0; gridIdx < eclipseCase->eclipseCaseData()->gridCount(); gridIdx++)
+        {
+            globalCoarseningBoxIndexStart.push_back(globalCoarseningBoxCount);
+
+            RigGridBase* grid = eclipseCase->eclipseCaseData()->grid(gridIdx);
+
+            size_t localCoarseningBoxCount = grid->coarseningBoxCount();
+            globalCoarseningBoxCount += localCoarseningBoxCount;
+        }
+    }
+
+    const std::vector<RigCell>& reservoirCells = eclipseCase->eclipseCaseData()->mainGrid()->globalCellArray();
+
+    while (*count < reservoirCells.size())
+    {
+        if (activeCellInfo->isActive(*count))
+        {
+            assignActiveCellInfoData(reply, reservoirCells, *count, globalCoarseningBoxIndexStart);
+            (*count)++;
+            return Status::OK;
+        }
+        (*count)++;
+    }
+    return Status(grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished");
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcGridInfoService::assignActiveCellInfoData(rips::ActiveCellInfo*       cellInfo,
+                                                      const std::vector<RigCell>& reservoirCells,
+                                                      size_t                      cIdx,
+                                                      const std::vector<size_t>& globalCoarseningBoxIndexStart)
+{
+    RigGridBase* grid = reservoirCells[cIdx].hostGrid();
+    CVF_ASSERT(grid != nullptr);
+    size_t cellIndex = reservoirCells[cIdx].gridLocalCellIndex();
+
+    size_t i, j, k;
+    grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
+
+    size_t       pi, pj, pk;
+    RigGridBase* parentGrid = nullptr;
+
+    if (grid->isMainGrid())
+    {
+        pi         = i;
+        pj         = j;
+        pk         = k;
+        parentGrid = grid;
+    }
+    else
+    {
+        size_t parentCellIdx = reservoirCells[cIdx].parentCellIndex();
+        parentGrid           = (static_cast<RigLocalGrid*>(grid))->parentGrid();
+        CVF_ASSERT(parentGrid != nullptr);
+        parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
+    }
+
+    cellInfo->set_grid_index((int)grid->gridIndex());
+    cellInfo->set_parent_grid_index((int)parentGrid->gridIndex());
+
+    size_t coarseningIdx = reservoirCells[cIdx].coarseningBoxIndex();
+    if (coarseningIdx != cvf::UNDEFINED_SIZE_T)
+    {
+        size_t globalCoarseningIdx = globalCoarseningBoxIndexStart[grid->gridIndex()] + coarseningIdx;
+        cellInfo->set_coarsening_box_index((int)globalCoarseningIdx);
+    }
+    else
+    {
+        cellInfo->set_coarsening_box_index(-1);
+    }
+    {
+        rips::Vec3i* local_ijk = new rips::Vec3i;
+        local_ijk->set_i((int)i);
+        local_ijk->set_j((int)j);
+        local_ijk->set_k((int)k);
+        cellInfo->set_allocated_local_ijk(local_ijk);
+    }
+    {
+        rips::Vec3i* parent_ijk = new rips::Vec3i;
+        parent_ijk->set_i((int)pi);
+        parent_ijk->set_j((int)pj);
+        parent_ijk->set_k((int)pk);
+        cellInfo->set_allocated_parent_ijk(parent_ijk);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -184,7 +248,8 @@ std::vector<RiaGrpcServerCallMethod*> RiaGrpcGridInfoService::createCallbacks()
     {
         new RiaGrpcServerCallData<Self, Case, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
         new RiaGrpcServerCallData<Self, Case, AllGridDimensions>(this, &Self::GetAllGridDimensions, &Self::RequestGetAllGridDimensions),
-        new RiaGrpcServerCallData<Self, ActiveCellInfoRequest, ActiveCellInfos>(this, &Self::GetAllActiveCellInfos, &Self::RequestGetAllActiveCellInfos)
+        new RiaGrpcServerCallData<Self, ActiveCellInfoRequest, ActiveCellInfos>(this, &Self::GetAllActiveCellInfos, &Self::RequestGetAllActiveCellInfos),
+        new RiaGrpcServerStreamingCallData<Self, ActiveCellInfoRequest, rips::ActiveCellInfo>(this, &Self::StreamActiveCellInfos, &Self::RequestStreamActiveCellInfos)
     };
 }
 
