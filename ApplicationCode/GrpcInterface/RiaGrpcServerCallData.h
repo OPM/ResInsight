@@ -42,19 +42,21 @@ class RiaGrpcServerCallMethod
 public:
     enum CallState
     {
-        CREATE,
-        PROCESS,
-        FINISH
+        CREATE_HANDLER,
+        INIT_REQUEST,
+        PROCESS_REQUEST,
+        FINISH_REQUEST
     };
 
 public:
     inline RiaGrpcServerCallMethod();
 
     virtual ~RiaGrpcServerCallMethod() {}
-    virtual const char*              name() const                                          = 0;
-    virtual RiaGrpcServerCallMethod* createNewFromThis() const = 0;
-    virtual void                     createRequest(ServerCompletionQueue* completionQueue) = 0;
-    virtual void                     processRequest()                                      = 0;
+    virtual const char*              name() const                                                 = 0;
+    virtual RiaGrpcServerCallMethod* createNewFromThis() const                                    = 0;
+    virtual void                     createRequestHandler(ServerCompletionQueue* completionQueue) = 0;
+    virtual void                     initRequest()                                                = 0;
+    virtual void                     processRequest()                                             = 0;
     virtual void                     finishRequest() {}
 
     inline CallState callState() const;
@@ -109,7 +111,8 @@ public:
                           MethodRequest          methodRequest);
 
     RiaGrpcServerCallMethod* createNewFromThis() const override;
-    void                     createRequest(ServerCompletionQueue* completionQueue) override;
+    void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
+    void                     initRequest() override;
     void                     processRequest() override;
 
 private:
@@ -123,29 +126,32 @@ private:
 // Templated *streaming* gRPC-callback calling service implementation callbacks
 //
 //==================================================================================================
-template<typename ServiceT, typename RequestT, typename ReplyT>
+template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
 class RiaGrpcServerStreamingCallData : public RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>
 {
 public:
-    typedef ServerAsyncWriter<ReplyT> ResponseWriterT;
+    typedef ServerAsyncWriter<ReplyT>                      ResponseWriterT;
 
     typedef std::function<
-        Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*, size_t*)> MethodImpl;
+        Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*, StateHandlerT*)> MethodImpl;
     typedef std::function<
         void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*,
-            CompletionQueue*, ServerCompletionQueue*, void*)>               MethodRequest;
+            CompletionQueue*, ServerCompletionQueue*, void*)>                       MethodRequest;
 
-    RiaGrpcServerStreamingCallData(ServiceT* service, MethodImpl methodImpl, MethodRequest methodRequest);
+
+    RiaGrpcServerStreamingCallData(ServiceT* service, MethodImpl methodImpl, MethodRequest methodRequest, StateHandlerT* stateHandler);
 
     RiaGrpcServerCallMethod* createNewFromThis() const override;
-    void                     createRequest(ServerCompletionQueue* completionQueue) override;
+    void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
+    void                     initRequest() override;
     void                     processRequest() override;
 
 private:
-    ResponseWriterT                   m_responder;
-    MethodImpl                        m_methodImpl;
-    MethodRequest                     m_methodRequest;
-    size_t                            m_dataCount; // This is used to keep track of progress. Only one item is sent for each invocation.
+    ResponseWriterT                         m_responder;
+    MethodImpl                              m_methodImpl;
+    MethodRequest                           m_methodRequest;
+    size_t                                  m_dataCount; // This is used to keep track of progress. Only one item is sent for each invocation.
+    std::unique_ptr<StateHandlerT>          m_stateHandler;
 };
 
 #include "RiaGrpcServerCallData.inl"

@@ -17,7 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 inline RiaGrpcServerCallMethod::RiaGrpcServerCallMethod()
-    : m_state(CREATE)
+    : m_state(CREATE_HANDLER)
     , m_status(Status::OK)
 {
 }
@@ -110,10 +110,19 @@ RiaGrpcServerCallMethod* RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::crea
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-void RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::createRequest(ServerCompletionQueue* completionQueue)
+void RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::createRequestHandler(ServerCompletionQueue* completionQueue)
 {
-    m_methodRequest(*m_service, &m_context, &m_request, &m_responder, completionQueue, completionQueue, this);
-    setCallState(RiaGrpcServerCallMethod::PROCESS);
+    m_methodRequest(*m_service, &m_context, &m_request, &m_responder, completionQueue, completionQueue, this);    
+    setCallState(RiaGrpcServerCallMethod::INIT_REQUEST);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template<typename ServiceT, typename RequestT, typename ReplyT>
+void RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::initRequest()
+{
+    setCallState(RiaGrpcServerCallMethod::PROCESS_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,59 +133,78 @@ void RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::processRequest()
 {
     m_status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply);
     m_responder.Finish(m_reply, m_status, this);
-    setCallState(RiaGrpcServerCallMethod::FINISH);
+    setCallState(RiaGrpcServerCallMethod::FINISH_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<typename ServiceT, typename RequestT, typename ReplyT>
-RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT>::RiaGrpcServerStreamingCallData(ServiceT*     service,
-                                                                                           MethodImpl    methodImpl,
-                                                                                           MethodRequest methodRequest)
+template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
+RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGrpcServerStreamingCallData(ServiceT*      service,
+                                                                                                          MethodImpl     methodImpl,
+                                                                                                          MethodRequest   methodRequest,
+                                                                                                          StateHandlerT*  stateHandler)
     : RiaGrpcServerAbstractCallData(service)
     , m_responder(&m_context)
     , m_methodImpl(methodImpl)
     , m_methodRequest(methodRequest)
     , m_dataCount(0u)
+    , m_stateHandler(stateHandler)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<typename ServiceT, typename RequestT, typename ReplyT>
-RiaGrpcServerCallMethod* RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT>::createNewFromThis() const
+template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
+RiaGrpcServerCallMethod* RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::createNewFromThis() const
 {
-    return new RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT>(m_service, m_methodImpl, m_methodRequest);
+    return new RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>(m_service, m_methodImpl, m_methodRequest, new StateHandlerT);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<typename ServiceT, typename RequestT, typename ReplyT>
-void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT>::createRequest(ServerCompletionQueue* completionQueue)
+template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
+void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::createRequestHandler(ServerCompletionQueue* completionQueue)
 {
     m_methodRequest(*m_service, &m_context, &m_request, &m_responder, completionQueue, completionQueue, this);
-    setCallState(RiaGrpcServerCallMethod::PROCESS);
+    setCallState(RiaGrpcServerCallMethod::INIT_REQUEST);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Perform initialisation tasks at the time of receiving a request
+//--------------------------------------------------------------------------------------------------
+template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
+void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::initRequest()
+{
+    m_status = m_stateHandler->init(&m_request);
+    setCallState(RiaGrpcServerCallMethod::PROCESS_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<typename ServiceT, typename RequestT, typename ReplyT>
-void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT>::processRequest()
+template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
+void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::processRequest()
 {
     m_reply = ReplyT(); // Make sure it is reset
 
-    m_status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply, &m_dataCount);
+    if (!m_status.ok())
+    {
+        m_responder.Finish(m_status, this);
+        setCallState(RiaGrpcServerCallMethod::FINISH_REQUEST);
+        return;
+    }
+    
+    m_status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply, m_stateHandler.get());
     if (m_status.ok())
     {
         m_responder.Write(m_reply, this);
     }
     else
     {
-        setCallState(FINISH);
+        setCallState(FINISH_REQUEST);
         // Out of range means we're finished but it isn't an error
         if (m_status.error_code() == grpc::OUT_OF_RANGE)
         {
