@@ -4,7 +4,7 @@ resInsight     = ResInsight.Instance()
 #gridCount      = resInsight.gridInfo.getGridCount(caseId=0)
 #gridDimensions = resInsight.gridInfo.getAllGridDimensions(caseId=0)
 
-activeCellInfo = resInsight.gridInfo.streamAllActiveCellInfos(caseId=0)
+activeCellInfo = resInsight.gridInfo.streamActiveCellInfo(caseId=0)
 
 #print("Number of grids: " + str(gridCount))
 #print(gridDimensions)
