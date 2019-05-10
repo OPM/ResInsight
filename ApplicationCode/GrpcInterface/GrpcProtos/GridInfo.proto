@@ -11,6 +11,7 @@ service GridInfo
 	rpc GetAllGridDimensions(Case) returns (AllGridDimensions) {}
 	rpc GetAllActiveCellInfos(ActiveCellInfoRequest) returns (ActiveCellInfos) {}
 	rpc StreamActiveCellInfo(ActiveCellInfoRequest) returns (stream ActiveCellInfo) {}
+	rpc StreamActiveCellInfos(ActiveCellInfoRequest) returns (stream ActiveCellInfos) {}
 	rpc GetAllCoarseningInfos(Case) returns (CoarseningInfos) {}
 	rpc GetTimeSteps(Case) returns (TimeStepDates) {}
 	rpc GetTimeStepDaysSinceStart(Case) returns (DoubleDates) {}

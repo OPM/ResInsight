@@ -42,7 +42,8 @@ public:
     grpc::Status GetGridCount(grpc::ServerContext* context, const rips::Case* request, rips::GridCount* reply) override;
     grpc::Status GetAllGridDimensions(grpc::ServerContext* context, const rips::Case* request, rips::AllGridDimensions* reply) override;
     grpc::Status GetAllActiveCellInfos(grpc::ServerContext* context, const rips::ActiveCellInfoRequest* request, rips::ActiveCellInfos* reply) override;
-    grpc::Status StreamActiveCellInfo(grpc::ServerContext* context, const rips::ActiveCellInfoRequest* request, rips::ActiveCellInfo* reply, size_t* count);
+    grpc::Status StreamActiveCellInfo(grpc::ServerContext* context, const rips::ActiveCellInfoRequest* request, rips::ActiveCellInfo* reply, size_t* streamIndex);
+    grpc::Status StreamActiveCellInfos(grpc::ServerContext* context, const rips::ActiveCellInfoRequest* request, rips::ActiveCellInfos* reply, size_t* streamIndex);
     std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
     void assignActiveCellInfoData(rips::ActiveCellInfo* activeCellInfo, const std::vector<RigCell>& reservoirCells, size_t cIdx, const std::vector<size_t>& globalCoarseningBoxIndexStart);
 };

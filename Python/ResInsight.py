@@ -12,8 +12,6 @@ import GridInfo_pb2_grpc
 import ProjectInfo_pb2
 import ProjectInfo_pb2_grpc
 
-MAX_MESSAGE_LENGTH = 32 * 1024 * 1024
-
 class CommandExecutor:
 	def __init__(self, channel):
 		self.commands      = Commands_pb2_grpc.CommandsStub(channel)
@@ -54,6 +52,9 @@ class GridInfo:
 
 	def streamActiveCellInfo(self, caseId=0):
 		return self.gridInfo.StreamActiveCellInfo(CaseInfo_pb2.Case(id=caseId))
+
+	def streamActiveCellInfos(self, caseId=0):
+		return self.gridInfo.StreamActiveCellInfos(CaseInfo_pb2.Case(id=caseId))
 		
 class ProjectInfo:
 	def __init__(self, channel):
@@ -68,7 +69,7 @@ class Instance:
 		if port is None:
 			port = str(50051)
 		location = "localhost:" + port
-		self.channel = grpc.insecure_channel(location, options=[('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH)])		
+		self.channel = grpc.insecure_channel(location)
 		
 		# Service packages
 		self.commands    = CommandExecutor(self.channel)
