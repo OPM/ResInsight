@@ -35,6 +35,9 @@ class CommandExecutor:
 
 	def openProject(self, path):
 		return self.execute(Commands_pb2.CommandParams(openProject=Commands_pb2.FilePathRequest(path=path)))
+
+	def loadCase(self, path):
+		return self.execute(Commands_pb2.CommandParams(loadCase=Commands_pb2.FilePathRequest(path=path)))
 		
 	def closeProject(self):
 		return self.execute(Commands_pb2.CommandParams(closeProject=CaseInfo_pb2.Empty()))

@@ -2,26 +2,23 @@
 
 import ResInsight
 
+resInsight = ResInsight.Instance()
+
 
 # content of test_sample.py
 def getActiveCellCount(caseId):
-  resInsight = ResInsight.Instance()
-  activeCellInfo = resInsight.gridInfo.getAllActiveCellInfos(caseId)
+  activeCellInfoChunks = resInsight.gridInfo.streamActiveCellInfo(caseId)
 
   receivedActiveCells = []
-  for activeCell in activeCellInfo:
-  	receivedActiveCells.append(activeCell)
-  
+  for activeCellChunk in activeCellInfoChunks:
+	  for activeCell in activeCellChunk.data:
+		  receivedActiveCells.append(activeCell)
   return len(receivedActiveCells)
 
 def myOpenProject(filepath):
   resInsight = ResInsight.Instance()
   #resInsight.commands.setMainWindowSize(width=800, height=500)
   resInsight.commands.openProject(filepath)
-
-
-
-
 
 def test_openProjectAndCountCells():
   testRepositoryRoot = "d:\\gitroot-ceesol\\ResInsight-regression-test"
@@ -35,3 +32,15 @@ def test_openProjectAndCountCells():
   myOpenProject(projectPath)
 
   assert getActiveCellCount(0) == 11125
+
+
+
+def test_openCaseAndCountCells():
+  testRepositoryRoot = "d:\\gitroot-ceesol\\ResInsight-regression-test"
+
+  casePath = testRepositoryRoot + "\\ModelData\\TEST10K_FLT_LGR_NNC\\TEST10K_FLT_LGR_NNC.EGRID"
+  resInsight.commands.loadCase(casePath)
+
+  assert getActiveCellCount(0) == 11125
+
+  resInsight.commands.closeProject()
