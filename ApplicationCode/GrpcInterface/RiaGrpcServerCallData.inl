@@ -60,9 +60,12 @@ RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::RiaGrpcServerAbstract
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-const char* RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::name() const
+QString RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::name() const
 {
-    return typeid(ServiceT).name();
+    QString fullName =
+        QString("%1:%2(%3, %4)").arg(typeid(ServiceT).name()).arg(methodType())
+                                .arg(typeid(RequestT).name()).arg(typeid(ReplyT).name());
+    return fullName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,6 +142,15 @@ void RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::processRequest()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+template<typename ServiceT, typename RequestT, typename ReplyT>
+QString RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::methodType() const
+{
+    return "RegularMethod";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
 RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGrpcServerStreamingCallData(ServiceT*      service,
                                                                                                           MethodImpl     methodImpl,
@@ -208,10 +220,17 @@ void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::
         // Out of range means we're finished but it isn't an error
         if (m_status.error_code() == grpc::OUT_OF_RANGE)
         {
-            RiaLogging::info(QString("Finished sending data packages"));
             m_status = Status::OK;
         }
-        RiaLogging::info(QString("Send finished response"));
         m_responder.Finish(m_status, this);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
+QString RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::methodType() const
+{
+    return "StreamingMethod";
 }

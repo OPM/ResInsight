@@ -198,28 +198,25 @@ grpc::Status RiaActiveCellInfoStreamStateHandler::assignReply(rips::ActiveCellIn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaActiveCellInfosStreamStateHandler::RiaActiveCellInfosStreamStateHandler()
+RiaActiveCellInfoArrayStreamStateHandler::RiaActiveCellInfoArrayStreamStateHandler()
     : RiaAbstractActiveCellInfoReplyCreator()
 {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaActiveCellInfosStreamStateHandler::assignReply(rips::ActiveCellInfos* reply)
+grpc::Status RiaActiveCellInfoArrayStreamStateHandler::assignReply(rips::ActiveCellInfoArray* reply)
 {
     const size_t packageSize  = 1024u;
     size_t       packageIndex = 0u;
     reply->mutable_data()->Reserve(packageSize);
-    if (m_currentCellIdx < m_activeCellInfo->reservoirCellCount())
+    for (; packageIndex < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++packageIndex)
     {
-        for (; packageIndex < packageSize; ++packageIndex)
+        rips::ActiveCellInfo* singleCellInfo = reply->add_data();
+        grpc::Status singleCellInfoStatus = assignNextActiveCellInfoData(singleCellInfo);
+        if (singleCellInfoStatus.error_code() == grpc::OUT_OF_RANGE)
         {
-            rips::ActiveCellInfo* singleCellInfo = reply->add_data();
-            grpc::Status singleCellInfoStatus = assignNextActiveCellInfoData(singleCellInfo);
-            if (singleCellInfoStatus.error_code() == grpc::OUT_OF_RANGE)
-            {
-                break;
-            }
+            break;
         }
     }
     if (packageIndex > 0u)
@@ -279,11 +276,11 @@ grpc::Status RiaGrpcGridInfoService::GetAllGridDimensions(grpc::ServerContext* c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridInfoService::GetAllActiveCellInfos(grpc::ServerContext*               context,
-                                                           const rips::ActiveCellInfoRequest* request,
-                                                           rips::ActiveCellInfos*             reply)
+grpc::Status RiaGrpcGridInfoService::GetActiveCellInfoArray(grpc::ServerContext*               context,
+                                                            const rips::ActiveCellInfoRequest* request,
+                                                            rips::ActiveCellInfoArray*             reply)
 {
-    RiaActiveCellInfosStreamStateHandler stateHandler;
+    RiaActiveCellInfoArrayStreamStateHandler stateHandler;
     grpc::Status initStatus = stateHandler.init(request);
     if (!initStatus.ok())
     {
@@ -322,10 +319,10 @@ grpc::Status RiaGrpcGridInfoService::StreamActiveCellInfo(grpc::ServerContext*  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridInfoService::StreamActiveCellInfos(grpc::ServerContext*               context,
-                                                           const rips::ActiveCellInfoRequest* request,
-                                                           rips::ActiveCellInfos*             reply,
-                                                           RiaActiveCellInfosStreamStateHandler* stateHandler)
+grpc::Status RiaGrpcGridInfoService::StreamActiveCellInfoChunks(grpc::ServerContext*               context,
+                                                                const rips::ActiveCellInfoRequest* request,
+                                                                rips::ActiveCellInfoArray*             reply,
+                                                                RiaActiveCellInfoArrayStreamStateHandler* stateHandler)
 {
     return stateHandler->assignReply(reply);
 }
@@ -341,9 +338,9 @@ std::vector<RiaGrpcServerCallMethod*> RiaGrpcGridInfoService::createCallbacks()
     {
         new RiaGrpcServerCallData<Self, Case, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
         new RiaGrpcServerCallData<Self, Case, AllGridDimensions>(this, &Self::GetAllGridDimensions, &Self::RequestGetAllGridDimensions),
-        new RiaGrpcServerCallData<Self, ActiveCellInfoRequest, ActiveCellInfos>(this, &Self::GetAllActiveCellInfos, &Self::RequestGetAllActiveCellInfos),
+        new RiaGrpcServerCallData<Self, ActiveCellInfoRequest, ActiveCellInfoArray>(this, &Self::GetActiveCellInfoArray, &Self::RequestGetActiveCellInfoArray),
         new RiaGrpcServerStreamingCallData<Self, ActiveCellInfoRequest, rips::ActiveCellInfo, RiaActiveCellInfoStreamStateHandler>(this, &Self::StreamActiveCellInfo, &Self::RequestStreamActiveCellInfo, new RiaActiveCellInfoStreamStateHandler),
-        new RiaGrpcServerStreamingCallData<Self, ActiveCellInfoRequest, rips::ActiveCellInfos, RiaActiveCellInfosStreamStateHandler>(this, &Self::StreamActiveCellInfos, &Self::RequestStreamActiveCellInfos, new RiaActiveCellInfosStreamStateHandler)
+        new RiaGrpcServerStreamingCallData<Self, ActiveCellInfoRequest, rips::ActiveCellInfoArray, RiaActiveCellInfoArrayStreamStateHandler>(this, &Self::StreamActiveCellInfoChunks, &Self::RequestStreamActiveCellInfoChunks, new RiaActiveCellInfoArrayStreamStateHandler)
     };
 }
 

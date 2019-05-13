@@ -17,10 +17,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaLogging.h"
+
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
-
-#include "RiaLogging.h"
+#include <QString>
 
 using grpc::CompletionQueue;
 using grpc::ServerAsyncResponseWriter;
@@ -52,14 +53,14 @@ public:
     inline RiaGrpcServerCallMethod();
 
     virtual ~RiaGrpcServerCallMethod() {}
-    virtual const char*              name() const                                                 = 0;
+    virtual QString                  name() const                                                 = 0;
     virtual RiaGrpcServerCallMethod* createNewFromThis() const                                    = 0;
     virtual void                     createRequestHandler(ServerCompletionQueue* completionQueue) = 0;
     virtual void                     initRequest()                                                = 0;
     virtual void                     processRequest()                                             = 0;
     virtual void                     finishRequest() {}
 
-    inline CallState callState() const;
+    inline CallState     callState() const;
     inline const Status& status() const;
 
 protected:
@@ -81,9 +82,12 @@ class RiaGrpcServerAbstractCallData : public RiaGrpcServerCallMethod
 public:
     RiaGrpcServerAbstractCallData(ServiceT* service);
 
-    const char*      name() const override;
+    QString          name() const override;
     const RequestT&  request() const;
     ReplyT&          reply();
+
+protected:
+    virtual QString methodType() const = 0;
 
 protected:
     ServiceT*       m_service;
@@ -115,16 +119,29 @@ public:
     void                     initRequest() override;
     void                     processRequest() override;
 
+protected:
+    virtual QString          methodType() const;
+
 private:
-    ResponseWriterT                   m_responder;
-    MethodImpl                        m_methodImpl;
-    MethodRequest                     m_methodRequest;
+    ResponseWriterT          m_responder;
+    MethodImpl               m_methodImpl;
+    MethodRequest            m_methodRequest;
 };
+
 
 //==================================================================================================
 //
 // Templated *streaming* gRPC-callback calling service implementation callbacks
 //
+// The streaming callback needs a state handler for setting up and maintaining order.
+//
+// A fully functional stream handler needs to implement the following methods:
+// 1. Default Constructor
+// 2. grpc::Status init(const grpc::Message* request)
+// 3. grpc::status assignReply(grpc::Message* reply)
+//
+//==================================================================================================
+
 //==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
 class RiaGrpcServerStreamingCallData : public RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>
@@ -145,6 +162,8 @@ public:
     void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
     void                     initRequest() override;
     void                     processRequest() override;
+protected:
+    virtual QString          methodType() const;
 
 private:
     ResponseWriterT                         m_responder;

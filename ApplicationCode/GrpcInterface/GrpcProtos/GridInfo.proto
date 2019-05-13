@@ -9,10 +9,10 @@ service GridInfo
 	// This function returns a two dimensional matrix: One row for each grid, starting with the main grid.
 	rpc GetGridCount(Case) returns(GridCount) {}
 	rpc GetAllGridDimensions(Case) returns (AllGridDimensions) {}
-	rpc GetAllActiveCellInfos(ActiveCellInfoRequest) returns (ActiveCellInfos) {}
+	rpc GetActiveCellInfoArray(ActiveCellInfoRequest) returns (ActiveCellInfoArray) {}
 	rpc StreamActiveCellInfo(ActiveCellInfoRequest) returns (stream ActiveCellInfo) {}
-	rpc StreamActiveCellInfos(ActiveCellInfoRequest) returns (stream ActiveCellInfos) {}
-	rpc GetAllCoarseningInfos(Case) returns (CoarseningInfos) {}
+	rpc StreamActiveCellInfoChunks(ActiveCellInfoRequest) returns (stream ActiveCellInfoArray) {}
+	rpc GetAllCoarseningInfoArray(Case) returns (CoarseningInfoArray) {}
 	rpc GetTimeSteps(Case) returns (TimeStepDates) {}
 	rpc GetTimeStepDaysSinceStart(Case) returns (DoubleDates) {}
 }
@@ -45,7 +45,7 @@ message ActiveCellInfoRequest
 	PorosityModelType porosity_model = 2;	
 }
 
-message ActiveCellInfos
+message ActiveCellInfoArray
 {
 	repeated ActiveCellInfo data = 1;
 }
@@ -59,7 +59,7 @@ message ActiveCellInfo
 	Vec3i parent_ijk           = 5;	
 }
 
-message CoarseningInfos
+message CoarseningInfoArray
 {
 	repeated CoarseningInfo data = 1;
 }
