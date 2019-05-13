@@ -16,17 +16,16 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-inline RiaGrpcServerCallMethod::RiaGrpcServerCallMethod()
+inline RiaAbstractGrpcCallback::RiaAbstractGrpcCallback()
     : m_state(CREATE_HANDLER)
     , m_status(Status::OK)
 {
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaGrpcServerCallMethod::CallState RiaGrpcServerCallMethod::callState() const
+RiaAbstractGrpcCallback::CallState RiaAbstractGrpcCallback::callState() const
 {
     return m_state;
 }
@@ -34,7 +33,7 @@ RiaGrpcServerCallMethod::CallState RiaGrpcServerCallMethod::callState() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const Status& RiaGrpcServerCallMethod::status() const
+const Status& RiaAbstractGrpcCallback::status() const
 {
     return m_status;
 }
@@ -42,7 +41,7 @@ const Status& RiaGrpcServerCallMethod::status() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-inline void RiaGrpcServerCallMethod::setCallState(CallState state)
+inline void RiaAbstractGrpcCallback::setCallState(CallState state)
 {
     m_state = state;
 }
@@ -51,7 +50,7 @@ inline void RiaGrpcServerCallMethod::setCallState(CallState state)
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::RiaGrpcServerAbstractCallData(ServiceT* service)
+RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>::RiaGrpcRequestCallback(ServiceT* service)
     : m_service(service)
 {
 }
@@ -60,11 +59,13 @@ RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::RiaGrpcServerAbstract
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-QString RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::name() const
+QString RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>::name() const
 {
-    QString fullName =
-        QString("%1:%2(%3, %4)").arg(typeid(ServiceT).name()).arg(methodType())
-                                .arg(typeid(RequestT).name()).arg(typeid(ReplyT).name());
+    QString fullName = QString("%1:%2(%3, %4)")
+                           .arg(typeid(ServiceT).name())
+                           .arg(methodType())
+                           .arg(typeid(RequestT).name())
+                           .arg(typeid(ReplyT).name());
     return fullName;
 }
 
@@ -72,7 +73,7 @@ QString RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::name() const
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-const RequestT& RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::request() const
+const RequestT& RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>::request() const
 {
     return m_request;
 }
@@ -81,7 +82,7 @@ const RequestT& RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::reque
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-ReplyT& RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::reply()
+ReplyT& RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>::reply()
 {
     return m_reply;
 }
@@ -90,10 +91,10 @@ ReplyT& RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>::reply()
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::RiaGrpcServerCallData(ServiceT*     service,
-                                                                         MethodImpl    methodImpl,
-                                                                         MethodRequest methodRequest)
-    : RiaGrpcServerAbstractCallData(service)
+RiaGrpcCallback<ServiceT, RequestT, ReplyT>::RiaGrpcCallback(ServiceT*      service,
+                                                             MethodImplT    methodImpl,
+                                                             MethodRequestT methodRequest)
+    : RiaGrpcRequestCallback(service)
     , m_responder(&m_context)
     , m_methodImpl(methodImpl)
     , m_methodRequest(methodRequest)
@@ -104,46 +105,46 @@ RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::RiaGrpcServerCallData(Service
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-RiaGrpcServerCallMethod* RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::createNewFromThis() const
+RiaAbstractGrpcCallback* RiaGrpcCallback<ServiceT, RequestT, ReplyT>::createNewFromThis() const
 {
-    return new RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>(m_service, m_methodImpl, m_methodRequest);
+    return new RiaGrpcCallback<ServiceT, RequestT, ReplyT>(m_service, m_methodImpl, m_methodRequest);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-void RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::createRequestHandler(ServerCompletionQueue* completionQueue)
+void RiaGrpcCallback<ServiceT, RequestT, ReplyT>::createRequestHandler(ServerCompletionQueue* completionQueue)
 {
-    m_methodRequest(*m_service, &m_context, &m_request, &m_responder, completionQueue, completionQueue, this);    
-    setCallState(RiaGrpcServerCallMethod::INIT_REQUEST);
+    m_methodRequest(*m_service, &m_context, &m_request, &m_responder, completionQueue, completionQueue, this);
+    setCallState(RiaAbstractGrpcCallback::INIT_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-void RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::initRequest()
+void RiaGrpcCallback<ServiceT, RequestT, ReplyT>::initRequest()
 {
-    setCallState(RiaGrpcServerCallMethod::PROCESS_REQUEST);
+    setCallState(RiaAbstractGrpcCallback::PROCESS_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-void RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::processRequest()
+void RiaGrpcCallback<ServiceT, RequestT, ReplyT>::processRequest()
 {
     m_status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply);
     m_responder.Finish(m_reply, m_status, this);
-    setCallState(RiaGrpcServerCallMethod::FINISH_REQUEST);
+    setCallState(RiaAbstractGrpcCallback::FINISH_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT>
-QString RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::methodType() const
+QString RiaGrpcCallback<ServiceT, RequestT, ReplyT>::methodType() const
 {
     return "RegularMethod";
 }
@@ -152,11 +153,11 @@ QString RiaGrpcServerCallData<ServiceT, RequestT, ReplyT>::methodType() const
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGrpcServerStreamingCallData(ServiceT*      service,
-                                                                                                          MethodImpl     methodImpl,
-                                                                                                          MethodRequest   methodRequest,
-                                                                                                          StateHandlerT*  stateHandler)
-    : RiaGrpcServerAbstractCallData(service)
+RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGrpcStreamCallback(ServiceT*      service,
+                                                                                        MethodImplT    methodImpl,
+                                                                                        MethodRequestT methodRequest,
+                                                                                        StateHandlerT* stateHandler)
+    : RiaGrpcRequestCallback(service)
     , m_responder(&m_context)
     , m_methodImpl(methodImpl)
     , m_methodRequest(methodRequest)
@@ -169,46 +170,48 @@ RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGr
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-RiaGrpcServerCallMethod* RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::createNewFromThis() const
+RiaAbstractGrpcCallback* RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createNewFromThis() const
 {
-    return new RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>(m_service, m_methodImpl, m_methodRequest, new StateHandlerT);
+    return new RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>(
+        m_service, m_methodImpl, m_methodRequest, new StateHandlerT);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::createRequestHandler(ServerCompletionQueue* completionQueue)
+void RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createRequestHandler(
+    ServerCompletionQueue* completionQueue)
 {
     m_methodRequest(*m_service, &m_context, &m_request, &m_responder, completionQueue, completionQueue, this);
-    setCallState(RiaGrpcServerCallMethod::INIT_REQUEST);
+    setCallState(RiaAbstractGrpcCallback::INIT_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Perform initialisation tasks at the time of receiving a request
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::initRequest()
+void RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::initRequest()
 {
     m_status = m_stateHandler->init(&m_request);
-    setCallState(RiaGrpcServerCallMethod::PROCESS_REQUEST);
+    setCallState(RiaAbstractGrpcCallback::PROCESS_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::processRequest()
+void RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::processRequest()
 {
     m_reply = ReplyT(); // Make sure it is reset
 
     if (!m_status.ok())
     {
         m_responder.Finish(m_status, this);
-        setCallState(RiaGrpcServerCallMethod::FINISH_REQUEST);
+        setCallState(RiaAbstractGrpcCallback::FINISH_REQUEST);
         return;
     }
-    
+
     m_status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply, m_stateHandler.get());
     if (m_status.ok())
     {
@@ -230,7 +233,7 @@ void RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-QString RiaGrpcServerStreamingCallData<ServiceT, RequestT, ReplyT, StateHandlerT>::methodType() const
+QString RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::methodType() const
 {
     return "StreamingMethod";
 }

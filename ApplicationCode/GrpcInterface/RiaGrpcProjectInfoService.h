@@ -17,8 +17,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaGrpcServiceInterface.h"
 #include "ProjectInfo.grpc.pb.h"
+#include "RiaGrpcServiceInterface.h"
 
 #include <grpcpp/grpcpp.h>
 
@@ -26,9 +26,9 @@ namespace rips
 {
 class Empty;
 class CaseInfo;
-}
+} // namespace rips
 
-class RiaGrpcServerCallMethod;
+class RiaAbstractGrpcCallback;
 
 //==================================================================================================
 //
@@ -47,7 +47,5 @@ public:
     grpc::Status CasesInGroup(grpc::ServerContext* context, const rips::CaseGroup* request, rips::CaseInfos* reply) override;
 
 public:
-    std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
+    std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
 };
-
-

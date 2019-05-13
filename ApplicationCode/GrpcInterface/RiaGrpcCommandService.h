@@ -38,18 +38,21 @@ namespace google
 {
 namespace protobuf
 {
-class FieldDescriptor;
-class Message;
-}
-}
+    class FieldDescriptor;
+    class Message;
+} // namespace protobuf
+} // namespace google
 
-class RiaGrpcServerCallMethod;
+class RiaAbstractGrpcCallback;
 
 class RiaGrpcCommandService : public rips::Commands::AsyncService, public RiaGrpcServiceInterface
 {
 public:
     grpc::Status Execute(grpc::ServerContext* context, const rips::CommandParams* request, rips::Empty* reply) override;
-    std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
+    std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
+
 private:
-    void assignFieldValue(caf::PdmValueField* pdmValueField, const google::protobuf::Message& params, const google::protobuf::FieldDescriptor* paramDescriptor);
+    void assignFieldValue(caf::PdmValueField*                      pdmValueField,
+                          const google::protobuf::Message&         params,
+                          const google::protobuf::FieldDescriptor* paramDescriptor);
 };
