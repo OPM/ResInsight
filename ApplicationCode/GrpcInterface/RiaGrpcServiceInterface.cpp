@@ -41,3 +41,14 @@ RimCase* RiaGrpcServiceInterface::findCase(int caseId)
     return nullptr;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Find the number of messages that will fit in the given bytes.
+/// The default argument is meant to be a sensible size for GRPC.
+//--------------------------------------------------------------------------------------------------
+size_t RiaGrpcServiceInterface::numberOfMessagesForByteCount(size_t messageSize,
+                                                             size_t numBytesWantedInPackage /*= 64 * 1024u*/)
+{
+    size_t messageCount = numBytesWantedInPackage / messageSize;
+    return messageCount;
+}
+
