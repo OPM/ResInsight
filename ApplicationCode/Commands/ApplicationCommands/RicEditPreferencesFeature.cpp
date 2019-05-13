@@ -63,6 +63,7 @@ void RicEditPreferencesFeature::onActionTriggered(bool isChecked)
     {
         // Read back currently stored values using QSettings
         caf::PdmSettings::readFieldsFromApplicationStore(app->preferences());
+        app->preferences()->initAfterReadRecursively();
     }
 }
 

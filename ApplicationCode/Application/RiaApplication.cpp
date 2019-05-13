@@ -1299,7 +1299,7 @@ void RiaApplication::initialize()
 {
     m_preferences = new RiaPreferences;
     caf::PdmSettings::readFieldsFromApplicationStore(m_preferences);
-
+    m_preferences->initAfterReadRecursively();
     applyPreferences(nullptr);
 
     // Start with a project
