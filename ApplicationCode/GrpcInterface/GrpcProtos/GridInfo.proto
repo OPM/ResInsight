@@ -8,10 +8,8 @@ service GridInfo
 {
 	// This function returns a two dimensional matrix: One row for each grid, starting with the main grid.
 	rpc GetGridCount(Case) returns(GridCount) {}
-	rpc GetAllGridDimensions(Case) returns (AllGridDimensions) {}
-	rpc GetActiveCellInfoArray(ActiveCellInfoRequest) returns (ActiveCellInfoArray) {}
-	rpc StreamActiveCellInfo(ActiveCellInfoRequest) returns (stream ActiveCellInfo) {}
-	rpc StreamActiveCellInfoChunks(ActiveCellInfoRequest) returns (stream ActiveCellInfoArray) {}
+	rpc GetGridDimensions(Case) returns (GridDimensions) {}
+	rpc StreamActiveCellInfo(ActiveCellInfoRequest) returns (stream ActiveCellInfoArray) {}
 	rpc GetAllCoarseningInfoArray(Case) returns (CoarseningInfoArray) {}
 	rpc GetTimeSteps(Case) returns (TimeStepDates) {}
 	rpc GetTimeStepDaysSinceStart(Case) returns (DoubleDates) {}
@@ -22,9 +20,9 @@ message GridCount
 	int32 count = 1;
 }
 
-message AllGridDimensions
+message GridDimensions
 {
-	repeated Vec3i grid_dimensions = 1;
+	repeated Vec3i dimensions = 1;
 }
 
 message Vec3i {
