@@ -1,4 +1,9 @@
 
+import os, sys
+
+# Add the 'api' path to system path to be able to import modules from the 'api' folder
+# python current working directory must be 'tests' 
+sys.path.insert(1, os.path.join(sys.path[0], '..\\api'))
 
 import ResInsight
 
