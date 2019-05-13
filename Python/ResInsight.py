@@ -46,17 +46,11 @@ class GridInfo:
 	def getGridCount(self, caseId=0):
 		return self.gridInfo.GetGridCount(CaseInfo_pb2.Case(id=caseId)).count
 		
-	def getAllGridDimensions(self, caseId=0):
-		return self.gridInfo.GetAllGridDimensions(CaseInfo_pb2.Case(id=caseId)).grid_dimensions
+	def getGridDimensions(self, caseId=0):
+		return self.gridInfo.GetGridDimensions(CaseInfo_pb2.Case(id=caseId)).dimensions
 		
-	def getActiveCellInfoArray(self, caseId=0):
-		return self.gridInfo.GetActiveCellInfoArray(CaseInfo_pb2.Case(id=caseId)).data
-
 	def streamActiveCellInfo(self, caseId=0):
 		return self.gridInfo.StreamActiveCellInfo(CaseInfo_pb2.Case(id=caseId))
-
-	def streamActiveCellInfoChunks(self, caseId=0):
-		return self.gridInfo.StreamActiveCellInfoChunks(CaseInfo_pb2.Case(id=caseId))
 		
 class ProjectInfo:
 	def __init__(self, channel):
