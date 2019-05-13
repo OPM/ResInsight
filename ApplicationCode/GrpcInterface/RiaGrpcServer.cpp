@@ -213,12 +213,14 @@ void RiaGrpcServerImpl::process(RiaGrpcServerCallMethod* method)
 {
     if (method->callState() == RiaGrpcServerCallMethod::CREATE_HANDLER)
     {
+        RiaLogging::debug(QString("Initialising request handler for: %1").arg(method->name()));
         method->createRequestHandler(m_completionQueue.get());
     }
     else if (method->callState() == RiaGrpcServerCallMethod::INIT_REQUEST)
     {
-        // Perform initialization and immediately process the request
-        // The initialization is necessary for streaming services
+        // Perform initialization and immediately process the first request
+        // The initialization is necessary for streaming services.
+        RiaLogging::info(QString("Starting handling: %1").arg(method->name()));
         method->initRequest();
         method->processRequest();
     }
@@ -228,6 +230,7 @@ void RiaGrpcServerImpl::process(RiaGrpcServerCallMethod* method)
     }
     else
     {
+        RiaLogging::info(QString("Finished handling: %1").arg(method->name()));
         method->finishRequest();
         process(method->createNewFromThis());
         delete method;

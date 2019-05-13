@@ -12,7 +12,7 @@ import GridInfo_pb2_grpc
 import ProjectInfo_pb2
 import ProjectInfo_pb2_grpc
 
-MAX_MESSAGE_LENGTH = 32 * 1024 * 1024
+MAX_MESSAGE_LENGTH = 128 * 1024 * 1024
 
 class CommandExecutor:
 	def __init__(self, channel):
@@ -49,14 +49,14 @@ class GridInfo:
 	def getAllGridDimensions(self, caseId=0):
 		return self.gridInfo.GetAllGridDimensions(CaseInfo_pb2.Case(id=caseId)).grid_dimensions
 		
-	def getAllActiveCellInfos(self, caseId=0):
-		return self.gridInfo.GetAllActiveCellInfos(CaseInfo_pb2.Case(id=caseId)).data
+	def getActiveCellInfoArray(self, caseId=0):
+		return self.gridInfo.GetActiveCellInfoArray(CaseInfo_pb2.Case(id=caseId)).data
 
 	def streamActiveCellInfo(self, caseId=0):
 		return self.gridInfo.StreamActiveCellInfo(CaseInfo_pb2.Case(id=caseId))
 
-	def streamActiveCellInfos(self, caseId=0):
-		return self.gridInfo.StreamActiveCellInfos(CaseInfo_pb2.Case(id=caseId))
+	def streamActiveCellInfoChunks(self, caseId=0):
+		return self.gridInfo.StreamActiveCellInfoChunks(CaseInfo_pb2.Case(id=caseId))
 		
 class ProjectInfo:
 	def __init__(self, channel):
