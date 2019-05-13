@@ -339,7 +339,7 @@ set( EXE_FILES
 	Adm/RiaVersionInfo.py.cmake
 )
 
-add_executable( ResInsight ${EXE_FILES} )
+add_executable( ResInsight ${EXE_FILES})
 
 if (MSVC) 
     # The following warnings are supposed to be used in ResInsight, but temporarily disabled to avoid too much noise
@@ -519,7 +519,13 @@ foreach (FILE_TO_COPY ${RI_DLL_FILENAMES})
     endif()
 endforeach()
 
-
+# Copy all python files
+foreach (FILE_TO_COPY ${GRPC_PYTHON_SOURCES})
+	add_custom_command(TARGET ResInsight POST_BUILD
+                        COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+                        "${FILE_TO_COPY}"  
+                        "${CMAKE_BINARY_DIR}/Python")
+endforeach()
 #############################################################################
 # Install 
 #############################################################################
