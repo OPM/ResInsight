@@ -25,6 +25,8 @@
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 
+#include <string.h> // memcpy
+
 using namespace rips;
 
 //--------------------------------------------------------------------------------------------------
@@ -189,9 +191,14 @@ grpc::Status RiaActiveCellInfoStateHandler::assignReply(rips::ActiveCellInfoArra
     reply->mutable_data()->Reserve(packageSize);
     for (; packageIndex < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++packageIndex)
     {
-        rips::ActiveCellInfo* singleCellInfo       = reply->add_data();
-        grpc::Status          singleCellInfoStatus = assignNextActiveCellInfoData(singleCellInfo);
-        if (singleCellInfoStatus.error_code() == grpc::OUT_OF_RANGE)
+        rips::ActiveCellInfo singleCellInfo;
+        grpc::Status          singleCellInfoStatus = assignNextActiveCellInfoData(&singleCellInfo);
+        if (singleCellInfoStatus.ok())
+        {
+            rips::ActiveCellInfo* allocCellInfo = reply->add_data();
+            ::memcpy(allocCellInfo, &singleCellInfo, sizeof(singleCellInfo));
+        }
+        else
         {
             break;
         }
