@@ -19,16 +19,16 @@
 
 #include "RiaLogging.h"
 
+#include <QString>
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
-#include <QString>
 
 using grpc::CompletionQueue;
 using grpc::ServerAsyncResponseWriter;
 using grpc::ServerAsyncWriter;
-using grpc::ServerWriter;
 using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
+using grpc::ServerWriter;
 using grpc::Status;
 
 class RiaGrpcServiceInterface;
@@ -38,7 +38,7 @@ class RiaGrpcServiceInterface;
 // Base class for all gRPC-callbacks
 //
 //==================================================================================================
-class RiaGrpcServerCallMethod
+class RiaAbstractGrpcCallback
 {
 public:
     enum CallState
@@ -50,11 +50,11 @@ public:
     };
 
 public:
-    inline RiaGrpcServerCallMethod();
+    inline RiaAbstractGrpcCallback();
 
-    virtual ~RiaGrpcServerCallMethod() {}
+    virtual ~RiaAbstractGrpcCallback() {}
     virtual QString                  name() const                                                 = 0;
-    virtual RiaGrpcServerCallMethod* createNewFromThis() const                                    = 0;
+    virtual RiaAbstractGrpcCallback* createNewFromThis() const                                    = 0;
     virtual void                     createRequestHandler(ServerCompletionQueue* completionQueue) = 0;
     virtual void                     initRequest()                                                = 0;
     virtual void                     processRequest()                                             = 0;
@@ -67,33 +67,33 @@ protected:
     inline void setCallState(CallState state);
 
 protected:
-    CallState  m_state;
-    Status     m_status;
+    CallState m_state;
+    Status    m_status;
 };
 
 //==================================================================================================
 //
-// Templated gRPC-callback
+// Templated gRPC-callback base class
 //
 //==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT>
-class RiaGrpcServerAbstractCallData : public RiaGrpcServerCallMethod
+class RiaGrpcRequestCallback : public RiaAbstractGrpcCallback
 {
 public:
-    RiaGrpcServerAbstractCallData(ServiceT* service);
+    RiaGrpcRequestCallback(ServiceT* service);
 
-    QString          name() const override;
-    const RequestT&  request() const;
-    ReplyT&          reply();
+    QString         name() const override;
+    const RequestT& request() const;
+    ReplyT&         reply();
 
 protected:
     virtual QString methodType() const = 0;
 
 protected:
-    ServiceT*       m_service;
-    ServerContext   m_context;
-    RequestT        m_request;
-    ReplyT          m_reply;
+    ServiceT*     m_service;
+    ServerContext m_context;
+    RequestT      m_request;
+    ReplyT        m_reply;
 };
 
 //==================================================================================================
@@ -102,32 +102,30 @@ protected:
 //
 //==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT>
-class RiaGrpcServerCallData : public RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>
+class RiaGrpcCallback : public RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>
 {
 public:
-	typedef ServerAsyncResponseWriter<ReplyT>                                          ResponseWriterT;
-    typedef std::function<Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*)> MethodImpl;
-    typedef std::function<void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*,
-        CompletionQueue*, ServerCompletionQueue*, void*)>                              MethodRequest;
+    typedef ServerAsyncResponseWriter<ReplyT>                                          ResponseWriterT;
+    typedef std::function<Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*)> MethodImplT;
+    typedef std::function<
+        void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)>
+        MethodRequestT;
 
-    RiaGrpcServerCallData(ServiceT*              service,
-                          MethodImpl             methodImpl,
-                          MethodRequest          methodRequest);
+    RiaGrpcCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest);
 
-    RiaGrpcServerCallMethod* createNewFromThis() const override;
+    RiaAbstractGrpcCallback* createNewFromThis() const override;
     void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
     void                     initRequest() override;
     void                     processRequest() override;
 
 protected:
-    virtual QString          methodType() const;
+    virtual QString methodType() const;
 
 private:
-    ResponseWriterT          m_responder;
-    MethodImpl               m_methodImpl;
-    MethodRequest            m_methodRequest;
+    ResponseWriterT m_responder;
+    MethodImplT     m_methodImpl;
+    MethodRequestT  m_methodRequest;
 };
-
 
 //==================================================================================================
 //
@@ -144,33 +142,31 @@ private:
 
 //==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-class RiaGrpcServerStreamingCallData : public RiaGrpcServerAbstractCallData<ServiceT, RequestT, ReplyT>
+class RiaGrpcStreamCallback : public RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>
 {
 public:
-    typedef ServerAsyncWriter<ReplyT>                      ResponseWriterT;
-
+    typedef ServerAsyncWriter<ReplyT>                                                                  ResponseWriterT;
+    typedef std::function<Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*, StateHandlerT*)> MethodImplT;
     typedef std::function<
-        Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*, StateHandlerT*)> MethodImpl;
-    typedef std::function<
-        void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*,
-            CompletionQueue*, ServerCompletionQueue*, void*)>                       MethodRequest;
+        void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)>
+        MethodRequestT;
 
+    RiaGrpcStreamCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest, StateHandlerT* stateHandler);
 
-    RiaGrpcServerStreamingCallData(ServiceT* service, MethodImpl methodImpl, MethodRequest methodRequest, StateHandlerT* stateHandler);
-
-    RiaGrpcServerCallMethod* createNewFromThis() const override;
+    RiaAbstractGrpcCallback* createNewFromThis() const override;
     void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
     void                     initRequest() override;
     void                     processRequest() override;
+
 protected:
-    virtual QString          methodType() const;
+    virtual QString methodType() const;
 
 private:
-    ResponseWriterT                         m_responder;
-    MethodImpl                              m_methodImpl;
-    MethodRequest                           m_methodRequest;
-    size_t                                  m_dataCount; // This is used to keep track of progress. Only one item is sent for each invocation.
-    std::unique_ptr<StateHandlerT>          m_stateHandler;
+    ResponseWriterT m_responder;
+    MethodImplT     m_methodImpl;
+    MethodRequestT  m_methodRequest;
+    size_t          m_dataCount; // This is used to keep track of progress. Only one item is sent for each invocation.
+    std::unique_ptr<StateHandlerT> m_stateHandler;
 };
 
-#include "RiaGrpcServerCallData.inl"
+#include "RiaGrpcCallbacks.inl"

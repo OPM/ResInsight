@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 
-#include "RiaGrpcServerCallData.h"
+#include "RiaGrpcCallbacks.h"
 #include "RiaGrpcServiceInterface.h"
 #include "RiaGrpcGridInfoService.h"
 
@@ -60,13 +60,13 @@ public:
 
 private:
     void waitForNextRequest();
-    void process(RiaGrpcServerCallMethod* method);
+    void process(RiaAbstractGrpcCallback* method);
 
 private:
     std::unique_ptr<grpc::ServerCompletionQueue>        m_completionQueue;
     std::unique_ptr<grpc::Server>                       m_server;
     std::list<std::shared_ptr<RiaGrpcServiceInterface>> m_services;
-    std::list<RiaGrpcServerCallMethod*>                 m_unprocessedRequests;
+    std::list<RiaAbstractGrpcCallback*>                 m_unprocessedRequests;
     std::mutex                                          m_requestMutex;
     std::thread                                         m_thread;
 };
@@ -150,7 +150,7 @@ void RiaGrpcServerImpl::processOneRequest()
     std::lock_guard<std::mutex> requestLock(m_requestMutex);
     if (!m_unprocessedRequests.empty())
     {
-        RiaGrpcServerCallMethod* method = m_unprocessedRequests.front();
+        RiaAbstractGrpcCallback* method = m_unprocessedRequests.front();
         m_unprocessedRequests.pop_front();
         process(method);
     }
@@ -166,7 +166,7 @@ void RiaGrpcServerImpl::quit()
         // Clear unhandled requests
         while (!m_unprocessedRequests.empty())
         {
-            RiaGrpcServerCallMethod* method = m_unprocessedRequests.front();
+            RiaAbstractGrpcCallback* method = m_unprocessedRequests.front();
             m_unprocessedRequests.pop_front();
             delete method;
         }
@@ -197,7 +197,7 @@ void RiaGrpcServerImpl::waitForNextRequest()
 
     while (m_completionQueue->Next(&tag, &ok))
     {
-        RiaGrpcServerCallMethod* method = static_cast<RiaGrpcServerCallMethod*>(tag);
+        RiaAbstractGrpcCallback* method = static_cast<RiaAbstractGrpcCallback*>(tag);
         if (ok)
         {
             std::lock_guard<std::mutex> requestLock(m_requestMutex);
@@ -209,14 +209,14 @@ void RiaGrpcServerImpl::waitForNextRequest()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServerImpl::process(RiaGrpcServerCallMethod* method)
+void RiaGrpcServerImpl::process(RiaAbstractGrpcCallback* method)
 {
-    if (method->callState() == RiaGrpcServerCallMethod::CREATE_HANDLER)
+    if (method->callState() == RiaAbstractGrpcCallback::CREATE_HANDLER)
     {
         RiaLogging::debug(QString("Initialising request handler for: %1").arg(method->name()));
         method->createRequestHandler(m_completionQueue.get());
     }
-    else if (method->callState() == RiaGrpcServerCallMethod::INIT_REQUEST)
+    else if (method->callState() == RiaAbstractGrpcCallback::INIT_REQUEST)
     {
         // Perform initialization and immediately process the first request
         // The initialization is necessary for streaming services.
@@ -224,7 +224,7 @@ void RiaGrpcServerImpl::process(RiaGrpcServerCallMethod* method)
         method->initRequest();
         method->processRequest();
     }
-    else if (method->callState() == RiaGrpcServerCallMethod::PROCESS_REQUEST)
+    else if (method->callState() == RiaAbstractGrpcCallback::PROCESS_REQUEST)
     {
         method->processRequest();       
     }

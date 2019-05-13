@@ -21,7 +21,7 @@
 
 #include <vector>
 
-class RiaGrpcServerCallMethod;
+class RiaAbstractGrpcCallback;
 class RimCase;
 
 //==================================================================================================
@@ -32,7 +32,7 @@ class RimCase;
 class RiaGrpcServiceInterface
 {
 public:
-    virtual std::vector<RiaGrpcServerCallMethod*> createCallbacks() = 0;
+    virtual std::vector<RiaAbstractGrpcCallback*> createCallbacks() = 0;
     virtual ~RiaGrpcServiceInterface() = default;
     static RimCase* findCase(int caseId);
 };

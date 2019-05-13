@@ -19,8 +19,8 @@
 
 #include "GridInfo.grpc.pb.h"
 
-#include "RiaPorosityModel.h"
 #include "RiaGrpcServiceInterface.h"
+#include "RiaPorosityModel.h"
 
 #include <vector>
 
@@ -29,7 +29,7 @@ namespace rips
 class Case;
 }
 
-class RiaGrpcServerCallMethod;
+class RiaAbstractGrpcCallback;
 class RigCell;
 class RigActiveCellInfo;
 class RimEclipseCase;
@@ -39,16 +39,17 @@ class RimEclipseCase;
 // Abstract base class for grid information state handlers
 //
 //==================================================================================================
-class RiaAbstractActiveCellInfoReplyCreator
+class RiaActiveCellInfoStateHandler
 {
 public:
-    RiaAbstractActiveCellInfoReplyCreator();
+    RiaActiveCellInfoStateHandler();
 
-    grpc::Status       init(const rips::ActiveCellInfoRequest* request);
-    grpc::Status       assignNextActiveCellInfoData(rips::ActiveCellInfo* cellInfo);
-    void               assignActiveCellInfoData(rips::ActiveCellInfo* cellInfo, const std::vector<RigCell>& reservoirCells, size_t cellIdx);
-    RigActiveCellInfo* activeCellInfo() const;
+    grpc::Status init(const rips::ActiveCellInfoRequest* request);
+    grpc::Status assignNextActiveCellInfoData(rips::ActiveCellInfo* cellInfo);
+    void assignActiveCellInfoData(rips::ActiveCellInfo* cellInfo, const std::vector<RigCell>& reservoirCells, size_t cellIdx);
+    RigActiveCellInfo*          activeCellInfo() const;
     const std::vector<RigCell>& reservoirCells() const;
+
 protected:
     const rips::ActiveCellInfoRequest* m_request;
     RimEclipseCase*                    m_eclipseCase;
@@ -63,7 +64,7 @@ protected:
 // State handler for single item streaming
 //
 //==================================================================================================
-class RiaActiveCellInfoStreamStateHandler : public RiaAbstractActiveCellInfoReplyCreator
+class RiaActiveCellInfoStreamStateHandler : public RiaActiveCellInfoStateHandler
 {
 public:
     RiaActiveCellInfoStreamStateHandler();
@@ -75,10 +76,10 @@ public:
 // State handler for chunked streaming
 //
 //==================================================================================================
-class RiaActiveCellInfoArrayStreamStateHandler : public RiaAbstractActiveCellInfoReplyCreator
+class RiaActiveCellInfoChunkStreamStateHandler : public RiaActiveCellInfoStateHandler
 {
 public:
-    RiaActiveCellInfoArrayStreamStateHandler();
+    RiaActiveCellInfoChunkStreamStateHandler();
     grpc::Status assignReply(rips::ActiveCellInfoArray* reply);
 };
 
@@ -91,9 +92,18 @@ class RiaGrpcGridInfoService final : public rips::GridInfo::AsyncService, public
 {
 public:
     grpc::Status GetGridCount(grpc::ServerContext* context, const rips::Case* request, rips::GridCount* reply) override;
-    grpc::Status GetAllGridDimensions(grpc::ServerContext* context, const rips::Case* request, rips::AllGridDimensions* reply) override;
-    grpc::Status GetActiveCellInfoArray(grpc::ServerContext* context, const rips::ActiveCellInfoRequest* request, rips::ActiveCellInfoArray* reply) override;
-    grpc::Status StreamActiveCellInfo(grpc::ServerContext* context, const rips::ActiveCellInfoRequest* request, rips::ActiveCellInfo* reply, RiaActiveCellInfoStreamStateHandler* stateHandler);
-    grpc::Status StreamActiveCellInfoChunks(grpc::ServerContext* context, const rips::ActiveCellInfoRequest* request, rips::ActiveCellInfoArray* reply, RiaActiveCellInfoArrayStreamStateHandler* stateHandler);
-    std::vector<RiaGrpcServerCallMethod*> createCallbacks() override;
+    grpc::Status
+                                  GetAllGridDimensions(grpc::ServerContext* context, const rips::Case* request, rips::AllGridDimensions* reply) override;
+    grpc::Status                  GetActiveCellInfoArray(grpc::ServerContext*               context,
+                                                         const rips::ActiveCellInfoRequest* request,
+                                                         rips::ActiveCellInfoArray*         reply) override;
+    grpc::Status                  StreamActiveCellInfo(grpc::ServerContext*                 context,
+                                                       const rips::ActiveCellInfoRequest*   request,
+                                                       rips::ActiveCellInfo*                reply,
+                                                       RiaActiveCellInfoStreamStateHandler* stateHandler);
+    grpc::Status                  StreamActiveCellInfoChunks(grpc::ServerContext*                      context,
+                                                             const rips::ActiveCellInfoRequest*        request,
+                                                             rips::ActiveCellInfoArray*                reply,
+                                                             RiaActiveCellInfoChunkStreamStateHandler* stateHandler);
+    std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
 };
