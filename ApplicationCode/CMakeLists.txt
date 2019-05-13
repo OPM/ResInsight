@@ -100,7 +100,7 @@ list( APPEND CPP_SOURCES
 
 if (RESINSIGHT_ENABLE_GRPC)
 	list( APPEND REFERENCED_CMAKE_FILES
-		GrpcInterface/CMakeLists_files.cmake
+		GrpcInterface/CMakeLists.cmake
 	)
 endif(RESINSIGHT_ENABLE_GRPC)
 
