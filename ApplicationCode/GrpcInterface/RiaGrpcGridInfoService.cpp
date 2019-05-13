@@ -191,12 +191,12 @@ grpc::Status RiaActiveCellInfoStateHandler::assignReply(rips::ActiveCellInfoArra
     reply->mutable_data()->Reserve(packageSize);
     for (; packageIndex < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++packageIndex)
     {
-        rips::ActiveCellInfo singleCellInfo;
+        rips::ActiveCellInfo  singleCellInfo;
         grpc::Status          singleCellInfoStatus = assignNextActiveCellInfoData(&singleCellInfo);
         if (singleCellInfoStatus.ok())
         {
             rips::ActiveCellInfo* allocCellInfo = reply->add_data();
-            ::memcpy(allocCellInfo, &singleCellInfo, sizeof(singleCellInfo));
+            *allocCellInfo = singleCellInfo;
         }
         else
         {
