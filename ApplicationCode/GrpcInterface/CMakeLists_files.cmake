@@ -1,7 +1,7 @@
 set ( SOURCE_GROUP_HEADER_FILES
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServer.h
-	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServerCallbacks.h
-	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServerCallbacks.inl
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCallbacks.h
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCallbacks.inl
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridInfoService.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.h
