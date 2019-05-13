@@ -290,6 +290,19 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferences::initAfterRead()
+{
+    // If the stored font size is larger than the maximum enum value, the stored font size is actually point size
+    int defaultSceneFontEnumValue = static_cast<int>(defaultSceneFontSize.v());
+    if (defaultSceneFontEnumValue > (int) RiaFontCache::MAX_FONT_SIZE)
+    {
+        defaultSceneFontSize = RiaFontCache::fontSizeEnumFromPointSize(defaultSceneFontEnumValue);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QStringList RiaPreferences::tabNames()
