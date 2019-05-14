@@ -41,7 +41,7 @@ set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 find_package(gRPC CONFIG REQUIRED NO_MODULE)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
 
-set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gPRC::grpc_unsecure gRPC::gpr)
+set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
 set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)	
 set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
 
@@ -67,7 +67,10 @@ set(PROTO_FILES
 	"ResInfo"
 )
 
-set(python_source_path "${CMAKE_BINARY_DIR}/Python/generated")
+set(python_source_path "${CMAKE_SOURCE_DIR}/Python/api")
+set(python_examples_path "${CMAKE_SOURCE_DIR}/Python/examples")
+set(python_generated_path "${CMAKE_BINARY_DIR}/Python/generated")
+set(python_tests_path "${CMAKE_SOURCE_DIR}/Python/tests")
 
 foreach(proto_file ${PROTO_FILES})		
 	get_filename_component(rips_proto "${CMAKE_CURRENT_LIST_DIR}/GrpcProtos/${proto_file}.proto" ABSOLUTE)
@@ -88,20 +91,21 @@ foreach(proto_file ${PROTO_FILES})
 			"${rips_proto}"
 		DEPENDS "${rips_proto}"
 	)
-
+	
 	if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
-		set(rips_proto_python "${python_source_path}/${proto_file}_pb2.py")
-		set(rips_grpc_python "${python_source_path}/${proto_file}_pb2_grpc.py")
+		set(rips_proto_python "${python_generated_path}/${proto_file}_pb2.py")
+		set(rips_grpc_python "${python_generated_path}/${proto_file}_pb2_grpc.py")
 
 		add_custom_command(
 			OUTPUT "${rips_proto_python}" "${rips_grpc_python}"
 			COMMAND ${PYTHON_EXECUTABLE}
 			ARGS -m grpc_tools.protoc
 				-I "${rips_proto_path}"
-				--python_out "${python_source_path}"
-				--grpc_python_out "${python_source_path}"
+				--python_out "${python_generated_path}"
+				--grpc_python_out "${python_generated_path}"
 				"${rips_proto}"
 			DEPENDS "${rips_proto}"
+			VERBATIM
 		)
 
 	endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
@@ -116,22 +120,27 @@ foreach(proto_file ${PROTO_FILES})
 		  ${rips_grpc_srcs}
 	)
 
-	list (APPEND GRPC_PYTHON_SOURCES
+	list (APPEND GRPC_PYTHON_GENERATED_SOURCES
 	      ${rips_proto_python}
 		  ${rips_grpc_python}
 	)
 endforeach(proto_file)
 
 if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
-	set(PYTHON_INTERFACE_FILES
-		"ResInsight.py"
-		"CommandExample.py"
-		"GridInfoStreamingExample.py"
-		"test_sample.py")
-
-	foreach (python_interface_file ${PYTHON_INTERFACE_FILES})
-		list (APPEND GRPC_PYTHON_SOURCES "${python_source_path}/${python_interface_file}")
-	endforeach(python_interface_file)
+	set(GRPC_PYTHON_SOURCES
+		"${python_source_path}/__init__.py"
+		"${python_source_path}/ResInsight.py"
+	)
+	set(GRPC_PYTHON_EXAMPLES
+		"${python_examples_path}/CommandExample.py"
+		"${python_examples_path}/GridInfoStreamingExample.py"
+		"${python_examples_path}/ResultValues.py"
+		"${python_examples_path}/SelectedCases.py"
+		"${python_examples_path}/AllCases.py"
+	)
+	set(GRPC_PYTHON_TESTS
+		"${python_tests_path}/test_sample.py"
+	)
 endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 
 list ( APPEND GRPC_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

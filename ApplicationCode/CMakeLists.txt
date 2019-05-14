@@ -23,10 +23,8 @@ endif(Qt5Core_FOUND)
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
                 ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h
 )
-
-# TODO: Write python code to binary folder
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
-                ${CMAKE_SOURCE_DIR}/Python/generated/RiaVersionInfo.py
+                ${CMAKE_BINARY_DIR}/Python/generated/RiaVersionInfo.py
 )
 
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
@@ -520,12 +518,42 @@ foreach (FILE_TO_COPY ${RI_DLL_FILENAMES})
 endforeach()
 
 # Copy all python files
-foreach (FILE_TO_COPY ${GRPC_PYTHON_SOURCES})
-	add_custom_command(TARGET ResInsight POST_BUILD
-                        COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-                        "${FILE_TO_COPY}"  
-                        "${CMAKE_BINARY_DIR}/Python")
-endforeach()
+if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
+	add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_PYTHON_GENERATED_SOURCES})
+	add_custom_target(PythonSources DEPENDS ${GRPC_PYTHON_SOURCES})
+	add_custom_target(PythonExamples DEPENDS ${GRPC_PYTHON_EXAMPLES})
+	add_dependencies(ResInsight GeneratedPythonSources PythonSources PythonExamples)
+	foreach (FILE_TO_COPY ${GRPC_PYTHON_SOURCES})
+		if (EXISTS ${FILE_TO_COPY})
+			get_filename_component(PythonFile ${FILE_TO_COPY} NAME)
+			add_custom_command(TARGET ResInsight POST_BUILD
+								COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+								"${FILE_TO_COPY}"  
+								"${CMAKE_BINARY_DIR}/Python/api/${PythonFile}"
+			)
+		endif()
+	endforeach()
+	foreach (FILE_TO_COPY ${GRPC_PYTHON_EXAMPLES})
+		if (EXISTS ${FILE_TO_COPY})
+			get_filename_component(PythonFile ${FILE_TO_COPY} NAME)
+			add_custom_command(TARGET ResInsight POST_BUILD
+								COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+								"${FILE_TO_COPY}"  
+								"${CMAKE_BINARY_DIR}/Python/examples/${PythonFile}"
+			)
+		endif()
+	endforeach()
+	foreach (FILE_TO_COPY ${GRPC_PYTHON_TESTS})
+		if (EXISTS ${FILE_TO_COPY})
+			get_filename_component(PythonFile ${FILE_TO_COPY} NAME)
+			add_custom_command(TARGET ResInsight POST_BUILD
+								COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+								"${FILE_TO_COPY}"  
+								"${CMAKE_BINARY_DIR}/Python/tests/${PythonFile}"
+			)
+		endif()
+	endforeach()
+endif()
 #############################################################################
 # Install 
 #############################################################################
