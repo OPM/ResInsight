@@ -23,6 +23,10 @@ if (MSVC)
 endif()
 
 add_definitions(-DENABLE_GRPC)
+
+#find_package(OpenSSL REQUIRED)
+#set(OPENSSL_LIBS OpenSSL::SSL OpenSSL::Crypto)
+
 # Find Protobuf installation
 # Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
 set(protobuf_MODULE_COMPATIBLE ON CACHE BOOL "")
@@ -37,9 +41,9 @@ set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 find_package(gRPC CONFIG REQUIRED NO_MODULE)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
 
-set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
+set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure grpc_unsecure gpr)
 set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)	
-set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
+set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF} ${OPENSSL_LIBS})
 
 message(STATUS ${GRPC_LIBRARIES})
 
