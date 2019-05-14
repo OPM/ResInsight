@@ -25,9 +25,6 @@
 #include "RiaColorTables.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
-#ifdef ENABLE_GRPC
-#include "RiaGrpcServer.h"
-#endif
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -574,13 +571,6 @@ void RiaGuiApplication::initialize()
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
     m_socketServer = new RiaSocketServer(this);
 
-#ifdef ENABLE_GRPC
-    m_grpcServer.reset(new RiaGrpcServer);
-    m_grpcServer->runInThread();
-    m_idleTimer = new QTimer(this);
-    connect(m_idleTimer, SIGNAL(timeout()), this, SLOT(runIdleProcessing()));
-    m_idleTimer->start(0);
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1245,6 +1235,19 @@ void RiaGuiApplication::showErrorMessage(const QString& errMsg)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::launchGrpcServer()
+{
+#ifdef ENABLE_GRPC
+    m_grpcServer->runInThread();
+    m_idleTimer = new QTimer(this);
+    connect(m_idleTimer, SIGNAL(timeout()), this, SLOT(runIdleProcessing()));
+    m_idleTimer->start(0);
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::invokeProcessEvents(QEventLoop::ProcessEventsFlags flags)
 {
     processEvents(flags);
@@ -1389,7 +1392,10 @@ void RiaGuiApplication::onProjectClosed()
 void RiaGuiApplication::onProgramExit()
 {
 #ifdef ENABLE_GRPC
-    m_grpcServer->quit();
+    if (m_grpcServer)
+    {
+        m_grpcServer->quit();
+    }
 #endif
 }
 
@@ -1593,6 +1599,27 @@ void RiaGuiApplication::applyGuiPreferences(const RiaPreferences* oldPreferences
         }
     }
     caf::PdmUiItem::enableExtraDebugText(m_preferences->appendFieldKeywordToToolTipText());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::updateGrpcServer()
+{
+#ifdef ENABLE_GRPC
+    bool isGrpcRunning = m_grpcServer != nullptr && m_grpcServer->isRunning();
+    bool shouldItBeRunning = m_preferences->enableGrpcServer();
+    if (isGrpcRunning && !shouldItBeRunning)
+    {
+        m_grpcServer->quit();
+    }
+    else if (!isGrpcRunning && shouldItBeRunning)
+    {
+        int portNumber = RiaGrpcServer::findAvailablePortNumber(m_preferences->defaultGrpcPortNumber());
+        m_grpcServer.reset(new RiaGrpcServer(portNumber));
+        m_grpcServer->runInThread();
+    }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

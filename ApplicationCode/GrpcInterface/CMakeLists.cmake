@@ -6,6 +6,7 @@ set ( SOURCE_GROUP_HEADER_FILES
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridInfoService.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.h
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcResInfoService.h
 )
 
 set ( SOURCE_GROUP_SOURCE_FILES
@@ -14,6 +15,7 @@ set ( SOURCE_GROUP_SOURCE_FILES
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridInfoService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcResInfoService.cpp
 )
 
 if (MSVC)
@@ -35,16 +37,24 @@ set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 find_package(gRPC CONFIG REQUIRED NO_MODULE)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
 
-set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure)
+set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
 set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)	
 set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
 
+message(STATUS ${GRPC_LIBRARIES})
+
+set_target_properties(${GRPC_LIBRARIES} PROPERTIES
+	MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
+	MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE
+)
 # Proto files
 set(PROTO_FILES
+	"Empty"
 	"CaseInfo"
 	"GridInfo"
 	"ProjectInfo"
 	"Commands"
+	"ResInfo"
 )
 
 foreach(proto_file ${PROTO_FILES})		
@@ -81,4 +91,4 @@ endforeach(proto_file)
 list ( APPEND GRPC_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list ( APPEND GRPC_CPP_SOURCES ${SOURCE_GROUP_SOURCE_FILES})
 
-source_group( "GrpcInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )
+source_group( "GrpcInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.cmake )

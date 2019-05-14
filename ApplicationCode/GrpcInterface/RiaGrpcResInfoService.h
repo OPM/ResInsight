@@ -1,3 +1,5 @@
+#pragma once
+
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2019-     Equinor ASA
@@ -17,37 +19,32 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaLogging.h"
+#include "RiaGrpcServiceInterface.h"
 
-#include <iostream>
-#include <list>
-#include <memory>
-#include <mutex>
+#include "ResInfo.grpc.pb.h"
 
-class RiaGrpcServerImpl;
+#include <grpcpp/grpcpp.h>
+#include <vector>
 
-//==================================================================================================
-//
-// The GRPC server.
-//
-//==================================================================================================
-class RiaGrpcServer
+namespace rips
 {
-public:    
-    RiaGrpcServer(int portNumber);
-    ~RiaGrpcServer();
+class Empty;
+class Version;
+}
 
-    int portNumber() const;
-    bool isRunning() const;
-    void run();
-    void runInThread();
-    void processOneRequest();
-    void quit();
-    static int findAvailablePortNumber(int defaultPortNumber);
+namespace caf
+{
+class PdmValueField;
+}
 
-private:
-    void initialize();
+class RiaAbstractGrpcCallback;
 
-private:
-    RiaGrpcServerImpl* m_serverImpl;
+class RiaGrpcResInfoService : public rips::ResInfo::AsyncService, public RiaGrpcServiceInterface
+{
+public:
+    grpc::Status GetVersion(grpc::ServerContext* context, const rips::Empty* request, rips::Version* reply) override;
+    std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
+
 };
+
+

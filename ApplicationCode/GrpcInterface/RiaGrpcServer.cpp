@@ -30,6 +30,8 @@
 #include "RimEclipseCase.h"
 #include "RimProject.h"
 
+#include "cafAssert.h"
+
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
 
@@ -51,18 +53,23 @@ using grpc::Status;
 class RiaGrpcServerImpl
 {
 public:
+    RiaGrpcServerImpl(int portNumber);
     ~RiaGrpcServerImpl();
+    int portNumber() const;
+    bool isRunning() const;
     void run();
     void runInThread();
     void initialize();
     void processOneRequest();
     void quit();
+    int currentPortNumber;
 
 private:
     void waitForNextRequest();
     void process(RiaAbstractGrpcCallback* method);
 
 private:
+    int                                                 m_portNumber;
     std::unique_ptr<grpc::ServerCompletionQueue>        m_completionQueue;
     std::unique_ptr<grpc::Server>                       m_server;
     std::list<std::shared_ptr<RiaGrpcServiceInterface>> m_services;
@@ -74,9 +81,32 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaGrpcServerImpl::RiaGrpcServerImpl(int portNumber)
+    : m_portNumber(portNumber)
+{}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaGrpcServerImpl::~RiaGrpcServerImpl()
 {
     quit();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaGrpcServerImpl::portNumber() const
+{
+    return m_portNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaGrpcServerImpl::isRunning() const
+{
+    return m_server != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,17 +134,10 @@ void RiaGrpcServerImpl::runInThread()
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServerImpl::initialize()
-{
-    quint16 port = 50051u;
-    {
-        QTcpServer serverTest;
-        while (!serverTest.listen(QHostAddress::LocalHost, port))
-        {
-            port++;
-        }
-    }
+{   
+    CAF_ASSERT(m_portNumber > 0 && m_portNumber <= (int) std::numeric_limits<quint16>::max());
 
-    QString serverAddress = QString("localhost:%1").arg(port);
+    QString serverAddress = QString("localhost:%1").arg(m_portNumber);
 
     ServerBuilder builder;
     builder.AddListeningPort(serverAddress.toStdString(), grpc::InsecureServerCredentials());
@@ -163,6 +186,7 @@ void RiaGrpcServerImpl::quit()
 {
     if (m_server)
     {
+        RiaLogging::info("Shutting down gRPC server");
         // Clear unhandled requests
         while (!m_unprocessedRequests.empty())
         {
@@ -241,9 +265,9 @@ void RiaGrpcServerImpl::process(RiaAbstractGrpcCallback* method)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaGrpcServer::RiaGrpcServer()
+RiaGrpcServer::RiaGrpcServer(int portNumber)
 {
-    m_serverImpl = new RiaGrpcServerImpl;
+    m_serverImpl = new RiaGrpcServerImpl(portNumber);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,6 +276,26 @@ RiaGrpcServer::RiaGrpcServer()
 RiaGrpcServer::~RiaGrpcServer()
 {
     delete m_serverImpl;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaGrpcServer::portNumber() const
+{
+    if (m_serverImpl) return m_serverImpl->portNumber();
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaGrpcServer::isRunning() const
+{
+    if (m_serverImpl) return m_serverImpl->isRunning();
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,5 +335,32 @@ void RiaGrpcServer::processOneRequest()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::quit()
 {
-    m_serverImpl->quit();
+    if (m_serverImpl)
+        m_serverImpl->quit();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaGrpcServer::findAvailablePortNumber(int defaultPortNumber)
+{
+    int startPort = 50051;
+
+    if (defaultPortNumber > 0 && defaultPortNumber < (int)std::numeric_limits<quint16>::max())
+    {
+        startPort = defaultPortNumber;
+    }
+
+    int endPort = std::min(startPort + 100, (int)std::numeric_limits<quint16>::max());
+
+    QTcpServer serverTest;
+    quint16    port = static_cast<quint16>(startPort);
+    for (; port <= static_cast<quint16>(endPort); ++port)
+    {
+        if (serverTest.listen(QHostAddress::LocalHost, port))
+        {
+            return static_cast<int>(port);
+        }
+    }
+    return -1;
 }

@@ -2,10 +2,6 @@ syntax = "proto3";
 
 package rips;
 
-message Empty
-{
-}
-
 message Case {
   int32 id = 1;
 }

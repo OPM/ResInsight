@@ -20,7 +20,6 @@
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
-#include "RiaGrpcServer.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
@@ -127,6 +126,7 @@ public:
 
     static void         clearAllSelections();
     void                applyGuiPreferences(const RiaPreferences* oldPreferences = nullptr);
+    void                updateGrpcServer();
 
     // Public RiaApplication overrides
     void                initialize() override;
@@ -135,7 +135,7 @@ public:
     void                addToRecentFiles(const QString& fileName) override;
     void                showInformationMessage(const QString& text) override;
     void                showErrorMessage(const QString& errMsg) override;
-
+    void                launchGrpcServer() override;
 protected:
     // Protected RiaApplication overrides
     void                invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;    
@@ -173,7 +173,6 @@ private:
     RiuMainWindow*                      m_mainWindow;
     RiuPlotMainWindow*                  m_mainPlotWindow;
 #ifdef ENABLE_GRPC
-    std::unique_ptr<RiaGrpcServer>      m_grpcServer;
     QPointer<QTimer>                    m_idleTimer;
 #endif
 

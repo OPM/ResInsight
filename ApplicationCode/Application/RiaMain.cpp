@@ -41,11 +41,11 @@ int main(int argc, char *argv[])
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
 
     std::unique_ptr<RiaApplication> app (createApplication(argc, argv));
-    app->initialize();
 
     cvf::ProgramOptions progOpt;
+    bool                result = RiaArgumentParser::parseArguments(&progOpt);
 
-    bool result    = RiaArgumentParser::parseArguments(&progOpt);
+    app->initialize();
 
     if (!result)
     {
@@ -83,6 +83,10 @@ int main(int argc, char *argv[])
         int exitCode = 0;
         try
         {
+            if (app->initializeGrpcServer(progOpt))
+            {
+                app->launchGrpcServer();
+            }
             exitCode = QCoreApplication::instance()->exec();
         }
         catch (std::exception& exep )

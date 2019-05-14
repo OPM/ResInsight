@@ -18,9 +18,6 @@
 #include "RiaConsoleApplication.h"
 
 #include "RiaArgumentParser.h"
-#ifdef ENABLE_GRPC
-#include "RiaGrpcServer.h"
-#endif
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
@@ -323,18 +320,6 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments(cvf::Pr
         return EXIT_COMPLETED;
     }
 
-    if (cvf::Option o = progOpt->option("server"))
-    {
-#ifdef ENABLE_GRPC
-        RiaGrpcServer server;
-        server.run();
-        return EXIT_COMPLETED;
-#else
-        std::cout << "ResInsight has not been compiled with GRPC. Cannot use --server option" << std::endl;
-        return EXIT_WITH_ERROR;
-#endif
-    }
-
     return KEEP_GOING;
 }
 
@@ -352,6 +337,16 @@ void RiaConsoleApplication::showInformationMessage(const QString& text)
 void RiaConsoleApplication::showErrorMessage(const QString& errMsg)
 {
     RiaLogging::error(errMsg);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaConsoleApplication::launchGrpcServer()
+{
+#ifdef ENABLE_GRPC
+    m_grpcServer->run();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

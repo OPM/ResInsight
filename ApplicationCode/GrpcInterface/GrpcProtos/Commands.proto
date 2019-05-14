@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "CaseInfo.proto";
+import "Empty.proto";
 
 package rips;
 

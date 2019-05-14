@@ -51,6 +51,9 @@ RiaPreferences::RiaPreferences(void)
 {
     CAF_PDM_InitField(&navigationPolicy,                "navigationPolicy", caf::AppEnum<RiaGuiApplication::RINavigationPolicy>(RiaGuiApplication::NAVIGATION_POLICY_RMS), "Navigation Mode", "", "", "");
 
+    CAF_PDM_InitField(&enableGrpcServer, "enableGrpcServer", true, "Enable gRPC script server", "", "Remote Procedure Call Scripting Engine", "");
+    CAF_PDM_InitField(&defaultGrpcPortNumber, "defaultGrpcPort", 50051, "Default gRPC port", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&scriptDirectories,        "scriptDirectory", "Shared Script Folder(s)", "", "", "");
     scriptDirectories.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
@@ -129,7 +132,7 @@ RiaPreferences::RiaPreferences(void)
 
     m_tabNames << "General";
     m_tabNames << "Eclipse";
-    m_tabNames << "Octave";
+    m_tabNames << "Scripting";
     if (RiaApplication::enableDevelopmentFeatures())
     {
         m_tabNames << "System";
@@ -245,6 +248,12 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     }
     else if (uiConfigName == m_tabNames[2])
     {
+#ifdef ENABLE_GRPC
+        caf::PdmUiGroup* grpcGroup = uiOrdering.addNewGroup("gRPC Server");
+        grpcGroup->add(&enableGrpcServer);
+        grpcGroup->add(&defaultGrpcPortNumber);
+#endif
+
         caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup("Octave");
         octaveGroup->add(&octaveExecutable);
         octaveGroup->add(&octaveShowHeaderInfoWhenExecutingScripts);

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package rips;
+
+import "Empty.proto";
+
+service ResInfo {
+  rpc GetVersion(Empty) returns (Version) {}
+}
+
+message Version {
+  int32 major_version = 1;
+  int32 minor_version = 2;
+  int32 patch_version = 3;
+}
