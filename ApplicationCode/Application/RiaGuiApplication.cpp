@@ -1388,7 +1388,9 @@ void RiaGuiApplication::onProjectClosed()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::onProgramExit()
 {
+#ifdef ENABLE_GRPC
     m_grpcServer->quit();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1660,10 +1662,12 @@ void RiaGuiApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitSt
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::runIdleProcessing()
 {
+#ifdef ENABLE_GRPC
     if (!caf::ProgressInfoStatic::isRunning())
     {
         m_grpcServer->processOneRequest();
     }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
