@@ -703,7 +703,7 @@ double RigFlowDiagResults::maxAbsPairFlux(int timeStepIndex)
     calculateNativeResultsIfNotPreviouslyAttempted(timeStepIndex, RigFlowDiagResultAddress::PHASE_ALL);
     double maxFlux = 0.0;
 
-    if (timeStepIndex < m_injProdPairFluxCommunicationTimesteps.size())
+    if ((size_t) timeStepIndex < m_injProdPairFluxCommunicationTimesteps.size())
     {
         for (const auto& commPair : m_injProdPairFluxCommunicationTimesteps[timeStepIndex][RigFlowDiagResultAddress::PHASE_ALL])
         {
