@@ -24,6 +24,11 @@ CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
                 ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h
 )
 
+# TODO: Write python code to binary folder
+CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
+                ${CMAKE_SOURCE_DIR}/Python/generated/RiaVersionInfo.py
+)
+
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
   add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
@@ -330,6 +335,8 @@ set( EXE_FILES
     ../ResInsightVersion.cmake
     .clang-format
     .clang-tidy
+	Adm/RiaVersionInfo.h.cmake
+	Adm/RiaVersionInfo.py.cmake
 )
 
 add_executable( ResInsight ${EXE_FILES} )
