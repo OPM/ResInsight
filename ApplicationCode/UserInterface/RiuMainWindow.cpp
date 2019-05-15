@@ -272,7 +272,7 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
-    app->saveMainWinGeoAndDockToolBarLayout();
+    this->saveWinGeoAndDockToolBarLayout();
 
     if (app->isMainPlotWindowVisible())
     {

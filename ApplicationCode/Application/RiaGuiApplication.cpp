@@ -1175,28 +1175,6 @@ std::vector<QAction*> RiaGuiApplication::recentFileActions() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::saveMainWinGeoAndDockToolBarLayout()
-{
-    if (isMain3dWindowVisible())
-    {
-        m_mainWindow->saveWinGeoAndDockToolBarLayout();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::savePlotWinGeoAndDockToolBarLayout()
-{
-    if (isMainPlotWindowVisible())
-    {
-        m_mainPlotWindow->saveWinGeoAndDockToolBarLayout();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::clearAllSelections()
 {
     Riu3dSelectionManager::instance()->deleteAllItems(Riu3dSelectionManager::RUI_APPLICATION_GLOBAL);

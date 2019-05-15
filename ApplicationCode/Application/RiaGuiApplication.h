@@ -119,9 +119,6 @@ public:
 
     std::vector<QAction*> recentFileActions() const;
 
-    void                saveMainWinGeoAndDockToolBarLayout();
-    void                savePlotWinGeoAndDockToolBarLayout();
-
     static void         clearAllSelections();
     void                applyGuiPreferences(const RiaPreferences* oldPreferences = nullptr);
 

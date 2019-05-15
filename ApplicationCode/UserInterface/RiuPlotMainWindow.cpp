@@ -178,9 +178,9 @@ void RiuPlotMainWindow::cleanUpTemporaryWidgets()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::closeEvent(QCloseEvent* event)
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
+    this->saveWinGeoAndDockToolBarLayout();
 
-    app->savePlotWinGeoAndDockToolBarLayout();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
 
     if (app->isMain3dWindowVisible())
     {
