@@ -18,6 +18,8 @@
 
 #include "RiaImportEclipseCaseTools.h"
 
+#include "ApplicationCommands/RicShowMainWindowFeature.h"
+
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
 
@@ -275,7 +277,10 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
         return false;
     }
 
-    RiuMainWindow::instance()->show();
+    if (RiaGuiApplication::isRunning())
+    {
+        RicShowMainWindowFeature::showMainWindow();
+    }
 
     analysisModels->cases.push_back(rimResultReservoir);
 

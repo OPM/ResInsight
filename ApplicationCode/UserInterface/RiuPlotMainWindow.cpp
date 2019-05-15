@@ -34,6 +34,7 @@
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogPlot.h"
 
+#include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuToolTipMenu.h"
@@ -178,9 +179,11 @@ void RiuPlotMainWindow::cleanUpTemporaryWidgets()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::closeEvent(QCloseEvent* event)
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
+    this->saveWinGeoAndDockToolBarLayout();
 
-    app->savePlotWinGeoAndDockToolBarLayout();
+    this->hideAllDockWidgets();
+
+    RiaGuiApplication* app = RiaGuiApplication::instance();
 
     if (app->isMain3dWindowVisible())
     {
@@ -383,7 +386,7 @@ void RiuPlotMainWindow::createDockPanels()
 {
     {
         QDockWidget* dockWidget = new QDockWidget("Plot Project Tree", this);
-        dockWidget->setObjectName("dockWidget");
+        dockWidget->setObjectName(RiuDockWidgetTools::plotMainWindowProjectTreeName());
         dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
 
         m_projectTreeView = new caf::PdmUiTreeView(this);
@@ -420,7 +423,7 @@ void RiuPlotMainWindow::createDockPanels()
 
     {
         QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
-        dockWidget->setObjectName("dockWidget");
+        dockWidget->setObjectName(RiuDockWidgetTools::plotMainWindowPropertyEditorName());
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
         m_pdmUiPropertyView = new caf::PdmUiPropertyView(dockWidget);
@@ -763,19 +766,6 @@ void RiuPlotMainWindow::selectedObjectsChanged()
             // Set focus back to the tree view to be able to continue keyboard tree view navigation
             m_projectTreeView->treeView()->setFocus();
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::hideAllDockWindows()
-{
-    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
-
-    for (int i = 0; i < dockWidgets.size(); i++)
-    {
-        dockWidgets[i]->close();
     }
 }
 

@@ -64,8 +64,6 @@ public:
     void                addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry) override;
     void                setActiveViewer(QWidget* subWindow) override;
 
-    void                hideAllDockWindows();
-
     void                setDefaultWindowSize();
 
     void                tileSubWindows() override;

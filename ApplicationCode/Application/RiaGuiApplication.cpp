@@ -192,8 +192,6 @@ RiaGuiApplication::RiaGuiApplication(int& argc, char** argv)
 //--------------------------------------------------------------------------------------------------
 RiaGuiApplication::~RiaGuiApplication()
 {
-    RiuDockWidgetTools::instance()->saveDockWidgetsState();
-
     deleteMainPlotWindow();
     deleteMainWindow();  
 
@@ -568,7 +566,9 @@ void RiaGuiApplication::initialize()
     // Create main windows
     // The plot window is created to be able to set expanded state on created objects, but hidden by default
     getOrCreateAndShowMainWindow();
-    getOrCreateMainPlotWindow();
+    RiuPlotMainWindow* plotMainWindow = getOrCreateMainPlotWindow();
+    plotMainWindow->hideAllDockWidgets();
+
     RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(m_mainWindow->messagePanel()));
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
 
@@ -808,7 +808,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::Progra
             {
                 RiuMainWindow* mainWnd = RiuMainWindow::instance();
                 CVF_ASSERT(mainWnd);
-                mainWnd->hideAllDockWindows();
+                mainWnd->hideAllDockWidgets();
 
                 // 2016-11-09 : Location of snapshot folder was previously located in 'snapshot' folder
                 // relative to current working folder. Now harmonized to behave as RiuMainWindow::slotSnapshotAllViewsToFile()
@@ -822,7 +822,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::Progra
             {
                 if (mainPlotWindow())
                 {
-                    mainPlotWindow()->hideAllDockWindows();
+                    mainPlotWindow()->hideAllDockWidgets();
 
                     // Will be saved relative to current directory
                     RicSnapshotAllPlotsToFileFeature::saveAllPlots();
@@ -961,6 +961,11 @@ RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
     {
         createMainWindow();
     }
+    else
+    {
+        m_mainWindow->loadWinGeoAndDockToolBarLayout();
+    }
+
     return m_mainWindow;
 }
 
@@ -997,6 +1002,7 @@ void RiaGuiApplication::createMainWindow()
     m_mainWindow->setWindowTitle("ResInsight " + platform);
     m_mainWindow->setDefaultWindowSize();
     m_mainWindow->setDefaultToolbarVisibility();
+    m_mainWindow->storeDefaultDockWidgetVisibilitiesIfRequired();
     m_mainWindow->loadWinGeoAndDockToolBarLayout();
     m_mainWindow->showWindow();
 }
@@ -1025,6 +1031,7 @@ void RiaGuiApplication::createMainPlotWindow()
     m_mainPlotWindow->setWindowTitle("Plots - ResInsight");
     m_mainPlotWindow->setDefaultWindowSize();
     m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
+    m_mainPlotWindow->hideAllDockWidgets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1044,11 +1051,17 @@ void RiaGuiApplication::deleteMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
 {
+    bool triggerReloadOfDockWidgetVisibilities = false;
+
     if (!m_mainPlotWindow)
     {
         createMainPlotWindow();
         m_mainPlotWindow->initializeGuiNewProjectLoaded();
         loadAndUpdatePlotData();
+    }
+    else
+    {
+        triggerReloadOfDockWidgetVisibilities = !m_mainPlotWindow->isVisible();
     }
 
     if (m_mainPlotWindow->isMinimized())
@@ -1063,6 +1076,12 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
 
     m_mainPlotWindow->raise();
     m_mainPlotWindow->activateWindow();
+
+    if (triggerReloadOfDockWidgetVisibilities)
+    {
+        m_mainPlotWindow->restoreDockWidgetVisibilities();
+    }
+
     return m_mainPlotWindow;
 }
 
@@ -1175,28 +1194,6 @@ std::vector<QAction*> RiaGuiApplication::recentFileActions() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::saveMainWinGeoAndDockToolBarLayout()
-{
-    if (isMain3dWindowVisible())
-    {
-        m_mainWindow->saveWinGeoAndDockToolBarLayout();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::savePlotWinGeoAndDockToolBarLayout()
-{
-    if (isMainPlotWindowVisible())
-    {
-        m_mainPlotWindow->saveWinGeoAndDockToolBarLayout();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::clearAllSelections()
 {
     Riu3dSelectionManager::instance()->deleteAllItems(Riu3dSelectionManager::RUI_APPLICATION_GLOBAL);
@@ -1240,14 +1237,6 @@ void RiaGuiApplication::showErrorMessage(const QString& errMsg)
 void RiaGuiApplication::invokeProcessEvents(QEventLoop::ProcessEventsFlags flags)
 {
     processEvents(flags);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::onChangedActiveReservoirView()
-{
-    RiuDockWidgetTools::instance()->changeDockWidgetVisibilityBasedOnView(activeReservoirView());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1657,7 +1646,7 @@ void RiaGuiApplication::runMultiCaseSnapshots(const QString&       templateProje
 {
     if (!m_mainWindow) return;
 
-    m_mainWindow->hideAllDockWindows();
+    m_mainWindow->hideAllDockWidgets();
 
     const size_t numGridFiles = gridFileNames.size();
     for (size_t i = 0; i < numGridFiles; i++)

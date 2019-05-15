@@ -183,7 +183,6 @@ public:
 protected:
     // Protected implementation specific overrides
     virtual void invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) = 0;
-    virtual void onChangedActiveReservoirView() {}
     virtual void onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) {}
     virtual void onProjectBeingOpened() {}
     virtual void onProjectOpened() = 0;
