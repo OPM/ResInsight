@@ -51,13 +51,19 @@ public:
 
     static QAction* toggleActionForWidget(const QObject* parent, const QString& dockWidgetName);
 
-    static QVariant storeDockWidgetsVisibility(const QObject* parent);
-    static void     restoreDockWidgetsVisibility(const QObject* parent, QVariant widgetVisibilities);
+    static QVariant dockWidgetsVisibility(const QObject* parent);
+    static QVariant defaultDockWidgetVisibilities();
 
     static void setVisibleDockingWindowsForEclipse();
     static void setVisibleDockingWindowsForGeoMech();
-    static void trySetDockWidgetVisibility(const QObject* parent, const QString& dockWidgetName, bool isVisible);
+    
+    static void setDockWidgetVisibility(const QObject* parent, const QString& dockWidgetName, bool isVisible);
+    static void applyDockWidgetVisibilities(const QObject* parent, const QMap<QString, QVariant>& visibilityMap);
 
 private:
+    static QMap<QString, QVariant> widgetVisibilitiesForEclipse();
+    static QMap<QString, QVariant> widgetVisibilitiesForGeoMech();
+
+
     static QDockWidget* findDockWidget(const QObject* parent, const QString& dockWidgetName);
 };

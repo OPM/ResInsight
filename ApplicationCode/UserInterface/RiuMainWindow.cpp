@@ -1749,7 +1749,7 @@ void RiuMainWindow::updateMemoryUsage()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::showProcessMonitorDockPanel()
 {
-    RiuDockWidgetTools::trySetDockWidgetVisibility(this, RiuDockWidgetTools::processMonitorName(), true);
+    RiuDockWidgetTools::setDockWidgetVisibility(this, RiuDockWidgetTools::processMonitorName(), true);
 }
 
 //--------------------------------------------------------------------------------------------------

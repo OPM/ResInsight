@@ -24,8 +24,8 @@
 #include "RiuDockWidgetTools.h"
 #include "RiuMdiSubWindow.h"
 
-#include "RimViewWindow.h"
 #include "RimProject.h"
+#include "RimViewWindow.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiTreeView.h"
@@ -90,6 +90,16 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString mainWindowDockWidgetSettingsKey(const QString& settingsFolderName)
+{
+    QString key = settingsFolderName + "/dockWindowVisibilies";
+
+    return key;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
 {
     // Company and appname set through QCoreApplication
@@ -102,24 +112,44 @@ void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
     settings.setValue(QString("%1/dockAndToolBarLayout").arg(registryFolderName()), layout);
 
     settings.setValue(QString("%1/isMaximized").arg(registryFolderName()), isMaximized());
-    
+
     if (this->isVisible())
     {
-        QVariant dockWindowVisibilities = RiuDockWidgetTools::storeDockWidgetsVisibility(this);
-        settings.setValue(QString("%1/dockWindowVisibilies").arg(registryFolderName()), dockWindowVisibilities);
+        QVariant dockWindowVisibilities = RiuDockWidgetTools::dockWidgetsVisibility(this);
+        QString  key                    = mainWindowDockWidgetSettingsKey(registryFolderName());
+
+        settings.setValue(key, dockWindowVisibilities);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::restoreDockWidgetVisibilities() 
+void RiuMainWindowBase::storeDefaultDockWidgetVisibilitiesIfRequired()
+{
+    QSettings settings;
+
+    QString key = mainWindowDockWidgetSettingsKey(registryFolderName());
+
+    if (!settings.contains(key))
+    {
+        QVariant dockWidgetVisibilities = RiuDockWidgetTools::defaultDockWidgetVisibilities();
+        settings.setValue(key, dockWidgetVisibilities);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::restoreDockWidgetVisibilities()
 {
     // Company and appname set through QCoreApplication
     QSettings settings;
 
-    QVariant dockWindowVisibilities = settings.value(QString("%1/dockWindowVisibilies").arg(registryFolderName()));
-    RiuDockWidgetTools::restoreDockWidgetsVisibility(this, dockWindowVisibilities);
+    QString key = mainWindowDockWidgetSettingsKey(registryFolderName());
+
+    QVariant dockWindowVisibilities = settings.value(key);
+    RiuDockWidgetTools::applyDockWidgetVisibilities(this, dockWindowVisibilities.toMap());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,7 +172,7 @@ void RiuMainWindowBase::showWindow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::hideAllDockWidgets() 
+void RiuMainWindowBase::hideAllDockWidgets()
 {
     QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
 
@@ -272,7 +302,8 @@ void RiuMainWindowBase::addViewerToMdiArea(QMdiArea*     mdiArea,
                                            const QPoint& subWindowPos,
                                            const QSize&  subWindowSize)
 {
-    RiuMdiSubWindow* subWin = new RiuMdiSubWindow(nullptr, Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
+    RiuMdiSubWindow* subWin =
+        new RiuMdiSubWindow(nullptr, Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
     subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
     subWin->setWidget(viewer);
 

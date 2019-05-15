@@ -1002,6 +1002,7 @@ void RiaGuiApplication::createMainWindow()
     m_mainWindow->setWindowTitle("ResInsight " + platform);
     m_mainWindow->setDefaultWindowSize();
     m_mainWindow->setDefaultToolbarVisibility();
+    m_mainWindow->storeDefaultDockWidgetVisibilitiesIfRequired();
     m_mainWindow->loadWinGeoAndDockToolBarLayout();
     m_mainWindow->showWindow();
 }

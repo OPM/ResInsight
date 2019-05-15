@@ -56,6 +56,7 @@ public:
     RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer);
     void                loadWinGeoAndDockToolBarLayout();
     void                saveWinGeoAndDockToolBarLayout();
+    void                storeDefaultDockWidgetVisibilitiesIfRequired();
     void                restoreDockWidgetVisibilities();
     void                showWindow();
 
