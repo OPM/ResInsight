@@ -566,7 +566,9 @@ void RiaGuiApplication::initialize()
     // Create main windows
     // The plot window is created to be able to set expanded state on created objects, but hidden by default
     getOrCreateAndShowMainWindow();
-    getOrCreateMainPlotWindow();
+    RiuPlotMainWindow* plotMainWindow = getOrCreateMainPlotWindow();
+    plotMainWindow->hideAllDockWindows();
+
     RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(m_mainWindow->messagePanel()));
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
 
@@ -959,6 +961,11 @@ RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
     {
         createMainWindow();
     }
+    else
+    {
+        m_mainWindow->loadWinGeoAndDockToolBarLayout();
+    }
+
     return m_mainWindow;
 }
 
@@ -1023,6 +1030,7 @@ void RiaGuiApplication::createMainPlotWindow()
     m_mainPlotWindow->setWindowTitle("Plots - ResInsight");
     m_mainPlotWindow->setDefaultWindowSize();
     m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
+    m_mainPlotWindow->hideAllDockWindows();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1042,11 +1050,17 @@ void RiaGuiApplication::deleteMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
 {
+    bool triggerReloadOfDockWidgetVisibilities = false;
+
     if (!m_mainPlotWindow)
     {
         createMainPlotWindow();
         m_mainPlotWindow->initializeGuiNewProjectLoaded();
         loadAndUpdatePlotData();
+    }
+    else
+    {
+        triggerReloadOfDockWidgetVisibilities = !m_mainPlotWindow->isVisible();
     }
 
     if (m_mainPlotWindow->isMinimized())
@@ -1061,6 +1075,12 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
 
     m_mainPlotWindow->raise();
     m_mainPlotWindow->activateWindow();
+
+    if (triggerReloadOfDockWidgetVisibilities)
+    {
+        m_mainPlotWindow->restoreDockWidgetVisibilities();
+    }
+
     return m_mainPlotWindow;
 }
 

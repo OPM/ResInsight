@@ -43,6 +43,8 @@ void RicShowMainWindowFeature::onActionTriggered(bool isChecked)
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
+    bool triggerReloadOfDockWindowVisibilities = !mainWnd->isVisible();
+
     if (mainWnd->isMinimized())
     {
         mainWnd->showNormal();
@@ -54,6 +56,11 @@ void RicShowMainWindowFeature::onActionTriggered(bool isChecked)
     }
 
     mainWnd->raise();
+
+    if (triggerReloadOfDockWindowVisibilities)
+    {
+        mainWnd->restoreDockWidgetVisibilities();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -30,45 +30,32 @@ class Rim3dView;
 
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class RiuDockWidgetTools
 {
 public:
-    static RiuDockWidgetTools* instance();
+    static QString projectTreeName();
+    static QString propertyEditorName();
+    static QString resultInfoName();
+    static QString processMonitorName();
+    static QString resultPlotName();
+    static QString relPermPlotName();
+    static QString pvtPlotName();
+    static QString messagesName();
+    static QString mohrsCirclePlotName();
 
-    QString projectTreeName() const;
-    QString propertyEditorName() const;
-    QString resultInfoName() const;
-    QString processMonitorName() const;
-    QString resultPlotName() const;
-    QString relPermPlotName() const;
-    QString pvtPlotName() const;
-    QString messagesName() const;
-    QString mohrsCirclePlotName() const;
+    static QAction* toggleActionForWidget(const QObject* parent, const QString& dockWidgetName);
 
-    QAction* toggleActionForWidget(const QObject* parent, const QString& dockWidgetName);
-    void     setDockWidgetVisibility(const QString& dockWidgetName, bool isVisible);
-    void     changeDockWidgetVisibilityBasedOnView(Rim3dView* view);
-    void     saveDockWidgetsState();
+    static QVariant storeDockWidgetsVisibility(const QObject* parent);
+    static void     restoreDockWidgetsVisibility(const QObject* parent, QVariant widgetVisibilities);
 
 private:
-    enum UserDefinedVisibility
-    {
-        USER_DEFINED_ON,
-        USER_DEFINED_OFF,
-        USER_DEFINED_UNKNOWN
-    };
+    static void changeDockWidgetVisibilityBasedOnView(Rim3dView* view);
 
-    RiuDockWidgetTools();
-    void                  setVisibleDockingWindowsForEclipse();
-    void                  setVisibleDockingWindowsForGeoMech();
-    void                  loadDockWidgetsState();
-    UserDefinedVisibility visibilityForWidget(const QString& dockWidgetName);
-    static QDockWidget*   findDockWidget(const QObject* parent, const QString& dockWidgetName);
-    void                  trySetDockWidgetVisibility(const QObject* parent, const QString& dockWidgetName, bool isVisible);
-
-private:
-    QMap<QString, QVariant> m_userDefinedDockWidgetVisibility;
+    static void         setVisibleDockingWindowsForEclipse();
+    static void         setVisibleDockingWindowsForGeoMech();
+    static QDockWidget* findDockWidget(const QObject* parent, const QString& dockWidgetName);
+    static void         trySetDockWidgetVisibility(const QObject* parent, const QString& dockWidgetName, bool isVisible);
 };

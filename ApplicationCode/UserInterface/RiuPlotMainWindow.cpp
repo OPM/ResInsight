@@ -180,6 +180,8 @@ void RiuPlotMainWindow::closeEvent(QCloseEvent* event)
 {
     this->saveWinGeoAndDockToolBarLayout();
 
+    this->hideAllDockWindows();
+
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
     if (app->isMain3dWindowVisible())

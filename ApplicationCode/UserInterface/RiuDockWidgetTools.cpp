@@ -31,25 +31,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuDockWidgetTools::RiuDockWidgetTools()
-{
-    loadDockWidgetsState();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuDockWidgetTools* RiuDockWidgetTools::instance()
-{
-    static RiuDockWidgetTools staticInstance;
-
-    return &staticInstance;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::projectTreeName() const
+QString RiuDockWidgetTools::projectTreeName()
 {
     return "dockProjectTree";
 }
@@ -57,7 +39,7 @@ QString RiuDockWidgetTools::projectTreeName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::propertyEditorName() const
+QString RiuDockWidgetTools::propertyEditorName()
 {
     return "dockpropertyEditor";
 }
@@ -65,7 +47,7 @@ QString RiuDockWidgetTools::propertyEditorName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::resultInfoName() const
+QString RiuDockWidgetTools::resultInfoName()
 {
     return "dockResultInfo";
 }
@@ -73,7 +55,7 @@ QString RiuDockWidgetTools::resultInfoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::processMonitorName() const
+QString RiuDockWidgetTools::processMonitorName()
 {
     return "dockProcessMonitor";
 }
@@ -81,7 +63,7 @@ QString RiuDockWidgetTools::processMonitorName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::resultPlotName() const
+QString RiuDockWidgetTools::resultPlotName()
 {
     return "dockResultPlot";
 }
@@ -89,7 +71,7 @@ QString RiuDockWidgetTools::resultPlotName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::relPermPlotName() const
+QString RiuDockWidgetTools::relPermPlotName()
 {
     return "dockRelPermPlot";
 }
@@ -97,7 +79,7 @@ QString RiuDockWidgetTools::relPermPlotName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::pvtPlotName() const
+QString RiuDockWidgetTools::pvtPlotName()
 {
     return "dockPvtPlot";
 }
@@ -105,7 +87,7 @@ QString RiuDockWidgetTools::pvtPlotName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::mohrsCirclePlotName() const
+QString RiuDockWidgetTools::mohrsCirclePlotName()
 {
     return "dockMohrsCirclePlot";
 }
@@ -113,7 +95,7 @@ QString RiuDockWidgetTools::mohrsCirclePlotName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::messagesName() const
+QString RiuDockWidgetTools::messagesName()
 {
     return "dockMessages";
 }
@@ -165,8 +147,8 @@ void RiuDockWidgetTools::setVisibleDockingWindowsForEclipse()
         }
     }
 
-    RiuDockWidgetTools::instance()->trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::relPermPlotName(), true);
-    RiuDockWidgetTools::instance()->trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::pvtPlotName(), true);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::relPermPlotName(), true);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::pvtPlotName(), true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,7 +158,7 @@ void RiuDockWidgetTools::setVisibleDockingWindowsForGeoMech()
 {
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
 
-    RiuDockWidgetTools::instance()->trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::mohrsCirclePlotName(), false);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::mohrsCirclePlotName(), false);
 
     {
         QDockWidget* dockWidget = findDockWidget(mainWindow, RiuDockWidgetTools::relPermPlotName());
@@ -203,78 +185,57 @@ void RiuDockWidgetTools::trySetDockWidgetVisibility(const QObject* parent, const
     QDockWidget* dockWidget = findDockWidget(parent, dockWidgetName);
     if (dockWidget)
     {
-        bool unifiedIsVisible = isVisible;
-
-        auto state = visibilityForWidget(dockWidgetName);
-        if (state != RiuDockWidgetTools::USER_DEFINED_UNKNOWN)
-        {
-            if (state == RiuDockWidgetTools::USER_DEFINED_ON)
-            {
-                unifiedIsVisible = true;
-            }
-            else if (state == RiuDockWidgetTools::USER_DEFINED_OFF)
-            {
-                unifiedIsVisible = false;
-            }
-        }
-
-        dockWidget->setVisible(unifiedIsVisible);
+        dockWidget->setVisible(isVisible);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuDockWidgetTools::UserDefinedVisibility RiuDockWidgetTools::visibilityForWidget(const QString& objectName)
+QVariant RiuDockWidgetTools::storeDockWidgetsVisibility(const QObject* parent)
 {
-    RiuDockWidgetTools::UserDefinedVisibility visibility = USER_DEFINED_UNKNOWN;
+    QMap<QString, QVariant> widgetVisibility;
 
-    auto windowStateIt = m_userDefinedDockWidgetVisibility.find(objectName);
-    if (windowStateIt != m_userDefinedDockWidgetVisibility.end())
+    QList<QDockWidget*> dockWidgets = parent->findChildren<QDockWidget*>();
+
+    for (QDockWidget* dock : dockWidgets)
     {
-        bool isVisible = windowStateIt.value().toBool();
-        if (isVisible)
+        if (dock)
         {
-            visibility = USER_DEFINED_ON;
-        }
-        else
-        {
-            visibility = USER_DEFINED_OFF;
+            bool isVisible = dock->isVisible();
+            widgetVisibility[dock->objectName()] = isVisible;
+
+            // qDebug() << "Store " << dock->objectName() << " : " << (isVisible ? "visible" : "not visible");
         }
     }
 
-    return visibility;
+    return QVariant(widgetVisibility);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::setDockWidgetVisibility(const QString& dockingWindowName, bool isVisible)
+void RiuDockWidgetTools::restoreDockWidgetsVisibility(const QObject* parent, QVariant widgetVisibilities)
 {
-    m_userDefinedDockWidgetVisibility[dockingWindowName] = isVisible;
-}
+    QMap<QString, QVariant> widgetVisibilityMap = widgetVisibilities.toMap();
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::loadDockWidgetsState()
-{
-    // Company and appname set through QCoreApplication
-    QSettings settings;
+    QList<QDockWidget*> dockWidgets = parent->findChildren<QDockWidget*>();
 
-    m_userDefinedDockWidgetVisibility = settings.value("dockWindowStates").toMap();
-}
+    for (QDockWidget* dock : dockWidgets)
+    {
+        if (dock)
+        {
+            auto widgetVisibility = widgetVisibilityMap.find(dock->objectName());
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::saveDockWidgetsState()
-{
-    // Company and appname set through QCoreApplication
-    QSettings settings;
+            if (widgetVisibility != widgetVisibilityMap.end())
+            {
+                bool isVisible = widgetVisibility.value().toBool();
+                dock->setVisible(isVisible);
 
-    QVariant v(m_userDefinedDockWidgetVisibility);
-    settings.setValue("dockWindowStates", v);
+                // qDebug() << "Restore " << dock->objectName() << " : " << (isVisible ? "visible" : "not visible");
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

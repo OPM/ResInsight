@@ -83,6 +83,8 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
             }
         }
     }
+
+    restoreDockWidgetVisibilities();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,6 +102,24 @@ void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
     settings.setValue(QString("%1/dockAndToolBarLayout").arg(registryFolderName()), layout);
 
     settings.setValue(QString("%1/isMaximized").arg(registryFolderName()), isMaximized());
+    
+    if (this->isVisible())
+    {
+        QVariant dockWindowVisibilities = RiuDockWidgetTools::storeDockWidgetsVisibility(this);
+        settings.setValue(QString("%1/dockWindowVisibilies").arg(registryFolderName()), dockWindowVisibilities);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::restoreDockWidgetVisibilities() 
+{
+    // Company and appname set through QCoreApplication
+    QSettings settings;
+
+    QVariant dockWindowVisibilities = settings.value(QString("%1/dockWindowVisibilies").arg(registryFolderName()));
+    RiuDockWidgetTools::restoreDockWidgetsVisibility(this, dockWindowVisibilities);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,6 +136,22 @@ void RiuMainWindowBase::showWindow()
     if (isMax.toBool())
     {
         showMaximized();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::closeAllDockWidgets() 
+{
+    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
+
+    for (QDockWidget* dock : dockWidgets)
+    {
+        if (dock)
+        {
+            dock->hide();
+        }
     }
 }
 
@@ -225,8 +261,6 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
             // Raise the dock widget to make it visible if the widget is part of a tab widget
             dockWidget->raise();
         }
-
-        RiuDockWidgetTools::instance()->setDockWidgetVisibility(dockWidget->objectName(), dockWidget->isVisible());
     }
 }
 
