@@ -1,0 +1,33 @@
+########## Windows using vcpkg ###################
+1. Clone VCPKG
+git clone https://github.com/microsoft/vcpkg.git
+
+4. Install VCPKG from within vcpkg folder:
+.\boostrap-vcpkg.sh
+5. Perform integrated install (as admin) within vcpkg folder. Not sure if it is necessary.
+.\vcpkg integrate install
+5. Install GRPC
+.\vcpkg install grpc --triplet x64-windows
+6. Run cmake with -DCMAKE_TOOLCHAIN_FILE=LOCATION_OF_VCPKG/buildsystems/vcpkg.cmake
+   This can be set on the configure dialog that comes up when you press configure with a fresh build folder.
+7. Enable GRPC by setting RESINSIGHT_ENABLE_GRPC = true
+8. Make sure the python executable is found by setting PYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
+
+############ Linux as STANDALONE GPRC (using GRPC_INSTALL_PREFIX=/opt/grpc as an example) ###############
+1. Clone grpc
+https://github.com/grpc/grpc.git
+2. From within grpc folder, check out stable version of grpc and initialise repo:
+git checkout v1.20.1
+git submodule init
+git submodule update
+3. Make sure you're building with devtools-3, since you'll be using that for ResInsight too
+scl enable devtoolset-3 bash
+make prefix=/opt/grpc
+sudo make prefix=/opt/grpc install
+3. Install protobuf (still within grpc folder)
+cd third_party/protobuf
+sudo make prefix=/opt/grpc install
+4. Install grpcio-tools for Python (this may have to be done as root user):
+pip install grpcio-tools
+5. Run cmake making sure GRPC_INSTALL_PREFIX is set to /opt/grpc, PYTHON_EXECUTABLE set to a good python 3 and RESINSIGHT_ENABLE_GRPC = true
+
