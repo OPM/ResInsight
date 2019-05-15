@@ -94,7 +94,7 @@ template<typename ServiceT, typename RequestT, typename ReplyT>
 RiaGrpcCallback<ServiceT, RequestT, ReplyT>::RiaGrpcCallback(ServiceT*      service,
                                                              MethodImplT    methodImpl,
                                                              MethodRequestT methodRequest)
-    : RiaGrpcRequestCallback(service)
+    : RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>(service)
     , m_responder(&m_context)
     , m_methodImpl(methodImpl)
     , m_methodRequest(methodRequest)
@@ -107,7 +107,7 @@ RiaGrpcCallback<ServiceT, RequestT, ReplyT>::RiaGrpcCallback(ServiceT*      serv
 template<typename ServiceT, typename RequestT, typename ReplyT>
 RiaAbstractGrpcCallback* RiaGrpcCallback<ServiceT, RequestT, ReplyT>::createNewFromThis() const
 {
-    return new RiaGrpcCallback<ServiceT, RequestT, ReplyT>(m_service, m_methodImpl, m_methodRequest);
+    return new RiaGrpcCallback<ServiceT, RequestT, ReplyT>(this->m_service, this->m_methodImpl, this->m_methodRequest);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,8 +116,8 @@ RiaAbstractGrpcCallback* RiaGrpcCallback<ServiceT, RequestT, ReplyT>::createNewF
 template<typename ServiceT, typename RequestT, typename ReplyT>
 void RiaGrpcCallback<ServiceT, RequestT, ReplyT>::createRequestHandler(ServerCompletionQueue* completionQueue)
 {
-    m_methodRequest(*m_service, &m_context, &m_request, &m_responder, completionQueue, completionQueue, this);
-    setCallState(RiaAbstractGrpcCallback::INIT_REQUEST);
+    m_methodRequest(*this->m_service, &m_context, &this->m_request, &m_responder, completionQueue, completionQueue, this);
+    this->setCallState(RiaAbstractGrpcCallback::INIT_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ void RiaGrpcCallback<ServiceT, RequestT, ReplyT>::createRequestHandler(ServerCom
 template<typename ServiceT, typename RequestT, typename ReplyT>
 void RiaGrpcCallback<ServiceT, RequestT, ReplyT>::initRequest()
 {
-    setCallState(RiaAbstractGrpcCallback::PROCESS_REQUEST);
+    this->setCallState(RiaAbstractGrpcCallback::PROCESS_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,9 +135,9 @@ void RiaGrpcCallback<ServiceT, RequestT, ReplyT>::initRequest()
 template<typename ServiceT, typename RequestT, typename ReplyT>
 void RiaGrpcCallback<ServiceT, RequestT, ReplyT>::processRequest()
 {
-    m_status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply);
-    m_responder.Finish(m_reply, m_status, this);
-    setCallState(RiaAbstractGrpcCallback::FINISH_REQUEST);
+    this->m_status = m_methodImpl(*this->m_service, &m_context, &this->m_request, &this->m_reply);
+    m_responder.Finish(this->m_reply, this->m_status, this);
+    this->setCallState(RiaAbstractGrpcCallback::FINISH_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGrpcStreamC
                                                                                         MethodImplT    methodImpl,
                                                                                         MethodRequestT methodRequest,
                                                                                         StateHandlerT* stateHandler)
-    : RiaGrpcRequestCallback(service)
+    : RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>(service)
     , m_responder(&m_context)
     , m_methodImpl(methodImpl)
     , m_methodRequest(methodRequest)
@@ -173,7 +173,7 @@ template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHa
 RiaAbstractGrpcCallback* RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createNewFromThis() const
 {
     return new RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>(
-        m_service, m_methodImpl, m_methodRequest, new StateHandlerT);
+        this->m_service, m_methodImpl, m_methodRequest, new StateHandlerT);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,8 +183,8 @@ template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHa
 void RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createRequestHandler(
     ServerCompletionQueue* completionQueue)
 {
-    m_methodRequest(*m_service, &m_context, &m_request, &m_responder, completionQueue, completionQueue, this);
-    setCallState(RiaAbstractGrpcCallback::INIT_REQUEST);
+    m_methodRequest(*this->m_service, &m_context, &this->m_request, &m_responder, completionQueue, completionQueue, this);
+    this->setCallState(RiaAbstractGrpcCallback::INIT_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,8 +193,8 @@ void RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createReq
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
 void RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::initRequest()
 {
-    m_status = m_stateHandler->init(&m_request);
-    setCallState(RiaAbstractGrpcCallback::PROCESS_REQUEST);
+    this->m_status = m_stateHandler->init(&this->m_request);
+    this->setCallState(RiaAbstractGrpcCallback::PROCESS_REQUEST);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,29 +203,29 @@ void RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::initReque
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
 void RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::processRequest()
 {
-    m_reply = ReplyT(); // Make sure it is reset
+    this->m_reply = ReplyT(); // Make sure it is reset
 
-    if (!m_status.ok())
+    if (!this->m_status.ok())
     {
-        m_responder.Finish(m_status, this);
-        setCallState(RiaAbstractGrpcCallback::FINISH_REQUEST);
+        m_responder.Finish(this->m_status, this);
+        this->setCallState(RiaAbstractGrpcCallback::FINISH_REQUEST);
         return;
     }
 
-    m_status = m_methodImpl(*m_service, &m_context, &m_request, &m_reply, m_stateHandler.get());
-    if (m_status.ok())
+    this->m_status = m_methodImpl(*this->m_service, &m_context, &this->m_request, &this->m_reply, m_stateHandler.get());
+    if (this->m_status.ok())
     {
-        m_responder.Write(m_reply, this);
+        m_responder.Write(this->m_reply, this);
     }
     else
     {
-        setCallState(FINISH_REQUEST);
+        this->setCallState(RiaAbstractGrpcCallback::FINISH_REQUEST);
         // Out of range means we're finished but it isn't an error
-        if (m_status.error_code() == grpc::OUT_OF_RANGE)
+        if (this->m_status.error_code() == grpc::OUT_OF_RANGE)
         {
-            m_status = Status::OK;
+            this->m_status = Status::OK;
         }
-        m_responder.Finish(m_status, this);
+        m_responder.Finish(this->m_status, this);
     }
 }
 

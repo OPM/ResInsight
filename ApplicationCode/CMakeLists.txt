@@ -337,6 +337,11 @@ set( EXE_FILES
 	Adm/RiaVersionInfo.py.cmake
 )
 
+if (DEFINED GRPC_LIBRARY_DIRS)
+	message(STATUS "Using GRPC Library Dir: ${GRPC_LIBRARY_DIRS}")
+	link_directories("${GRPC_LIBRARY_DIRS}")
+endif(DEFINED GRPC_LIBRARY_DIRS)
+
 add_executable( ResInsight ${EXE_FILES})
 
 if (MSVC) 
@@ -397,10 +402,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         rt
     )
 endif()
-
-if (DEFINED GRPC_INSTALL_PREFIX)
-	link_directories("${GRPC_INSTALL_PREFIX}/lib")
-endif(DEFINED GRPC_INSTALL_PREFIX)
 
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
@@ -521,43 +522,33 @@ foreach (FILE_TO_COPY ${RI_DLL_FILENAMES})
     endif()
 endforeach()
 
-# Copy all python files
-if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
-	add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_PYTHON_GENERATED_SOURCES})
-	add_custom_target(PythonSources DEPENDS ${GRPC_PYTHON_SOURCES})
-	add_custom_target(PythonExamples DEPENDS ${GRPC_PYTHON_EXAMPLES})
-	add_dependencies(ResInsight GeneratedPythonSources PythonSources PythonExamples)
-	foreach (FILE_TO_COPY ${GRPC_PYTHON_SOURCES})
-		if (EXISTS ${FILE_TO_COPY})
-			get_filename_component(PythonFile ${FILE_TO_COPY} NAME)
+# Copy all grpc libraries and python files
+if (RESINSIGHT_ENABLE_GRPC)
+	if(UNIX)
+		foreach (GRPC_LIBRARY ${GRPC_LIBRARIES})
 			add_custom_command(TARGET ResInsight POST_BUILD
-								COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-								"${FILE_TO_COPY}"  
-								"${CMAKE_BINARY_DIR}/Python/api/${PythonFile}"
+							   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+							   "${GRPC_INSTALL_PREFIX}/lib/lib${GRPC_LIBRARY}.so"
+							   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>"
 			)
-		endif()
-	endforeach()
-	foreach (FILE_TO_COPY ${GRPC_PYTHON_EXAMPLES})
-		if (EXISTS ${FILE_TO_COPY})
-			get_filename_component(PythonFile ${FILE_TO_COPY} NAME)
-			add_custom_command(TARGET ResInsight POST_BUILD
-								COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-								"${FILE_TO_COPY}"  
-								"${CMAKE_BINARY_DIR}/Python/examples/${PythonFile}"
-			)
-		endif()
-	endforeach()
-	foreach (FILE_TO_COPY ${GRPC_PYTHON_TESTS})
-		if (EXISTS ${FILE_TO_COPY})
-			get_filename_component(PythonFile ${FILE_TO_COPY} NAME)
-			add_custom_command(TARGET ResInsight POST_BUILD
-								COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-								"${FILE_TO_COPY}"  
-								"${CMAKE_BINARY_DIR}/Python/tests/${PythonFile}"
-			)
-		endif()
-	endforeach()
-endif()
+		endforeach(GRPC_LIBRARY ${GRPC_LIBRARIES})
+	endif(UNIX)
+
+	if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
+		add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_PYTHON_GENERATED_SOURCES})
+		add_dependencies(ResInsight GeneratedPythonSources)
+		foreach (FILE_TO_COPY ${GRPC_PYTHON_SOURCES})
+			if (EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${FILE_TO_COPY}")
+				add_custom_command(TARGET ResInsight POST_BUILD
+									COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+									"${GRPC_PYTHON_SOURCE_PATH}/${FILE_TO_COPY}"  
+									"${GRPC_PYTHON_DEST_PATH}/${FILE_TO_COPY}"
+				)
+			endif(EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${FILE_TO_COPY}")
+		endforeach(FILE_TO_COPY ${GRPC_PYTHON_SOURCES})
+	endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
+endif(RESINSIGHT_ENABLE_GRPC)
+
 #############################################################################
 # Install 
 #############################################################################

@@ -130,8 +130,8 @@ class Instance:
 		# Main version check package
 		self.resInfo     = ResInfo(self.channel)
 		try:
-			majorVersionOk = self.resInfo.majorVersion() == RiaVersionInfo.RESINSIGHT_MAJOR_VERSION
-			minorVersionOk = self.resInfo.minorVersion() == RiaVersionInfo.RESINSIGHT_MINOR_VERSION
+			majorVersionOk = self.resInfo.majorVersion() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
+			minorVersionOk = self.resInfo.minorVersion() == int(RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
 			if not (majorVersionOk and minorVersionOk):
 				raise Exception('Version of ResInsight does not match version of Python API')
 		except grpc.RpcError as e:

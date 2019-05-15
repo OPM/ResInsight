@@ -45,18 +45,18 @@ if (MSVC)
 			MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE
 		)
 	endif(MSVC)
+	set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
 else()
 	if (NOT DEFINED GRPC_INSTALL_PREFIX OR NOT EXISTS ${GRPC_INSTALL_PREFIX})
 		message(FATAL_ERROR "You need a valid GRPC_INSTALL_PREFIX set to build with GRPC")
 	endif()
-	set(_PROTOBUF_LIBPROTOBUF libprotobuf)
+	set(ENV{PKG_CONFIG_PATH} "${GRPC_INSTALL_PREFIX}/lib/pkgconfig")
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(GRPC REQUIRED grpc++_unsecure>=1.20 grpc_unsecure gpr protobuf)
 	set(_PROTOBUF_PROTOC "${GRPC_INSTALL_PREFIX}/bin/protoc")
-	set(_GRPC_GRPCPP_UNSECURE grpc++_unsecure grpc_unsecure gpr)
 	set(_GRPC_CPP_PLUGIN_EXECUTABLE "${GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
-	include_directories(AFTER "${GRPC_INSTALL_PREFIX}/include")
+	include_directories(AFTER ${GRPC_INCLUDE_DIRS})
 endif()
-
-set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
 
 # Cannot use the nice new FindPackage modules for python since that is CMake 3.12+
 if(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
@@ -73,10 +73,8 @@ set(PROTO_FILES
 	"ResInfo"
 )
 
-set(python_source_path "${CMAKE_SOURCE_DIR}/Python/api")
-set(python_examples_path "${CMAKE_SOURCE_DIR}/Python/examples")
-set(python_generated_path "${CMAKE_BINARY_DIR}/Python/generated")
-set(python_tests_path "${CMAKE_SOURCE_DIR}/Python/tests")
+set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_SOURCE_DIR}/Python")
+set(GRPC_PYTHON_DEST_PATH "${CMAKE_BINARY_DIR}/Python")
 
 foreach(proto_file ${PROTO_FILES})		
 	get_filename_component(rips_proto "${CMAKE_CURRENT_LIST_DIR}/GrpcProtos/${proto_file}.proto" ABSOLUTE)
@@ -99,16 +97,16 @@ foreach(proto_file ${PROTO_FILES})
 	)
 	
 	if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
-		set(rips_proto_python "${python_generated_path}/${proto_file}_pb2.py")
-		set(rips_grpc_python "${python_generated_path}/${proto_file}_pb2_grpc.py")
+		set(rips_proto_python "${GRPC_PYTHON_DEST_PATH}/generated/${proto_file}_pb2.py")
+		set(rips_grpc_python "${GRPC_PYTHON_DEST_PATH}/generated/${proto_file}_pb2_grpc.py")
 
 		add_custom_command(
 			OUTPUT "${rips_proto_python}" "${rips_grpc_python}"
 			COMMAND ${PYTHON_EXECUTABLE}
 			ARGS -m grpc_tools.protoc
 				-I "${rips_proto_path}"
-				--python_out "${python_generated_path}"
-				--grpc_python_out "${python_generated_path}"
+				--python_out "${GRPC_PYTHON_DEST_PATH}/generated/"
+				--grpc_python_out "${GRPC_PYTHON_DEST_PATH}/generated/"
 				"${rips_proto}"
 			DEPENDS "${rips_proto}"
 			VERBATIM
@@ -134,18 +132,14 @@ endforeach(proto_file)
 
 if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 	set(GRPC_PYTHON_SOURCES
-		"${python_source_path}/__init__.py"
-		"${python_source_path}/ResInsight.py"
-	)
-	set(GRPC_PYTHON_EXAMPLES
-		"${python_examples_path}/CommandExample.py"
-		"${python_examples_path}/GridInfoStreamingExample.py"
-		"${python_examples_path}/ResultValues.py"
-		"${python_examples_path}/SelectedCases.py"
-		"${python_examples_path}/AllCases.py"
-	)
-	set(GRPC_PYTHON_TESTS
-		"${python_tests_path}/test_sample.py"
+		"api/__init__.py"
+		"api/ResInsight.py"
+		"examples/CommandExample.py"
+		"examples/GridInfoStreamingExample.py"
+		"examples/ResultValues.py"
+		"examples/SelectedCases.py"
+		"examples/AllCases.py"
+		"tests/test_sample.py"
 	)
 endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 

@@ -91,7 +91,6 @@ protected:
 
 protected:
     ServiceT*     m_service;
-    ServerContext m_context;
     RequestT      m_request;
     ReplyT        m_reply;
 };
@@ -122,6 +121,7 @@ protected:
     virtual QString methodType() const;
 
 private:
+    ServerContext   m_context;
     ResponseWriterT m_responder;
     MethodImplT     m_methodImpl;
     MethodRequestT  m_methodRequest;
@@ -162,6 +162,7 @@ protected:
     virtual QString methodType() const;
 
 private:
+    ServerContext   m_context;
     ResponseWriterT m_responder;
     MethodImplT     m_methodImpl;
     MethodRequestT  m_methodRequest;

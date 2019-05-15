@@ -108,23 +108,23 @@ void RiaGrpcCommandService::assignFieldValue(caf::PdmValueField*    pdmValueFiel
             break;
         }
         case FieldDescriptor::TYPE_INT32: {
-            auto value = params.GetReflection()->GetInt32(params, paramDescriptor);
+            int value = params.GetReflection()->GetInt32(params, paramDescriptor);
             qValue     = QVariant(value);
             break;
         }
         case FieldDescriptor::TYPE_UINT32: {
-            auto value = params.GetReflection()->GetUInt32(params, paramDescriptor);
+            uint value = params.GetReflection()->GetUInt32(params, paramDescriptor);
             qValue     = QVariant(value);
             break;
         }
         case FieldDescriptor::TYPE_INT64: {
-            auto value = params.GetReflection()->GetInt64(params, paramDescriptor);
-            qValue     = QVariant(value);
+            int64_t value = params.GetReflection()->GetInt64(params, paramDescriptor);
+            qValue     = QVariant((qlonglong) value);
             break;
         }
         case FieldDescriptor::TYPE_UINT64: {
-            auto value = params.GetReflection()->GetUInt64(params, paramDescriptor);
-            qValue     = QVariant(value);
+            uint64_t value = params.GetReflection()->GetUInt64(params, paramDescriptor);
+            qValue     = QVariant((qulonglong) value);
             break;
         }
         case FieldDescriptor::TYPE_STRING: {
