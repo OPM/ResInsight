@@ -22,9 +22,7 @@ add_definitions(-DENABLE_GRPC)
 
 if (MSVC)
 	add_definitions(-D_WIN32_WINNT=0x600)		
-endif()
 
-if (NOT DEFINED GRPC_INSTALL_PREFIX)
 	# Find Protobuf installation
 	# Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
 	set(protobuf_MODULE_COMPATIBLE ON CACHE BOOL "")
@@ -48,10 +46,14 @@ if (NOT DEFINED GRPC_INSTALL_PREFIX)
 		)
 	endif(MSVC)
 else()
+	if (NOT DEFINED GRPC_INSTALL_PREFIX OR NOT EXISTS ${GRPC_INSTALL_PREFIX})
+		message(FATAL_ERROR "You need a valid GRPC_INSTALL_PREFIX set to build with GRPC")
+	endif()
 	set(_PROTOBUF_LIBPROTOBUF libprotobuf)
-	set(_PROTOBUF_PROTOC ${GRPC_INSTALL_PREFIX}/bin/protoc)
+	set(_PROTOBUF_PROTOC "${GRPC_INSTALL_PREFIX}/bin/protoc")
 	set(_GRPC_GRPCPP_UNSECURE grpc++_unsecure grpc_unsecure gpr)
-	set(_GRPC_CPP_PLUGIN_EXECUTABLE ${GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin)	
+	set(_GRPC_CPP_PLUGIN_EXECUTABLE "${GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
+	include_directories(AFTER "${GRPC_INSTALL_PREFIX}/include")
 endif()
 
 set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
