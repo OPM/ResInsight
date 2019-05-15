@@ -142,7 +142,7 @@ void RiuMainWindowBase::showWindow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::closeAllDockWidgets() 
+void RiuMainWindowBase::hideAllDockWidgets() 
 {
     QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
 

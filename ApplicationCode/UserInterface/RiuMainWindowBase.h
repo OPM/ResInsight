@@ -59,7 +59,7 @@ public:
     void                restoreDockWidgetVisibilities();
     void                showWindow();
 
-    void                closeAllDockWidgets();
+    void                hideAllDockWidgets();
 
     caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
     void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);

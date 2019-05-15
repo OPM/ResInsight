@@ -271,7 +271,7 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 void RiuMainWindow::closeEvent(QCloseEvent* event)
 {
     this->saveWinGeoAndDockToolBarLayout();
-    this->hideAllDockWindows();
+    this->hideAllDockWidgets();
 
     RiaGuiApplication* app = RiaGuiApplication::instance();
     if (app->isMainPlotWindowVisible())
@@ -1504,19 +1504,6 @@ void RiuMainWindow::slotSnapshotAllViewsToFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::hideAllDockWindows()
-{
-    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
-
-    for (auto* dockWidget : dockWidgets)
-    {
-        dockWidget->close();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotDrawStyleChanged(QAction* activatedAction)
 {
     if (!RiaApplication::instance()->activeReservoirView()) return;
@@ -1678,25 +1665,6 @@ void RiuMainWindow::restoreTreeViewState()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::showDockPanel(const QString& dockPanelName)
-{
-    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
-
-    foreach (QDockWidget* dock, dockWidgets)
-    {
-        if (dock && dock->objectName() == dockPanelName)
-        {
-            dock->show();
-            dock->raise();
-
-            return;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectToUpdate)
 {
     RimEclipseResultDefinition* resultDefinition = nullptr;
@@ -1781,7 +1749,7 @@ void RiuMainWindow::updateMemoryUsage()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::showProcessMonitorDockPanel()
 {
-    showDockPanel(RiuDockWidgetTools::processMonitorName());
+    RiuDockWidgetTools::trySetDockWidgetVisibility(this, RiuDockWidgetTools::processMonitorName(), true);
 }
 
 //--------------------------------------------------------------------------------------------------

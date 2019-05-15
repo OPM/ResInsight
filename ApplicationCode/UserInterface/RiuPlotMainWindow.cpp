@@ -181,7 +181,7 @@ void RiuPlotMainWindow::closeEvent(QCloseEvent* event)
 {
     this->saveWinGeoAndDockToolBarLayout();
 
-    this->hideAllDockWindows();
+    this->hideAllDockWidgets();
 
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
@@ -766,19 +766,6 @@ void RiuPlotMainWindow::selectedObjectsChanged()
             // Set focus back to the tree view to be able to continue keyboard tree view navigation
             m_projectTreeView->treeView()->setFocus();
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::hideAllDockWindows()
-{
-    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
-
-    for (int i = 0; i < dockWidgets.size(); i++)
-    {
-        dockWidgets[i]->close();
     }
 }
 

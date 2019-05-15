@@ -66,7 +66,7 @@ void RicfExportSnapshots::execute()
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     CVF_ASSERT(mainWnd);
-    mainWnd->hideAllDockWindows();
+    mainWnd->hideAllDockWidgets();
     RiaGuiApplication::instance()->processEvents();
 
     QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::SNAPSHOTS);

@@ -54,10 +54,10 @@ public:
     static QVariant storeDockWidgetsVisibility(const QObject* parent);
     static void     restoreDockWidgetsVisibility(const QObject* parent, QVariant widgetVisibilities);
 
-    static void         setVisibleDockingWindowsForEclipse();
-    static void         setVisibleDockingWindowsForGeoMech();
+    static void setVisibleDockingWindowsForEclipse();
+    static void setVisibleDockingWindowsForGeoMech();
+    static void trySetDockWidgetVisibility(const QObject* parent, const QString& dockWidgetName, bool isVisible);
 
 private:
     static QDockWidget* findDockWidget(const QObject* parent, const QString& dockWidgetName);
-    static void         trySetDockWidgetVisibility(const QObject* parent, const QString& dockWidgetName, bool isVisible);
 };

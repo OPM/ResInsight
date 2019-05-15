@@ -235,15 +235,17 @@ void RiuDockWidgetTools::restoreDockWidgetsVisibility(const QObject* parent, QVa
     {
         if (dock)
         {
-            auto widgetVisibility = widgetVisibilityMap.find(dock->objectName());
+            bool isVisible = true;
 
+            auto widgetVisibility = widgetVisibilityMap.find(dock->objectName());
             if (widgetVisibility != widgetVisibilityMap.end())
             {
-                bool isVisible = widgetVisibility.value().toBool();
-                dock->setVisible(isVisible);
-
-                // qDebug() << "Restore " << dock->objectName() << " : " << (isVisible ? "visible" : "not visible");
+                isVisible = widgetVisibility.value().toBool();
             }
+
+            dock->setVisible(isVisible);
+
+            // qDebug() << "Restore " << dock->objectName() << " : " << (isVisible ? "visible" : "not visible");
         }
     }
 }

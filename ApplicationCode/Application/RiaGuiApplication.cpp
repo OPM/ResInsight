@@ -567,7 +567,7 @@ void RiaGuiApplication::initialize()
     // The plot window is created to be able to set expanded state on created objects, but hidden by default
     getOrCreateAndShowMainWindow();
     RiuPlotMainWindow* plotMainWindow = getOrCreateMainPlotWindow();
-    plotMainWindow->hideAllDockWindows();
+    plotMainWindow->hideAllDockWidgets();
 
     RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(m_mainWindow->messagePanel()));
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
@@ -808,7 +808,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::Progra
             {
                 RiuMainWindow* mainWnd = RiuMainWindow::instance();
                 CVF_ASSERT(mainWnd);
-                mainWnd->hideAllDockWindows();
+                mainWnd->hideAllDockWidgets();
 
                 // 2016-11-09 : Location of snapshot folder was previously located in 'snapshot' folder
                 // relative to current working folder. Now harmonized to behave as RiuMainWindow::slotSnapshotAllViewsToFile()
@@ -822,7 +822,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::Progra
             {
                 if (mainPlotWindow())
                 {
-                    mainPlotWindow()->hideAllDockWindows();
+                    mainPlotWindow()->hideAllDockWidgets();
 
                     // Will be saved relative to current directory
                     RicSnapshotAllPlotsToFileFeature::saveAllPlots();
@@ -1030,7 +1030,7 @@ void RiaGuiApplication::createMainPlotWindow()
     m_mainPlotWindow->setWindowTitle("Plots - ResInsight");
     m_mainPlotWindow->setDefaultWindowSize();
     m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
-    m_mainPlotWindow->hideAllDockWindows();
+    m_mainPlotWindow->hideAllDockWidgets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1645,7 +1645,7 @@ void RiaGuiApplication::runMultiCaseSnapshots(const QString&       templateProje
 {
     if (!m_mainWindow) return;
 
-    m_mainWindow->hideAllDockWindows();
+    m_mainWindow->hideAllDockWidgets();
 
     const size_t numGridFiles = gridFileNames.size();
     for (size_t i = 0; i < numGridFiles; i++)

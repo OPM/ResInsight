@@ -641,7 +641,7 @@ void RiaRegressionTestRunner::executeRegressionTests(const QString& regressionTe
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if (mainWnd)
     {
-        mainWnd->hideAllDockWindows();
+        mainWnd->hideAllDockWidgets();
         mainWnd->statusBar()->close();
 
         mainWnd->setDefaultWindowSize();
