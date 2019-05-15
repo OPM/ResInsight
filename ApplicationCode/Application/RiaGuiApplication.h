@@ -133,7 +133,6 @@ public:
 protected:
     // Protected RiaApplication overrides
     void                invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;    
-    void                onChangedActiveReservoirView() override;
     void                onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) override;
     void                onProjectBeingOpened() override;
     void                onProjectOpeningError(const QString& errMsg);

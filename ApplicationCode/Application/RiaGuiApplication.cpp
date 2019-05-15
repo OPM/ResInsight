@@ -192,8 +192,6 @@ RiaGuiApplication::RiaGuiApplication(int& argc, char** argv)
 //--------------------------------------------------------------------------------------------------
 RiaGuiApplication::~RiaGuiApplication()
 {
-    RiuDockWidgetTools::instance()->saveDockWidgetsState();
-
     deleteMainPlotWindow();
     deleteMainWindow();  
 
@@ -1218,14 +1216,6 @@ void RiaGuiApplication::showErrorMessage(const QString& errMsg)
 void RiaGuiApplication::invokeProcessEvents(QEventLoop::ProcessEventsFlags flags)
 {
     processEvents(flags);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::onChangedActiveReservoirView()
-{
-    RiuDockWidgetTools::instance()->changeDockWidgetVisibilityBasedOnView(activeReservoirView());
 }
 
 //--------------------------------------------------------------------------------------------------
