@@ -88,8 +88,8 @@ foreach(proto_file ${PROTO_FILES})
 	add_custom_command(
 		OUTPUT "${rips_proto_srcs}" "${rips_proto_hdrs}" "${rips_grpc_srcs}" "${rips_grpc_hdrs}"
 		COMMAND ${_PROTOBUF_PROTOC}
-		ARGS --grpc_out "${CMAKE_BINARY_DIR}/Generated/"
-			--cpp_out "${CMAKE_BINARY_DIR}/Generated/"
+		ARGS --grpc_out "${CMAKE_BINARY_DIR}/Generated"
+			--cpp_out "${CMAKE_BINARY_DIR}/Generated"
 			-I "${rips_proto_path}"
 			--plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
 			"${rips_proto}"
@@ -105,8 +105,8 @@ foreach(proto_file ${PROTO_FILES})
 			COMMAND ${PYTHON_EXECUTABLE}
 			ARGS -m grpc_tools.protoc
 				-I "${rips_proto_path}"
-				--python_out "${GRPC_PYTHON_DEST_PATH}/generated/"
-				--grpc_python_out "${GRPC_PYTHON_DEST_PATH}/generated/"
+				--python_out "${GRPC_PYTHON_DEST_PATH}/generated"
+				--grpc_python_out "${GRPC_PYTHON_DEST_PATH}/generated"
 				"${rips_proto}"
 			DEPENDS "${rips_proto}"
 			VERBATIM
