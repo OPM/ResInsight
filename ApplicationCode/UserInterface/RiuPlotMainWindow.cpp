@@ -383,7 +383,7 @@ void RiuPlotMainWindow::createDockPanels()
 {
     {
         QDockWidget* dockWidget = new QDockWidget("Plot Project Tree", this);
-        dockWidget->setObjectName("dockWidget");
+        dockWidget->setObjectName("plotProjectTreeDockWidget");
         dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
 
         m_projectTreeView = new caf::PdmUiTreeView(this);
@@ -420,7 +420,7 @@ void RiuPlotMainWindow::createDockPanels()
 
     {
         QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
-        dockWidget->setObjectName("dockWidget");
+        dockWidget->setObjectName("plotPropertyEditorDockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
         m_pdmUiPropertyView = new caf::PdmUiPropertyView(dockWidget);
