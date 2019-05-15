@@ -664,32 +664,12 @@ void RiuMainWindow::createToolBars()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RiuDockWidget : public QDockWidget
-{
-public:
-    explicit RiuDockWidget(const QString& title, QWidget* parent = nullptr, Qt::WindowFlags flags = nullptr)
-        : QDockWidget(title, parent, flags)
-    {
-    }
-
-    void closeEvent(QCloseEvent* event) override
-    {
-        // This event is called when the user clicks the "x" in upper right corner to close the dock widget
-        RiuDockWidgetTools::instance()->setDockWidgetVisibility(objectName(), false);
-
-        QDockWidget::closeEvent(event);
-    }
-};
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::createDockPanels()
 {
     auto dwt = RiuDockWidgetTools::instance();
 
     {
-        QDockWidget* dockWidget = new RiuDockWidget("Project Tree", this);
+        QDockWidget* dockWidget = new QDockWidget("Project Tree", this);
         dockWidget->setObjectName(dwt->projectTreeName());
         dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
 
@@ -731,7 +711,7 @@ void RiuMainWindow::createDockPanels()
 #endif
 
     {
-        QDockWidget* dockWidget = new RiuDockWidget("Property Editor", this);
+        QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
         dockWidget->setObjectName(dwt->propertyEditorName());
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
@@ -742,7 +722,7 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
-        QDockWidget* dockWidget = new RiuDockWidget("Result Info", this);
+        QDockWidget* dockWidget = new QDockWidget("Result Info", this);
         dockWidget->setObjectName(dwt->resultInfoName());
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
         m_resultInfoPanel = new RiuResultInfoPanel(dockWidget);
@@ -752,7 +732,7 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
-        QDockWidget* dockWidget = new RiuDockWidget("Process Monitor", this);
+        QDockWidget* dockWidget = new QDockWidget("Process Monitor", this);
         dockWidget->setObjectName(dwt->processMonitorName());
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
         m_processMonitor = new RiuProcessMonitor(dockWidget);
@@ -763,7 +743,7 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
-        QDockWidget* dockWidget = new RiuDockWidget("Result Plot", this);
+        QDockWidget* dockWidget = new QDockWidget("Result Plot", this);
         dockWidget->setObjectName(dwt->resultPlotName());
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
         m_resultQwtPlot = new RiuResultQwtPlot(dockWidget);
@@ -775,7 +755,7 @@ void RiuMainWindow::createDockPanels()
 
 #ifdef USE_ODB_API
     {
-        QDockWidget* dockWidget = new RiuDockWidget("Mohr's Circle Plot", this);
+        QDockWidget* dockWidget = new QDockWidget("Mohr's Circle Plot", this);
         dockWidget->setObjectName(dwt->mohrsCirclePlotName());
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
         m_mohrsCirclePlot = new RiuMohrsCirclePlot(dockWidget);
@@ -789,7 +769,7 @@ void RiuMainWindow::createDockPanels()
 #endif
 
     {
-        QDockWidget* dockWidget = new RiuDockWidget("Relative Permeability Plot", this);
+        QDockWidget* dockWidget = new QDockWidget("Relative Permeability Plot", this);
         dockWidget->setObjectName(dwt->relPermPlotName());
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
         m_relPermPlotPanel = new RiuRelativePermeabilityPlotPanel(dockWidget);
@@ -800,7 +780,7 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
-        QDockWidget* dockWidget = new RiuDockWidget("PVT Plot", this);
+        QDockWidget* dockWidget = new QDockWidget("PVT Plot", this);
         dockWidget->setObjectName(dwt->pvtPlotName());
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
         m_pvtPlotPanel = new RiuPvtPlotPanel(dockWidget);
@@ -811,7 +791,7 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
-        QDockWidget* dockWidget = new RiuDockWidget("Messages", this);
+        QDockWidget* dockWidget = new QDockWidget("Messages", this);
         dockWidget->setObjectName(dwt->messagesName());
         m_messagePanel = new RiuMessagePanel(dockWidget);
         dockWidget->setWidget(m_messagePanel);
