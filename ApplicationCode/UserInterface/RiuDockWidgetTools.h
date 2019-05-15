@@ -46,6 +46,9 @@ public:
     static QString messagesName();
     static QString mohrsCirclePlotName();
 
+    static QString plotMainWindowProjectTreeName();
+    static QString plotMainWindowPropertyEditorName();
+
     static QAction* toggleActionForWidget(const QObject* parent, const QString& dockWidgetName);
 
     static QVariant storeDockWidgetsVisibility(const QObject* parent);

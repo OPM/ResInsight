@@ -34,6 +34,7 @@
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogPlot.h"
 
+#include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuToolTipMenu.h"
@@ -385,7 +386,7 @@ void RiuPlotMainWindow::createDockPanels()
 {
     {
         QDockWidget* dockWidget = new QDockWidget("Plot Project Tree", this);
-        dockWidget->setObjectName("plotProjectTreeDockWidget");
+        dockWidget->setObjectName(RiuDockWidgetTools::plotMainWindowProjectTreeName());
         dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
 
         m_projectTreeView = new caf::PdmUiTreeView(this);
@@ -422,7 +423,7 @@ void RiuPlotMainWindow::createDockPanels()
 
     {
         QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
-        dockWidget->setObjectName("plotPropertyEditorDockWidget");
+        dockWidget->setObjectName(RiuDockWidgetTools::plotMainWindowPropertyEditorName());
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
         m_pdmUiPropertyView = new caf::PdmUiPropertyView(dockWidget);
