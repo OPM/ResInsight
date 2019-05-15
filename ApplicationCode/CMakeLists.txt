@@ -398,6 +398,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     )
 endif()
 
+if (DEFINED GRPC_INSTALL_PREFIX)
+	link_directories("${GRPC_INSTALL_PREFIX}/lib")
+endif(DEFINED GRPC_INSTALL_PREFIX)
+
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
 

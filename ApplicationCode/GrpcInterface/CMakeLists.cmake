@@ -18,41 +18,45 @@ set ( SOURCE_GROUP_SOURCE_FILES
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcResInfoService.cpp
 )
 
+add_definitions(-DENABLE_GRPC)
+
 if (MSVC)
 	add_definitions(-D_WIN32_WINNT=0x600)		
 endif()
 
-add_definitions(-DENABLE_GRPC)
+if (NOT DEFINED GRPC_INSTALL_PREFIX)
+	# Find Protobuf installation
+	# Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
+	set(protobuf_MODULE_COMPATIBLE ON CACHE BOOL "")
+	find_package(Protobuf CONFIG 3.0 REQUIRED)
+	message(STATUS "Using protobuf ${protobuf_VERSION}")
 
-#find_package(OpenSSL REQUIRED)
-#set(OPENSSL_LIBS OpenSSL::SSL OpenSSL::Crypto)
+	# Find gRPC installation
+	# Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
+	find_package(gRPC CONFIG REQUIRED NO_MODULE)
+	message(STATUS "Using gRPC ${gRPC_VERSION}")
 
-# Find Protobuf installation
-# Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
-set(protobuf_MODULE_COMPATIBLE ON CACHE BOOL "")
-find_package(Protobuf CONFIG 3.0 REQUIRED)
-message(STATUS "Using protobuf ${protobuf_VERSION}")
+	set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+	set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 
-set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+	set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
+	set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)	
+	if (MSVC)
+		set_target_properties(${GRPC_LIBRARIES} PROPERTIES
+			MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
+			MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE
+		)
+	endif(MSVC)
+else()
+	set(_PROTOBUF_LIBPROTOBUF libprotobuf)
+	set(_PROTOBUF_PROTOC ${GRPC_INSTALL_PREFIX}/bin/protoc)
+	set(_GRPC_GRPCPP_UNSECURE grpc++_unsecure grpc_unsecure gpr)
+	set(_GRPC_CPP_PLUGIN_EXECUTABLE ${GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin)	
+endif()
 
-# Find gRPC installation
-# Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
-find_package(gRPC CONFIG REQUIRED NO_MODULE)
-message(STATUS "Using gRPC ${gRPC_VERSION}")
-
-set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
-set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)	
 set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
 
-if (MSVC)
-	set_target_properties(${GRPC_LIBRARIES} PROPERTIES
-		MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
-		MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE
-	)
-endif(MSVC)
-
-# Cannot use the nice new FindPackage modules since that is CMake 3.12+
+# Cannot use the nice new FindPackage modules for python since that is CMake 3.12+
 if(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 	message(STATUS "Using Python ${PYTHON_EXECUTABLE}")
 endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
