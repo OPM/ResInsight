@@ -16,6 +16,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicShowPlotDataFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicLaunchRegressionTestsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRunCommandFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicShowMemoryCleanupDialogFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicDefaultDockConfigEclipseFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicDefaultDockConfigGeoMechFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -35,6 +37,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicShowPlotDataFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicLaunchRegressionTestsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRunCommandFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicShowMemoryCleanupDialogFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicDefaultDockConfigEclipseFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicDefaultDockConfigGeoMechFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -155,16 +155,17 @@ void RiuDockWidgetTools::setVisibleDockingWindowsForEclipse()
 {
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
 
-    {
-        QDockWidget* dockWidget = findDockWidget(mainWindow, RiuDockWidgetTools::mohrsCirclePlotName());
-        if (dockWidget)
-        {
-            dockWidget->hide();
-        }
-    }
-
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::projectTreeName(), true);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::propertyEditorName(), true);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::resultInfoName(), true);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::processMonitorName(), true);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::resultPlotName(), true);
     RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::relPermPlotName(), true);
     RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::pvtPlotName(), true);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::messagesName(), true);
+    
+    
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::mohrsCirclePlotName(), false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,23 +175,16 @@ void RiuDockWidgetTools::setVisibleDockingWindowsForGeoMech()
 {
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
 
-    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::mohrsCirclePlotName(), false);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::projectTreeName(), true);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::propertyEditorName(), true);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::resultInfoName(), true);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::processMonitorName(), true);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::resultPlotName(), true);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::relPermPlotName(), false);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::pvtPlotName(), false);
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::messagesName(), true);
 
-    {
-        QDockWidget* dockWidget = findDockWidget(mainWindow, RiuDockWidgetTools::relPermPlotName());
-        if (dockWidget)
-        {
-            dockWidget->hide();
-        }
-    }
-
-    {
-        QDockWidget* dockWidget = findDockWidget(mainWindow, RiuDockWidgetTools::pvtPlotName());
-        if (dockWidget)
-        {
-            dockWidget->hide();
-        }
-    }
+    RiuDockWidgetTools::trySetDockWidgetVisibility(mainWindow, RiuDockWidgetTools::mohrsCirclePlotName(), true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -254,17 +248,3 @@ void RiuDockWidgetTools::restoreDockWidgetsVisibility(const QObject* parent, QVa
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::changeDockWidgetVisibilityBasedOnView(Rim3dView* view)
-{
-    if (dynamic_cast<RimEclipseView*>(view))
-    {
-        setVisibleDockingWindowsForEclipse();
-    }
-    else if (dynamic_cast<RimGeoMechView*>(view))
-    {
-        setVisibleDockingWindowsForGeoMech();
-    }
-}

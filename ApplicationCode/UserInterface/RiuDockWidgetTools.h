@@ -54,11 +54,10 @@ public:
     static QVariant storeDockWidgetsVisibility(const QObject* parent);
     static void     restoreDockWidgetsVisibility(const QObject* parent, QVariant widgetVisibilities);
 
-private:
-    static void changeDockWidgetVisibilityBasedOnView(Rim3dView* view);
-
     static void         setVisibleDockingWindowsForEclipse();
     static void         setVisibleDockingWindowsForGeoMech();
+
+private:
     static QDockWidget* findDockWidget(const QObject* parent, const QString& dockWidgetName);
     static void         trySetDockWidgetVisibility(const QObject* parent, const QString& dockWidgetName, bool isVisible);
 };

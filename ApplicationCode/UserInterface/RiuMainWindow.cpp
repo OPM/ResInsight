@@ -1367,6 +1367,12 @@ void RiuMainWindow::slotBuildWindowActions()
         caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
         m_windowMenu->addAction(cmdFeatureMgr->action("RicShowPlotWindowFeature"));
         m_windowMenu->addSeparator();
+
+        m_windowMenu->addAction(cmdFeatureMgr->action("RicDefaultDockConfigEclipseFeature"));
+#ifdef USE_ODB_API
+        m_windowMenu->addAction(cmdFeatureMgr->action("RicDefaultDockConfigGeoMechFeature"));
+#endif
+        m_windowMenu->addSeparator();
     }
 
     appendToggleActionForDockingWidget(m_windowMenu, this, RiuDockWidgetTools::projectTreeName());
