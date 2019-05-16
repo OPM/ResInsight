@@ -330,6 +330,7 @@ set( EXE_FILES
     ${WIN_RESOURCE}
     ${HEADER_FILES}
     ${REFERENCED_CMAKE_FILES}
+	${GRPC_PYTHON_SOURCES_FULL_PATH}
     ../ResInsightVersion.cmake
     .clang-format
     .clang-tidy
@@ -535,17 +536,16 @@ if (RESINSIGHT_ENABLE_GRPC)
 	endif(UNIX)
 
 	if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
-		add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_PYTHON_GENERATED_SOURCES})
+		add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
 		add_dependencies(ResInsight GeneratedPythonSources)
-		foreach (FILE_TO_COPY ${GRPC_PYTHON_SOURCES})
-			if (EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${FILE_TO_COPY}")
-				add_custom_command(TARGET ResInsight POST_BUILD
-									COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-									"${GRPC_PYTHON_SOURCE_PATH}/${FILE_TO_COPY}"  
-									"${GRPC_PYTHON_DEST_PATH}/${FILE_TO_COPY}"
-				)
-			endif(EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${FILE_TO_COPY}")
-		endforeach(FILE_TO_COPY ${GRPC_PYTHON_SOURCES})
+
+		foreach (PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
+			if (EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
+				configure_file("${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}"  
+								"${GRPC_PYTHON_DEST_PATH}/${PYTHON_SCRIPT}"
+								COPYONLY)
+			endif(EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
+		endforeach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
 	endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 endif(RESINSIGHT_ENABLE_GRPC)
 

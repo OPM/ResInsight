@@ -110,7 +110,12 @@ foreach(proto_file ${PROTO_FILES})
 				--grpc_python_out "${GRPC_PYTHON_SOURCE_PATH}/generated"
 				"${rips_proto}"
 			DEPENDS "${rips_proto}"
+			COMMENT "Generating ${rips_proto_python} and ${rips_grpc_python}"
 			VERBATIM
+		)
+		list (APPEND GRPC_PYTHON_GENERATED_SOURCES
+			${rips_proto_python}
+			${rips_grpc_python}
 		)
 
 	endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
@@ -125,14 +130,11 @@ foreach(proto_file ${PROTO_FILES})
 		  ${rips_grpc_srcs}
 	)
 
-	list (APPEND GRPC_PYTHON_GENERATED_SOURCES
-	      ${rips_proto_python}
-		  ${rips_grpc_python}
-	)
 endforeach(proto_file)
 
-if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
+if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})	
 	list(APPEND GRPC_PYTHON_SOURCES
+		${GRPC_PYTHON_GENERATED_SOURCES}
 		"api/__init__.py"
 		"api/ResInsight.py"
 		"examples/CommandExample.py"
@@ -142,7 +144,12 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 		"examples/AllCases.py"
 		"tests/test_sample.py"
 	)
-	list(APPEND GRPC_PYTHON_SOURCES GRPC_PYTHON_GENERATED_SOURCES)
+
+	foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
+		list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
+	endforeach()
+	source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "Python")
+
 endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 
 list ( APPEND GRPC_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
