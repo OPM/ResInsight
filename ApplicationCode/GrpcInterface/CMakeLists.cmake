@@ -39,13 +39,14 @@ if (MSVC)
 
 	set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
 	set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)	
+	set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
+
 	if (MSVC)
 		set_target_properties(${GRPC_LIBRARIES} PROPERTIES
 			MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
 			MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE
 		)
 	endif(MSVC)
-	set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
 else()
 	if (NOT DEFINED GRPC_INSTALL_PREFIX OR NOT EXISTS ${GRPC_INSTALL_PREFIX})
 		message(FATAL_ERROR "You need a valid GRPC_INSTALL_PREFIX set to build with GRPC")
@@ -97,16 +98,16 @@ foreach(proto_file ${PROTO_FILES})
 	)
 	
 	if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
-		set(rips_proto_python "${GRPC_PYTHON_DEST_PATH}/generated/${proto_file}_pb2.py")
-		set(rips_grpc_python "${GRPC_PYTHON_DEST_PATH}/generated/${proto_file}_pb2_grpc.py")
+		set(rips_proto_python "generated/${proto_file}_pb2.py")
+		set(rips_grpc_python "generated/${proto_file}_pb2_grpc.py")
 
 		add_custom_command(
-			OUTPUT "${rips_proto_python}" "${rips_grpc_python}"
+			OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${rips_proto_python}" "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}"
 			COMMAND ${PYTHON_EXECUTABLE}
 			ARGS -m grpc_tools.protoc
 				-I "${rips_proto_path}"
-				--python_out "${GRPC_PYTHON_DEST_PATH}/generated"
-				--grpc_python_out "${GRPC_PYTHON_DEST_PATH}/generated"
+				--python_out "${GRPC_PYTHON_SOURCE_PATH}/generated"
+				--grpc_python_out "${GRPC_PYTHON_SOURCE_PATH}/generated"
 				"${rips_proto}"
 			DEPENDS "${rips_proto}"
 			VERBATIM
@@ -131,7 +132,7 @@ foreach(proto_file ${PROTO_FILES})
 endforeach(proto_file)
 
 if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
-	set(GRPC_PYTHON_SOURCES
+	list(APPEND GRPC_PYTHON_SOURCES
 		"api/__init__.py"
 		"api/ResInsight.py"
 		"examples/CommandExample.py"
@@ -141,6 +142,7 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 		"examples/AllCases.py"
 		"tests/test_sample.py"
 	)
+	list(APPEND GRPC_PYTHON_SOURCES GRPC_PYTHON_GENERATED_SOURCES)
 endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 
 list ( APPEND GRPC_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
