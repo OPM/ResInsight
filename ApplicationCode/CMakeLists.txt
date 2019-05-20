@@ -324,7 +324,6 @@ elseif (APPLE)
 endif()
 set( EXE_FILES
     ${EXE_FILES}
-    ${GRPC_HEADER_FILES}
     ${CPP_SOURCES}
     ${MOC_SOURCE_FILES}
     ${FORM_FILES_CPP}
@@ -343,6 +342,7 @@ if (RESINSIGHT_ENABLE_GRPC)
          ${GRPC_CPP_SOURCES}
          ${GRPC_HEADER_FILES}
          ${GRPC_PYTHON_SOURCES_FULL_PATH}
+		 ${GRPC_PROTO_FILES_FULL_PATH}
          Adm/RiaVersionInfo.py.cmake
     )
     if (DEFINED GRPC_LIBRARY_DIRS)
