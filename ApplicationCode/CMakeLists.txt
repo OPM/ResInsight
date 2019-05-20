@@ -23,6 +23,9 @@ endif(Qt5Core_FOUND)
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
                 ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h
 )
+CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
+                ${CMAKE_BINARY_DIR}/Python/generated/RiaVersionInfo.py
+)
 
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
@@ -44,6 +47,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
+	${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/Measurement
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
@@ -96,6 +100,12 @@ list( APPEND CPP_SOURCES
      ${SOCKET_INTERFACE_FILES}
      ${UNIT_TEST_FILES}
 )
+
+if (RESINSIGHT_ENABLE_GRPC)
+	list( APPEND REFERENCED_CMAKE_FILES
+		GrpcInterface/CMakeLists.cmake
+	)
+endif(RESINSIGHT_ENABLE_GRPC)
 
 list( APPEND REFERENCED_CMAKE_FILES
     Application/CMakeLists_files.cmake
@@ -152,7 +162,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     CommandFileInterface/Core/CMakeLists_files.cmake
     Commands/FractureCommands/CMakeLists_files.cmake
 )
-
+	
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
 if (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
     add_definitions(-DUSE_UNIT_TESTS)
@@ -230,7 +240,6 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     add_definitions(-DENABLE_SOURING)
 endif()
 
-
 #############################################################################
 # Qt specifics: Moc, ui, resources
 #############################################################################
@@ -306,11 +315,16 @@ source_group( "UnitTests"           FILES ${UNIT_TEST_FILES} )
 
 if (MSVC)
     set( EXE_FILES WIN32)
+	if (RESINSIGHT_ENABLE_GRPC)
+		# GRPC generates a lot of harmless warnings on MSVC
+		set_source_files_properties(${GRPC_CPP_SOURCES} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125")
+	endif(RESINSIGHT_ENABLE_GRPC)
 elseif (APPLE)
     set( EXE_FILES MACOSX_BUNDLE)
 endif()
 set( EXE_FILES
     ${EXE_FILES}
+	${GRPC_HEADER_FILES}
     ${CPP_SOURCES}
     ${MOC_SOURCE_FILES}
     ${FORM_FILES_CPP}
@@ -321,9 +335,23 @@ set( EXE_FILES
     ../ResInsightVersion.cmake
     .clang-format
     .clang-tidy
+	Adm/RiaVersionInfo.h.cmake
 )
 
-add_executable( ResInsight ${EXE_FILES} )
+if (RESINSIGHT_ENABLE_GRPC)
+	list(APPEND EXE_FILES
+	     ${GRPC_CPP_SOURCES}
+	     ${GRPC_HEADER_FILES}
+	     ${GRPC_PYTHON_SOURCES_FULL_PATH}
+		 Adm/RiaVersionInfo.py.cmake
+	)
+	if (DEFINED GRPC_LIBRARY_DIRS)
+		message(STATUS "Using GRPC Library Dir: ${GRPC_LIBRARY_DIRS}")
+		link_directories("${GRPC_LIBRARY_DIRS}")
+	endif(DEFINED GRPC_LIBRARY_DIRS)
+endif(RESINSIGHT_ENABLE_GRPC)
+
+add_executable( ResInsight ${EXE_FILES})
 
 if (MSVC) 
     # The following warnings are supposed to be used in ResInsight, but temporarily disabled to avoid too much noise
@@ -375,6 +403,10 @@ set( LINK_LIBRARIES
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
 )
+
+if (RESINSIGHT_ENABLE_GRPC)
+	list(APPEND LINK_LIBRARIES ${GRPC_LIBRARIES})
+endif()
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -502,6 +534,31 @@ foreach (FILE_TO_COPY ${RI_DLL_FILENAMES})
     endif()
 endforeach()
 
+# Copy all grpc libraries and python files
+if (RESINSIGHT_ENABLE_GRPC)
+	if(UNIX)
+		foreach (GRPC_LIBRARY ${GRPC_LIBRARIES})
+			add_custom_command(TARGET ResInsight POST_BUILD
+							   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+							   "${GRPC_INSTALL_PREFIX}/lib/lib${GRPC_LIBRARY}.so"
+							   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>"
+			)
+		endforeach(GRPC_LIBRARY ${GRPC_LIBRARIES})
+	endif(UNIX)
+
+	if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
+		add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
+		add_dependencies(ResInsight GeneratedPythonSources)
+
+		foreach (PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
+			if (EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
+				configure_file("${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}"  
+								"${GRPC_PYTHON_DEST_PATH}/${PYTHON_SCRIPT}"
+								COPYONLY)
+			endif(EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
+		endforeach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
+	endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
+endif(RESINSIGHT_ENABLE_GRPC)
 
 #############################################################################
 # Install 

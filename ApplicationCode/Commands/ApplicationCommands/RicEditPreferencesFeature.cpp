@@ -58,6 +58,7 @@ void RicEditPreferencesFeature::onActionTriggered(bool isChecked)
         caf::PdmSettings::writeFieldsToApplicationStore(app->preferences());
         app->applyPreferences(oldPreferences.get());
         app->applyGuiPreferences(oldPreferences.get());
+        app->updateGrpcServer();
     }
     else
     {

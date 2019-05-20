@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+import "Empty.proto";
+
+package rips;
+
+service Commands
+{
+	rpc Execute(CommandParams) returns(Empty) {}
+}
+
+message SetTimeStepParams
+{
+	int32 caseId   = 1;
+	int32 timeStep = 2;
+}
+
+message SetMainWindowSizeParams
+{
+	int32 height = 1;
+	int32 width  = 2;
+}
+
+message FilePathRequest
+{
+	string path = 1;
+}
+
+message ReplaceCaseRequest
+{
+	string newGridFile = 1;
+	int32  caseId      = 2;
+}
+
+message ReplaceSourceCasesRequest
+{
+	string gridListFile = 1;
+}
+
+message ExportMultiCaseRequest
+{
+	string gridListFile = 1;
+}
+
+message CommandParams
+{
+	oneof params
+	{
+		SetTimeStepParams         setTimeStep              = 1;
+		SetMainWindowSizeParams   setMainWindowSize        = 2;
+		FilePathRequest           openProject              = 3;
+		Empty                     closeProject             = 4;
+		FilePathRequest           setStartDir              = 5;
+		FilePathRequest           loadCase                 = 6;
+		ReplaceCaseRequest        replaceCase              = 7;
+		ReplaceSourceCasesRequest replaceSourceCases       = 8;
+		ExportMultiCaseRequest    exportMultiCaseSnapshots = 9;
+	}
+}
+

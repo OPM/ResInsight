@@ -28,8 +28,10 @@
 
 #include <QApplication>
 #include <QMutex>
+#include <QPointer>
 #include <QProcess>
 #include <QString>
+#include <QTimer>
 
 #include <iostream>
 #include <memory>
@@ -121,6 +123,7 @@ public:
 
     static void         clearAllSelections();
     void                applyGuiPreferences(const RiaPreferences* oldPreferences = nullptr);
+    void                updateGrpcServer();
 
     // Public RiaApplication overrides
     void                initialize() override;
@@ -129,7 +132,7 @@ public:
     void                addToRecentFiles(const QString& fileName) override;
     void                showInformationMessage(const QString& text) override;
     void                showErrorMessage(const QString& errMsg) override;
-    void                cleanupBeforeProgramExit() override;
+    void                launchGrpcServer() override;
 protected:
     // Protected RiaApplication overrides
     void                invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;    
@@ -142,7 +145,7 @@ protected:
     void                startMonitoringWorkProgress(caf::UiProcess* uiProcess) override;
     void                stopMonitoringWorkProgress() override;
 
-private:
+private:    
     void                setWindowCaptionFromAppState();
 
     void                createMainWindow();
@@ -159,11 +162,16 @@ private:
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void                runIdleProcessing();
+    void                onProgramExit();
 
 private:
     RiuMainWindow*                      m_mainWindow;
     RiuPlotMainWindow*                  m_mainPlotWindow;
-    
+#ifdef ENABLE_GRPC
+    QPointer<QTimer>                    m_idleTimer;
+#endif
+
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
 
     std::unique_ptr<RiuMdiMaximizeWindowGuard> m_maximizeWindowGuard;

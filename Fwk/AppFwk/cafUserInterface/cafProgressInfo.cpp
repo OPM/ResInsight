@@ -456,6 +456,7 @@ namespace caf {
     //==================================================================================================
 
     bool ProgressInfoStatic::s_disabled = false;
+    bool ProgressInfoStatic::s_running = false;
 
     //--------------------------------------------------------------------------------------------------
     /// 
@@ -488,7 +489,7 @@ namespace caf {
                 }
             }
         }
-
+        s_running = true;
         maxProgressStack_v.push_back(maxProgressValue);
         progressStack_v.push_back(0);
         progressSpanStack_v.push_back(1);
@@ -611,6 +612,14 @@ namespace caf {
 
 
     //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    bool ProgressInfoStatic::isRunning()
+    {
+        return s_running;
+    }
+
+    //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
     void ProgressInfoStatic::finished()
@@ -652,6 +661,7 @@ namespace caf {
             {
                 dialog->reset();
                 dialog->close();
+                s_running = false;
             }
         }
         else

@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+import "CaseInfo.proto";
+
+package rips;
+
+service GridInfo
+{
+	// This function returns a two dimensional matrix: One row for each grid, starting with the main grid.
+	rpc GetGridCount(Case) returns(GridCount) {}
+	rpc GetGridDimensions(Case) returns (GridDimensions) {}
+	rpc StreamActiveCellInfo(ActiveCellInfoRequest) returns (stream ActiveCellInfoArray) {}
+	rpc GetAllCoarseningInfoArray(Case) returns (CoarseningInfoArray) {}
+	rpc GetTimeSteps(Case) returns (TimeStepDates) {}
+	rpc GetTimeStepDaysSinceStart(Case) returns (DoubleDates) {}
+}
+
+message GridCount
+{
+	int32 count = 1;
+}
+
+message GridDimensions
+{
+	repeated Vec3i dimensions = 1;
+}
+
+message Vec3i {
+  int32 i = 1;
+  int32 j = 2;
+  int32 k = 3;
+}
+
+enum PorosityModelType
+{
+	MATRIX_MODEL   = 0;
+	FRACTURE_MODEL = 1;
+}
+
+message ActiveCellInfoRequest
+{
+	int32             case_id        = 1;
+	PorosityModelType porosity_model = 2;	
+}
+
+message ActiveCellInfoArray
+{
+	repeated ActiveCellInfo data = 1;
+}
+
+message ActiveCellInfo
+{
+	int32 grid_index           = 1;
+	int32 parent_grid_index    = 2;
+	int32 coarsening_box_index = 3;
+	Vec3i local_ijk            = 4;
+	Vec3i parent_ijk           = 5;	
+}
+
+message CoarseningInfoArray
+{
+	repeated CoarseningInfo data = 1;
+}
+
+message CoarseningInfo
+{
+	Vec3i min = 1;
+	Vec3i max = 2;
+}
+
+message TimeStepDates
+{
+	repeated TimeStepDate date = 1;
+}
+
+message TimeStepDate
+{
+	int32 year   = 1;
+	int32 month  = 2;
+	int32 day    = 3;
+	int32 hour   = 4;
+	int32 minute = 5;
+	int32 second = 6;
+}
+
+message DoubleDates
+{
+	repeated double date_decimal = 1;
+}

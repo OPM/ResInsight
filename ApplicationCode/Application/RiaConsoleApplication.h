@@ -41,7 +41,7 @@ public:
     ApplicationStatus handleArguments(cvf::ProgramOptions* progOpt) override;
     void showInformationMessage(const QString& text) override;
     void showErrorMessage(const QString& errMsg) override;
-
+    void launchGrpcServer() override;
 protected:
     // Protected implementation specific overrides
     void invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;

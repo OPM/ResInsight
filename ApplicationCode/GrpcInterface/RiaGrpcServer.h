@@ -1,46 +1,53 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017 Statoil ASA
-// 
+//  Copyright (C) 2019-     Equinor ASA
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
-/////////////////////////////////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RicfCommandObject.h"
+#include "RiaLogging.h"
 
-#include "cafPdmField.h"
+#include <iostream>
+#include <list>
+#include <memory>
+#include <mutex>
+
+class RiaGrpcServerImpl;
 
 //==================================================================================================
 //
-//
+// The GRPC server.
 //
 //==================================================================================================
-class RicfSetTimeStep : public RicfCommandObject
+class RiaGrpcServer
 {
-    CAF_PDM_HEADER_INIT;
+public:    
+    RiaGrpcServer(int portNumber);
+    ~RiaGrpcServer();
 
-public:
-    RicfSetTimeStep();
-
-    void setCaseId(int caseId);
-    void setTimeStepIndex(int timeStepIndex);
-
-    void execute() override;
+    int portNumber() const;
+    bool isRunning() const;
+    void run();
+    void runInThread();
+    void processOneRequest();
+    void quit();
+    static int findAvailablePortNumber(int defaultPortNumber);
 
 private:
+    void initialize();
 
-    caf::PdmField<int> m_caseId;
-    caf::PdmField<int> m_timeStepIndex;
+private:
+    RiaGrpcServerImpl* m_serverImpl;
 };

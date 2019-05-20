@@ -20,6 +20,9 @@
 #pragma once
 
 #include "RiaDefines.h"
+#ifdef ENABLE_GRPC
+#include "RiaGrpcServer.h"
+#endif
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -93,7 +96,7 @@ public:
         EXIT_COMPLETED,
         EXIT_WITH_ERROR
     };
-
+    
 public:
     static RiaApplication*    instance();
     RiaApplication();
@@ -171,6 +174,8 @@ public:
     cvf::Font* defaultAnnotationFont();
     cvf::Font* defaultWellLabelFont();
 
+    bool initializeGrpcServer(const cvf::ProgramOptions& progOpt);
+
     // Public implementation specific overrides
     virtual void initialize();
     virtual ApplicationStatus handleArguments(cvf::ProgramOptions* progOpt) = 0;
@@ -178,8 +183,7 @@ public:
     virtual void addToRecentFiles(const QString& fileName) {}
     virtual void showInformationMessage(const QString& infoText) = 0;
     virtual void showErrorMessage(const QString& errMsg) = 0;
-    virtual void cleanupBeforeProgramExit() {}
-
+    virtual void launchGrpcServer() = 0;
 protected:
     // Protected implementation specific overrides
     virtual void invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) = 0;
@@ -203,11 +207,14 @@ protected:
     RiaSocketServer* m_socketServer;
     caf::UiProcess*  m_workerProcess;
 
+#ifdef ENABLE_GRPC
+    std::unique_ptr<RiaGrpcServer> m_grpcServer;
+#endif
+
     // Execute for all settings
     std::list<int> m_currentCaseIds;
     QString        m_currentProgram;
     QStringList    m_currentArguments;
-
     RiaPreferences* m_preferences;
 
     std::map<QString, QString> m_fileDialogDefaultDirectories;

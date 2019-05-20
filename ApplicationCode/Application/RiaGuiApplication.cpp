@@ -178,13 +178,11 @@ RiaGuiApplication::RiaGuiApplication(int& argc, char** argv)
     , m_mainWindow(nullptr)
     , m_mainPlotWindow(nullptr)
 {
-    // For idle processing
-    //    m_idleTimerStarted = false;
-    installEventFilter(this);   
-
     setWindowIcon(QIcon(":/AppLogo48x48.png"));
 
     m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);  
+
+    connect(this, SIGNAL(aboutToQuit()), this, SLOT(onProgramExit()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -571,8 +569,8 @@ void RiaGuiApplication::initialize()
 
     RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(m_mainWindow->messagePanel()));
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
-
     m_socketServer = new RiaSocketServer(this);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1234,6 +1232,19 @@ void RiaGuiApplication::showErrorMessage(const QString& errMsg)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::launchGrpcServer()
+{
+#ifdef ENABLE_GRPC
+    m_grpcServer->runInThread();
+    m_idleTimer = new QTimer(this);
+    connect(m_idleTimer, SIGNAL(timeout()), this, SLOT(runIdleProcessing()));
+    m_idleTimer->start(0);
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::invokeProcessEvents(QEventLoop::ProcessEventsFlags flags)
 {
     processEvents(flags);
@@ -1367,10 +1378,14 @@ void RiaGuiApplication::onProjectClosed()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::cleanupBeforeProgramExit()
+void RiaGuiApplication::onProgramExit()
 {
-    closeAllWindows();
-    invokeProcessEvents();
+#ifdef ENABLE_GRPC
+    if (m_grpcServer)
+    {
+        m_grpcServer->quit();
+    }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1578,6 +1593,27 @@ void RiaGuiApplication::applyGuiPreferences(const RiaPreferences* oldPreferences
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::updateGrpcServer()
+{
+#ifdef ENABLE_GRPC
+    bool isGrpcRunning = m_grpcServer != nullptr && m_grpcServer->isRunning();
+    bool shouldItBeRunning = m_preferences->enableGrpcServer();
+    if (isGrpcRunning && !shouldItBeRunning)
+    {
+        m_grpcServer->quit();
+    }
+    else if (!isGrpcRunning && shouldItBeRunning)
+    {
+        int portNumber = RiaGrpcServer::findAvailablePortNumber(m_preferences->defaultGrpcPortNumber());
+        m_grpcServer.reset(new RiaGrpcServer(portNumber));
+        m_grpcServer->runInThread();
+    }
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::startMonitoringWorkProgress(caf::UiProcess* uiProcess)
 {
     m_mainWindow->processMonitor()->startMonitorWorkProcess(m_workerProcess);
@@ -1635,6 +1671,19 @@ void RiaGuiApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitSt
         m_socketServer->setCurrentCaseId(-1);
         m_runningWorkerProcess = false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::runIdleProcessing()
+{
+#ifdef ENABLE_GRPC
+    if (!caf::ProgressInfoStatic::isRunning())
+    {
+        m_grpcServer->processOneRequest();
+    }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

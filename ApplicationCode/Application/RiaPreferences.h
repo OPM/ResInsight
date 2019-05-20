@@ -68,6 +68,9 @@ public:
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum< RiaGuiApplication::RINavigationPolicy > > navigationPolicy;
 
+    caf::PdmField<bool>     enableGrpcServer;
+    caf::PdmField<int>      defaultGrpcPortNumber;
+
     caf::PdmField<QString>  scriptDirectories;
     caf::PdmField<QString>  scriptEditorExecutable;
 

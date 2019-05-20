@@ -342,6 +342,16 @@ void RiaConsoleApplication::showErrorMessage(const QString& errMsg)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaConsoleApplication::launchGrpcServer()
+{
+#ifdef ENABLE_GRPC
+    m_grpcServer->run();
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaConsoleApplication::invokeProcessEvents(QEventLoop::ProcessEventsFlags flags /*= QEventLoop::AllEvents*/)
 {
     processEvents(flags);

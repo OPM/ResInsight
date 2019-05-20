@@ -1295,6 +1295,36 @@ cvf::Font* RiaApplication::defaultWellLabelFont()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaApplication::initializeGrpcServer(const cvf::ProgramOptions& progOpt)
+{
+#ifdef ENABLE_GRPC
+    if (!m_preferences->enableGrpcServer()) return false;
+
+    int  defaultPortNumber = m_preferences->defaultGrpcPortNumber();
+    bool fixedPort = false;
+    if (cvf::Option o = progOpt.option("grpcserver"))
+    {
+        if (o.valueCount() == 1)
+        {
+            defaultPortNumber = o.value(0).toInt(defaultPortNumber);
+            fixedPort = true;
+        }
+    }
+    int portNumber = defaultPortNumber;
+    if (!fixedPort)
+    {
+        portNumber = RiaGrpcServer::findAvailablePortNumber(defaultPortNumber);
+    }
+    m_grpcServer.reset(new RiaGrpcServer(portNumber));
+    return true;
+#else
+    return false;
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::initialize()
 {
     m_preferences = new RiaPreferences;

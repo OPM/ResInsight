@@ -85,14 +85,14 @@ public:
     static void setProgress(size_t progressValue);
     static void incrementProgress();
     static void setNextProgressIncrement(size_t nextStepSize);
-
+    static bool isRunning();
     static void finished();
 
 private:
     static bool isUpdatePossible();
 private:
     friend class ProgressInfoBlocker;
-
+    static bool s_running;
     static bool s_disabled;
 };
 
