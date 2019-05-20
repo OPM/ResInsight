@@ -80,6 +80,18 @@ class GridInfo:
 class ProjectInfo:
 	def __init__(self, channel):
 		self.projectInfo = ProjectInfo_pb2_grpc.ProjectInfoStub(channel)
+	def selectedCases(self):
+		selected = self.projectInfo.SelectedCases(Empty_pb2.Empty())
+		if selected is not None:
+			return selected.case_info
+		else:
+			return None
+	def allCases(self):
+		cases = self.projectInfo.AllCases(Empty_pb2.Empty())
+		if cases is not None:
+			return allCases.case_info
+		else:
+			return None
 		
 class Instance:
 	@staticmethod
