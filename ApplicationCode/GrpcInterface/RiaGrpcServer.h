@@ -41,7 +41,7 @@ public:
     bool isRunning() const;
     void run();
     void runInThread();
-    void processOneRequest();
+    void processRequests();
     void quit();
     static int findAvailablePortNumber(int defaultPortNumber);
 

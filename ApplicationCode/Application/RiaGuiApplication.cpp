@@ -1681,7 +1681,7 @@ void RiaGuiApplication::runIdleProcessing()
 #ifdef ENABLE_GRPC
     if (!caf::ProgressInfoStatic::isRunning())
     {
-        m_grpcServer->processOneRequest();
+        m_grpcServer->processRequests();
     }
 #endif
 }

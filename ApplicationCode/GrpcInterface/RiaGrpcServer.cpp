@@ -31,6 +31,7 @@
 #include "RimProject.h"
 
 #include "cafAssert.h"
+#include "cafProgressInfo.h"
 
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
@@ -60,7 +61,7 @@ public:
     void run();
     void runInThread();
     void initialize();
-    void processOneRequest();
+    void processRequests();
     void quit();
     int currentPortNumber;
 
@@ -168,10 +169,11 @@ void RiaGrpcServerImpl::initialize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServerImpl::processOneRequest()
+void RiaGrpcServerImpl::processRequests()
 {
     std::lock_guard<std::mutex> requestLock(m_requestMutex);
-    if (!m_unprocessedRequests.empty())
+
+    while (!m_unprocessedRequests.empty())
     {
         RiaAbstractGrpcCallback* method = m_unprocessedRequests.front();
         m_unprocessedRequests.pop_front();
@@ -325,9 +327,9 @@ void RiaGrpcServer::initialize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::processOneRequest()
+void RiaGrpcServer::processRequests()
 {
-    m_serverImpl->processOneRequest();
+    m_serverImpl->processRequests();
 }
 
 //--------------------------------------------------------------------------------------------------
