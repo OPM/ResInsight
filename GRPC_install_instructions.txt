@@ -3,7 +3,7 @@
 git clone https://github.com/microsoft/vcpkg.git
 
 4. Install VCPKG from within vcpkg folder:
-.\boostrap-vcpkg.sh
+.\boostrap-vcpkg.bat
 5. Perform integrated install (as admin) within vcpkg folder. Not sure if it is necessary.
 .\vcpkg integrate install
 5. Install GRPC
