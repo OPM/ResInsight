@@ -315,14 +315,16 @@ source_group( "UnitTests"           FILES ${UNIT_TEST_FILES} )
 
 if (MSVC)
     set( EXE_FILES WIN32)
-	set_source_files_properties(${GRPC_CPP_SOURCES} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125")
+	if (RESINSIGHT_ENABLE_GRPC)
+		# GRPC generates a lot of harmless warnings on MSVC
+		set_source_files_properties(${GRPC_CPP_SOURCES} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125")
+	endif(RESINSIGHT_ENABLE_GRPC)
 elseif (APPLE)
     set( EXE_FILES MACOSX_BUNDLE)
 endif()
 set( EXE_FILES
     ${EXE_FILES}
 	${GRPC_HEADER_FILES}
-	${GRPC_CPP_SOURCES}
     ${CPP_SOURCES}
     ${MOC_SOURCE_FILES}
     ${FORM_FILES_CPP}
@@ -330,18 +332,24 @@ set( EXE_FILES
     ${WIN_RESOURCE}
     ${HEADER_FILES}
     ${REFERENCED_CMAKE_FILES}
-	${GRPC_PYTHON_SOURCES_FULL_PATH}
     ../ResInsightVersion.cmake
     .clang-format
     .clang-tidy
 	Adm/RiaVersionInfo.h.cmake
-	Adm/RiaVersionInfo.py.cmake
 )
 
-if (DEFINED GRPC_LIBRARY_DIRS)
-	message(STATUS "Using GRPC Library Dir: ${GRPC_LIBRARY_DIRS}")
-	link_directories("${GRPC_LIBRARY_DIRS}")
-endif(DEFINED GRPC_LIBRARY_DIRS)
+if (RESINSIGHT_ENABLE_GRPC)
+	list(APPEND EXE_FILES
+	     ${GRPC_CPP_SOURCES}
+	     ${GRPC_HEADER_FILES}
+	     ${GRPC_PYTHON_SOURCES_FULL_PATH}
+		 Adm/RiaVersionInfo.py.cmake
+	)
+	if (DEFINED GRPC_LIBRARY_DIRS)
+		message(STATUS "Using GRPC Library Dir: ${GRPC_LIBRARY_DIRS}")
+		link_directories("${GRPC_LIBRARY_DIRS}")
+	endif(DEFINED GRPC_LIBRARY_DIRS)
+endif(RESINSIGHT_ENABLE_GRPC)
 
 add_executable( ResInsight ${EXE_FILES})
 
@@ -394,8 +402,11 @@ set( LINK_LIBRARIES
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
-	${GRPC_LIBRARIES}	
 )
+
+if (RESINSIGHT_ENABLE_GRPC)
+	list(APPEND LINK_LIBRARIES ${GRPC_LIBRARIES})
+endif()
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
