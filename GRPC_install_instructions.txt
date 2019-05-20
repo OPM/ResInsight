@@ -24,10 +24,12 @@ git submodule update
 scl enable devtoolset-3 bash
 make prefix=/opt/grpc
 sudo make prefix=/opt/grpc install
-3. Install protobuf (still within grpc folder)
+4. Install protobuf (still within grpc folder)
 cd third_party/protobuf
 sudo make prefix=/opt/grpc install
-4. Install grpcio-tools for Python (this may have to be done as root user):
+5. Make sure you have a Python 3 version available in your paths.
+I.e.: "sudo yum install rh-python35" and then "scl enable rh-python35 bash"
+6. Install grpcio-tools for Python (this may have to be done as root user):
 pip install grpcio-tools
-5. Run cmake making sure GRPC_INSTALL_PREFIX is set to /opt/grpc, PYTHON_EXECUTABLE set to a good python 3 and RESINSIGHT_ENABLE_GRPC = true
+7. Run cmake making sure GRPC_INSTALL_PREFIX is set to /opt/grpc, PYTHON_EXECUTABLE set to a good python 3 and RESINSIGHT_ENABLE_GRPC = true
 
