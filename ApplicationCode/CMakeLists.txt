@@ -347,7 +347,7 @@ if (RESINSIGHT_ENABLE_GRPC)
     )
     if (DEFINED GRPC_LIBRARY_DIRS)
         message(STATUS "Using GRPC Library Dir: ${GRPC_LIBRARY_DIRS}")
-        link_directories("${GRPC_LIBRARY_DIRS}")
+        link_directories(${GRPC_LIBRARY_DIRS})
     endif(DEFINED GRPC_LIBRARY_DIRS)
 endif(RESINSIGHT_ENABLE_GRPC)
 
@@ -405,7 +405,13 @@ set( LINK_LIBRARIES
 )
 
 if (RESINSIGHT_ENABLE_GRPC)
-    list(APPEND LINK_LIBRARIES ${GRPC_LIBRARIES})
+	if (UNIX)
+		foreach(GRPC_LIBRARY ${GRPC_LIBRARIES})
+			list(APPEND LINK_LIBRARIES "${GRPC_LIBRARY_DIRS}/lib${GRPC_LIBRARY}.a")
+		endforeach()
+	else()		
+		list(APPEND LINK_LIBRARIES ${GRPC_LIBRARIES})
+	endif()
 endif()
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
@@ -536,16 +542,6 @@ endforeach()
 
 # Copy all grpc libraries and python files
 if (RESINSIGHT_ENABLE_GRPC)
-    if(UNIX)
-        foreach (GRPC_LIBRARY ${GRPC_LIBRARIES})
-            add_custom_command(TARGET ResInsight POST_BUILD
-                               COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                               "${GRPC_INSTALL_PREFIX}/lib/lib${GRPC_LIBRARY}.so"
-                               "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>"
-            )
-        endforeach(GRPC_LIBRARY ${GRPC_LIBRARIES})
-    endif(UNIX)
-
     if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
         add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
         add_dependencies(ResInsight GeneratedPythonSources)
