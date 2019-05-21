@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+import "Empty.proto";
+import "CaseInfo.proto";
+import "GridInfo.proto";
+
+package rips;
+
+service Properties
+{
+	rpc GetAvailableProperties(PropertiesRequest) returns (AvailableProperties) {}
+	rpc GetActiveCellResults(ResultRequest) returns (stream ResultReplyArray) {}
+	rpc GetGridResults(ResultRequest)       returns (stream ResultReplyArray) {}
+	rpc SetActiveCellResults(stream ResultRequestArray) returns (Empty) {}
+	rpc SetGridResults(stream ResultRequestArray) returns (Empty) {}
+}
+
+enum PropertyType
+{
+	DYNAMIC_NATIVE     = 0;
+	STATIC_NATIVE      = 1;
+	SOURSIMRL          = 2;
+	GENERATED          = 3;
+	INPUT_PROPERTY     = 4;
+	FORMATION_NAMES    = 5;
+	FLOW_DIAGNOSTICS   = 6;
+	INJECTION_FLOODING = 7;
+	REMOVED            = 8;
+	UNDEFINED          = 999;
+}
+
+message PropertiesRequest
+{
+	Case                request_case = 1;
+	PropertyType       property_type = 2;
+	PorosityModelType porosity_model = 3;
+}
+
+message AvailableProperties
+{
+	repeated string property_names = 1;
+}
+
+message ResultRequest
+{
+	Case                request_case = 1;
+	PropertyType       property_type = 2;
+	string             property_name = 3;
+	int32                  time_step = 4;
+	int32                 grid_index = 5;
+	PorosityModelType porosity_model = 6;
+}
+
+message TimeStep
+{
+	int32 index = 1;
+}
+
+message ResultRequestArray
+{
+	repeated double values = 1;
+	Case     request_case  = 2;
+	TimeStep    time_step  = 3;
+}
+
+message ResultReplyArray
+{
+	repeated double values = 1;
+}

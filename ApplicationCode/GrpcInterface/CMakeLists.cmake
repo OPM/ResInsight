@@ -9,6 +9,7 @@ set ( SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcResInfoService.h
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.h
 )
 
 set ( SOURCE_GROUP_SOURCE_FILES
@@ -18,6 +19,7 @@ set ( SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcResInfoService.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.cpp
 )
 
 add_definitions(-DENABLE_GRPC)
@@ -74,6 +76,7 @@ set(PROTO_FILES
     "ProjectInfo"
     "Commands"
     "ResInfo"
+	"Properties"
 )
 
 set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_SOURCE_DIR}/Python")
@@ -139,6 +142,7 @@ endforeach(proto_file)
 if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})	
     list(APPEND GRPC_PYTHON_SOURCES
         ${GRPC_PYTHON_GENERATED_SOURCES}
+		"generated/RiaVersionInfo.py"
         "api/__init__.py"
         "api/ResInsight.py"
         "examples/CommandExample.py"

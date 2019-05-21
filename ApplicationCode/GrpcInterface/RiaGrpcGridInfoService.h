@@ -41,9 +41,8 @@ class RimEclipseCase;
 //==================================================================================================
 class RiaActiveCellInfoStateHandler
 {
-public:
     typedef grpc::Status Status;
-
+public:
     RiaActiveCellInfoStateHandler();
 
     Status init(const rips::ActiveCellInfoRequest* request);

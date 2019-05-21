@@ -24,7 +24,7 @@ CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
                 ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h
 )
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
-                ${CMAKE_BINARY_DIR}/Python/generated/RiaVersionInfo.py
+                ${CMAKE_SOURCE_DIR}/Python/generated/RiaVersionInfo.py
 )
 
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
