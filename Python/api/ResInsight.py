@@ -112,6 +112,16 @@ class Properties:
                                                time_step      = timeStep,
                                                porosity_model = porosityModelEnum)
         return self.properties.GetActiveCellResults(request)
+    def gridCellResults(self, caseId, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+        propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
+        porosityModelEnum = GridInfo_pb2.PorosityModelType.Value(porosityModel)
+        request = Properties_pb2.ResultRequest(request_case   = CaseInfo_pb2.Case(id=caseId),
+                                               property_type  = propertyTypeEnum,
+                                               property_name  = propertyName,
+                                               time_step      = timeStep,
+                                               grid_index     = gridIndex,
+                                               porosity_model = porosityModelEnum)
+        return self.properties.GetGridResults(request)
 
 class Instance:
     @staticmethod

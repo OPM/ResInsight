@@ -13,7 +13,16 @@ results = []
 for resultChunk in resultChunks:
 	for value in resultChunk.values:
 		results.append(value)
-print("Number of active cells: " + str(len(results)))
-print("15th active cell: ")
-for result in results:
-	print(result)
+print("Transferred " + str(len(results)) + " cell results")
+print("30th active cell: ")
+print(results[29])
+
+resultChunks = resInsight.properties.gridCellResults(0, 'DYNAMIC_NATIVE', 'SOIL', 2)
+
+results = []
+for resultChunk in resultChunks:
+	for value in resultChunk.values:
+		results.append(value)
+print("Transferred " + str(len(results)) + " cell results")
+print("124498th cell: ")
+print(results[124498])

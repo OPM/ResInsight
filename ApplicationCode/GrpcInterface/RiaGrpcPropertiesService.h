@@ -23,20 +23,8 @@
 #include <grpcpp/grpcpp.h>
 #include <vector>
 
-class RiaActiveCellResultsStateHandler
-{
-    typedef grpc::Status Status;
-public:
-    RiaActiveCellResultsStateHandler();
-    
-    Status init(const rips::ResultRequest* request);
-    Status assignReply(rips::ResultReplyArray* reply);
-
-private:
-    const rips::ResultRequest* m_request;
-    const std::vector<double>* m_resultValues;
-    size_t                     m_currentCellIdx;
-};
+class RiaActiveCellResultsStateHandler;
+class RiaGridCellResultsStateHandler;
 
 //==================================================================================================
 //
@@ -53,6 +41,10 @@ public:
                                       const rips::ResultRequest*        request,
                                       rips::ResultReplyArray*           reply,
                                       RiaActiveCellResultsStateHandler* stateHandler);
+    grpc::Status GetGridResults(grpc::ServerContext*            context,
+                                const rips::ResultRequest*      request,
+                                rips::ResultReplyArray*         reply,
+                                RiaGridCellResultsStateHandler* stateHandler);
 
     std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
 };
