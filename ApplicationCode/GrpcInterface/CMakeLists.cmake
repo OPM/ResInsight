@@ -79,7 +79,7 @@ set(PROTO_FILES
 	"Properties"
 )
 
-set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_SOURCE_DIR}/Python")
+set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/Python")
 set(GRPC_PYTHON_DEST_PATH "${CMAKE_BINARY_DIR}/Python")
 
 foreach(proto_file ${PROTO_FILES})		
@@ -150,7 +150,8 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
         "examples/ResultValues.py"
         "examples/SelectedCases.py"
         "examples/AllCases.py"
-		"examples/SetResultValues.py"
+		"examples/SetActiveCellProperties.py"
+		"examples/SetGridProperties.py"
         "tests/test_sample.py"
     )
 
@@ -158,13 +159,17 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
         list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
     endforeach()
 if (MSVC)
-    source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "Python")
+    source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
 endif(MSVC)
 
 endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 
 list ( APPEND GRPC_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list ( APPEND GRPC_CPP_SOURCES ${SOURCE_GROUP_SOURCE_FILES})
+
+CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
+                ${GRPC_PYTHON_SOURCE_PATH}/generated/RiaVersionInfo.py
+)
 
 source_group( "GrpcInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.cmake )
 source_group( "GrpcInterface\\GrpcProtos" FILES ${GRPC_PROTO_FILES_FULL_PATH} )

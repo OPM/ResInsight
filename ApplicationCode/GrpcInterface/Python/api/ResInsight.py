@@ -131,20 +131,16 @@ class Properties:
             chunk = Properties_pb2.ResultRequestChunk()
             if index is -1:
                 chunk.params.CopyFrom(parameters)
-                print("Added parameters")
                 index += 1;
             else:
                 actualChunkSize = min(len(array) - index + 1, chunkSize)
                 chunk.values.CopyFrom(Properties_pb2.ResultArray(values = array[index:index+actualChunkSize]))
-                print("Added values")
                 index += actualChunkSize
 
-            print(index)
             yield chunk
         # Final empty message to signal completion
         chunk = Properties_pb2.ResultRequestChunk()
         yield chunk
-        print("finished")
 
     def availableProperties(self, caseId, propertyType, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
@@ -175,7 +171,6 @@ class Properties:
     def setActiveCellResults(self, values, caseId, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = GridInfo_pb2.PorosityModelType.Value(porosityModel)
-        print (propertyName)
         request = Properties_pb2.ResultRequest(request_case   = CaseInfo_pb2.Case(id=caseId),
                                                property_type  = propertyTypeEnum,
                                                property_name  = propertyName,
@@ -184,8 +179,25 @@ class Properties:
                                                porosity_model = porosityModelEnum)
         try:
             request_iterator = self.generateResultRequestArrays(values, request)
-            print("Starting to send data")
             self.properties.SetActiveCellResults(request_iterator)
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.NOT_FOUND:
+                print("Command not found")
+            else:
+                print("Other error", e)
+
+    def setGridResults(self, values, caseId, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+        propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
+        porosityModelEnum = GridInfo_pb2.PorosityModelType.Value(porosityModel)
+        request = Properties_pb2.ResultRequest(request_case   = CaseInfo_pb2.Case(id=caseId),
+                                               property_type  = propertyTypeEnum,
+                                               property_name  = propertyName,
+                                               time_step      = timeStep,
+                                               grid_index     = gridIndex,
+                                               porosity_model = porosityModelEnum)
+        try:
+            request_iterator = self.generateResultRequestArrays(values, request)
+            self.properties.SetGridResults(request_iterator)
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 print("Command not found")

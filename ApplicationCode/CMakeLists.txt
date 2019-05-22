@@ -23,9 +23,6 @@ endif(Qt5Core_FOUND)
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
                 ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h
 )
-CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
-                ${CMAKE_SOURCE_DIR}/Python/generated/RiaVersionInfo.py
-)
 
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
