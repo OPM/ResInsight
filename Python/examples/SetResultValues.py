@@ -4,13 +4,16 @@ sys.path.insert(1, os.path.join(sys.path[0], '../api'))
 import ResInsight
 
 resInsight     = ResInsight.Instance.find()
-#gridCount      = resInsight.gridInfo.getGridCount(caseId=0)
-#gridDimensions = resInsight.gridInfo.getAllGridDimensions(caseId=0)
+
+activeCellCount = resInsight.gridInfo.cellCount(caseId=0).active_cell_count
 
 values = []
-for i in range(0, 11124):
+for i in range(0, activeCellCount):
     values.append(i % 2 * 0.5);
 
-print("Applying all values to time step 0")
-resInsight.properties.setActiveCellResults(values, 0, 'DYNAMIC_NATIVE', 'SOIL', 0)
+
+timeSteps = resInsight.gridInfo.timeSteps(caseId=0)
+for i in range(0, len(timeSteps)):
+	print("Applying values to all time step " + str(i))
+	resInsight.properties.setActiveCellResults(values, 0, 'DYNAMIC_NATIVE', 'SOIL', i)
 

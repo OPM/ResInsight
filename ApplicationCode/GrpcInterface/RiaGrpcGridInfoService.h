@@ -71,9 +71,12 @@ class RiaGrpcGridInfoService final : public rips::GridInfo::AsyncService, public
 public:
     grpc::Status GetGridCount(grpc::ServerContext* context, const rips::Case* request, rips::GridCount* reply) override;
     grpc::Status GetGridDimensions(grpc::ServerContext* context, const rips::Case* request, rips::GridDimensions* reply) override;
+    grpc::Status GetCellCount(grpc::ServerContext* context, const rips::CellInfoRequest* request, rips::CellCount* reply) override;
+    grpc::Status GetTimeSteps(grpc::ServerContext* context, const rips::Case* request, rips::TimeStepDates* reply) override;
+
     grpc::Status GetCellInfoForActiveCells(grpc::ServerContext*               context,
                                            const rips::CellInfoRequest* request,
                                            rips::CellInfoArray*         reply,
-                                           RiaActiveCellInfoStateHandler*     stateHandler);
+                                           RiaActiveCellInfoStateHandler*     stateHandler);    
     std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
 };

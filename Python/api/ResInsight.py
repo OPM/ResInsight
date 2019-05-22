@@ -76,9 +76,21 @@ class GridInfo:
     def gridDimensions(self, caseId=0):
         return self.gridInfo.GetGridDimensions(CaseInfo_pb2.Case(id=caseId)).dimensions
         
-    def cellInfoForActiveCells(self, caseId=0):
-        return self.gridInfo.GetCellInfoForActiveCells(CaseInfo_pb2.Case(id=caseId))		
-        
+    def cellCount(self, caseId=0, porosityModel='MATRIX_MODEL'):
+        porosityModelEnum = GridInfo_pb2.PorosityModelType.Value(porosityModel)
+        request =  GridInfo_pb2.CellInfoRequest(case_id=caseId,
+                                                porosity_model=porosityModel)
+        return self.gridInfo.GetCellCount(request)
+
+    def cellInfoForActiveCells(self, caseId=0, porosityModel='MATRIX_MODEL'):
+        porosityModelEnum = GridInfo_pb2.PorosityModelType.Value(porosityModel)
+        request =  GridInfo_pb2.CellInfoRequest(case_id=caseId,
+                                                porosity_model=porosityModel)
+        return self.gridInfo.GetCellInfoForActiveCells(request)
+
+    def timeSteps(self, caseId=0):
+        return self.gridInfo.GetTimeSteps(CaseInfo_pb2.Case(id=caseId))
+       
 class ProjectInfo:
     def __init__(self, channel):
         self.projectInfo = ProjectInfo_pb2_grpc.ProjectInfoStub(channel)

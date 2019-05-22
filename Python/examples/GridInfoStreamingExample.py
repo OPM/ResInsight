@@ -7,6 +7,9 @@ resInsight     = ResInsight.Instance.find()
 #gridCount      = resInsight.gridInfo.getGridCount(caseId=0)
 #gridDimensions = resInsight.gridInfo.getAllGridDimensions(caseId=0)
 
+cellCounts = resInsight.gridInfo.cellCount(caseId=0)
+print("Number of active cells: " + str(cellCounts.active_cell_count))
+
 activeCellInfoChunks = resInsight.gridInfo.cellInfoForActiveCells(caseId=0)
 
 #print("Number of grids: " + str(gridCount))
@@ -16,6 +19,7 @@ receivedActiveCells = []
 for activeCellChunk in activeCellInfoChunks:
 	for activeCell in activeCellChunk.data:
 		receivedActiveCells.append(activeCell)
-print("Number of active cells: " + str(len(receivedActiveCells)))
+
+assert(cellCounts.active_cell_count == len(receivedActiveCells))
 print("First active cell: ")
 print(receivedActiveCells[0])

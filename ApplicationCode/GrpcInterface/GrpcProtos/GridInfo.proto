@@ -9,6 +9,7 @@ service GridInfo
 	// This function returns a two dimensional matrix: One row for each grid, starting with the main grid.
 	rpc GetGridCount(Case) returns(GridCount) {}
 	rpc GetGridDimensions(Case) returns (GridDimensions) {}
+	rpc GetCellCount(CellInfoRequest) returns (CellCount) {}
 	rpc GetCellInfoForActiveCells(CellInfoRequest) returns (stream CellInfoArray) {}
 	rpc GetAllCoarseningInfoArray(Case) returns (CoarseningInfoArray) {}
 	rpc GetTimeSteps(Case) returns (TimeStepDates) {}
@@ -29,6 +30,12 @@ message Vec3i {
   int32 i = 1;
   int32 j = 2;
   int32 k = 3;
+}
+
+message CellCount
+{
+	int32    active_cell_count = 1;
+	int32 reservoir_cell_count = 2;
 }
 
 enum PorosityModelType

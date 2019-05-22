@@ -258,6 +258,53 @@ grpc::Status RiaGrpcGridInfoService::GetGridDimensions(grpc::ServerContext*     
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcGridInfoService::GetCellCount(grpc::ServerContext* context, const rips::CellInfoRequest* request, rips::CellCount* reply)
+{
+    RimCase* rimCase = findCase(request->case_id());
+
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
+    if (eclipseCase)
+    {
+        auto porosityModel = RiaDefines::PorosityModelType(request->porosity_model());
+        RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo(porosityModel);
+        reply->set_active_cell_count((int) activeCellInfo->reservoirActiveCellCount());
+        reply->set_reservoir_cell_count((int) activeCellInfo->reservoirCellCount());
+        return grpc::Status::OK;
+    }
+    return grpc::Status(grpc::NOT_FOUND, "Eclipse Case not found");
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status
+RiaGrpcGridInfoService::GetTimeSteps(grpc::ServerContext* context, const rips::Case* request, rips::TimeStepDates* reply)
+{
+    RimCase* rimCase = findCase(request->id());
+
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
+    if (eclipseCase)
+    {
+        std::vector<QDateTime> timeStepDates = eclipseCase->timeStepDates();
+        for (QDateTime dateTime : timeStepDates)
+        {
+            rips::TimeStepDate* date = reply->add_date();
+            date->set_year(dateTime.date().year());
+            date->set_month(dateTime.date().month());
+            date->set_day(dateTime.date().day());
+            date->set_hour(dateTime.time().hour());
+            date->set_minute(dateTime.time().minute());
+            date->set_second(dateTime.time().second());
+        }
+        return grpc::Status::OK;
+    }
+    return grpc::Status(grpc::NOT_FOUND, "Eclipse Case not found");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcGridInfoService::GetCellInfoForActiveCells(grpc::ServerContext*                      context,
                                                                 const rips::CellInfoRequest*        request,
                                                                 rips::CellInfoArray*                reply,
@@ -275,6 +322,8 @@ std::vector<RiaAbstractGrpcCallback*> RiaGrpcGridInfoService::createCallbacks()
 
     return {new RiaGrpcCallback<Self, Case, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
             new RiaGrpcCallback<Self, Case, GridDimensions>(this, &Self::GetGridDimensions, &Self::RequestGetGridDimensions),
+            new RiaGrpcCallback<Self, CellInfoRequest, CellCount>(this, &Self::GetCellCount, &Self::RequestGetCellCount),
+            new RiaGrpcCallback<Self, Case, TimeStepDates>(this, &Self::GetTimeSteps, &Self::RequestGetTimeSteps),
             new RiaGrpcStreamCallback<Self, CellInfoRequest, CellInfoArray, RiaActiveCellInfoStateHandler>(
                 this, &Self::GetCellInfoForActiveCells, &Self::RequestGetCellInfoForActiveCells, new RiaActiveCellInfoStateHandler)};
 }
