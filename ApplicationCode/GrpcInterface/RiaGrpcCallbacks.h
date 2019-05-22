@@ -129,7 +129,7 @@ private:
 
 //==================================================================================================
 //
-// Templated bi-directional *streaming* gRPC-callback calling service implementation callbacks
+// Templated server *streaming* gRPC-callback calling service implementation callbacks
 //
 // The streaming callback needs a state handler for setting up and maintaining order.
 //
@@ -137,8 +137,6 @@ private:
 // 1. Default Constructor
 // 2. grpc::Status init(const grpc::Message* request)
 //
-//==================================================================================================
-
 //==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
 class RiaGrpcStreamCallback : public RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>
@@ -165,7 +163,6 @@ private:
     ResponseWriterT m_responder;
     MethodImplT     m_methodImpl;
     MethodRequestT  m_methodRequest;
-    size_t          m_dataCount; // This is used to keep track of progress. Only one item is sent for each invocation.
     std::unique_ptr<StateHandlerT> m_stateHandler;
 };
 

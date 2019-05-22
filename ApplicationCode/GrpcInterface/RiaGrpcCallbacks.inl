@@ -161,7 +161,6 @@ RiaGrpcStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGrpcStreamC
     , m_responder(&m_context)
     , m_methodImpl(methodImpl)
     , m_methodRequest(methodRequest)
-    , m_dataCount(0u)
     , m_stateHandler(stateHandler)
 {
 }
