@@ -34,21 +34,25 @@ class RiaGridCellResultsStateHandler;
 class RiaGrpcPropertiesService final : public rips::Properties::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status GetAvailableProperties(grpc::ServerContext*                     context,
+    grpc::Status GetAvailableProperties(grpc::ServerContext*           context,
                                         const rips::PropertiesRequest* request,
-                                        rips::AvailableProperties*               reply) override;
+                                        rips::AvailableProperties*     reply) override;
     grpc::Status GetActiveCellResults(grpc::ServerContext*              context,
                                       const rips::ResultRequest*        request,
-                                      rips::ResultArray*           reply,
+                                      rips::ResultArray*                reply,
                                       RiaActiveCellResultsStateHandler* stateHandler);
     grpc::Status GetGridResults(grpc::ServerContext*            context,
                                 const rips::ResultRequest*      request,
-                                rips::ResultArray*         reply,
+                                rips::ResultArray*              reply,
                                 RiaGridCellResultsStateHandler* stateHandler);
     grpc::Status SetActiveCellResults(grpc::ServerContext*              context,
                                       const rips::ResultRequestChunk*   request,
                                       rips::Empty*                      reply,
                                       RiaActiveCellResultsStateHandler* stateHandler);
+    grpc::Status SetGridResults(grpc::ServerContext*            context,
+                                const rips::ResultRequestChunk* request,
+                                rips::Empty*                    reply,
+                                RiaGridCellResultsStateHandler* stateHandler);
+
     std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
 };
-

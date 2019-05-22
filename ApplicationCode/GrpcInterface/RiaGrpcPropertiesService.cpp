@@ -288,6 +288,17 @@ grpc::Status RiaGrpcPropertiesService::SetActiveCellResults(grpc::ServerContext*
     return stateHandler->receiveStreamRequest(request);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcPropertiesService::SetGridResults(grpc::ServerContext*            context,
+                                                      const rips::ResultRequestChunk* request,
+                                                      rips::Empty*                    reply,
+                                                      RiaGridCellResultsStateHandler* stateHandler)
+{
+    return stateHandler->receiveStreamRequest(request);
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -302,9 +313,12 @@ std::vector<RiaAbstractGrpcCallback*> RiaGrpcPropertiesService::createCallbacks(
             new RiaGrpcStreamCallback<Self, ResultRequest, ResultArray, RiaGridCellResultsStateHandler>(
                 this, &Self::GetGridResults, &Self::RequestGetGridResults, new RiaGridCellResultsStateHandler),
             new RiaGrpcClientStreamCallback<Self, ResultRequestChunk, Empty, RiaActiveCellResultsStateHandler>(
-                this, &Self::SetActiveCellResults, &Self::RequestSetActiveCellResults, new RiaActiveCellResultsStateHandler)
+                this, &Self::SetActiveCellResults, &Self::RequestSetActiveCellResults, new RiaActiveCellResultsStateHandler),
+            new RiaGrpcClientStreamCallback<Self, ResultRequestChunk, Empty, RiaGridCellResultsStateHandler>(
+                this, &Self::SetGridResults, &Self::RequestSetGridResults, new RiaGridCellResultsStateHandler)
     };
 }
+
 
 static bool RiaGrpcPropertiesService_init =
     RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcPropertiesService>(typeid(RiaGrpcPropertiesService).hash_code());
