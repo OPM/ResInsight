@@ -129,14 +129,13 @@ private:
 
 //==================================================================================================
 //
-// Templated *streaming* gRPC-callback calling service implementation callbacks
+// Templated bi-directional *streaming* gRPC-callback calling service implementation callbacks
 //
 // The streaming callback needs a state handler for setting up and maintaining order.
 //
 // A fully functional stream handler needs to implement the following methods:
 // 1. Default Constructor
 // 2. grpc::Status init(const grpc::Message* request)
-// 3. grpc::status assignReply(grpc::Message* reply)
 //
 //==================================================================================================
 
