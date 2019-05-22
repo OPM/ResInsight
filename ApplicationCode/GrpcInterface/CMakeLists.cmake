@@ -150,6 +150,7 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
         "examples/ResultValues.py"
         "examples/SelectedCases.py"
         "examples/AllCases.py"
+		"examples/SetResultValues.py"
         "tests/test_sample.py"
     )
 
