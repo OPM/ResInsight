@@ -9,10 +9,10 @@ package rips;
 service Properties
 {
 	rpc GetAvailableProperties(PropertiesRequest) returns (AvailableProperties) {}
-	rpc GetActiveCellResults(ResultRequest) returns (stream ResultReplyArray) {}
-	rpc GetGridResults(ResultRequest)       returns (stream ResultReplyArray) {}
-	rpc SetActiveCellResults(stream ResultRequestArray) returns (Empty) {}
-	rpc SetGridResults(stream ResultRequestArray) returns (Empty) {}
+	rpc GetActiveCellResults(ResultRequest) returns (stream ResultArray) {}
+	rpc GetGridResults(ResultRequest)       returns (stream ResultArray) {}
+	rpc SetActiveCellResults(stream ResultRequestChunk) returns (Empty) {}
+	rpc SetGridResults(stream ResultRequestChunk) returns (Empty) {}
 }
 
 enum PropertyType
@@ -56,14 +56,14 @@ message TimeStep
 	int32 index = 1;
 }
 
-message ResultRequestArray
+message ResultRequestChunk
 {
-	repeated double values = 1;
-	Case     request_case  = 2;
-	TimeStep    time_step  = 3;
+	// Params needs to be sent in the first message
+	ResultRequest         params = 1;
+	ResultArray           values = 2;			
 }
 
-message ResultReplyArray
+message ResultArray
 {
 	repeated double values = 1;
 }

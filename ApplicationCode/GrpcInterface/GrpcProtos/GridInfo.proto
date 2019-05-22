@@ -9,7 +9,7 @@ service GridInfo
 	// This function returns a two dimensional matrix: One row for each grid, starting with the main grid.
 	rpc GetGridCount(Case) returns(GridCount) {}
 	rpc GetGridDimensions(Case) returns (GridDimensions) {}
-	rpc StreamActiveCellInfo(ActiveCellInfoRequest) returns (stream ActiveCellInfoArray) {}
+	rpc GetCellInfoForActiveCells(CellInfoRequest) returns (stream CellInfoArray) {}
 	rpc GetAllCoarseningInfoArray(Case) returns (CoarseningInfoArray) {}
 	rpc GetTimeSteps(Case) returns (TimeStepDates) {}
 	rpc GetTimeStepDaysSinceStart(Case) returns (DoubleDates) {}
@@ -37,18 +37,18 @@ enum PorosityModelType
 	FRACTURE_MODEL = 1;
 }
 
-message ActiveCellInfoRequest
+message CellInfoRequest
 {
 	int32             case_id        = 1;
 	PorosityModelType porosity_model = 2;	
 }
 
-message ActiveCellInfoArray
+message CellInfoArray
 {
-	repeated ActiveCellInfo data = 1;
+	repeated CellInfo data = 1;
 }
 
-message ActiveCellInfo
+message CellInfo
 {
 	int32 grid_index           = 1;
 	int32 parent_grid_index    = 2;

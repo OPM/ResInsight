@@ -63,7 +63,7 @@ public:
     void initialize();
     void processRequests();
     void quit();
-    int currentPortNumber;
+    int  currentPortNumber;
 
 private:
     void waitForNextRequest();
@@ -242,22 +242,28 @@ void RiaGrpcServerImpl::process(RiaAbstractGrpcCallback* method)
         RiaLogging::debug(QString("Initialising request handler for: %1").arg(method->name()));
         method->createRequestHandler(m_completionQueue.get());
     }
-    else if (method->callState() == RiaAbstractGrpcCallback::INIT_REQUEST)
+    else if (method->callState() == RiaAbstractGrpcCallback::INIT_REQUEST_STARTED)
     {
         // Perform initialization and immediately process the first request
         // The initialization is necessary for streaming services.
-        RiaLogging::info(QString("Starting handling: %1").arg(method->name()));
-        method->initRequest();
-        method->processRequest();
+        method->onInitRequestStarted();
+
+    }
+    else if (method->callState() == RiaAbstractGrpcCallback::INIT_REQUEST_COMPLETED)
+    {
+        // Perform initialization and immediately process the first request
+        // The initialization is necessary for streaming services.
+        RiaLogging::info(QString("Initialising handling: %1").arg(method->name()));
+        method->onInitRequestCompleted();
     }
     else if (method->callState() == RiaAbstractGrpcCallback::PROCESS_REQUEST)
     {
-        method->processRequest();       
+        method->onProcessRequest();       
     }
     else
     {
         RiaLogging::info(QString("Finished handling: %1").arg(method->name()));
-        method->finishRequest();
+        method->onFinishRequest();
         process(method->createNewFromThis());
         delete method;
     }

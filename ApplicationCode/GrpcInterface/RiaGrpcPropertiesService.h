@@ -39,13 +39,16 @@ public:
                                         rips::AvailableProperties*               reply) override;
     grpc::Status GetActiveCellResults(grpc::ServerContext*              context,
                                       const rips::ResultRequest*        request,
-                                      rips::ResultReplyArray*           reply,
+                                      rips::ResultArray*           reply,
                                       RiaActiveCellResultsStateHandler* stateHandler);
     grpc::Status GetGridResults(grpc::ServerContext*            context,
                                 const rips::ResultRequest*      request,
-                                rips::ResultReplyArray*         reply,
+                                rips::ResultArray*         reply,
                                 RiaGridCellResultsStateHandler* stateHandler);
-
+    grpc::Status SetActiveCellResults(grpc::ServerContext*              context,
+                                      const rips::ResultRequestChunk*   request,
+                                      rips::Empty*                      reply,
+                                      RiaActiveCellResultsStateHandler* stateHandler);
     std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
 };
 

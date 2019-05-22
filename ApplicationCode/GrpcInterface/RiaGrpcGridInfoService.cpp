@@ -43,7 +43,7 @@ RiaActiveCellInfoStateHandler::RiaActiveCellInfoStateHandler()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaActiveCellInfoStateHandler::init(const rips::ActiveCellInfoRequest* request)
+grpc::Status RiaActiveCellInfoStateHandler::init(const rips::CellInfoRequest* request)
 {
     CAF_ASSERT(request);
     m_request = request;
@@ -87,7 +87,7 @@ grpc::Status RiaActiveCellInfoStateHandler::init(const rips::ActiveCellInfoReque
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaActiveCellInfoStateHandler::assignNextActiveCellInfoData(rips::ActiveCellInfo* cellInfo)
+grpc::Status RiaActiveCellInfoStateHandler::assignNextActiveCellInfoData(rips::CellInfo* cellInfo)
 {
     const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->globalCellArray();
 
@@ -96,7 +96,7 @@ grpc::Status RiaActiveCellInfoStateHandler::assignNextActiveCellInfoData(rips::A
         size_t cellIdxToTry = m_currentCellIdx++;
         if (m_activeCellInfo->isActive(cellIdxToTry))
         {
-            assignActiveCellInfoData(cellInfo, reservoirCells, cellIdxToTry);
+            assignCellInfoData(cellInfo, reservoirCells, cellIdxToTry);
             return grpc::Status::OK;
         }
     }
@@ -106,7 +106,7 @@ grpc::Status RiaActiveCellInfoStateHandler::assignNextActiveCellInfoData(rips::A
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaActiveCellInfoStateHandler::assignActiveCellInfoData(rips::ActiveCellInfo*       cellInfo,
+void RiaActiveCellInfoStateHandler::assignCellInfoData(rips::CellInfo*       cellInfo,
                                                              const std::vector<RigCell>& reservoirCells,
                                                              size_t                      cellIdx)
 {
@@ -184,18 +184,18 @@ const std::vector<RigCell>& RiaActiveCellInfoStateHandler::reservoirCells() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaActiveCellInfoStateHandler::assignReply(rips::ActiveCellInfoArray* reply)
+grpc::Status RiaActiveCellInfoStateHandler::assignReply(rips::CellInfoArray* reply)
 {
-    const size_t packageSize = RiaGrpcServiceInterface::numberOfMessagesForByteCount(sizeof(rips::ActiveCellInfoArray));
+    const size_t packageSize = RiaGrpcServiceInterface::numberOfMessagesForByteCount(sizeof(rips::CellInfoArray));
     size_t       packageIndex = 0u;
     reply->mutable_data()->Reserve((int)packageSize);
     for (; packageIndex < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++packageIndex)
     {
-        rips::ActiveCellInfo  singleCellInfo;
+        rips::CellInfo  singleCellInfo;
         grpc::Status          singleCellInfoStatus = assignNextActiveCellInfoData(&singleCellInfo);
         if (singleCellInfoStatus.ok())
         {
-            rips::ActiveCellInfo* allocCellInfo = reply->add_data();
+            rips::CellInfo* allocCellInfo = reply->add_data();
             *allocCellInfo = singleCellInfo;
         }
         else
@@ -258,9 +258,9 @@ grpc::Status RiaGrpcGridInfoService::GetGridDimensions(grpc::ServerContext*     
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridInfoService::StreamActiveCellInfo(grpc::ServerContext*                      context,
-                                                                const rips::ActiveCellInfoRequest*        request,
-                                                                rips::ActiveCellInfoArray*                reply,
+grpc::Status RiaGrpcGridInfoService::GetCellInfoForActiveCells(grpc::ServerContext*                      context,
+                                                                const rips::CellInfoRequest*        request,
+                                                                rips::CellInfoArray*                reply,
                                                                 RiaActiveCellInfoStateHandler* stateHandler)
 {
     return stateHandler->assignReply(reply);
@@ -275,8 +275,8 @@ std::vector<RiaAbstractGrpcCallback*> RiaGrpcGridInfoService::createCallbacks()
 
     return {new RiaGrpcCallback<Self, Case, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
             new RiaGrpcCallback<Self, Case, GridDimensions>(this, &Self::GetGridDimensions, &Self::RequestGetGridDimensions),
-            new RiaGrpcStreamCallback<Self, ActiveCellInfoRequest, ActiveCellInfoArray, RiaActiveCellInfoStateHandler>(
-                this, &Self::StreamActiveCellInfo, &Self::RequestStreamActiveCellInfo, new RiaActiveCellInfoStateHandler)};
+            new RiaGrpcStreamCallback<Self, CellInfoRequest, CellInfoArray, RiaActiveCellInfoStateHandler>(
+                this, &Self::GetCellInfoForActiveCells, &Self::RequestGetCellInfoForActiveCells, new RiaActiveCellInfoStateHandler)};
 }
 
 static bool RiaGrpcGridInfoService_init =

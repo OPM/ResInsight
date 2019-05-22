@@ -4,6 +4,8 @@ import grpc
 import os
 import sys
 import socket
+import logging
+
 
 sys.path.insert(1, os.path.join(sys.path[0], '../generated'))
 
@@ -68,14 +70,14 @@ class GridInfo:
     def __init__(self, channel):
         self.gridInfo = GridInfo_pb2_grpc.GridInfoStub(channel)		
     
-    def getGridCount(self, caseId=0):
+    def gridCount(self, caseId=0):
         return self.gridInfo.GetGridCount(CaseInfo_pb2.Case(id=caseId)).count
         
-    def getGridDimensions(self, caseId=0):
+    def gridDimensions(self, caseId=0):
         return self.gridInfo.GetGridDimensions(CaseInfo_pb2.Case(id=caseId)).dimensions
         
-    def streamActiveCellInfo(self, caseId=0):
-        return self.gridInfo.StreamActiveCellInfo(CaseInfo_pb2.Case(id=caseId))		
+    def cellInfoForActiveCells(self, caseId=0):
+        return self.gridInfo.GetCellInfoForActiveCells(CaseInfo_pb2.Case(id=caseId))		
         
 class ProjectInfo:
     def __init__(self, channel):
@@ -96,6 +98,33 @@ class ProjectInfo:
 class Properties:
     def __init__(self, channel):
         self.properties = Properties_pb2_grpc.PropertiesStub(channel)
+    
+    def generateResultRequestArrays(self, array, parameters):
+         # Each double is 8 bytes. A good chunk size is 64KiB = 65536B
+         # Meaning ideal number of doubles would be 8192.
+         # However we need overhead space, so if we choose 8160 in chunk size
+         # We have 256B left for overhead which should be plenty
+        chunkSize = 8000
+        index = -1
+        while index < len(array):
+            chunk = Properties_pb2.ResultRequestChunk()
+            if index is -1:
+                chunk.params.CopyFrom(parameters)
+                print("Added parameters")
+                index += 1;
+            else:
+                actualChunkSize = min(len(array) - index + 1, chunkSize)
+                chunk.values.CopyFrom(Properties_pb2.ResultArray(values = array[index:index+actualChunkSize]))
+                print("Added values")
+                index += actualChunkSize
+
+            print(index)
+            yield chunk
+        # Final empty message to signal completion
+        chunk = Properties_pb2.ResultRequestChunk()
+        yield chunk
+        print("finished")
+
     def availableProperties(self, caseId, propertyType, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = GridInfo_pb2.PorosityModelType.Value(porosityModel)
@@ -122,6 +151,25 @@ class Properties:
                                                grid_index     = gridIndex,
                                                porosity_model = porosityModelEnum)
         return self.properties.GetGridResults(request)
+    def setActiveCellResults(self, values, caseId, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+        propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
+        porosityModelEnum = GridInfo_pb2.PorosityModelType.Value(porosityModel)
+        print (propertyName)
+        request = Properties_pb2.ResultRequest(request_case   = CaseInfo_pb2.Case(id=caseId),
+                                               property_type  = propertyTypeEnum,
+                                               property_name  = propertyName,
+                                               time_step      = timeStep,
+                                               grid_index     = gridIndex,
+                                               porosity_model = porosityModelEnum)
+        try:
+            request_iterator = self.generateResultRequestArrays(values, request)
+            print("Starting to send data")
+            self.properties.SetActiveCellResults(request_iterator)
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.NOT_FOUND:
+                print("Command not found")
+            else:
+                print("Other error", e)
 
 class Instance:
     @staticmethod
@@ -166,6 +214,7 @@ class Instance:
         return None
 
     def __init__(self, port = 50051):
+        logging.basicConfig()
         location = "localhost:" + str(port)
         self.channel = grpc.insecure_channel(location)
 

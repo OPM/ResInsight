@@ -25,6 +25,7 @@
 
 using grpc::CompletionQueue;
 using grpc::ServerAsyncResponseWriter;
+using grpc::ServerAsyncReader;
 using grpc::ServerAsyncWriter;
 using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
@@ -44,7 +45,8 @@ public:
     enum CallState
     {
         CREATE_HANDLER,
-        INIT_REQUEST,
+        INIT_REQUEST_STARTED,
+        INIT_REQUEST_COMPLETED,
         PROCESS_REQUEST,
         FINISH_REQUEST
     };
@@ -56,9 +58,10 @@ public:
     virtual QString                  name() const                                                 = 0;
     virtual RiaAbstractGrpcCallback* createNewFromThis() const                                    = 0;
     virtual void                     createRequestHandler(ServerCompletionQueue* completionQueue) = 0;
-    virtual void                     initRequest()                                                = 0;
-    virtual void                     processRequest()                                             = 0;
-    virtual void                     finishRequest() {}
+    virtual void                     onInitRequestStarted() {}
+    virtual void                     onInitRequestCompleted()                                     = 0;
+    virtual void                     onProcessRequest()                                           = 0;
+    virtual void                     onFinishRequest() {}
 
     inline CallState     callState() const;
     inline const Status& status() const;
@@ -114,8 +117,8 @@ public:
 
     RiaAbstractGrpcCallback* createNewFromThis() const override;
     void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
-    void                     initRequest() override;
-    void                     processRequest() override;
+    void                     onInitRequestCompleted() override;
+    void                     onProcessRequest() override;
 
 protected:
     virtual QString methodType() const;
@@ -133,7 +136,7 @@ private:
 //
 // The streaming callback needs a state handler for setting up and maintaining order.
 //
-// A fully functional stream handler needs to implement the following methods:
+// A fully functional state handler needs to implement the following methods:
 // 1. Default Constructor
 // 2. grpc::Status init(const grpc::Message* request)
 //
@@ -152,8 +155,8 @@ public:
 
     RiaAbstractGrpcCallback* createNewFromThis() const override;
     void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
-    void                     initRequest() override;
-    void                     processRequest() override;
+    void                     onInitRequestCompleted() override;
+    void                     onProcessRequest() override;
 
 protected:
     virtual QString methodType() const;
@@ -161,6 +164,48 @@ protected:
 private:
     ServerContext   m_context;
     ResponseWriterT m_responder;
+    MethodImplT     m_methodImpl;
+    MethodRequestT  m_methodRequest;
+    std::unique_ptr<StateHandlerT> m_stateHandler;
+};
+
+//==================================================================================================
+//
+// Templated client *streaming* gRPC-callback calling service implementation callbacks
+//
+// The streaming callback needs a state handler for setting up and maintaining order.
+//
+// A fully functional state handler needs to implement the following methods:
+// 1. Default Constructor
+// 2. grpc::Status init(const grpc::Message* request)
+// 3. void finish() any updates required after completion
+//
+//==================================================================================================
+template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
+class RiaGrpcClientStreamCallback : public RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>
+{
+public:
+    typedef ServerAsyncReader<ReplyT, RequestT>                                                        RequestReaderT;
+    typedef std::function<Status(ServiceT&, ServerContext*, const RequestT*, ReplyT*, StateHandlerT*)> MethodImplT;
+    typedef std::function<
+        void(ServiceT&, ServerContext*, RequestReaderT*, CompletionQueue*, ServerCompletionQueue*, void*)>
+        MethodRequestT;
+
+    RiaGrpcClientStreamCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest, StateHandlerT* stateHandler);
+
+    RiaAbstractGrpcCallback* createNewFromThis() const override;
+    void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
+    void                     onInitRequestStarted() override;
+    void                     onInitRequestCompleted() override;
+    void                     onProcessRequest() override;
+    void                     onFinishRequest() override;
+
+protected:
+    virtual QString methodType() const;
+
+private:
+    ServerContext   m_context;
+    RequestReaderT  m_reader;
     MethodImplT     m_methodImpl;
     MethodRequestT  m_methodRequest;
     std::unique_ptr<StateHandlerT> m_stateHandler;

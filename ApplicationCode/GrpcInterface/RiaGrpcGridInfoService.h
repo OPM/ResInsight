@@ -45,15 +45,15 @@ class RiaActiveCellInfoStateHandler
 public:
     RiaActiveCellInfoStateHandler();
 
-    Status init(const rips::ActiveCellInfoRequest* request);
-    Status assignNextActiveCellInfoData(rips::ActiveCellInfo* cellInfo);
-    void   assignActiveCellInfoData(rips::ActiveCellInfo* cellInfo, const std::vector<RigCell>& reservoirCells, size_t cellIdx);
-    Status assignReply(rips::ActiveCellInfoArray* reply);
+    Status init(const rips::CellInfoRequest* request);
+    Status assignNextActiveCellInfoData(rips::CellInfo* cellInfo);
+    void   assignCellInfoData(rips::CellInfo* cellInfo, const std::vector<RigCell>& reservoirCells, size_t cellIdx);
+    Status assignReply(rips::CellInfoArray* reply);
     RigActiveCellInfo*          activeCellInfo() const;
     const std::vector<RigCell>& reservoirCells() const;
 
 protected:
-    const rips::ActiveCellInfoRequest* m_request;
+    const rips::CellInfoRequest* m_request;
     RimEclipseCase*                    m_eclipseCase;
     RiaDefines::PorosityModelType      m_porosityModel;
     RigActiveCellInfo*                 m_activeCellInfo;
@@ -71,9 +71,9 @@ class RiaGrpcGridInfoService final : public rips::GridInfo::AsyncService, public
 public:
     grpc::Status GetGridCount(grpc::ServerContext* context, const rips::Case* request, rips::GridCount* reply) override;
     grpc::Status GetGridDimensions(grpc::ServerContext* context, const rips::Case* request, rips::GridDimensions* reply) override;
-    grpc::Status StreamActiveCellInfo(grpc::ServerContext*               context,
-                                      const rips::ActiveCellInfoRequest* request,
-                                      rips::ActiveCellInfoArray*         reply,
-                                      RiaActiveCellInfoStateHandler*     stateHandler);
+    grpc::Status GetCellInfoForActiveCells(grpc::ServerContext*               context,
+                                           const rips::CellInfoRequest* request,
+                                           rips::CellInfoArray*         reply,
+                                           RiaActiveCellInfoStateHandler*     stateHandler);
     std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
 };
