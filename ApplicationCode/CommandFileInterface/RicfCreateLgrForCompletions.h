@@ -39,7 +39,7 @@ class RicfCreateLgrForCompletions : public RicfCommandObject
 public:
     RicfCreateLgrForCompletions();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     caf::PdmField<int>                  m_caseId;

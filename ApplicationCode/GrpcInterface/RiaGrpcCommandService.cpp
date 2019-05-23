@@ -73,8 +73,15 @@ grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const 
                     }
                 }
             }
-            commandHandle->execute();
-
+            RicfCommandResponse response = commandHandle->execute();
+            if (response.status() == RicfCommandResponse::COMMAND_ERROR)
+            {
+                return grpc::Status(grpc::FAILED_PRECONDITION, response.message().toStdString());                
+            }
+            else if (response.status() == RicfCommandResponse::COMMAND_WARNING)
+            {
+                context->AddInitialMetadata("warning", response.message().toStdString());
+            }
             return Status::OK;
         }
     }

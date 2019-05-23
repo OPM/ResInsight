@@ -34,7 +34,7 @@ class RicfLoadCase : public RicfCommandObject
 public:
     RicfLoadCase();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     caf::PdmField<QString> m_path;

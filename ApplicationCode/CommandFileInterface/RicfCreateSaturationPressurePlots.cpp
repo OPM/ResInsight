@@ -42,7 +42,7 @@ RicfCreateSaturationPressurePlots::RicfCreateSaturationPressurePlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfCreateSaturationPressurePlots::execute()
+RicfCommandResponse RicfCreateSaturationPressurePlots::execute()
 {
     std::vector<int> caseIds = m_caseIds();
     if (caseIds.empty())
@@ -58,21 +58,32 @@ void RicfCreateSaturationPressurePlots::execute()
         }
     }
 
-    RimProject* project = RiaApplication::instance()->project();
-    if (project)
+    if (caseIds.empty())
     {
-        auto eclipeCases = project->eclipseCases();
-        for (auto c : eclipeCases)
-        {
-            auto eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(c);
-            if (!eclipseResultCase) continue;
+        QString error("createSaturationPressurePlots: No cases found");
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+    }
 
-            for (auto caseId : caseIds)
+    RimProject* project = RiaApplication::instance()->project();
+    if (!project)
+    {
+        QString error("No project loaded");
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+    }
+
+    auto eclipeCases = project->eclipseCases();
+    for (auto c : eclipeCases)
+    {
+        auto eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(c);
+        if (!eclipseResultCase) continue;
+
+        for (auto caseId : caseIds)
+        {
+            if (c->caseId == caseId)
             {
-                if (c->caseId == caseId)
-                {
-                    RicCreateSaturationPressurePlotsFeature::createPlots(eclipseResultCase);
-                }
+                RicCreateSaturationPressurePlotsFeature::createPlots(eclipseResultCase);
             }
         }
     }
@@ -80,4 +91,6 @@ void RicfCreateSaturationPressurePlots::execute()
     RimSaturationPressurePlotCollection* collection = project->mainPlotCollection()->saturationPressurePlotCollection();
     collection->updateAllRequiredEditors();
     RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
+
+    return RicfCommandResponse();
 }

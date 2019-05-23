@@ -38,7 +38,7 @@ class RicfExportProperty : public RicfCommandObject
 public:
     RicfExportProperty();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     caf::PdmField<int>                                     m_caseId;

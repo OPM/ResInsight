@@ -57,7 +57,7 @@ void RicfSetTimeStep::setTimeStepIndex(int timeStepIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfSetTimeStep::execute()
+RicfCommandResponse RicfSetTimeStep::execute()
 {
     RimEclipseCase* eclipseCase = nullptr;
 
@@ -74,9 +74,21 @@ void RicfSetTimeStep::execute()
         }
         if (!foundCase)
         {
-            RiaLogging::error(QString("setTimeStep: Could not find case with ID %1").arg(m_caseId()));
-            return;
+            QString error = QString("setTimeStep: Could not find case with ID %1").arg(m_caseId());
+            RiaLogging::error(error);
+            return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
         }
+    }
+
+    int maxTimeStep = eclipseCase->timeStepStrings().size() - 1;
+    if (m_timeStepIndex() > maxTimeStep)
+    {
+        QString error = QString("setTimeStep: Step %1 is larger than the maximum of %2 for case %3")
+                            .arg(m_timeStepIndex())
+                            .arg(maxTimeStep)
+                            .arg(m_caseId());
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
 
     for (Rim3dView* view : eclipseCase->views())
@@ -84,4 +96,6 @@ void RicfSetTimeStep::execute()
         view->setCurrentTimeStepAndUpdate(m_timeStepIndex);
         view->createDisplayModelAndRedraw();
     }
+
+    return RicfCommandResponse();
 }

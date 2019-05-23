@@ -56,7 +56,7 @@ RicfExportSimWellFractureCompletions::RicfExportSimWellFractureCompletions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfExportSimWellFractureCompletions::execute()
+RicfCommandResponse RicfExportSimWellFractureCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -71,8 +71,9 @@ void RicfExportSimWellFractureCompletions::execute()
         auto eclipseCase = TOOLS::caseFromId(m_caseId());
         if (!eclipseCase)
         {
-            RiaLogging::error(QString("exportSimWellCompletions: Could not find case with ID %1").arg(m_caseId()));
-            return;
+            QString error = QString("exportSimWellCompletions: Could not find case with ID %1").arg(m_caseId());
+            RiaLogging::error(error);
+            return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
         }
         exportSettings->caseToApply = eclipseCase;
     }
@@ -95,9 +96,12 @@ void RicfExportSimWellFractureCompletions::execute()
     }
     if (views.empty())
     {
-        RiaLogging::error(QString("exportSimWellCompletions: Could not find any views named \"%1\" in the case with ID %2").arg(m_viewName).arg(m_caseId()));
-        return;
+        QString error = QString("exportSimWellCompletions: Could not find any views named \"%1\" in the case with ID %2").arg(m_viewName).arg(m_caseId());
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
+
+    RicfCommandResponse response;
 
     std::vector<RimSimWellInView*> simWells;
     if (m_simWellNames().empty())
@@ -126,7 +130,9 @@ void RicfExportSimWellFractureCompletions::execute()
                 }
                 else
                 {
-                    RiaLogging::warning(QString("exportSimWellCompletions: Could not find well with name %1 in view \"%2\" on case with ID %2").arg(wellPathName).arg(m_viewName).arg(m_caseId()));
+                    QString warning = QString("exportSimWellCompletions: Could not find well with name %1 in view \"%2\" on case with ID %2").arg(wellPathName).arg(m_viewName).arg(m_caseId());
+                    RiaLogging::warning(warning);
+                    response.updateStatus(RicfCommandResponse::COMMAND_WARNING, warning);
                 }
             }
         }
@@ -135,4 +141,6 @@ void RicfExportSimWellFractureCompletions::execute()
     std::vector<RimWellPath*> wellPaths;
 
     RicWellPathExportCompletionDataFeatureImpl::exportCompletions(wellPaths, simWells, *exportSettings);
+
+    return response;
 }

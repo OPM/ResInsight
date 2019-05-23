@@ -74,7 +74,7 @@ RicfCreateMultipleFractures::RicfCreateMultipleFractures()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfCreateMultipleFractures::execute()
+RicfCommandResponse RicfCreateMultipleFractures::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -92,54 +92,71 @@ void RicfCreateMultipleFractures::execute()
         wellPaths = TOOLS::wellPathsFromNames(TOOLS::toQStringList(m_wellPathNames), &wellsNotFound);
         if (!wellsNotFound.empty())
         {
-            RiaLogging::error(QString("createMultipleFractures: These well paths were not found: ") + wellsNotFound.join(", "));
+            QString error = QString("createMultipleFractures: These well paths were not found: %1").arg(wellsNotFound.join(", "));
+            RiaLogging::error(error);
+            return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
         }
     }
 
     if (!gridCase)
     {
-        RiaLogging::error(QString("createMultipleFractures: Could not find case with ID %1").arg(m_caseId));
+        QString error = QString("createMultipleFractures: Could not find case with ID %1").arg(m_caseId);
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
 
     if (!fractureTemplate)
     {
-        RiaLogging::error(QString("createMultipleFractures: Could not find fracture template with ID %1").arg(m_templateId));
+        QString error = QString("createMultipleFractures: Could not find fracture template with ID %1").arg(m_templateId);
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
 
-    if (gridCase && fractureTemplate && !wellPaths.empty() && validateArguments())
+    if (wellPaths.empty())
     {
-        RicCreateMultipleFracturesOptionItemUi* options = new RicCreateMultipleFracturesOptionItemUi();
-        caf::CmdFeatureManager*                 commandManager = caf::CmdFeatureManager::instance();
-        auto feature = dynamic_cast<RicCreateMultipleFracturesFeature*>(commandManager->getCommandFeature("RicCreateMultipleFracturesFeature"));
-
-        // Default layers
-        int topLayer = m_topLayer;
-        int baseLayer = m_baseLayer;
-        if (feature && (topLayer < 0 || baseLayer < 0))
-        {
-            auto ijkRange = feature->ijkRangeForGrid(gridCase);
-            if (topLayer < 0) topLayer = static_cast<int>(ijkRange.first.z());
-            if (baseLayer < 0) baseLayer = static_cast<int>(ijkRange.second.z());
-        }
-        options->setValues(topLayer, baseLayer, fractureTemplate, m_spacing);
-
-        settings->clearWellPaths();
-        for (auto wellPath : wellPaths)
-        {
-            settings->addWellPath(wellPath);
-        }
-
-        settings->setValues(gridCase, m_minDistFromWellTd, m_maxFracturesPerWell);
-        settings->clearOptions();
-        settings->insertOptionItem(nullptr, options);
-
-
-        if (feature)
-        {
-            if (m_action == MultipleFractures::APPEND_FRACTURES)    feature->appendFractures();
-            if (m_action == MultipleFractures::REPLACE_FRACTURES)   feature->replaceFractures();
-        }
+        QString error("createMultipleFractures: No wellpaths found");
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
+
+    if (!validateArguments())
+    {
+        QString error("createMultipleFractures: Mandatory argument(s) missing");
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+    }
+
+    RicCreateMultipleFracturesOptionItemUi* options = new RicCreateMultipleFracturesOptionItemUi();
+    caf::CmdFeatureManager*                 commandManager = caf::CmdFeatureManager::instance();
+    auto feature = dynamic_cast<RicCreateMultipleFracturesFeature*>(commandManager->getCommandFeature("RicCreateMultipleFracturesFeature"));
+
+    // Default layers
+    int topLayer = m_topLayer;
+    int baseLayer = m_baseLayer;
+    if (feature && (topLayer < 0 || baseLayer < 0))
+    {
+        auto ijkRange = feature->ijkRangeForGrid(gridCase);
+        if (topLayer < 0) topLayer = static_cast<int>(ijkRange.first.z());
+        if (baseLayer < 0) baseLayer = static_cast<int>(ijkRange.second.z());
+    }
+    options->setValues(topLayer, baseLayer, fractureTemplate, m_spacing);
+
+    settings->clearWellPaths();
+    for (auto wellPath : wellPaths)
+    {
+        settings->addWellPath(wellPath);
+    }
+
+    settings->setValues(gridCase, m_minDistFromWellTd, m_maxFracturesPerWell);
+    settings->clearOptions();
+    settings->insertOptionItem(nullptr, options);
+
+    if (feature)
+    {
+        if (m_action == MultipleFractures::APPEND_FRACTURES)    feature->appendFractures();
+        if (m_action == MultipleFractures::REPLACE_FRACTURES)   feature->replaceFractures();
+    }
+    return RicfCommandResponse();
 }
 
 
@@ -154,7 +171,6 @@ bool RicfCreateMultipleFractures::validateArguments() const
 
     if (valid) return true;
 
-    RiaLogging::error(QString("createMultipleFractures: Mandatory argument(s) missing"));
     return false;
 }
 

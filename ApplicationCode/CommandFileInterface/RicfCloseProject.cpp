@@ -32,7 +32,8 @@ RicfCloseProject::RicfCloseProject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfCloseProject::execute()
+RicfCommandResponse RicfCloseProject::execute()
 {
     RiaApplication::instance()->closeProject();
+    return RicfCommandResponse();
 }

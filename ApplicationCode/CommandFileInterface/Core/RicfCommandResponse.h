@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017 Statoil ASA
+//  Copyright (C) 2019- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,38 +15,45 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "RicfCommandObject.h"
+#include "cafPdmObject.h"
+#include "cafPdmPointer.h"
 
-#include "cafAppEnum.h"
-#include "cafPdmField.h"
+#include <QString>
+#include <QStringList>
+
+#include <memory>
 
 //==================================================================================================
 //
-//
+// Command response which contains status and possibly a result
 //
 //==================================================================================================
-class RicfExportSnapshots : public RicfCommandObject
+class RicfCommandResponse
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    enum SnapshotsType
+    // Status in order of severity from ok to critical
+    enum Status
     {
-        VIEWS,
-        PLOTS,
-        ALL
+        COMMAND_OK,
+        COMMAND_WARNING,
+        COMMAND_ERROR
     };
-    typedef caf::AppEnum<SnapshotsType> SnapshotsTypeEnum;
-
 public:
-    RicfExportSnapshots();
-
-    RicfCommandResponse execute() override;
+    RicfCommandResponse(Status status = COMMAND_OK, const QString& message="");
+    
+    Status             status() const;
+    QString            message() const;
+    caf::PdmObject*    result() const;
+    void               setResult(caf::PdmObject* result);
+    void               updateStatus(Status status, const QString& message);
 
 private:
-    caf::PdmField<SnapshotsTypeEnum> m_type;
-    caf::PdmField<QString>           m_prefix;
+    static QString     statusLabel(Status status);
+private:
+    Status                             m_status;
+    QStringList                        m_messages;
+    caf::PdmPointer<caf::PdmObject>    m_result;
 };
+

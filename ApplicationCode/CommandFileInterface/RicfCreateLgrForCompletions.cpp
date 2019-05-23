@@ -59,7 +59,7 @@ RicfCreateLgrForCompletions::RicfCreateLgrForCompletions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfCreateLgrForCompletions::execute()
+RicfCommandResponse RicfCreateLgrForCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -71,54 +71,65 @@ void RicfCreateLgrForCompletions::execute()
         wellPaths = TOOLS::wellPathsFromNames(TOOLS::toQStringList(m_wellPathNames), &wellsNotFound);
         if (!wellsNotFound.empty())
         {
-            RiaLogging::error(QString("createLgrForCompletions: These well paths were not found: ") + wellsNotFound.join(", "));
+            QString error = QString("createLgrForCompletions: These well paths were not found: ") + wellsNotFound.join(", ");
+            RiaLogging::error(error);
+            return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
         }
     }
 
-    if (!wellPaths.empty())
+    if (wellPaths.empty())
     {
-        caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-        auto feature = dynamic_cast<RicCreateTemporaryLgrFeature*>(commandManager->getCommandFeature("RicCreateTemporaryLgrFeature"));
+        QString error("No well paths found");
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+    }
 
-        RimEclipseCase* eclipseCase = nullptr;
+    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
+    auto feature = dynamic_cast<RicCreateTemporaryLgrFeature*>(commandManager->getCommandFeature("RicCreateTemporaryLgrFeature"));
+
+    RimEclipseCase* eclipseCase = nullptr;
+    {
+        for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
         {
-            for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
+            if (c->caseId() == m_caseId())
             {
-                if (c->caseId() == m_caseId())
-                {
-                    eclipseCase = c;
-                    break;
-                }
-            }
-            if (!eclipseCase)
-            {
-                RiaLogging::error(QString("createLgrForCompletions: Could not find case with ID %1").arg(m_caseId()));
-                return;
+                eclipseCase = c;
+                break;
             }
         }
-
-        RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(eclipseCase);
-
-        caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);
-        QStringList wellsIntersectingOtherLgrs;
-
-        feature->createLgrsForWellPaths(
-            wellPaths,
-            eclipseCase,
-            m_timeStep,
-            lgrCellCounts,
-            m_splitType(),
-            {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES},
-            &wellsIntersectingOtherLgrs);
-
-        feature->updateViews(eclipseCase);
-
-        if (!wellsIntersectingOtherLgrs.empty())
+        if (!eclipseCase)
         {
-            auto wellsList = wellsIntersectingOtherLgrs.join(", ");
-            RiaLogging::error(
-                "createLgrForCompletions: No LGRs created for some wells due to existing intersecting LGR(s).Affected wells : " +
-                wellsList);
+            QString error(QString("createLgrForCompletions: Could not find case with ID %1").arg(m_caseId()));
+            RiaLogging::error(error);
+            return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
         }
     }
+
+    RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(eclipseCase);
+
+    caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);
+    QStringList wellsIntersectingOtherLgrs;
+
+    feature->createLgrsForWellPaths(
+        wellPaths,
+        eclipseCase,
+        m_timeStep,
+        lgrCellCounts,
+        m_splitType(),
+        {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES},
+        &wellsIntersectingOtherLgrs);
+
+    feature->updateViews(eclipseCase);
+
+    RicfCommandResponse response;
+    if (!wellsIntersectingOtherLgrs.empty())
+    {
+        auto wellsList = wellsIntersectingOtherLgrs.join(", ");
+        QString warning(
+            "createLgrForCompletions: No LGRs created for some wells due to existing intersecting LGR(s).Affected wells : " +
+            wellsList);
+        RiaLogging::warning(warning);
+        response.updateStatus(RicfCommandResponse::COMMAND_WARNING, warning);
+    }
+    return response;
 }

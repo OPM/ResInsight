@@ -34,7 +34,7 @@ class RicfComputeCaseGroupStatistics : public RicfCommandObject
 public:
     RicfComputeCaseGroupStatistics();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     caf::PdmField< std::vector<int> > m_caseIds;

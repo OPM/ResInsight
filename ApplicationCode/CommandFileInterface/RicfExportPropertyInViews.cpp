@@ -55,15 +55,16 @@ RicfExportPropertyInViews::RicfExportPropertyInViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfExportPropertyInViews::execute()
+RicfCommandResponse RicfExportPropertyInViews::execute()
 {
     using TOOLS = RicfApplicationTools;
 
     RimEclipseCase* eclipseCase = TOOLS::caseFromId(m_caseId());
     if (!eclipseCase)
     {
-        RiaLogging::error(QString("exportProperty: Could not find case with ID %1").arg(m_caseId()));
-        return;
+        QString error(QString("exportProperty: Could not find case with ID %1").arg(m_caseId()));
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
 
     std::vector<RimEclipseView*> viewsForExport;
@@ -95,6 +96,8 @@ void RicfExportPropertyInViews::execute()
         }
     }
 
+    RicfCommandResponse response;
+
     for (const auto& view : viewsForExport)
     {
         cvf::ref<RigResultAccessor> resultAccessor = nullptr;
@@ -109,11 +112,12 @@ void RicfExportPropertyInViews::execute()
 
         if (resultAccessor.isNull())
         {
-            RiaLogging::error(QString("exportProperty: Could not find property. Case ID %1, time step %2, property '%3'")
+            QString warning = QString("exportProperty: Could not find property. Case ID %1, time step %2, property '%3'")
                                   .arg(m_caseId)
                                   .arg(view->currentTimeStep())
-                                  .arg(propertyName));
-
+                                  .arg(propertyName);
+            RiaLogging::warning(warning);
+            response.updateStatus(RicfCommandResponse::COMMAND_WARNING, warning);
             continue;
         }
 
@@ -128,11 +132,19 @@ void RicfExportPropertyInViews::execute()
         fileName               = caf::Utils::makeValidFileBasename(fileName);
         const QString filePath = propertiesDir.filePath(fileName);
 
-        RicEclipseCellResultToFileImpl::writeResultToTextFile(filePath,
-                                                              eclipseCase->eclipseCaseData(),
-                                                              resultAccessor.p(),
-                                                              propertyName,
-                                                              m_undefinedValue,
-                                                              "exportPropertiesInViews");
+        QString errorMsg;
+
+        bool worked = RicEclipseCellResultToFileImpl::writeResultToTextFile(filePath,
+                                                                            eclipseCase->eclipseCaseData(),
+                                                                            resultAccessor.p(),
+                                                                            propertyName,
+                                                                            m_undefinedValue,
+                                                                            "exportPropertiesInViews",
+                                                                            &errorMsg);
+        if (!worked)
+        {
+            return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, errorMsg);
+        }
     }
+    return response;
 }

@@ -42,7 +42,7 @@ class RicfExportLgrForCompletions : public RicfCommandObject
 public:
     RicfExportLgrForCompletions();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     caf::PdmField<int>                  m_caseId;

@@ -37,11 +37,14 @@ RicfLoadCase::RicfLoadCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfLoadCase::execute()
+RicfCommandResponse RicfLoadCase::execute()
 {
     bool ok = RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({m_path()}), nullptr, true);
     if (!ok)
     {
-        RiaLogging::error(QString("loadCase: Unable to load case from %1").arg(m_path()));
+        QString error = QString("loadCase: Unable to load case from %1").arg(m_path());
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
+    return RicfCommandResponse();
 }

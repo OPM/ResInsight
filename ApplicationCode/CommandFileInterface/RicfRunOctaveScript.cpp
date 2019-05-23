@@ -42,7 +42,7 @@ RicfRunOctaveScript::RicfRunOctaveScript()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfRunOctaveScript::execute()
+RicfCommandResponse RicfRunOctaveScript::execute()
 {
     QString octavePath = RiaApplication::instance()->octavePath();
 
@@ -71,12 +71,17 @@ void RicfRunOctaveScript::execute()
     {
         ok = RiaApplication::instance()->launchProcessForMultipleCases(octavePath, processArguments, caseIds);
     }
+
+    RicfCommandResponse response;
     if (!ok)
     {
-        RiaLogging::error(QString("runOctaveScript: Could not execute script %1").arg(m_path()));
+        QString error = QString("runOctaveScript: Could not execute script %1").arg(m_path());
+        RiaLogging::error(error);
+        response.updateStatus(RicfCommandResponse::COMMAND_ERROR, error);
     }
     else
     {
         RiaApplication::instance()->waitForProcess();
     }
+    return response;
 }

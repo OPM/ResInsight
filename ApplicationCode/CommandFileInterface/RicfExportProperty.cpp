@@ -59,7 +59,7 @@ RicfExportProperty::RicfExportProperty()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfExportProperty::execute()
+RicfCommandResponse RicfExportProperty::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -67,16 +67,18 @@ void RicfExportProperty::execute()
     {
         if (!eclipseCase)
         {
-            RiaLogging::error(QString("exportProperty: Could not find case with ID %1").arg(m_caseId()));
-            return;
+            QString error = QString("exportProperty: Could not find case with ID %1").arg(m_caseId());
+            RiaLogging::error(error);
+            return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
         }
 
         if (!eclipseCase->eclipseCaseData())
         {
             if (!eclipseCase->openReserviorCase())
             {
-                RiaLogging::error(QString("exportProperty: Could not find eclipseCaseData with ID %1").arg(m_caseId()));
-                return;
+                QString error = QString("exportProperty: Could not find eclipseCaseData with ID %1").arg(m_caseId());
+                RiaLogging::error(error);
+                return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
             }
         }
     }
@@ -87,8 +89,9 @@ void RicfExportProperty::execute()
 
     if (!cellResultsData->ensureKnownResultLoaded(RigEclipseResultAddress(m_propertyName)))
     {
-        RiaLogging::error(QString("exportProperty: Could not find result property : %1").arg(m_propertyName()));
-        return;
+        QString error = QString("exportProperty: Could not find result property : %1").arg(m_propertyName());
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
 
     QString filePath = m_exportFileName;
@@ -106,6 +109,13 @@ void RicfExportProperty::execute()
         eclipseKeyword = m_propertyName;
     }
 
-    RicEclipseCellResultToFileImpl::writePropertyToTextFile(
-        filePath, eclipseCase->eclipseCaseData(), m_timeStepIndex, m_propertyName, eclipseKeyword, m_undefinedValue);
+    QString errMsg;
+    if (!RicEclipseCellResultToFileImpl::writePropertyToTextFile(
+        filePath, eclipseCase->eclipseCaseData(), m_timeStepIndex, m_propertyName, eclipseKeyword, m_undefinedValue,
+        &errMsg))
+    {
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, errMsg);
+    }
+
+    return RicfCommandResponse();
 }

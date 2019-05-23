@@ -56,10 +56,11 @@ QString RicfSingleCaseReplace::filePath() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfSingleCaseReplace::execute()
+RicfCommandResponse RicfSingleCaseReplace::execute()
 {
     // Never call execute on this object, information is aggregated into RicfMultiCaseReplace
     CAF_ASSERT(false);
+    return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, "Never call execute on a RicfSingleCaseReplace object");
 }
 
 
@@ -85,19 +86,21 @@ void RicfMultiCaseReplace::setCaseReplacePairs(const std::map<int, QString>& cas
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfMultiCaseReplace::execute()
+RicfCommandResponse RicfMultiCaseReplace::execute()
 {
     if (m_caseIdToGridFileNameMap.empty())
     {
-        RiaLogging::error("replaceCaseImpl: No replacements available.");
-        return;
+        QString errMsg("replaceCaseImpl: No replacements available.");
+        RiaLogging::error(errMsg);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, errMsg);
     }
 
     QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
     if (lastProjectPath.isNull())
     {
-        RiaLogging::error("replaceCase: 'openProject' must be called before 'replaceCase' to specify project file to replace case in.");
-        return;
+        QString errMsg("replaceCase: 'openProject' must be called before 'replaceCase' to specify project file to replace case in.");
+        RiaLogging::error(errMsg);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, errMsg);
     }
 
     cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
@@ -115,5 +118,12 @@ void RicfMultiCaseReplace::execute()
         }
     }
 
-    RiaApplication::instance()->loadProject(lastProjectPath, RiaApplication::PLA_NONE, projectModifier.p());
+    if (!RiaApplication::instance()->loadProject(lastProjectPath, RiaApplication::PLA_NONE, projectModifier.p()))
+    {
+        QString errMsg("Could not reload project");
+        RiaLogging::error(errMsg);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, errMsg);
+    }
+
+    return RicfCommandResponse();
 }

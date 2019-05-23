@@ -55,7 +55,7 @@ RicfExportMsw::RicfExportMsw()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfExportMsw::execute()
+RicfCommandResponse RicfExportMsw::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -64,8 +64,9 @@ void RicfExportMsw::execute()
     auto eclipseCase = TOOLS::caseFromId(m_caseId());
     if (!eclipseCase)
     {
-        RiaLogging::error(QString("exportMsw: Could not find case with ID %1.").arg(m_caseId()));
-        return;
+        QString error = QString("exportMsw: Could not find case with ID %1.").arg(m_caseId());
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
 
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::COMPLETIONS);
@@ -83,9 +84,12 @@ void RicfExportMsw::execute()
     RimWellPath* wellPath = RiaApplication::instance()->project()->wellPathByName(m_wellPathName);
     if (!wellPath)
     {
-        RiaLogging::error(QString("exportMsw: Could not find well path with name %1").arg(m_wellPathName()));
-        return;
+        QString error = QString("exportMsw: Could not find well path with name %1").arg(m_wellPathName());
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
 
     RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(exportSettings, { wellPath });
+
+    return RicfCommandResponse();
 }

@@ -107,19 +107,25 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered(bool isChecked)
     {
         const double undefinedValue = 0.0;
 
-        bool isOk = RicEclipseCellResultToFileImpl::writePropertyToTextFile(exportSettings.fileName,
+        QString errorMsg;
+        bool    isOk = RicEclipseCellResultToFileImpl::writePropertyToTextFile(exportSettings.fileName,
                                                                             inputReservoir->eclipseCaseData(),
                                                                             0,
                                                                             inputProperty->resultName,
                                                                             exportSettings.eclipseKeyword,
-                                                                            undefinedValue);
+                                                                            undefinedValue,
+                                                                            &errorMsg);
         if (isOk)
         {
-            inputProperty->fileName = exportSettings.fileName;
+            inputProperty->fileName       = exportSettings.fileName;
             inputProperty->eclipseKeyword = exportSettings.eclipseKeyword;
-            inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
+            inputProperty->resolvedState  = RimEclipseInputProperty::RESOLVED;
 
             inputProperty->updateConnectedEditors();
+        }
+        else
+        {
+            RiaLogging::error(errorMsg);
         }
     }
 }

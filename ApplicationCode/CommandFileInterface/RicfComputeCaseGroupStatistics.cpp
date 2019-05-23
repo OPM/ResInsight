@@ -43,8 +43,10 @@ RicfComputeCaseGroupStatistics::RicfComputeCaseGroupStatistics()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfComputeCaseGroupStatistics::execute()
+RicfCommandResponse RicfComputeCaseGroupStatistics::execute()
 {
+    RicfCommandResponse response;
+
     for (int caseId : m_caseIds())
     {
         bool foundCase = false;
@@ -61,7 +63,9 @@ void RicfComputeCaseGroupStatistics::execute()
                     }
                     else
                     {
-                        RiaLogging::warning(QString("computeCaseGroupStatistics: Found case with ID %1, but it is not a statistics case, cannot compute statistics.").arg(caseId));
+                        QString warning = QString("computeCaseGroupStatistics: Found case with ID %1, but it is not a statistics case, cannot compute statistics.").arg(caseId);
+                        RiaLogging::warning(warning);
+                        response.updateStatus(RicfCommandResponse::COMMAND_WARNING, warning);
                     }
                     foundCase = true;
                     break;
@@ -73,7 +77,11 @@ void RicfComputeCaseGroupStatistics::execute()
 
         if (!foundCase)
         {
-            RiaLogging::warning(QString("computeCaseGroupStatistics: Could not find statistics case with ID %1.").arg(caseId));
+            QString warning = QString("computeCaseGroupStatistics: Could not find statistics case with ID %1.").arg(caseId);
+
+            RiaLogging::warning(warning);
+            response.updateStatus(RicfCommandResponse::COMMAND_WARNING, warning);
         }
     }
+    return response;
 }

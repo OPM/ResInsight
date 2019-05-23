@@ -49,7 +49,7 @@ class RicfCreateMultipleFractures : public RicfCommandObject
 public:
     RicfCreateMultipleFractures();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     bool                        validateArguments() const;

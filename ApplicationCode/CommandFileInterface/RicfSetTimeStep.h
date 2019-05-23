@@ -37,7 +37,7 @@ public:
     void setCaseId(int caseId);
     void setTimeStepIndex(int timeStepIndex);
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
 
