@@ -13,7 +13,7 @@ for i in range(0, activeCellCount):
 
 
 timeSteps = resInsight.gridInfo.timeSteps(caseId=0)
-for i in range(0, len(timeSteps)):
+for i in range(0, len(timeSteps.date)):
 	print("Applying values to all time step " + str(i))
 	resInsight.properties.setActiveCellResults(values, 0, 'DYNAMIC_NATIVE', 'SOIL', i)
 

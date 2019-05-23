@@ -103,7 +103,7 @@ class ProjectInfo:
     def allCases(self):
         cases = self.projectInfo.AllCases(Empty())
         if cases is not None:
-            return allCases.case_info
+            return cases.case_info
         else:
             return None
 
