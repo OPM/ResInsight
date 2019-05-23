@@ -90,7 +90,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultAddress(co
     }
 
     size_t adjustedTimeStepIndex = timeStepIndex;
-    if (resVarAddr.m_resultCatType == RiaDefines::STATIC_NATIVE)
+    if (resVarAddr.m_resultCatType == RiaDefines::STATIC_NATIVE || resVarAddr.m_resultCatType == RiaDefines::FORMATION_NAMES)
     {
         adjustedTimeStepIndex = 0;
     }
