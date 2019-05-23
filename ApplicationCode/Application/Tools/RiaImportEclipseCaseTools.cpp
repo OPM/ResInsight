@@ -69,7 +69,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& fileNames, QStringList* openedFiles, bool noDialog)
+bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& fileNames, FileCaseIdMap* openedFilesOut, bool noDialog)
 {
     RiaApplication* app = RiaApplication::instance();
     RimProject* project = app->project();
@@ -80,12 +80,15 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
     selector.determineFilesToImportFromGridFiles(fileNames);
     std::vector<RifSummaryCaseFileResultInfo> summaryFileInfos = selector.summaryFileInfos();
 
+    FileCaseIdMap openedFiles;
+
     // Import eclipse case files
     for (const QString& gridCaseFile : selector.gridCaseFiles())
     {
-        if (RiaImportEclipseCaseTools::openEclipseCaseFromFile(gridCaseFile))
+        int caseId = RiaImportEclipseCaseTools::openEclipseCaseFromFile(gridCaseFile);
+        if (caseId >= 0)
         {
-            if(openedFiles) openedFiles->push_back(gridCaseFile);
+            openedFiles.insert(std::make_pair(gridCaseFile, caseId));
         }
     }
 
@@ -178,13 +181,18 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
 
     RiuPlotMainWindowTools::refreshToolbars();
 
-    return true;
+    if (openedFilesOut)
+    {
+        *openedFilesOut = openedFiles;
+    }
+
+    return !openedFiles.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaImportEclipseCaseTools::openEclipseCaseFromFile(const QString& fileName)
+int RiaImportEclipseCaseTools::openEclipseCaseFromFile(const QString& fileName)
 {
     if (!caf::Utils::fileExists(fileName)) return false;
 
@@ -198,7 +206,7 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilter(const QString&
 {
     if (!caf::Utils::fileExists(fileName)) return false;
 
-    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(fileName, true);
+    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(fileName, true) >= 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,7 +267,7 @@ bool RiaImportEclipseCaseTools::openMockModel(const QString& name)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QString& fileName, bool showTimeStepFilter)
+int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QString& fileName, bool showTimeStepFilter)
 {
     QFileInfo gridFileName(fileName);
     QString caseName = gridFileName.completeBaseName();
@@ -274,7 +282,7 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
     if (analysisModels == nullptr)
     {
         delete rimResultReservoir;
-        return false;
+        return -1;
     }
 
     if (RiaGuiApplication::isRunning())
@@ -290,7 +298,7 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
 
         delete rimResultReservoir;
 
-        return false;
+        return -1;
     }
 
     RimEclipseView* riv = rimResultReservoir->createAndAddReservoirView();
@@ -306,7 +314,7 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
 
     RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
 
-    return true;
+    return rimResultReservoir->caseId();
 }
 
 //--------------------------------------------------------------------------------------------------

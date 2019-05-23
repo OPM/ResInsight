@@ -44,7 +44,7 @@ class CommandExecutor:
         
     def execute(self, commandParams):
         try:
-            self.commands.Execute(commandParams)	
+            return self.commands.Execute(commandParams)	
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 print("Command not found")
@@ -61,7 +61,9 @@ class CommandExecutor:
         return self.execute(Commands_pb2.CommandParams(openProject=Commands_pb2.FilePathRequest(path=path)))
 
     def loadCase(self, path):
-        return self.execute(Commands_pb2.CommandParams(loadCase=Commands_pb2.FilePathRequest(path=path)))
+        commandReply = self.execute(Commands_pb2.CommandParams(loadCase=Commands_pb2.FilePathRequest(path=path)))
+        assert commandReply.HasField("loadCaseResult")
+        return commandReply.loadCaseResult.id
         
     def closeProject(self):
         return self.execute(Commands_pb2.CommandParams(closeProject=Empty()))

@@ -184,12 +184,12 @@ void RicImportGeneralDataFeature::openFileDialog(ImportFileType fileTypes)
 //--------------------------------------------------------------------------------------------------
 bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames(const QStringList& fileNames)
 {
-    QStringList newCaseFiles;
+    RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
     if (RiaImportEclipseCaseTools::openEclipseCasesFromFile(fileNames, &newCaseFiles))
     {
-        for (const auto newCaseFile : newCaseFiles)
+        for (const auto newCaseFileAndId : newCaseFiles)
         {
-            RiaApplication::instance()->addToRecentFiles(newCaseFile);
+            RiaApplication::instance()->addToRecentFiles(newCaseFileAndId.first);
         }
         return true;
     }

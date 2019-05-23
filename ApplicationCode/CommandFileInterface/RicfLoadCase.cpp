@@ -24,6 +24,17 @@
 
 #include <QStringList>
 
+CAF_PDM_SOURCE_INIT(RicfLoadCaseResult, "loadCaseResult");
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicfLoadCaseResult::RicfLoadCaseResult(int caseId)
+{
+    CAF_PDM_InitObject("case_result", "", "", "");
+    CAF_PDM_InitField(&this->caseId, "id", caseId, "", "", "", "");
+}
+
 CAF_PDM_SOURCE_INIT(RicfLoadCase, "loadCase");
 
 //--------------------------------------------------------------------------------------------------
@@ -39,12 +50,17 @@ RicfLoadCase::RicfLoadCase()
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfLoadCase::execute()
 {
-    bool ok = RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({m_path()}), nullptr, true);
+    RiaImportEclipseCaseTools::FileCaseIdMap fileCaseIdMap;
+    bool ok = RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({m_path()}), &fileCaseIdMap, true);
     if (!ok)
     {
         QString error = QString("loadCase: Unable to load case from %1").arg(m_path());
         RiaLogging::error(error);
         return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
-    return RicfCommandResponse();
+    CAF_ASSERT(fileCaseIdMap.size() == 1u);
+    RicfLoadCaseResult result;
+    RicfCommandResponse response;
+    response.setResult(new RicfLoadCaseResult(fileCaseIdMap.begin()->second));
+    return response;
 }

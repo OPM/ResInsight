@@ -39,7 +39,7 @@ using namespace google::protobuf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const CommandParams* request, Empty* reply)
+grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const CommandParams* request, CommandReply* reply)
 {
     auto requestDescriptor = request->GetDescriptor();
     RiaLogging::info(QString::fromStdString(requestDescriptor->name()));
@@ -69,19 +69,22 @@ grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const 
                     if (pdmValueFieldHandle)
                     {
                         RiaLogging::info(QString("Found Matching Parameter: %1").arg(parameterName));
-                        assignFieldValue(pdmValueFieldHandle, params, parameter);
+                        assignPdmFieldValue(pdmValueFieldHandle, params, parameter);
                     }
                 }
             }
             RicfCommandResponse response = commandHandle->execute();
             if (response.status() == RicfCommandResponse::COMMAND_ERROR)
             {
-                return grpc::Status(grpc::FAILED_PRECONDITION, response.message().toStdString());                
+                return grpc::Status(grpc::FAILED_PRECONDITION, response.message().toStdString());
             }
             else if (response.status() == RicfCommandResponse::COMMAND_WARNING)
             {
                 context->AddInitialMetadata("warning", response.message().toStdString());
             }
+
+            assignResultToReply(response.result(), reply);
+
             return Status::OK;
         }
     }
@@ -95,15 +98,15 @@ std::vector<RiaAbstractGrpcCallback*> RiaGrpcCommandService::createCallbacks()
 {
     typedef RiaGrpcCommandService Self;
 
-    return {new RiaGrpcCallback<Self, CommandParams, Empty>(this, &Self::Execute, &Self::RequestExecute)};
+    return {new RiaGrpcCallback<Self, CommandParams, CommandReply>(this, &Self::Execute, &Self::RequestExecute)};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcCommandService::assignFieldValue(caf::PdmValueField*    pdmValueField,
-                                             const Message&         params,
-                                             const FieldDescriptor* paramDescriptor)
+void RiaGrpcCommandService::assignPdmFieldValue(caf::PdmValueField*    pdmValueField,
+                                                const Message&         params,
+                                                const FieldDescriptor* paramDescriptor)
 {
     FieldDescriptor::Type fieldDataType = paramDescriptor->type();
     QVariant              qValue;
@@ -116,7 +119,7 @@ void RiaGrpcCommandService::assignFieldValue(caf::PdmValueField*    pdmValueFiel
         }
         case FieldDescriptor::TYPE_INT32: {
             int value = params.GetReflection()->GetInt32(params, paramDescriptor);
-            qValue     = QVariant(value);
+            qValue    = QVariant(value);
             break;
         }
         case FieldDescriptor::TYPE_UINT32: {
@@ -126,12 +129,12 @@ void RiaGrpcCommandService::assignFieldValue(caf::PdmValueField*    pdmValueFiel
         }
         case FieldDescriptor::TYPE_INT64: {
             int64_t value = params.GetReflection()->GetInt64(params, paramDescriptor);
-            qValue     = QVariant((qlonglong) value);
+            qValue        = QVariant((qlonglong)value);
             break;
         }
         case FieldDescriptor::TYPE_UINT64: {
             uint64_t value = params.GetReflection()->GetUInt64(params, paramDescriptor);
-            qValue     = QVariant((qulonglong) value);
+            qValue         = QVariant((qulonglong)value);
             break;
         }
         case FieldDescriptor::TYPE_STRING: {
@@ -156,6 +159,96 @@ void RiaGrpcCommandService::assignFieldValue(caf::PdmValueField*    pdmValueFiel
         }
     }
     pdmValueField->setFromQVariant(qValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcCommandService::assignGrpcFieldValue(google::protobuf::Message*               reply,
+                                                 const google::protobuf::FieldDescriptor* fieldDescriptor,
+                                                 const caf::PdmValueField*                pdmValueField)
+{
+    FieldDescriptor::Type fieldDataType = fieldDescriptor->type();
+    QVariant              qValue        = pdmValueField->toQVariant();
+    switch (fieldDataType)
+    {
+        case FieldDescriptor::TYPE_BOOL: {
+            reply->GetReflection()->SetBool(reply, fieldDescriptor, qValue.toBool());
+            break;
+        }
+        case FieldDescriptor::TYPE_INT32: {
+            reply->GetReflection()->SetInt32(reply, fieldDescriptor, qValue.toInt());
+            break;
+        }
+        case FieldDescriptor::TYPE_UINT32: {
+            reply->GetReflection()->SetUInt32(reply, fieldDescriptor, qValue.toUInt());
+            break;
+        }
+        case FieldDescriptor::TYPE_INT64: {
+            reply->GetReflection()->SetInt64(reply, fieldDescriptor, qValue.toLongLong());
+            break;
+        }
+        case FieldDescriptor::TYPE_UINT64: {
+            reply->GetReflection()->SetUInt64(reply, fieldDescriptor, qValue.toULongLong());
+            break;
+        }
+        case FieldDescriptor::TYPE_STRING: {
+            reply->GetReflection()->SetString(reply, fieldDescriptor, qValue.toString().toStdString());
+            break;
+        }
+        case FieldDescriptor::TYPE_FLOAT: {
+            reply->GetReflection()->SetFloat(reply, fieldDescriptor, qValue.toFloat());
+            break;
+        }
+        case FieldDescriptor::TYPE_DOUBLE: {
+            reply->GetReflection()->SetDouble(reply, fieldDescriptor, qValue.toDouble());
+            break;
+        }
+        case FieldDescriptor::TYPE_ENUM: {
+            reply->GetReflection()->SetEnumValue(reply, fieldDescriptor, qValue.toInt());
+            break;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcCommandService::assignResultToReply(const caf::PdmObject* result, CommandReply* reply)
+{
+    if (!result)
+    {
+        reply->set_allocated_emptyresult(new Empty);
+        return;
+    }
+
+    QString resultType = result->classKeyword();
+
+    auto                   replyDescriptor = reply->GetDescriptor();
+    auto                   oneofDescriptor = replyDescriptor->FindOneofByName("result");
+    const FieldDescriptor* matchingOneOf   = nullptr;
+    for (int fieldIndex = 0; fieldIndex < oneofDescriptor->field_count(); ++fieldIndex)
+    {
+        auto fieldDescriptor = oneofDescriptor->field(fieldIndex);
+        if (fieldDescriptor->name() == resultType.toStdString())
+        {
+            matchingOneOf = fieldDescriptor;
+            break;
+        }
+    }
+
+    CAF_ASSERT(matchingOneOf);
+    Message* message = reply->GetReflection()->MutableMessage(reply, matchingOneOf);
+    CAF_ASSERT(message);
+    auto resultDescriptor = message->GetDescriptor();
+
+    for (int fieldIndex = 0; fieldIndex < resultDescriptor->field_count(); ++fieldIndex)
+    {
+        auto       fieldDescriptor = resultDescriptor->field(fieldIndex);
+        const auto pdmField =
+            dynamic_cast<const caf::PdmValueField*>(result->findField(QString::fromStdString(fieldDescriptor->name())));
+        assignGrpcFieldValue(message, fieldDescriptor, pdmField);
+    }
 }
 
 static bool RiaGrpcCommandService_init =

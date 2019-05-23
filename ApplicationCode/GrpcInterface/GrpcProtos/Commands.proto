@@ -1,12 +1,13 @@
 syntax = "proto3";
 
+import "CaseInfo.proto";
 import "Empty.proto";
 
 package rips;
 
 service Commands
 {
-	rpc Execute(CommandParams) returns(Empty) {}
+	rpc Execute(CommandParams) returns(CommandReply) {}
 }
 
 message SetTimeStepParams
@@ -55,6 +56,15 @@ message CommandParams
 		ReplaceCaseRequest        replaceCase              = 7;
 		ReplaceSourceCasesRequest replaceSourceCases       = 8;
 		ExportMultiCaseRequest    exportMultiCaseSnapshots = 9;
+	}
+}
+
+message CommandReply
+{
+	oneof result
+	{
+		Empty     emptyResult = 1;
+		Case   loadCaseResult = 2;
 	}
 }
 
