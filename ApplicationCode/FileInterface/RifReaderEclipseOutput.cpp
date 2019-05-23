@@ -2183,14 +2183,16 @@ ecl_grid_type* RifReaderEclipseOutput::loadMainGrid() const
     ecl_grid_type* mainEclGrid = nullptr;
 
     {
-        if (m_ecl_init_file && RifEclipseOutputFileTools::isExportedFromIntersect(m_ecl_init_file))
+        if (m_ecl_init_file)
         {
             ecl_kw_type* actnumFromPorv = RifEclipseOutputFileTools::createActnumFromPorv(m_ecl_init_file);
             if (actnumFromPorv)
             {
                 int* actnum_values = ecl_kw_get_int_ptr(actnumFromPorv);
-
-                mainEclGrid = ecl_grid_alloc_ext_actnum(RiaStringEncodingTools::toNativeEncoded(m_fileName).data(), actnum_values);
+                if (actnum_values)
+                {
+                    mainEclGrid = ecl_grid_alloc_ext_actnum(RiaStringEncodingTools::toNativeEncoded(m_fileName).data(), actnum_values);
+                }
 
                 ecl_kw_free(actnumFromPorv);
             }
