@@ -61,7 +61,7 @@ public:
     void run();
     void runInThread();
     void initialize();
-    void processRequests();
+    void processAllQueuedRequests();
     void quit();
     int  currentPortNumber;
 
@@ -169,7 +169,7 @@ void RiaGrpcServerImpl::initialize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServerImpl::processRequests()
+void RiaGrpcServerImpl::processAllQueuedRequests()
 {
     std::lock_guard<std::mutex> requestLock(m_requestMutex);
 
@@ -182,7 +182,8 @@ void RiaGrpcServerImpl::processRequests()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Gracefully shut down the GRPC server. The internal order is important.
+/// Gracefully shut down the GRPC server.
+/// BE VERY CAREFUL ABOUT CHANGING THE ORDER IN THIS METHOD. IT IS IMPORTANT!
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServerImpl::quit()
 {
@@ -214,7 +215,8 @@ void RiaGrpcServerImpl::quit()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Block and wait for requests from the client from the command queue.
+/// The requests are pushed onto the Unprocessed Request queue which are handled in processRequests
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServerImpl::waitForNextRequest()
 {
@@ -233,26 +235,24 @@ void RiaGrpcServerImpl::waitForNextRequest()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The handling of calls pushed onto the command queue. We only get one queued callback per client request.
+/// The gRPC calls triggered in the callback will see each callback pushed back onto the command queue.
+/// The call state will then determine what the callback should do next.
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServerImpl::process(RiaAbstractGrpcCallback* method)
 {
     if (method->callState() == RiaAbstractGrpcCallback::CREATE_HANDLER)
     {
-        RiaLogging::debug(QString("Initialising request handler for: %1").arg(method->name()));
+        RiaLogging::debug(QString("Creating request handler for: %1").arg(method->name()));
         method->createRequestHandler(m_completionQueue.get());
     }
     else if (method->callState() == RiaAbstractGrpcCallback::INIT_REQUEST_STARTED)
     {
-        // Perform initialization and immediately process the first request
-        // The initialization is necessary for streaming services.
         method->onInitRequestStarted();
 
     }
     else if (method->callState() == RiaAbstractGrpcCallback::INIT_REQUEST_COMPLETED)
     {
-        // Perform initialization and immediately process the first request
-        // The initialization is necessary for streaming services.
         RiaLogging::info(QString("Initialising handling: %1").arg(method->name()));
         method->onInitRequestCompleted();
     }
@@ -333,9 +333,9 @@ void RiaGrpcServer::initialize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::processRequests()
+void RiaGrpcServer::processAllQueuedRequests()
 {
-    m_serverImpl->processRequests();
+    m_serverImpl->processAllQueuedRequests();
 }
 
 //--------------------------------------------------------------------------------------------------

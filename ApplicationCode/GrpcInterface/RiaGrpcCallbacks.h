@@ -59,7 +59,7 @@ public:
     virtual RiaAbstractGrpcCallback* createNewFromThis() const                                    = 0;
     virtual void                     createRequestHandler(ServerCompletionQueue* completionQueue) = 0;
     virtual void                     onInitRequestStarted() {}
-    virtual void                     onInitRequestCompleted()                                     = 0;
+    virtual void                     onInitRequestCompleted() {}
     virtual void                     onProcessRequest()                                           = 0;
     virtual void                     onFinishRequest() {}
 
@@ -67,7 +67,7 @@ public:
     inline const Status& status() const;
 
 protected:
-    inline void setCallState(CallState state);
+    inline void setNextCallState(CallState state);
 
 protected:
     CallState m_state;
@@ -117,7 +117,6 @@ public:
 
     RiaAbstractGrpcCallback* createNewFromThis() const override;
     void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
-    void                     onInitRequestCompleted() override;
     void                     onProcessRequest() override;
 
 protected:
@@ -132,11 +131,11 @@ private:
 
 //==================================================================================================
 //
-// Templated server *streaming* gRPC-callback calling service implementation callbacks
+// Templated server->client *streaming* gRPC-callback calling service implementation callbacks
 //
 // The streaming callback needs a state handler for setting up and maintaining order.
 //
-// A fully functional state handler needs to implement the following methods:
+// A fully functional state handler for server->client streaming needs to implement the following methods:
 // 1. Default Constructor
 // 2. grpc::Status init(const grpc::Message* request)
 //
@@ -171,11 +170,11 @@ private:
 
 //==================================================================================================
 //
-// Templated client *streaming* gRPC-callback calling service implementation callbacks
+// Templated client->server *streaming* gRPC-callback calling service implementation callbacks
 //
 // The streaming callback needs a state handler for setting up and maintaining order.
 //
-// A fully functional state handler needs to implement the following methods:
+// A fully functional state handler for client->server streaming needs to implement the following methods:
 // 1. Default Constructor
 // 2. grpc::Status init(const grpc::Message* request)
 // 3. void finish() any updates required after completion
