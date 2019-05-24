@@ -19,6 +19,7 @@
 #include "RicfSetStartDir.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include <QDir>
 

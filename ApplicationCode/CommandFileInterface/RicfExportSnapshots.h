@@ -33,6 +33,7 @@ class RicfExportSnapshots : public RicfCommandObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    // Values are exposed in gRPC .proto. Do not change without also changing .proto
     enum SnapshotsType
     {
         VIEWS,

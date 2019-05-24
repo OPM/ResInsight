@@ -20,6 +20,7 @@
 #include "RicSaveEclipseInputPropertyFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RicExportFeatureImpl.h"
 #include "RicEclipseCellResultToFileImpl.h"
