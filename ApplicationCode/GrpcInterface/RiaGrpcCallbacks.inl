@@ -298,7 +298,7 @@ void RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onI
     this->setNextCallState(RiaAbstractGrpcCallback::INIT_REQUEST_COMPLETED);
     // The read call will start reading the request data and push this callback back onto the command queue
     // when the read call is completed.
-    m_reader.Read(&m_request, this);
+    m_reader.Read(&this->m_request, this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,7 +320,7 @@ void RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onI
     }
 
     // Start reading and push this back onto the command queue.
-    m_reader.Read(&m_request, this);
+    m_reader.Read(&this->m_request, this);
 }
 
 //--------------------------------------------------------------------------------------------------

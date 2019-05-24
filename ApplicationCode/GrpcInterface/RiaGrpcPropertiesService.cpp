@@ -75,7 +75,7 @@ public:
 
             if (resultData->ensureKnownResultLoaded(resAddr))
             {
-                if (timeStep < (int)resultData->timeStepCount(resAddr))
+                if (timeStep < resultData->timeStepCount(resAddr))
                 {
                     initResultAccess(caseData, request->grid_index(), porosityModel, timeStep, resAddr);
                     return grpc::Status::OK;
