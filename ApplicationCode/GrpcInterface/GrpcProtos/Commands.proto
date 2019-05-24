@@ -5,6 +5,10 @@ import "Empty.proto";
 
 package rips;
 
+/*
+ * The Commands service handles generic ResInsight RicfCommandObject-commands
+ * The CommandParams is used to deduce command name from the chosen oneof-message
+ * .. and the parameters are in the oneof-message itself. */
 service Commands
 {
 	rpc Execute(CommandParams) returns(CommandReply) {}
@@ -94,11 +98,59 @@ message ExportWellPathCompRequest
 	CompdatCombinationMode combinationMode = 9;
 }
 
-
-message SetTimeStepParams
+message ExportSimWellPathFracRequest
 {
-	int32 caseId   = 1;
-	int32 timeStep = 2;
+	int32 caseId                        = 1;
+	string viewName                     = 2;
+	int32 timeStep                      = 3;
+	repeated string simulationWellNames = 4;
+	CompdatExportSplit fileSplit        = 5;
+	CompdatExportType  compdatExport    = 6;
+}
+
+message ExportMswRequest
+{
+	int32 caseId    = 1;
+	string wellPath = 2;
+}
+
+message ExportWellPathRequest
+{
+	repeated string wellPathNames = 1;
+	double             mdStepSize = 2;
+}
+
+message ExportVisibleCellsRequest
+{
+	int32 caseId                  = 1;
+	string viewName               = 2;
+	string exportKeyword          = 3;
+	int32 visibleActiveCellsValue = 4;
+	int32 hiddenActiveCellsValue  = 5;
+	int32 inactiveCellsValue      = 6;
+}
+
+enum ExportFolderType {
+	COMPLETIONS = 0;
+	SNAPSHOTS   = 1;
+	PROPERTIES  = 2;
+	STATISTICS  = 3;
+	WELLPATHS   = 4;
+	CELLS       = 5;
+	LGRS        = 6;
+}
+
+message SetExportFolderRequest
+{
+	ExportFolderType type = 1;
+	string path           = 2;
+	bool createFolder     = 3;
+}
+
+message RunOctaveScriptRequest
+{
+	string path            = 1;
+	repeated int32 caseIds = 2;
 }
 
 message SetMainWindowSizeParams
@@ -107,9 +159,83 @@ message SetMainWindowSizeParams
 	int32 width  = 2;
 }
 
+message ComputeCaseGroupStatRequest
+{
+	repeated int32 caseIds = 1;
+}
 
+message SetTimeStepParams
+{
+	int32 caseId   = 1;
+	int32 timeStep = 2;
+}
+
+message ScaleFractureTemplateRequest
+{
+	int32  id          = 1;
+	double halfLength  = 2;
+	double height      = 3;
+}
+
+message SetFracContainmentRequest
+{
+	int32 id        = 1;
+	int32 topLayer  = 2;
+	int32 baseLayer = 3;
+}
+
+enum MultipleFracAction
+{
+	NONE              = 0;
+	APPEND_FRACTURES  = 1;
+	REPLACE_FRACTURES = 2;
+}
+
+message CreateMultipleFracRequest
+{
+	int32 caseId                  = 1;
+	int32 templateId              = 2;
+	repeated string wellPathNames = 3;
+	double minDistFromWellTd      = 4;
+	int32 maxFracturesPerWell     = 5;
+	int32 topLayer                = 6;
+	int32 baseLayer               = 7;
+	int32 spacing                 = 8;
+	MultipleFracAction action     = 9;
+}
+
+enum LgrSplitType
+{
+	LGR_PER_CELL       = 0;
+    LGR_PER_COMPLETION = 1;
+    LGR_PER_WELL       = 2;
+}
+
+message CreateLgrForCompRequest
+{
+	int32 caseId                  = 1;
+	int32 timeStep                = 2;
+	repeated string wellPathNames = 3;
+	int32 refinementI             = 4;
+	int32 refinementJ             = 5;
+	int32 refinementK             = 6;
+	LgrSplitType splitType        = 7;
+}
+
+message CreateSatPressPlotRequest
+{
+	repeated int32 caseIds = 1;
+}
+
+/* CommandParams handles both command name and parameters in one.
+ * The message type and content is used as parameters and
+ * the name of the variable is used to find the command name. */
 message CommandParams
 {
+	/* Since only one of these oneof-parameters can be set, we know which
+	 * command to run from the name of parameter. I.e. if openProject is set
+	 * we will run the RicfOpenProject command with the parameters set in
+	 * the FilePathRequest message. */
 	oneof params
 	{
 		FilePathRequest              openProject                      = 1;
@@ -123,23 +249,25 @@ message CommandParams
 		ExportPropertyRequest        exportProperty                   = 9;
 		ExportPropertyInViewsRequest exportPropertyInViews            = 10;
 		ExportWellPathCompRequest    exportWellPathCompletions        = 11;
-		//ExportSimWellPathFracRequest exportSimWellFractureCompletions = 12;
-		//ExportMswRequest             exportMsw                        = 13;
-		//ExportWellPathRequest        exportWellPaths                  = 14;
-		//ExportVisibleCellsRequest    exportVisibleCells               = 15;
-		//SetExportFolderRequest       setExportFolder                  = 16;
-		//RunOctaveScriptRequest       runOctaveScript                  = 17;
+		ExportSimWellPathFracRequest exportSimWellFractureCompletions = 12;
+		ExportMswRequest             exportMsw                        = 13;
+		ExportWellPathRequest        exportWellPaths                  = 14;
+		ExportVisibleCellsRequest    exportVisibleCells               = 15;
+		SetExportFolderRequest       setExportFolder                  = 16;
+		RunOctaveScriptRequest       runOctaveScript                  = 17;
 		SetMainWindowSizeParams      setMainWindowSize                = 18;
-		//ComputeCaseGroupStatRequest  computeCaseGroupStatistics       = 19;
+		ComputeCaseGroupStatRequest  computeCaseGroupStatistics       = 19;
 		SetTimeStepParams            setTimeStep                      = 20;
-		//ScaleFractureTemplateRequest scaleFractureTemplate            = 21;
-		//SetFracContainmentRequest    setFractureContainment           = 22;
-		//CreateMultipleFracRequest    createMultipleFractures          = 23;
-		//CreateLgrForCompRequest      createLgrForCompletions          = 24;
-		//CreateSatPressPlotRequest    createSaturationPressurePlots    = 25;		
+		ScaleFractureTemplateRequest scaleFractureTemplate            = 21;
+		SetFracContainmentRequest    setFractureContainment           = 22;
+		CreateMultipleFracRequest    createMultipleFractures          = 23;
+		CreateLgrForCompRequest      createLgrForCompletions          = 24;
+		CreateSatPressPlotRequest    createSaturationPressurePlots    = 25;		
 	}
 }
 
+/* Command reply handles the return values for the generic command
+ * The name of the variable is used to map to the cafPdmObject classKeyword */
 message CommandReply
 {
 	oneof result
