@@ -28,6 +28,8 @@ namespace caf
 {
 class PdmValueField;
 class PdmObject;
+template<typename T>
+class PdmField;
 }
 
 namespace google
@@ -48,6 +50,10 @@ public:
     std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
 
 private:
+    template<typename T>
+    static caf::PdmField<T>* dataValueField(caf::PdmValueField* valueField);
+    template<typename T>
+    static const caf::PdmField<T>* constDataValueField(const caf::PdmValueField* valueField);
     void assignPdmFieldValue(caf::PdmValueField*                      pdmValueField,
                              const google::protobuf::Message&         params,
                              const google::protobuf::FieldDescriptor* paramDescriptor);

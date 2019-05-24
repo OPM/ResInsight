@@ -9,3 +9,4 @@ resInsight = ResInsight.Instance.find()
 # Run a couple of commands
 resInsight.commands.setTimeStep(caseId=0, timeStep=3)
 resInsight.commands.setMainWindowSize(width=800, height=500)
+resInsight.commands.exportWellPaths()

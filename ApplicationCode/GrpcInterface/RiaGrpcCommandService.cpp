@@ -25,7 +25,9 @@
 
 #include "cafAssert.h"
 #include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmDataValueField.h"
 #include "cafPdmValueField.h"
+#include <google/protobuf/reflection.h>
 
 using namespace rips;
 using namespace google::protobuf;
@@ -101,6 +103,29 @@ std::vector<RiaAbstractGrpcCallback*> RiaGrpcCommandService::createCallbacks()
     return {new RiaGrpcCallback<Self, CommandParams, CommandReply>(this, &Self::Execute, &Self::RequestExecute)};
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template<typename T>
+caf::PdmField<T>* RiaGrpcCommandService::dataValueField(caf::PdmValueField* valueField)
+{
+    caf::PdmField<T>* dataValField = dynamic_cast<caf::PdmField<T>*>(valueField);
+    CAF_ASSERT(dataValField);
+    return dataValField;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template<typename T>
+const caf::PdmField<T>* RiaGrpcCommandService::constDataValueField(const caf::PdmValueField* valueField)
+{
+    const caf::PdmField<T>* dataValField = dynamic_cast<const caf::PdmField<T>*>(valueField);
+    CAF_ASSERT(dataValField);
+    return dataValField;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -109,56 +134,77 @@ void RiaGrpcCommandService::assignPdmFieldValue(caf::PdmValueField*    pdmValueF
                                                 const FieldDescriptor* paramDescriptor)
 {
     FieldDescriptor::Type fieldDataType = paramDescriptor->type();
-    QVariant              qValue;
+    const Reflection*     reflection    = params.GetReflection();
+    
     switch (fieldDataType)
     {
         case FieldDescriptor::TYPE_BOOL: {
-            auto value = params.GetReflection()->GetBool(params, paramDescriptor);
-            qValue     = QVariant(value);
+            auto value = reflection->GetBool(params, paramDescriptor);
+            auto dataField = dataValueField<bool>(pdmValueField);
+            dataField->setValue(value);
             break;
         }
         case FieldDescriptor::TYPE_INT32: {
-            int value = params.GetReflection()->GetInt32(params, paramDescriptor);
-            qValue    = QVariant(value);
+            if (paramDescriptor->is_repeated())
+            {
+                RepeatedFieldRef<int> repeatedField =
+                    reflection->GetRepeatedFieldRef<int>(params, paramDescriptor);
+                auto dataField = dataValueField<std::vector<int>>(pdmValueField);
+                dataField->setValue(std::vector<int>(repeatedField.begin(), repeatedField.end()));
+            }
+            else
+            {
+                int value = reflection->GetInt32(params, paramDescriptor);
+                auto dataField = dataValueField<int>(pdmValueField);
+                dataField->setValue(value);
+            }
             break;
         }
         case FieldDescriptor::TYPE_UINT32: {
-            uint value = params.GetReflection()->GetUInt32(params, paramDescriptor);
-            qValue     = QVariant(value);
-            break;
-        }
-        case FieldDescriptor::TYPE_INT64: {
-            int64_t value = params.GetReflection()->GetInt64(params, paramDescriptor);
-            qValue        = QVariant((qlonglong)value);
-            break;
-        }
-        case FieldDescriptor::TYPE_UINT64: {
-            uint64_t value = params.GetReflection()->GetUInt64(params, paramDescriptor);
-            qValue         = QVariant((qulonglong)value);
+            uint value = reflection->GetUInt32(params, paramDescriptor);
+            auto dataField = dataValueField<uint>(pdmValueField);
+            dataField->setValue(value);
             break;
         }
         case FieldDescriptor::TYPE_STRING: {
-            auto value = params.GetReflection()->GetString(params, paramDescriptor);
-            qValue     = QVariant(QString::fromStdString(value));
+            if (paramDescriptor->is_repeated())
+            {
+                RepeatedFieldRef<std::string> repeatedField =
+                    reflection->GetRepeatedFieldRef<std::string>(params, paramDescriptor);
+                std::vector<QString> stringVector;
+                for (const std::string& string : repeatedField)
+                {
+                    stringVector.push_back(QString::fromStdString(string));
+                }
+                auto dataField = dataValueField<std::vector<QString>>(pdmValueField);
+                dataField->setValue(stringVector);
+            }
+            else
+            {
+                auto value = QString::fromStdString(reflection->GetString(params, paramDescriptor));
+                auto dataField = dataValueField<QString>(pdmValueField);
+                dataField->setValue(value);
+            }
             break;
         }
         case FieldDescriptor::TYPE_FLOAT: {
-            auto value = params.GetReflection()->GetFloat(params, paramDescriptor);
-            qValue     = QVariant(value);
+            auto value = reflection->GetFloat(params, paramDescriptor);
+            auto dataField = dataValueField<float>(pdmValueField);
+            dataField->setValue(value);
             break;
         }
         case FieldDescriptor::TYPE_DOUBLE: {
-            auto value = params.GetReflection()->GetDouble(params, paramDescriptor);
-            qValue     = QVariant(value);
+            auto value = reflection->GetDouble(params, paramDescriptor);
+            auto dataField = dataValueField<double>(pdmValueField);
+            dataField->setValue(value);
             break;
         }
         case FieldDescriptor::TYPE_ENUM: {
-            auto value = params.GetReflection()->GetEnumValue(params, paramDescriptor);
-            qValue     = QVariant(value);
+            auto value = reflection->GetEnumValue(params, paramDescriptor);
+            pdmValueField->setFromQVariant(QVariant(value));
             break;
         }
     }
-    pdmValueField->setFromQVariant(qValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -170,42 +216,44 @@ void RiaGrpcCommandService::assignGrpcFieldValue(google::protobuf::Message*     
 {
     FieldDescriptor::Type fieldDataType = fieldDescriptor->type();
     QVariant              qValue        = pdmValueField->toQVariant();
+
+    auto reflection = reply->GetReflection();
     switch (fieldDataType)
     {
         case FieldDescriptor::TYPE_BOOL: {
-            reply->GetReflection()->SetBool(reply, fieldDescriptor, qValue.toBool());
+            reflection->SetBool(reply, fieldDescriptor, qValue.toBool());
             break;
         }
         case FieldDescriptor::TYPE_INT32: {
-            reply->GetReflection()->SetInt32(reply, fieldDescriptor, qValue.toInt());
+            reflection->SetInt32(reply, fieldDescriptor, qValue.toInt());            
             break;
         }
         case FieldDescriptor::TYPE_UINT32: {
-            reply->GetReflection()->SetUInt32(reply, fieldDescriptor, qValue.toUInt());
+            reflection->SetUInt32(reply, fieldDescriptor, qValue.toUInt());
             break;
         }
         case FieldDescriptor::TYPE_INT64: {
-            reply->GetReflection()->SetInt64(reply, fieldDescriptor, qValue.toLongLong());
+            reflection->SetInt64(reply, fieldDescriptor, qValue.toLongLong());
             break;
         }
         case FieldDescriptor::TYPE_UINT64: {
-            reply->GetReflection()->SetUInt64(reply, fieldDescriptor, qValue.toULongLong());
+            reflection->SetUInt64(reply, fieldDescriptor, qValue.toULongLong());
             break;
         }
         case FieldDescriptor::TYPE_STRING: {
-            reply->GetReflection()->SetString(reply, fieldDescriptor, qValue.toString().toStdString());
+            reflection->SetString(reply, fieldDescriptor, qValue.toString().toStdString());
             break;
         }
         case FieldDescriptor::TYPE_FLOAT: {
-            reply->GetReflection()->SetFloat(reply, fieldDescriptor, qValue.toFloat());
+            reflection->SetFloat(reply, fieldDescriptor, qValue.toFloat());
             break;
         }
         case FieldDescriptor::TYPE_DOUBLE: {
-            reply->GetReflection()->SetDouble(reply, fieldDescriptor, qValue.toDouble());
+            reflection->SetDouble(reply, fieldDescriptor, qValue.toDouble());
             break;
         }
         case FieldDescriptor::TYPE_ENUM: {
-            reply->GetReflection()->SetEnumValue(reply, fieldDescriptor, qValue.toInt());
+            reflection->SetEnumValue(reply, fieldDescriptor, qValue.toInt());
             break;
         }
     }

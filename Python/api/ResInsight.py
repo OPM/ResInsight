@@ -12,8 +12,8 @@ sys.path.insert(1, os.path.join(sys.path[0], '../generated'))
 from Empty_pb2 import Empty
 import CaseInfo_pb2
 import CaseInfo_pb2_grpc
-import Commands_pb2
-import Commands_pb2_grpc
+import Commands_pb2 as Cmd
+import Commands_pb2_grpc as CmdRpc
 import GridInfo_pb2
 import GridInfo_pb2_grpc
 import ProjectInfo_pb2
@@ -40,7 +40,7 @@ class ResInfo:
 
 class CommandExecutor:
     def __init__(self, channel):
-        self.commands      = Commands_pb2_grpc.CommandsStub(channel)
+        self.commands      = CmdRpc.CommandsStub(channel)
         
     def execute(self, commandParams):
         try:
@@ -52,21 +52,28 @@ class CommandExecutor:
                 print("Other error")
 
     def setTimeStep(self, caseId, timeStep):
-        return self.execute(Commands_pb2.CommandParams(setTimeStep=Commands_pb2.SetTimeStepParams(caseId=caseId, timeStep=timeStep)))
+        return self.execute(Cmd.CommandParams(setTimeStep=Cmd.SetTimeStepParams(caseId=caseId, timeStep=timeStep)))
         
     def setMainWindowSize(self, width, height):
-        return self.execute(Commands_pb2.CommandParams(setMainWindowSize=Commands_pb2.SetMainWindowSizeParams(width=width, height=height)))
+        return self.execute(Cmd.CommandParams(setMainWindowSize=Cmd.SetMainWindowSizeParams(width=width, height=height)))
 
     def openProject(self, path):
-        return self.execute(Commands_pb2.CommandParams(openProject=Commands_pb2.FilePathRequest(path=path)))
+        return self.execute(Cmd.CommandParams(openProject=Cmd.FilePathRequest(path=path)))
 
     def loadCase(self, path):
-        commandReply = self.execute(Commands_pb2.CommandParams(loadCase=Commands_pb2.FilePathRequest(path=path)))
+        commandReply = self.execute(Cmd.CommandParams(loadCase=Cmd.FilePathRequest(path=path)))
         assert commandReply.HasField("loadCaseResult")
         return commandReply.loadCaseResult.id
         
     def closeProject(self):
-        return self.execute(Commands_pb2.CommandParams(closeProject=Empty()))
+        return self.execute(Cmd.CommandParams(closeProject=Empty()))
+
+    def exportWellPaths(self, wellPaths=[], mdStepSize=5.0):
+        if isinstance(wellPaths, str):
+            wellPathArray = [str]
+        elif isinstance(wellPaths, list):
+            wellPathArray = wellPaths
+        return self.execute(Cmd.CommandParams(exportWellPaths=Cmd.ExportWellPathRequest(wellPathNames=wellPathArray, mdStepSize=mdStepSize)))
 
 class GridInfo:
     def __init__(self, channel):
