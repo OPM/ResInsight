@@ -1435,15 +1435,21 @@ void RiaGuiApplication::applyGuiPreferences(const RiaPreferences* oldPreferences
                 auto rim3dView = dynamic_cast<Rim3dView*>(viewWindow);
                 if (rim3dView)
                 {
-                    if (rim3dView->meshMode() != oldPreferences->defaultMeshModeType())
+                    if (m_preferences->defaultMeshModeType() != oldPreferences->defaultMeshModeType() &&
+                        rim3dView->meshMode() != oldPreferences->defaultMeshModeType() &&
+                        rim3dView->meshMode() != m_preferences->defaultMeshModeType())
                     {
                         existingViewsWithDifferentMeshLines = true;
                     }
-                    if (rim3dView->backgroundColor() != oldPreferences->defaultViewerBackgroundColor())
+                    if (m_preferences->defaultViewerBackgroundColor() != oldPreferences->defaultViewerBackgroundColor() &&
+                        rim3dView->backgroundColor() != oldPreferences->defaultViewerBackgroundColor() &&
+                        rim3dView->backgroundColor() != m_preferences->defaultViewerBackgroundColor())
                     {
                         existingViewsWithCustomColors = true;
                     }
-                    if (rim3dView->scaleZ() != static_cast<double>(oldPreferences->defaultScaleFactorZ))
+                    if (m_preferences->defaultScaleFactorZ() != oldPreferences->defaultScaleFactorZ() &&
+                        rim3dView->scaleZ() != static_cast<double>(oldPreferences->defaultScaleFactorZ) &&
+                        rim3dView->scaleZ() != static_cast<double>(m_preferences->defaultScaleFactorZ))
                     {
                         existingViewsWithCustomZScale = true;
                     }
@@ -1458,7 +1464,9 @@ void RiaGuiApplication::applyGuiPreferences(const RiaPreferences* oldPreferences
                     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(rim3dView);
                     if (eclipseView)
                     {
-                        if (eclipseView->wellCollection()->wellLabelColor() != oldPreferences->defaultWellLabelColor())
+                        if (m_preferences->defaultWellLabelColor() != oldPreferences->defaultWellLabelColor() &&
+                            eclipseView->wellCollection()->wellLabelColor() != oldPreferences->defaultWellLabelColor() &&
+                            eclipseView->wellCollection()->wellLabelColor() != m_preferences->defaultWellLabelColor())
                         {
                             existingViewsWithCustomColors = true;
                         }
