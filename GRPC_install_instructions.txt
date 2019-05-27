@@ -15,18 +15,19 @@ git clone https://github.com/microsoft/vcpkg.git
 
 ############ Linux as STANDALONE GPRC (using GRPC_INSTALL_PREFIX=/opt/grpc as an example) ###############
 1. Clone grpc
-https://github.com/grpc/grpc.git
+git clone https://github.com/grpc/grpc.git
 2. From within grpc folder, check out stable version of grpc and initialise repo:
 git checkout v1.20.1
 git submodule init
 git submodule update
 3. Make sure you're building with devtools-3, since you'll be using that for ResInsight too
 scl enable devtoolset-3 bash
+export PROTOBUF_CONFIG_OPTS="--prefix=/opt/grpc"
 make prefix=/opt/grpc
 sudo make prefix=/opt/grpc install
 4. Install protobuf (still within grpc folder)
 cd third_party/protobuf
-sudo make prefix=/opt/grpc install
+sudo make install
 5. Make sure you have a Python 3 version available in your paths.
 I.e.: "sudo yum install rh-python35" and then "scl enable rh-python35 bash"
 6. Install grpcio-tools for Python (this may have to be done as root user):
