@@ -39,6 +39,7 @@
 
 #include "RiuPlotMainWindow.h"
 #include "Riu3dSelectionManager.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -106,6 +107,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
             plotCurve->updateConnectedEditors();
         }
     }
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
