@@ -32,6 +32,7 @@
 using namespace rips;
 using namespace google::protobuf;
 
+// Windows may define GetMessage as a Macro and this is in direct conflict with the gRPC GetMessage calls.
 #ifdef WIN32
 #ifdef GetMessage
 #undef GetMessage
@@ -96,11 +97,11 @@ grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaAbstractGrpcCallback*> RiaGrpcCommandService::createCallbacks()
+std::vector<RiaGrpcCallbackInterface*> RiaGrpcCommandService::createCallbacks()
 {
     typedef RiaGrpcCommandService Self;
 
-    return {new RiaGrpcCallback<Self, CommandParams, CommandReply>(this, &Self::Execute, &Self::RequestExecute)};
+    return {new RiaGrpcUnaryCallback<Self, CommandParams, CommandReply>(this, &Self::Execute, &Self::RequestExecute)};
 }
 
 

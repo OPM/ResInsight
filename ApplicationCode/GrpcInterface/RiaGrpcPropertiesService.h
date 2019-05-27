@@ -54,5 +54,5 @@ public:
                                 rips::Empty*                    reply,
                                 RiaGridCellResultsStateHandler* stateHandler);
 
-    std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
+    std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

@@ -29,7 +29,7 @@ namespace rips
 class Case;
 }
 
-class RiaAbstractGrpcCallback;
+class RiaGrpcCallbackInterface;
 class RigCell;
 class RigActiveCellInfo;
 class RimEclipseCase;
@@ -78,5 +78,5 @@ public:
                                            const rips::CellInfoRequest* request,
                                            rips::CellInfoArray*         reply,
                                            RiaActiveCellInfoStateHandler*     stateHandler);    
-    std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
+    std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

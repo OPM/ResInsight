@@ -63,18 +63,17 @@ public:
     void initialize();
     void processAllQueuedRequests();
     void quit();
-    int  currentPortNumber;
 
 private:
     void waitForNextRequest();
-    void process(RiaAbstractGrpcCallback* method);
+    void process(RiaGrpcCallbackInterface* method);
 
 private:
     int                                                 m_portNumber;
     std::unique_ptr<grpc::ServerCompletionQueue>        m_completionQueue;
     std::unique_ptr<grpc::Server>                       m_server;
     std::list<std::shared_ptr<RiaGrpcServiceInterface>> m_services;
-    std::list<RiaAbstractGrpcCallback*>                 m_unprocessedRequests;
+    std::list<RiaGrpcCallbackInterface*>                 m_unprocessedRequests;
     std::mutex                                          m_requestMutex;
     std::thread                                         m_thread;
 };
@@ -171,12 +170,17 @@ void RiaGrpcServerImpl::initialize()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServerImpl::processAllQueuedRequests()
 {
-    std::lock_guard<std::mutex> requestLock(m_requestMutex);
-
-    while (!m_unprocessedRequests.empty())
+    std::list<RiaGrpcCallbackInterface*> waitingRequests;
     {
-        RiaAbstractGrpcCallback* method = m_unprocessedRequests.front();
-        m_unprocessedRequests.pop_front();
+        // Block only while transferring the unprocessed requests to a local function list
+        std::lock_guard<std::mutex> requestLock(m_requestMutex);
+        waitingRequests.swap(m_unprocessedRequests);
+    }
+    // Now free to receive new requests from client while processing the current ones.
+    while (!waitingRequests.empty())
+    {
+        RiaGrpcCallbackInterface* method = waitingRequests.front();
+        waitingRequests.pop_front();
         process(method);
     }
 }
@@ -193,7 +197,7 @@ void RiaGrpcServerImpl::quit()
         // Clear unhandled requests
         while (!m_unprocessedRequests.empty())
         {
-            RiaAbstractGrpcCallback* method = m_unprocessedRequests.front();
+            RiaGrpcCallbackInterface* method = m_unprocessedRequests.front();
             m_unprocessedRequests.pop_front();
             delete method;
         }
@@ -225,7 +229,7 @@ void RiaGrpcServerImpl::waitForNextRequest()
 
     while (m_completionQueue->Next(&tag, &ok))
     {
-        RiaAbstractGrpcCallback* method = static_cast<RiaAbstractGrpcCallback*>(tag);
+        RiaGrpcCallbackInterface* method = static_cast<RiaGrpcCallbackInterface*>(tag);
         if (ok)
         {
             std::lock_guard<std::mutex> requestLock(m_requestMutex);
@@ -239,24 +243,24 @@ void RiaGrpcServerImpl::waitForNextRequest()
 /// The gRPC calls triggered in the callback will see each callback pushed back onto the command queue.
 /// The call state will then determine what the callback should do next.
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServerImpl::process(RiaAbstractGrpcCallback* method)
+void RiaGrpcServerImpl::process(RiaGrpcCallbackInterface* method)
 {
-    if (method->callState() == RiaAbstractGrpcCallback::CREATE_HANDLER)
+    if (method->callState() == RiaGrpcCallbackInterface::CREATE_HANDLER)
     {
         RiaLogging::debug(QString("Creating request handler for: %1").arg(method->name()));
         method->createRequestHandler(m_completionQueue.get());
     }
-    else if (method->callState() == RiaAbstractGrpcCallback::INIT_REQUEST_STARTED)
+    else if (method->callState() == RiaGrpcCallbackInterface::INIT_REQUEST_STARTED)
     {
         method->onInitRequestStarted();
 
     }
-    else if (method->callState() == RiaAbstractGrpcCallback::INIT_REQUEST_COMPLETED)
+    else if (method->callState() == RiaGrpcCallbackInterface::INIT_REQUEST_COMPLETED)
     {
         RiaLogging::info(QString("Initialising handling: %1").arg(method->name()));
         method->onInitRequestCompleted();
     }
-    else if (method->callState() == RiaAbstractGrpcCallback::PROCESS_REQUEST)
+    else if (method->callState() == RiaGrpcCallbackInterface::PROCESS_REQUEST)
     {
         method->onProcessRequest();       
     }

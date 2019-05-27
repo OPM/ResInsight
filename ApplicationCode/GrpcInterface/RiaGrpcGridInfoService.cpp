@@ -316,15 +316,15 @@ grpc::Status RiaGrpcGridInfoService::GetCellInfoForActiveCells(grpc::ServerConte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaAbstractGrpcCallback*> RiaGrpcGridInfoService::createCallbacks()
+std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridInfoService::createCallbacks()
 {
     typedef RiaGrpcGridInfoService Self;
 
-    return {new RiaGrpcCallback<Self, Case, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
-            new RiaGrpcCallback<Self, Case, GridDimensions>(this, &Self::GetGridDimensions, &Self::RequestGetGridDimensions),
-            new RiaGrpcCallback<Self, CellInfoRequest, CellCount>(this, &Self::GetCellCount, &Self::RequestGetCellCount),
-            new RiaGrpcCallback<Self, Case, TimeStepDates>(this, &Self::GetTimeSteps, &Self::RequestGetTimeSteps),
-            new RiaGrpcStreamCallback<Self, CellInfoRequest, CellInfoArray, RiaActiveCellInfoStateHandler>(
+    return {new RiaGrpcUnaryCallback<Self, Case, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
+            new RiaGrpcUnaryCallback<Self, Case, GridDimensions>(this, &Self::GetGridDimensions, &Self::RequestGetGridDimensions),
+            new RiaGrpcUnaryCallback<Self, CellInfoRequest, CellCount>(this, &Self::GetCellCount, &Self::RequestGetCellCount),
+            new RiaGrpcUnaryCallback<Self, Case, TimeStepDates>(this, &Self::GetTimeSteps, &Self::RequestGetTimeSteps),
+            new RiaGrpcServerStreamCallback<Self, CellInfoRequest, CellInfoArray, RiaActiveCellInfoStateHandler>(
                 this, &Self::GetCellInfoForActiveCells, &Self::RequestGetCellInfoForActiveCells, new RiaActiveCellInfoStateHandler)};
 }
 

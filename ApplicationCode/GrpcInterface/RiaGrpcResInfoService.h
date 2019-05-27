@@ -37,13 +37,13 @@ namespace caf
 class PdmValueField;
 }
 
-class RiaAbstractGrpcCallback;
+class RiaGrpcCallbackInterface;
 
 class RiaGrpcResInfoService : public rips::ResInfo::AsyncService, public RiaGrpcServiceInterface
 {
 public:
     grpc::Status GetVersion(grpc::ServerContext* context, const rips::Empty* request, rips::Version* reply) override;
-    std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
+    std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 
 };
 

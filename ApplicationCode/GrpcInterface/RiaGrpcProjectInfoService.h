@@ -28,7 +28,7 @@ class Empty;
 class CaseInfo;
 } // namespace rips
 
-class RiaAbstractGrpcCallback;
+class RiaGrpcCallbackInterface;
 
 //==================================================================================================
 //
@@ -47,5 +47,5 @@ public:
     grpc::Status CasesInGroup(grpc::ServerContext* context, const rips::CaseGroup* request, rips::CaseInfos* reply) override;
 
 public:
-    std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
+    std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

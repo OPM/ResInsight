@@ -39,7 +39,7 @@ class RiaGrpcServiceInterface;
 // Base class for all gRPC-callbacks
 //
 //==================================================================================================
-class RiaAbstractGrpcCallback
+class RiaGrpcCallbackInterface
 {
 public:
     enum CallState
@@ -52,16 +52,16 @@ public:
     };
 
 public:
-    inline RiaAbstractGrpcCallback();
+    inline RiaGrpcCallbackInterface();
 
-    virtual ~RiaAbstractGrpcCallback() {}
-    virtual QString                  name() const                                                 = 0;
-    virtual RiaAbstractGrpcCallback* createNewFromThis() const                                    = 0;
-    virtual void                     createRequestHandler(ServerCompletionQueue* completionQueue) = 0;
-    virtual void                     onInitRequestStarted() {}
-    virtual void                     onInitRequestCompleted() {}
-    virtual void                     onProcessRequest()                                           = 0;
-    virtual void                     onFinishRequest() {}
+    virtual ~RiaGrpcCallbackInterface() {}
+    virtual QString                   name() const                                                 = 0;
+    virtual RiaGrpcCallbackInterface* createNewFromThis() const                                    = 0;
+    virtual void                      createRequestHandler(ServerCompletionQueue* completionQueue) = 0;
+    virtual void                      onInitRequestStarted() {}
+    virtual void                      onInitRequestCompleted() {}
+    virtual void                      onProcessRequest()                                           = 0;
+    virtual void                      onFinishRequest() {}
 
     inline CallState     callState() const;
     inline const Status& status() const;
@@ -80,10 +80,10 @@ protected:
 //
 //==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT>
-class RiaGrpcRequestCallback : public RiaAbstractGrpcCallback
+class RiaGrpcServiceCallback : public RiaGrpcCallbackInterface
 {
 public:
-    RiaGrpcRequestCallback(ServiceT* service);
+    RiaGrpcServiceCallback(ServiceT* service);
 
     QString         name() const override;
     const RequestT& request() const;
@@ -104,7 +104,7 @@ protected:
 //
 //==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT>
-class RiaGrpcCallback : public RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>
+class RiaGrpcUnaryCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
 {
 public:
     typedef ServerAsyncResponseWriter<ReplyT>                                          ResponseWriterT;
@@ -113,9 +113,9 @@ public:
         void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)>
         MethodRequestT;
 
-    RiaGrpcCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest);
+    RiaGrpcUnaryCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest);
 
-    RiaAbstractGrpcCallback* createNewFromThis() const override;
+    RiaGrpcCallbackInterface* createNewFromThis() const override;
     void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
     void                     onProcessRequest() override;
 
@@ -141,7 +141,7 @@ private:
 //
 //==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-class RiaGrpcStreamCallback : public RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>
+class RiaGrpcServerStreamCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
 {
 public:
     typedef ServerAsyncWriter<ReplyT>                                                                  ResponseWriterT;
@@ -150,9 +150,9 @@ public:
         void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)>
         MethodRequestT;
 
-    RiaGrpcStreamCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest, StateHandlerT* stateHandler);
+    RiaGrpcServerStreamCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest, StateHandlerT* stateHandler);
 
-    RiaAbstractGrpcCallback* createNewFromThis() const override;
+    RiaGrpcCallbackInterface* createNewFromThis() const override;
     void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
     void                     onInitRequestCompleted() override;
     void                     onProcessRequest() override;
@@ -181,7 +181,7 @@ private:
 //
 //==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-class RiaGrpcClientStreamCallback : public RiaGrpcRequestCallback<ServiceT, RequestT, ReplyT>
+class RiaGrpcClientStreamCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
 {
 public:
     typedef ServerAsyncReader<ReplyT, RequestT>                                                        RequestReaderT;
@@ -192,7 +192,7 @@ public:
 
     RiaGrpcClientStreamCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest, StateHandlerT* stateHandler);
 
-    RiaAbstractGrpcCallback* createNewFromThis() const override;
+    RiaGrpcCallbackInterface* createNewFromThis() const override;
     void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
     void                     onInitRequestStarted() override;
     void                     onInitRequestCompleted() override;

@@ -302,15 +302,15 @@ grpc::Status RiaGrpcPropertiesService::SetGridResults(grpc::ServerContext*      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaAbstractGrpcCallback*> RiaGrpcPropertiesService::createCallbacks()
+std::vector<RiaGrpcCallbackInterface*> RiaGrpcPropertiesService::createCallbacks()
 {
     typedef RiaGrpcPropertiesService Self;
 
-    return {new RiaGrpcCallback<Self, PropertiesRequest, AvailableProperties>(
+    return {new RiaGrpcUnaryCallback<Self, PropertiesRequest, AvailableProperties>(
                 this, &Self::GetAvailableProperties, &Self::RequestGetAvailableProperties),
-            new RiaGrpcStreamCallback<Self, ResultRequest, ResultArray, RiaActiveCellResultsStateHandler>(
+            new RiaGrpcServerStreamCallback<Self, ResultRequest, ResultArray, RiaActiveCellResultsStateHandler>(
                 this, &Self::GetActiveCellResults, &Self::RequestGetActiveCellResults, new RiaActiveCellResultsStateHandler),
-            new RiaGrpcStreamCallback<Self, ResultRequest, ResultArray, RiaGridCellResultsStateHandler>(
+            new RiaGrpcServerStreamCallback<Self, ResultRequest, ResultArray, RiaGridCellResultsStateHandler>(
                 this, &Self::GetGridResults, &Self::RequestGetGridResults, new RiaGridCellResultsStateHandler),
             new RiaGrpcClientStreamCallback<Self, ResultRequestChunk, Empty, RiaActiveCellResultsStateHandler>(
                 this, &Self::SetActiveCellResults, &Self::RequestSetActiveCellResults, new RiaActiveCellResultsStateHandler),

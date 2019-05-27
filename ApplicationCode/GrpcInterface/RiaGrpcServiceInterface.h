@@ -21,7 +21,7 @@
 
 #include <vector>
 
-class RiaAbstractGrpcCallback;
+class RiaGrpcCallbackInterface;
 class RimCase;
 
 //==================================================================================================
@@ -32,7 +32,7 @@ class RimCase;
 class RiaGrpcServiceInterface
 {
 public:
-    virtual std::vector<RiaAbstractGrpcCallback*> createCallbacks() = 0;
+    virtual std::vector<RiaGrpcCallbackInterface*> createCallbacks() = 0;
     virtual ~RiaGrpcServiceInterface() = default;
     static RimCase* findCase(int caseId);
     static size_t numberOfMessagesForByteCount(size_t messageSize, size_t byteCount = 64 * 1024u);

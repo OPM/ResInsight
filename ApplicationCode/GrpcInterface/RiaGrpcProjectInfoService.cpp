@@ -231,18 +231,18 @@ grpc::Status
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaAbstractGrpcCallback*> RiaGrpcProjectInfoService::createCallbacks()
+std::vector<RiaGrpcCallbackInterface*> RiaGrpcProjectInfoService::createCallbacks()
 {
     typedef RiaGrpcProjectInfoService Self;
 
     return {
-        new RiaGrpcCallback<Self, Empty, Case>(this, &Self::CurrentCase, &Self::RequestCurrentCase),
-        new RiaGrpcCallback<Self, Empty, CaseInfo>(this, &Self::CurrentCaseInfo, &Self::RequestCurrentCaseInfo),
-        new RiaGrpcCallback<Self, Case, CaseInfo>(this, &Self::CaseInfoFromCase, &Self::RequestCaseInfoFromCase),
-        new RiaGrpcCallback<Self, Empty, CaseInfos>(this, &Self::SelectedCases, &Self::RequestSelectedCases),
-        new RiaGrpcCallback<Self, Empty, CaseGroups>(this, &Self::AllCaseGroups, &Self::RequestAllCaseGroups),
-        new RiaGrpcCallback<Self, Empty, CaseInfos>(this, &Self::AllCases, &Self::RequestAllCases),
-        new RiaGrpcCallback<Self, CaseGroup, CaseInfos>(this, &Self::CasesInGroup, &Self::RequestCasesInGroup)};
+        new RiaGrpcUnaryCallback<Self, Empty, Case>(this, &Self::CurrentCase, &Self::RequestCurrentCase),
+        new RiaGrpcUnaryCallback<Self, Empty, CaseInfo>(this, &Self::CurrentCaseInfo, &Self::RequestCurrentCaseInfo),
+        new RiaGrpcUnaryCallback<Self, Case, CaseInfo>(this, &Self::CaseInfoFromCase, &Self::RequestCaseInfoFromCase),
+        new RiaGrpcUnaryCallback<Self, Empty, CaseInfos>(this, &Self::SelectedCases, &Self::RequestSelectedCases),
+        new RiaGrpcUnaryCallback<Self, Empty, CaseGroups>(this, &Self::AllCaseGroups, &Self::RequestAllCaseGroups),
+        new RiaGrpcUnaryCallback<Self, Empty, CaseInfos>(this, &Self::AllCases, &Self::RequestAllCases),
+        new RiaGrpcUnaryCallback<Self, CaseGroup, CaseInfos>(this, &Self::CasesInGroup, &Self::RequestCasesInGroup)};
 }
 
 static bool RiaGrpcProjectInfoService_init =

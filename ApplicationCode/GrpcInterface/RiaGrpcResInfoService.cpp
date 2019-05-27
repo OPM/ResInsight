@@ -34,10 +34,10 @@ grpc::Status RiaGrpcResInfoService::GetVersion(grpc::ServerContext* context, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaAbstractGrpcCallback*> RiaGrpcResInfoService::createCallbacks()
+std::vector<RiaGrpcCallbackInterface*> RiaGrpcResInfoService::createCallbacks()
 {
     typedef RiaGrpcResInfoService Self;
-    return { new RiaGrpcCallback<Self, rips::Empty, rips::Version>(this, &Self::GetVersion, &Self::RequestGetVersion) };
+    return { new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Version>(this, &Self::GetVersion, &Self::RequestGetVersion) };
 }
 
 static bool RiaGrpcResInfoService_init =

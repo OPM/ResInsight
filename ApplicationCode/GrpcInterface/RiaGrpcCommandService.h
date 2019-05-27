@@ -41,13 +41,13 @@ namespace protobuf
 } // namespace protobuf
 } // namespace google
 
-class RiaAbstractGrpcCallback;
+class RiaGrpcCallbackInterface;
 
 class RiaGrpcCommandService : public rips::Commands::AsyncService, public RiaGrpcServiceInterface
 {
 public:
     grpc::Status Execute(grpc::ServerContext* context, const rips::CommandParams* request, rips::CommandReply* reply) override;
-    std::vector<RiaAbstractGrpcCallback*> createCallbacks() override;
+    std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 
 private:
     template<typename T>
