@@ -1,0 +1,56 @@
+@startuml
+
+
+package GrpcServices
+{
+	class RiaGrpcServiceInterface
+	class RiaGrpcStreamService
+	{
+		GetStream(Request*, Reply*, StateHandler*)
+		RequestGetStream(...)
+		SetStream(Request*, Reply*, StateHandler*)
+		RequestSetStream(...)
+	}
+	RiaGrpcServiceInterface <|-- RiaGrpcStreamService
+
+}
+
+package GrpcCallbacks
+{
+	class RiaGrpcCallbackInterface
+		
+	class RiaGrpcClientStreamCallback<RiaGrpcStreamService, Request, Reply, StateHandler>
+	{
+	
+	}
+	
+	class RiaGrpcServerStreamCallback<RiaGrpcStreamService, Request, Reply, StateHandler>
+	{
+	
+	}
+
+	RiaGrpcCallbackInterface <|-- RiaGrpcServerStreamCallback
+	RiaGrpcCallbackInterface <|-- RiaGrpcClientStreamCallback
+	
+	
+	
+	RiaGrpcServerStreamCallback --> RiaGrpcStreamService::RequestGetStream : registers
+	RiaGrpcServerStreamCallback --> RiaGrpcStreamService::GetStream : sends N chunks
+	RiaGrpcClientStreamCallback --> RiaGrpcStreamService::RequestSetStream : registers
+	RiaGrpcClientStreamCallback --> RiaGrpcStreamService::SetStream : gets N chunks
+}
+
+package GrpcServer
+{
+	class RiaGrpcServer
+	RiaGrpcServer "1" *-- "many" RiaGrpcServiceInterface : contains
+	RiaGrpcServer "1" *-- "many" RiaGrpcCallbackInterface : contains
+
+}
+
+package ResInsight {
+	RiaApplication --> RiaGrpcServer
+}
+
+
+@enduml
