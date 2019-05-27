@@ -319,7 +319,7 @@ if (MSVC)
 elseif (APPLE)
     set( EXE_FILES MACOSX_BUNDLE)
 else()
-	set_source_files_properties(${GRPC_CPP_SOURCES} PROPERTIES COMPILE_FLAGS "-Woverloaded-virtual")
+	set_source_files_properties(${GRPC_CPP_SOURCES} PROPERTIES COMPILE_FLAGS "-Wno-overloaded-virtual")
 endif()
 set( EXE_FILES
     ${EXE_FILES}
