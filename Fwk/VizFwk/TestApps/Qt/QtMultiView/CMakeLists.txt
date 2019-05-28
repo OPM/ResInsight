@@ -20,6 +20,7 @@ include_directories(${LibGuiQt_SOURCE_DIR})
 include_directories(${LibUtilities_SOURCE_DIR})
 
 set(CEE_LIBS LibUtilities LibGuiQt LibViewing LibRender LibGeometry LibIo LibCore)
+set(EXTERNAL_LIBS)
 
 set(CEE_SOURCE_FILES
 QMVFactory.cpp
@@ -48,8 +49,13 @@ endif(CEE_USE_QT5)
 # Run MOC on the headers
 add_definitions(-DCVF_USING_CMAKE)
 
+set(SYSTEM_LIBRARIES)
+if (CMAKE_COMPILER_IS_GNUCXX)
+	set(SYSTEM_LIBRARIES -lrt -lpthread)
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
 add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES} ${MOC_SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} ${CEE_LIBS} ${OPENGL_LIBRARIES} ${QT_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${CEE_LIBS} ${OPENGL_LIBRARIES} ${QT_LIBRARIES} ${SYSTEM_LIBRARIES})
 
 if (CEE_USE_QT5)
     foreach (qtlib ${QT_LIBRARIES})
