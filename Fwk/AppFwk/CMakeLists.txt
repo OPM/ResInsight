@@ -8,7 +8,13 @@ if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   message("Add flag to disable warings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
 endif()
 
-find_package(Qt5Core CONFIG QUIET)
+# Qt
+option(CEE_USE_QT5 "Use Qt5" OFF)
+
+if (CEE_USE_QT5)
+	find_package(Qt5Core CONFIG QUIET)
+endif(CEE_USE_QT5)
+
 if (Qt5Core_FOUND)
     find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Widgets)
 else()

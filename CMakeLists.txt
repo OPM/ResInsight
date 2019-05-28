@@ -332,6 +332,15 @@ set_property(TARGET
 	PROPERTY FOLDER "Thirdparty"
 )
 
+
+################################################################################
+# App and Viz Framework Qt5 setting
+################################################################################
+if (RESINSIGHT_BUILD_WITH_QT5)
+  set(CEE_USE_QT5 ON)
+endif(RESINSIGHT_BUILD_WITH_QT5)
+
+
 ################################################################################
 # Vizualization Framework
 ################################################################################
@@ -357,10 +366,6 @@ if (CMAKE_COMPILER_IS_GNUCC)
  
 endif()
 
-if (RESINSIGHT_BUILD_WITH_QT5)
-  set(CEE_USE_QT5 ON)
-endif(RESINSIGHT_BUILD_WITH_QT5)
-
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibCore)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGeometry)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibRender)
@@ -384,10 +389,6 @@ set_property(TARGET
 ################################################################################
 # Application Framework
 ################################################################################
-
-if (RESINSIGHT_BUILD_WITH_QT5)
-  set(CAF_USE_QT5 ON)
-endif(RESINSIGHT_BUILD_WITH_QT5)
 
 add_subdirectory(Fwk/AppFwk/cafAnimControl)
 add_subdirectory(Fwk/AppFwk/cafViewer)

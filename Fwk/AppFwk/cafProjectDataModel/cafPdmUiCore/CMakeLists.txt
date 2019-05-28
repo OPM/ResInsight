@@ -3,13 +3,19 @@ cmake_minimum_required (VERSION 2.8.12)
 project (cafPdmUiCore)		
 
 # Qt
-if (CAF_USE_QT5)
-	find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
-else()
-	find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
-    include(${QT_USE_FILE})
-endif(CAF_USE_QT5)
+option(CEE_USE_QT5 "Use Qt5" OFF)
 
+if (CEE_USE_QT5)
+	find_package(Qt5Core CONFIG QUIET)
+endif(CEE_USE_QT5)
+
+if (Qt5Core_FOUND)
+    find_package(Qt5 CONFIG REQUIRED Core Gui Widgets)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+else()
+    find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
+    include(${QT_USE_FILE})
+endif(Qt5Core_FOUND)
 
 include_directories (
     ..
@@ -25,11 +31,11 @@ set (MOC_HEADER_FILES
 
 # Run MOC on the headers
 add_definitions(-DCVF_USING_CMAKE)
-if (CAF_USE_QT5)
+if (CEE_USE_QT5)
 	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 else()
 	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif(CAF_USE_QT5)
+endif(CEE_USE_QT5)
 
 set( PROJECT_FILES
 
@@ -85,10 +91,6 @@ add_library( ${PROJECT_NAME}
 	${PROJECT_FILES}
 	${MOC_SOURCE_FILES}
 )
-
-if (CAF_USE_QT5)
-    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-endif(CAF_USE_QT5)
 
 target_link_libraries ( ${PROJECT_NAME}
     cafPdmCore

@@ -3,12 +3,19 @@ cmake_minimum_required (VERSION 2.8.12)
 project (cafPdmCore)
 
 # Qt
-if (CAF_USE_QT5)
-	find_package(Qt5 COMPONENTS Core REQUIRED)
+option(CEE_USE_QT5 "Use Qt5" OFF)
+
+if (CEE_USE_QT5)
+	find_package(Qt5Core CONFIG QUIET)
+endif(CEE_USE_QT5)
+
+if (Qt5Core_FOUND)
+    find_package(Qt5 CONFIG REQUIRED Core)
+	set(QT_LIBRARIES Qt5::Core)
 else()
-	find_package(Qt4 COMPONENTS QtCore REQUIRED)
+    find_package(Qt4 COMPONENTS QtCore REQUIRED)
     include(${QT_USE_FILE})
-endif(CAF_USE_QT5)
+endif(Qt5Core_FOUND)
 
 set( PROJECT_FILES
 
@@ -63,10 +70,6 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
-
-if (CAF_USE_QT5)
-    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-endif(CAF_USE_QT5)
 
 target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES})
 
