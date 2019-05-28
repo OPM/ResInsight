@@ -6,16 +6,12 @@ project (cafPdmXml)
 option(CEE_USE_QT5 "Use Qt5" OFF)
 
 if (CEE_USE_QT5)
-	find_package(Qt5Core CONFIG QUIET)
-endif(CEE_USE_QT5)
-
-if (Qt5Core_FOUND)
-    find_package(Qt5 CONFIG REQUIRED Core Xml)
-	set(QT_LIBRARIES Qt5::Core Qt5::Xml)	
+	find_package(Qt5 COMPONENTS REQUIRED Core Xml)
+	set(QT_LIBRARIES Qt5::Core Qt5::Xml)
 else()
     find_package(Qt4 COMPONENTS QtCore QtXml REQUIRED)
     include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
+endif(CEE_USE_QT5)
 
 include_directories (
 	..

@@ -1,26 +1,11 @@
 cmake_minimum_required (VERSION 2.8.12)
 
+project (cafUserInterface)
+
 if (MSVC)
     # Define this one to tell windows.h to not define min() and max() as macros
     add_definitions(-DNOMINMAX)
 endif (MSVC)
-
-project (cafUserInterface)
-
-# Qt
-option(CEE_USE_QT5 "Use Qt5" OFF)
-
-if (CEE_USE_QT5)
-	find_package(Qt5Core CONFIG QUIET)
-endif(CEE_USE_QT5)
-
-if (Qt5Core_FOUND)
-    find_package(Qt5 CONFIG REQUIRED Core Gui Widgets)
-	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
-    include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
 
 # These headers need to go through Qt's MOC compiler
 set (MOC_HEADER_FILES    
@@ -61,14 +46,17 @@ set (MOC_HEADER_FILES
     cafPdmUiPickableLineEditor.h
 )
 
-if ( NOT CMAKE_AUTOMOC )
-	if (CEE_USE_QT5)
-		qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-	else()
-		qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-	endif(CEE_USE_QT5)
-endif()
+option(CEE_USE_QT5 "Use Qt5" OFF)
 
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )	
+else()
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
+    include(${QT_USE_FILE})
+	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+endif(CEE_USE_QT5)
 
 set( PROJECT_FILES
     
