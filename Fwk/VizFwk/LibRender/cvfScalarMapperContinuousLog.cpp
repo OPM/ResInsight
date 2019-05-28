@@ -53,9 +53,9 @@ namespace cvf {
 /// Configured by specifying a number of level colors and a min/max range. 
 //==================================================================================================
 ScalarMapperContinuousLog::ScalarMapperContinuousLog()
-    : m_hasNegativeRange(false),
-    m_logRange(0.0),
-    m_logRangeMin(0.0)
+    : m_logRange(0.0)
+    , m_logRangeMin(0.0)
+    , m_hasNegativeRange(false)
 {
   
 }

@@ -20,7 +20,7 @@ include_directories(${LibGuiQt_SOURCE_DIR})
 include_directories(${LibUtilities_SOURCE_DIR})
 include_directories(${SnippetsBasis_SOURCE_DIR})
 
-set(CEE_LIBS SnippetsBasis freetype LibFreeType LibUtilities LibGuiQt LibViewing LibRender LibGeometry LibIo LibCore opengl32)
+set(CEE_LIBS SnippetsBasis freetype LibFreeType LibUtilities LibGuiQt LibViewing LibRender LibGeometry LibIo LibCore)
 
 include_directories(${SnippetsModules_SOURCE_DIR})
 set(CEE_LIBS LibStructGrid ${CEE_LIBS})
