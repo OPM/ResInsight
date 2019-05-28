@@ -44,6 +44,9 @@
 #include "cvfqtUtils.h"
 
 #if QT_VERSION >= 0x050000
+#include <QApplication>
+#include <QComboBox>
+#include <QDockWidget>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>

@@ -43,6 +43,8 @@
 #include "cvfqtUtils.h"
 
 #if QT_VERSION >= 0x050000
+#include <QComboBox>
+#include <QSpinBox>
 #include <QTextBrowser>
 #include <QListWidget>
 #include <QVBoxLayout>
