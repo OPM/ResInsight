@@ -253,27 +253,13 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 # Qt
 ################################################################################
-option(RESINSIGHT_BUILD_WITH_QT5 "Use Qt5 folder" OFF)
-if (RESINSIGHT_BUILD_WITH_QT5)
-	message(STATUS "Attempting to build with Qt5")
-	find_package(Qt5 COMPONENTS Core QUIET)
-else()
-	message(STATUS "Attempting to build with Qt4")
-endif(RESINSIGHT_BUILD_WITH_QT5)
+option(RESINSIGHT_BUILD_WITH_QT5 "Use Qt5" OFF)
 
-if (Qt5Core_FOUND)
-    message(STATUS "Found Qt5")
-	find_package (Qt5 CONFIG REQUIRED Core Widgets OpenGL Network Script ScriptTools)
+if (RESINSIGHT_BUILD_WITH_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Network Script ScriptTools Widgets)
 else()
-    if (RESINSIGHT_BUILD_WITH_QT5)
-		message(WARNING "Could not find Qt5. Trying with Qt4")
-	endif(RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
-    if (QT_VERSION_MINOR LESS 6)
-    	message(FATAL_ERROR "Qt 4.6 is required, please specify qmake for variable QT_QMAKE_EXECUTABLE")
-	endif()
-    include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools REQUIRED)
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 # Open GL
 find_package( OpenGL )

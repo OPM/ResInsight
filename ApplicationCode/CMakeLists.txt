@@ -5,19 +5,6 @@ project (ApplicationCode)
 # Open GL
 find_package( OpenGL )
 
-if (RESINSIGHT_BUILD_WITH_QT5)
-    find_package(Qt5 COMPONENTS Core QUIET)
-endif(RESINSIGHT_BUILD_WITH_QT5)
-
-if (Qt5Core_FOUND)
-    find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Network Script Widgets)
-    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Script Qt5::Widgets)
-else()
-    set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript)
-    find_package(Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED} REQUIRED)
-    include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
-
 # NB: The generated file is written to Cmake binary folder to avoid source tree pollution
 # This folder is added to include_directories
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
@@ -98,6 +85,7 @@ list( APPEND CPP_SOURCES
      ${UNIT_TEST_FILES}
 )
 
+option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
 if (RESINSIGHT_ENABLE_GRPC)
     list( APPEND REFERENCED_CMAKE_FILES
         GrpcInterface/CMakeLists.cmake
@@ -250,15 +238,6 @@ set ( QT_MOC_HEADERS
     SocketInterface/RiaSocketServer.h
 )
 
-if (Qt5Core_FOUND)
-    qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
-    qt5_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
-else()
-    qt4_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
-    qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
-endif()
-
-
 # NOTE! Resources in subfolders must append to QRC_FILES using the following statement
 #   set( QRC_FILES
 #       ${QRC_FILES}
@@ -271,18 +250,19 @@ set( QRC_FILES
     Resources/ResInsight.qrc
 )
 
-# Runs RCC on specified files
-if ( NOT CMAKE_AUTOMOC)
-    if (Qt5Core_FOUND)
-        qt5_add_resources( QRC_FILES_CPP
-            ${QRC_FILES}
-        )
-    else()
-        qt4_add_resources( QRC_FILES_CPP
-            ${QRC_FILES}
-        )
-    endif(Qt5Core_FOUND)
-endif(NOT CMAKE_AUTOMOC)
+if (RESINSIGHT_BUILD_WITH_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Network Script Widgets)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Network Qt5::Script Qt5::Widgets)
+	qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})	
+	qt5_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
+	qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
+else()
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl QtNetwork QtScript REQUIRED)
+    include(${QT_USE_FILE})
+	qt4_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})
+	qt4_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
+	qt4_add_resources(QRC_FILES_CPP ${QRC_FILES})
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 # Adding resource (RC) files for Windows
 if ( MSVC )
@@ -486,7 +466,7 @@ endif()
 if (MSVC)
 
     # Qt DLLs
-    if (Qt5Core_FOUND)
+    if (RESINSIGHT_BUILD_WITH_QT5)
         message(STATUS "Creating post build step for copying Qt DLLs")
         foreach (qtlib ${QT_LIBRARIES})
             add_custom_command(TARGET ResInsight POST_BUILD
@@ -494,11 +474,11 @@ if (MSVC)
             )
         endforeach(qtlib)
     else()
-        set (QTLIBLIST QtCore4 QtCored4 QtGui4 QtGuid4 QtOpenGl4 QtOpenGld4 QtNetwork4 QtNetworkd4 QtScript4 QtScriptd4 QtScriptTools4 QtScriptToolsd4)
-        foreach (qtlib ${QTLIBLIST})
-            list(APPEND RI_DLL_FILENAMES ${QT_BINARY_DIR}/${qtlib}.dll)
+        set (QTLIBLIST QtCore QtGui QtGui QtOpenGl QtNetwork QtScript QtScriptTools)
+        foreach (qtlib ${QTLIBLIST})		  
+            list(APPEND RI_DLL_FILENAMES ${QT_BINARY_DIR}/$<IF:$<CONFIG:Debug>,${qtlib}d4.dll,${qtlib}4.dll>)
         endforeach( qtlib )
-    endif()
+    endif(RESINSIGHT_BUILD_WITH_QT5)
     # Odb Dlls
     if (RESINSIGHT_USE_ODB_API)
         # Find all the dlls
@@ -595,7 +575,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
         set (RESINSIGHT_FILES ${RI_DLL_FILENAMES})
 
-        if(Qt5_FOUND AND WIN32 AND TARGET Qt5::qmake AND NOT TARGET Qt5::windeployqt)
+        if(RESINSIGHT_BUILD_WITH_QT5 AND WIN32 AND TARGET Qt5::qmake AND NOT TARGET Qt5::windeployqt)
           get_target_property(_qt5_qmake_location Qt5::qmake IMPORTED_LOCATION)
 
           execute_process(
