@@ -5,6 +5,20 @@ project (ApplicationCode)
 # Open GL
 find_package( OpenGL )
 
+option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
+if (RESINSIGHT_BUILD_WITH_QT5)
+    find_package(Qt5 COMPONENTS Core QUIET)
+endif(RESINSIGHT_BUILD_WITH_QT5)
+
+if (Qt5Core_FOUND)
+    find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Network Script Widgets)
+    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Script Qt5::Widgets)
+else()
+    set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript)
+    find_package(Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED} REQUIRED)
+    include(${QT_USE_FILE})
+endif(Qt5Core_FOUND)
+
 # NB: The generated file is written to Cmake binary folder to avoid source tree pollution
 # This folder is added to include_directories
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
@@ -85,7 +99,6 @@ list( APPEND CPP_SOURCES
      ${UNIT_TEST_FILES}
 )
 
-option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
 if (RESINSIGHT_ENABLE_GRPC)
     list( APPEND REFERENCED_CMAKE_FILES
         GrpcInterface/CMakeLists.cmake
@@ -238,6 +251,15 @@ set ( QT_MOC_HEADERS
     SocketInterface/RiaSocketServer.h
 )
 
+if (RESINSIGHT_BUILD_WITH_QT5)
+    qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
+    qt5_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
+else()
+    qt4_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
+    qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
+endif(RESINSIGHT_BUILD_WITH_QT5)
+
+
 # NOTE! Resources in subfolders must append to QRC_FILES using the following statement
 #   set( QRC_FILES
 #       ${QRC_FILES}
@@ -250,18 +272,15 @@ set( QRC_FILES
     Resources/ResInsight.qrc
 )
 
+# Runs RCC on specified files
 if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Network Script Widgets)
-	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Network Qt5::Script Qt5::Widgets)
-	qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})	
-	qt5_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
-	qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
+    qt5_add_resources( QRC_FILES_CPP
+        ${QRC_FILES}
+    )
 else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl QtNetwork QtScript REQUIRED)
-    include(${QT_USE_FILE})
-	qt4_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})
-	qt4_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
-	qt4_add_resources(QRC_FILES_CPP ${QRC_FILES})
+    qt4_add_resources( QRC_FILES_CPP
+        ${QRC_FILES}
+    )
 endif(RESINSIGHT_BUILD_WITH_QT5)
 
 # Adding resource (RC) files for Windows
