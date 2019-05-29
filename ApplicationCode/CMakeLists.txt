@@ -644,6 +644,14 @@ if (RESINSIGHT_PRIVATE_INSTALL)
           )
         endif()
 
+        # install GRPC-related DLLs
+        if (RESINSIGHT_ENABLE_GRPC)
+            set (GRPC_DLL_NAMES libprotobuf cares zlib1)
+            foreach (dllname ${GRPC_DLL_NAMES})		  
+              list(APPEND RESINSIGHT_FILES "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/${dllname}.dll")
+            endforeach(dllname ${GRPC_DLL_NAMES})
+	    endif()
+
         # CRT
         set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
         set(CMAKE_INSTALL_OPENMP_LIBRARIES ON)
@@ -651,6 +659,12 @@ if (RESINSIGHT_PRIVATE_INSTALL)
         install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
 
     endif()
+
+
+    # install gRPC Python files
+    if (RESINSIGHT_ENABLE_GRPC)
+        install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} FILES_MATCHING PATTERN "*.py")
+	endif()
 
     set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
         
