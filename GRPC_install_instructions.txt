@@ -1,21 +1,22 @@
 ########## Windows using vcpkg ###################
 1. Clone VCPKG
 git clone https://github.com/microsoft/vcpkg.git
-
-4. Install VCPKG from within vcpkg folder:
+2. Install VCPKG from within vcpkg folder:
 .\boostrap-vcpkg.bat
-5. Perform integrated install (as admin) within vcpkg folder. Not sure if it is necessary.
-.\vcpkg integrate install
-5. Install GRPC
+3. Install GRPC
 .\vcpkg install grpc --triplet x64-windows
-6. Run cmake with -DCMAKE_TOOLCHAIN_FILE=LOCATION_OF_VCPKG/buildsystems/vcpkg.cmake
-   This can be set on the configure dialog that comes up when you press configure with a fresh build folder.
-7. Enable GRPC by setting RESINSIGHT_ENABLE_GRPC = true
-8. Python
-   - Install Python 3
-   - Execute the following using the Python3
-   python -m pip install grpcio-tools
-   - Make sure the python executable is found by setting -DPYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
+
+4. Python
+* Install Python 3
+* Execute the following using Python3
+  python -m pip install grpcio-tools
+* Make sure the python executable is found by setting -DPYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
+   
+4. Run cmake with the following statements
+-DRESINSIGHT_ENABLE_GRPC=true
+-DPYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
+-DCMAKE_TOOLCHAIN_FILE=LOCATION_OF_VCPKG/scripts/buildsystems/vcpkg.cmake
+-A x64
 
 ############ Linux as STANDALONE GPRC (using GRPC_INSTALL_PREFIX=/opt/grpc as an example) ###############
 1. Clone grpc
