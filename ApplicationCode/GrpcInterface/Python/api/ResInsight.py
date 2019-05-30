@@ -120,7 +120,17 @@ class Properties:
     def __init__(self, channel):
         self.properties = Properties_pb2_grpc.PropertiesStub(channel)
     
-    def generateResultRequestArrays(self, array, parameters):
+    def generateResultRequestArrayIterator(self, values_iterator, parameters):
+        chunk = Properties_pb2.ResultRequestChunk()
+        chunk.params.CopyFrom(parameters)
+        yield chunk
+
+        for values in values_iterator:
+            valmsg = Properties_pb2.ResultArray(values = values)
+            chunk.values.CopyFrom(valmsg)
+            yield chunk
+
+    def generateResultRequestChunks(self, array, parameters):
          # Each double is 8 bytes. A good chunk size is 64KiB = 65536B
          # Meaning ideal number of doubles would be 8192.
          # However we need overhead space, so if we choose 8160 in chunk size
@@ -157,7 +167,9 @@ class Properties:
                                                property_name  = propertyName,
                                                time_step      = timeStep,
                                                porosity_model = porosityModelEnum)
-        return self.properties.GetActiveCellResults(request)
+        for chunk in self.properties.GetActiveCellResults(request):
+            yield chunk
+
     def gridCellResults(self, caseId, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = GridInfo_pb2.PorosityModelType.Value(porosityModel)
@@ -168,6 +180,25 @@ class Properties:
                                                grid_index     = gridIndex,
                                                porosity_model = porosityModelEnum)
         return self.properties.GetGridResults(request)
+
+    def setActiveCellResultsAsync(self, values_iterator, caseId, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+        propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
+        porosityModelEnum = GridInfo_pb2.PorosityModelType.Value(porosityModel)
+        request = Properties_pb2.ResultRequest(request_case   = CaseInfo_pb2.Case(id=caseId),
+                                               property_type  = propertyTypeEnum,
+                                               property_name  = propertyName,
+                                               time_step      = timeStep,
+                                               grid_index     = gridIndex,
+                                               porosity_model = porosityModelEnum)
+        try:
+            reply_iterator = self.generateResultRequestArrayIterator(values_iterator, request)
+            self.properties.SetActiveCellResults(reply_iterator)
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.NOT_FOUND:
+                print("Command not found")
+            else:
+                print("Other error", e)
+
     def setActiveCellResults(self, values, caseId, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = GridInfo_pb2.PorosityModelType.Value(porosityModel)
@@ -178,14 +209,13 @@ class Properties:
                                                grid_index     = gridIndex,
                                                porosity_model = porosityModelEnum)
         try:
-            request_iterator = self.generateResultRequestArrays(values, request)
+            request_iterator = self.generateResultRequestChunks(values, request)
             self.properties.SetActiveCellResults(request_iterator)
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 print("Command not found")
             else:
                 print("Other error", e)
-
     def setGridResults(self, values, caseId, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = GridInfo_pb2.PorosityModelType.Value(porosityModel)
