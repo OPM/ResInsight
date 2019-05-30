@@ -218,11 +218,10 @@ grpc::Status RiaGrpcGridInfoService::GetGridCount(grpc::ServerContext* context, 
     RimCase* rimCase = findCase(request->id());
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
-    size_t          gridCount   = 0u;
     if (eclipseCase)
     {
-        gridCount = eclipseCase->mainGrid()->gridCount();
-        reply->set_count((int)gridCount);
+        int gridCount = (int) eclipseCase->mainGrid()->gridCount();
+        reply->set_count(gridCount);
         return Status::OK;
     }
     return grpc::Status(grpc::NOT_FOUND, "Eclipse Case not found");

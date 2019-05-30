@@ -65,8 +65,6 @@ public:
 
     inline CallState     callState() const;
     inline const Status& status() const;
-
-protected:
     inline void setNextCallState(CallState state);
 
 protected:

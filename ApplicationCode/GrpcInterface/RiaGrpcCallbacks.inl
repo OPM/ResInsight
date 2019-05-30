@@ -272,7 +272,7 @@ template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHa
 RiaGrpcCallbackInterface* RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createNewFromThis() const
 {
     return new RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>(
-        this->m_service, m_methodImpl, m_methodRequest, new StateHandlerT);
+        this->m_service, m_methodImpl, m_methodRequest, new StateHandlerT(true));
 }
 
 //--------------------------------------------------------------------------------------------------

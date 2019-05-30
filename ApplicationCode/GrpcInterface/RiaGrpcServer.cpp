@@ -229,12 +229,13 @@ void RiaGrpcServerImpl::waitForNextRequest()
 
     while (m_completionQueue->Next(&tag, &ok))
     {
+        std::lock_guard<std::mutex> requestLock(m_requestMutex);
         RiaGrpcCallbackInterface* method = static_cast<RiaGrpcCallbackInterface*>(tag);
-        if (ok)
+        if (!ok)
         {
-            std::lock_guard<std::mutex> requestLock(m_requestMutex);
-            m_unprocessedRequests.push_back(method);
+            method->setNextCallState(RiaGrpcCallbackInterface::FINISH_REQUEST);
         }
+        m_unprocessedRequests.push_back(method);
     }
 }
 
@@ -247,17 +248,14 @@ void RiaGrpcServerImpl::process(RiaGrpcCallbackInterface* method)
 {
     if (method->callState() == RiaGrpcCallbackInterface::CREATE_HANDLER)
     {
-        RiaLogging::debug(QString("Creating request handler for: %1").arg(method->name()));
         method->createRequestHandler(m_completionQueue.get());
     }
     else if (method->callState() == RiaGrpcCallbackInterface::INIT_REQUEST_STARTED)
     {
         method->onInitRequestStarted();
-
     }
     else if (method->callState() == RiaGrpcCallbackInterface::INIT_REQUEST_COMPLETED)
     {
-        RiaLogging::info(QString("Initialising handling: %1").arg(method->name()));
         method->onInitRequestCompleted();
     }
     else if (method->callState() == RiaGrpcCallbackInterface::PROCESS_REQUEST)
@@ -266,7 +264,6 @@ void RiaGrpcServerImpl::process(RiaGrpcCallbackInterface* method)
     }
     else
     {
-        RiaLogging::info(QString("Finished handling: %1").arg(method->name()));
         method->onFinishRequest();
         process(method->createNewFromThis());
         delete method;
