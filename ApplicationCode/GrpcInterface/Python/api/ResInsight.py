@@ -22,7 +22,7 @@ import Properties_pb2
 import Properties_pb2_grpc
 import RiaVersionInfo
 
-class ResInfo:
+class AppInfo:
     def __init__(self, channel):
         self.appInfo      = AppInfo_pb2_grpc.AppInfoStub(channel)
     def versionMessage(self):
@@ -74,49 +74,67 @@ class CommandExecutor:
         return self.execute(Cmd.CommandParams(exportWellPaths=Cmd.ExportWellPathRequest(wellPathNames=wellPathArray, mdStepSize=mdStepSize)))
 
 class Case:
-    def __init__(self, channel):
-        self.case = Case_pb2_grpc.CaseStub(channel)		
-    
-    def gridCount(self, caseId=0):
-        return self.case.GetGridCount(Case_pb2.CaseRequest(id=caseId)).count
+    def __init__(self, channel, id):
+        self.channel = channel
+        self.stub = Case_pb2_grpc.CaseStub(channel)		
+        self.id = id
+        info = self.stub.GetCaseInfo(Case_pb2.CaseRequest(id=self.id))
+        self.name    = info.name
+        self.groupId = info.group_id
+        self.type    = info.type
+        self.properties = Properties(self.channel, self)
+        self.request = Case_pb2.CaseRequest(id=self.id)
+    def gridCount(self):
+        return self.stub.GetGridCount(self.request).count
         
-    def gridDimensions(self, caseId=0):
-        return self.case.GetGridDimensions(Case_pb2.CaseRequest(id=caseId)).dimensions
+    def gridDimensions(self):
+        return self.stub.GetGridDimensions(self.request).dimensions
         
-    def cellCount(self, caseId=0, porosityModel='MATRIX_MODEL'):
+    def cellCount(self, porosityModel='MATRIX_MODEL'):
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request =  Case_pb2.CellInfoRequest(request_case=Case_pb2.CaseRequest(id=caseId),
+        request =  Case_pb2.CellInfoRequest(request_case=self.request,
                                             porosity_model=porosityModel)
-        return self.case.GetCellCount(request)
+        return self.stub.GetCellCount(request)
 
-    def cellInfoForActiveCells(self, caseId=0, porosityModel='MATRIX_MODEL'):
+    def cellInfoForActiveCells(self, porosityModel='MATRIX_MODEL'):
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request =  Case_pb2.CellInfoRequest(request_case=Case_pb2.CaseRequest(id=caseId),
+        request =  Case_pb2.CellInfoRequest(request_case=self.request,
                                             porosity_model=porosityModel)
-        return self.case.GetCellInfoForActiveCells(request)
+        return self.stub.GetCellInfoForActiveCells(request)
 
-    def timeSteps(self, caseId=0):
-        return self.case.GetTimeSteps(Case_pb2.CaseRequest(id=caseId))
-       
+    def timeSteps(self):
+        return self.stub.GetTimeSteps(self.request)
+        
 class Project:
     def __init__(self, channel):
+        self.channel = channel
         self.project = Project_pb2_grpc.ProjectStub(channel)
     def selectedCases(self):
-        selected = self.project.SelectedCases(Empty())
-        if selected is not None:
-            return selected.data
-        else:
-            return None
+        caseInfos = self.project.GetSelectedCases(Empty())
+        cases = []
+        for caseInfo in caseInfos.data:
+            cases.append(Case(self.channel, caseInfo.id))
+        return cases
+
     def allCases(self):
-        cases = self.project.AllCases(Empty())
-        if cases is not None:
-            return cases.data
-        else:
+        caseInfos = self.project.GetAllCases(Empty())
+
+        cases = []
+        for caseInfo in caseInfos.data:
+            cases.append(Case(self.channel, caseInfo.id))
+        return cases
+
+    def case(self, id):
+        try:
+            case = Case(self.channel, id)
+            return case
+        except grpc.RpcError as e:
             return None
 
 class Properties:
-    def __init__(self, channel):
-        self.properties = Properties_pb2_grpc.PropertiesStub(channel)
+    def __init__(self, channel, case):
+        self.case = case
+        self.propertiesStub = Properties_pb2_grpc.PropertiesStub(channel)
     
     def generatePropertyInputIterator(self, values_iterator, parameters):
         chunk = Properties_pb2.PropertyInputChunk()
@@ -150,82 +168,83 @@ class Properties:
         chunk = Properties_pb2.PropertyInputChunk()
         yield chunk
 
-    def availableProperties(self, caseId, propertyType, porosityModel = 'MATRIX_MODEL'):
+    def available(self, propertyType, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request = Properties_pb2.PropertiesRequest (request_case = Case_pb2.CaseRequest(id=caseId),
+        request = Properties_pb2.AvailablePropertiesRequest (request_case = Case_pb2.CaseRequest(id=self.case.id),
                                                     property_type = propertyTypeEnum,
                                                     porosity_model = porosityModelEnum)
-        return self.properties.GetAvailableProperties(request).property_names
-    def activeCellProperty(self, caseId, propertyType, propertyName, timeStep, porosityModel = 'MATRIX_MODEL'):
+        return self.propertiesStub.GetAvailableProperties(request).property_names
+
+    def activeCellProperty(self, propertyType, propertyName, timeStep, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request = Properties_pb2.PropertyRequest(request_case   = Case_pb2.CaseRequest(id=caseId),
+        request = Properties_pb2.PropertyRequest(request_case   = Case_pb2.CaseRequest(id=self.case.id),
                                                property_type  = propertyTypeEnum,
                                                property_name  = propertyName,
                                                time_step      = timeStep,
                                                porosity_model = porosityModelEnum)
-        for chunk in self.properties.GetActiveCellProperty(request):
+        for chunk in self.propertiesStub.GetActiveCellProperty(request):
             yield chunk
 
-    def gridProperty(self, caseId, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+    def gridProperty(self, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request = Properties_pb2.PropertyRequest(request_case   = Case_pb2.CaseRequest(id=caseId),
-                                               property_type  = propertyTypeEnum,
-                                               property_name  = propertyName,
-                                               time_step      = timeStep,
-                                               grid_index     = gridIndex,
-                                               porosity_model = porosityModelEnum)
-        return self.properties.GetGridProperty(request)
+        request = Properties_pb2.PropertyRequest(request_case   = self.case.request,
+                                                 property_type  = propertyTypeEnum,
+                                                 property_name  = propertyName,
+                                                 time_step      = timeStep,
+                                                 grid_index     = gridIndex,
+                                                 porosity_model = porosityModelEnum)
+        return self.propertiesStub.GetGridProperty(request)
 
-    def setActiveCellPropertyAsync(self, values_iterator, caseId, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+    def setActiveCellPropertyAsync(self, values_iterator, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request = Properties_pb2.PropertyRequest(request_case   = Case_pb2.CaseRequest(id=caseId),
-                                               property_type  = propertyTypeEnum,
-                                               property_name  = propertyName,
-                                               time_step      = timeStep,
-                                               grid_index     = gridIndex,
-                                               porosity_model = porosityModelEnum)
+        request = Properties_pb2.PropertyRequest(request_case   = self.case.request,
+                                                 property_type  = propertyTypeEnum,
+                                                 property_name  = propertyName,
+                                                 time_step      = timeStep,
+                                                 grid_index     = gridIndex,
+                                                 porosity_model = porosityModelEnum)
         try:
             reply_iterator = self.generatePropertyInputIterator(values_iterator, request)
-            self.properties.SetActiveCellProperty(reply_iterator)
+            self.propertiesStub.SetActiveCellProperty(reply_iterator)
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 print("Command not found")
             else:
                 print("Other error", e)
 
-    def setActiveCellProperty(self, values, caseId, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+    def setActiveCellProperty(self, values, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request = Properties_pb2.PropertyRequest(request_case   = Case_pb2.CaseRequest(id=caseId),
-                                               property_type  = propertyTypeEnum,
-                                               property_name  = propertyName,
-                                               time_step      = timeStep,
-                                               grid_index     = gridIndex,
-                                               porosity_model = porosityModelEnum)
+        request = Properties_pb2.PropertyRequest(request_case   = self.case.request,
+                                                 property_type  = propertyTypeEnum,
+                                                 property_name  = propertyName,
+                                                 time_step      = timeStep,
+                                                 grid_index     = gridIndex,
+                                                 porosity_model = porosityModelEnum)
         try:
             request_iterator = self.generatePropertyInputChunks(values, request)
-            self.properties.SetActiveCellProperty(request_iterator)
+            self.propertiesStub.SetActiveCellProperty(request_iterator)
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 print("Command not found")
             else:
                 print("Other error", e)
-    def setGridProperty(self, values, caseId, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+    def setGridProperty(self, values, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request = Properties_pb2.PropertyRequest(request_case   = Case_pb2.CaseRequest(id=caseId),
-                                               property_type  = propertyTypeEnum,
-                                               property_name  = propertyName,
-                                               time_step      = timeStep,
-                                               grid_index     = gridIndex,
-                                               porosity_model = porosityModelEnum)
+        request = Properties_pb2.PropertyRequest(request_case   = self.case.request,
+                                                 property_type  = propertyTypeEnum,
+                                                 property_name  = propertyName,
+                                                 time_step      = timeStep,
+                                                 grid_index     = gridIndex,
+                                                 porosity_model = porosityModelEnum)
         try:
             request_iterator = self.generatePropertyInputChunks(values, request)
-            self.properties.SetGridProperty(request_iterator)
+            self.propertiesStub.SetGridProperty(request_iterator)
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 print("Command not found")
@@ -280,10 +299,10 @@ class Instance:
         self.channel = grpc.insecure_channel(location)
 
         # Main version check package
-        self.resInfo     = ResInfo(self.channel)
+        self.appInfo     = AppInfo(self.channel)
         try:
-            majorVersionOk = self.resInfo.majorVersion() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
-            minorVersionOk = self.resInfo.minorVersion() == int(RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
+            majorVersionOk = self.appInfo.majorVersion() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
+            minorVersionOk = self.appInfo.minorVersion() == int(RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
             if not (majorVersionOk and minorVersionOk):
                 raise Exception('Version of ResInsight does not match version of Python API')
         except grpc.RpcError as e:
@@ -294,7 +313,5 @@ class Instance:
                 
         # Service packages
         self.commands   = CommandExecutor(self.channel)
-        self.case       = Case(self.channel)
         self.project    = Project(self.channel)
-        self.properties = Properties(self.channel)
     

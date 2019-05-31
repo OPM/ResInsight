@@ -149,10 +149,8 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 		"examples/PoroPermXAsync.py"
 		"examples/SoilPorvAsync.py"
 		"examples/SoilPorvSync.py"
-        "examples/ResultValues.py"
         "examples/SelectedCases.py"
         "examples/AllCases.py"
-		"examples/SetActiveCellProperties.py"
 		"examples/SetGridProperties.py"
         "tests/test_sample.py"
     )

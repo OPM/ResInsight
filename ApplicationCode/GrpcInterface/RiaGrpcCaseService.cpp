@@ -17,6 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcCaseService.h"
 #include "RiaGrpcCallbacks.h"
+#include "RiaSocketTools.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
@@ -301,6 +302,30 @@ RiaGrpcCaseService::GetTimeSteps(grpc::ServerContext* context, const rips::CaseR
     return grpc::Status(grpc::NOT_FOUND, "Eclipse Case not found");
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status
+    RiaGrpcCaseService::GetCaseInfo(grpc::ServerContext* context, const rips::CaseRequest* request, rips::CaseInfo* reply)
+{
+    RimCase* rimCase = findCase(request->id());
+    if (rimCase)
+    {
+        qint64  caseId      = rimCase->caseId();
+        qint64  caseGroupId = -1;
+        QString caseName, caseType;
+        RiaSocketTools::getCaseInfoFromCase(rimCase, caseId, caseName, caseType, caseGroupId);
+
+        reply->set_id(caseId);
+        reply->set_group_id(caseGroupId);
+        reply->set_name(caseName.toStdString());
+        reply->set_type(caseType.toStdString());
+        return Status::OK;
+    }
+    return Status(grpc::NOT_FOUND, "No cases found");
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -323,6 +348,7 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
             new RiaGrpcUnaryCallback<Self, CaseRequest, GridDimensions>(this, &Self::GetGridDimensions, &Self::RequestGetGridDimensions),
             new RiaGrpcUnaryCallback<Self, CellInfoRequest, CellCount>(this, &Self::GetCellCount, &Self::RequestGetCellCount),
             new RiaGrpcUnaryCallback<Self, CaseRequest, TimeStepDates>(this, &Self::GetTimeSteps, &Self::RequestGetTimeSteps),
+            new RiaGrpcUnaryCallback<Self, CaseRequest, CaseInfo>(this, &Self::GetCaseInfo, &Self::RequestGetCaseInfo),
             new RiaGrpcServerStreamCallback<Self, CellInfoRequest, CellInfoArray, RiaActiveCellInfoStateHandler>(
                 this, &Self::GetCellInfoForActiveCells, &Self::RequestGetCellInfoForActiveCells, new RiaActiveCellInfoStateHandler)};
 }

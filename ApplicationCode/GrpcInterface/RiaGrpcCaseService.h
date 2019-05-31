@@ -73,6 +73,7 @@ public:
     grpc::Status GetGridDimensions(grpc::ServerContext* context, const rips::CaseRequest* request, rips::GridDimensions* reply) override;
     grpc::Status GetCellCount(grpc::ServerContext* context, const rips::CellInfoRequest* request, rips::CellCount* reply) override;
     grpc::Status GetTimeSteps(grpc::ServerContext* context, const rips::CaseRequest* request, rips::TimeStepDates* reply) override;
+    grpc::Status GetCaseInfo(grpc::ServerContext* context, const rips::CaseRequest* request, rips::CaseInfo* reply) override;
 
     grpc::Status GetCellInfoForActiveCells(grpc::ServerContext*               context,
                                            const rips::CellInfoRequest* request,

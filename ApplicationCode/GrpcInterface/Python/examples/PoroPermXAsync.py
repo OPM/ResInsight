@@ -11,12 +11,12 @@ def createResult(poroChunks, permxChunks):
         yield resultChunk
 
 
-
 resInsight     = ResInsight.Instance.find()
+case = resInsight.project.case(id=0)
 
-poroChunks = resInsight.properties.activeCellProperty(0, 'STATIC_NATIVE', 'PORO', 0)
-permxChunks = resInsight.properties.activeCellProperty(0, 'STATIC_NATIVE', 'PERMX', 0)
+poroChunks = case.properties.activeCellProperty('STATIC_NATIVE', 'PORO', 0)
+permxChunks = case.properties.activeCellProperty('STATIC_NATIVE', 'PERMX', 0)
 
-resInsight.properties.setActiveCellPropertyAsync(createResult(poroChunks, permxChunks), 0, 'GENERATED', 'POROPERMXAS', 0)
+case.properties.setActiveCellPropertyAsync(createResult(poroChunks, permxChunks), 'GENERATED', 'POROPERMXAS', 0)
 
 print("Transferred all results back")

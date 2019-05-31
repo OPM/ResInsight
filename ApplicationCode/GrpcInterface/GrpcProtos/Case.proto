@@ -11,6 +11,7 @@ service Case
 	rpc GetCoarseningInfoArray(CaseRequest) returns (CoarseningInfoArray) {}
 	rpc GetTimeSteps(CaseRequest) returns (TimeStepDates) {}
 	rpc GetTimeStepDaysSinceStart(CaseRequest) returns (DoubleDates) {}
+	rpc GetCaseInfo(CaseRequest) returns (CaseInfo) {}
 }
 
 message CaseRequest {

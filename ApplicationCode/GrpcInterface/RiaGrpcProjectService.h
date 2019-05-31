@@ -38,13 +38,11 @@ class RiaGrpcCallbackInterface;
 class RiaGrpcProjectService final : public rips::Project::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status CurrentCase(grpc::ServerContext* context, const rips::Empty* request, rips::CaseRequest* reply) override;
-    grpc::Status CurrentCaseInfo(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfo* reply) override;
-    grpc::Status CaseInfoFromCase(grpc::ServerContext* context, const rips::CaseRequest* request, rips::CaseInfo* reply) override;
-    grpc::Status SelectedCases(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply) override;
-    grpc::Status AllCaseGroups(grpc::ServerContext* context, const rips::Empty* request, rips::CaseGroups* reply) override;
-    grpc::Status AllCases(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply) override;
-    grpc::Status CasesInGroup(grpc::ServerContext* context, const rips::CaseGroup* request, rips::CaseInfoArray* reply) override;
+    grpc::Status GetCurrentCase(grpc::ServerContext* context, const rips::Empty* request, rips::CaseRequest* reply) override;
+    grpc::Status GetSelectedCases(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply) override;
+    grpc::Status GetAllCaseGroups(grpc::ServerContext* context, const rips::Empty* request, rips::CaseGroups* reply) override;
+    grpc::Status GetAllCases(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply) override;
+    grpc::Status GetCasesInGroup(grpc::ServerContext* context, const rips::CaseGroup* request, rips::CaseInfoArray* reply) override;
 
 public:
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;

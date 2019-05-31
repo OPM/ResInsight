@@ -5,12 +5,13 @@ import ResInsight
 
 resInsight     = ResInsight.Instance.find()
 
-totalCellCount = resInsight.case.cellCount(caseId=0).reservoir_cell_count
+case = resInsight.project.case(id=0)
+totalCellCount = case.cellCount().reservoir_cell_count
 
 values = []
 for i in range(0, totalCellCount):
     values.append(i % 2 * 0.75);
 
 print("Applying values to full grid")
-resInsight.properties.setGridProperty(values, 0, 'DYNAMIC_NATIVE', 'SOIL', 0)
+case.properties.setGridProperty(values, 'DYNAMIC_NATIVE', 'SOIL', 0)
 

@@ -14,18 +14,18 @@ def createResult(soilChunks, porvChunks):
 
 
 
-resInsight     = ResInsight.Instance.find()
+resInsight   = ResInsight.Instance.find()
+case         = resInsight.project.case(id=0)
+timeStepInfo = case.timeSteps()
 
-timeStepInfo = resInsight.case.timeSteps(0)
-
-porvChunks = resInsight.properties.activeCellProperty(0, 'STATIC_NATIVE', 'PORV', 0)
+porvChunks   = case.properties.activeCellProperty('STATIC_NATIVE', 'PORV', 0)
 porvArray = []
 for porvChunk in porvChunks:
     porvArray.append(porvChunk)
 
 for i in range (0, len(timeStepInfo.dates)):
-    soilChunks = resInsight.properties.activeCellProperty(0, 'DYNAMIC_NATIVE', 'SOIL', i)
+    soilChunks = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', i)
     input_iterator = createResult(soilChunks, iter(porvArray))
-    resInsight.properties.setActiveCellPropertyAsync(input_iterator, 0, 'GENERATED', 'SOILPORVAsync', i)
+    case.properties.setActiveCellPropertyAsync(input_iterator, 'GENERATED', 'SOILPORVAsync', i)
 
 print("Transferred all results back")
