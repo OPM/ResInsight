@@ -30,7 +30,7 @@ enum PropertyType
 
 message AvailablePropertiesRequest
 {
-	CaseRequest         request_case = 1;
+	CaseRequest         case_request = 1;
 	PropertyType       property_type = 2;
 	PorosityModelType porosity_model = 3;
 }
@@ -42,7 +42,7 @@ message AvailableProperties
 
 message PropertyRequest
 {
-	CaseRequest         request_case = 1;
+	CaseRequest         case_request = 1;
 	PropertyType       property_type = 2;
 	string             property_name = 3;
 	int32                  time_step = 4;

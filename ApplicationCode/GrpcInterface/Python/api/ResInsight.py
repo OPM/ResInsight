@@ -12,6 +12,8 @@ sys.path.insert(1, os.path.join(sys.path[0], '../generated'))
 from Empty_pb2 import Empty
 import Case_pb2
 import Case_pb2_grpc
+import Grid_pb2
+import Grid_pb2_grpc
 import Commands_pb2 as Cmd
 import Commands_pb2_grpc as CmdRpc
 import Project_pb2
@@ -73,6 +75,15 @@ class CommandExecutor:
             wellPathArray = wellPaths
         return self.execute(Cmd.CommandParams(exportWellPaths=Cmd.ExportWellPathRequest(wellPathNames=wellPathArray, mdStepSize=mdStepSize)))
 
+class Grid:
+    def __init__(self, index, case):
+        self.case = case
+        self.index   = index
+        self.stub = Grid_pb2_grpc.GridStub(self.case.channel)
+
+    def dimensions(self):
+        return self.stub.GetDimensions(Grid_pb2.GridRequest(case_request = self.case.request, grid_index = self.index)).dimensions
+
 class Case:
     def __init__(self, channel, id):
         self.channel = channel
@@ -82,14 +93,27 @@ class Case:
         self.name    = info.name
         self.groupId = info.group_id
         self.type    = info.type
-        self.properties = Properties(self.channel, self)
+        self.properties = Properties(self)
         self.request = Case_pb2.CaseRequest(id=self.id)
+
     def gridCount(self):
-        return self.stub.GetGridCount(self.request).count
-        
-    def gridDimensions(self):
-        return self.stub.GetGridDimensions(self.request).dimensions
-        
+        try:
+            return self.stub.GetGridCount(self.request).count          
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.NOT_FOUND:
+                return 0
+            print("ERROR: ", e)
+            return 0
+    
+    def grid(self, index):
+        return Grid(index, self)
+
+    def grids(self):
+        gridList = []
+        for i in range(0, self.gridCount()):
+            gridList.append(Grid(i, self))
+        return gridList
+
     def cellCount(self, porosityModel='MATRIX_MODEL'):
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
         request =  Case_pb2.CellInfoRequest(request_case=self.request,
@@ -109,6 +133,7 @@ class Project:
     def __init__(self, channel):
         self.channel = channel
         self.project = Project_pb2_grpc.ProjectStub(channel)
+
     def selectedCases(self):
         caseInfos = self.project.GetSelectedCases(Empty())
         cases = []
@@ -116,13 +141,20 @@ class Project:
             cases.append(Case(self.channel, caseInfo.id))
         return cases
 
-    def allCases(self):
-        caseInfos = self.project.GetAllCases(Empty())
+    def cases(self):
+        try:
+            caseInfos = self.project.GetAllCases(Empty())
 
-        cases = []
-        for caseInfo in caseInfos.data:
-            cases.append(Case(self.channel, caseInfo.id))
-        return cases
+            cases = []
+            for caseInfo in caseInfos.data:
+                cases.append(Case(self.channel, caseInfo.id))
+            return cases
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.NOT_FOUND:
+                return []
+            else:
+                print("ERROR: ", e)
+                return []
 
     def case(self, id):
         try:
@@ -132,9 +164,9 @@ class Project:
             return None
 
 class Properties:
-    def __init__(self, channel, case):
+    def __init__(self, case):
         self.case = case
-        self.propertiesStub = Properties_pb2_grpc.PropertiesStub(channel)
+        self.propertiesStub = Properties_pb2_grpc.PropertiesStub(self.case.channel)
     
     def generatePropertyInputIterator(self, values_iterator, parameters):
         chunk = Properties_pb2.PropertyInputChunk()

@@ -63,7 +63,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     Status init(const PropertyRequest* request)
     {
-        int caseId    = request->request_case().id();
+        int caseId    = request->case_request().id();
         m_eclipseCase = dynamic_cast<RimEclipseCase*>(RiaGrpcServiceInterface::findCase(caseId));
 
         if (m_eclipseCase)
@@ -267,7 +267,7 @@ grpc::Status RiaGrpcPropertiesService::GetAvailableProperties(grpc::ServerContex
                                                               const AvailablePropertiesRequest* request,
                                                               AvailableProperties*              reply)
 {
-    int             caseId      = request->request_case().id();
+    int             caseId      = request->case_request().id();
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(RiaGrpcServiceInterface::findCase(caseId));
     if (eclipseCase)
     {

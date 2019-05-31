@@ -5,7 +5,6 @@ package rips;
 service Case
 {
 	rpc GetGridCount(CaseRequest) returns(GridCount) {}
-	rpc GetGridDimensions(CaseRequest) returns (GridDimensions) {}
 	rpc GetCellCount(CellInfoRequest) returns (CellCount) {}
 	rpc GetCellInfoForActiveCells(CellInfoRequest) returns (stream CellInfoArray) {}
 	rpc GetCoarseningInfoArray(CaseRequest) returns (CoarseningInfoArray) {}
@@ -47,11 +46,6 @@ message GridCount
 	int32 count = 1;
 }
 
-message GridDimensions
-{
-	repeated Vec3i dimensions = 1;
-}
-
 message Vec3i {
   int32 i = 1;
   int32 j = 2;
@@ -72,7 +66,7 @@ enum PorosityModelType
 
 message CellInfoRequest
 {
-	CaseRequest       request_case   = 1;
+	CaseRequest       case_request   = 1;
 	PorosityModelType porosity_model = 2;	
 }
 
