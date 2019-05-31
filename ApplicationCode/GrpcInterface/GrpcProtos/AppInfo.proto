@@ -4,7 +4,7 @@ package rips;
 
 import "Empty.proto";
 
-service ResInfo {
+service AppInfo {
   rpc GetVersion(Empty) returns (Version) {}
 }
 

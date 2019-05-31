@@ -6,7 +6,7 @@ import ResInsight
 
 resInsight  = ResInsight.Instance.find()
 if resInsight is not None:
-    caseInfos = resInsight.projectInfo.allCases()
+    caseInfos = resInsight.project.allCases()
 		
     print ("Got " + str(len(caseInfos)) + " cases: ")
     for caseInfo in caseInfos:

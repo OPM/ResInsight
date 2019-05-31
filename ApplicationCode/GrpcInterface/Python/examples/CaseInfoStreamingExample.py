@@ -7,10 +7,10 @@ resInsight     = ResInsight.Instance.find()
 #gridCount      = resInsight.gridInfo.getGridCount(caseId=0)
 #gridDimensions = resInsight.gridInfo.getAllGridDimensions(caseId=0)
 
-cellCounts = resInsight.gridInfo.cellCount(caseId=0)
+cellCounts = resInsight.case.cellCount(caseId=0)
 print("Number of active cells: " + str(cellCounts.active_cell_count))
 
-activeCellInfoChunks = resInsight.gridInfo.cellInfoForActiveCells(caseId=0)
+activeCellInfoChunks = resInsight.case.cellInfoForActiveCells(caseId=0)
 
 #print("Number of grids: " + str(gridCount))
 #print(gridDimensions)

@@ -1,18 +1,17 @@
 syntax = "proto3";
 
 import "Empty.proto";
-import "CaseInfo.proto";
-import "GridInfo.proto";
+import "Case.proto";
 
 package rips;
 
 service Properties
 {
-	rpc GetAvailableProperties(PropertiesRequest) returns (AvailableProperties) {}
-	rpc GetActiveCellResults(ResultRequest) returns (stream ResultArray) {}
-	rpc GetGridResults(ResultRequest)       returns (stream ResultArray) {}
-	rpc SetActiveCellResults(stream ResultRequestChunk) returns (Empty) {}
-	rpc SetGridResults(stream ResultRequestChunk) returns (Empty) {}
+	rpc GetAvailableProperties(AvailablePropertiesRequest) returns (AvailableProperties) {}
+	rpc GetActiveCellProperty(PropertyRequest) returns (stream PropertyChunk) {}
+	rpc GetGridProperty(PropertyRequest)       returns (stream PropertyChunk) {}
+	rpc SetActiveCellProperty(stream PropertyInputChunk) returns (Empty) {}
+	rpc SetGridProperty(stream PropertyInputChunk) returns (Empty) {}
 }
 
 enum PropertyType
@@ -29,9 +28,9 @@ enum PropertyType
 	UNDEFINED          = 999;
 }
 
-message PropertiesRequest
+message AvailablePropertiesRequest
 {
-	Case                request_case = 1;
+	CaseRequest         request_case = 1;
 	PropertyType       property_type = 2;
 	PorosityModelType porosity_model = 3;
 }
@@ -41,9 +40,9 @@ message AvailableProperties
 	repeated string property_names = 1;
 }
 
-message ResultRequest
+message PropertyRequest
 {
-	Case                request_case = 1;
+	CaseRequest         request_case = 1;
 	PropertyType       property_type = 2;
 	string             property_name = 3;
 	int32                  time_step = 4;
@@ -56,14 +55,17 @@ message TimeStep
 	int32 index = 1;
 }
 
-message ResultRequestChunk
+message PropertyInputChunk
 {
-	// Params needs to be sent in the first message
-	ResultRequest         params = 1;
-	ResultArray           values = 2;			
+	oneof ChunkType
+	{
+		// Params needs to be sent in the first message
+		PropertyRequest         params = 1;
+		PropertyChunk           values = 2;			
+	}
 }
 
-message ResultArray
+message PropertyChunk
 {
 	repeated double values = 1;
 }

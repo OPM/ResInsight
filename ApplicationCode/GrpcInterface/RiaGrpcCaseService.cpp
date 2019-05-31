@@ -15,7 +15,7 @@
 //  for more details.
 //
 //////////////////////////////////////////////////////////////////////////////////
-#include "RiaGrpcGridInfoService.h"
+#include "RiaGrpcCaseService.h"
 #include "RiaGrpcCallbacks.h"
 
 #include "RigActiveCellInfo.h"
@@ -49,7 +49,7 @@ grpc::Status RiaActiveCellInfoStateHandler::init(const rips::CellInfoRequest* re
     m_request = request;
 
     m_porosityModel  = RiaDefines::PorosityModelType(m_request->porosity_model());
-    RimCase* rimCase = RiaGrpcServiceInterface::findCase(m_request->case_id());
+    RimCase* rimCase = RiaGrpcServiceInterface::findCase(m_request->request_case().id());
     m_eclipseCase    = dynamic_cast<RimEclipseCase*>(rimCase);
 
     if (!m_eclipseCase)
@@ -213,7 +213,7 @@ grpc::Status RiaActiveCellInfoStateHandler::assignReply(rips::CellInfoArray* rep
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridInfoService::GetGridCount(grpc::ServerContext* context, const rips::Case* request, rips::GridCount* reply)
+grpc::Status RiaGrpcCaseService::GetGridCount(grpc::ServerContext* context, const rips::CaseRequest* request, rips::GridCount* reply)
 {
     RimCase* rimCase = findCase(request->id());
 
@@ -230,8 +230,8 @@ grpc::Status RiaGrpcGridInfoService::GetGridCount(grpc::ServerContext* context, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridInfoService::GetGridDimensions(grpc::ServerContext*     context,
-                                                          const rips::Case*        request,
+grpc::Status RiaGrpcCaseService::GetGridDimensions(grpc::ServerContext*     context,
+                                                          const rips::CaseRequest*        request,
                                                           rips::GridDimensions* reply)
 {
     RimCase* rimCase = findCase(request->id());
@@ -257,9 +257,9 @@ grpc::Status RiaGrpcGridInfoService::GetGridDimensions(grpc::ServerContext*     
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridInfoService::GetCellCount(grpc::ServerContext* context, const rips::CellInfoRequest* request, rips::CellCount* reply)
+grpc::Status RiaGrpcCaseService::GetCellCount(grpc::ServerContext* context, const rips::CellInfoRequest* request, rips::CellCount* reply)
 {
-    RimCase* rimCase = findCase(request->case_id());
+    RimCase* rimCase = findCase(request->request_case().id());
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
     if (eclipseCase)
@@ -278,7 +278,7 @@ grpc::Status RiaGrpcGridInfoService::GetCellCount(grpc::ServerContext* context, 
 ///
 //--------------------------------------------------------------------------------------------------
 grpc::Status
-RiaGrpcGridInfoService::GetTimeSteps(grpc::ServerContext* context, const rips::Case* request, rips::TimeStepDates* reply)
+RiaGrpcCaseService::GetTimeSteps(grpc::ServerContext* context, const rips::CaseRequest* request, rips::TimeStepDates* reply)
 {
     RimCase* rimCase = findCase(request->id());
 
@@ -288,7 +288,7 @@ RiaGrpcGridInfoService::GetTimeSteps(grpc::ServerContext* context, const rips::C
         std::vector<QDateTime> timeStepDates = eclipseCase->timeStepDates();
         for (QDateTime dateTime : timeStepDates)
         {
-            rips::TimeStepDate* date = reply->add_date();
+            rips::TimeStepDate* date = reply->add_dates();
             date->set_year(dateTime.date().year());
             date->set_month(dateTime.date().month());
             date->set_day(dateTime.date().day());
@@ -304,7 +304,7 @@ RiaGrpcGridInfoService::GetTimeSteps(grpc::ServerContext* context, const rips::C
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridInfoService::GetCellInfoForActiveCells(grpc::ServerContext*                      context,
+grpc::Status RiaGrpcCaseService::GetCellInfoForActiveCells(grpc::ServerContext*                      context,
                                                                 const rips::CellInfoRequest*        request,
                                                                 rips::CellInfoArray*                reply,
                                                                 RiaActiveCellInfoStateHandler* stateHandler)
@@ -315,17 +315,17 @@ grpc::Status RiaGrpcGridInfoService::GetCellInfoForActiveCells(grpc::ServerConte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridInfoService::createCallbacks()
+std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
 {
-    typedef RiaGrpcGridInfoService Self;
+    typedef RiaGrpcCaseService Self;
 
-    return {new RiaGrpcUnaryCallback<Self, Case, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
-            new RiaGrpcUnaryCallback<Self, Case, GridDimensions>(this, &Self::GetGridDimensions, &Self::RequestGetGridDimensions),
+    return {new RiaGrpcUnaryCallback<Self, CaseRequest, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
+            new RiaGrpcUnaryCallback<Self, CaseRequest, GridDimensions>(this, &Self::GetGridDimensions, &Self::RequestGetGridDimensions),
             new RiaGrpcUnaryCallback<Self, CellInfoRequest, CellCount>(this, &Self::GetCellCount, &Self::RequestGetCellCount),
-            new RiaGrpcUnaryCallback<Self, Case, TimeStepDates>(this, &Self::GetTimeSteps, &Self::RequestGetTimeSteps),
+            new RiaGrpcUnaryCallback<Self, CaseRequest, TimeStepDates>(this, &Self::GetTimeSteps, &Self::RequestGetTimeSteps),
             new RiaGrpcServerStreamCallback<Self, CellInfoRequest, CellInfoArray, RiaActiveCellInfoStateHandler>(
                 this, &Self::GetCellInfoForActiveCells, &Self::RequestGetCellInfoForActiveCells, new RiaActiveCellInfoStateHandler)};
 }
 
-static bool RiaGrpcGridInfoService_init =
-    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcGridInfoService>(typeid(RiaGrpcGridInfoService).hash_code());
+static bool RiaGrpcCaseService_init =
+    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcCaseService>(typeid(RiaGrpcCaseService).hash_code());

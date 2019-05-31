@@ -21,7 +21,7 @@
 
 #include "RiaGrpcServiceInterface.h"
 
-#include "ResInfo.grpc.pb.h"
+#include "AppInfo.grpc.pb.h"
 
 #include <grpcpp/grpcpp.h>
 #include <vector>
@@ -39,7 +39,7 @@ class PdmValueField;
 
 class RiaGrpcCallbackInterface;
 
-class RiaGrpcResInfoService : public rips::ResInfo::AsyncService, public RiaGrpcServiceInterface
+class RiaGrpcAppInfoService : public rips::AppInfo::AsyncService, public RiaGrpcServiceInterface
 {
 public:
     grpc::Status GetVersion(grpc::ServerContext* context, const rips::Empty* request, rips::Version* reply) override;

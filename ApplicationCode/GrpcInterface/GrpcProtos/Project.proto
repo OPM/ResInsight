@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "Case.proto";
+import "Empty.proto";
+
+package rips;
+
+service Project {
+  rpc CurrentCase(Empty) returns (CaseRequest) {}
+  rpc CurrentCaseInfo(Empty) returns (CaseInfo) {}
+  rpc CaseInfoFromCase(CaseRequest) returns (CaseInfo) {}
+  rpc SelectedCases(Empty) returns (CaseInfoArray) {}
+  rpc AllCaseGroups(Empty) returns (CaseGroups) {}
+  rpc AllCases(Empty) returns (CaseInfoArray) {}
+  rpc CasesInGroup(CaseGroup) returns (CaseInfoArray) {}
+}

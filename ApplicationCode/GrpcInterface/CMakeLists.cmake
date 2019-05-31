@@ -5,20 +5,20 @@ set ( SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCallbacks.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCallbacks.inl
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridInfoService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCaseService.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectService.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcResInfoService.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppInfoService.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.h
 )
 
 set ( SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridInfoService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCaseService.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcResInfoService.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppInfoService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.cpp
 )
 
@@ -70,11 +70,10 @@ endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 # Proto files
 set(PROTO_FILES
     "Empty"
-    "CaseInfo"
-    "GridInfo"
-    "ProjectInfo"
+    "Case"
+    "Project"
     "Commands"
-    "ResInfo"
+    "AppInfo"
 	"Properties"
 )
 
@@ -145,7 +144,7 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
         "api/__init__.py"
         "api/ResInsight.py"
         "examples/CommandExample.py"
-        "examples/GridInfoStreamingExample.py"
+        "examples/CaseInfoStreamingExample.py"
 		"examples/PoroPermXSync.py"
 		"examples/PoroPermXAsync.py"
 		"examples/SoilPorvAsync.py"
