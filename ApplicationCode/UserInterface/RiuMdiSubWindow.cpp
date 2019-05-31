@@ -41,6 +41,7 @@ RiuMdiSubWindow::RiuMdiSubWindow(QWidget* parent /*= 0*/, Qt::WindowFlags flags 
     , m_normalWindowGeometry(QRect())
     , m_blockTilingChanges(false)
 {
+    setWindowIcon(QIcon(":/Window16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

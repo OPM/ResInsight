@@ -58,6 +58,7 @@
     <file>GeoMechCases48x48.png</file>
     <file>chain.png</file>
     <file>TileWindows24x24.png</file>
+	<file>Window16x16.png</file>
     <file>LasFile16x16.png</file>
     <file>WellLogTrack16x16.png</file>
     <file>WellLogPlot16x16.png</file>
