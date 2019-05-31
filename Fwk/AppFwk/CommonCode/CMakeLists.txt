@@ -12,8 +12,6 @@ set( MOC_HEADER_FILES
     cafMessagePanel.h
     )
 
-option(CEE_USE_QT5 "Use Qt5" OFF)
-
 if (CEE_USE_QT5)
 	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
 	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)

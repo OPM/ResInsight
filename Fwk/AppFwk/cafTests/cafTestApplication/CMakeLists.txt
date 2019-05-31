@@ -20,7 +20,9 @@ set( QRC_FILES
     textedit.qrc
 )
 
-option(CEE_USE_QT5 "Use Qt5" OFF)
+if (NOT DEFINED(CEE_USE_QT5))
+	option(CEE_USE_QT5 "Use Qt5" OFF)
+endif(NOT DEFINED(CEE_USE_QT5))
 
 if (CEE_USE_QT5)
 	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
@@ -65,10 +67,6 @@ add_executable ( ${PROJECT_NAME}
     ${MOC_SOURCE_FILES}
     ${QRC_FILES_CPP}
 )
-
-if (Qt5Core_FOUND)
-	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
-endif()
 
 set (TAP_LINK_LIBRARIES
     cafUserInterface

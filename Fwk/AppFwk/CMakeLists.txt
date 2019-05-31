@@ -9,7 +9,9 @@ if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
 endif()
 
 # Qt
-option(CEE_USE_QT5 "Use Qt5" OFF)
+if (NOT DEFINED(CEE_USE_QT5))
+	option(CEE_USE_QT5 "Use Qt5" OFF)
+endif(NOT DEFINED(CEE_USE_QT5))
 
 if (CEE_USE_QT5)
 	find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Widgets)

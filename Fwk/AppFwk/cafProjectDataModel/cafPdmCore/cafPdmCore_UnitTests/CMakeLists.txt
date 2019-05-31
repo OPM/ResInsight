@@ -2,13 +2,18 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project ( cafPdmCore_UnitTests )
 
-find_package(Qt5Core CONFIG QUIET)
-if (Qt5Core_FOUND)
-	find_package(Qt5 CONFIG REQUIRED Core Gui Widgets)
+# Qt
+if (NOT DEFINED(CEE_USE_QT5))
+	option(CEE_USE_QT5 "Use Qt5" OFF)
+endif(NOT DEFINED(CEE_USE_QT5))
+
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+	set(QT_LIBRARIES Qt5::Core Qt5::Widgets Qt5::Gui)
 else()
-	find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
-	include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
+    find_package(Qt4 COMPONENTS REQUIRED QtCore QtGui)
+    include(${QT_USE_FILE})
+endif(CEE_USE_QT5)
 
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
@@ -57,7 +62,7 @@ target_link_libraries ( ${PROJECT_NAME}
 )
 
 # Copy Qt Dlls
-if (Qt5Core_FOUND)
+if (CEE_USE_QT5)
     foreach (qtlib ${QT_LIBRARIES})
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
@@ -65,16 +70,12 @@ if (Qt5Core_FOUND)
 	endforeach(qtlib)
 	# Copy Qt Dlls	
 else()
-	# Copy Qt Dlls
 	if (MSVC)
-	    set (QTLIBLIST QtCore QtGui )
+	    set (QTLIBLIST QtCore QtGui)
 	    foreach (qtlib ${QTLIBLIST})
-	        
-	        # Debug
-	        execute_process(COMMAND cmake -E copy_if_different ${QT_BINARY_DIR}/${qtlib}d4.dll ${CMAKE_BINARY_DIR}/Debug/${qtlib}d4.dll)
-	        
-	        # Release
-	        execute_process(COMMAND cmake -E copy_if_different ${QT_BINARY_DIR}/${qtlib}4.dll ${CMAKE_BINARY_DIR}/Release/${qtlib}4.dll)
+	        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different ${QT_BINARY_DIR}/$<IF:$<CONFIG:Debug>,${qtlib}d4.dll,${qtlib}4.dll> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+			)
 	    endforeach( qtlib )
 	endif(MSVC)
-endif(Qt5Core_FOUND)
+endif(CEE_USE_QT5)

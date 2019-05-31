@@ -3,8 +3,6 @@ cmake_minimum_required (VERSION 2.8.12)
 project (cafProjectDataModel)
 
 # Qt
-option(CEE_USE_QT5 "Use Qt5" OFF)
-
 if (CEE_USE_QT5)
 	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
