@@ -144,8 +144,14 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
     list(APPEND GRPC_PYTHON_SOURCES
         ${GRPC_PYTHON_GENERATED_SOURCES}
 		"generated/RiaVersionInfo.py"
-        "api/__init__.py"
-        "api/ResInsight.py"
+        "rips/__init__.py"
+		"rips/AppInfo.py"
+		"rips/Case.py"
+		"rips/Commands.py"
+		"rips/Grid.py"
+		"rips/Project.py"
+		"rips/Properties.py"
+        "rips/Instance.py"	
         "examples/CommandExample.py"
         "examples/CaseInfoStreamingExample.py"
 		"examples/PoroPermXSync.py"
