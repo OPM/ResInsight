@@ -144,9 +144,9 @@ ecl_kw_type * ecl_kw_alloc_actnum(const ecl_kw_type * porv_kw, float porv_limit)
   int * actnum_values = ecl_kw_get_int_ptr( actnum_kw);
 
   // When PORV is used as criteria, make sure all active cells are assigned both
-  // active matrix and active fracture. This will make sure that both single porosity
-  // models and dual porosity models in initialized with the correct bit mask
-  // See documentation in top of ecl_grid.cpp
+  // active matrix state and active fracture state. This will make sure that
+  // both single porosity models and dual porosity models are initialized with
+  // the correct bit mask. See documentation in top of ecl_grid.cpp
   //
   const int combinedActnumValueForMatrixAndFracture = CELL_ACTIVE_MATRIX + CELL_ACTIVE_FRACTURE;
 
