@@ -22,7 +22,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse::RicfCommandResponse(Status status, const QString& message)    
+RicfCommandResponse::RicfCommandResponse(Status status, const QString& message)
+    : m_status(COMMAND_OK)
 {
     updateStatus(status, message);
 }
