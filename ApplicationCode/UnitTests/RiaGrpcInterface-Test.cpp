@@ -24,21 +24,21 @@ public:
         : m_stub(rips::Properties::NewStub(channel))
     {
     }
-    Status GetActiveCellResults(rips::PropertyType propType, const std::string& propertyName, int timeStep, std::vector<double>* results) const
+    Status GetActiveCellProperty(rips::PropertyType propType, const std::string& propertyName, int timeStep, std::vector<double>* results) const
     {
-        rips::ResultRequest request;
-        rips::Case* requestCase = new rips::Case;
+        rips::PropertyRequest request;
+        rips::CaseRequest* requestCase = new rips::CaseRequest;
         requestCase->set_id(0);
-        request.set_allocated_request_case(requestCase);
+        request.set_allocated_case_request(requestCase);
         request.set_grid_index(0);
         request.set_porosity_model(rips::PorosityModelType::MATRIX_MODEL);
         request.set_property_type(propType);
         request.set_property_name(propertyName);
         request.set_time_step(timeStep);
-        rips::ResultArray resultArray;
+        rips::PropertyChunk resultArray;
         ClientContext context;
         
-        std::unique_ptr<ClientReader<rips::ResultArray>> reader = m_stub->GetActiveCellResults(&context, request);
+        std::unique_ptr<ClientReader<rips::PropertyChunk>> reader = m_stub->GetActiveCellProperty(&context, request);
         while (reader->Read(&resultArray))
         {
             results->insert(results->end(), resultArray.values().begin(), resultArray.values().end());
@@ -59,7 +59,7 @@ TEST(DISABLED_RiaGrpcInterface, SoilAverage)
     for (size_t i = 0; i < 10; ++i)
     {
         std::vector<double> results;
-        Status status = client.GetActiveCellResults(rips::PropertyType::DYNAMIC_NATIVE, "SOIL", i, &results);
+        Status status = client.GetActiveCellProperty(rips::PropertyType::DYNAMIC_NATIVE, "SOIL", i, &results);
         std::cout << "Number of results: " << results.size() << std::endl;
         double sum = std::accumulate(results.begin(), results.end(), 0.0);
         std::cout << "Avg: " << sum / static_cast<double>(results.size()) << std::endl;

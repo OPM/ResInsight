@@ -313,12 +313,12 @@ if (MSVC)
     set( EXE_FILES WIN32)
     if (RESINSIGHT_ENABLE_GRPC)
         # GRPC generates a lot of harmless warnings on MSVC
-        set_source_files_properties(${GRPC_CPP_SOURCES} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125")
+        set_source_files_properties(${GRPC_CPP_SOURCES} ${GRPC_UNIT_TEST_SOURCE_FILES} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125")
     endif(RESINSIGHT_ENABLE_GRPC)
 elseif (APPLE)
     set( EXE_FILES MACOSX_BUNDLE)
 else()
-	set_source_files_properties(${GRPC_CPP_SOURCES} PROPERTIES COMPILE_FLAGS "-Wno-overloaded-virtual")
+	set_source_files_properties(${GRPC_CPP_SOURCES} ${GRPC_UNIT_TESTS_SOURCE_FILES} PROPERTIES COMPILE_FLAGS "-Wno-overloaded-virtual")
 endif()
 set( EXE_FILES
     ${EXE_FILES}
