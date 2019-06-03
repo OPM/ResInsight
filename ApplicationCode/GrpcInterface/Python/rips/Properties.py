@@ -6,6 +6,8 @@ sys.path.insert(1, os.path.join(sys.path[0], '../generated'))
 
 import Properties_pb2
 import Properties_pb2_grpc
+import Case_pb2
+import Case_pb2_grpc
 
 class Properties:
     def __init__(self, case):
@@ -47,7 +49,7 @@ class Properties:
     def available(self, propertyType, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request = Properties_pb2.AvailablePropertiesRequest (request_case = Case_pb2.CaseRequest(id=self.case.id),
+        request = Properties_pb2.AvailablePropertiesRequest (case_request = Case_pb2.CaseRequest(id=self.case.id),
                                                     property_type = propertyTypeEnum,
                                                     porosity_model = porosityModelEnum)
         return self.propertiesStub.GetAvailableProperties(request).property_names
@@ -55,7 +57,7 @@ class Properties:
     def activeCellProperty(self, propertyType, propertyName, timeStep, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request = Properties_pb2.PropertyRequest(request_case   = Case_pb2.CaseRequest(id=self.case.id),
+        request = Properties_pb2.PropertyRequest(case_request   = Case_pb2.CaseRequest(id=self.case.id),
                                                property_type  = propertyTypeEnum,
                                                property_name  = propertyName,
                                                time_step      = timeStep,
@@ -66,7 +68,7 @@ class Properties:
     def gridProperty(self, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request = Properties_pb2.PropertyRequest(request_case   = self.case.request,
+        request = Properties_pb2.PropertyRequest(case_request   = self.case.request,
                                                  property_type  = propertyTypeEnum,
                                                  property_name  = propertyName,
                                                  time_step      = timeStep,
@@ -77,7 +79,7 @@ class Properties:
     def setActiveCellPropertyAsync(self, values_iterator, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request = Properties_pb2.PropertyRequest(request_case   = self.case.request,
+        request = Properties_pb2.PropertyRequest(case_request   = self.case.request,
                                                  property_type  = propertyTypeEnum,
                                                  property_name  = propertyName,
                                                  time_step      = timeStep,
@@ -95,7 +97,7 @@ class Properties:
     def setActiveCellProperty(self, values, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request = Properties_pb2.PropertyRequest(request_case   = self.case.request,
+        request = Properties_pb2.PropertyRequest(case_request   = self.case.request,
                                                  property_type  = propertyTypeEnum,
                                                  property_name  = propertyName,
                                                  time_step      = timeStep,
@@ -112,7 +114,7 @@ class Properties:
     def setGridProperty(self, values, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request = Properties_pb2.PropertyRequest(request_case   = self.case.request,
+        request = Properties_pb2.PropertyRequest(case_request   = self.case.request,
                                                  property_type  = propertyTypeEnum,
                                                  property_name  = propertyName,
                                                  time_step      = timeStep,
