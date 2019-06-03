@@ -17,7 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "GridInfo.grpc.pb.h"
+#include "Case.grpc.pb.h"
 
 #include "RiaGrpcServiceInterface.h"
 #include "RiaPorosityModel.h"
@@ -26,7 +26,7 @@
 
 namespace rips
 {
-class Case;
+class CaseRequest;
 }
 
 class RiaGrpcCallbackInterface;
@@ -66,13 +66,13 @@ protected:
 // gRPC-service answering requests about grid information for a given case
 //
 //==================================================================================================
-class RiaGrpcGridInfoService final : public rips::GridInfo::AsyncService, public RiaGrpcServiceInterface
+class RiaGrpcCaseService final : public rips::Case::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status GetGridCount(grpc::ServerContext* context, const rips::Case* request, rips::GridCount* reply) override;
-    grpc::Status GetGridDimensions(grpc::ServerContext* context, const rips::Case* request, rips::GridDimensions* reply) override;
+    grpc::Status GetGridCount(grpc::ServerContext* context, const rips::CaseRequest* request, rips::GridCount* reply) override;    
     grpc::Status GetCellCount(grpc::ServerContext* context, const rips::CellInfoRequest* request, rips::CellCount* reply) override;
-    grpc::Status GetTimeSteps(grpc::ServerContext* context, const rips::Case* request, rips::TimeStepDates* reply) override;
+    grpc::Status GetTimeSteps(grpc::ServerContext* context, const rips::CaseRequest* request, rips::TimeStepDates* reply) override;
+    grpc::Status GetCaseInfo(grpc::ServerContext* context, const rips::CaseRequest* request, rips::CaseInfo* reply) override;
 
     grpc::Status GetCellInfoForActiveCells(grpc::ServerContext*               context,
                                            const rips::CellInfoRequest* request,

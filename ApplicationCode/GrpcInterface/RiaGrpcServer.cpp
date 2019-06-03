@@ -23,7 +23,7 @@
 
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcServiceInterface.h"
-#include "RiaGrpcGridInfoService.h"
+#include "RiaGrpcCaseService.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigMainGrid.h"

@@ -6,9 +6,12 @@ import ResInsight
 
 resInsight  = ResInsight.Instance.find()
 if resInsight is not None:
-    caseInfos = resInsight.projectInfo.selectedCases()
+    cases = resInsight.project.selectedCases()
 
-    print ("Got " + str(len(caseInfos)) + " cases: ")
-    for caseInfo in caseInfos:
-	    print(caseInfo.name)
-		
+    print ("Got " + str(len(cases)) + " cases: ")
+    for case in cases:
+        print(case.name)
+        for property in case.properties.available('DYNAMIC_NATIVE'):
+            print(property)
+
+

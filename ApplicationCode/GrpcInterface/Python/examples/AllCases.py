@@ -1,13 +1,11 @@
 import sys
 import os
-sys.path.insert(1, os.path.join(sys.path[0], '../api'))
+import rips
 
-import ResInsight
-
-resInsight  = ResInsight.Instance.find()
+resInsight  = rips.Instance.find()
 if resInsight is not None:
-    caseInfos = resInsight.projectInfo.allCases()
-		
-    print ("Got " + str(len(caseInfos)) + " cases: ")
-    for caseInfo in caseInfos:
-	    print(caseInfo.name)
+    cases = resInsight.project.cases()
+
+    print ("Got " + str(len(cases)) + " cases: ")
+    for case in cases:
+        print(case.name)

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "CaseInfo.proto";
+import "Case.proto";
 import "Empty.proto";
 
 package rips;
@@ -272,8 +272,8 @@ message CommandReply
 {
 	oneof result
 	{
-		Empty     emptyResult = 1;
-		Case   loadCaseResult = 2;
+		Empty          emptyResult = 1;
+		CaseRequest loadCaseResult = 2;
 	}
 }
 

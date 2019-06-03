@@ -1,3 +1,7 @@
 __pycache__
 .pytest_cache
 generated
+dist
+build
+rips.egg-info
+setup.py

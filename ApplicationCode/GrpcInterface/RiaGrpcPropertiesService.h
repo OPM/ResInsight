@@ -34,25 +34,25 @@ class RiaGridCellResultsStateHandler;
 class RiaGrpcPropertiesService final : public rips::Properties::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status GetAvailableProperties(grpc::ServerContext*           context,
-                                        const rips::PropertiesRequest* request,
-                                        rips::AvailableProperties*     reply) override;
-    grpc::Status GetActiveCellResults(grpc::ServerContext*              context,
-                                      const rips::ResultRequest*        request,
-                                      rips::ResultArray*                reply,
-                                      RiaActiveCellResultsStateHandler* stateHandler);
-    grpc::Status GetGridResults(grpc::ServerContext*            context,
-                                const rips::ResultRequest*      request,
-                                rips::ResultArray*              reply,
-                                RiaGridCellResultsStateHandler* stateHandler);
-    grpc::Status SetActiveCellResults(grpc::ServerContext*              context,
-                                      const rips::ResultRequestChunk*   request,
-                                      rips::Empty*                      reply,
-                                      RiaActiveCellResultsStateHandler* stateHandler);
-    grpc::Status SetGridResults(grpc::ServerContext*            context,
-                                const rips::ResultRequestChunk* request,
-                                rips::Empty*                    reply,
-                                RiaGridCellResultsStateHandler* stateHandler);
+    grpc::Status GetAvailableProperties(grpc::ServerContext*                    context,
+                                        const rips::AvailablePropertiesRequest* request,
+                                        rips::AvailableProperties*              reply) override;
+    grpc::Status GetActiveCellProperty(grpc::ServerContext*              context,
+                                       const rips::PropertyRequest*        request,
+                                       rips::PropertyChunk*                reply,
+                                       RiaActiveCellResultsStateHandler* stateHandler);
+    grpc::Status GetGridProperty(grpc::ServerContext*            context,
+                                 const rips::PropertyRequest*      request,
+                                 rips::PropertyChunk*              reply,
+                                 RiaGridCellResultsStateHandler* stateHandler);
+    grpc::Status SetActiveCellProperty(grpc::ServerContext*             context,
+                                       const rips::PropertyInputChunk*   chunk,
+                                       rips::Empty*                      reply,
+                                       RiaActiveCellResultsStateHandler* stateHandler);
+    grpc::Status SetGridProperty(grpc::ServerContext*            context,
+                                 const rips::PropertyInputChunk* chunk,
+                                 rips::Empty*                    reply,
+                                 RiaGridCellResultsStateHandler* stateHandler);
 
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

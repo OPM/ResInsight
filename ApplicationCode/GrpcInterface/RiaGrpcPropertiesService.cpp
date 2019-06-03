@@ -18,7 +18,7 @@
 #include "RiaGrpcPropertiesService.h"
 
 #include "RiaGrpcCallbacks.h"
-#include "RiaGrpcGridInfoService.h"
+#include "RiaGrpcCaseService.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigActiveCellsResultAccessor.h"
@@ -61,9 +61,9 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    Status init(const ResultRequest* request)
+    Status init(const PropertyRequest* request)
     {
-        int caseId    = request->request_case().id();
+        int caseId    = request->case_request().id();
         m_eclipseCase = dynamic_cast<RimEclipseCase*>(RiaGrpcServiceInterface::findCase(caseId));
 
         if (m_eclipseCase)
@@ -110,21 +110,21 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// Client streamers need to be initialised with the encapsulated parameters
     //--------------------------------------------------------------------------------------------------
-    Status init(const ResultRequestChunk* request)
+    Status init(const PropertyInputChunk* chunk)
     {
-        if (request->has_params())
+        if (chunk->has_params())
         {
-            return init(&(request->params()));
+            return init(&(chunk->params()));
         }
-        return grpc::Status(grpc::INVALID_ARGUMENT, "Need to have ResultRequest parameters in first message");
+        return grpc::Status(grpc::INVALID_ARGUMENT, "Need to have PropertyRequest parameters in first message");
     }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    Status assignStreamReply(ResultArray* reply)
+    Status assignStreamReply(PropertyChunk* reply)
     {
-        const size_t packageSize  = RiaGrpcServiceInterface::numberOfMessagesForByteCount(sizeof(rips::ResultArray));
+        const size_t packageSize  = RiaGrpcServiceInterface::numberOfMessagesForByteCount(sizeof(rips::PropertyChunk));
         size_t       packageIndex = 0u;
         reply->mutable_values()->Reserve((int)packageSize);
         for (; packageIndex < packageSize && m_currentCellIdx < m_cellCount; ++packageIndex, ++m_currentCellIdx)
@@ -142,7 +142,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    Status receiveStreamRequest(const ResultRequestChunk* request)
+    Status receiveStreamRequest(const PropertyInputChunk* request)
     {
         if (request->has_values())
         {
@@ -183,7 +183,7 @@ protected:
     virtual void   setCellResult(size_t currentCellIndex, double value)       = 0;
 
 protected:
-    const rips::ResultRequest*  m_request;
+    const rips::PropertyRequest*  m_request;
     RimEclipseCase*             m_eclipseCase;
     size_t                      m_currentCellIdx;
     size_t                      m_cellCount;
@@ -263,11 +263,11 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcPropertiesService::GetAvailableProperties(grpc::ServerContext*     context,
-                                                              const PropertiesRequest* request,
-                                                              AvailableProperties*     reply)
+grpc::Status RiaGrpcPropertiesService::GetAvailableProperties(grpc::ServerContext*              context,
+                                                              const AvailablePropertiesRequest* request,
+                                                              AvailableProperties*              reply)
 {
-    int             caseId      = request->request_case().id();
+    int             caseId      = request->case_request().id();
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(RiaGrpcServiceInterface::findCase(caseId));
     if (eclipseCase)
     {
@@ -291,9 +291,9 @@ grpc::Status RiaGrpcPropertiesService::GetAvailableProperties(grpc::ServerContex
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcPropertiesService::GetActiveCellResults(grpc::ServerContext*              context,
-                                                            const ResultRequest*              request,
-                                                            ResultArray*                 reply,
+grpc::Status RiaGrpcPropertiesService::GetActiveCellProperty(grpc::ServerContext*             context,
+                                                            const PropertyRequest*            request,
+                                                            PropertyChunk*                    reply,
                                                             RiaActiveCellResultsStateHandler* stateHandler)
 {
     return stateHandler->assignStreamReply(reply);
@@ -303,9 +303,9 @@ grpc::Status RiaGrpcPropertiesService::GetActiveCellResults(grpc::ServerContext*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcPropertiesService::GetGridResults(grpc::ServerContext*            context,
-                                                      const rips::ResultRequest*      request,
-                                                      rips::ResultArray*         reply,
+grpc::Status RiaGrpcPropertiesService::GetGridProperty(grpc::ServerContext*           context,
+                                                      const rips::PropertyRequest*    request,
+                                                      rips::PropertyChunk*            reply,
                                                       RiaGridCellResultsStateHandler* stateHandler)
 {
     return stateHandler->assignStreamReply(reply);
@@ -314,8 +314,8 @@ grpc::Status RiaGrpcPropertiesService::GetGridResults(grpc::ServerContext*      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcPropertiesService::SetActiveCellResults(grpc::ServerContext*              context,
-                                                            const rips::ResultRequestChunk*   request,
+grpc::Status RiaGrpcPropertiesService::SetActiveCellProperty(grpc::ServerContext*             context,
+                                                            const rips::PropertyInputChunk*   request,
                                                             rips::Empty*                      reply,
                                                             RiaActiveCellResultsStateHandler* stateHandler)
 {
@@ -326,8 +326,8 @@ grpc::Status RiaGrpcPropertiesService::SetActiveCellResults(grpc::ServerContext*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcPropertiesService::SetGridResults(grpc::ServerContext*            context,
-                                                      const rips::ResultRequestChunk* request,
+grpc::Status RiaGrpcPropertiesService::SetGridProperty(grpc::ServerContext*           context,
+                                                      const rips::PropertyInputChunk* request,
                                                       rips::Empty*                    reply,
                                                       RiaGridCellResultsStateHandler* stateHandler)
 {
@@ -340,16 +340,16 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcPropertiesService::createCallbacks
 {
     typedef RiaGrpcPropertiesService Self;
 
-    return {new RiaGrpcUnaryCallback<Self, PropertiesRequest, AvailableProperties>(
+    return {new RiaGrpcUnaryCallback<Self, AvailablePropertiesRequest, AvailableProperties>(
                 this, &Self::GetAvailableProperties, &Self::RequestGetAvailableProperties),
-            new RiaGrpcServerStreamCallback<Self, ResultRequest, ResultArray, RiaActiveCellResultsStateHandler>(
-                this, &Self::GetActiveCellResults, &Self::RequestGetActiveCellResults, new RiaActiveCellResultsStateHandler),
-            new RiaGrpcServerStreamCallback<Self, ResultRequest, ResultArray, RiaGridCellResultsStateHandler>(
-                this, &Self::GetGridResults, &Self::RequestGetGridResults, new RiaGridCellResultsStateHandler),
-            new RiaGrpcClientStreamCallback<Self, ResultRequestChunk, Empty, RiaActiveCellResultsStateHandler>(
-                this, &Self::SetActiveCellResults, &Self::RequestSetActiveCellResults, new RiaActiveCellResultsStateHandler(true)),
-            new RiaGrpcClientStreamCallback<Self, ResultRequestChunk, Empty, RiaGridCellResultsStateHandler>(
-                this, &Self::SetGridResults, &Self::RequestSetGridResults, new RiaGridCellResultsStateHandler(true))
+            new RiaGrpcServerStreamCallback<Self, PropertyRequest, PropertyChunk, RiaActiveCellResultsStateHandler>(
+                this, &Self::GetActiveCellProperty, &Self::RequestGetActiveCellProperty, new RiaActiveCellResultsStateHandler),
+            new RiaGrpcServerStreamCallback<Self, PropertyRequest, PropertyChunk, RiaGridCellResultsStateHandler>(
+                this, &Self::GetGridProperty, &Self::RequestGetGridProperty, new RiaGridCellResultsStateHandler),
+            new RiaGrpcClientStreamCallback<Self, PropertyInputChunk, Empty, RiaActiveCellResultsStateHandler>(
+                this, &Self::SetActiveCellProperty, &Self::RequestSetActiveCellProperty, new RiaActiveCellResultsStateHandler(true)),
+            new RiaGrpcClientStreamCallback<Self, PropertyInputChunk, Empty, RiaGridCellResultsStateHandler>(
+                this, &Self::SetGridProperty, &Self::RequestSetGridProperty, new RiaGridCellResultsStateHandler(true))
     };
 }
 

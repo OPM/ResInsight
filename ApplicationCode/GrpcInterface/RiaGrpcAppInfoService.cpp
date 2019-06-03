@@ -15,7 +15,7 @@
 //  for more details.
 //
 //////////////////////////////////////////////////////////////////////////////////
-#include "RiaGrpcResInfoService.h"
+#include "RiaGrpcAppInfoService.h"
 
 #include "RiaVersionInfo.h"
 #include "RiaGrpcCallbacks.h"
@@ -23,7 +23,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcResInfoService::GetVersion(grpc::ServerContext* context, const rips::Empty* request, rips::Version* reply)
+grpc::Status RiaGrpcAppInfoService::GetVersion(grpc::ServerContext* context, const rips::Empty* request, rips::Version* reply)
 {
     reply->set_major_version(RESINSIGHT_MAJOR_VERSION);
     reply->set_minor_version(RESINSIGHT_MINOR_VERSION);
@@ -34,11 +34,11 @@ grpc::Status RiaGrpcResInfoService::GetVersion(grpc::ServerContext* context, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaGrpcCallbackInterface*> RiaGrpcResInfoService::createCallbacks()
+std::vector<RiaGrpcCallbackInterface*> RiaGrpcAppInfoService::createCallbacks()
 {
-    typedef RiaGrpcResInfoService Self;
+    typedef RiaGrpcAppInfoService Self;
     return { new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Version>(this, &Self::GetVersion, &Self::RequestGetVersion) };
 }
 
-static bool RiaGrpcResInfoService_init =
-    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcResInfoService>(typeid(RiaGrpcResInfoService).hash_code());
+static bool RiaGrpcAppInfoService_init =
+    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcAppInfoService>(typeid(RiaGrpcAppInfoService).hash_code());

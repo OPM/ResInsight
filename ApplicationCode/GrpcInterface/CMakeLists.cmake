@@ -5,20 +5,22 @@ set ( SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCallbacks.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCallbacks.inl
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridInfoService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCaseService.h
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridService.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectService.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcResInfoService.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppInfoService.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.h
 )
 
 set ( SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridInfoService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectInfoService.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCaseService.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridService.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcResInfoService.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppInfoService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.cpp
 )
 
@@ -70,12 +72,12 @@ endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 # Proto files
 set(PROTO_FILES
     "Empty"
-    "CaseInfo"
-    "GridInfo"
-    "ProjectInfo"
+    "Case"
+    "Project"
     "Commands"
-    "ResInfo"
+    "AppInfo"
 	"Properties"
+	"Grid"
 )
 
 set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/Python")
@@ -138,24 +140,33 @@ foreach(proto_file ${PROTO_FILES})
 
 endforeach(proto_file)
 
-if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})	
+if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
     list(APPEND GRPC_PYTHON_SOURCES
         ${GRPC_PYTHON_GENERATED_SOURCES}
 		"generated/RiaVersionInfo.py"
-        "api/__init__.py"
-        "api/ResInsight.py"
+        "rips/__init__.py"
+		"rips/AppInfo.py"
+		"rips/Case.py"
+		"rips/Commands.py"
+		"rips/Grid.py"
+		"rips/Project.py"
+		"rips/Properties.py"
+        "rips/Instance.py"	
         "examples/CommandExample.py"
-        "examples/GridInfoStreamingExample.py"
+        "examples/CaseInfoStreamingExample.py"
 		"examples/PoroPermXSync.py"
 		"examples/PoroPermXAsync.py"
 		"examples/SoilPorvAsync.py"
 		"examples/SoilPorvSync.py"
-        "examples/ResultValues.py"
         "examples/SelectedCases.py"
         "examples/AllCases.py"
-		"examples/SetActiveCellProperties.py"
 		"examples/SetGridProperties.py"
+		"examples/GridInformation.py"
         "tests/test_sample.py"
+		"requirements.txt"
+		"setup.py.cmake"
+		"README.md"
+		"LICENSE"
     )
 
     foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
@@ -172,6 +183,9 @@ list ( APPEND GRPC_CPP_SOURCES ${SOURCE_GROUP_SOURCE_FILES})
 
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
                 ${GRPC_PYTHON_SOURCE_PATH}/generated/RiaVersionInfo.py
+)
+CONFIGURE_FILE( ${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
+                ${GRPC_PYTHON_SOURCE_PATH}/setup.py
 )
 
 source_group( "GrpcInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.cmake )

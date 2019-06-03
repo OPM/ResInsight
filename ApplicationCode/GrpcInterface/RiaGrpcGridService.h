@@ -1,5 +1,3 @@
-#pragma once
-
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2019-     Equinor ASA
@@ -19,32 +17,14 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "Grid.grpc.pb.h"
+
 #include "RiaGrpcServiceInterface.h"
 
-#include "ResInfo.grpc.pb.h"
-
-#include <grpcpp/grpcpp.h>
-#include <vector>
-
-namespace rips
-{
-class Empty;
-class Version;
-}
-
-namespace caf
-{
-class PdmValueField;
-}
-
-class RiaGrpcCallbackInterface;
-
-class RiaGrpcResInfoService : public rips::ResInfo::AsyncService, public RiaGrpcServiceInterface
+class RiaGrpcGridService final : public rips::Grid::AsyncService, public RiaGrpcServiceInterface
 {
 public:
-    grpc::Status GetVersion(grpc::ServerContext* context, const rips::Empty* request, rips::Version* reply) override;
+    grpc::Status GetDimensions(grpc::ServerContext* context, const rips::GridRequest* request, rips::GridDimensions* reply) override;
+    
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
-
 };
-
-
