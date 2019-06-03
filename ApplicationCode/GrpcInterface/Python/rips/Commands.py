@@ -48,16 +48,33 @@ class Commands:
     # Export Commands
     ##################
 
+    def exportMultiCaseSnapshots(self, gridListFile):
+        return self.execute(exportMultiCaseSnapshot=Cmd.ExportMultiCaseRequest(gridListFile=gridListFile))
+
     def exportSnapshots(self, type = 'ALL', prefix=''):
         return self.execute(exportSnapshots=Cmd.ExportSnapshotsRequest(type=type,
                                                                        prefix=prefix))
 
+    def exportProperty(self, caseId, timeStep, property, eclipseKeyword=property, undefinedValue=0.0, exportFile=property):
+        return self.execute(exportProperty=Cmd.ExportPropertyRequest(caseId=caseId,
+                                                                     timeStep=timeStep,
+                                                                     property=property,
+                                                                     eclipseKeyword=eclipseKeyword,
+                                                                     undefinedValue=undefinedValue,
+                                                                     exportFile=exportFile))
+
+    def exportPropertyInViews(self, caseId, viewNames, undefinedValue):
+        if isinstance(viewNames, str):
+            viewNames = [viewNames]
+
+        return self.execute(exportPropertyInViews=Cmd.ExportPropertyInViewsRequest(caseId=caseId,
+                                                                                   viewNames=viewNames,
+                                                                                   undefinedValue=undefinedValue))
+
     def exportWellPaths(self, wellPaths=[], mdStepSize=5.0):
         if isinstance(wellPaths, str):
-            wellPathArray = [str]
-        elif isinstance(wellPaths, list):
-            wellPathArray = wellPaths
-        return self.execute(exportWellPaths=Cmd.ExportWellPathRequest(wellPathNames=wellPathArray, mdStepSize=mdStepSize))
+            wellPaths = [wellpaths]
+        return self.execute(exportWellPaths=Cmd.ExportWellPathRequest(wellPathNames=wellPaths, mdStepSize=mdStepSize))
 
     def exportVisibleCells(self, caseId, viewName, exportKeyword='FLUXNUM', visibleActiveCellsValue=1, hiddenActiveCellsValue=0, inactiveCellsValue=0):
         return self.execute(exportVisibleCells=Cmd.ExportVisibleCellsRequest(caseId=caseId,
