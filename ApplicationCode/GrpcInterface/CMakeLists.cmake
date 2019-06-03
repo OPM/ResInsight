@@ -18,6 +18,7 @@ set ( SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCaseService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridService.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcExampleClient.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppInfoService.cpp
@@ -140,7 +141,7 @@ foreach(proto_file ${PROTO_FILES})
 
 endforeach(proto_file)
 
-if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})	
+if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
     list(APPEND GRPC_PYTHON_SOURCES
         ${GRPC_PYTHON_GENERATED_SOURCES}
 		"generated/RiaVersionInfo.py"
@@ -164,7 +165,8 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 		"examples/GridInformation.py"
         "tests/test_sample.py"
 		"requirements.txt"
-		"README.rst"
+		"setup.py.cmake"
+		"README.md"
 		"LICENSE"
     )
 

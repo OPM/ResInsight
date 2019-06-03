@@ -1,14 +1,16 @@
 from setuptools import setup, find_packages
 
-with open('README.rst') as f:
+with open('README.md') as f:
     readme = f.read()
 
 with open('LICENSE') as f:
 	license = f.read()
 
+RIPS_DIST_VERSION = '1'
+	
 setup(
     name='rips',
-    version='@RESINSIGHT_MAJOR_VERSION@.@RESINSIGHT_MINOR_VERSION@.@RESINSIGHT_PATCH_VERSION@',
+    version='@RESINSIGHT_MAJOR_VERSION@.@RESINSIGHT_MINOR_VERSION@.@RESINSIGHT_PATCH_VERSION@.' + RIPS_DIST_VERSION,
     description='Python Interface for ResInsight',
     long_description=readme,
     author='Ceetron Solutions',
