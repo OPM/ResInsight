@@ -1,11 +1,9 @@
 import sys
 import os
-sys.path.insert(1, os.path.join(sys.path[0], '../api'))
-import ResInsight
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+import rips
 
-resInsight     = ResInsight.Instance.find()
-#gridCount      = resInsight.gridInfo.getGridCount(caseId=0)
-#gridDimensions = resInsight.gridInfo.getAllGridDimensions(caseId=0)
+resInsight  = rips.Instance.find()
 
 case = resInsight.project.case(id = 0)
 

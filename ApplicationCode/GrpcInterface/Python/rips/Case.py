@@ -41,13 +41,13 @@ class Case:
 
     def cellCount(self, porosityModel='MATRIX_MODEL'):
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request =  Case_pb2.CellInfoRequest(request_case=self.request,
+        request =  Case_pb2.CellInfoRequest(case_request=self.request,
                                             porosity_model=porosityModel)
         return self.stub.GetCellCount(request)
 
     def cellInfoForActiveCells(self, porosityModel='MATRIX_MODEL'):
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
-        request =  Case_pb2.CellInfoRequest(request_case=self.request,
+        request =  Case_pb2.CellInfoRequest(case_request=self.request,
                                             porosity_model=porosityModel)
         return self.stub.GetCellInfoForActiveCells(request)
 

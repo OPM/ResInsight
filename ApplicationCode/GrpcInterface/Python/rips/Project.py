@@ -3,6 +3,7 @@ import os
 import sys
 
 from .Case import Case
+from .Commands import Commands
 
 sys.path.insert(1, os.path.join(sys.path[0], '../generated'))
 

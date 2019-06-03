@@ -28,6 +28,7 @@ message ReplaceCaseRequest
 message ReplaceSourceCasesRequest
 {
 	string gridListFile = 1;
+	int32 caseGroupId   = 2;
 }
 
 message ExportMultiCaseRequest

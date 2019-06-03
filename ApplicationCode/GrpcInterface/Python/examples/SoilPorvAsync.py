@@ -1,7 +1,7 @@
 import sys
 import os
-sys.path.insert(1, os.path.join(sys.path[0], '../api'))
-import ResInsight
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+import rips
 
 def createResult(soilChunks, porvChunks):
     for (soilChunk, porvChunk) in zip(soilChunks, porvChunks):
@@ -14,7 +14,7 @@ def createResult(soilChunks, porvChunks):
 
 
 
-resInsight   = ResInsight.Instance.find()
+resInsight   = rips.Instance.find()
 case         = resInsight.project.case(id=0)
 timeStepInfo = case.timeSteps()
 

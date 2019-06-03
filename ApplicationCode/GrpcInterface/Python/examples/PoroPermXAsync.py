@@ -1,7 +1,7 @@
 import sys
 import os
-sys.path.insert(1, os.path.join(sys.path[0], '../api'))
-import ResInsight
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+import rips
 
 def createResult(poroChunks, permxChunks):
     for (poroChunk, permxChunk) in zip(poroChunks, permxChunks):
@@ -11,7 +11,7 @@ def createResult(poroChunks, permxChunks):
         yield resultChunk
 
 
-resInsight     = ResInsight.Instance.find()
+resInsight     = rips.Instance.find()
 case = resInsight.project.case(id=0)
 
 poroChunks = case.properties.activeCellProperty('STATIC_NATIVE', 'PORO', 0)

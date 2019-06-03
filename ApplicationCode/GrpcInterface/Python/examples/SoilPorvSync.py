@@ -1,10 +1,10 @@
 import sys
 import os
-sys.path.insert(1, os.path.join(sys.path[0], '../api'))
-import ResInsight
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+import rips
 
-resInsight = ResInsight.Instance.find()
-case       = resInsight.case(id=0)
+resInsight = rips.Instance.find()
+case       = resInsight.project.case(id=0)
 
 porvChunks = case.properties.activeCellProperty('STATIC_NATIVE', 'PORV', 0)
 porvResults = []
