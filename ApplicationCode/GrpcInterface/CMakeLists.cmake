@@ -18,7 +18,6 @@ set ( SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCaseService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridService.cpp
-	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcExampleClient.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppInfoService.cpp
