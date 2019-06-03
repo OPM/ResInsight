@@ -8,7 +8,7 @@ with open('LICENSE') as f:
 
 setup(
     name='rips',
-    version='2019.04.01',
+    version='@RESINSIGHT_MAJOR_VERSION@.@RESINSIGHT_MINOR_VERSION@.@RESINSIGHT_PATCH_VERSION@',
     description='Python Interface for ResInsight',
     long_description=readme,
     author='Ceetron Solutions',

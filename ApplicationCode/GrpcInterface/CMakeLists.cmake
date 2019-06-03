@@ -163,6 +163,9 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 		"examples/SetGridProperties.py"
 		"examples/GridInformation.py"
         "tests/test_sample.py"
+		"requirements.txt"
+		"README.rst"
+		"LICENSE"
     )
 
     foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
@@ -179,6 +182,9 @@ list ( APPEND GRPC_CPP_SOURCES ${SOURCE_GROUP_SOURCE_FILES})
 
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
                 ${GRPC_PYTHON_SOURCE_PATH}/generated/RiaVersionInfo.py
+)
+CONFIGURE_FILE( ${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
+                ${GRPC_PYTHON_SOURCE_PATH}/setup.py
 )
 
 source_group( "GrpcInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.cmake )
