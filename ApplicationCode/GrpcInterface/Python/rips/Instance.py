@@ -20,16 +20,17 @@ class Instance:
             return s.connect_ex(('localhost', port)) == 0
     
     @staticmethod
-    def launch():
+    def launch(resInsightExecutable = ''):
         port = 50051
         portEnv = os.environ.get('RESINSIGHT_GRPC_PORT')
         if portEnv:
             port = int(portEnv)
         
-        resInsightExecutable = os.environ.get('RESINSIGHT_EXECUTABLE')
-        if resInsightExecutable is None:
-            print('Error: Could not launch any ResInsight instances because RESINSIGHT_EXECUTABLE is not set')
-            return None
+        if not resInsightExecutable:
+            resInsightExecutable = os.environ.get('RESINSIGHT_EXECUTABLE')
+            if not resInsightExecutable:
+                print('Error: Could not launch any ResInsight instances because RESINSIGHT_EXECUTABLE is not set')
+                return None
         
         while Instance.is_port_in_use(port):
             port += 1

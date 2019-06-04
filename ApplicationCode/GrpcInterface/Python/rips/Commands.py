@@ -2,8 +2,10 @@ import grpc
 import os
 import sys
 
+from Empty_pb2 import Empty
 import Commands_pb2 as Cmd
 import Commands_pb2_grpc as CmdRpc
+from .Case import Case
 
 class Commands:
     def __init__(self, channel):
@@ -35,7 +37,7 @@ class Commands:
     def loadCase(self, path):
         commandReply = self.execute(loadCase=Cmd.FilePathRequest(path=path))
         assert commandReply.HasField("loadCaseResult")
-        return commandReply.loadCaseResult.id
+        return Case(self.channel, commandReply.loadCaseResult.id)
 
     def replaceCase(self, path, caseId=0):
         return self.execute(replaceCase=Cmd.ReplaceCaseRequest(newGridFile=path,

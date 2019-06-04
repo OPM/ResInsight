@@ -15,6 +15,13 @@ class Project:
     def __init__(self, channel):
         self.channel = channel
         self.project = Project_pb2_grpc.ProjectStub(channel)
+    
+    def open(self, path):
+        Commands(self.channel).openProject(path)
+        return self
+
+    def close(self):
+        Commands(self.channel).closeProject()
 
     def selectedCases(self):
         caseInfos = self.project.GetSelectedCases(Empty())
