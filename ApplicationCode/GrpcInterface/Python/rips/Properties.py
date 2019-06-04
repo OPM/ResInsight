@@ -111,6 +111,7 @@ class Properties:
                 print("Command not found")
             else:
                 print("Other error", e)
+
     def setGridProperty(self, values, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)

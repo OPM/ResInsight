@@ -52,5 +52,5 @@ class Case:
         return self.stub.GetCellInfoForActiveCells(request)
 
     def timeSteps(self):
-        return self.stub.GetTimeSteps(self.request)
+        return self.stub.GetTimeSteps(self.request).dates
         
