@@ -15,15 +15,16 @@
 //  for more details.
 //
 //////////////////////////////////////////////////////////////////////////////////
-#include "RiaGrpcAppInfoService.h"
+#include "RiaGrpcAppService.h"
 
 #include "RiaVersionInfo.h"
 #include "RiaGrpcCallbacks.h"
+#include "RiaGrpcServer.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcAppInfoService::GetVersion(grpc::ServerContext* context, const rips::Empty* request, rips::Version* reply)
+grpc::Status RiaGrpcAppService::GetVersion(grpc::ServerContext* context, const rips::Empty* request, rips::Version* reply)
 {
     reply->set_major_version(RESINSIGHT_MAJOR_VERSION);
     reply->set_minor_version(RESINSIGHT_MINOR_VERSION);
@@ -34,11 +35,21 @@ grpc::Status RiaGrpcAppInfoService::GetVersion(grpc::ServerContext* context, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaGrpcCallbackInterface*> RiaGrpcAppInfoService::createCallbacks()
+grpc::Status RiaGrpcAppService::Exit(grpc::ServerContext* context, const rips::Empty* request, rips::Empty* reply)
 {
-    typedef RiaGrpcAppInfoService Self;
-    return { new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Version>(this, &Self::GetVersion, &Self::RequestGetVersion) };
+    RiaGrpcServer::setReceivedExitRequest();
+    return grpc::Status::OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaGrpcCallbackInterface*> RiaGrpcAppService::createCallbacks()
+{
+    typedef RiaGrpcAppService Self;
+    return { new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Version>(this, &Self::GetVersion, &Self::RequestGetVersion),
+             new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Empty>(this, &Self::Exit, &Self::RequestExit) };
 }
 
 static bool RiaGrpcAppInfoService_init =
-    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcAppInfoService>(typeid(RiaGrpcAppInfoService).hash_code());
+    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcAppService>(typeid(RiaGrpcAppService).hash_code());

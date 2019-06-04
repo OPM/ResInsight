@@ -4,8 +4,9 @@ package rips;
 
 import "Empty.proto";
 
-service AppInfo {
+service App {
   rpc GetVersion(Empty) returns (Version) {}
+  rpc Exit(Empty) returns (Empty) {}
 }
 
 message Version {

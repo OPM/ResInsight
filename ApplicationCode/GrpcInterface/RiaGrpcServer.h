@@ -44,10 +44,12 @@ public:
     void processAllQueuedRequests();
     void quit();
     static int findAvailablePortNumber(int defaultPortNumber);
-
+    static void setReceivedExitRequest();
+    static bool receivedExitRequest();
 private:
     void initialize();
 
 private:
     RiaGrpcServerImpl* m_serverImpl;
+    static bool s_receivedExitRequest;
 };

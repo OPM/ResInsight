@@ -345,7 +345,10 @@ void RiaConsoleApplication::showErrorMessage(const QString& errMsg)
 void RiaConsoleApplication::launchGrpcServer()
 {
 #ifdef ENABLE_GRPC
-    m_grpcServer->run();
+    m_grpcServer->runInThread();
+    m_idleTimer = new QTimer(this);
+    connect(m_idleTimer, SIGNAL(timeout()), this, SLOT(runIdleProcessing()));
+    m_idleTimer->start(0);
 #endif
 }
 
@@ -381,3 +384,21 @@ void RiaConsoleApplication::onProjectClosed()
     processEvents();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaConsoleApplication::runIdleProcessing()
+{
+#ifdef ENABLE_GRPC
+    if (RiaGrpcServer::receivedExitRequest())
+    {
+        m_grpcServer->quit();
+        QCoreApplication::quit();
+    }
+    else
+    {
+        m_grpcServer->processAllQueuedRequests();
+    }
+#endif
+}

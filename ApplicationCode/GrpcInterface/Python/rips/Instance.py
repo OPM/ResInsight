@@ -8,7 +8,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '../generated'))
 
 import RiaVersionInfo
 
-from .AppInfo import AppInfo
+from .App import App
 from .Commands import Commands
 from .Project import Project
 
@@ -60,10 +60,10 @@ class Instance:
         self.channel = grpc.insecure_channel(location)
 
         # Main version check package
-        self.appInfo     = AppInfo(self.channel)
+        self.app     = App(self.channel)
         try:
-            majorVersionOk = self.appInfo.majorVersion() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
-            minorVersionOk = self.appInfo.minorVersion() == int(RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
+            majorVersionOk = self.app.majorVersion() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
+            minorVersionOk = self.app.minorVersion() == int(RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
             if not (majorVersionOk and minorVersionOk):
                 raise Exception('Version of ResInsight does not match version of Python API')
         except grpc.RpcError as e:

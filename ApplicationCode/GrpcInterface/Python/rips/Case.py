@@ -20,7 +20,7 @@ class Case:
         self.type    = info.type
         self.properties = Properties(self)
         self.request = Case_pb2.CaseRequest(id=self.id)
-
+  
     def gridCount(self):
         try:
             return self.stub.GetGridCount(self.request).count          

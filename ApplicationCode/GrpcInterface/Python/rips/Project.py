@@ -44,3 +44,7 @@ class Project:
             return case
         except grpc.RpcError as e:
             return None
+
+    def loadCase(self, path):
+        return Commands(self.channel).loadCase(path)
+

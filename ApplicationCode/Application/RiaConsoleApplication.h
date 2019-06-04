@@ -21,6 +21,9 @@
 
 #include <QCoreApplication>
 
+#include <QPointer>
+#include <QTimer>
+
 namespace cvf
 {
 class ProgramOptions;
@@ -48,5 +51,13 @@ protected:
     void onProjectOpeningError(const QString& errMsg) override;
     void onProjectOpened();
     void onProjectClosed();
+
+private slots:
+    void runIdleProcessing();
+
+private:
+#ifdef ENABLE_GRPC
+    QPointer<QTimer> m_idleTimer;
+#endif
 };
 

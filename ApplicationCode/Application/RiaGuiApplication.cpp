@@ -1687,7 +1687,12 @@ void RiaGuiApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitSt
 void RiaGuiApplication::runIdleProcessing()
 {
 #ifdef ENABLE_GRPC
-    if (!caf::ProgressInfoStatic::isRunning())
+    if (RiaGrpcServer::receivedExitRequest())
+    {
+        m_grpcServer->quit();
+        QCoreApplication::quit();
+    }    
+    else if (!caf::ProgressInfoStatic::isRunning())
     {
         m_grpcServer->processAllQueuedRequests();
     }

@@ -9,7 +9,7 @@ set ( SOURCE_GROUP_HEADER_FILES
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridService.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectService.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppInfoService.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppService.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.h
 )
 
@@ -20,7 +20,7 @@ set ( SOURCE_GROUP_SOURCE_FILES
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppInfoService.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.cpp
 )
 
@@ -79,7 +79,7 @@ set(PROTO_FILES
     "Case"
     "Project"
     "Commands"
-    "AppInfo"
+    "App"
 	"Properties"
 	"Grid"
 )
@@ -149,7 +149,7 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
         ${GRPC_PYTHON_GENERATED_SOURCES}
 		"generated/RiaVersionInfo.py"
         "rips/__init__.py"
-		"rips/AppInfo.py"
+		"rips/App.py"
 		"rips/Case.py"
 		"rips/Commands.py"
 		"rips/Grid.py"
@@ -168,7 +168,9 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 		"examples/InputPropTestAsync.py"
 		"examples/SoilAverage.py"
 		"examples/SoilAverageNoComm.py"
-        "tests/test_sample.py"
+        "tests/test_cases.py"
+		"tests/conftest.py"
+		"tests/dataroot.py"
 		"requirements.txt"
 		"setup.py.cmake"
 		"README.md"
