@@ -74,7 +74,8 @@ class Properties:
                                                  time_step      = timeStep,
                                                  grid_index     = gridIndex,
                                                  porosity_model = porosityModelEnum)
-        return self.propertiesStub.GetGridProperty(request)
+        for chunk in self.propertiesStub.GetGridProperty(request):
+            yield chunk
 
     def setActiveCellPropertyAsync(self, values_iterator, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)

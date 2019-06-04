@@ -31,9 +31,13 @@ if (MSVC)
 
     # Find Protobuf installation
     # Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
-    set(protobuf_MODULE_COMPATIBLE ON CACHE BOOL "")
-    find_package(Protobuf CONFIG 3.0 REQUIRED)
-    message(STATUS "Using protobuf ${protobuf_VERSION}")
+    set(protobuf_MODULE_COMPATIBLE ON CACHE DBOOL "")
+    find_package(Protobuf CONFIG 3.0 QUIET)
+	if (Protobuf_FOUND)
+		message(STATUS "Using protobuf ${protobuf_VERSION}")
+	else()
+		message(FATAL_ERROR "Protocol Buffers not found. This is required to build with gRPC")
+    endif()
 
     # Find gRPC installation
     # Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
@@ -54,7 +58,7 @@ if (MSVC)
 
 else()
     if (NOT DEFINED GRPC_INSTALL_PREFIX OR NOT EXISTS ${GRPC_INSTALL_PREFIX})
-        message(FATAL_ERROR "You need a valid GRPC_INSTALL_PREFIX set to build with GRPC")
+        message(FATAL_ERROR "You need a valid GRPC_INSTALL_PREFIX set to build with gRPC")
     endif()
     set(ENV{PKG_CONFIG_PATH} "${GRPC_INSTALL_PREFIX}/lib/pkgconfig")
     find_package(PkgConfig REQUIRED)
@@ -154,14 +158,16 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
         "rips/Instance.py"	
         "examples/CommandExample.py"
         "examples/CaseInfoStreamingExample.py"
-		"examples/PoroPermXSync.py"
-		"examples/PoroPermXAsync.py"
 		"examples/SoilPorvAsync.py"
 		"examples/SoilPorvSync.py"
         "examples/SelectedCases.py"
         "examples/AllCases.py"
 		"examples/SetGridProperties.py"
 		"examples/GridInformation.py"
+		"examples/InputPropTestSync.py"
+		"examples/InputPropTestAsync.py"
+		"examples/SoilAverage.py"
+		"examples/SoilAverageNoComm.py"
         "tests/test_sample.py"
 		"requirements.txt"
 		"setup.py.cmake"
