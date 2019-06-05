@@ -835,6 +835,8 @@ void RiaApplication::addWellLogsToModel(const QList<QString>& wellLogFilePaths)
         m_project->updateConnectedEditors();
     }
 
+    oilField->wellPathCollection->addWellLogs(wellLogFilePaths);
+
     oilField->wellPathCollection->updateConnectedEditors();
 }
 
