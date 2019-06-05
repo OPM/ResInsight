@@ -179,7 +179,10 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
 
     project->activeOilField()->completionTemplateCollection()->setDefaultUnitSystemBasedOnLoadedCases();
 
-    RiuPlotMainWindowTools::refreshToolbars();
+    if (RiaGuiApplication::isRunning())
+    {
+        RiuPlotMainWindowTools::refreshToolbars();
+    }
 
     if (openedFilesOut)
     {
@@ -312,8 +315,10 @@ int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStri
 
     analysisModels->updateConnectedEditors();
 
-    RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
-
+    if (RiaGuiApplication::isRunning())
+    {
+        RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
+    }
     return rimResultReservoir->caseId();
 }
 
