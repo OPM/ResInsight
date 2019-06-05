@@ -1,24 +1,28 @@
 import pytest
 import sys
 import os
+import getopt
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import rips
 
-instance = rips.Instance.launch()
-
-if (not instance):
-    print("A ResInsight instance is required for running the tests")
-    exit(1)
+_rips_instance = None
 
 @pytest.fixture
 def rips_instance():
-    return instance
+    return _rips_instance
 
 @pytest.fixture
 def initializeTest():
-    instance.project.close()
+    _rips_instance.project.close()
 
-def pytest_unconfigure(config):
-    print("Telling ResInsight to Exit")
-    instance.app.exit()
+def pytest_addoption(parser):
+    parser.addoption("--console", action="store_true", default=False, help="Run as console application")
+
+def pytest_configure(config):
+    global _rips_instance
+    console = False
+    if config.getoption('--console'):
+        print("Should run as console app")
+        console = True
+    _rips_instance = rips.Instance.launch(console=console)

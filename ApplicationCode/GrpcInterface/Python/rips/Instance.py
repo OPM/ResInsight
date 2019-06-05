@@ -13,6 +13,8 @@ from .Commands import Commands
 from .Project import Project
 
 class Instance:
+    launched = False
+
     @staticmethod
     def is_port_in_use(port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -20,7 +22,7 @@ class Instance:
             return s.connect_ex(('localhost', port)) == 0
     
     @staticmethod
-    def launch(resInsightExecutable = ''):
+    def launch(resInsightExecutable = '', console = False):        
         port = 50051
         portEnv = os.environ.get('RESINSIGHT_GRPC_PORT')
         if portEnv:
@@ -38,9 +40,11 @@ class Instance:
 
         print('Port ' + str(port))
         print('Trying to launch', resInsightExecutable)
-        pid = os.spawnl(os.P_NOWAIT, resInsightExecutable, " --grpcserver " + str(port))
-        print(pid)
-        return Instance(port)
+        parameters = " --grpcserver " + str(port)
+        if console:
+            parameters += " --console"
+        pid = os.spawnl(os.P_NOWAIT, resInsightExecutable, parameters)
+        return Instance(port=port, launched=True)
     
     @staticmethod
     def find(startPort = 50051, endPort = 50071):
@@ -56,10 +60,11 @@ class Instance:
         print('Error: Could not find any ResInsight instances responding between ports ' + str(startPort) + ' and ' + str(endPort))
         return None
 
-    def __init__(self, port = 50051):
+    def __init__(self, port = 50051, launched = False):
         logging.basicConfig()
         location = "localhost:" + str(port)
         self.channel = grpc.insecure_channel(location)
+        self.launched = launched
 
         # Main version check package
         self.app     = App(self.channel)
@@ -78,3 +83,9 @@ class Instance:
         self.commands   = Commands(self.channel)
         self.project    = Project(self.channel)
     
+        path = os.getcwd()
+        self.commands.setStartDir(path=path)
+
+    def  __del__(self):
+        if self.launched:
+            self.app.exit()

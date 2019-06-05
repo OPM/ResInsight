@@ -17,6 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcAppService.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaVersionInfo.h"
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcServer.h"
@@ -44,11 +45,29 @@ grpc::Status RiaGrpcAppService::Exit(grpc::ServerContext* context, const rips::E
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcAppService::GetRuntimeInfo(grpc::ServerContext* context, const rips::Empty* request, rips::RuntimeInfo* reply)
+{
+    rips::ApplicationTypeEnum appType = rips::CONSOLE_APPLICATION;
+    if (RiaGuiApplication::isRunning())
+    {
+        appType = rips::GUI_APPLICATION;
+    }
+    reply->set_app_type(appType);
+
+    return grpc::Status::OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcAppService::createCallbacks()
 {
     typedef RiaGrpcAppService Self;
-    return { new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Version>(this, &Self::GetVersion, &Self::RequestGetVersion),
-             new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Empty>(this, &Self::Exit, &Self::RequestExit) };
+    return {
+        new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Version>(this, &Self::GetVersion, &Self::RequestGetVersion),
+        new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Empty>(this, &Self::Exit, &Self::RequestExit),
+        new RiaGrpcUnaryCallback<Self, rips::Empty, rips::RuntimeInfo>(this, &Self::GetRuntimeInfo, &Self::RequestGetRuntimeInfo)
+    };
 }
 
 static bool RiaGrpcAppInfoService_init =

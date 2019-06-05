@@ -23,4 +23,11 @@ class App:
     def versionString(self):
         return str(self.majorVersion()) + "." + str(self.minorVersion()) + "." + str(self.patchVersion())
     def exit(self):
+        print("Telling ResInsight to Exit")
         return self.app.Exit(Empty())
+    def isConsole(self):
+        print("RunTimeInfo stuff: ", self.app.GetRuntimeInfo(Empty()).app_type)
+        return self.app.GetRuntimeInfo(Empty()).app_type == App_pb2.ApplicationTypeEnum.Value('CONSOLE_APPLICATION')
+    def isGui(self):
+        print("RunTimeInfo stuff: ", self.app.GetRuntimeInfo(Empty()).app_type)
+        return self.app.GetRuntimeInfo(Empty()).app_type == App_pb2.ApplicationTypeEnum.Value('GUI_APPLICATION')

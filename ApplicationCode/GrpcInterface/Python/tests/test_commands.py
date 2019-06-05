@@ -1,6 +1,7 @@
 import sys
 import os
 import tempfile
+import pytest
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import rips
@@ -8,6 +9,9 @@ import rips
 import dataroot
 
 def test_exportSnapshots(rips_instance, initializeTest):
+    if not rips_instance.app.isGui():
+        pytest.skip("Cannot run test without a GUI")
+
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     rips_instance.project.loadCase(casePath)
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:

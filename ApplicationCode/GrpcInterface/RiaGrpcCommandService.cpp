@@ -17,8 +17,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcCommandService.h"
 
-#include "RiaLogging.h"
-
 #include "RiaGrpcCallbacks.h"
 
 #include "RicfSetTimeStep.h"
@@ -45,7 +43,6 @@ using namespace google::protobuf;
 grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const CommandParams* request, CommandReply* reply)
 {
     auto requestDescriptor = request->GetDescriptor();
-    RiaLogging::info(QString::fromStdString(requestDescriptor->name()));
 
     CommandParams::ParamsCase paramsCase = request->params_case();
     if (paramsCase != CommandParams::PARAMS_NOT_SET)
@@ -55,7 +52,6 @@ grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const 
 
         const Message& params               = request->GetReflection()->GetMessage(*request, grpcOneOfMessage);
         QString        grpcOneOfMessageName = QString::fromStdString(grpcOneOfMessage->name());
-        RiaLogging::info(QString("Found Command: %1").arg(grpcOneOfMessageName));
         auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create(grpcOneOfMessageName);
         auto commandHandle   = dynamic_cast<RicfCommandObject*>(pdmObjectHandle);
         if (commandHandle)
@@ -71,7 +67,6 @@ grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const 
                     auto    pdmValueFieldHandle = dynamic_cast<caf::PdmValueField*>(pdmObjectHandle->findField(parameterName));
                     if (pdmValueFieldHandle)
                     {
-                        RiaLogging::info(QString("Found Matching Parameter: %1").arg(parameterName));
                         assignPdmFieldValue(pdmValueFieldHandle, params, parameter);
                     }
                 }
