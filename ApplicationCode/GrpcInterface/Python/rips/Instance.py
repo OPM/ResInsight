@@ -29,7 +29,8 @@ class Instance:
         if not resInsightExecutable:
             resInsightExecutable = os.environ.get('RESINSIGHT_EXECUTABLE')
             if not resInsightExecutable:
-                print('Error: Could not launch any ResInsight instances because RESINSIGHT_EXECUTABLE is not set')
+                print('ERROR: Could not launch ResInsight because the environment variable'
+                      ' RESINSIGHT_EXECUTABLE is not set')
                 return None
         
         while Instance.is_port_in_use(port):

@@ -8,6 +8,7 @@ import rips
 instance = rips.Instance.launch()
 
 if (not instance):
+    print("A ResInsight instance is required for running the tests")
     exit(1)
 
 @pytest.fixture
