@@ -55,7 +55,9 @@ public:
     //--------------------------------------------------------------------------------------------------
     RiaCellResultsStateHandler(bool clientStreamer = false)
         : m_request(nullptr)
+        , m_eclipseCase(nullptr)
         , m_currentCellIdx(0u)
+        , m_cellCount(0u)
         , m_clientStreamer(clientStreamer)
     {
     }
@@ -199,7 +201,10 @@ class RiaActiveCellResultsStateHandler : public RiaCellResultsStateHandler
 public:
     RiaActiveCellResultsStateHandler(bool clientStreamer = false)
         : RiaCellResultsStateHandler(clientStreamer)
-    {}
+        , m_resultValues(nullptr)
+    {
+    }
+
 protected:
     void initResultAccess(RigEclipseCaseData*           caseData,
                           size_t                        gridIndex,
