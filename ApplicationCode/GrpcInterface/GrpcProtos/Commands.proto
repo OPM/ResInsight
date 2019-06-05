@@ -83,7 +83,7 @@ enum CompdatExportType
 enum CompdatCombinationMode
 {
 	INDIVIDUALLY = 0;
-	COMBINED     = 1;
+	caCOMBINED     = 1;
 }
 
 message ExportWellPathCompRequest 

@@ -73,6 +73,35 @@ class Commands:
                                                                                    viewNames=viewNames,
                                                                                    undefinedValue=undefinedValue))
 
+    def exportWellPathCompletions(self, caseId, timeStep, wellPathNames, fileSplit,
+                                  compdatExport, includePerforations, includeFishbones,
+                                  excludeMainBoreForFishbones, combinationMode):
+        if (isinstance(wellPathNames, str)):
+            wellPathNames = [wellPathNames]
+        return self.execute(exportWellPathCompletions=Cmd.ExportWellPathCompRequest(caseId=caseId,
+                                                                                    timeStep=timeStep,
+                                                                                    wellPathNames=wellPathNames,
+                                                                                    fileSplit=fileSplit,
+                                                                                    compdatExport=compdatExport,
+                                                                                    includePerforations=includePerforations,
+                                                                                    includeFishbones=includeFishbones,
+                                                                                    excludeMainBoreForFishbones=excludeMainBoreForFishbones,
+                                                                                    combinationMode=combinationMode))
+
+    def exportSimWellFractureCompletions(self, caseId, viewName, timeStep, simulationWellNames, fileSplit, compdatExport):
+        if(isinstance(simulationWellNames, str)):
+            simulationWellNames = [simulationWellNames]
+        return self.execute(exportSimWellFractureCompletions=Cmd.ExportSimWellPathFraqRequest(caseId=caseId,
+                                                                                              viewName=viewName,
+                                                                                              timeStep=timeStep,
+                                                                                              simulationWellNames=simulationWellNames,
+                                                                                              fileSplit=fileSplit,
+                                                                                              compdatExport=compdatExport))
+
+    def exportMsw(self, caseId, wellPath):
+        return self.execute(exportMsw=Cmd.ExportMswRequest(caseId=caseId,
+                                                           wellPath=wellPath))
+
     def exportWellPaths(self, wellPaths=[], mdStepSize=5.0):
         if isinstance(wellPaths, str):
             wellPaths = [wellpaths]
@@ -100,7 +129,53 @@ class Commands:
     def setMainWindowSize(self, width, height):
         return self.execute(setMainWindowSize=Cmd.SetMainWindowSizeParams(width=width, height=height))
 
+    def computeCaseGroupStatistics(self, caseIds):
+        if isinstance(caseIds, int):
+            caseIds = [caseIds]
+        return self.execute(computeCaseGroupStatistics=Cmd.ComputeCaseGroupStatRequest(caseIds=caseIds))
+
     def setTimeStep(self, caseId, timeStep):
         return self.execute(setTimeStep=Cmd.SetTimeStepParams(caseId=caseId, timeStep=timeStep))
-    
+
+    def scaleFractureTemplate(self, id, halfLength, height, dFactor, conductivity):
+        return self.execute(scaleFractureTemplate=Cmd.ScaleFractureTemplateRequest(id=id,
+                                                                                   halfLength=halfLength,
+                                                                                   height=height,
+                                                                                   dFactor=dFactor,
+                                                                                   conductivity=conductivity))
+
+    def setFractureContainment(self, id, topLayer, baseLayer):
+        return self.execute(setFractureContainment=Cmd.SetFracContainmentRequest(id=id,
+                                                                                 topLayer=topLayer,
+                                                                                 baseLayer=baseLayer))
+
+    def createMultipleFractures(self, caseId, templateId, wellPathNames, minDistFromWellTd,
+                                maxFracturesPerWell, topLayer, baseLayer, spacing, action):
+        if isinstance(wellPathNames, str):
+            wellPathNames = [wellPathNames]
+        return self.execute(createMultipleFractures=Cmd.MultipleFracAction(caseId=caseId,
+                                                                           templateId=templateId,
+                                                                           wellPathNames=wellPathNames,
+                                                                           minDistFromWellTd=minDistFromWellTd,
+                                                                           maxFracturesPerWell=maxFracturesPerWell,
+                                                                           topLayer=topLayer,
+                                                                           baseLayer=baseLayer,
+                                                                           spacing=spacing,
+                                                                           action=action))
+
+    def createLgrForCompletions(self, caseId, timeStep, wellPathNames, refinementI, refinementJ, refinementK, splitType):
+        if isinstance(wellPathNames, str):
+            wellPathNames = [wellPathNames]
+        return self.execute(createLgrForCompletions=Cmd.CreateLgrForCompRequest(caseId=caseId,
+                                                                                timeStep=timeStep,
+                                                                                wellPathNames=wellPathNames,
+                                                                                refinementI=refinementI,
+                                                                                refinementJ=refinementJ,
+                                                                                refinementK=refinementK,
+                                                                                splitType=splitType))
+
+    def createSaturationPressurePlots(self, caseIds):
+        if isinstance(caseIds, int):
+            caseIds = [caseIds]
+        return self.execute(createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(caseIds=caseIds))
 
