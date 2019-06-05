@@ -18,10 +18,12 @@
 
 #include "RicfLoadCase.h"
 
+#include "RiaApplication.h"
 #include "RiaImportEclipseCaseTools.h"
-
 #include "RiaLogging.h"
 
+#include <QFileInfo>
+#include <QDir>
 #include <QStringList>
 
 CAF_PDM_SOURCE_INIT(RicfLoadCaseResult, "loadCaseResult");
@@ -50,11 +52,19 @@ RicfLoadCase::RicfLoadCase()
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfLoadCase::execute()
 {
+    QString   absolutePath = m_path;
+    QFileInfo projectPathInfo(absolutePath);
+    if (!projectPathInfo.exists())
+    {
+        QDir startDir(RiaApplication::instance()->startDir());
+        absolutePath = startDir.absoluteFilePath(m_path);
+    }
+
     RiaImportEclipseCaseTools::FileCaseIdMap fileCaseIdMap;
-    bool ok = RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({m_path()}), &fileCaseIdMap, true);
+    bool ok = RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({absolutePath}), &fileCaseIdMap, true);
     if (!ok)
     {
-        QString error = QString("loadCase: Unable to load case from %1").arg(m_path());
+        QString error = QString("loadCase: Unable to load case from %1").arg(absolutePath);
         RiaLogging::error(error);
         return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
