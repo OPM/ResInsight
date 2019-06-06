@@ -112,6 +112,7 @@
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QErrorMessage>
 #include <QFileDialog>
@@ -1238,7 +1239,7 @@ void RiaGuiApplication::launchGrpcServer()
     m_grpcServer->runInThread();
     m_idleTimer = new QTimer(this);
     connect(m_idleTimer, SIGNAL(timeout()), this, SLOT(runIdleProcessing()));
-    m_idleTimer->start(0);
+    m_idleTimer->start(5);
 #endif
 }
 
@@ -1696,7 +1697,24 @@ void RiaGuiApplication::runIdleProcessing()
     }    
     else if (!caf::ProgressInfoStatic::isRunning())
     {
-        m_grpcServer->processAllQueuedRequests();
+        static int idleIterationCount = 0;
+        int iterationInterval = 0;
+        if (m_grpcServer->processAllQueuedRequests() > 0)
+        {
+            idleIterationCount = 0;
+        }
+        else
+        {
+            idleIterationCount = std::min(++idleIterationCount, 500);
+            if (idleIterationCount == 500)
+            {
+                iterationInterval = 5;
+            }
+        }
+        if (iterationInterval != m_idleTimer->interval())
+        {
+            m_idleTimer->setInterval(iterationInterval);
+        }
     }
 #endif
 }

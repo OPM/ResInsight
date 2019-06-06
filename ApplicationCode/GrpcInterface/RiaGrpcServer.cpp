@@ -61,7 +61,7 @@ public:
     void run();
     void runInThread();
     void initialize();
-    void processAllQueuedRequests();
+    size_t processAllQueuedRequests();
     void quit();
 
 private:
@@ -168,7 +168,7 @@ void RiaGrpcServerImpl::initialize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServerImpl::processAllQueuedRequests()
+size_t RiaGrpcServerImpl::processAllQueuedRequests()
 {
     std::list<RiaGrpcCallbackInterface*> waitingRequests;
     {
@@ -176,6 +176,8 @@ void RiaGrpcServerImpl::processAllQueuedRequests()
         std::lock_guard<std::mutex> requestLock(m_requestMutex);
         waitingRequests.swap(m_unprocessedRequests);
     }
+    size_t count = waitingRequests.size();
+
     // Now free to receive new requests from client while processing the current ones.
     while (!waitingRequests.empty())
     {
@@ -183,6 +185,7 @@ void RiaGrpcServerImpl::processAllQueuedRequests()
         waitingRequests.pop_front();
         process(method);
     }
+    return count;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -339,9 +342,9 @@ void RiaGrpcServer::initialize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServer::processAllQueuedRequests()
+size_t RiaGrpcServer::processAllQueuedRequests()
 {
-    m_serverImpl->processAllQueuedRequests();
+    return m_serverImpl->processAllQueuedRequests();
 }
 
 //--------------------------------------------------------------------------------------------------
