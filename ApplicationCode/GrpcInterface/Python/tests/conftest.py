@@ -28,7 +28,6 @@ def pytest_configure(config):
         _rips_instance = rips.Instance.find()
     else:
         if config.getoption('--console'):
-            print("Should run as console app")
             console = True
         _rips_instance = rips.Instance.launch(console=console)
     if not _rips_instance:

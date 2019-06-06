@@ -41,10 +41,11 @@ class Instance:
 
         print('Port ' + str(port))
         print('Trying to launch', resInsightExecutable)
-        parameters = " --grpcserver " + str(port)
+        parameters = ["ResInsight", "--grpcserver", str(port)]
         if console:
-            parameters += " --console"
-        pid = os.spawnl(os.P_NOWAIT, resInsightExecutable, parameters)
+            print("Launching as console app")
+            parameters.append("--console")
+        pid = os.spawnv(os.P_NOWAIT, resInsightExecutable, parameters)
         if pid:
             return Instance(port=port, launched=True)
         return None
