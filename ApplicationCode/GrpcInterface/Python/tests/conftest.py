@@ -8,6 +8,10 @@ import rips
 
 _rips_instance = None
 
+if not os.environ.get("RESINSIGHT_EXECUTABLE"):
+    print("ERROR: Need to have the environment variable RESINSIGHT_EXECUTABLE set to a valid ResInsight executable")
+    exit(1)
+
 @pytest.fixture
 def rips_instance():
     return _rips_instance
@@ -26,3 +30,4 @@ def pytest_configure(config):
         print("Should run as console app")
         console = True
     _rips_instance = rips.Instance.launch(console=console)
+    assert(_rips_instance is not None)
