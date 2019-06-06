@@ -979,7 +979,7 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                         const std::vector<QString>& categoryNames = formationNames->formationNames();
                         if (!categoryNames.empty())
                         {
-                            legendConfig()->setNamedCategories(categoryNames);
+                            legendConfig()->setNamedCategoriesInverse(categoryNames);
                             legendConfig()->setAutomaticRanges(0, categoryNames.size() - 1, 0, categoryNames.size() - 1);
                         }
                     }
