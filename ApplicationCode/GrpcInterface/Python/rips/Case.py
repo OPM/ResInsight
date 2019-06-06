@@ -4,7 +4,7 @@ import sys
 from .Grid import Grid
 from .Properties import Properties
 
-sys.path.insert(1, os.path.join(sys.path[0], '../generated'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../generated'))
 
 import Case_pb2
 import Case_pb2_grpc

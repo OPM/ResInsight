@@ -5,7 +5,7 @@ import socket
 import logging
 import time
 
-sys.path.insert(1, os.path.join(sys.path[0], '../generated'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../generated'))
 
 import RiaVersionInfo
 
