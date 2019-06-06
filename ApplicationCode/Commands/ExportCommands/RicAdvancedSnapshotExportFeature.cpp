@@ -87,7 +87,16 @@ void RicAdvancedSnapshotExportFeature::onActionTriggered(bool isChecked)
             dlg.addEmptySnapshotItems(4);
         }
 
+        {
+            QString fallbackFolderName = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("snapshots");
+            QString folderName =
+                RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("ADVANCED_SNAPSHOT_EXPORT", fallbackFolderName);
+            dlg.setExportFolder(folderName);
+        }
+
         dlg.exec();
+
+        RiaApplication::instance()->setLastUsedDialogDirectory("ADVANCED_SNAPSHOT_EXPORT", dlg.exportFolder());
     }
 }
 
