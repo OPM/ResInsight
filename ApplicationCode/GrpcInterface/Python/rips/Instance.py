@@ -90,12 +90,15 @@ class Instance:
                 connectionOk, versionOk = self.checkVersion()
                 if connectionOk:
                     break
-                time.sleep(0.5)
+                time.sleep(1.0)
         else:
             connectionOk, versionOk = self.checkVersion()
 
         if not connectionOk:
-            raise Exception('Error: Could not connect to resinsight at ', location)
+            if launched:
+                raise Exception('Error: Could not connect to resinsight at ', location, ' after trying 10 times with 1 second apart')
+            else:
+                raise Exception('Error: Could not connect to resinsight at ', location)
             exit(1)
         if not versionOk:
             raise Exception('Error: Wrong Version of ResInsight at ', location)
