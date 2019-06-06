@@ -1692,6 +1692,7 @@ void RiaGuiApplication::runIdleProcessing()
 #ifdef ENABLE_GRPC
     if (RiaGrpcServer::receivedExitRequest())
     {
+        closeProject();
         m_grpcServer->quit();
         QCoreApplication::quit();
     }    
