@@ -1,5 +1,6 @@
 import sys
 import os
+import pytest 
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import rips
@@ -23,9 +24,9 @@ def test_OneCase(rips_instance, initializeTest):
 def test_MultipleCases(rips_instance, initializeTest):
     casePaths = []
     casePaths.append(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID")
-    casePaths.append(dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID")
-    casePaths.append(dataroot.PATH + "/Case_with_10_timesteps/Real30/BRUGGE_0030.EGRID")
-
+    casePaths.append(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID")
+    casePaths.append(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID")
+    
     caseNames = []
     for casePath in casePaths:
         caseName = os.path.splitext(os.path.basename(casePath))[0]
@@ -49,6 +50,7 @@ def test_10k(rips_instance, initializeTest):
     daysSinceStart = case.daysSinceStart()
     assert(len(daysSinceStart) == 9)
 
+@pytest.mark.skipif(sys.platform.startswith('linux'), reason="Brugge is currently exceptionally slow on Linux")
 def test_brugge_0010(rips_instance, initializeTest):
     casePath = dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID"
     case = rips_instance.project.loadCase(path=casePath)
