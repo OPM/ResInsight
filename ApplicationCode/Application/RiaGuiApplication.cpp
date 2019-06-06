@@ -1310,6 +1310,8 @@ void RiaGuiApplication::onProjectOpened()
             m_mainPlotWindow->show();
             m_mainPlotWindow->raise();
         }
+
+        m_mainPlotWindow->restoreDockWidgetVisibilities();
     }
     else if (mainPlotWindow())
     {
