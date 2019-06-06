@@ -86,7 +86,7 @@ class Instance:
         versionOk = False
 
         if launched:
-            for i in range(0, 5):
+            for i in range(0, 10):
                 connectionOk, versionOk = self.checkVersion()
                 if connectionOk:
                     break
