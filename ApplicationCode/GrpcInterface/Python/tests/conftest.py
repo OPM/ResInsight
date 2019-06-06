@@ -33,3 +33,6 @@ def pytest_configure(config):
     if not _rips_instance:
         print("Need a valid ResInsight executable to launch tests")
         exit(0)
+
+def pytest_unconfigure():
+    _rips_instance.app.exit()

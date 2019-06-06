@@ -106,7 +106,3 @@ class Instance:
     
         path = os.getcwd()
         self.commands.setStartDir(path=path)
-
-    def  __del__(self):
-        if self.launched:
-            self.app.exit()
