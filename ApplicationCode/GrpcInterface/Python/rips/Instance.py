@@ -3,6 +3,7 @@ import os
 import sys
 import socket
 import logging
+import time
 
 sys.path.insert(1, os.path.join(sys.path[0], '../generated'))
 
@@ -44,7 +45,9 @@ class Instance:
         if console:
             parameters += " --console"
         pid = os.spawnl(os.P_NOWAIT, resInsightExecutable, parameters)
-        return Instance(port=port, launched=True)
+        if pid:
+            return Instance(port=port, launched=True)
+        return None
     
     @staticmethod
     def find(startPort = 50051, endPort = 50071):
@@ -60,25 +63,42 @@ class Instance:
         print('Error: Could not find any ResInsight instances responding between ports ' + str(startPort) + ' and ' + str(endPort))
         return None
 
+    def checkVersion(self):
+        try:
+            majorVersionOk = self.app.majorVersion() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
+            minorVersionOk = self.app.minorVersion() == int(RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
+            return True, majorVersionOk and minorVersionOk
+        except grpc.RpcError as e:
+            return False, False
+
     def __init__(self, port = 50051, launched = False):
         logging.basicConfig()
         location = "localhost:" + str(port)
+
         self.channel = grpc.insecure_channel(location)
         self.launched = launched
 
         # Main version check package
         self.app     = App(self.channel)
-        try:
-            majorVersionOk = self.app.majorVersion() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
-            minorVersionOk = self.app.minorVersion() == int(RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
-            if not (majorVersionOk and minorVersionOk):
-                raise Exception('Version of ResInsight does not match version of Python API')
-        except grpc.RpcError as e:
-            if e.code() == grpc.StatusCode.UNAVAILABLE:
-                print('Info: Could not find any instances at port ' + str(port))
-        except Exception as e:
-            print('Error:', e)
-                
+
+        connectionOk = False
+        versionOk = False
+
+        if launched:
+            for i in range(0, 5):
+                connectionOk, versionOk = self.checkVersion()
+                if connectionOk:
+                    break
+                time.sleep(0.5)
+        else:
+            connectionOk, versionOk = self.checkVersion()
+
+        if not connectionOk:
+            raise Exception('Error: Could not connect to resinsight at ', location)
+            exit(1)
+        if not versionOk:
+            raise Exception('Error: Wrong Version of ResInsight at ', location)
+
         # Service packages
         self.commands   = Commands(self.channel)
         self.project    = Project(self.channel)
