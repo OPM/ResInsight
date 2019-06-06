@@ -45,7 +45,9 @@ def test_10k(rips_instance, initializeTest):
     assert(cellCountInfo.active_cell_count == 11125)
     assert(cellCountInfo.reservoir_cell_count == 316224)
     timeSteps = case.timeSteps()
-    assert(len(timeSteps.dates) == 9)
+    assert(len(timeSteps) == 9)
+    daysSinceStart = case.daysSinceStart()
+    assert(len(daysSinceStart) == 9)
 
 def test_brugge_0010(rips_instance, initializeTest):
     casePath = dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID"
@@ -55,4 +57,6 @@ def test_brugge_0010(rips_instance, initializeTest):
     assert(cellCountInfo.active_cell_count == 43374)
     assert(cellCountInfo.reservoir_cell_count == 60048)
     timeSteps = case.timeSteps()
-    assert(len(timeSteps.dates) == 11)
+    assert(len(timeSteps) == 11)
+    daysSinceStart = case.daysSinceStart()
+    assert(len(daysSinceStart) == 11)

@@ -26,9 +26,10 @@ def pytest_configure(config):
     if config.getoption('--existing'):
         print("Looking for existing ResInsight")
         _rips_instance = rips.Instance.find()
-    elif config.getoption('--console'):
-        print("Should run as console app")
-        console = True
+    else:
+        if config.getoption('--console'):
+            print("Should run as console app")
+            console = True
         _rips_instance = rips.Instance.launch(console=console)
     if not _rips_instance:
         print("Need a valid ResInsight executable to launch tests")

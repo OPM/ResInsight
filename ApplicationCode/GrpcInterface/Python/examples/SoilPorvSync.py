@@ -14,7 +14,7 @@ for porvChunk in porvChunks:
 
 timeStepInfo = case.timeSteps()
 
-for i in range (0, len(timeStepInfo.dates)): 
+for i in range (0, len(timeStepInfo)):
     soilChunks = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', i)
     soilResults = []
     for soilChunk in soilChunks:

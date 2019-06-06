@@ -21,6 +21,7 @@ class Case:
         self.properties = Properties(self)
         self.request = Case_pb2.CaseRequest(id=self.id)
   
+    # Get number of grids in the case
     def gridCount(self):
         try:
             return self.stub.GetGridCount(self.request).count          
@@ -30,9 +31,11 @@ class Case:
             print("ERROR: ", e)
             return 0
     
+    # Get Grid of a given index. Returns a rips Grid object
     def grid(self, index):
         return Grid(index, self)
 
+    # Get a list of all rips Grid objects in the case
     def grids(self):
         gridList = []
         for i in range(0, self.gridCount()):
@@ -52,5 +55,8 @@ class Case:
         return self.stub.GetCellInfoForActiveCells(request)
 
     def timeSteps(self):
-        return self.stub.GetTimeSteps(self.request)
+        return self.stub.GetTimeSteps(self.request).dates
+
+    def daysSinceStart(self):
+        return self.stub.GetDaysSinceStart(self.request).day_decimals
         

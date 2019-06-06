@@ -23,7 +23,7 @@ porvArray = []
 for porvChunk in porvChunks:
     porvArray.append(porvChunk)
 
-for i in range (0, len(timeStepInfo.dates)):
+for i in range (0, len(timeStepInfo)):
     soilChunks = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', i)
     input_iterator = createResult(soilChunks, iter(porvArray))
     case.properties.setActiveCellPropertyAsync(input_iterator, 'GENERATED', 'SOILPORVAsync', i)
