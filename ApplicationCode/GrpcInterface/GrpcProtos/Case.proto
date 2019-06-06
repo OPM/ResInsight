@@ -9,7 +9,7 @@ service Case
 	rpc GetCellInfoForActiveCells(CellInfoRequest) returns (stream CellInfoArray) {}
 	rpc GetCoarseningInfoArray(CaseRequest) returns (CoarseningInfoArray) {}
 	rpc GetTimeSteps(CaseRequest) returns (TimeStepDates) {}
-	rpc GetTimeStepDaysSinceStart(CaseRequest) returns (DoubleDates) {}
+	rpc GetDaysSinceStart(CaseRequest) returns (DaysSinceStart) {}
 	rpc GetCaseInfo(CaseRequest) returns (CaseInfo) {}
 }
 
@@ -110,7 +110,7 @@ message TimeStepDate
 	int32 second = 6;
 }
 
-message DoubleDates
+message DaysSinceStart
 {
-	repeated double date_decimals = 1;
+	repeated double day_decimals = 1;
 }

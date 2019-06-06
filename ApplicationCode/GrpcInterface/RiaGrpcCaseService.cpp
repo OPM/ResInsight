@@ -20,7 +20,9 @@
 #include "RiaSocketTools.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
@@ -275,6 +277,39 @@ RiaGrpcCaseService::GetTimeSteps(grpc::ServerContext* context, const rips::CaseR
     return grpc::Status(grpc::NOT_FOUND, "Eclipse Case not found");
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcCaseService::GetDaysSinceStart(grpc::ServerContext*     context,
+                                                   const rips::CaseRequest* request,
+                                                   rips::DaysSinceStart*    reply)
+{
+    RimCase* rimCase = findCase(request->id());
+
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
+    if (eclipseCase)
+    {
+        RigEclipseResultAddress addrToMaxTimeStepCountResult;
+        if (eclipseCase && eclipseCase->eclipseCaseData())
+        {
+            eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&addrToMaxTimeStepCountResult);
+            if (!addrToMaxTimeStepCountResult.isValid())
+            {
+                return grpc::Status(grpc::NOT_FOUND, "Invalid result. No time steps found.");
+            }
+        }
+
+        std::vector<double> daysSinceSimulationStart =
+            eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart(addrToMaxTimeStepCountResult);
+
+        for (auto days : daysSinceSimulationStart)
+        {
+            reply->add_day_decimals(days);
+        }
+        return grpc::Status::OK;
+    }
+    return grpc::Status(grpc::NOT_FOUND, "Eclipse Case not found");
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -320,6 +355,7 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
     return {new RiaGrpcUnaryCallback<Self, CaseRequest, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
             new RiaGrpcUnaryCallback<Self, CellInfoRequest, CellCount>(this, &Self::GetCellCount, &Self::RequestGetCellCount),
             new RiaGrpcUnaryCallback<Self, CaseRequest, TimeStepDates>(this, &Self::GetTimeSteps, &Self::RequestGetTimeSteps),
+            new RiaGrpcUnaryCallback<Self, CaseRequest, DaysSinceStart>(this, &Self::GetDaysSinceStart, &Self::RequestGetDaysSinceStart),
             new RiaGrpcUnaryCallback<Self, CaseRequest, CaseInfo>(this, &Self::GetCaseInfo, &Self::RequestGetCaseInfo),
             new RiaGrpcServerStreamCallback<Self, CellInfoRequest, CellInfoArray, RiaActiveCellInfoStateHandler>(
                 this, &Self::GetCellInfoForActiveCells, &Self::RequestGetCellInfoForActiveCells, new RiaActiveCellInfoStateHandler)};
