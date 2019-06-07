@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017- Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,22 +21,30 @@
 #include "RimDerivedEnsembleCase.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t> RifDerivedEnsembleReader::EMPTY_TIME_STEPS_VECTOR;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifDerivedEnsembleReader::RifDerivedEnsembleReader(RimDerivedEnsembleCase* derivedCase)
+RifDerivedEnsembleReader::RifDerivedEnsembleReader(RimDerivedEnsembleCase*    derivedCase,
+                                                   RifSummaryReaderInterface* sourceSummaryReader1)
 {
     CVF_ASSERT(derivedCase);
 
     m_derivedCase = derivedCase;
+
+    if (sourceSummaryReader1)
+    {
+        // TODO: This is assuming that the addresses of both reader interfaces are equal
+        m_allResultAddresses = sourceSummaryReader1->allResultAddresses();
+        m_allErrorAddresses  = sourceSummaryReader1->allErrorAddresses();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifDerivedEnsembleReader::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
@@ -49,7 +57,7 @@ const std::vector<time_t>& RifDerivedEnsembleReader::timeSteps(const RifEclipseS
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifDerivedEnsembleReader::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
 {
@@ -62,12 +70,13 @@ bool RifDerivedEnsembleReader::values(const RifEclipseSummaryAddress& resultAddr
     auto dataValues = m_derivedCase->values(resultAddress);
     values->clear();
     values->reserve(dataValues.size());
-    for (auto val : dataValues) values->push_back(val);
+    for (auto val : dataValues)
+        values->push_back(val);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::string RifDerivedEnsembleReader::unitName(const RifEclipseSummaryAddress& resultAddress) const
 {

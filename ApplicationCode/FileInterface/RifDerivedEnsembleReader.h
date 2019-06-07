@@ -33,7 +33,7 @@ class RifDerivedEnsembleReader : public RifSummaryReaderInterface
     static const std::vector<time_t> EMPTY_TIME_STEPS_VECTOR;
 
 public:
-    RifDerivedEnsembleReader(RimDerivedEnsembleCase* derivedCase);
+    RifDerivedEnsembleReader(RimDerivedEnsembleCase* derivedCase, RifSummaryReaderInterface* sourceSummaryReader1);
 
     const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
     bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;

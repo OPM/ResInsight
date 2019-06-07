@@ -152,8 +152,8 @@ void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
         if (!sumCase2) continue;
 
         auto derivedCase = firstCaseNotInUse();
-        derivedCase->createSummaryReaderInterface();
         derivedCase->setSummaryCases(sumCase1, sumCase2);
+        derivedCase->createSummaryReaderInterface();
         derivedCase->setCaseRealizationParameters(crp);
         derivedCase->setInUse(true);
     }
