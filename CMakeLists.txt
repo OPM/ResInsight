@@ -253,7 +253,7 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 # Qt
 ################################################################################
-option(RESINSIGHT_BUILD_WITH_QT5 "Use Qt5" OFF)
+option(RESINSIGHT_BUILD_WITH_QT5 "Use Qt5" ON)
 
 if (RESINSIGHT_BUILD_WITH_QT5)
 	find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Network Script ScriptTools Widgets)
