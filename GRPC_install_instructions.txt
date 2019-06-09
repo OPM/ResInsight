@@ -31,10 +31,12 @@ git clone https://github.com/microsoft/vcpkg.git
 #    
 ##########################################################################################################
 
+sudo yum install autotools autoconf libtool devtoolset-6* rh-python35
+
 ###################################################################
 # 2. Enable compiler and Python on Centos 6 (on other distributions, this may be different)   
 ###################################################################
-sudo yum install devtoolset-6* rh-python35 autotools autoconf libtool yum
+
 scl enable devtoolset-6 rh-python35 bash
 
 ################################################################################################################
@@ -49,10 +51,30 @@ scl enable devtoolset-6 rh-python35 bash
 sudo ./build-grpc-centos.sh /tmp/grpc /opt/grpc
 
 ##############################################################################
-# 4. Install grpcio-tools for Python (this may have to be done as root user):
+# Python GRPC module, OPTION 1
+# 5a. Install grpcio-tools for Python as root user. If you cannot install python packages as root user, see 4b.
+# NOTE: IF THIS FAILS WITH AN ERROR MESSAGE FROM PIP ABOUT 
+#       "YOU SHOULD CONSIDER UPGRADING VIA 'python -m pip install --upgrade pip'"
+#       Then performing this should fix the problem.
 ##############################################################################
-sudo pip install grpcio-tools
+
+sudo python -m pip install grpcio-tools
+
+##############################################################################
+# Python GRPC module, OPTION 2
+# 5b. Install grpcio-tools for Python as regular user. 
+# NOTE: IF THIS FAILS WITH AN ERROR MESSAGE FROM PIP ABOUT 
+#       "YOU SHOULD CONSIDER UPGRADING VIA 'python -m pip install --upgrade pip'"
+#       Then performing this should fix the problem.
+##############################################################################
+
+python -m pip install --user grpcio-tools
+
 
 #################################################################################
-# 5. Run cmake making sure GRPC_INSTALL_PREFIX is set to the Grpc install folder, PYTHON_EXECUTABLE set to a good python 3 and RESINSIGHT_ENABLE_GRPC = true
-
+# 6. Run cmake making sure of the following:
+#    * GRPC_INSTALL_PREFIX is set to the Grpc install folder, 
+#    * PYTHON_EXECUTABLE set to a good python 3
+#	 * RESINSIGHT_ENABLE_GRPC = true
+################################
+See regular build instructions for the rest
