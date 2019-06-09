@@ -183,7 +183,12 @@ public:
     virtual void addToRecentFiles(const QString& fileName) {}
     virtual void showInformationMessage(const QString& infoText) = 0;
     virtual void showErrorMessage(const QString& errMsg) = 0;
+
     virtual void launchGrpcServer() = 0;
+
+#ifdef ENABLE_GRPC
+    virtual RiaGrpcServer* grpcServer() const = 0;
+#endif
 protected:
     // Protected implementation specific overrides
     virtual void invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) = 0;

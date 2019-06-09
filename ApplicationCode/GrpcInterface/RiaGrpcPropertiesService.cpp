@@ -172,10 +172,13 @@ public:
     //--------------------------------------------------------------------------------------------------
     void finish()
     {
-        for (Rim3dView* view : m_eclipseCase->views())
+        if (m_eclipseCase)
         {
-            view->setCurrentTimeStepAndUpdate(view->currentTimeStep());
-            view->createDisplayModelAndRedraw();
+            for (Rim3dView* view : m_eclipseCase->views())
+            {
+                view->setCurrentTimeStepAndUpdate(view->currentTimeStep());
+                view->createDisplayModelAndRedraw();
+            }
         }
     }
 

@@ -45,7 +45,7 @@ public:
     void quit();
     static int findAvailablePortNumber(int defaultPortNumber);
     static void setReceivedExitRequest();
-    static bool receivedExitRequest();
+    static bool receivedExitRequest();    
 private:
     void initialize();
 

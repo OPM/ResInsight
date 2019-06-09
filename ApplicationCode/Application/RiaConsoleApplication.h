@@ -45,6 +45,10 @@ public:
     void showInformationMessage(const QString& text) override;
     void showErrorMessage(const QString& errMsg) override;
     void launchGrpcServer() override;
+#ifdef ENABLE_GRPC
+    RiaGrpcServer* grpcServer() const override;
+#endif
+
 protected:
     // Protected implementation specific overrides
     void invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;
