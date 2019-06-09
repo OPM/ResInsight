@@ -18,24 +18,41 @@ git clone https://github.com/microsoft/vcpkg.git
 -DCMAKE_TOOLCHAIN_FILE=LOCATION_OF_VCPKG/scripts/buildsystems/vcpkg.cmake
 -A x64
 
-############ Linux as STANDALONE GPRC (using GRPC_INSTALL_PREFIX=/opt/grpc as an example) ###############
-1. Clone grpc
-git clone https://github.com/grpc/grpc.git
-2. From within grpc folder, check out stable version of grpc and initialise repo:
-git checkout v1.20.1
-git submodule init
-git submodule update
-3. Make sure you're building with devtools-3, since you'll be using that for ResInsight too
-scl enable devtoolset-3 bash
-export PROTOBUF_CONFIG_OPTS="--prefix=/opt/grpc"
-make prefix=/opt/grpc
-sudo make prefix=/opt/grpc install
-4. Install protobuf (still within grpc folder)
-cd third_party/protobuf
-sudo make install
-5. Make sure you have a Python 3 version available in your paths.
-I.e.: "sudo yum install rh-python35" and then "scl enable rh-python35 bash"
-6. Install grpcio-tools for Python (this may have to be done as root user):
-pip install grpcio-tools
-7. Run cmake making sure GRPC_INSTALL_PREFIX is set to /opt/grpc, PYTHON_EXECUTABLE set to a good python 3 and RESINSIGHT_ENABLE_GRPC = true
+############ Linux as STANDALONE GPRC ###############
+
+#########################################################################################################
+# 1. install autotools, autoconf and libtool with your distributions package manager.
+#
+# On Centos 6 you will need a newer Python and newer version of GCC than the standard version
+# ResInsight AND gRPC will build with devtoolset-3+ but apparently devtoolset-3 is now gone
+# So you will need to install devtoolset-6, devtoolset-7 or devtoolset-8.
+# It makes sense to install devtoolset-6* (with asterix) to get all the necessary devtoolset packages
+# You will also need a version of Python 3.5
+#    
+##########################################################################################################
+
+###################################################################
+# 2. Enable compiler and Python on Centos 6 (on other distributions, this may be different)   
+###################################################################
+sudo yum install devtoolset-6* rh-python35 autotools autoconf libtool yum
+scl enable devtoolset-6 rh-python35 bash
+
+################################################################################################################
+# 3. Run grpc install script and install to a user-writable directory. I.e, from within the ResInsight folder:
+# Most of this runs fine without root. But unfortunately grpc currently fails to install the C++ library without root.
+# So the script is required to be run as root even if the provided folders are writeable by the user
+# WARNING: As of grpc 1.21.1 a long install directory (/opt/grpc in the example below) may get you into trouble
+# with this bug: https://github.com/grpc/grpc/issues/14844
+# A patch is available in the issue, but the easiest thing to do is to ensure a short install path
+################################################################################################################
+
+sudo ./build-grpc-centos.sh /tmp/grpc /opt/grpc
+
+##############################################################################
+# 4. Install grpcio-tools for Python (this may have to be done as root user):
+##############################################################################
+sudo pip install grpcio-tools
+
+#################################################################################
+# 5. Run cmake making sure GRPC_INSTALL_PREFIX is set to the Grpc install folder, PYTHON_EXECUTABLE set to a good python 3 and RESINSIGHT_ENABLE_GRPC = true
 
