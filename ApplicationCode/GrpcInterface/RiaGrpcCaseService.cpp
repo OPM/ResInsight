@@ -337,6 +337,21 @@ grpc::Status
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status
+    RiaGrpcCaseService::GetPdmObject(grpc::ServerContext* context, const rips::CaseRequest* request, rips::PdmObject* reply)
+{
+    RimCase*        rimCase     = findCase(request->id());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
+    if (eclipseCase)
+    {
+        copyPdmObjectFromCafToRips(eclipseCase, reply);
+    }
+    return grpc::Status::OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcCaseService::GetCellInfoForActiveCells(grpc::ServerContext*                      context,
                                                                 const rips::CellInfoRequest*        request,
                                                                 rips::CellInfoArray*                reply,
@@ -357,6 +372,7 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
             new RiaGrpcUnaryCallback<Self, CaseRequest, TimeStepDates>(this, &Self::GetTimeSteps, &Self::RequestGetTimeSteps),
             new RiaGrpcUnaryCallback<Self, CaseRequest, DaysSinceStart>(this, &Self::GetDaysSinceStart, &Self::RequestGetDaysSinceStart),
             new RiaGrpcUnaryCallback<Self, CaseRequest, CaseInfo>(this, &Self::GetCaseInfo, &Self::RequestGetCaseInfo),
+            new RiaGrpcUnaryCallback<Self, CaseRequest, PdmObject>(this, &Self::GetPdmObject, &Self::RequestGetPdmObject),
             new RiaGrpcServerStreamCallback<Self, CellInfoRequest, CellInfoArray, RiaActiveCellInfoStateHandler>(
                 this, &Self::GetCellInfoForActiveCells, &Self::RequestGetCellInfoForActiveCells, new RiaActiveCellInfoStateHandler)};
 }

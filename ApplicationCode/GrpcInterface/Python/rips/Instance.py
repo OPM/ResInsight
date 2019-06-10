@@ -69,8 +69,7 @@ class Instance:
             parameters.append("--console")
         pid = os.spawnv(os.P_NOWAIT, resInsightExecutable, parameters)
         if pid:
-            instance = Instance(port=port)
-            instance.launched = True
+            instance = Instance(port=port, launched=True)
             return instance
         return None
     
@@ -93,7 +92,7 @@ class Instance:
         
         for tryPort in range(startPort, endPort):
             if Instance.__is_port_in_use(tryPort):
-                return Instance(tryPort)
+                return Instance(port=tryPort)
                 
         print('Error: Could not find any ResInsight instances responding between ports ' + str(startPort) + ' and ' + str(endPort))
         return None
@@ -106,7 +105,7 @@ class Instance:
         except grpc.RpcError as e:
             return False, False
 
-    def __init__(self, port = 50051):
+    def __init__(self, port = 50051, launched = False):
         """ Attempts to connect to ResInsight at aa specific port on localhost
 
         Args:
@@ -116,7 +115,7 @@ class Instance:
         location = "localhost:" + str(port)
 
         self.channel = grpc.insecure_channel(location)
-        self.launched = False
+        self.launched = launched
 
         # Main version check package
         self.app     = App(self.channel)

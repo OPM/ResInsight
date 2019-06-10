@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "PdmObject.proto";
+
 package rips;
 
 service Case
@@ -11,6 +13,7 @@ service Case
 	rpc GetTimeSteps(CaseRequest) returns (TimeStepDates) {}
 	rpc GetDaysSinceStart(CaseRequest) returns (DaysSinceStart) {}
 	rpc GetCaseInfo(CaseRequest) returns (CaseInfo) {}
+	rpc GetPdmObject(CaseRequest) returns (PdmObject) {}
 }
 
 message CaseRequest {

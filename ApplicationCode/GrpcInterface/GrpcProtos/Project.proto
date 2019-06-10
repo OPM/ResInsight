@@ -1,7 +1,8 @@
 syntax = "proto3";
 
-import "Case.proto";
 import "Empty.proto";
+import "Case.proto";
+import "PdmObject.proto";
 
 package rips;
 
@@ -11,4 +12,5 @@ service Project {
   rpc GetAllCaseGroups(Empty) returns (CaseGroups) {}
   rpc GetAllCases(Empty) returns (CaseInfoArray) {}
   rpc GetCasesInGroup(CaseGroup) returns (CaseInfoArray) {}
+  rpc GetPdmObject(Empty) returns (PdmObject) {}
 }

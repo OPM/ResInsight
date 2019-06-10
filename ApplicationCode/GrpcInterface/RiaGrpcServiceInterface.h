@@ -24,6 +24,19 @@
 class RiaGrpcCallbackInterface;
 class RimCase;
 
+namespace caf
+{
+class PdmObject;
+class PdmValueField;
+}
+
+namespace rips
+{
+class PdmObject;
+}
+
+class QString;
+
 //==================================================================================================
 //
 // gRPC-service interface which all gRPC-services has to implement
@@ -36,6 +49,11 @@ public:
     virtual ~RiaGrpcServiceInterface() = default;
     static RimCase* findCase(int caseId);
     static size_t numberOfMessagesForByteCount(size_t messageSize, size_t byteCount = 64 * 1024u);
+
+    static void copyPdmObjectFromCafToRips(const caf::PdmObject* source, rips::PdmObject* destination);
+    static void copyPdmObjectFromRipsToCaf(const rips::PdmObject* source, caf::PdmObject* destination);
+
+    static void assignFieldValue(const QString& stringValue, caf::PdmValueField* field);
 };
 
 #include "cafFactory.h"

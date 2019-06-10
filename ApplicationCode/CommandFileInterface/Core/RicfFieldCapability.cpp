@@ -19,7 +19,9 @@
 #include "RicfFieldCapability.h"
 #include "RicfMessages.h"
 
+#include "RiaColorTools.h"
 
+#include <QColor>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -129,4 +131,29 @@ void RicfFieldWriter<bool>::writeFieldData(const bool& fieldValue, QTextStream& 
 {
     // Lower-case true/false is used in the documentation.
     outputStream << (fieldValue ? "true" : "false");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicfFieldReader<cvf::Color3f>::readFieldData(cvf::Color3f& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer)
+{
+    QString fieldStringValue;
+    RicfFieldReader<QString>::readFieldData(fieldStringValue, inputStream, errorMessageContainer);
+
+    if (QColor::isValidColor(fieldStringValue))
+    {
+        QColor qColor(fieldStringValue);
+        fieldValue = RiaColorTools::fromQColorTo3f(qColor);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicfFieldWriter<cvf::Color3f>::writeFieldData(const cvf::Color3f& fieldValue, QTextStream& outputStream)
+{
+    QColor qColor = RiaColorTools::toQColor(fieldValue);
+    QString fieldStringValue = qColor.name();
+    RicfFieldWriter<QString>::writeFieldData(fieldStringValue, outputStream);
 }

@@ -24,6 +24,8 @@
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 
+#include "RicfCommandObject.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -82,13 +84,13 @@ RimEclipseResultDefinition::RimEclipseResultDefinition(caf::PdmUiItemInfo::Label
 {
     CAF_PDM_InitObject("Result Definition", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_resultType, "ResultType", "Type", "", "", "");
+    RICF_InitFieldNoDefault(&m_resultType, "ResultType", "Type", "", "", "");
     m_resultType.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_porosityModel, "PorosityModelType", "Porosity", "", "", "");
+    RICF_InitFieldNoDefault(&m_porosityModel, "PorosityModelType", "Porosity", "", "", "");
     m_porosityModel.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_resultVariable, "ResultVariable", RiaDefines::undefinedResultName(), "Variable", "", "", "");
+    RICF_InitField(&m_resultVariable, "ResultVariable", RiaDefines::undefinedResultName(), "Variable", "", "", "");
     m_resultVariable.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_flowSolution, "FlowDiagSolution", "Solution", "", "", "");

@@ -3,13 +3,15 @@ import os
 import sys
 from .Grid import Grid
 from .Properties import Properties
+from .PdmObject import PdmObject
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
 import Case_pb2
 import Case_pb2_grpc
+import PdmObject_pb2
 
-class Case:
+class Case (PdmObject):
     """ResInsight case class
     
     Operate on a ResInsight case specified by a Case Id integer.
@@ -31,6 +33,7 @@ class Case:
         self.type    = info.type
         self.properties = Properties(self)
         self.request = Case_pb2.CaseRequest(id=self.id)
+        PdmObject.__init__(self, self.stub.GetPdmObject(self.request), self.channel)
   
     def gridCount(self):
         """Get number of grids in the case"""
@@ -104,4 +107,7 @@ class Case:
     def daysSinceStart(self):
         """Get a list of decimal values representing days since the start of the simulation"""
         return self.stub.GetDaysSinceStart(self.request).day_decimals
-        
+
+    def views(self):
+        return self.children("ReservoirView")
+

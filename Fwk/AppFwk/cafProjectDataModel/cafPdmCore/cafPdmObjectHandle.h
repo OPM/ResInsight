@@ -47,7 +47,7 @@ public:
     template <typename T>
     void                    descendantsIncludingThisOfType(std::vector<T*>& descendants) const;
 
-    // PtrReferences
+     // PtrReferences
     /// The PdmPtrField's containing pointers to this PdmObjecthandle 
     /// Use ownerObject() on the fieldHandle to get the PdmObjectHandle 
     void                    referringPtrFields(std::vector<PdmFieldHandle*>& fieldsReferringToMe) const;

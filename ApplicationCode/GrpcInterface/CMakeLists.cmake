@@ -11,6 +11,7 @@ set ( SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppService.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.h
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPdmObjectService.h
 )
 
 set ( SOURCE_GROUP_SOURCE_FILES
@@ -22,6 +23,7 @@ set ( SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPdmObjectService.cpp
 )
 
 add_definitions(-DENABLE_GRPC)
@@ -76,6 +78,7 @@ endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 # Proto files
 set(PROTO_FILES
     "Empty"
+	"PdmObject"
     "Case"
     "Project"
     "Commands"
@@ -156,7 +159,7 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 		"rips/Project.py"
 		"rips/Properties.py"
         "rips/Instance.py"	
-		"rips/examples/AppInfo.py"
+		"rips/PdmObject.py"
 		"rips/examples/InstanceExample.py"
         "rips/examples/CommandExample.py"
         "rips/examples/CaseInfoStreamingExample.py"

@@ -22,6 +22,8 @@
 #include "RicfMessages.h"
 
 #include "cafAppEnum.h"
+#include "cvfBase.h"
+#include "cvfColor3.h"
 
 #include <QTextStream>
 #include <QString>
@@ -77,6 +79,17 @@ struct RicfFieldWriter<bool>
     static void    writeFieldData(const bool& fieldValue, QTextStream&  outputStream);
 };
 
+template<>
+struct RicfFieldReader<cvf::Color3f>
+{
+    static void readFieldData(cvf::Color3f& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer);
+};
+
+template<>
+struct RicfFieldWriter<cvf::Color3f>
+{
+    static void writeFieldData(const cvf::Color3f& fieldValue, QTextStream& outputStream);
+};
 
 template <typename T>
 struct RicfFieldReader< caf::AppEnum<T> >
