@@ -24,6 +24,8 @@
 #include "RiaPreferences.h"
 #include "RiaViewRedrawScheduler.h"
 
+#include "RicfCommandObject.h"
+
 #include "Rim3dWellLogCurve.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h" 
@@ -101,7 +103,7 @@ Rim3dView::Rim3dView(void)
     CAF_PDM_InitField(&scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "");
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
-    CAF_PDM_InitField(&m_backgroundColor, "ViewBackgroundColor", defBackgColor, "Background", "", "", "");
+    RICF_InitField(&m_backgroundColor, "ViewBackgroundColor", defBackgColor, "Background", "", "", "");
 
     CAF_PDM_InitField(&maximumFrameRate, "MaximumFrameRate", 10, "Maximum Frame Rate", "", "", "");
     maximumFrameRate.uiCapability()->setUiHidden(true);
@@ -115,12 +117,12 @@ Rim3dView::Rim3dView(void)
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid Lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid Surface",  "", "", "");
 
-    CAF_PDM_InitField(&m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "");
+    RICF_InitField(&m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "");
 
     CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Results Lighting", "", "Disable light model for scalar result colors", "");
 
     CAF_PDM_InitField(&m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "");
-
+   
     m_crossSectionVizModel = new cvf::ModelBasicList;
     m_crossSectionVizModel->setName("CrossSectionModel");
 
@@ -135,6 +137,9 @@ Rim3dView::Rim3dView(void)
 
     m_measurementPartManager = new RivMeasurementPartMgr(this);
     this->setAs3DViewMdiWindow();
+
+    RimProject* proj = RiaApplication::instance()->project();
+    proj->assignViewIdToView(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -279,8 +284,7 @@ void Rim3dView::deleteViewWidget()
 void Rim3dView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroupWithKeyword("Viewer", "ViewGroup");
-    
-    //viewGroup->add(m_nameConfig->nameField());
+
     viewGroup->add(&m_backgroundColor);
     viewGroup->add(&m_showZScaleLabel);
     viewGroup->add(&m_showGridBox);

@@ -18,6 +18,7 @@ set( PROJECT_FILES
 	cafPdmDocument.h
 	cafPdmObjectGroup.cpp
 	cafPdmObjectGroup.h
+	cafPdmObject.cpp
 	cafPdmObject.h
 	cafPdmField.h
 )

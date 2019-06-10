@@ -4,6 +4,7 @@ import sys
 
 from .Case import Case
 from .Commands import Commands
+from .PdmObject import PdmObject
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
@@ -11,7 +12,7 @@ from Empty_pb2 import Empty
 import Project_pb2
 import Project_pb2_grpc
 
-class Project:
+class Project (PdmObject):
     """ResInsight project. Not intended to be created separately.
 
     Automatically created and assigned to Instance.
@@ -19,6 +20,7 @@ class Project:
     def __init__(self, channel):
         self.channel = channel
         self.project = Project_pb2_grpc.ProjectStub(channel)
+        PdmObject.__init__(self, self.project.GetPdmObject(Empty()), self.channel)
     
     def open(self, path):
         """Open a new project from the given path

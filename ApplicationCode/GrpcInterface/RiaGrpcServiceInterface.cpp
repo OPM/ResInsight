@@ -21,8 +21,17 @@
 #include "RimProject.h"
 #include "RimCase.h"
 
+#include "RicfFieldHandle.h"
+#include "RicfMessages.h"
+
+#include "cafPdmDataValueField.h"
+#include "cafPdmObject.h"
+#include "cafPdmXmlFieldHandle.h"
+
 #include <grpcpp/grpcpp.h>
 
+#include <PdmObject.pb.h>
+#include <QXmlStreamReader>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -50,5 +59,75 @@ size_t RiaGrpcServiceInterface::numberOfMessagesForByteCount(size_t messageSize,
 {
     size_t messageCount = numBytesWantedInPackage / messageSize;
     return messageCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips(const caf::PdmObject* source, rips::PdmObject* destination)
+{
+    CAF_ASSERT(source && destination);
+
+    destination->set_class_keyword(source->classKeyword().toStdString());
+    destination->set_address(reinterpret_cast<uint64_t>(source));
+    std::vector<caf::PdmFieldHandle*> fields;
+    source->fields(fields);
+
+    auto parametersMap = destination->mutable_parameters();
+    for (auto field : fields)
+    {
+        auto pdmValueField = dynamic_cast<const caf::PdmValueField*>(field);
+        if (pdmValueField)
+        {
+            QString keyword                         = pdmValueField->keyword();
+            auto    ricfHandle = field->template capability<RicfFieldHandle>();
+            if (ricfHandle != nullptr)
+            {
+                QString text;
+                QTextStream outStream(&text);
+                ricfHandle->writeFieldData(outStream);
+                (*parametersMap)[keyword.toStdString()] = text.toStdString();
+            }            
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf(const rips::PdmObject* source, caf::PdmObject* destination)
+{
+    CAF_ASSERT(source && destination);
+    CAF_ASSERT(source->class_keyword() == destination->classKeyword().toStdString());
+    CAF_ASSERT(source->address() == reinterpret_cast<uint64_t>(destination));
+    std::vector<caf::PdmFieldHandle*> fields;
+    destination->fields(fields);
+
+    auto parametersMap = source->parameters();
+    for (auto field : fields)
+    {
+        auto pdmValueField = dynamic_cast<caf::PdmValueField*>(field);
+        if (pdmValueField)
+        {
+            QString keyword = pdmValueField->keyword();
+            QString value = QString::fromStdString(parametersMap[keyword.toStdString()]);
+            
+            assignFieldValue(value, pdmValueField);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcServiceInterface::assignFieldValue(const QString& stringValue, caf::PdmValueField* field)
+{
+    auto ricfHandle = field->template capability<RicfFieldHandle>();
+    if (field && ricfHandle != nullptr)
+    {
+        QTextStream stream(stringValue.toLatin1());
+        RicfMessages messages;
+        ricfHandle->readFieldData(stream, nullptr, &messages);
+    }
 }
 

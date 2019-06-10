@@ -182,6 +182,19 @@ grpc::Status
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcProjectService::GetPdmObject(grpc::ServerContext* context, const rips::Empty* request, rips::PdmObject* reply)
+{
+    RimProject* project = RiaApplication::instance()->project();
+    if (project)
+    {
+        copyPdmObjectFromCafToRips(project, reply);
+    }
+    return grpc::Status::OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcProjectService::createCallbacks()
 {
     typedef RiaGrpcProjectService Self;
@@ -191,7 +204,8 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcProjectService::createCallbacks()
         new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>(this, &Self::GetSelectedCases, &Self::RequestGetSelectedCases),
         new RiaGrpcUnaryCallback<Self, Empty, CaseGroups>(this, &Self::GetAllCaseGroups, &Self::RequestGetAllCaseGroups),
         new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>(this, &Self::GetAllCases, &Self::RequestGetAllCases),
-        new RiaGrpcUnaryCallback<Self, CaseGroup, CaseInfoArray>(this, &Self::GetCasesInGroup, &Self::RequestGetCasesInGroup)};
+        new RiaGrpcUnaryCallback<Self, CaseGroup, CaseInfoArray>(this, &Self::GetCasesInGroup, &Self::RequestGetCasesInGroup),
+        new RiaGrpcUnaryCallback<Self, Empty, PdmObject>(this, &Self::GetPdmObject, &Self::RequestGetPdmObject) };
 }
 
 static bool RiaGrpcProjectService_init =
