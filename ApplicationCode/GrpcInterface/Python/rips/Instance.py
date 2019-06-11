@@ -14,16 +14,38 @@ from .Commands import Commands
 from .Project import Project
 
 class Instance:
-    launched = False
+    """The ResInsight Instance class. Use to launch or find existing ResInsight instances
+
+    Attributes:
+        launched(bool): Tells us whether the application was launched as a new process.
+            If the application was launched we may need to close it when exiting the script.
+        app(App): Application information object. Set when creating an instance.
+        commands(Commands): Command executor. Set when creating an instance.
+        project(Project): Current project in ResInsight.
+            Set when creating an instance and updated when opening/closing projects.
+    """
 
     @staticmethod
-    def is_port_in_use(port):
+    def __is_port_in_use(port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(0.2)
             return s.connect_ex(('localhost', port)) == 0
     
     @staticmethod
-    def launch(resInsightExecutable = '', console = False):        
+    def launch(resInsightExecutable = '', console = False):
+        """ Launch a new Instance of ResInsight. This requires the environment variable
+        RESINSIGHT_EXECUTABLE to be set or the parameter resInsightExecutable to be provided.
+        The RESINSIGHT_GRPC_PORT environment variable can be set to an alternative port number.
+
+        Args:
+            resInsightExecutable (str): Path to a valid ResInsight executable. If set
+                will take precedence over what is provided in the RESINSIGHT_EXECUTABLE
+                environment variable.
+            console (bool): If True, launch as console application, without GUI.
+        Returns:
+            Instance: an instance object if it worked. None if not.
+        """
+
         port = 50051
         portEnv = os.environ.get('RESINSIGHT_GRPC_PORT')
         if portEnv:
@@ -36,7 +58,7 @@ class Instance:
                       ' RESINSIGHT_EXECUTABLE is not set')
                 return None
         
-        while Instance.is_port_in_use(port):
+        while Instance.__is_port_in_use(port):
             port += 1
 
         print('Port ' + str(port))
@@ -47,24 +69,36 @@ class Instance:
             parameters.append("--console")
         pid = os.spawnv(os.P_NOWAIT, resInsightExecutable, parameters)
         if pid:
-            return Instance(port=port, launched=True)
+            instance = Instance(port=port)
+            instance.launched = True
+            return instance
         return None
     
     @staticmethod
     def find(startPort = 50051, endPort = 50071):
+        """ Search for an existing Instance of ResInsight by testing ports.
+         
+        By default we search from port 50051 to 50071 or if the environment
+        variable RESINSIGHT_GRPC_PORT is set we search
+        RESINSIGHT_GRPC_PORT to RESINSIGHT_GRPC_PORT+20
+
+        Args:
+            startPort(int): start searching from this port
+            endPort(int): search up to but not including this port
+        """
         portEnv = os.environ.get('RESINSIGHT_GRPC_PORT')
         if portEnv:
             startPort = int(portEnv)		
             endPort   = startPort + 20 
         
         for tryPort in range(startPort, endPort):
-            if Instance.is_port_in_use(tryPort):
+            if Instance.__is_port_in_use(tryPort):
                 return Instance(tryPort)
                 
         print('Error: Could not find any ResInsight instances responding between ports ' + str(startPort) + ' and ' + str(endPort))
         return None
 
-    def checkVersion(self):
+    def __checkVersion(self):
         try:
             majorVersionOk = self.app.majorVersion() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
             minorVersionOk = self.app.minorVersion() == int(RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
@@ -72,12 +106,17 @@ class Instance:
         except grpc.RpcError as e:
             return False, False
 
-    def __init__(self, port = 50051, launched = False):
+    def __init__(self, port = 50051):
+        """ Attempts to connect to ResInsight at aa specific port on localhost
+
+        Args:
+            port(int): port number
+        """
         logging.basicConfig()
         location = "localhost:" + str(port)
 
         self.channel = grpc.insecure_channel(location)
-        self.launched = launched
+        self.launched = False
 
         # Main version check package
         self.app     = App(self.channel)
@@ -85,14 +124,14 @@ class Instance:
         connectionOk = False
         versionOk = False
 
-        if launched:
+        if self.launched:
             for i in range(0, 10):
-                connectionOk, versionOk = self.checkVersion()
+                connectionOk, versionOk = self.__checkVersion()
                 if connectionOk:
                     break
                 time.sleep(1.0)
         else:
-            connectionOk, versionOk = self.checkVersion()
+            connectionOk, versionOk = self.__checkVersion()
 
         if not connectionOk:
             if launched:

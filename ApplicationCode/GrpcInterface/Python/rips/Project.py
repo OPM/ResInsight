@@ -12,18 +12,34 @@ import Project_pb2
 import Project_pb2_grpc
 
 class Project:
+    """ResInsight project. Not intended to be created separately.
+
+    Automatically created and assigned to Instance.
+    """
     def __init__(self, channel):
         self.channel = channel
         self.project = Project_pb2_grpc.ProjectStub(channel)
     
     def open(self, path):
+        """Open a new project from the given path
+        
+        Argument:
+            path(string): path to project file
+        
+        """
         Commands(self.channel).openProject(path)
         return self
 
     def close(self):
+        """Close the current project (and open new blank project)"""
         Commands(self.channel).closeProject()
 
     def selectedCases(self):
+        """Get a list of all cases selected in the project tree
+
+        Returns:
+            A list of rips Case objects
+        """
         caseInfos = self.project.GetSelectedCases(Empty())
         cases = []
         for caseInfo in caseInfos.data:
@@ -31,6 +47,11 @@ class Project:
         return cases
 
     def cases(self):
+        """Get a list of all cases in the project
+        
+        Returns:
+            A list of rips Case objects
+        """
         try:
             caseInfos = self.project.GetAllCases(Empty())
 
@@ -46,6 +67,13 @@ class Project:
                 return []
 
     def case(self, id):
+        """Get a specific case from the provided case Id
+
+        Arguments:
+            id(int): case id
+        Returns:
+            A rips Case object
+        """
         try:
             case = Case(self.channel, id)
             return case
@@ -53,5 +81,12 @@ class Project:
             return None
 
     def loadCase(self, path):
+        """Load a new case from the given file path
+
+        Arguments:
+            path(string): file path to case
+        Returns:
+            A rips Case object
+        """
         return Commands(self.channel).loadCase(path)
 
