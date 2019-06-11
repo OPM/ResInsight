@@ -48,7 +48,7 @@ scl enable devtoolset-6 rh-python35 bash
 # A patch is available in the issue, but the easiest thing to do is to ensure a short install path
 ################################################################################################################
 
-sudo ./build-grpc-centos.sh /tmp/grpc /opt/grpc
+sudo ./build-grpc-linux.sh /tmp/grpc /opt/grpc
 
 ##############################################################################
 # Python GRPC module, OPTION 1
