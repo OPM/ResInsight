@@ -46,6 +46,10 @@ scl enable devtoolset-6 rh-python35 bash
 # WARNING: As of grpc 1.21.1 a long install directory (/opt/grpc in the example below) may get you into trouble
 # with this bug: https://github.com/grpc/grpc/issues/14844
 # A patch is available in the issue, but the easiest thing to do is to ensure a short install path
+#
+# NOTE: The shell running build-grpc-linux.sh will need the scl enables listed in the previous step.
+#       This means that if you run the script as root by first doing su and then running without sudo
+#       ... then root will need to run the scl enable commands
 ################################################################################################################
 
 sudo ./build-grpc-linux.sh /tmp/grpc /opt/grpc
