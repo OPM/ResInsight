@@ -172,6 +172,7 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 		"tests/test_commands.py"
 		"tests/test_grids.py"
 		"tests/test_properties.py"
+		"tests/test_project.py"
 		"tests/conftest.py"
 		"tests/dataroot.py"
 		"requirements.txt"
