@@ -58,7 +58,7 @@ scl enable devtoolset-6 rh-python35 bash
 # A patch is available in the issue, but the easiest thing to do is to ensure a short install path
 ################################################################################################################
 
-sudo ./build-grpc-centos.sh /tmp/grpc /opt/grpc
+sudo ./build-grpc-linux.sh /tmp/grpc /opt/grpc
 
 ##############################################################################
 # Python GRPC module, OPTION 1
@@ -66,6 +66,7 @@ sudo ./build-grpc-centos.sh /tmp/grpc /opt/grpc
 # NOTE: IF THIS FAILS WITH AN ERROR MESSAGE FROM PIP ABOUT 
 #       "YOU SHOULD CONSIDER UPGRADING VIA 'python -m pip install --upgrade pip'"
 #       Then performing this should fix the problem.
+#       It IS possible to upgrade pip as a regular user: python -m pip install --user --upgrade pip
 ##############################################################################
 
 sudo python -m pip install grpcio-tools
