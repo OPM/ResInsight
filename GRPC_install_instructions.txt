@@ -1,4 +1,9 @@
-########## Windows using vcpkg ###################
+########## Windows using vcpkg #############################################################################
+# gRPC should be built once and only updated when there is a specific requirement to do so
+# So Step 1-4 are rarely done.
+# While Step 5 is instructions for configuring the nightly-build of ResInsight
+# Step 5 is not fully described and assumes knowledge of how to build ResInsight normally. See README.md
+############################################################################################################
 1. Clone VCPKG
 git clone https://github.com/microsoft/vcpkg.git
 2. Install VCPKG from within vcpkg folder:
@@ -12,13 +17,18 @@ git clone https://github.com/microsoft/vcpkg.git
   python -m pip install grpcio-tools
 * Make sure the python executable is found by setting -DPYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
    
-4. Run cmake with the following statements
+5. Run cmake with the following statements
 -DRESINSIGHT_ENABLE_GRPC=true
 -DPYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
 -DCMAKE_TOOLCHAIN_FILE=LOCATION_OF_VCPKG/scripts/buildsystems/vcpkg.cmake
 -A x64
 
-############ Linux as STANDALONE GPRC ###############
+############ Linux as STANDALONE GPRC ####################################################################
+# gRPC should be built once and only updated when there is a specific requirement to do so
+# So Step 1-5 are rarely done.
+# While Step 6 is instructions for configuring the nightly-build of ResInsight
+# Step 6 is not fully described and assumes knowledge of how to build ResInsight normally. See README.md
+##########################################################################################################
 
 #########################################################################################################
 # 1. install autotools, autoconf and libtool with your distributions package manager.
@@ -46,13 +56,9 @@ scl enable devtoolset-6 rh-python35 bash
 # WARNING: As of grpc 1.21.1 a long install directory (/opt/grpc in the example below) may get you into trouble
 # with this bug: https://github.com/grpc/grpc/issues/14844
 # A patch is available in the issue, but the easiest thing to do is to ensure a short install path
-#
-# NOTE: The shell running build-grpc-linux.sh will need the scl enables listed in the previous step.
-#       This means that if you run the script as root by first doing su and then running without sudo
-#       ... then root will need to run the scl enable commands
 ################################################################################################################
 
-sudo ./build-grpc-linux.sh /tmp/grpc /opt/grpc
+sudo ./build-grpc-centos.sh /tmp/grpc /opt/grpc
 
 ##############################################################################
 # Python GRPC module, OPTION 1
@@ -74,11 +80,11 @@ sudo python -m pip install grpcio-tools
 
 python -m pip install --user grpcio-tools
 
-
 #################################################################################
-# 6. Run cmake making sure of the following:
+# 6. Building ResInsight with GRPC enabled:
+# Run cmake making sure of the following:
 #    * GRPC_INSTALL_PREFIX is set to the Grpc install folder, 
 #    * PYTHON_EXECUTABLE set to a good python 3
-#	 * RESINSIGHT_ENABLE_GRPC = true
+#    * RESINSIGHT_ENABLE_GRPC = true
 ################################
 See regular build instructions for the rest
