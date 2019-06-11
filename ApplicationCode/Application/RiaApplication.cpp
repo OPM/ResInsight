@@ -28,6 +28,7 @@
 #include "RiaProjectModifier.h"
 #include "RiaSocketServer.h"
 #include "RiaVersionInfo.h"
+#include "RiaViewRedrawScheduler.h"
 
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
@@ -589,6 +590,10 @@ bool RiaApplication::loadProject(const QString&      projectFileName,
 
         oilField->annotationCollection()->loadDataAndUpdate();
     }
+
+	// Some procedures in onProjectOpened() may rely on the display model having been created
+	// So we need to force the completion of the display model here.
+    RiaViewRedrawScheduler::instance()->updateAndRedrawScheduledViews();
 
     // NB! This function must be called before executing command objects,
     // because the tree view state is restored from project file and sets
