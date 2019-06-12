@@ -256,8 +256,11 @@ void RimEnsembleStatisticsCase::calculateStatistics(const std::vector<double>& v
         std::multiset<double> vSet(values.begin(), values.end());
         for (double v : vSet)
         {
-            sortedValues.push_back(v);
-            valueSum += v;
+            if (RiaStatisticsTools::isValidNumber(v))
+            {
+                sortedValues.push_back(v);
+                valueSum += v;
+            }
         }
     }
 
