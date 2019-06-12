@@ -53,9 +53,12 @@ scl enable devtoolset-6 rh-python35 bash
 # 3. Run grpc install script and install to a user-writable directory. I.e, from within the ResInsight folder:
 # Most of this runs fine without root. But unfortunately grpc currently fails to install the C++ library without root.
 # So the script is required to be run as root even if the provided folders are writeable by the user
-# WARNING: As of grpc 1.21.1 a long install directory (/opt/grpc in the example below) may get you into trouble
-# with this bug: https://github.com/grpc/grpc/issues/14844
-# A patch is available in the issue, but the easiest thing to do is to ensure a short install path
+#
+# WARNING: As of grpc 1.21.1 a long install directory may cause you to trigger a gRPC bug.
+# The installation directory is the second argument (/opt/grpc in the example, which isn't too long).
+#
+# Bug: https://github.com/grpc/grpc/issues/14844
+# A workaround patch is available in the issue, but the easiest thing to do is to ensure a short install path
 ################################################################################################################
 
 sudo ./build-grpc-linux.sh /tmp/grpc /opt/grpc
