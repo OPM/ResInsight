@@ -110,16 +110,16 @@ foreach(proto_file ${PROTO_FILES})
     )
     
     if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
-        set(rips_proto_python "generated/${proto_file}_pb2.py")
-        set(rips_grpc_python "generated/${proto_file}_pb2_grpc.py")
+        set(rips_proto_python "rips/generated/${proto_file}_pb2.py")
+        set(rips_grpc_python "rips/generated/${proto_file}_pb2_grpc.py")
 
         add_custom_command(
             OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${rips_proto_python}" "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}"
             COMMAND ${PYTHON_EXECUTABLE}
             ARGS -m grpc_tools.protoc
                 -I "${rips_proto_path}"
-                --python_out "${GRPC_PYTHON_SOURCE_PATH}/generated"
-                --grpc_python_out "${GRPC_PYTHON_SOURCE_PATH}/generated"
+                --python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
+                --grpc_python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
                 "${rips_proto}"
             DEPENDS "${rips_proto}"
             COMMENT "Generating ${rips_proto_python} and ${rips_grpc_python}"
@@ -147,7 +147,7 @@ endforeach(proto_file)
 if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
     list(APPEND GRPC_PYTHON_SOURCES
         ${GRPC_PYTHON_GENERATED_SOURCES}
-		"generated/RiaVersionInfo.py"
+		"rips/generated/RiaVersionInfo.py"
         "rips/__init__.py"
 		"rips/App.py"
 		"rips/Case.py"
@@ -156,25 +156,25 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 		"rips/Project.py"
 		"rips/Properties.py"
         "rips/Instance.py"	
-        "examples/CommandExample.py"
-        "examples/CaseInfoStreamingExample.py"
-		"examples/SoilPorvAsync.py"
-		"examples/SoilPorvSync.py"
-        "examples/SelectedCases.py"
-        "examples/AllCases.py"
-		"examples/SetGridProperties.py"
-		"examples/GridInformation.py"
-		"examples/InputPropTestSync.py"
-		"examples/InputPropTestAsync.py"
-		"examples/SoilAverage.py"
-		"examples/SoilAverageNoComm.py"
-        "tests/test_cases.py"
-		"tests/test_commands.py"
-		"tests/test_grids.py"
-		"tests/test_properties.py"
-		"tests/test_project.py"
-		"tests/conftest.py"
-		"tests/dataroot.py"
+        "rips/examples/CommandExample.py"
+        "rips/examples/CaseInfoStreamingExample.py"
+		"rips/examples/SoilPorvAsync.py"
+		"rips/examples/SoilPorvSync.py"
+        "rips/examples/SelectedCases.py"
+        "rips/examples/AllCases.py"
+		"rips/examples/SetGridProperties.py"
+		"rips/examples/GridInformation.py"
+		"rips/examples/InputPropTestSync.py"
+		"rips/examples/InputPropTestAsync.py"
+		"rips/examples/SoilAverage.py"
+		"rips/examples/SoilAverageNoComm.py"
+        "rips/tests/test_cases.py"
+		"rips/tests/test_commands.py"
+		"rips/tests/test_grids.py"
+		"rips/tests/test_properties.py"
+		"rips/tests/test_project.py"
+		"rips/tests/conftest.py"
+		"rips/tests/dataroot.py"
 		"requirements.txt"
 		"setup.py.cmake"
 		"README.md"
@@ -194,7 +194,7 @@ list ( APPEND GRPC_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list ( APPEND GRPC_CPP_SOURCES ${SOURCE_GROUP_SOURCE_FILES})
 
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
-                ${GRPC_PYTHON_SOURCE_PATH}/generated/RiaVersionInfo.py
+                ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py
 )
 CONFIGURE_FILE( ${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
                 ${GRPC_PYTHON_SOURCE_PATH}/setup.py

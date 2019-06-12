@@ -5,7 +5,7 @@ import sys
 from .Case import Case
 from .Commands import Commands
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../generated'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
 from Empty_pb2 import Empty
 import Project_pb2

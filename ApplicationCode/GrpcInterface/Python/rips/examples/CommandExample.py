@@ -1,7 +1,7 @@
 import sys
 import os
 import tempfile
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], '../../'))
 import rips
 
 # Load instance

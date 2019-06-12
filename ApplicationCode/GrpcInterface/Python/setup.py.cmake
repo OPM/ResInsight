@@ -6,7 +6,7 @@ with open('README.md') as f:
 with open('LICENSE') as f:
 	license = f.read()
 
-RIPS_DIST_VERSION = '2'
+RIPS_DIST_VERSION = '3'
 	
 setup(
     name='rips',
@@ -17,5 +17,5 @@ setup(
     author_email='info@ceetronsolutions.com',
     url='http://www.resinsight.org',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs', '__pycache', 'examples'))
+    packages=find_packages(exclude=('docs', '__pycache__'))
 )
