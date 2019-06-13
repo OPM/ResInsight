@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,27 +26,26 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
-: m_summaryCase(nullptr)
-, m_ensemble(nullptr)
+    : m_summaryCase(nullptr)
+    , m_ensemble(nullptr)
 
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinition::RiaSummaryCurveDefinition(RimSummaryCase* summaryCase,
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition(RimSummaryCase*                 summaryCase,
                                                      const RifEclipseSummaryAddress& summaryAddress,
-                                                     RimSummaryCaseCollection* ensemble)
+                                                     RimSummaryCaseCollection*       ensemble)
     : m_summaryCase(summaryCase)
     , m_ensemble(ensemble)
     , m_summaryAddress(summaryAddress)
 {
-  
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RiaSummaryCurveDefinition::summaryCase() const
 {
@@ -54,7 +53,7 @@ RimSummaryCase* RiaSummaryCurveDefinition::summaryCase() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection* RiaSummaryCurveDefinition::ensemble() const
 {
@@ -62,7 +61,7 @@ RimSummaryCaseCollection* RiaSummaryCurveDefinition::ensemble() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RifEclipseSummaryAddress& RiaSummaryCurveDefinition::summaryAddress() const
 {
@@ -70,16 +69,15 @@ const RifEclipseSummaryAddress& RiaSummaryCurveDefinition::summaryAddress() cons
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiaSummaryCurveDefinition::isEnsembleCurve() const
 {
     return m_ensemble != nullptr;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaSummaryCurveDefinition::resultValues(const RiaSummaryCurveDefinition& curveDefinition, std::vector<double>* values)
 {
@@ -87,7 +85,7 @@ void RiaSummaryCurveDefinition::resultValues(const RiaSummaryCurveDefinition& cu
 
     if (!curveDefinition.summaryAddress().isValid()) return;
     if (!curveDefinition.summaryCase()) return;
-    
+
     RifSummaryReaderInterface* reader = curveDefinition.summaryCase()->summaryReader();
     if (!reader) return;
 
@@ -95,7 +93,7 @@ void RiaSummaryCurveDefinition::resultValues(const RiaSummaryCurveDefinition& cu
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RiaSummaryCurveDefinition::timeSteps(const RiaSummaryCurveDefinition& curveDefinition)
 {
@@ -111,19 +109,21 @@ const std::vector<time_t>& RiaSummaryCurveDefinition::timeSteps(const RiaSummary
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaSummaryCurveDefinition::curveDefinitionText() const
 {
     QString caseName;
-    if (summaryCase() ) caseName = summaryCase()->caseName();
-    else if (ensemble()) caseName = ensemble()->name();
-    
+    if (summaryCase())
+        caseName = summaryCase()->caseName();
+    else if (ensemble())
+        caseName = ensemble()->name();
+
     return RiaSummaryCurveDefinition::curveDefinitionText(caseName, summaryAddress());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaSummaryCurveDefinition::curveDefinitionText(const QString& caseName, const RifEclipseSummaryAddress& summaryAddress)
 {
@@ -138,7 +138,7 @@ QString RiaSummaryCurveDefinition::curveDefinitionText(const QString& caseName, 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiaSummaryCurveDefinition::operator<(const RiaSummaryCurveDefinition& other) const
 {
@@ -183,4 +183,3 @@ bool RiaSummaryCurveDefinition::operator<(const RiaSummaryCurveDefinition& other
 
     return (m_summaryAddress < other.summaryAddress());
 }
-
