@@ -142,6 +142,7 @@ QString RiaSummaryCurveDefinition::curveDefinitionText(const QString& caseName, 
 //--------------------------------------------------------------------------------------------------
 bool RiaSummaryCurveDefinition::operator<(const RiaSummaryCurveDefinition& other) const
 {
+    if (m_ensemble != other.ensemble())
     {
         QString ensembleName;
         QString otherEnsembleName;
@@ -156,12 +157,17 @@ bool RiaSummaryCurveDefinition::operator<(const RiaSummaryCurveDefinition& other
             otherEnsembleName = other.ensemble()->name();
         }
 
+        // First check if names are different to ensure stable alphabetic sort
         if (ensembleName != otherEnsembleName)
         {
             return ensembleName < otherEnsembleName;
         }
+
+        // Use pointer address, sorting will be be unstable
+        return m_ensemble < other.ensemble();
     }
 
+    if (m_summaryCase != other.summaryCase())
     {
         QString summaryCaseName;
         QString otherSummaryCaseName;
@@ -175,10 +181,14 @@ bool RiaSummaryCurveDefinition::operator<(const RiaSummaryCurveDefinition& other
             otherSummaryCaseName = other.summaryCase()->caseName();
         }
 
+        // First check if names are different to ensure stable alphabetic sort
         if (summaryCaseName != otherSummaryCaseName)
         {
             return summaryCaseName < otherSummaryCaseName;
         }
+
+        // Use pointer address, sorting will be be unstable
+        return m_summaryCase < other.summaryCase();
     }
 
     return (m_summaryAddress < other.summaryAddress());
