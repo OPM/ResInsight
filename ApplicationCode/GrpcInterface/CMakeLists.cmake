@@ -156,6 +156,8 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 		"rips/Project.py"
 		"rips/Properties.py"
         "rips/Instance.py"	
+		"rips/examples/AppInfo.py"
+		"rips/examples/InstanceExample.py"
         "rips/examples/CommandExample.py"
         "rips/examples/CaseInfoStreamingExample.py"
 		"rips/examples/SoilPorvAsync.py"

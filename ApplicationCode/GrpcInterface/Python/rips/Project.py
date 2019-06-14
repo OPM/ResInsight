@@ -23,8 +23,8 @@ class Project:
     def open(self, path):
         """Open a new project from the given path
         
-        Argument:
-            path(string): path to project file
+        Arguments:
+            path(str): path to project file
         
         """
         Commands(self.channel).openProject(path)
@@ -84,7 +84,7 @@ class Project:
         """Load a new case from the given file path
 
         Arguments:
-            path(string): file path to case
+            path(str): file path to case
         Returns:
             A rips Case object
         """

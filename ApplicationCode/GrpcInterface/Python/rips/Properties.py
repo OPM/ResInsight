@@ -55,18 +55,20 @@ class Properties:
     def available(self, propertyType, porosityModel = 'MATRIX_MODEL'):
         """Get a list of available properties
         
-            Arguments:
-                propertyType(string): string corresponding to propertyType enum
-                    Can be one of the following:
-	                    'DYNAMIC_NATIVE'
-	                    'STATIC_NATIVE'
-	                    'SOURSIMRL'
-	                    'GENERATED'
-	                    'INPUT_PROPERTY'
-	                    'FORMATION_NAMES'
-	                    'FLOW_DIAGNOSTICS'
-	                    'INJECTION_FLOODING'
-                porosityModel(string): 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
+        Arguments:
+            propertyType (str): string corresponding to propertyType enum.
+                
+                Can be one of the following:
+	            
+                'DYNAMIC_NATIVE'
+	            'STATIC_NATIVE'
+	            'SOURSIMRL'
+	            'GENERATED'
+	            'INPUT_PROPERTY'
+	            'FORMATION_NAMES'
+	            'FLOW_DIAGNOSTICS'
+	            'INJECTION_FLOODING'
+            porosityModel(str): 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
         """
 
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
@@ -80,10 +82,10 @@ class Properties:
         """Get a cell property for all active cells. Async, so returns an iterator
             
             Arguments:
-                propertyType(string): string enum. See available()
-                propertyName(string): name of an Eclipse property
+                propertyType(str): string enum. See available()
+                propertyName(str): name of an Eclipse property
                 timeStep(int): the time step for which to get the property for
-                porosityModel(string): string enum. See available()
+                porosityModel(str): string enum. See available()
 
             Returns:
                 An iterator to a chunk object containing an array of double values
@@ -103,11 +105,11 @@ class Properties:
         """Get a cell property for all grid cells. Async, so returns an iterator
             
             Arguments:
-                propertyType(string): string enum. See available()
-                propertyName(string): name of an Eclipse property
+                propertyType(str): string enum. See available()
+                propertyName(str): name of an Eclipse property
                 timeStep(int): the time step for which to get the property for
                 gridIndex(int): index to the grid we're getting values for
-                porosityModel(string): string enum. See available()
+                porosityModel(str): string enum. See available()
 
             Returns:
                 An iterator to a chunk object containing an array of double values
@@ -129,10 +131,10 @@ class Properties:
             
             Arguments:
                 values_iterator(iterator): an iterator to the properties to be set
-                propertyType(string): string enum. See available()
-                propertyName(string): name of an Eclipse property
+                propertyType(str): string enum. See available()
+                propertyName(str): name of an Eclipse property
                 timeStep(int): the time step for which to get the property for
-                porosityModel(string): string enum. See available()
+                porosityModel(str): string enum. See available()
         """
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
@@ -155,10 +157,10 @@ class Properties:
             
             Arguments:
                 values(list): a list of double precision floating point numbers
-                propertyType(string): string enum. See available()
-                propertyName(string): name of an Eclipse property
+                propertyType(str): string enum. See available()
+                propertyName(str): name of an Eclipse property
                 timeStep(int): the time step for which to get the property for
-                porosityModel(string): string enum. See available()
+                porosityModel(str): string enum. See available()
         """
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
@@ -181,11 +183,11 @@ class Properties:
             
             Arguments:
                 values(list): a list of double precision floating point numbers
-                propertyType(string): string enum. See available()
-                propertyName(string): name of an Eclipse property
+                propertyType(str): string enum. See available()
+                propertyName(str): name of an Eclipse property
                 timeStep(int): the time step for which to get the property for
                 gridIndex(int): index to the grid we're setting values for
-                porosityModel(string): string enum. See available()
+                porosityModel(str): string enum. See available()
         """
         propertyTypeEnum = Properties_pb2.PropertyType.Value(propertyType)
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)

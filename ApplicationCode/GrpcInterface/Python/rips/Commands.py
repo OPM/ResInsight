@@ -16,8 +16,9 @@ class Commands:
         https://resinsight.org/docs/commandfile/
 
     The differences are:
-        1. Enum values have to be provided as strings. I.e. "ALL" instead of ALL.
-        2. Booleans have to be specified as correct Python. True instead of true.
+        * Enum values have to be provided as strings. I.e. "ALL" instead of ALL.
+        * Booleans have to be specified as correct Python. True instead of true.
+    
     """
     def __init__(self, channel):
         self.channel = channel
@@ -37,24 +38,61 @@ class Commands:
     ########################
 
     def openProject(self, path):
+        """Open a project
+        
+        Arguments:
+            path (str): path to project file
+        
+        
+        """
         return self.__execute(openProject=Cmd.FilePathRequest(path=path))
 
     def closeProject(self):
+        """Close the current project (and reopen empty one)"""
         return self.__execute(closeProject=Empty())
 
     def setStartDir(self, path):
+        """Set current start directory
+        
+        Arguments:
+            path (str): path to directory
+        
+        """
         return self.__execute(setStartDir=Cmd.FilePathRequest(path=path))
 
     def loadCase(self, path):
+        """Load a case
+        
+        Arguments:
+            path (str): path to EGRID file
+        
+        Returns:
+            A Case object
+        
+        """
         commandReply = self.__execute(loadCase=Cmd.FilePathRequest(path=path))
         assert commandReply.HasField("loadCaseResult")
         return Case(self.channel, commandReply.loadCaseResult.id)
 
-    def replaceCase(self, path, caseId=0):
-        return self.__execute(replaceCase=Cmd.ReplaceCaseRequest(newGridFile=path,
+    def replaceCase(self, newGridFile, caseId=0):
+        """Replace the given case with a new case loaded from file
+        
+        Arguments:
+            newGridFile (str): path to EGRID file
+            caseId (int): case Id to replace
+            
+        """
+        return self.__execute(replaceCase=Cmd.ReplaceCaseRequest(newGridFile=newGridFile,
                                                                caseId=caseId))
     
     def replaceSourceCases(self, gridListFile, caseGroupId=0):
+        """Replace all source cases within a case group
+        
+        Arguments:
+            gridListFile (str): path to file containing a list of cases
+            caseGroupId (int): id of the case group to replace
+        
+        """
         return self.__execute(replaceSourceCases=Cmd.ReplaceSourceCasesRequest(gridListFile=gridListFile,
                                                                              caseGroupId=caseGroupId))
     ##################
@@ -62,13 +100,36 @@ class Commands:
     ##################
 
     def exportMultiCaseSnapshots(self, gridListFile):
+        """Export snapshots for a set of cases
+        
+        Arguments:
+            gridListFile (str): Path to a file containing a list of grids to export snapshot for
+        
+        """
         return self.__execute(exportMultiCaseSnapshot=Cmd.ExportMultiCaseRequest(gridListFile=gridListFile))
 
     def exportSnapshots(self, type = 'ALL', prefix=''):
+        """ Export snapshots of a given type
+        
+        Arguments:
+            type (str): Enum string ('ALL', 'VIEWS' or 'PLOTS')
+            prefix (str): Exported file name prefix
+        
+        """
         return self.__execute(exportSnapshots=Cmd.ExportSnapshotsRequest(type=type,
                                                                        prefix=prefix))
 
     def exportProperty(self, caseId, timeStep, property, eclipseKeyword=property, undefinedValue=0.0, exportFile=property):
+        """ Export an Eclipse property
+
+        Arguments:
+            caseId (int): case id
+            timeStep (int): time step index
+            property (str): property to export
+            eclipseKeyword (str): Eclipse keyword used as text in export header. Defaults to the value of property parameter.
+            undefinedValue (double):	Value to use for undefined values. Defaults to 0.0
+            exportFile (str):	Filename for export. Defaults to the value of property parameter
+        """
         return self.__execute(exportProperty=Cmd.ExportPropertyRequest(caseId=caseId,
                                                                      timeStep=timeStep,
                                                                      property=property,

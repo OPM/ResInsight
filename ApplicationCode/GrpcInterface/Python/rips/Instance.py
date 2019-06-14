@@ -17,11 +17,11 @@ class Instance:
     """The ResInsight Instance class. Use to launch or find existing ResInsight instances
 
     Attributes:
-        launched(bool): Tells us whether the application was launched as a new process.
+        launched (bool): Tells us whether the application was launched as a new process.
             If the application was launched we may need to close it when exiting the script.
-        app(App): Application information object. Set when creating an instance.
-        commands(Commands): Command executor. Set when creating an instance.
-        project(Project): Current project in ResInsight.
+        app (App): Application information object. Set when creating an instance.
+        commands (Commands): Command executor. Set when creating an instance.
+        project (Project): Current project in ResInsight.
             Set when creating an instance and updated when opening/closing projects.
     """
 
@@ -83,8 +83,8 @@ class Instance:
         RESINSIGHT_GRPC_PORT to RESINSIGHT_GRPC_PORT+20
 
         Args:
-            startPort(int): start searching from this port
-            endPort(int): search up to but not including this port
+            startPort (int): start searching from this port
+            endPort (int): search up to but not including this port
         """
         portEnv = os.environ.get('RESINSIGHT_GRPC_PORT')
         if portEnv:

@@ -1,6 +1,7 @@
 import sys
 import os
 sys.path.insert(1, os.path.join(sys.path[0], '../../'))
+
 import rips
 import time
 
@@ -11,7 +12,6 @@ def createResult(poroChunks, permxChunks):
             resultChunk.append(poro * permx)
         yield resultChunk
 
-
 resInsight     = rips.Instance.find()
 start = time.time()
 case = resInsight.project.case(id=0)
@@ -19,7 +19,8 @@ case = resInsight.project.case(id=0)
 poroChunks = case.properties.activeCellProperty('STATIC_NATIVE', 'PORO', 0)
 permxChunks = case.properties.activeCellProperty('STATIC_NATIVE', 'PERMX', 0)
 
-case.properties.setActiveCellPropertyAsync(createResult(poroChunks, permxChunks), 'GENERATED', 'POROPERMXAS', 0)
+case.properties.setActiveCellPropertyAsync(createResult(poroChunks, permxChunks),
+                                           'GENERATED', 'POROPERMXAS', 0)
 
 end = time.time()
 print("Time elapsed: ", end - start)

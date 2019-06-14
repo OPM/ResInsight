@@ -17,9 +17,9 @@ class Case:
     methods in Project: loadCase, case, allCases, selectedCases
 
     Attributes:
-        id(int): Case Id corresponding to case Id in ResInsight project.
-        name(string): Case name
-        groupId(int): Case Group id        
+        id (int): Case Id corresponding to case Id in ResInsight project.
+        name (str): Case name
+        groupId (int): Case Group id        
     """
     def __init__(self, channel, id):
         self.channel = channel
@@ -43,7 +43,13 @@ class Case:
             return 0
     
     def grid(self, index):
-        """Get Grid of a given index. Returns a rips Grid object"""
+        """Get Grid of a given index. Returns a rips Grid object
+		
+		Arguments:
+			index (int): The grid index
+		
+		Returns: Grid object
+		"""
         return Grid(index, self)
     
     def grids(self):
@@ -58,7 +64,7 @@ class Case:
         total number of cells
         
         Arguments:
-            porosityModel(string): String representing an enum.
+            porosityModel (str): String representing an enum.
                 must be 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
         Returns:
             Cell Count object with the following integer attributes:
@@ -72,9 +78,11 @@ class Case:
 
     def cellInfoForActiveCells(self, porosityModel='MATRIX_MODEL'):
         """Get Stream of cell info objects for current case
+		
         Arguments:
-            porosityModel(string): String representing an enum.
+            porosityModel(str): String representing an enum.
                 must be 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
+		
         Returns:
             Stream of cell info objects with the following attributes:
                 grid_index(int): grid the cell belongs to
@@ -82,6 +90,7 @@ class Case:
                 coarsening_box_index(int): the coarsening box index
                 local_ijk(Vec3i: i(int), j(int), k(int)): local cell index in i, j, k directions.
                 parent_ijk(Vec3i: i(int), j(int), k(int)): cell index in parent grid in i, j, k.
+		
         """
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
         request =  Case_pb2.CellInfoRequest(case_request=self.request,
