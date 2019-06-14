@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -36,9 +36,8 @@
 
 CAF_CMD_SOURCE_INIT(RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubFeature");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicWellPathsImportSsihubFeature::isCommandEnabled()
 {
@@ -46,7 +45,7 @@ bool RicWellPathsImportSsihubFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
 {
@@ -94,12 +93,13 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
     QString copyOfOriginalObject = app->project()->wellPathImport()->writeObjectToXmlString();
 
     if (!app->preferences()) return;
-    RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, app->project()->wellPathImport(), RiuMainWindow::instance());
+    RiuWellImportWizard wellImportwizard(
+        app->preferences()->ssihubAddress, wellPathsFolderPath, app->project()->wellPathImport(), RiuMainWindow::instance());
 
     // Get password/username from application cache
     {
 #ifdef _DEBUG
-        // Valid credentials for ssihubfake received in mail from Håkon 
+        // Valid credentials for ssihubfake received in mail from Håkon
         QString ssihubUsername = "admin";
         QString ssihubPassword = "resinsight";
 #else
@@ -127,7 +127,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathsImportSsihubFeature::setupActionLook(QAction* actionToSetup)
 {
