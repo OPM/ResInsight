@@ -32,6 +32,7 @@
 #include <QAction>
 #include <QDir>
 #include <QFile>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubFeature");
 
@@ -41,17 +42,6 @@ CAF_CMD_SOURCE_INIT(RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubFe
 //--------------------------------------------------------------------------------------------------
 bool RicWellPathsImportSsihubFeature::isCommandEnabled()
 {
-    RiaApplication* app = RiaApplication::instance();
-    if (!app->project())
-    {
-        return false;
-    }
-
-    if (!caf::Utils::fileExists(app->project()->fileName()))
-    {
-        return false;
-    }
-    
     return true;
 }
 
@@ -63,8 +53,33 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     if (!app->project()) return;
 
-    if (!caf::Utils::fileExists(app->project()->fileName())) return;
+    if (!caf::Utils::fileExists(app->project()->fileName()))
+    {
+        RiaGuiApplication* guiApp = RiaGuiApplication::instance();
+        if (guiApp)
+        {
+            QMessageBox msgBox(guiApp->mainWindow());
+            msgBox.setIcon(QMessageBox::Question);
 
+            QString questionText = QString("Import of well paths will be stored as a part of a ResInsight project file. Please "
+                                           "save the project to file before importing well paths.");
+
+            msgBox.setText(questionText);
+            msgBox.setInformativeText("Do you want to save the project?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+            int ret = msgBox.exec();
+            if (ret == QMessageBox::Yes)
+            {
+                guiApp->saveProject();
+            }
+        }
+
+        if (!caf::Utils::fileExists(app->project()->fileName()))
+        {
+            return;
+        }
+    }
 
     // Update the UTM bounding box from the reservoir
     app->project()->computeUtmAreaOfInterest();
