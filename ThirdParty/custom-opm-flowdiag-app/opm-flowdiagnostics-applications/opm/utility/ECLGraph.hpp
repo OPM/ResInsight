@@ -38,6 +38,11 @@
 /// on-disk ECLIPSE output, featuring on-demand property loading from
 /// backing object (e.g., restart vectors at various time points).
 
+extern "C" {
+    struct ecl_grid_struct;
+    typedef ecl_grid_struct ecl_grid_type;
+} // extern "C"
+
 namespace Opm {
 
     /// Package an ECLIPSE result set (represented as GRID, INIT, and
@@ -91,6 +96,10 @@ namespace Opm {
         static ECLGraph
         load(const boost::filesystem::path& gridFile,
              const ECLInitFileData&         init);
+
+        static ECLGraph
+        load(const ecl_grid_type*   grid,
+             const ECLInitFileData& init);
 
         /// Retrieve number of grids in model.
         ///

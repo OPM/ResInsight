@@ -1261,8 +1261,8 @@ public:
     ///                 If available in the INIT file, the constructor will
     ///                 also leverage the transmissibility data when
     ///                 constructing the active cell neighbourship table.
-    Impl(const boost::filesystem::path& grid,
-         const ECLInitFileData&         init);
+    Impl(const ecl_grid_type*   grid,
+         const ECLInitFileData& init);
 
     /// Retrieve number of grids.
     ///
@@ -1909,21 +1909,17 @@ isViable(const std::vector<ECL::CartesianGridData>& grids,
 
 // ======================================================================
 
-Opm::ECLGraph::Impl::Impl(const boost::filesystem::path& grid,
-                          const ECLInitFileData&         init)
+Opm::ECLGraph::Impl::Impl(const ecl_grid_type*   grid,
+                          const ECLInitFileData& init)
 {
-    const auto G = ECL::loadCase(grid);
-
-    const auto numGrids = ECL::numGrids(G.get());
+    const auto numGrids = ECL::numGrids(grid);
 
     this->grid_.reserve(numGrids);
     this->activeOffset_.reserve(numGrids + 1);
     this->activeOffset_.push_back(0);
 
-    for (auto gridID = 0*numGrids; gridID < numGrids; ++gridID)
-    {
-        this->grid_.emplace_back(ECL::getGrid(G.get(), gridID),
-                                 init, gridID);
+    for (auto gridID = 0*numGrids; gridID < numGrids; ++gridID) {
+        this->grid_.emplace_back(ECL::getGrid(grid, gridID), init, gridID);
 
         this->activeOffset_.push_back(this->activeOffset_.back() +
                                       this->grid_.back().numCells());
@@ -1933,34 +1929,34 @@ Opm::ECLGraph::Impl::Impl(const boost::filesystem::path& grid,
         this->gridID_[this->activeGrids_.back()] = gridID;
     }
 
-    this->defineNNCs(G.get(), init);
+    this->defineNNCs(grid, init);
     this->defineActivePhases(init);
 
     // Extract geometry of main grid.
     {
         // Size
         {
-            this->geomGrid_.size[0] = ecl_grid_get_nx(G.get());
-            this->geomGrid_.size[1] = ecl_grid_get_ny(G.get());
-            this->geomGrid_.size[2] = ecl_grid_get_nz(G.get());
+            this->geomGrid_.size[0] = ecl_grid_get_nx(grid);
+            this->geomGrid_.size[1] = ecl_grid_get_ny(grid);
+            this->geomGrid_.size[2] = ecl_grid_get_nz(grid);
         }
 
         // COORD
         {
             const auto ncoord =
-                    static_cast<std::size_t>(ecl_grid_get_coord_size(G.get()));
+                    static_cast<std::size_t>(ecl_grid_get_coord_size(grid));
             this->geomGrid_.coord.resize(ncoord, 0.0);
 
-            ecl_grid_init_coord_data_double(G.get(), this->geomGrid_.coord.data());
+            ecl_grid_init_coord_data_double(grid, this->geomGrid_.coord.data());
         }
 
         // ZCORN
         {
             const auto nzcorn =
-                    static_cast<std::size_t>(ecl_grid_get_zcorn_size(G.get()));
+                    static_cast<std::size_t>(ecl_grid_get_zcorn_size(grid));
             this->geomGrid_.zcorn.resize(nzcorn, 0.0);
 
-            ecl_grid_init_zcorn_data_double(G.get(), this->geomGrid_.zcorn.data());
+            ecl_grid_init_zcorn_data_double(grid, this->geomGrid_.zcorn.data());
         }
 
         // ACTNUM
@@ -1972,7 +1968,7 @@ Opm::ECLGraph::Impl::Impl(const boost::filesystem::path& grid,
 
             this->geomGrid_.actnum.assign(nglob, 1);
 
-            ecl_grid_init_actnum_data(G.get(), this->geomGrid_.actnum.data());
+            ecl_grid_init_actnum_data(grid, this->geomGrid_.actnum.data());
         }
     }
 }
@@ -2431,7 +2427,16 @@ Opm::ECLGraph
 Opm::ECLGraph::load(const boost::filesystem::path& grid,
                     const ECLInitFileData&         init)
 {
-    auto pImpl = ImplPtr{new Impl(grid, init)};
+    auto G = ECL::loadCase(grid);
+
+    return ECLGraph::load(G.get(), init);
+}
+
+Opm::ECLGraph
+Opm::ECLGraph::load(const ecl_grid_type*   grid,
+                    const ECLInitFileData& init)
+{
+    auto pImpl = ImplPtr{ new Impl(grid, init) };
 
     return { std::move(pImpl) };
 }
