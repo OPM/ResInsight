@@ -955,6 +955,7 @@ void WellSelectionPage::buildWellTreeView()
 
                         RimWellPathEntry* wellPathCopy = new RimWellPathEntry;
                         wellPathCopy->readObjectFromXmlString(objStr, caf::PdmDefaultObjectFactory::instance());
+                        wellPathCopy->selected = true;
 
                         fieldGroup->objects.push_back(wellPathCopy);
                     }
