@@ -117,12 +117,12 @@ void RimOilFieldEntry::updateEnabledState()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathEntry* RimOilFieldEntry::find(const QString& name, RimWellPathEntry::WellTypeEnum wellPathType)
+RimWellPathEntry* RimOilFieldEntry::find(const QString& entryName, RimWellPathEntry::WellTypeEnum wellPathType)
 {
     for (size_t i = 0; i < wells.size(); i++)
     {
         RimWellPathEntry* wellPathEntry = wells[i];
-        if (wellPathEntry->name == name && wellPathEntry->wellPathType == wellPathType)
+        if (wellPathEntry->name == entryName && wellPathEntry->wellPathType == wellPathType)
         {
             return wellPathEntry;
         }

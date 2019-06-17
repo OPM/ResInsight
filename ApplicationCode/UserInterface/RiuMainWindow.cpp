@@ -843,14 +843,9 @@ void RiuMainWindow::refreshViewActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotRefreshFileActions()
 {
-    RiaApplication* app = RiaApplication::instance();
-
-    bool projectFileExists = caf::Utils::fileExists(app->project()->fileName());
-
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
     CVF_ASSERT(cmdFeatureMgr);
 
-    cmdFeatureMgr->action("RicWellPathsImportSsihubFeature")->setEnabled(projectFileExists);
     QStringList commandIdList;
     commandIdList << "RicExportEclipseInputGridFeature";
     commandIdList << "RicSaveEclipseInputVisibleCellsFeature";
@@ -858,7 +853,6 @@ void RiuMainWindow::slotRefreshFileActions()
     commandIdList << "RicExportCompletionsForVisibleWellPathsFeature";
     commandIdList << "RicExportVisibleWellPathsFeature";
     cmdFeatureMgr->refreshStates(commandIdList);
-
 }
 
 //--------------------------------------------------------------------------------------------------

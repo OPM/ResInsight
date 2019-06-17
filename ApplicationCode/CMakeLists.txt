@@ -66,7 +66,6 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/Completions
-    ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechVisualization
@@ -151,6 +150,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
     Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
     Commands/SummaryPlotCommands/CMakeLists_files.cmake
+    Commands/SsiHubImportCommands/CMakeLists_files.cmake
     Commands/ToggleCommands/CMakeLists_files.cmake
     Commands/ViewLink/CMakeLists_files.cmake
     Commands/WellLogCommands/CMakeLists_files.cmake
@@ -189,11 +189,9 @@ list( APPEND CPP_SOURCES
 # Sub-directory projects
 #############################################################################
 
-add_subdirectory(WellPathImportSsihub)
 add_subdirectory(ResultStatisticsCache)
 
 set( RI_LIBRARIES
-    WellPathImportSsihub
     ResultStatisticsCache
 )
 

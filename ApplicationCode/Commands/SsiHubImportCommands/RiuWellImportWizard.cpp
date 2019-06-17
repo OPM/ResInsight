@@ -18,12 +18,15 @@
 
 #include "RiuWellImportWizard.h"
 
+#include "RiaFeatureCommandContext.h"
+
 #include "RifJsonEncodeDecode.h"
 
 #include "RimOilFieldEntry.h"
 #include "RimOilRegionEntry.h"
 #include "RimWellPathImport.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmDocument.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectGroup.h"
@@ -36,6 +39,8 @@
 #include <QObject>
 #include <QSslConfiguration>
 #include <QSslSocket>
+#include <QMenu>
+
 #if QT_VERSION >= 0x050000
 #include <QtWidgets>
 #else
@@ -44,6 +49,8 @@
 #include <QtNetwork>
 
 #include <algorithm>
+
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT(ObjectGroupWithHeaders, "ObjectGroupWithHeaders"); // Do not use. Abstract class 
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -859,6 +866,15 @@ WellSelectionPage::WellSelectionPage(RimWellPathImport* wellPathImport, QWidget*
     layout->addWidget(label);
 
     m_wellSelectionTreeView = new caf::PdmUiTreeView(this);
+    m_wellSelectionTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_wellSelectionTreeView->enableSelectionManagerUpdating(true);
+    m_wellSelectionTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    connect(m_wellSelectionTreeView->treeView(),
+            SIGNAL(customContextMenuRequested(const QPoint&)),
+            SLOT(customMenuRequested(const QPoint&)));
+
+
     layout->addWidget(m_wellSelectionTreeView);
 
     m_wellPathImportObject = wellPathImport;
@@ -1008,6 +1024,38 @@ void WellSelectionPage::selectedWellPathEntries(std::vector<DownloadEntity>& dow
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void WellSelectionPage::customMenuRequested(const QPoint& pos)
+{
+    QMenu menu;
+
+    RiaFeatureCommandContextHelper helper(m_wellSelectionTreeView);
+
+    caf::CmdFeatureMenuBuilder menuBuilder;
+
+
+    menuBuilder << "RicToggleItemsOnFeature";
+    menuBuilder << "RicToggleItemsOffFeature";
+    menuBuilder << "RicToggleItemsFeature";
+    menuBuilder << "RicToggleItemsOnOthersOffFeature";
+
+    menuBuilder.appendToMenu(&menu);
+
+
+    // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
+    // Since we might get this signal from different treeViews, we need to map the position accordingly.
+    QObject*   senderObj = this->sender();
+    QTreeView* treeView  = dynamic_cast<QTreeView*>(senderObj);
+    if (treeView)
+    {
+        QPoint globalPos = treeView->viewport()->mapToGlobal(pos);
+        menu.exec(globalPos);
+    }
+}
+
 
 
 //--------------------------------------------------------------------------------------------------

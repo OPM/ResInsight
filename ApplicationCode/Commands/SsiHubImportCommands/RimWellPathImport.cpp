@@ -146,7 +146,7 @@ void RimWellPathImport::updateRegions(const QStringList& regionStrings, const QS
 
         if (!oilFieldEntry)
         {
-            RimOilFieldEntry* oilFieldEntry = new RimOilFieldEntry;
+            oilFieldEntry = new RimOilFieldEntry;
             oilFieldEntry->name = fieldStrings[i];
             oilFieldEntry->edmId = edmIds[i];
 

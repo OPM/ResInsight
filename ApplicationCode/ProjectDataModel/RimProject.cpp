@@ -76,7 +76,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimWellPathImport.h"
+#include "SsiHubImportCommands/RimWellPathImport.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"

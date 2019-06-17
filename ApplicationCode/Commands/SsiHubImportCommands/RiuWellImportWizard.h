@@ -21,7 +21,6 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmObjectGroup.h"
 
 #include <QItemSelection>
 #include <QNetworkAccessManager>
@@ -85,12 +84,34 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// Container class used to define column headers
 //--------------------------------------------------------------------------------------------------
-class ObjectGroupWithHeaders : public caf::PdmObjectCollection
+class ObjectGroupWithHeaders : public caf::PdmObject
 {
+    CAF_PDM_HEADER_INIT;
+
 public:
-    ObjectGroupWithHeaders()    {};
+    ObjectGroupWithHeaders()
+    {
+        CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "");
+
+        CAF_PDM_InitField(&m_isChecked, "IsChecked", true, "Active", "", "", "");
+        m_isChecked.uiCapability()->setUiHidden(true);
+    };
 
     void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+
+public:
+    caf::PdmChildArrayField<PdmObjectHandle*> objects;
+
+protected:
+
+    caf::PdmFieldHandle* objectToggleField() override
+    {
+        return &m_isChecked;
+    }
+
+protected:
+    caf::PdmField<bool> m_isChecked;
+
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -136,6 +157,9 @@ public:
     void        selectedWellPathEntries(std::vector<DownloadEntity>& downloadEntities, caf::PdmObjectHandle* objHandle);
 private:
     void        sortObjectsByDescription(caf::PdmObjectCollection* objects);
+
+private slots:
+    void customMenuRequested(const QPoint& pos);
 
 private:
     ObjectGroupWithHeaders* m_regionsWithVisibleWells;
