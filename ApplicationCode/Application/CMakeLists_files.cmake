@@ -15,6 +15,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaMemoryCleanup.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaFontCache.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseFileNameTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -34,6 +35,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaMemoryCleanup.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFontCache.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseFileNameTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
