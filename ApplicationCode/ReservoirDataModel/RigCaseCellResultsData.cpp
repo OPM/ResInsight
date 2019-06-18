@@ -2642,6 +2642,14 @@ void RigCaseCellResultsData::setReaderInterface(RifReaderInterface* readerInterf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RifReaderInterface* RigCaseCellResultsData::readerInterface() const
+{
+    return m_readerInterface.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::setHdf5Filename(const QString& hdf5SourSimFilename)
 {
     RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<RifReaderEclipseOutput*>(m_readerInterface.p());

@@ -83,6 +83,13 @@ public:
 
     std::set<RiaDefines::PhaseType> availablePhases() const override;
 
+    // Load main, it is up to the consumer to release the memory using
+    //
+    // ecl_grid_type* myGrid = loadMainGrid();
+    // free(myGrid);
+    //
+    ecl_grid_type* loadMainGrid() const;
+
 private:
     bool                    readActiveCellInfo();
     void                    buildMetaData(ecl_grid_type* grid);
@@ -107,8 +114,6 @@ private:
     std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
 
     static bool             isEclipseAndSoursimTimeStepsEqual(const QDateTime& eclipseDateTime, const QDateTime& sourSimDateTime);
-
-    ecl_grid_type*          loadMainGrid() const;
 
 private:
     QString                                 m_fileName;                 // Name of file used to start accessing Eclipse output files
