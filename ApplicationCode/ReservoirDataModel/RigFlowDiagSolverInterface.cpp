@@ -533,7 +533,7 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
                 RiaEclipseUnitTools::UnitSystem caseUnitSystem = eclipseCaseData->unitsType();
                 m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(mainGrid, initFileName, caseUnitSystem);
 
-                free(mainGrid);
+                ecl_grid_free(mainGrid);
             }
         }
     }
