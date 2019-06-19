@@ -30,9 +30,7 @@ typedef struct ecl_file_struct ecl_file_type;
 class RifActiveCellsReader
 {
 public:
-    static std::vector<std::vector<int>> activeCellsFromActnumKeyword(const ecl_grid_type* mainEclGrid,
-                                                                      const ecl_file_type* ecl_file);
+    static std::vector<std::vector<int>> activeCellsFromActnumKeyword(const ecl_file_type* ecl_file);
 
-    static std::vector<std::vector<int>> activeCellsFromPorvKeyword(const ecl_grid_type* mainEclGrid,
-                                                                    const ecl_file_type* ecl_file);
+    static std::vector<std::vector<int>> activeCellsFromPorvKeyword(const ecl_file_type* ecl_file, bool dualPorosity);
 };

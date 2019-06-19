@@ -31,9 +31,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromActnumKeyword(const ecl_grid_type* mainEclGrid,
-                                                                                 const ecl_file_type* ecl_file)
+std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromActnumKeyword(const ecl_file_type* ecl_file)
 {
+    CAF_ASSERT(ecl_file);
+
     std::vector<std::vector<int>> activeCellsAllGrids;
 
     int actnumKeywordCount = ecl_file_get_num_named_kw(ecl_file, ACTNUM_KW);
@@ -51,10 +52,9 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromActnumKeyword
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword(const ecl_grid_type* mainEclGrid,
-                                                                               const ecl_file_type* ecl_file)
+std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword(const ecl_file_type* ecl_file, bool dualPorosity)
 {
-    CAF_ASSERT(mainEclGrid && ecl_file);
+    CAF_ASSERT(ecl_file);
 
     std::vector<std::vector<int>> activeCellsAllGrids;
 
@@ -63,7 +63,6 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword(c
     // both single porosity models and dual porosity models are initialized with
     // the correct bit mask. See documentation in top of ecl_grid.cpp
     //
-    const int combinedActnumValueForMatrixAndFracture = CELL_ACTIVE_MATRIX + CELL_ACTIVE_FRACTURE;
 
     int porvKeywordCount = ecl_file_get_num_named_kw(ecl_file, PORV_KW);
     for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(porvKeywordCount); gridIdx++)
@@ -78,7 +77,14 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword(c
         {
             if (porvValues[i] > 0.0)
             {
-                activeCellsOneGrid[i] = combinedActnumValueForMatrixAndFracture;
+                if (!dualPorosity || i < porvValues.size() / 2)
+                {
+                    activeCellsOneGrid[i] = CELL_ACTIVE_MATRIX;
+                }
+                else
+                {
+                    activeCellsOneGrid[i] = CELL_ACTIVE_FRACTURE;
+                }
             }
             else
             {

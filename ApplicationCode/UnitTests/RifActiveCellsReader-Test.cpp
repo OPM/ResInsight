@@ -52,7 +52,7 @@ TEST(RifActiveCellsReaderTest, BasicTest10k)
         QString filePath = baseFolder.absoluteFilePath(filename);
 
         ecl_file_type* gridFile = ecl_file_open(RiaStringEncodingTools::toNativeEncoded(filePath).data(), ECL_FILE_CLOSE_STREAM);
-        activeCellsFromActnum   = RifActiveCellsReader::activeCellsFromActnumKeyword(mainEclGrid, gridFile);
+        activeCellsFromActnum   = RifActiveCellsReader::activeCellsFromActnumKeyword(gridFile);
         EXPECT_EQ(2, activeCellsFromActnum.size());
         ecl_file_close(gridFile);
     }
@@ -63,7 +63,7 @@ TEST(RifActiveCellsReaderTest, BasicTest10k)
 
         ecl_file_type* initFile = ecl_file_open(RiaStringEncodingTools::toNativeEncoded(filePath).data(), ECL_FILE_CLOSE_STREAM);
 
-        activeCellsFromPorv = RifActiveCellsReader::activeCellsFromPorvKeyword(mainEclGrid, initFile);
+        activeCellsFromPorv = RifActiveCellsReader::activeCellsFromPorvKeyword(initFile, false);
         EXPECT_EQ(2, activeCellsFromPorv.size());
 
         ecl_file_close(initFile);

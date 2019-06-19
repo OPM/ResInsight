@@ -26,6 +26,7 @@
 #include "RiaPreferences.h"
 
 #include "RiaStringEncodingTools.h"
+#include "RifActiveCellsReader.h"
 #include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifHdf5ReaderInterface.h"
@@ -272,6 +273,8 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
     // std::string mainGridName = ecl_grid_get_name(mainEclGrid);
     // ERT returns file path to grid file as name for main grid
     mainGrid->setGridName("Main grid");
+
+    mainGrid->setDualPorosity(ecl_grid_dual_grid(mainEclGrid));
 
     // Get and set grid and lgr metadata
 
@@ -810,82 +813,96 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
     CVF_ASSERT(m_eclipseCase);
     CVF_ASSERT(m_eclipseCase->mainGrid());
 
-    QString egridFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_EGRID_FILE);
-    if (egridFileName.size() > 0)
+    std::vector<std::vector<int>> actnumValuesPerGrid;
+
     {
-        ecl_file_type* ecl_file =
-            ecl_file_open(RiaStringEncodingTools::toNativeEncoded(egridFileName).data(), ECL_FILE_CLOSE_STREAM);
-        if (!ecl_file) return false;
-
-        int actnumKeywordCount = ecl_file_get_num_named_kw(ecl_file, ACTNUM_KW);
-        if (actnumKeywordCount > 0)
+        // If INIT file is present and PORV is found, use PORV as basis for active cells
+        QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_INIT_FILE);
+        if (initFileName.size() > 0)
         {
-            std::vector<std::vector<int>> actnumValuesPerGrid;
-            actnumValuesPerGrid.resize(actnumKeywordCount);
-
-            size_t reservoirCellCount = 0;
-            for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(actnumKeywordCount); gridIdx++)
+            ecl_file_type* ecl_file =
+                ecl_file_open(RiaStringEncodingTools::toNativeEncoded(initFileName).data(), ECL_FILE_CLOSE_STREAM);
+            if (ecl_file)
             {
-                RifEclipseOutputFileTools::keywordData(ecl_file, ACTNUM_KW, gridIdx, &actnumValuesPerGrid[gridIdx]);
-
-                reservoirCellCount += actnumValuesPerGrid[gridIdx].size();
+                bool isDualPorosity = m_eclipseCase->mainGrid()->isDualPorosity();
+                actnumValuesPerGrid = RifActiveCellsReader::activeCellsFromPorvKeyword(ecl_file, isDualPorosity);
+                ecl_file_close(ecl_file);
             }
-
-            // Check if number of cells is matching
-            if (m_eclipseCase->mainGrid()->globalCellArray().size() != reservoirCellCount)
-            {
-                return false;
-            }
-
-            RigActiveCellInfo* activeCellInfo         = m_eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL);
-            RigActiveCellInfo* fractureActiveCellInfo = m_eclipseCase->activeCellInfo(RiaDefines::FRACTURE_MODEL);
-
-            activeCellInfo->setReservoirCellCount(reservoirCellCount);
-            fractureActiveCellInfo->setReservoirCellCount(reservoirCellCount);
-            activeCellInfo->setGridCount(actnumKeywordCount);
-            fractureActiveCellInfo->setGridCount(actnumKeywordCount);
-
-            size_t cellIdx                   = 0;
-            size_t globalActiveMatrixIndex   = 0;
-            size_t globalActiveFractureIndex = 0;
-            for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(actnumKeywordCount); gridIdx++)
-            {
-                size_t activeMatrixIndex   = 0;
-                size_t activeFractureIndex = 0;
-
-                std::vector<int>& actnumValues = actnumValuesPerGrid[gridIdx];
-
-                for (size_t i = 0; i < actnumValues.size(); i++)
-                {
-                    if (actnumValues[i] == 1 || actnumValues[i] == 3)
-                    {
-                        activeCellInfo->setCellResultIndex(cellIdx, globalActiveMatrixIndex++);
-                        activeMatrixIndex++;
-                    }
-
-                    if (actnumValues[i] == 2 || actnumValues[i] == 3)
-                    {
-                        fractureActiveCellInfo->setCellResultIndex(cellIdx, globalActiveFractureIndex++);
-                        activeFractureIndex++;
-                    }
-
-                    cellIdx++;
-                }
-
-                activeCellInfo->setGridActiveCellCounts(gridIdx, activeMatrixIndex);
-                fractureActiveCellInfo->setGridActiveCellCounts(gridIdx, activeFractureIndex);
-            }
-
-            activeCellInfo->computeDerivedData();
-            fractureActiveCellInfo->computeDerivedData();
         }
-
-        ecl_file_close(ecl_file);
-
-        return true;
     }
 
-    return false;
+    if (actnumValuesPerGrid.empty())
+    {
+        // Try ACTNUM from grid file as basis for active cells
+        QString egridFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_EGRID_FILE);
+        if (egridFileName.size() > 0)
+        {
+            ecl_file_type* ecl_file =
+                ecl_file_open(RiaStringEncodingTools::toNativeEncoded(egridFileName).data(), ECL_FILE_CLOSE_STREAM);
+            if (ecl_file)
+            {
+                actnumValuesPerGrid = RifActiveCellsReader::activeCellsFromActnumKeyword(ecl_file);
+                ecl_file_close(ecl_file);
+            }
+        }
+    }
+
+    size_t reservoirCellCount = 0;
+    for (const auto& actnumValues : actnumValuesPerGrid)
+    {
+        reservoirCellCount += actnumValues.size();
+    }
+
+    // Check if number of cells is matching
+    if (m_eclipseCase->mainGrid()->globalCellArray().size() != reservoirCellCount)
+    {
+        return false;
+    }
+
+    RigActiveCellInfo* activeCellInfo         = m_eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    RigActiveCellInfo* fractureActiveCellInfo = m_eclipseCase->activeCellInfo(RiaDefines::FRACTURE_MODEL);
+
+    activeCellInfo->setReservoirCellCount(reservoirCellCount);
+    fractureActiveCellInfo->setReservoirCellCount(reservoirCellCount);
+    activeCellInfo->setGridCount(actnumValuesPerGrid.size());
+    fractureActiveCellInfo->setGridCount(actnumValuesPerGrid.size());
+
+    size_t cellIdx                   = 0;
+    size_t globalActiveMatrixIndex   = 0;
+    size_t globalActiveFractureIndex = 0;
+
+    for (size_t gridIndex = 0; gridIndex < actnumValuesPerGrid.size(); gridIndex++)
+    {
+        size_t activeMatrixIndex   = 0;
+        size_t activeFractureIndex = 0;
+
+        std::vector<int>& actnumValues = actnumValuesPerGrid[gridIndex];
+
+        for (int actnumValue : actnumValues)
+        {
+            if (actnumValue == 1 || actnumValue == 3)
+            {
+                activeCellInfo->setCellResultIndex(cellIdx, globalActiveMatrixIndex++);
+                activeMatrixIndex++;
+            }
+
+            if (actnumValue == 2 || actnumValue == 3)
+            {
+                fractureActiveCellInfo->setCellResultIndex(cellIdx, globalActiveFractureIndex++);
+                activeFractureIndex++;
+            }
+
+            cellIdx++;
+        }
+
+        activeCellInfo->setGridActiveCellCounts(gridIndex, activeMatrixIndex);
+        fractureActiveCellInfo->setGridActiveCellCounts(gridIndex, activeFractureIndex);
+    }
+
+    activeCellInfo->computeDerivedData();
+    fractureActiveCellInfo->computeDerivedData();
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1245,8 +1262,8 @@ size_t localGridCellIndexFromErtConnection(const RigGridBase*    grid,
     // TODO: Ask Joakim Haave regarding this.
     if (cellK < 0)
     {
-        // cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Detected negative K value (K=" +
-        // cvf::String(cellK) + ") for well : " + cvf::String(wellName) + " K clamped to 0");
+        // cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Detected negative K value
+        // (K=" + cvf::String(cellK) + ") for well : " + cvf::String(wellName) + " K clamped to 0");
 
         cellK = 0;
     }
@@ -1716,8 +1733,8 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                                     well_segment_get_connections(segment, gridName.data());
                                 int connectionCount = well_conn_collection_get_size(connections);
 
-                                // Loop backwards to put the deepest connections first in the array. (The segments are also
-                                // traversed deep to shallow)
+                                // Loop backwards to put the deepest connections first in the array. (The segments are
+                                // also traversed deep to shallow)
                                 for (int connIdx = connectionCount - 1; connIdx >= 0; connIdx--)
                                 {
                                     well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
@@ -1747,8 +1764,8 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                             }
                         }
 
-                        // If the segment did not have connections at all, we need to create a resultpoint representing the bottom
-                        // of the segment and store it as an unpositioned segment
+                        // If the segment did not have connections at all, we need to create a resultpoint representing
+                        // the bottom of the segment and store it as an unpositioned segment
 
                         if (!segmentHasConnections)
                         {
@@ -1890,8 +1907,8 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                                 }
                                 else
                                 {
-                                    break; // We have found a segment with connections. We do not need to propagate position
-                                           // contributions further
+                                    break; // We have found a segment with connections. We do not need to propagate
+                                           // position contributions further
                                 }
 
                                 segmentIdBelow = well_segment_get_id(aboveOutletSegment);
