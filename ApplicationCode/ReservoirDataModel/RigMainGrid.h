@@ -100,6 +100,9 @@ public:
     std::array<float, 6>                    mapAxesF() const;
 
     cvf::Mat4d                              mapAxisTransform() const;
+
+    bool                                    isDualPorosity() const;
+    void                                    setDualPorosity(bool enable);
 private:
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    buildCellSearchTree();
@@ -126,5 +129,7 @@ private:
 
     bool                                    m_useMapAxes;
     std::array<double, 6>                   m_mapAxes;
+
+    bool                                    m_dualPorosity;
 };
 

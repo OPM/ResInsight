@@ -42,6 +42,7 @@ RigMainGrid::RigMainGrid()
 
     m_useMapAxes = false;
     m_mapAxes    = defaultMapAxes();
+    m_dualPorosity = false;
 }
 
 RigMainGrid::~RigMainGrid() {}
@@ -827,6 +828,22 @@ cvf::Mat4d RigMainGrid::mapAxisTransform() const
         mapAxisTrans.setIdentity();
     }
     return mapAxisTrans;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigMainGrid::isDualPorosity() const
+{
+    return m_dualPorosity;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::setDualPorosity(bool enable)
+{
+    m_dualPorosity = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
