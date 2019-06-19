@@ -51,10 +51,10 @@ public:
 
     static void         findKeywordsAndItemCount(std::vector<ecl_file_type*> ecl_files, QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
 
-    static bool         keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values);
-    static bool         keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values);
+    static bool         keywordData(const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values);
+    static bool         keywordData(const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values);
 
-    static void         timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart);
+    static void         timeSteps(const ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart);
 
     static bool         isValidEclipseFileName(const QString& fileName);
     static QByteArray   md5sum(const QString& fileName);
@@ -65,18 +65,18 @@ public:
 
     static void         readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions);
 
-    static int          readUnitsType(ecl_file_type* ecl_file);
+    static int          readUnitsType(const ecl_file_type* ecl_file);
 
     static cvf::ref<RifEclipseRestartDataAccess> createDynamicResultAccess(const QString& fileName);
 
     static QString      createIndexFileName(const QString& resultFileName);
 
-    static std::set<RiaDefines::PhaseType> findAvailablePhases(ecl_file_type* ecl_file);
+    static std::set<RiaDefines::PhaseType> findAvailablePhases(const ecl_file_type* ecl_file);
 
-    static void         transferNncFluxData(const ecl_grid_type* grid, ecl_file_view_type* summaryView,
+    static void         transferNncFluxData(const ecl_grid_type* grid, const ecl_file_view_type* summaryView,
                                             std::vector<double>* waterFlux, std::vector<double>* oilFlux, std::vector<double>* gasFlux);
 
-    static bool         isExportedFromIntersect(ecl_file_type* ecl_file);
+    static bool         isExportedFromIntersect(const ecl_file_type* ecl_file);
 
     static ecl_kw_type* createActnumFromPorv(ecl_file_type* ecl_file);
 
