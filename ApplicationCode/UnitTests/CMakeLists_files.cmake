@@ -55,6 +55,7 @@ ${CMAKE_CURRENT_LIST_DIR}/Intersect-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifPerforationIntervalReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader-Test.cpp
 )
 
 if (RESINSIGHT_ENABLE_GRPC)
