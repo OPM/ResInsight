@@ -152,7 +152,7 @@ QString RimFishbonesMultipleSubs::generatedName() const
 void RimFishbonesMultipleSubs::setMeasuredDepthAndCount(double startMD, double spacing, int subCount)
 {
     double endMD = startMD + spacing * subCount;
-    m_valveLocations->initFields(RimMultipleValveLocations::VALVE_COUNT, startMD, endMD, spacing, subCount, {});
+    m_valveLocations->initFields(RimMultipleValveLocations::VALVE_SPACING, startMD, endMD, spacing, subCount, {});
 
     computeRangesAndLocations();
     computeRotationAngles();
