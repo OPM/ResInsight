@@ -88,7 +88,7 @@ public:
     // ecl_grid_type* myGrid = loadMainGrid();
     // free(myGrid);
     //
-    ecl_grid_type* loadMainGrid() const;
+    ecl_grid_type* loadAllGrids() const;
 
 private:
     bool                    readActiveCellInfo();

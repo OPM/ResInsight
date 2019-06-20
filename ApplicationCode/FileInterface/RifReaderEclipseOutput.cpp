@@ -401,7 +401,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
 
         // Read geometry
         // Todo: Needs to check existence of file before calling ert, else it will abort
-        mainEclGrid = loadMainGrid();
+        mainEclGrid = loadAllGrids();
         if (!mainEclGrid)
         {
             QString errorMessage = QString(" Failed to create a main grid from file\n%1").arg(m_fileName);
@@ -2279,30 +2279,21 @@ bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual(const QDateTime& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ecl_grid_type* RifReaderEclipseOutput::loadMainGrid() const
+ecl_grid_type* RifReaderEclipseOutput::loadAllGrids() const
 {
-    ecl_grid_type* mainEclGrid = nullptr;
+    ecl_grid_type* mainEclGrid = ecl_grid_alloc(RiaStringEncodingTools::toNativeEncoded(m_fileName).data());
 
+    if (m_ecl_init_file)
     {
-        if (m_ecl_init_file)
-        {
-            ecl_kw_type* actnumFromPorv = RifEclipseOutputFileTools::createActnumFromPorv(m_ecl_init_file);
-            if (actnumFromPorv)
-            {
-                int* actnum_values = ecl_kw_get_int_ptr(actnumFromPorv);
-                if (actnum_values)
-                {
-                    mainEclGrid =
-                        ecl_grid_alloc_ext_actnum(RiaStringEncodingTools::toNativeEncoded(m_fileName).data(), actnum_values);
-                }
+        // TODO : ecl_grid_alloc() will automatically read ACTNUM from EGRID file, and reading of active cell information can be
+        // skipped if PORV is available
 
-                ecl_kw_free(actnumFromPorv);
-            }
-        }
+        bool isDualPorosity = ecl_grid_dual_grid(mainEclGrid);
+        auto activeCells    = RifActiveCellsReader::activeCellsFromPorvKeyword(m_ecl_init_file, isDualPorosity);
 
-        if (!mainEclGrid)
+        if (!activeCells.empty())
         {
-            mainEclGrid = ecl_grid_alloc(RiaStringEncodingTools::toNativeEncoded(m_fileName).data());
+            RifActiveCellsReader::applyActiveCellsToAllGrids(mainEclGrid, activeCells);
         }
     }
 

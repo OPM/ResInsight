@@ -524,7 +524,7 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
             auto eclOutput = dynamic_cast<const RifReaderEclipseOutput*>(fileReader);
             if (eclOutput)
             {
-                ecl_grid_type* mainGrid = eclOutput->loadMainGrid();
+                ecl_grid_type* mainGrid = eclOutput->loadAllGrids();
                 if (!mainGrid)
                 {
                     return false;

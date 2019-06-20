@@ -58,11 +58,10 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword(c
 
     std::vector<std::vector<int>> activeCellsAllGrids;
 
-    // When PORV is used as criteria, make sure all active cells are assigned both
-    // active matrix state and active fracture state. This will make sure that
-    // both single porosity models and dual porosity models are initialized with
-    // the correct bit mask. See documentation in top of ecl_grid.cpp
+    // Active cell count is always the same size as the number of cells in the grid
+    // If we have dual porosity, we have to divide by 2
     //
+    // See documentation of active cells in top of ecl_grid.cpp
 
     int porvKeywordCount = ecl_file_get_num_named_kw(ecl_file, PORV_KW);
     for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(porvKeywordCount); gridIdx++)
@@ -71,24 +70,36 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword(c
         RifEclipseOutputFileTools::keywordData(ecl_file, PORV_KW, gridIdx, &porvValues);
 
         std::vector<int> activeCellsOneGrid;
-        activeCellsOneGrid.resize(porvValues.size());
 
-        for (size_t i = 0; i < porvValues.size(); i++)
+        size_t activeCellCount = porvValues.size();
+        if (dualPorosity)
         {
-            if (porvValues[i] > 0.0)
+            activeCellCount /= 2;
+        }
+        activeCellsOneGrid.resize(activeCellCount, 0);
+
+        for (size_t poreValueIndex = 0; poreValueIndex < porvValues.size(); poreValueIndex++)
+        {
+            size_t indexToCell = poreValueIndex;
+            if (indexToCell >= activeCellCount)
             {
-                if (!dualPorosity || i < porvValues.size() / 2)
+                indexToCell = poreValueIndex - activeCellCount;
+            }
+
+            if (porvValues[poreValueIndex] > 0.0)
+            {
+                if (!dualPorosity || poreValueIndex < porvValues.size() / 2)
                 {
-                    activeCellsOneGrid[i] = CELL_ACTIVE_MATRIX;
+                    activeCellsOneGrid[indexToCell] = CELL_ACTIVE_MATRIX;
                 }
                 else
                 {
-                    activeCellsOneGrid[i] = CELL_ACTIVE_FRACTURE;
+                    activeCellsOneGrid[indexToCell] += CELL_ACTIVE_FRACTURE;
                 }
             }
             else
             {
-                activeCellsOneGrid[i] = 0;
+                activeCellsOneGrid[indexToCell] = 0;
             }
         }
 
@@ -96,4 +107,29 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword(c
     }
 
     return activeCellsAllGrids;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifActiveCellsReader::applyActiveCellsToAllGrids(ecl_grid_type*                       ecl_main_grid,
+                                                      const std::vector<std::vector<int>>& activeCellsForAllGrids)
+{
+    CAF_ASSERT(ecl_main_grid);
+
+    for (int gridIndex = 0; gridIndex < static_cast<int>(activeCellsForAllGrids.size()); gridIndex++)
+    {
+        ecl_grid_type* currentGrid = ecl_main_grid;
+        if (gridIndex > 0)
+        {
+            currentGrid = ecl_grid_iget_lgr(ecl_main_grid, gridIndex - 1);
+        }
+
+        auto activeCellsForGrid = activeCellsForAllGrids[gridIndex];
+        CAF_ASSERT(ecl_grid_get_global_size(currentGrid) == static_cast<int>(activeCellsForGrid.size()));
+
+        int* actnum_values = activeCellsForGrid.data();
+
+        ecl_grid_reset_actnum(currentGrid, actnum_values);
+    }
 }
