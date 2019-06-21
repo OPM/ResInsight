@@ -106,6 +106,7 @@ public: // Pdm Fields
     caf::PdmField<bool>                                 summaryRestartFilesShowImportDialog;
     caf::PdmField<SummaryRestartFilesImportModeType>    summaryImportMode;
     caf::PdmField<SummaryRestartFilesImportModeType>    gridImportMode;
+    caf::PdmField<SummaryRestartFilesImportModeType>    summaryEnsembleImportMode;
 
     caf::PdmField<bool>     holoLensDisableCertificateVerification;
 

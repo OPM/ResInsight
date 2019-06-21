@@ -116,6 +116,7 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitFieldNoDefault(&summaryRestartFilesShowImportDialog, "summaryRestartFilesShowImportDialog", "Show Import Dialog", "", "", "");
     CAF_PDM_InitField(&summaryImportMode, "summaryImportMode", SummaryRestartFilesImportModeType(RiaPreferences::IMPORT), "Default Summary Import Option", "", "", "");
     CAF_PDM_InitField(&gridImportMode, "gridImportMode", SummaryRestartFilesImportModeType(RiaPreferences::NOT_IMPORT), "Default Grid Import Option", "", "", "");
+    CAF_PDM_InitField(&summaryEnsembleImportMode, "summaryEnsembleImportMode", SummaryRestartFilesImportModeType(RiaPreferences::IMPORT), "Default Ensemble Summary Import Option", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder", "", "", "");
     m_holoLensExportFolder.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
@@ -241,10 +242,21 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         
         caf::PdmUiGroup* restartBehaviourGroup = uiOrdering.addNewGroup("Origin Files");
         restartBehaviourGroup->add(&summaryRestartFilesShowImportDialog);
-        caf::PdmUiGroup* summaryImportOptionGroup = restartBehaviourGroup->addNewGroup("Origin Summary Files");
-        summaryImportOptionGroup->add(&summaryImportMode);
-        caf::PdmUiGroup* gridImportOptionGroup = restartBehaviourGroup->addNewGroup("Origin Grid Files");
-        gridImportOptionGroup->add(&gridImportMode);
+
+        {
+            caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup("Origin Summary Files");
+            group->add(&summaryImportMode);
+        }
+
+        {
+            caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup("Origin Grid Files");
+            group->add(&gridImportMode);
+        }
+
+        {
+            caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup("Origin Ensemble Summary Files");
+            group->add(&summaryEnsembleImportMode);
+        }
     }
     else if (uiConfigName == m_tabNames[2])
     {
@@ -293,6 +305,15 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
 
         options.push_back(caf::PdmOptionItemInfo(skip.uiText(), RiaPreferences::NOT_IMPORT));
         options.push_back(caf::PdmOptionItemInfo(separate.uiText(), RiaPreferences::SEPARATE_CASES));
+    }
+    else if (fieldNeedingOptions == &summaryEnsembleImportMode)
+    {
+        // Manual option handling in order to one only a subset of the enum values
+        SummaryRestartFilesImportModeType skip(RiaPreferences::NOT_IMPORT);
+        SummaryRestartFilesImportModeType allowImport(RiaPreferences::IMPORT);
+
+        options.push_back(caf::PdmOptionItemInfo(skip.uiText(), RiaPreferences::NOT_IMPORT));
+        options.push_back(caf::PdmOptionItemInfo(allowImport.uiText(), RiaPreferences::IMPORT));
     }
 
     return options;
