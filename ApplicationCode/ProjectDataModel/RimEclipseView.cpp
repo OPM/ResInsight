@@ -1645,13 +1645,18 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(faultResultSettings());
     uiTreeOrdering.add(wellCollection());
 
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
-    RimOilField* oilfield = project->activeOilField();
-
-    if (oilfield && oilfield->fractureDefinitionCollection())
     {
-        if (!oilfield->fractureDefinitionCollection()->fractureTemplates().empty())
+        bool showFractureColors = false;
+    
+        std::vector<RimFracture*> fractures;
+        m_wellCollection->descendantsIncludingThisOfType(fractures);
+        wellPathCollection()->descendantsIncludingThisOfType(fractures);
+        if (!fractures.empty())
+        {
+            showFractureColors = true;
+        }
+
+        if (showFractureColors)
         {
             uiTreeOrdering.add(fractureColors());
         }
