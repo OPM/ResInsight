@@ -18,7 +18,10 @@
 
 #include "RiuFlowCharacteristicsPlot.h"
 
+#include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaFontCache.h"
+#include "RiaPreferences.h"
 
 #include "RimFlowCharacteristicsPlot.h"
 
@@ -84,10 +87,46 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
     addWindowZoom(m_sweepEffPlot);
     m_sweepEffPlot->setTitle("Sweep Efficiency");
 
+    int legendFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
+
+    {
+        QwtText axisTitle = m_sweepEffPlot->axisTitle(QwtPlot::xBottom);
+        auto    font      = axisTitle.font();
+        font.setPointSize(legendFontSize);
+        axisTitle.setFont(font);
+        axisTitle.setText("Dimensionless Time");
+        m_sweepEffPlot->setAxisTitle(QwtPlot::xBottom, axisTitle);
+    }
+    {
+        QwtText axisTitle = m_sweepEffPlot->axisTitle(QwtPlot::yLeft);
+        auto    font      = axisTitle.font();
+        font.setPointSize(legendFontSize);
+        axisTitle.setFont(font);
+        axisTitle.setText("Sweep Efficiency");
+        m_sweepEffPlot->setAxisTitle(QwtPlot::yLeft, axisTitle);
+    }
+
     RiuQwtPlotTools::setCommonPlotBehaviour(m_flowCapVsStorageCapPlot);
     new RiuQwtPlotWheelZoomer(m_flowCapVsStorageCapPlot);
     addWindowZoom(m_flowCapVsStorageCapPlot);
     m_flowCapVsStorageCapPlot->setTitle("Flow Capacity vs Storage Capacity");
+
+    {
+        QwtText axisTitle = m_flowCapVsStorageCapPlot->axisTitle(QwtPlot::xBottom);
+        auto    font      = axisTitle.font();
+        font.setPointSize(legendFontSize);
+        axisTitle.setFont(font);
+        axisTitle.setText("Storage Capacity [C]");
+        m_flowCapVsStorageCapPlot->setAxisTitle(QwtPlot::xBottom, axisTitle);
+    }
+    {
+        QwtText axisTitle = m_flowCapVsStorageCapPlot->axisTitle(QwtPlot::yLeft);
+        auto    font      = axisTitle.font();
+        font.setPointSize(legendFontSize);
+        axisTitle.setFont(font);
+        axisTitle.setText("Flow Capacity [F]");
+        m_flowCapVsStorageCapPlot->setAxisTitle(QwtPlot::yLeft, axisTitle);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
