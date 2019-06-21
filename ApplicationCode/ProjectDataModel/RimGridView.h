@@ -79,6 +79,8 @@ protected:
 
     RimGridCollection*                          gridCollection() const;
 
+    void                                        clearReservoirCellVisibilities();
+
 protected: // Fields
     caf::PdmChildField<RimIntersectionCollection*>    m_crossSectionCollection;
     caf::PdmChildField<Rim3dOverlayInfoConfig*>       m_overlayInfoConfig;
@@ -87,10 +89,8 @@ protected: // Fields
     caf::PdmChildField<RimGridCollection*>            m_gridCollection;
     caf::PdmChildField<RimAnnotationInViewCollection*> m_annotationCollection;
 
-protected:
-    cvf::ref<cvf::UByteArray>                         m_currentReservoirCellVisibility;
-
 private:
+    cvf::ref<cvf::UByteArray>                         m_currentReservoirCellVisibility;
     RimViewLinker*                                    viewLinkerIfMasterView() const;
     bool                                              m_previousGridModeMeshLinesWasFaults;
 };

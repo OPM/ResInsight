@@ -346,6 +346,8 @@ void RimEclipseView::updateScaleTransform()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::createDisplayModel()
 {
+    clearReservoirCellVisibilities();
+
     if (m_viewer.isNull()) return;
 
 #if 0 // Debug info
@@ -581,6 +583,8 @@ void RimEclipseView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateCurrentTimeStep()
 {
+    clearReservoirCellVisibilities();
+
     m_propertyFilterCollection()->updateFromCurrentTimeStep();
 
     updateLegends(); // To make sure the scalar mappers are set up correctly
@@ -1095,7 +1099,7 @@ void RimEclipseView::scheduleGeometryRegen(RivCellSetEnum geometryType)
         }
     }
 
-    m_currentReservoirCellVisibility = nullptr;
+    clearReservoirCellVisibilities();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1104,7 +1108,7 @@ void RimEclipseView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 void RimEclipseView::scheduleReservoirGridGeometryRegen()
 {
     m_reservoirGridPartManager->clearGeometryCache();
-    m_currentReservoirCellVisibility = nullptr;
+    clearReservoirCellVisibilities();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1888,13 +1892,14 @@ void RimEclipseView::setOverridePropertyFilterCollection(RimEclipsePropertyFilte
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep)
 {
-    size_t gridCount = this->eclipseCase()->eclipseCaseData()->gridCount();
     size_t cellCount = this->mainGrid()->globalCellArray().size();
 
     totalVisibility->resize(cellCount);
     totalVisibility->setAll(false);
 
-    for (size_t gridIdx = 0; gridIdx < gridCount; ++gridIdx)
+    std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
+
+    for (auto gridIdx : gridIndices)
     {
         RigGridBase* grid          = this->eclipseCase()->eclipseCaseData()->grid(gridIdx);
         int          gridCellCount = static_cast<int>(grid->cellCount());

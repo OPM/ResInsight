@@ -764,7 +764,7 @@ void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
             viewLinker->scheduleGeometryRegenForDepViews(geometryType);
         }
     }
-    m_currentReservoirCellVisibility = nullptr;
+    clearReservoirCellVisibilities();
 }
 
 //--------------------------------------------------------------------------------------------------
