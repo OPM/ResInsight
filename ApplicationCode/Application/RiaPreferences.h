@@ -109,6 +109,7 @@ public: // Pdm Fields
     caf::PdmField<SummaryRestartFilesImportModeType>    summaryEnsembleImportMode;
 
     caf::PdmField<bool>     holoLensDisableCertificateVerification;
+    caf::PdmField<QString>  csvTextExportFieldSeparator;
 
 protected:
     void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;

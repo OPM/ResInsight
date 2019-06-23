@@ -211,7 +211,7 @@ void RicShowPlotDataFeature::onActionTriggered(bool isChecked)
         QString title = "Data Content";
         {
             QString titleCandidate = RiaFeatureCommandContext::instance()->titleString();
-            if (!titleCandidate.isEmpty()) titleCandidate = titleCandidate;
+            if (!titleCandidate.isEmpty()) title = titleCandidate;
         }
 
         RicShowPlotDataFeature::showTextWindow(title, content);

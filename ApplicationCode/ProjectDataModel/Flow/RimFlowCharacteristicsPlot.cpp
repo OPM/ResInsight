@@ -18,7 +18,10 @@
 
 #include "RimFlowCharacteristicsPlot.h"
 
-#include "RifEclipseDataTableFormatter.h"
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
+#include "RifCsvDataTableFormatter.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
@@ -697,10 +700,11 @@ double interpolate(std::vector<double>& xData, std::vector<double>& yData, doubl
 //--------------------------------------------------------------------------------------------------
 QString RimFlowCharacteristicsPlot::curveDataAsText() const
 {
+    QString fieldSeparator = RiaApplication::instance()->preferences()->csvTextExportFieldSeparator;
     QString tableText;
 
-    QTextStream                  stream(&tableText);
-    RifEclipseDataTableFormatter formatter(stream);
+    QTextStream              stream(&tableText);
+    RifCsvDataTableFormatter formatter(stream, fieldSeparator);
 
     std::vector<RifEclipseOutputTableColumn> header = {
         RifEclipseOutputTableColumn("Date"),
@@ -720,7 +724,7 @@ QString RimFlowCharacteristicsPlot::curveDataAsText() const
 
     for (const auto& timeIndex : m_currentlyPlottedTimeSteps)
     {
-        QString dateString = timeStepDates[timeIndex].toString("yyyy-MM-DD");
+        QString dateString = timeStepDates[timeIndex].toString("yyyy-MM-dd");
 
         auto a = m_timeStepToFlowResultMap.find(timeIndex);
         if (a != m_timeStepToFlowResultMap.end())

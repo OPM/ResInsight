@@ -125,6 +125,8 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&holoLensDisableCertificateVerification, "holoLensDisableCertificateVerification", false, "Disable SSL Certificate Verification (HoloLens)", "", "", "");
     holoLensDisableCertificateVerification.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
+    CAF_PDM_InitField(&csvTextExportFieldSeparator, "csvTextExportFieldSeparator", QString(","), "CSV Text Export Field Separator", "", "", "");
+
     CAF_PDM_InitField(&m_showProjectChangedDialog, "showProjectChangedDialog", true, "Show 'Project has changed' dialog", "", "", "");
     m_showProjectChangedDialog.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
@@ -134,6 +136,7 @@ RiaPreferences::RiaPreferences(void)
     m_tabNames << "General";
     m_tabNames << "Eclipse";
     m_tabNames << "Scripting";
+    m_tabNames << "Export";
     if (RiaApplication::enableDevelopmentFeatures())
     {
         m_tabNames << "System";
@@ -274,7 +277,11 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         scriptGroup->add(&scriptDirectories);
         scriptGroup->add(&scriptEditorExecutable);
     }
-    else if (RiaApplication::enableDevelopmentFeatures() && uiConfigName == m_tabNames[3])
+    else if (uiConfigName == m_tabNames[3])
+    {
+        uiOrdering.add(&csvTextExportFieldSeparator);
+    }
+    else if (RiaApplication::enableDevelopmentFeatures() && uiConfigName == m_tabNames[4])
     {
         uiOrdering.add(&m_appendClassNameToUiText);
         uiOrdering.add(&m_appendFieldKeywordToToolTipText);
