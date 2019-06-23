@@ -18,6 +18,8 @@
 
 #include "RimFlowCharacteristicsPlot.h"
 
+#include "RifEclipseDataTableFormatter.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
@@ -555,19 +557,22 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 
     if (m_flowDiagSolution && m_flowCharPlotWidget)
     {
-        RigFlowDiagResults* flowResult          = m_flowDiagSolution->flowDiagResults();
-        std::vector<int>    calculatedTimesteps = flowResult->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
+        RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
 
-        if (m_timeStepSelectionType == SELECTED)
         {
-            for (int tsIdx : m_selectedTimeSteps())
-            {
-                m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux(tsIdx);
-            }
-            calculatedTimesteps = m_selectedTimeSteps();
-        }
+            std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
 
-        m_currentlyPlottedTimeSteps = calculatedTimesteps;
+            if (m_timeStepSelectionType == SELECTED)
+            {
+                for (int tsIdx : m_selectedTimeSteps())
+                {
+                    m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux(tsIdx);
+                }
+                calculatedTimesteps = m_selectedTimeSteps();
+            }
+
+            m_currentlyPlottedTimeSteps = calculatedTimesteps;
+        }
 
         std::vector<QDateTime> timeStepDates   = m_case->timeStepDates();
         QStringList            timeStepStrings = m_case->timeStepStrings();
@@ -586,7 +591,7 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 
         std::map<int, RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame> timeStepToFlowResultMap;
 
-        for (int timeStepIdx : calculatedTimesteps)
+        for (int timeStepIdx : m_currentlyPlottedTimeSteps)
         {
             if (m_cellFilter() == RigFlowDiagResults::CELLS_VISIBLE)
             {
@@ -622,9 +627,11 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
             lorenzVals[timeStepIdx] = timeStepToFlowResultMap[timeStepIdx].m_lorenzCoefficient;
         }
 
+        m_timeStepToFlowResultMap = timeStepToFlowResultMap;
+
         m_flowCharPlotWidget->setLorenzCurve(timeStepStrings, timeStepDates, lorenzVals);
 
-        for (int timeStepIdx : calculatedTimesteps)
+        for (int timeStepIdx : m_currentlyPlottedTimeSteps)
         {
             const auto& flowCharResults = timeStepToFlowResultMap[timeStepIdx];
 
@@ -650,6 +657,120 @@ void RimFlowCharacteristicsPlot::viewGeometryUpdated()
         // Only need to reload data if cell filtering is based on visible cells in view.
         onLoadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double interpolate(std::vector<double>& xData, std::vector<double>& yData, double x, bool extrapolate)
+{
+    size_t itemCount = xData.size();
+
+    size_t index = 0;
+    if (x >= xData[itemCount - 2])
+    {
+        index = itemCount - 2;
+    }
+    else
+    {
+        while (x > xData[index + 1])
+            index++;
+    }
+    double xLeft  = xData[index];
+    double yLeft  = yData[index];
+    double xRight = xData[index + 1];
+    double yRight = yData[index + 1];
+
+    if (!extrapolate)
+    {
+        if (x < xLeft) yRight = yLeft;
+        if (x > xRight) yLeft = yRight;
+    }
+
+    double dydx = (yRight - yLeft) / (xRight - xLeft);
+
+    return yLeft + dydx * (x - xLeft);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFlowCharacteristicsPlot::curveDataAsText() const
+{
+    QString tableText;
+
+    QTextStream                  stream(&tableText);
+    RifEclipseDataTableFormatter formatter(stream);
+
+    std::vector<RifEclipseOutputTableColumn> header = {
+        RifEclipseOutputTableColumn("Date"),
+        RifEclipseOutputTableColumn("Storage Capacity"),
+        RifEclipseOutputTableColumn("Flow Capacity"),
+        RifEclipseOutputTableColumn("Sweep Efficiency"),
+        RifEclipseOutputTableColumn("Dimensionless Time"),
+        RifEclipseOutputTableColumn("Lorentz Coefficient"),
+    };
+
+    formatter.header(header);
+
+    std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
+
+    std::vector<double> storageCapacitySamplingValues = {0.08, 0.1, 0.2, 0.3, 0.4};
+    size_t              sampleCount                   = storageCapacitySamplingValues.size();
+
+    for (const auto& timeIndex : m_currentlyPlottedTimeSteps)
+    {
+        QString dateString = timeStepDates[timeIndex].toString("yyyy-MM-DD");
+
+        auto a = m_timeStepToFlowResultMap.find(timeIndex);
+        if (a != m_timeStepToFlowResultMap.end())
+        {
+            auto storageCapacityValues = a->second.m_storageCapFlowCapCurve.first;
+            auto flowCapacityValues    = a->second.m_storageCapFlowCapCurve.second;
+
+            bool                extrapolate = false;
+            std::vector<double> flowCapacitySamplingValues;
+            for (const auto storageCapacity : storageCapacitySamplingValues)
+            {
+                {
+                    double flowCapacity = interpolate(storageCapacityValues, flowCapacityValues, storageCapacity, extrapolate);
+                    flowCapacitySamplingValues.push_back(flowCapacity);
+                }
+            }
+
+            auto dimensionLessTimeValues = a->second.m_dimensionlessTimeSweepEfficiencyCurve.first;
+            auto sweepEffValues          = a->second.m_dimensionlessTimeSweepEfficiencyCurve.second;
+
+            std::vector<double> dimensionLessTimeSamplingValues;
+            std::vector<double> sweepEffSamplingValues;
+            double              range = dimensionLessTimeValues.back() - dimensionLessTimeValues[0];
+            double              step  = range / sampleCount;
+            for (size_t i = 0; i < sampleCount; i++)
+            {
+                double dimensionLessTimeValue = i * step;
+                dimensionLessTimeSamplingValues.push_back(dimensionLessTimeValue);
+                double sweepEffValue = interpolate(dimensionLessTimeValues, sweepEffValues, dimensionLessTimeValue, extrapolate);
+                sweepEffSamplingValues.push_back(sweepEffValue);
+            }
+
+            auto lorentz = a->second.m_lorenzCoefficient;
+
+            for (size_t i = 0; i < sampleCount; i++)
+            {
+                formatter.add(dateString);
+                formatter.add(storageCapacitySamplingValues[i]);
+                formatter.add(flowCapacitySamplingValues[i]);
+                formatter.add(sweepEffSamplingValues[i]);
+                formatter.add(dimensionLessTimeSamplingValues[i]);
+                formatter.add(lorentz);
+                formatter.rowCompleted();
+            }
+        }
+    }
+
+    formatter.tableCompleted();
+
+    return tableText;
 }
 
 //--------------------------------------------------------------------------------------------------

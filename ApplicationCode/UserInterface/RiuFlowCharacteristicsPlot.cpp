@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaFeatureCommandContext.h"
 #include "RiaFontCache.h"
 #include "RiaPreferences.h"
 
@@ -33,6 +34,8 @@
 
 #include "cvfBase.h"
 #include "cvfColor3.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
 
 #include "qwt_date.h"
 #include "qwt_legend.h"
@@ -316,7 +319,33 @@ QSize RiuFlowCharacteristicsPlot::minimumSizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RiuFlowCharacteristicsPlot::contextMenuEvent(QContextMenuEvent* event)
+{
+    if (m_plotDefinition)
+    {
+        QString curveDataAsText = m_plotDefinition->curveDataAsText();
+
+        QString dialogTitle = "Flow Characteristics";
+
+        RiaFeatureCommandContextTextHelper helper(dialogTitle, curveDataAsText);
+
+        caf::CmdFeatureMenuBuilder menuBuilder;
+        menuBuilder << "RicShowPlotDataFeature";
+
+        QMenu menu;
+        menuBuilder.appendToMenu(&menu);
+
+        if (menu.actions().size() > 0)
+        {
+            menu.exec(event->globalPos());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuFlowCharacteristicsPlot::sizeHint() const
 {

@@ -67,6 +67,8 @@ public:
     void                                    deleteViewWidget() override; 
     void                                            viewGeometryUpdated();
 
+    QString                                 curveDataAsText() const;
+
     enum TimeSelectionType 
     {
         ALL_AVAILABLE,
@@ -107,6 +109,7 @@ private:
     caf::PdmField<int>                              m_maxTof;
 
     std::vector<int>                                m_currentlyPlottedTimeSteps;
+    std::map<int, RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame> m_timeStepToFlowResultMap;
 
     QPointer<RiuFlowCharacteristicsPlot>            m_flowCharPlotWidget;
 };

@@ -1,23 +1,24 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicShowPlotDataFeature.h"
 
+#include "RiaFeatureCommandContext.h"
 #include "RiaGuiApplication.h"
 
 #include "RimGridCrossPlot.h"
@@ -35,7 +36,6 @@
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
-
 
 CAF_CMD_SOURCE_INIT(RicShowPlotDataFeature, "RicShowPlotDataFeature");
 
@@ -166,11 +166,17 @@ private:
 ///
 ///
 /// RicShowPlotDataFeature
-/// 
-/// 
+///
+///
 //--------------------------------------------------------------------------------------------------
 bool RicShowPlotDataFeature::isCommandEnabled()
 {
+    QString content = RiaFeatureCommandContext::instance()->contentString();
+    if (!content.isEmpty())
+    {
+        return true;
+    }
+
     auto selectedSummaryPlots = caf::selectedObjectsByType<RimSummaryPlot*>();
     if (selectedSummaryPlots.size() > 0)
     {
@@ -195,15 +201,29 @@ bool RicShowPlotDataFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicShowPlotDataFeature::onActionTriggered(bool isChecked)
 {
+    QString content = RiaFeatureCommandContext::instance()->contentString();
+    if (!content.isEmpty())
+    {
+        QString title = "Data Content";
+        {
+            QString titleCandidate = RiaFeatureCommandContext::instance()->titleString();
+            if (!titleCandidate.isEmpty()) titleCandidate = titleCandidate;
+        }
+
+        RicShowPlotDataFeature::showTextWindow(title, content);
+
+        return;
+    }
+
     this->disableModelChangeContribution();
 
     std::vector<RimSummaryPlot*>   selectedSummaryPlots = caf::selectedObjectsByType<RimSummaryPlot*>();
-    std::vector<RimWellLogPlot*>   wellLogPlots = caf::selectedObjectsByType<RimWellLogPlot*>();
-    std::vector<RimGridCrossPlot*> crossPlots   = caf::selectedObjectsByType<RimGridCrossPlot*>();
+    std::vector<RimWellLogPlot*>   wellLogPlots         = caf::selectedObjectsByType<RimWellLogPlot*>();
+    std::vector<RimGridCrossPlot*> crossPlots           = caf::selectedObjectsByType<RimGridCrossPlot*>();
     if (selectedSummaryPlots.size() == 0 && wellLogPlots.size() == 0 && crossPlots.size() == 0)
     {
         CVF_ASSERT(false);
@@ -223,7 +243,7 @@ void RicShowPlotDataFeature::onActionTriggered(bool isChecked)
     for (RimWellLogPlot* wellLogPlot : wellLogPlots)
     {
         QString title = wellLogPlot->description();
-        QString text = wellLogPlot->asciiDataForPlotExport();
+        QString text  = wellLogPlot->asciiDataForPlotExport();
         RicShowPlotDataFeature::showTextWindow(title, text);
     }
 
@@ -235,7 +255,7 @@ void RicShowPlotDataFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicShowPlotDataFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -244,7 +264,7 @@ void RicShowPlotDataFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicShowPlotDataFeature::showTabbedTextWindow(RiuTabbedTextProvider* textProvider)
 {
