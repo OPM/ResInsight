@@ -18,6 +18,8 @@
 
 #include "RiaFeatureCommandContext.h"
 
+#include <QVariant>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -47,6 +49,52 @@ QObject* RiaFeatureCommandContext::object() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaFeatureCommandContext::titleString() const
+{
+    if (m_pointerToQObject)
+    {
+        QVariant variant = m_pointerToQObject->property(titleStringIdentifier().data());
+
+        return variant.toString();
+    }
+
+    return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaFeatureCommandContext::contentString() const
+{
+    if (m_pointerToQObject)
+    {
+        QVariant variant = m_pointerToQObject->property(contentStringIdentifier().data());
+
+        return variant.toString();
+    }
+
+    return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaFeatureCommandContext::titleStringIdentifier()
+{
+    return "titleStringIdentifier";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaFeatureCommandContext::contentStringIdentifier()
+{
+    return "contentStringIdentifier";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaFeatureCommandContext* RiaFeatureCommandContext::instance()
 {
     static RiaFeatureCommandContext* commandFileExecutorInstance = new RiaFeatureCommandContext();
@@ -56,9 +104,9 @@ RiaFeatureCommandContext* RiaFeatureCommandContext::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaFeatureCommandContextHelper::RiaFeatureCommandContextHelper(QObject* object)
+RiaFeatureCommandContextHelper::RiaFeatureCommandContextHelper(QObject* externalObject)
 {
-    RiaFeatureCommandContext::instance()->setObject(object);
+    RiaFeatureCommandContext::instance()->setObject(externalObject);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,4 +115,29 @@ RiaFeatureCommandContextHelper::RiaFeatureCommandContextHelper(QObject* object)
 RiaFeatureCommandContextHelper::~RiaFeatureCommandContextHelper()
 {
     RiaFeatureCommandContext::instance()->setObject(nullptr);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaFeatureCommandContextTextHelper::RiaFeatureCommandContextTextHelper(const QString& title, const QString& text)
+{
+    m_object = new QObject;
+
+    m_object->setProperty(RiaFeatureCommandContext::titleStringIdentifier().data(), title);
+    m_object->setProperty(RiaFeatureCommandContext::contentStringIdentifier().data(), text);
+
+    RiaFeatureCommandContext::instance()->setObject(m_object);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaFeatureCommandContextTextHelper::~RiaFeatureCommandContextTextHelper()
+{
+    if (m_object)
+    {
+        m_object->deleteLater();
+        m_object = nullptr;
+    }
 }

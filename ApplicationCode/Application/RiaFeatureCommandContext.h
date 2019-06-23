@@ -29,15 +29,20 @@ class RiaFeatureCommandContext
     friend class RiaFeatureCommandContextHelper;
 
 public:
-    QObject* object() const;
-
     static RiaFeatureCommandContext* instance();
+
+    QObject* object() const;
+    void     setObject(QObject* object);
+
+    QString titleString() const;
+    QString contentString() const;
+
+    static std::string titleStringIdentifier();
+    static std::string contentStringIdentifier();
 
 private:
     RiaFeatureCommandContext();
     ~RiaFeatureCommandContext();
-
-    void setObject(QObject* object);
 
 private:
     QPointer<QObject> m_pointerToQObject;
@@ -49,6 +54,19 @@ private:
 class RiaFeatureCommandContextHelper
 {
 public:
-    RiaFeatureCommandContextHelper(QObject* object);
+    RiaFeatureCommandContextHelper(QObject* externalObject);
     ~RiaFeatureCommandContextHelper();
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiaFeatureCommandContextTextHelper
+{
+public:
+    RiaFeatureCommandContextTextHelper(const QString& title, const QString& text);
+    ~RiaFeatureCommandContextTextHelper();
+
+private:
+    QObject* m_object;
 };
