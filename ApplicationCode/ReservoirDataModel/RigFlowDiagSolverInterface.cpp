@@ -638,9 +638,9 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInte
                                                                      poreVolume,
                                                                      max_pv_fraction);
 
-        result.m_flowCapStorageCapCurve = flowCapStorCapCurve;
+        result.m_storageCapFlowCapCurve = flowCapStorCapCurve;
         result.m_lorenzCoefficient = lorenzCoefficient(flowCapStorCapCurve);
-        result.m_sweepEfficiencyCurve = sweepEfficiency(flowCapStorCapCurve);
+        result.m_dimensionlessTimeSweepEfficiencyCurve = sweepEfficiency(flowCapStorCapCurve);
     }
     catch (const std::exception& e)
     {

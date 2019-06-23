@@ -70,8 +70,8 @@ public:
 
         using Curve = std::pair< std::vector<double>, std::vector<double> >;
 
-        Curve m_flowCapStorageCapCurve;
-        Curve m_sweepEfficiencyCurve;
+        Curve m_storageCapFlowCapCurve;
+        Curve m_dimensionlessTimeSweepEfficiencyCurve;
         double m_lorenzCoefficient;
     };
 

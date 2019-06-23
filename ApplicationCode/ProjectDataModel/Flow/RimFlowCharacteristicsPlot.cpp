@@ -629,11 +629,11 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
             const auto& flowCharResults = timeStepToFlowResultMap[timeStepIdx];
 
             m_flowCharPlotWidget->addFlowCapStorageCapCurve(timeStepDates[timeStepIdx],
-                                                            flowCharResults.m_flowCapStorageCapCurve.first,
-                                                            flowCharResults.m_flowCapStorageCapCurve.second);
+                                                            flowCharResults.m_storageCapFlowCapCurve.first,
+                                                            flowCharResults.m_storageCapFlowCapCurve.second);
             m_flowCharPlotWidget->addSweepEfficiencyCurve(timeStepDates[timeStepIdx],
-                                                          flowCharResults.m_sweepEfficiencyCurve.first,
-                                                          flowCharResults.m_sweepEfficiencyCurve.second);
+                                                          flowCharResults.m_dimensionlessTimeSweepEfficiencyCurve.first,
+                                                          flowCharResults.m_dimensionlessTimeSweepEfficiencyCurve.second);
         }
 
         m_flowCharPlotWidget->showLegend(m_showLegend());
