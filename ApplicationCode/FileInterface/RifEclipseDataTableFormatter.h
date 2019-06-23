@@ -139,15 +139,17 @@ public:
 
     int tableWidth() const;
 
-private:
+protected:
+    friend class RifCsvDataTableFormatter;
+
     int measure(const QString str);
     int measure(double num, RifEclipseOutputTableDoubleFormatting doubleFormat);
     int measure(int num);
     int measure(size_t num);
 
-    QString format(double num, RifEclipseOutputTableDoubleFormatting doubleFormat);
-    QString format(int num);
-    QString format(size_t num);
+    static QString format(double num, RifEclipseOutputTableDoubleFormatting doubleFormat);
+    static QString format(int num);
+    static QString format(size_t num);
     QString formatColumn(const QString str, size_t columnIndex) const;
 
     void outputBuffer();
