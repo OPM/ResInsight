@@ -78,8 +78,6 @@ public:
 
     static bool         isExportedFromIntersect(const ecl_file_type* ecl_file);
 
-    static ecl_kw_type* createActnumFromPorv(ecl_file_type* ecl_file);
-
     static FILE*        fopen(const QString& filePath, const QString& mode);
 
 private:

@@ -518,33 +518,6 @@ bool RifEclipseOutputFileTools::isExportedFromIntersect(const ecl_file_type* ecl
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-ecl_kw_type* RifEclipseOutputFileTools::createActnumFromPorv(ecl_file_type* ecl_file)
-{
-    std::string porv_kw("PORV");
-
-    if (ecl_file_has_kw(ecl_file, porv_kw.data()))
-    {
-        ecl_file_view_type* fileView = ecl_file_get_global_view(ecl_file);
-
-        int keywordCount = ecl_file_get_num_named_kw(ecl_file, porv_kw.data());
-        for (int index = 0; index < keywordCount; index++)
-        {
-            ecl_kw_type* fileKeyword = ecl_file_view_iget_named_kw(fileView, porv_kw.data(), index);
-            if (fileKeyword)
-            {
-                float porvLimit = 0.0f;
-
-                return ecl_kw_alloc_actnum(fileKeyword, porvLimit);
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Convenience method to hide C fopen calls in #pragma declarations to avoid warnings on Windows
 //--------------------------------------------------------------------------------------------------
 FILE* RifEclipseOutputFileTools::fopen(const QString& filePath, const QString& mode)
