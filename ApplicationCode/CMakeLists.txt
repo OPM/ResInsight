@@ -584,6 +584,23 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
       set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "${RESINSIGHT_INSTALL_RPATH}")
       
+      # bundle Qt5 libraries
+      option (RESINSIGHT_QT5_BUNDLE_LIBRARIES "Bundle Qt5 libraries" OFF)
+      mark_as_advanced(FORCE RESINSIGHT_QT5_BUNDLE_LIBRARIES) 
+      if (RESINSIGHT_QT5_BUNDLE_LIBRARIES)
+        message( STATUS "Bundling of Qt5 libraries is enabled" )
+        
+        foreach (qtlib ${QT_LIBRARIES})
+          get_target_property(FILE_NAME_FULL_PATH ${qtlib} LOCATION)
+          message (STATUS "${qtlib} location on disk - ${FILE_NAME_FULL_PATH}")
+          get_filename_component(FILE_NAME_WE ${FILE_NAME_FULL_PATH} NAME_WE)
+          set(FILE_NAME_FOR_INSTALL "${FILE_NAME_WE}.so.5")
+          message (STATUS "${qtlib} filename for install - ${FILE_NAME_FOR_INSTALL}")
+          
+          install(FILES ${FILE_NAME_FULL_PATH} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} RENAME ${FILE_NAME_FOR_INSTALL} )
+        endforeach()
+      endif(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
+
     endif()
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
