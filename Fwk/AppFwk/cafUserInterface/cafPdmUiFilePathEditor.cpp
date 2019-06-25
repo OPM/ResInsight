@@ -70,6 +70,7 @@ void PdmUiFilePathEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     m_lineEdit->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
     m_lineEdit->setToolTip(uiField()->uiToolTip(uiConfigName));
+    m_button->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
 
     caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
