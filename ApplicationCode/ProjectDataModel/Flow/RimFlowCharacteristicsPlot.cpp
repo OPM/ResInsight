@@ -761,11 +761,11 @@ QString RimFlowCharacteristicsPlot::curveDataAsText() const
 
     std::vector<RifEclipseOutputTableColumn> header = {
         RifEclipseOutputTableColumn("Date"),
-        RifEclipseOutputTableColumn("Storage Capacity"),
-        RifEclipseOutputTableColumn("Flow Capacity"),
-        RifEclipseOutputTableColumn("Sweep Efficiency"),
-        RifEclipseOutputTableColumn("Dimensionless Time"),
-        RifEclipseOutputTableColumn("Lorentz Coefficient"),
+        RifEclipseOutputTableColumn("StorageCapacity"),
+        RifEclipseOutputTableColumn("FlowCapacity"),
+        RifEclipseOutputTableColumn("SweepEfficiency"),
+        RifEclipseOutputTableColumn("DimensionlessTime"),
+        RifEclipseOutputTableColumn("LorentzCoefficient"),
     };
 
     formatter.header(header);
