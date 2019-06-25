@@ -74,6 +74,11 @@ public:
         ALL_AVAILABLE,
         SELECTED,
     };
+ 
+    void                                    setTimeSteps(const std::vector<int>& timeSteps);
+    void                                    setInjectorsAndProducers(const std::vector<QString>& injectors, const std::vector<QString>& producers);
+    void                                    setMinimumCommunication(double minimumCommunication);
+    void                                    setAquiferCellThreshold(double aquiferCellThreshold);
 
 protected:
     // RimViewWindow overrides

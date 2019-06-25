@@ -141,6 +141,8 @@ void RimFlowCharacteristicsPlot::setFromFlowSolution(RimFlowDiagSolution* flowSo
 
     m_flowDiagSolution = flowSolution;
     m_showWindow       = true;
+    m_timeStepToFlowResultMap.clear();
+    m_currentlyPlottedTimeSteps.clear();
 
     onLoadDataAndUpdate();
 }
@@ -171,6 +173,57 @@ void RimFlowCharacteristicsPlot::updateCurrentTimeStep()
     if (m_currentlyPlottedTimeSteps == calculatedTimesteps) return;
 
     this->onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::setTimeSteps(const std::vector<int>& timeSteps)
+{
+    m_selectedTimeSteps = timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::setInjectorsAndProducers(const std::vector<QString>& injectors,
+                                                          const std::vector<QString>& producers)
+{
+    std::vector<QString> allTracers;
+
+    allTracers = producers;
+    allTracers.insert(allTracers.end(), injectors.begin(), injectors.end());
+
+    if (producers.empty() && !injectors.empty())
+    {
+        m_cellFilter = RigFlowDiagResults::CELLS_FLOODED;
+    }
+    else if (!producers.empty() && injectors.empty())
+    {
+        m_cellFilter = RigFlowDiagResults::CELLS_DRAINED;
+    }
+    else if (!producers.empty() && !injectors.empty())
+    {
+        m_cellFilter = RigFlowDiagResults::CELLS_COMMUNICATION;
+    }
+
+    m_selectedTracerNames = allTracers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::setMinimumCommunication(double minimumCommunication)
+{
+    m_minCommunication = minimumCommunication;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::setAquiferCellThreshold(double aquiferCellThreshold)
+{
+    m_maxPvFraction = aquiferCellThreshold;
 }
 
 //--------------------------------------------------------------------------------------------------
