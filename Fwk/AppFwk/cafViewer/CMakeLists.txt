@@ -30,6 +30,7 @@ add_library( ${PROJECT_NAME}
     cafTrackBallBasedNavigation.h
 	cafNavigationPolicy.cpp
 	cafNavigationPolicy.h
+	cafPointOfInterestVisualizer.h
 	cafOpenGLWidget.cpp
 	cafOpenGLWidget.h
 	cafViewer.cpp

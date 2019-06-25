@@ -65,6 +65,7 @@ namespace caf {
     class FrameAnimationControl;
     class NavigationPolicy;
     class Viewer;
+    class PointOfInterestVisualizer;
 }
 
 class QInputEvent;
@@ -121,6 +122,8 @@ public:
     void                    setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
     void                    zoomAll();
     void                    enableParallelProjection(bool enable);
+    void                    setParallelProjectionHeadLightDirection(const cvf::Vec3f& direction);
+    void                    setPointOfInterestVisualizer(PointOfInterestVisualizer* poiVisualizer);
 
     // Interface for navigation policies
     void                    updateParallelProjectionHeightFromMoveZoom(const cvf::Vec3d& pointOfInterest);
@@ -224,9 +227,13 @@ private:
     cvf::Collection<cvf::Scene>         m_frameScenes;
     cvf::Collection<cvf::Model>         m_staticModels;
 
+    // Poi visualization
+    cvf::ref<PointOfInterestVisualizer> m_poiVisualizationManager;
+
     // Parallel projection light modification
 
     cvf::ref<GlobalViewerDynUniformSet> m_globalUniformSet;
+    cvf::Vec3f                          m_parallelProjectionLightDirection;
 
     // Offscreen render objects
     cvf::ref<cvf::FramebufferObject>    m_offscreenFbo;
