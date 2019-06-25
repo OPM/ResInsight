@@ -455,6 +455,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       get_filename_component(ERT_SHARED_LIB_FILES ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2 REALPATH)
+  	  message (STATUS "libecl real path - ${ERT_SHARED_LIB_FILES}")
 
       get_filename_component(FILE_NAME_WE ${ERT_SHARED_LIB_FILES} NAME_WE)
       set(FILE_NAME_FOR_INSTALL "${FILE_NAME_WE}.so.2")
