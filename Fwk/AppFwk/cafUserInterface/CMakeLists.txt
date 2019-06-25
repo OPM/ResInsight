@@ -155,6 +155,8 @@ set( PROJECT_FILES
     cafPdmUiPickableLineEditor.cpp
 	cafStyleSheetTools.h
 	cafStyleSheetTools.cpp
+    cafPdmUiTabbedPropertyViewDialog.h
+    cafPdmUiTabbedPropertyViewDialog.cpp
 )
 
 add_library( ${PROJECT_NAME}
