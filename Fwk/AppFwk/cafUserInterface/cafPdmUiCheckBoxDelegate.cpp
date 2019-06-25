@@ -82,7 +82,7 @@ QRect adjustedPaintRect(const QStyleOptionViewItem &option)
 //--------------------------------------------------------------------------------------------------
 void PdmUiCheckBoxDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 viewItemOption(option);
+    QStyleOptionViewItem viewItemOption(option);
   
     viewItemOption.rect = adjustedPaintRect(option);
 
