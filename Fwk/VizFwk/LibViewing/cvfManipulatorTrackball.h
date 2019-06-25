@@ -75,6 +75,7 @@ public:
     void            startNavigation(NavigationType navigationType, int x, int y);
     bool            updateNavigation(int x, int y);
     void            endNavigation();
+    void            setRotationSensitivity(double scaleFactor);
 
 private:
     bool            pan(int posX, int posY);
