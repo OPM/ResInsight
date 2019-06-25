@@ -12,6 +12,8 @@ endif()
 find_package(OpenGL)
 
 # Qt
+option(CEE_USE_QT5 "Use Qt 5 instead of Qt 4" true)
+
 if (CEE_USE_QT5)
 	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
 	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)

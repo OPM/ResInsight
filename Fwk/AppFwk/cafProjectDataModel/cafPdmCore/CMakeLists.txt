@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 2.8.12)
 project (cafPdmCore)
 
 # Qt
+option(CEE_USE_QT5 "Use Qt 5 instead of Qt 4" true) 
+
 if (CEE_USE_QT5)
 	find_package(Qt5 COMPONENTS REQUIRED Core)
 	set(QT_LIBRARIES Qt5::Core)
