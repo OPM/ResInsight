@@ -454,15 +454,14 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     ################################################################################
     
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-      get_filename_component(ERT_SHARED_LIB_FILES ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2 REALPATH)
-  	  message (STATUS "libecl real path - ${ERT_SHARED_LIB_FILES}")
-
-      get_filename_component(FILE_NAME_WE ${ERT_SHARED_LIB_FILES} NAME_WE)
-      set(FILE_NAME_FOR_INSTALL "${FILE_NAME_WE}.so.2")
-  	  message (STATUS "libecl FILE_NAME_FOR_INSTALL  - ${FILE_NAME_FOR_INSTALL}")
+        set(ERT_SHARED_LIB_FILES
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.4
+        )
       
-      install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} RENAME ${FILE_NAME_FOR_INSTALL} )
-    endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+      install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
+    endif()
     
 endif (RESINSIGHT_PRIVATE_INSTALL)
 
