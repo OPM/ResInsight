@@ -36,11 +36,21 @@ add_library( ${PROJECT_NAME}
     cafPdmXmlMat4d.cpp
     cafPdmXmlMat4d.h
     cafPdmFieldCvfMat4d.h
+
+	cafPdmMat3d/cafPdmCoreMat3d.h
+    cafPdmMat3d/cafPdmUiCoreMat3d.h
+    cafPdmMat3d/cafPdmXmlMat3d.cpp
+    cafPdmMat3d/cafPdmXmlMat3d.h
+    cafPdmMat3d/cafPdmFieldCvfMat3d.h
+
+	${MOC_HEADER_FILES}
+	${MOC_SOURCE_FILES}
 )
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/cafPdmMat3d
 )
 
 target_link_libraries ( ${PROJECT_NAME}
