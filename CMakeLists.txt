@@ -322,9 +322,7 @@ set_property(TARGET
 ################################################################################
 # App and Viz Framework Qt5 setting
 ################################################################################
-if (RESINSIGHT_BUILD_WITH_QT5)
-  set(CEE_USE_QT5 ON)
-endif(RESINSIGHT_BUILD_WITH_QT5)
+set(CEE_USE_QT5 RESINSIGHT_BUILD_WITH_QT5)
 
 
 ################################################################################
