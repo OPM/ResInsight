@@ -66,9 +66,12 @@ RicfCommandResponse RicfExportFlowCharacteristics::execute()
 
     {
         QString exportFileName = m_fileName();
-        if (exportFileName.isEmpty())
+        QFileInfo fi(exportFileName);
+        if (!fi.isAbsolute())
         {
-            QString exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("flow_characteristics");
+            QString relativePath = fi.path();
+            
+            QString exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath(relativePath);
 
             QDir exportDir(exportFolder);
             if (!exportDir.exists())
@@ -80,7 +83,7 @@ RicfCommandResponse RicfExportFlowCharacteristics::execute()
                 }
             }
 
-            exportFileName = exportFolder + QString("/flow_characteristics_data.txt");
+            exportFileName = exportFolder + "/" + fi.fileName();
         }
 
         RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
