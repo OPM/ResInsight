@@ -668,16 +668,19 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 	    endif()
 
         # OpenSSL
-        find_package(OpenSSL)
-        if (OPENSSL_FOUND)
-          message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
-          SET(OPENSSL_BIN_DIR ${OPENSSL_INCLUDE_DIR})
-          string(REPLACE "include" "bin" OPENSSL_BIN_DIR ${OPENSSL_BIN_DIR})
-          message("OpenSSL binary dir: ${OPENSSL_BIN_DIR}")
+        option(RESINSIGHT_BUNDLE_OPENSSL "Bundle the OpenSSL binary DLLs" OFF)
+        if (RESINSIGHT_BUNDLE_OPENSSL)
+          find_package(OpenSSL)
+          if (OPENSSL_FOUND)
+            message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
+            SET(OPENSSL_BIN_DIR ${OPENSSL_INCLUDE_DIR})
+            string(REPLACE "include" "bin" OPENSSL_BIN_DIR ${OPENSSL_BIN_DIR})
+            message("OpenSSL binary dir: ${OPENSSL_BIN_DIR}")
   
-          install(FILES ${OPENSSL_BIN_DIR}/libeay32.dll DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
-          install(FILES ${OPENSSL_BIN_DIR}/ssleay32.dll DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
-        endif(OPENSSL_FOUND)
+            install(FILES ${OPENSSL_BIN_DIR}/libeay32.dll DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+            install(FILES ${OPENSSL_BIN_DIR}/ssleay32.dll DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+          endif(OPENSSL_FOUND)
+        endif(RESINSIGHT_BUNDLE_OPENSSL)
 
         # CRT
         set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
