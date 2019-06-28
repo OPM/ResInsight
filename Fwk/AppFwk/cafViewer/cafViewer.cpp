@@ -870,6 +870,9 @@ bool caf::Viewer::isShadersSupported()
 //--------------------------------------------------------------------------------------------------
 QImage caf::Viewer::snapshotImage()
 {
+    // Qt5 : Call paintEvent() manually to make sure invisible widgets are rendered properly
+    // If this call is skipped, we get an assert in cvf::FramebufferObject::bind()
+    paintEvent(nullptr);
 
     QImage image;
     if (m_offscreenFbo.notNull() && m_offscreenViewportWidth > 0 && m_offscreenViewportHeight > 0)
