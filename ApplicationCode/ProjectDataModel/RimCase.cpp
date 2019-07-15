@@ -46,8 +46,9 @@ RimCase::RimCase() : m_isInActiveDestruction(false)
 {
     RICF_InitField(&caseUserDescription, "CaseUserDescription",  QString(), "Case Name", "", "" ,"");
 
-    CAF_PDM_InitField(&caseId, "CaseId", -1, "Case ID", "", "" ,"");
+    RICF_InitField(&caseId, "CaseId", -1, "Case ID", "", "" ,"");
     caseId.uiCapability()->setUiReadOnly(true);
+    caseId.capability<RicfFieldHandle>()->setIOWriteable(false);
 
     CAF_PDM_InitFieldNoDefault(&activeFormationNames, "DefaultFormationNames", "Formation Names File", "", "", "");
 

@@ -53,14 +53,12 @@ def test_10k(rips_instance, initializeTest):
 def test_PdmObject(rips_instance, initializeTest):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.loadCase(path=casePath)
-    pdmObject = case.pdmObject()
-    assert(pdmObject.address is not 0)
-    assert(pdmObject.class_keyword == "EclipseCase")
-    assert(pdmObject.parameters['CaseFileName'] == casePath)
-    assert(int(pdmObject.parameters['CaseId']) == 0)
-    for keyword in pdmObject.parameters:
-        
-        print (keyword + ": " + pdmObject.parameters[keyword])
+    assert(case.id == 0)
+    assert(case.address() is not 0)
+    assert(case.classKeyword() == "EclipseCase")
+    assert(case.getValue('CaseFileName') == casePath)
+    caseId = case.getValue('CaseId')
+    assert(caseId == case.id)
 
 @pytest.mark.skipif(sys.platform.startswith('linux'), reason="Brugge is currently exceptionally slow on Linux")
 def test_brugge_0010(rips_instance, initializeTest):

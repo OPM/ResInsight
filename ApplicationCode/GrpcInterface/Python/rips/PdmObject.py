@@ -12,7 +12,7 @@ class PdmObject:
     def __init__(self, pb2Object, channel):
         self.pb2Object = pb2Object
         self.channel = channel
-        self.stub = PdmObject_pb2_grpc.PdmObjectServiceStub(self.channel)
+        self.pdmObjectStub = PdmObject_pb2_grpc.PdmObjectServiceStub(self.channel)
     
     def address(self):
         return self.pb2Object.address
@@ -41,6 +41,8 @@ class PdmObject:
                     floatVal = float(value)
                     return floatVal
                 except ValueError:
+                    # We may have a string. Strip internal start and end quotes
+                    value = value.strip('\"')
                     return value
 
     def setValue(self, keyword, value):
@@ -56,7 +58,7 @@ class PdmObject:
 
     def descendants(self, classKeyword):
         request = PdmObject_pb2.PdmChildObjectRequest(object=self.pb2Object, child_keyword=classKeyword)
-        objectList = self.stub.GetDescendantPdmObjects(request).objects
+        objectList = self.pdmObjectStub.GetDescendantPdmObjects(request).objects
         childList = []
         for object in objectList:
             childList.append(PdmObject(object, self.channel))
@@ -64,7 +66,7 @@ class PdmObject:
 
     def children(self, classKeyword):
         request = PdmObject_pb2.PdmChildObjectRequest(object=self.pb2Object, child_keyword=classKeyword)
-        objectList = self.stub.GetChildPdmObjects(request).objects
+        objectList = self.pdmObjectStub.GetChildPdmObjects(request).objects
         childList = []
         for object in objectList:
             childList.append(PdmObject(object, self.channel))
@@ -72,7 +74,7 @@ class PdmObject:
 
     def ancestor(self, classKeyword):
         request = PdmObject_pb2.PdmParentObjectRequest(object=self.pb2Object, parent_keyword=classKeyword)
-        return PdmObject(self.stub.GetAncestorPdmObject(request), self.channel)
+        return PdmObject(self.pdmObjectStub.GetAncestorPdmObject(request), self.channel)
 
     def update(self):
-        self.stub.UpdateExistingPdmObject(self.pb2Object)
+        self.pdmObjectStub.UpdateExistingPdmObject(self.pb2Object)
