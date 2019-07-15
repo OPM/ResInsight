@@ -72,3 +72,21 @@ def test_brugge_0010(rips_instance, initializeTest):
     assert(len(timeSteps) == 11)
     daysSinceStart = case.daysSinceStart()
     assert(len(daysSinceStart) == 11)
+
+@pytest.mark.skipif(sys.platform.startswith('linux'), reason="Brugge is currently exceptionally slow on Linux")
+def test_replaceCase(rips_instance, initializeTest):
+    project = rips_instance.project.open(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp")
+    casePath = dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID"
+    case = project.case(id=0)
+    assert(case is not None)
+    assert(case.name == "TEST10K_FLT_LGR_NNC")
+    assert(case.id == 0)
+    cases = rips_instance.project.cases()
+    assert(len(cases) is 1)
+
+    rips_instance.commands.replaceCase(newGridFile=casePath, caseId=case.id)
+    cases = rips_instance.project.cases()
+    assert(len(cases) is 1)
+    case = project.case(id=0)
+    assert(case.name == "BRUGGE_0000")
+    assert(case.id == 0)
