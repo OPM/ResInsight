@@ -141,9 +141,9 @@ void RicfFieldReader<cvf::Color3f>::readFieldData(cvf::Color3f& fieldValue, QTex
     QString fieldStringValue;
     RicfFieldReader<QString>::readFieldData(fieldStringValue, inputStream, errorMessageContainer);
 
-    if (QColor::isValidColor(fieldStringValue))
+    QColor qColor(fieldStringValue);
+    if (qColor.isValid())
     {
-        QColor qColor(fieldStringValue);
         fieldValue = RiaColorTools::fromQColorTo3f(qColor);
     }
 }
