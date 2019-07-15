@@ -5,6 +5,7 @@ import sys
 from .Case import Case
 from .Commands import Commands
 from .PdmObject import PdmObject
+from .View import View
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
@@ -92,3 +93,24 @@ class Project (PdmObject):
         """
         return Commands(self.channel).loadCase(path)
 
+    def views(self):
+        """Get a list of views belonging to a project"""
+        pdmObjects = self.descendants("ReservoirView")
+        viewList = []
+        for pdmObject in pdmObjects:
+            viewList.append(View(pdmObject))
+        return viewList
+
+    def view(self, id):
+        """Get a particular view belonging to a case by providing view id
+        Arguments:
+            id(int): view id                
+        
+        Returns: a view object
+        
+        """
+        views = self.views()
+        for viewObject in views:
+            if viewObject.id == id:
+                return viewObject
+        return None

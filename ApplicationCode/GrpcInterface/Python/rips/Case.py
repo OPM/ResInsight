@@ -4,6 +4,7 @@ import sys
 from .Grid import Grid
 from .Properties import Properties
 from .PdmObject import PdmObject
+from .View import View
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
@@ -109,5 +110,24 @@ class Case (PdmObject):
         return self.stub.GetDaysSinceStart(self.request).day_decimals
 
     def views(self):
-        return self.children("ReservoirView")
+        """Get a list of views belonging to a case"""
+        pbmObjects = self.children("ReservoirView")
+        viewList = []
+        for pbmObject in pbmObjects:
+            viewList.append(View(pbmObject))
+        return viewList
+
+    def view(self, id):
+        """Get a particular view belonging to a case by providing view id
+        Arguments:
+            id(int): view id                
+        
+        Returns: a view object
+        
+        """
+        views = self.views()
+        for viewObject in views:
+            if viewObject.id == id:
+                return viewObject
+        return None
 

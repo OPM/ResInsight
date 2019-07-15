@@ -160,6 +160,7 @@ if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
 		"rips/Properties.py"
         "rips/Instance.py"	
 		"rips/PdmObject.py"
+		"rips/View.py"
 		"rips/examples/InstanceExample.py"
         "rips/examples/CommandExample.py"
         "rips/examples/CaseInfoStreamingExample.py"
