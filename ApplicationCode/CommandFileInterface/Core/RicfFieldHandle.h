@@ -37,10 +37,19 @@ class QTextStream;
 class RicfFieldHandle : public caf::PdmFieldCapability
 {
 public:
-    RicfFieldHandle(caf::PdmFieldHandle* owner , bool giveOwnership);
-
+    RicfFieldHandle(caf::PdmFieldHandle* owner, bool giveOwnership);    
     ~RicfFieldHandle() override;
  
+    bool isIOWriteable() const
+    {
+        return m_IOWriteable;
+    }
+
+    void setIOWriteable(bool writeable)
+    {
+        m_IOWriteable = writeable;
+    }
+
     virtual void    readFieldData (QTextStream& inputStream, 
                                    caf::PdmObjectFactory* objectFactory,
                                    RicfMessages* errorMessageContainer )  = 0;
@@ -48,6 +57,7 @@ public:
 
 private:
     caf::PdmFieldHandle* m_owner;
+    bool                 m_IOWriteable;
 };
 
 

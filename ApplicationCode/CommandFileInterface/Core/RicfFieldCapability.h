@@ -204,16 +204,18 @@ public:
 public:
     void        readFieldData (QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, RicfMessages* errorMessageContainer) override
     {
-        //m_field->xmlCapability()->assertValid(); 
-        typename FieldType::FieldDataType value; 
-        RicfFieldReader<typename FieldType::FieldDataType>::readFieldData(value, inputStream, errorMessageContainer);  
-        m_field->setValue(value); 
+        typename FieldType::FieldDataType value;
+        RicfFieldReader<typename FieldType::FieldDataType>::readFieldData(value, inputStream, errorMessageContainer);
+
+        if (this->isIOWriteable())
+        {
+            m_field->setValue(value);
+        }
     }
 
     void        writeFieldData(QTextStream& outputStream) const override
-    { 
-        //m_field->xmlCapability()->assertValid(); 
-        RicfFieldWriter<typename FieldType::FieldDataType>::writeFieldData(m_field->value(), outputStream); 
+    {
+        RicfFieldWriter<typename FieldType::FieldDataType>::writeFieldData(m_field->value(), outputStream);        
     }
 
 private:

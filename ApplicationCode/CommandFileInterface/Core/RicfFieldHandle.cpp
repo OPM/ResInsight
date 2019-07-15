@@ -26,6 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 RicfFieldHandle::RicfFieldHandle(caf::PdmFieldHandle* owner, bool giveOwnership)
 {
+    m_IOWriteable = true;
     m_owner = owner;
     owner->addCapability(this, giveOwnership);
 }

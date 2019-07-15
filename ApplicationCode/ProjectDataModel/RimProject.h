@@ -115,6 +115,7 @@ public:
 
     void            assignCaseIdToCase(RimCase* reservoirCase);
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
+    void            assignViewIdToView(Rim3dView* view);
 
     void            allCases(std::vector<RimCase*>& cases) const;
 
@@ -196,8 +197,9 @@ private:
     caf::PdmField<bool>     m_subWindowsTiled3DWindow;
     caf::PdmField<bool>     m_subWindowsTiledPlotWindow;
 
-    caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
-    caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from Octave scripts
+    caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from scripts
+    caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from scripts
+    caf::PdmField<int>                                  nextValidViewId;          // Unique view ID within a project, used to identify a view from scripts
 
     caf::PdmChildArrayField<RimEclipseCase*>            casesObsolete; // obsolete
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroupsObsolete; // obsolete
