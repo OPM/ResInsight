@@ -5,4 +5,6 @@ from .Properties import Properties
 from .Instance import Instance
 from .App import App
 from .Commands import Commands
+from .PdmObject import PdmObject
+from .View import View
 from .Project import Project
