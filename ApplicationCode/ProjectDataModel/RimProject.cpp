@@ -109,6 +109,9 @@ RimProject::RimProject(void)
     CAF_PDM_InitField(&nextValidCaseGroupId, "NextValidCaseGroupId", 0, "Next Valid Case Group ID", "", "" ,"");
     nextValidCaseGroupId.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitField(&nextValidViewId, "NextValidViewId", 0, "Next Valid View ID", "", "", "");
+    nextValidViewId.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&oilFields, "OilFields", "Oil Fields",  "", "", "");
     oilFields.uiCapability()->setUiHidden(true);
 
@@ -228,6 +231,7 @@ void RimProject::close()
 
     nextValidCaseId = 0;
     nextValidCaseGroupId = 0;
+    nextValidViewId = 0;
     mainWindowCurrentModelIndexPath = "";
     mainWindowTreeViewState = "";
     plotWindowCurrentModelIndexPath = "";
@@ -246,22 +250,22 @@ void RimProject::initScriptDirectories(const QString& scriptDirectories)
 
     // Find largest used caseId read from file and make sure all cases have a valid caseId
     {
-        int largestId = -1;
+        int largestCaseId = -1;
 
         std::vector<RimCase*> cases;
         allCases(cases);
     
         for (size_t i = 0; i < cases.size(); i++)
         {
-            if (cases[i]->caseId > largestId)
+            if (cases[i]->caseId > largestCaseId)
             {
-                largestId = cases[i]->caseId;
+                largestCaseId = cases[i]->caseId;
             }
         }
 
-        if (largestId > this->nextValidCaseId)
+        if (largestCaseId > this->nextValidCaseId)
         {
-            this->nextValidCaseId = largestId + 1;
+            this->nextValidCaseId = largestCaseId + 1;
         }
 
         // Assign case Id to cases with an invalid case Id
@@ -304,6 +308,28 @@ void RimProject::initScriptDirectories(const QString& scriptDirectories)
             {
                 assignIdToCaseGroup(cg);
             }
+        }
+    }
+
+    int maxViewId = -1;
+    std::vector<Rim3dView*> views;
+    this->descendantsIncludingThisOfType(views);
+    for (Rim3dView* view : views)
+    {
+        maxViewId = std::max(maxViewId, view->id());
+    }
+
+    if (maxViewId >= this->nextValidViewId)
+    {
+        this->nextValidViewId = maxViewId + 1;
+    }
+
+    // Assign view id to views with invalid id
+    for (Rim3dView* view : views)
+    {
+        if (view->id() < 0)
+        {
+            assignViewIdToView(view);
         }
     }
 }
@@ -530,6 +556,18 @@ void RimProject::assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup)
         caseGroup->groupId = nextValidCaseGroupId;
 
         nextValidCaseGroupId = nextValidCaseGroupId + 1;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignViewIdToView(Rim3dView* view)
+{
+    if (view)
+    {
+        view->setId(nextValidViewId);
+        nextValidViewId = nextValidViewId + 1;
     }
 }
 
