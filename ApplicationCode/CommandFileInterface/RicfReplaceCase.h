@@ -51,7 +51,7 @@ private:
 // RicfMultipleReplaceCase represents multiple caseId-gridFileName pairs
 //
 // NB!  This object has no support for parsing a text command. This object is created by aggregating
-//      multiple RicfSingleCaseReplace objects
+//      multiple RicfSingleCaseReplace objects, or through gRPC interface.
 //
 //==================================================================================================
 class RicfMultiCaseReplace : public RicfCommandObject

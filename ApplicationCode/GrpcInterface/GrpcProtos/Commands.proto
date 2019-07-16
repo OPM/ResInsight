@@ -25,6 +25,11 @@ message ReplaceCaseRequest
 	int32  caseId      = 2;
 }
 
+message ReplaceCaseRequests
+{
+	repeated ReplaceCaseRequest casePairs = 1;
+}
+
 message ReplaceSourceCasesRequest
 {
 	string gridListFile = 1;
@@ -264,6 +269,7 @@ message CommandParams
 		CreateMultipleFracRequest    createMultipleFractures          = 23;
 		CreateLgrForCompRequest      createLgrForCompletions          = 24;
 		CreateSatPressPlotRequest    createSaturationPressurePlots    = 25;		
+		ReplaceCaseRequests          replaceMultipleCases             = 26;
 	}
 }
 

@@ -19,6 +19,7 @@
 
 #include "RiaGrpcCallbacks.h"
 
+#include "RicfReplaceCase.h"
 #include "RicfSetTimeStep.h"
 
 #include "cafAssert.h"
@@ -52,22 +53,39 @@ grpc::Status RiaGrpcCommandService::Execute(grpc::ServerContext* context, const 
 
         const Message& params               = request->GetReflection()->GetMessage(*request, grpcOneOfMessage);
         QString        grpcOneOfMessageName = QString::fromStdString(grpcOneOfMessage->name());
-        auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create(grpcOneOfMessageName);
-        auto commandHandle   = dynamic_cast<RicfCommandObject*>(pdmObjectHandle);
+        auto           pdmObjectHandle      = caf::PdmDefaultObjectFactory::instance()->create(grpcOneOfMessageName);
+        auto           commandHandle        = dynamic_cast<RicfCommandObject*>(pdmObjectHandle);
+
         if (commandHandle)
         {
-            auto subMessageDescriptor = grpcOneOfMessage->message_type();
-            int  numParameters        = subMessageDescriptor->field_count();
-            for (int i = 0; i < numParameters; ++i)
+            RicfMultiCaseReplace* multiCaseReplaceCommand = dynamic_cast<RicfMultiCaseReplace*>(commandHandle);
+            if (multiCaseReplaceCommand)
             {
-                auto parameter = subMessageDescriptor->field(i);
-                if (parameter)
+                CAF_ASSERT(request->has_replacemultiplecases());
+                auto replaceMultipleCasesRequest = request->replacemultiplecases();
+                std::map<int, QString> caseIdFileMap;
+                for (auto caseGridFilePair : replaceMultipleCasesRequest.casepairs())
                 {
-                    QString parameterName       = QString::fromStdString(parameter->name());
-                    auto    pdmValueFieldHandle = dynamic_cast<caf::PdmValueField*>(pdmObjectHandle->findField(parameterName));
-                    if (pdmValueFieldHandle)
+                    caseIdFileMap.insert(std::make_pair(caseGridFilePair.caseid(),
+                                                        QString::fromStdString(caseGridFilePair.newgridfile())));
+                }
+                multiCaseReplaceCommand->setCaseReplacePairs(caseIdFileMap);
+            }
+            else
+            {
+                auto subMessageDescriptor = grpcOneOfMessage->message_type();
+                int  numParameters = subMessageDescriptor->field_count();
+                for (int i = 0; i < numParameters; ++i)
+                {
+                    auto parameter = subMessageDescriptor->field(i);
+                    if (parameter)
                     {
-                        assignPdmFieldValue(pdmValueFieldHandle, params, parameter);
+                        QString parameterName = QString::fromStdString(parameter->name());
+                        auto    pdmValueFieldHandle = dynamic_cast<caf::PdmValueField*>(pdmObjectHandle->findField(parameterName));
+                        if (pdmValueFieldHandle)
+                        {
+                            assignPdmFieldValue(pdmValueFieldHandle, params, parameter);
+                        }
                     }
                 }
             }
