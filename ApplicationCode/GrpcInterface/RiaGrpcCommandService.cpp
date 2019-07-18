@@ -150,6 +150,13 @@ void RiaGrpcCommandService::assignPdmFieldValue(caf::PdmValueField*    pdmValueF
     FieldDescriptor::Type fieldDataType = paramDescriptor->type();
     const Reflection*     reflection    = params.GetReflection();
     
+    if (paramDescriptor->is_repeated() &&
+        fieldDataType != FieldDescriptor::TYPE_INT32 &&
+        fieldDataType != FieldDescriptor::TYPE_STRING)
+    {
+        CAF_ASSERT(false && "Only integer and string vectors are implemented as command arguments");
+    }
+
     switch (fieldDataType)
     {
         case FieldDescriptor::TYPE_BOOL: {
@@ -224,10 +231,15 @@ void RiaGrpcCommandService::assignPdmFieldValue(caf::PdmValueField*    pdmValueF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcCommandService::assignGrpcFieldValue(google::protobuf::Message*               reply,
-                                                 const google::protobuf::FieldDescriptor* fieldDescriptor,
-                                                 const caf::PdmValueField*                pdmValueField)
+void RiaGrpcCommandService::assignGrpcFieldValue(Message*                  reply,
+                                                 const FieldDescriptor*    fieldDescriptor,
+                                                 const caf::PdmValueField* pdmValueField)
 {
+    if (fieldDescriptor->is_repeated())
+    {
+        CAF_ASSERT(false && "Assigning vector results to Command Results is not yet implemented");
+    }
+
     FieldDescriptor::Type fieldDataType = fieldDescriptor->type();
     QVariant              qValue        = pdmValueField->toQVariant();
 

@@ -71,7 +71,8 @@ class Commands:
         
         """
         commandReply = self.__execute(loadCase=Cmd.FilePathRequest(path=path))
-        assert commandReply.HasField("loadCaseResult")
+        assert(commandReply is not None)
+        assert(commandReply.HasField("loadCaseResult"))
         return Case(self.channel, commandReply.loadCaseResult.id)
 
     def replaceCase(self, newGridFile, caseId=0):
@@ -83,7 +84,7 @@ class Commands:
             
         """
         return self.__execute(replaceCase=Cmd.ReplaceCaseRequest(newGridFile=newGridFile,
-                                                               caseId=caseId))
+                                                                 caseId=caseId))
     
     def replaceSourceCases(self, gridListFile, caseGroupId=0):
         """Replace all source cases within a case group
@@ -94,7 +95,22 @@ class Commands:
         
         """
         return self.__execute(replaceSourceCases=Cmd.ReplaceSourceCasesRequest(gridListFile=gridListFile,
-                                                                             caseGroupId=caseGroupId))
+                                                                               caseGroupId=caseGroupId))
+
+    def createGridCaseGroup(self, casePaths):
+        """Create a Grid Case Group from a list of cases
+
+        Arguments:
+            casePaths (list): list of file path strings
+
+        Returns:
+            A case group id and name
+        """
+        commandReply = self.__execute(createGridCaseGroup=Cmd.CreateGridCaseGroupRequest(casePaths=casePaths))
+        assert(commandReply is not None)
+        assert(commandReply.HasField("createGridCaseGroupResult"))
+        return (commandReply.createGridCaseGroupResult.groupId, commandReply.createGridCaseGroupResult.groupName)
+
     ##################
     # Export Commands
     ##################

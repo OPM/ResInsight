@@ -24,6 +24,7 @@
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
@@ -325,7 +326,7 @@ int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaImportEclipseCaseTools::addEclipseCases(const QStringList& fileNames)
+bool RiaImportEclipseCaseTools::addEclipseCases(const QStringList& fileNames, RimIdenticalGridCaseGroup** resultingCaseGroup/*=nullptr*/)
 {
     if (fileNames.size() == 0) return true;
 
@@ -407,11 +408,16 @@ bool RiaImportEclipseCaseTools::addEclipseCases(const QStringList& fileNames)
     {
         // Create placeholder results and propagate results info from main case to all other cases 
         gridCaseGroup->loadMainCaseAndActiveCellInfo();
+
+        if (resultingCaseGroup)
+        {
+            *resultingCaseGroup = gridCaseGroup;
+        }
     }
 
     project->activeOilField()->analysisModels()->updateConnectedEditors();
 
-    if (gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
+    if (RiaGuiApplication::isRunning() && gridCaseGroup && gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
     {
         RiuMainWindow::instance()->selectAsCurrentItem(gridCaseGroup->statisticsCaseCollection()->reservoirs[0]);
     }

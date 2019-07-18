@@ -82,11 +82,11 @@ RicfCommandResponse RicfSingleCaseReplace::execute()
 
     if (m_caseId() < 0)
     {
-        projectModifier->setReplaceCaseFirstOccurrence(m_newGridFile());
+        projectModifier->setReplaceCaseFirstOccurrence(filePath);
     }
     else
     {
-        projectModifier->setReplaceCase(m_caseId(), );
+        projectModifier->setReplaceCase(m_caseId(), filePath);
     }
 
     if (!RiaApplication::instance()->loadProject(lastProjectPath, RiaApplication::PLA_NONE, projectModifier.p()))

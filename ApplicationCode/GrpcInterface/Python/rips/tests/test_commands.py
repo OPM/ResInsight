@@ -34,3 +34,11 @@ def test_exportPropertyInView(rips_instance, initializeTest):
         expectedFileName = case.name + "-" + str("3D_View") + "-" + "T0" + "-SOIL"
         fullPath = tmpdirname + "/" + expectedFileName
         assert(os.path.exists(fullPath))
+
+@pytest.mark.skipif(sys.platform.startswith('linux'), reason="Brugge is currently exceptionally slow on Linux")
+def test_loadGridCaseGroup(rips_instance, initializeTest):
+     casePaths = []
+     casePaths.append(dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID")
+     casePaths.append(dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID")
+     groupId, groupName = rips_instance.commands.createGridCaseGroup(casePaths=casePaths)
+     print(groupId, groupName)

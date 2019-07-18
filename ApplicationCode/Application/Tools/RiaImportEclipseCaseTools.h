@@ -23,6 +23,8 @@
 class QString;
 class QStringList;
 
+class RimIdenticalGridCaseGroup;
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -37,7 +39,7 @@ public:
     static bool openEclipseInputCaseFromFileNames(const QStringList& fileNames, QString* fileContainingGrid = nullptr);
     static bool openMockModel(const QString& name);
     
-    static bool addEclipseCases(const QStringList& fileNames);
+    static bool addEclipseCases(const QStringList& fileNames, RimIdenticalGridCaseGroup** resultingCaseGroup = nullptr);
 
 private:
     static int  openEclipseCaseFromFile(const QString& fileName);
