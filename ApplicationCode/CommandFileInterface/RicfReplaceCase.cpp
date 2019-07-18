@@ -26,6 +26,9 @@
 
 #include "RimProject.h"
 
+#include <QDir>
+#include <QFileInfo>
+
 CAF_PDM_SOURCE_INIT(RicfSingleCaseReplace, "replaceCase");
 
 //--------------------------------------------------------------------------------------------------
@@ -69,13 +72,21 @@ RicfCommandResponse RicfSingleCaseReplace::execute()
 
     cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
 
+    QString filePath = m_newGridFile();
+    QFileInfo casePathInfo(filePath);
+    if (!casePathInfo.exists())
+    {
+        QDir startDir(RiaApplication::instance()->startDir());
+        filePath = startDir.absoluteFilePath(m_newGridFile());
+    }
+
     if (m_caseId() < 0)
     {
         projectModifier->setReplaceCaseFirstOccurrence(m_newGridFile());
     }
     else
     {
-        projectModifier->setReplaceCase(m_caseId(), m_newGridFile());
+        projectModifier->setReplaceCase(m_caseId(), );
     }
 
     if (!RiaApplication::instance()->loadProject(lastProjectPath, RiaApplication::PLA_NONE, projectModifier.p()))
@@ -128,8 +139,15 @@ RicfCommandResponse RicfMultiCaseReplace::execute()
     cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
     for (const auto& a : m_caseIdToGridFileNameMap)
     {
-        const auto caseId = a.first;
-        const auto filePath = a.second;
+        const int caseId = a.first;
+        QString filePath = a.second;
+        QFileInfo  casePathInfo(filePath);
+        if (!casePathInfo.exists())
+        {
+            QDir startDir(RiaApplication::instance()->startDir());
+            filePath = startDir.absoluteFilePath(filePath);
+        }
+
         if (caseId < 0)
         {
             projectModifier->setReplaceCaseFirstOccurrence(filePath);

@@ -56,7 +56,6 @@ def test_PdmObject(rips_instance, initializeTest):
     assert(case.id == 0)
     assert(case.address() is not 0)
     assert(case.classKeyword() == "EclipseCase")
-    assert(case.getValue('CaseFileName') == casePath)
     caseId = case.getValue('CaseId')
     assert(caseId == case.id)
 
@@ -84,7 +83,7 @@ def test_replaceCase(rips_instance, initializeTest):
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
 
-    rips_instance.commands.replaceCase(newGridFile=os.path.abspath(casePath), caseId=case.id)
+    rips_instance.commands.replaceCase(newGridFile=casePath, caseId=case.id)
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
     case = project.case(id=0)
