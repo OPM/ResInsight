@@ -23,6 +23,9 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
+#include "RicfCommandObject.h"
+
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -55,10 +58,12 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 {
     CAF_PDM_InitObject("Grid Case Group", ":/GridCaseGroup16x16.png", "", "");
 
-    CAF_PDM_InitField(&name,    "UserDescription",  QString("Grid Case Group"), "Name", "", "", "");
+    RICF_InitField(&name,    "UserDescription",  QString("Grid Case Group"), "Name", "", "", "");
 
-    CAF_PDM_InitField(&groupId, "GroupId", -1, "Case Group ID", "", "" ,"");
+    RICF_InitField(&groupId, "GroupId", -1, "Case Group ID", "", "" ,"");
     groupId.uiCapability()->setUiReadOnly(true);
+    groupId.capability<RicfFieldHandle>()->setIOWriteable(false);
+
 
     CAF_PDM_InitFieldNoDefault(&statisticsCaseCollection, "StatisticsCaseCollection", "statisticsCaseCollection ChildArrayField", "", "", "");
     statisticsCaseCollection.uiCapability()->setUiHidden(true);

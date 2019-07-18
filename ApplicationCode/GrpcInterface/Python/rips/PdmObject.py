@@ -26,10 +26,9 @@ class PdmObject:
             listOfKeywords.append(keyword)
         return listOfKeywords
     
-    def getValue(self, keyword):
-        value = self.pb2Object.parameters[keyword]
+    def __toValue(self, value):
         if value.lower() == 'false':
-            return False
+                return False
         elif value.lower() == 'true':
             return True
         else:
@@ -43,18 +42,43 @@ class PdmObject:
                 except ValueError:
                     # We may have a string. Strip internal start and end quotes
                     value = value.strip('\"')
+                    if self.__islist(value):
+                        return self.__makelist(value)
                     return value
-
-    def setValue(self, keyword, value):
+    def __fromValue(self, value):
         if isinstance(value, bool):
             if value:
-                self.pb2Object.parameters[keyword] = "true"
+                return "true"
             else:
-                self.pb2Object.parameters[keyword] = "false"
+                return "false"
+        elif isinstance(value, list):
+            listofstrings = []
+            for val in value:
+                listofstrings.append(self.__fromValue(val))
+            return "[" + ", ".join(listofstrings) + "]"
         elif isinstance(value, str):
-            self.pb2Object.parameters[keyword] = "\"" + str(value) + "\""
+            return "\"" + str(value) + "\""
         else:
-            self.pb2Object.parameters[keyword] = str(value)
+            return str(value)
+
+    def getValue(self, keyword):
+        value = self.pb2Object.parameters[keyword]
+        return self.__toValue(value)
+
+    def __islist(self, value):
+        return value.startswith("[") and value.endswith("]")
+
+    def __makelist(self, liststring):
+        liststring = liststring.lstrip("[")
+        liststring = liststring.rstrip("]")
+        strings = liststring.split(", ")
+        values = []
+        for string in strings:
+            values.append(self.__toValue(string))
+        return values
+
+    def setValue(self, keyword, value):
+        self.pb2Object.parameters[keyword] = self.__fromValue(value)
 
     def descendants(self, classKeyword):
         request = PdmObject_pb2.PdmChildObjectRequest(object=self.pb2Object, child_keyword=classKeyword)

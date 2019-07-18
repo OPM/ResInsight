@@ -169,6 +169,7 @@ if (PYTHON_EXECUTABLE)
 			"rips/View.py"
 			"rips/examples/InstanceExample.py"
 			"rips/examples/CommandExample.py"
+                        "rips/examples/CaseGridGroup.py"
 			"rips/examples/CaseInfoStreamingExample.py"
 			"rips/examples/SoilPorvAsync.py"
 			"rips/examples/SoilPorvSync.py"
