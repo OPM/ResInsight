@@ -81,15 +81,15 @@ class PdmObject:
         self.pb2Object.parameters[keyword] = self.__fromValue(value)
 
     def descendants(self, classKeyword):
-        request = PdmObject_pb2.PdmChildObjectRequest(object=self.pb2Object, child_keyword=classKeyword)
+        request = PdmObject_pb2.PdmDescendantObjectRequest(object=self.pb2Object, child_keyword=classKeyword)
         objectList = self.pdmObjectStub.GetDescendantPdmObjects(request).objects
         childList = []
         for object in objectList:
             childList.append(PdmObject(object, self.channel))
         return childList
 
-    def children(self, classKeyword):
-        request = PdmObject_pb2.PdmChildObjectRequest(object=self.pb2Object, child_keyword=classKeyword)
+    def children(self, childField):
+        request = PdmObject_pb2.PdmChildObjectRequest(object=self.pb2Object, child_field=childField)
         objectList = self.pdmObjectStub.GetChildPdmObjects(request).objects
         childList = []
         for object in objectList:
@@ -102,3 +102,7 @@ class PdmObject:
 
     def update(self):
         self.pdmObjectStub.UpdateExistingPdmObject(self.pb2Object)
+
+#    def createChild(self, childField, childClassKeyword):
+#        childRequest = PdmObject_pb2.CreatePdmChildObjectRequest(object=self.pb2Object, child_field=childField, child_class=childClassKeyword)
+#        return PdmObject(self.pdmObjectStub.CreateChildPdmObject(childRequest), self.channel)

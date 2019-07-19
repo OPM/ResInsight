@@ -30,6 +30,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfApplicationTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateSaturationPressurePlots.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportFlowCharacteristics.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateGridCaseGroup.h
+${CMAKE_CURRENT_LIST_DIR}/RicfCreateStatisticsCase.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -63,6 +64,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfApplicationTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateSaturationPressurePlots.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportFlowCharacteristics.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateGridCaseGroup.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfCreateStatisticsCase.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -111,6 +111,12 @@ class Commands:
         assert(commandReply.HasField("createGridCaseGroupResult"))
         return (commandReply.createGridCaseGroupResult.groupId, commandReply.createGridCaseGroupResult.groupName)
 
+    def createStatisticsCase(self, caseGroupId):
+        commandReply = self.__execute(createStatisticsCase=Cmd.CreateStatisticsCaseRequest(caseGroupId=caseGroupId))
+        assert(commandReply is not None)
+        assert(commandReply.HasField("createStatisticsCaseResult"))
+        return commandReply.createStatisticsCaseResult.caseId;
+
     ##################
     # Export Commands
     ##################

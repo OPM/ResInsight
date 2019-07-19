@@ -13,15 +13,28 @@ groupId, groupName = resInsight.commands.createGridCaseGroup(casePaths=casePaths
 print("Group id = " + str(groupId))
 print("Group name = " + groupName)
 
+caseId = resInsight.commands.createStatisticsCase(caseGroupId=groupId)
+
 caseGroups = resInsight.project.descendants("RimIdenticalGridCaseGroup");
+
+caseIds = []
 for caseGroup in caseGroups:
     print ("#### Case Group ####")
     for kw in caseGroup.keywords():
         print (kw, caseGroup.getValue(kw))
-    statCases = caseGroup.descendants("RimStatisticalCalculation")
-    for statCase in statCases:
-        print("   ## Stat Case ##")
-        for skw in statCase.keywords():
-            print("   ", skw, statCase.getValue(skw))
-        statCase.setValue("DynamicPropertiesToCalculate", statCase.getValue("DynamicPropertiesToCalculate") + ["SWAT"])
-        statCase.update()
+
+    for caseCollection in caseGroup.children("StatisticsCaseCollection"):
+        print ("  ### Case Collection ###")
+        statCases = caseCollection.children("Reservoirs")                    
+
+        for statCase in statCases:
+            print("   ## Stat Case ##")
+            for skw in statCase.keywords():
+                print("   ", skw, statCase.getValue(skw))
+            statCase.setValue("DynamicPropertiesToCalculate", statCase.getValue("DynamicPropertiesToCalculate") + ["SWAT"])
+            statCase.update()
+            caseIds.append(statCase.getValue("CaseId"))
+
+print(caseIds)
+resInsight.commands.computeCaseGroupStatistics(caseIds=caseIds)
+        

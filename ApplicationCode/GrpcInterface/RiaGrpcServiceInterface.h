@@ -54,6 +54,8 @@ public:
     static void copyPdmObjectFromRipsToCaf(const rips::PdmObject* source, caf::PdmObject* destination);
 
     static void assignFieldValue(const QString& stringValue, caf::PdmValueField* field);
+
+    static caf::PdmObject* emplaceChildArrayField(caf::PdmObject* parent, const QString& fieldLabel, const QString& classKeyword);
 };
 
 #include "cafFactory.h"

@@ -35,12 +35,16 @@ public:
     grpc::Status GetAncestorPdmObject(grpc::ServerContext*                context,
                                       const rips::PdmParentObjectRequest* request,
                                       rips::PdmObject*                    reply) override;
-    grpc::Status GetDescendantPdmObjects(grpc::ServerContext*               context,
-                                         const rips::PdmChildObjectRequest* request,
-                                         rips::PdmObjectArray*              reply);
+    grpc::Status GetDescendantPdmObjects(grpc::ServerContext*                    context,
+                                         const rips::PdmDescendantObjectRequest* request,
+                                         rips::PdmObjectArray*                   reply) override;
     grpc::Status GetChildPdmObjects(grpc::ServerContext*               context,
                                     const rips::PdmChildObjectRequest* request,
-                                    rips::PdmObjectArray*              reply);
+                                    rips::PdmObjectArray*              reply) override;
+
+    grpc::Status CreateChildPdmObject(grpc::ServerContext*                   context,
+                                   const rips::CreatePdmChildObjectRequest*  request,
+                                   rips::PdmObject*                          reply) override;
 
     grpc::Status
         UpdateExistingPdmObject(grpc::ServerContext* context, const rips::PdmObject* request, rips::Empty* response) override;

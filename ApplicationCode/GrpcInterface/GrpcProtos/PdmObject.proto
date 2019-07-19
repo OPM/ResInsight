@@ -6,16 +6,30 @@ package rips;
 
 service PdmObjectService
 {
-	rpc GetDescendantPdmObjects(PdmChildObjectRequest) returns (PdmObjectArray) {}
+	rpc GetDescendantPdmObjects(PdmDescendantObjectRequest) returns (PdmObjectArray) {}
 	rpc GetChildPdmObjects(PdmChildObjectRequest) returns (PdmObjectArray) {}
 	rpc GetAncestorPdmObject(PdmParentObjectRequest) returns (PdmObject) {}
+	rpc CreateChildPdmObject(CreatePdmChildObjectRequest) returns (PdmObject) {}
 	rpc UpdateExistingPdmObject(PdmObject) returns (Empty) {}
+}
+
+message PdmDescendantObjectRequest
+{
+	PdmObject            object = 1;
+	string        child_keyword = 2;
 }
 
 message PdmChildObjectRequest
 {
-	PdmObject            object = 1;
-	string        child_keyword = 2;
+	PdmObject                  object = 1;
+	string                child_field = 2;
+}
+
+message CreatePdmChildObjectRequest
+{
+	PdmObject                  object = 1;
+	string                child_field = 2;
+	string                child_class = 3;
 }
 
 message PdmParentObjectRequest

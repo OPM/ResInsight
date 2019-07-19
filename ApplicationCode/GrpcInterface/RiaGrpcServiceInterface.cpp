@@ -131,3 +131,37 @@ void RiaGrpcServiceInterface::assignFieldValue(const QString& stringValue, caf::
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObject* RiaGrpcServiceInterface::emplaceChildArrayField(caf::PdmObject* parent, const QString& fieldLabel, const QString& classKeyword)
+{
+    std::vector<caf::PdmFieldHandle*> fields;
+    parent->fields(fields);
+
+    QString childClassKeyword = classKeyword;
+   
+    for (auto field : fields)
+    {
+        auto pdmChildArrayField = dynamic_cast<caf::PdmChildArrayFieldHandle*>(field);
+        if (pdmChildArrayField && pdmChildArrayField->keyword() == fieldLabel)
+        {
+            if (childClassKeyword.isEmpty())
+            {
+                childClassKeyword = pdmChildArrayField->xmlCapability()->childClassKeyword();
+            }
+
+            auto pdmObjectHandle =
+                caf::PdmDefaultObjectFactory::instance()->create(childClassKeyword);
+            caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>(pdmObjectHandle);
+            CAF_ASSERT(pdmObject);
+            if (pdmObject)
+            {
+                pdmChildArrayField->insertAt(-1, pdmObject);
+                return pdmObject;
+            }
+        }
+    }
+    return nullptr;
+}
+
