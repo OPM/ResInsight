@@ -537,19 +537,25 @@ foreach (FILE_TO_COPY ${RI_DLL_FILENAMES})
 endforeach()
 
 # Copy all grpc libraries and python files
-if (RESINSIGHT_ENABLE_GRPC)
-    if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
-        add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
-        add_dependencies(ResInsight GeneratedPythonSources)
+if (RESINSIGHT_ENABLE_GRPC)	
+    if (PYTHON_EXECUTABLE)
+		if (EXISTS ${PYTHON_EXECUTABLE})
+			add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
+			add_dependencies(ResInsight GeneratedPythonSources)
 
-        foreach (PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
-            if (EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
-                configure_file("${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}"  
-                                "${GRPC_PYTHON_DEST_PATH}/${PYTHON_SCRIPT}"
-                                COPYONLY)
-            endif(EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
-        endforeach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
-    endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
+			foreach (PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
+				if (EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
+					configure_file("${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}"  
+						            "${GRPC_PYTHON_DEST_PATH}/${PYTHON_SCRIPT}"
+							        COPYONLY)
+				endif(EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
+			endforeach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
+		else()
+			message(STATUS "Error installing python code: PYTHON_EXECUTABLE set but ${PYTHON_EXECUTABLE} not found")
+		endif(EXISTS ${PYTHON_EXECUTABLE})
+	else()
+		message(STATUS "PYTHON_EXECUTABLE not specified. Will not install GRPC Python code.")
+	endif(PYTHON_EXECUTABLE)	
 endif(RESINSIGHT_ENABLE_GRPC)
 
 #############################################################################

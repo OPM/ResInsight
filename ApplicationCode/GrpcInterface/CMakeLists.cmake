@@ -112,28 +112,33 @@ foreach(proto_file ${PROTO_FILES})
         DEPENDS "${rips_proto}"
     )
     
-    if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
-        set(rips_proto_python "rips/generated/${proto_file}_pb2.py")
-        set(rips_grpc_python "rips/generated/${proto_file}_pb2_grpc.py")
+    if (PYTHON_EXECUTABLE)
+		if (EXISTS ${PYTHON_EXECUTABLE})
+			set(rips_proto_python "rips/generated/${proto_file}_pb2.py")
+			set(rips_grpc_python "rips/generated/${proto_file}_pb2_grpc.py")
 
-        add_custom_command(
-            OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${rips_proto_python}" "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}"
-            COMMAND ${PYTHON_EXECUTABLE}
-            ARGS -m grpc_tools.protoc
-                -I "${rips_proto_path}"
-                --python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
-                --grpc_python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
-                "${rips_proto}"
-            DEPENDS "${rips_proto}"
-            COMMENT "Generating ${rips_proto_python} and ${rips_grpc_python}"
-            VERBATIM
-        )
-        list (APPEND GRPC_PYTHON_GENERATED_SOURCES
-            ${rips_proto_python}
-            ${rips_grpc_python}
-        )
-
-    endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
+			add_custom_command(
+				OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${rips_proto_python}" "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}"
+				COMMAND ${PYTHON_EXECUTABLE}
+				ARGS -m grpc_tools.protoc
+					-I "${rips_proto_path}"
+					--python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
+					--grpc_python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
+					"${rips_proto}"
+				DEPENDS "${rips_proto}"
+				COMMENT "Generating ${rips_proto_python} and ${rips_grpc_python}"
+				VERBATIM
+			)
+			list (APPEND GRPC_PYTHON_GENERATED_SOURCES
+				${rips_proto_python}
+				${rips_grpc_python}
+			)
+		else()
+			message(STATUS "Error generating Python for ${rips_proto}: PYTHON_EXECUTABLE set but ${PYTHON_EXECUTABLE} not found")
+		endif(EXISTS ${PYTHON_EXECUTABLE})
+	else()
+		message(STATUS "PYTHON_EXECUTABLE not specified. Will not generate GRPC Python code.")
+	endif(PYTHON_EXECUTABLE)	
 
     list( APPEND GRPC_HEADER_FILES
           ${rips_proto_hdrs}
@@ -147,54 +152,59 @@ foreach(proto_file ${PROTO_FILES})
 
 endforeach(proto_file)
 
-if (PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
-    list(APPEND GRPC_PYTHON_SOURCES
-        ${GRPC_PYTHON_GENERATED_SOURCES}
-		"rips/generated/RiaVersionInfo.py"
-        "rips/__init__.py"
-		"rips/App.py"
-		"rips/Case.py"
-		"rips/Commands.py"
-		"rips/Grid.py"
-		"rips/Project.py"
-		"rips/Properties.py"
-        "rips/Instance.py"	
-		"rips/PdmObject.py"
-		"rips/View.py"
-		"rips/examples/InstanceExample.py"
-        "rips/examples/CommandExample.py"
-        "rips/examples/CaseInfoStreamingExample.py"
-		"rips/examples/SoilPorvAsync.py"
-		"rips/examples/SoilPorvSync.py"
-        "rips/examples/SelectedCases.py"
-        "rips/examples/AllCases.py"
-		"rips/examples/SetGridProperties.py"
-		"rips/examples/GridInformation.py"
-		"rips/examples/InputPropTestSync.py"
-		"rips/examples/InputPropTestAsync.py"
-		"rips/examples/SoilAverage.py"
-		"rips/examples/SoilAverageNoComm.py"
-        "rips/tests/test_cases.py"
-		"rips/tests/test_commands.py"
-		"rips/tests/test_grids.py"
-		"rips/tests/test_properties.py"
-		"rips/tests/test_project.py"
-		"rips/tests/conftest.py"
-		"rips/tests/dataroot.py"
-		"requirements.txt"
-		"setup.py.cmake"
-		"README.md"
-		"LICENSE"
-    )
+if (PYTHON_EXECUTABLE)
+	if (EXISTS ${PYTHON_EXECUTABLE})
+	    list(APPEND GRPC_PYTHON_SOURCES
+		    ${GRPC_PYTHON_GENERATED_SOURCES}
+			"rips/generated/RiaVersionInfo.py"
+			"rips/__init__.py"
+			"rips/App.py"
+			"rips/Case.py"
+			"rips/Commands.py"
+			"rips/Grid.py"
+			"rips/Project.py"
+			"rips/Properties.py"
+			"rips/Instance.py"	
+			"rips/PdmObject.py"
+			"rips/View.py"
+			"rips/examples/InstanceExample.py"
+			"rips/examples/CommandExample.py"
+			"rips/examples/CaseInfoStreamingExample.py"
+			"rips/examples/SoilPorvAsync.py"
+			"rips/examples/SoilPorvSync.py"
+			"rips/examples/SelectedCases.py"
+			"rips/examples/AllCases.py"
+			"rips/examples/SetGridProperties.py"
+			"rips/examples/GridInformation.py"
+			"rips/examples/InputPropTestSync.py"
+			"rips/examples/InputPropTestAsync.py"
+			"rips/examples/SoilAverage.py"
+			"rips/examples/SoilAverageNoComm.py"
+			"rips/tests/test_cases.py"
+			"rips/tests/test_commands.py"
+			"rips/tests/test_grids.py"
+			"rips/tests/test_properties.py"
+			"rips/tests/test_project.py"
+			"rips/tests/conftest.py"
+			"rips/tests/dataroot.py"
+			"requirements.txt"
+			"setup.py.cmake"
+			"README.md"
+			"LICENSE"
+		)
 
-    foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
-        list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
-    endforeach()
-if (MSVC)
-    source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
-endif(MSVC)
-
-endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
+		foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
+			list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
+		endforeach()
+		if (MSVC)
+			source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
+		endif(MSVC)
+	else()
+		message(STATUS "Error copying GRPC Python Code to build folder: PYTHON_EXECUTABLE set but ${PYTHON_EXECUTABLE} not found")
+	endif(EXISTS ${PYTHON_EXECUTABLE})
+else()
+	message(STATUS "PYTHON_EXECUTABLE not specified. Will not copy grpc Python code to build folder")
+endif(PYTHON_EXECUTABLE)	
 
 list ( APPEND GRPC_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list ( APPEND GRPC_CPP_SOURCES ${SOURCE_GROUP_SOURCE_FILES})
