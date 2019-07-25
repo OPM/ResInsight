@@ -114,7 +114,7 @@ class Instance:
         logging.basicConfig()
         location = "localhost:" + str(port)
 
-        self.channel = grpc.insecure_channel(location)
+        self.channel = grpc.insecure_channel(location, options=[('grpc.enable_http_proxy', False)])
         self.launched = launched
 
         # Main version check package
