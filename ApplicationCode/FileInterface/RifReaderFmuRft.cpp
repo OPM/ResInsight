@@ -38,6 +38,72 @@ RifReaderFmuRft::RifReaderFmuRft(const QString& filePath)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QStringList RifReaderFmuRft::findSubDirectoriesWithFmuRftData(const QString& filePath)
+{
+    QStringList subDirsContainingFmuRftData;
+
+    QFileInfo fileInfo(filePath);
+    if (!(fileInfo.exists() && fileInfo.isDir() && fileInfo.isReadable()))
+    {
+        return subDirsContainingFmuRftData;
+    }
+
+    if (directoryContainsFmuRftData(filePath))
+    {
+        subDirsContainingFmuRftData.push_back(filePath);
+    }
+
+    QDir dir(filePath);
+
+    QStringList subDirs = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable, QDir::Name);
+    for (QString subDir : subDirs)
+    {
+        QString absDir = dir.absoluteFilePath(subDir);
+        subDirsContainingFmuRftData.append(findSubDirectoriesWithFmuRftData(absDir));
+    }
+
+    return subDirsContainingFmuRftData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderFmuRft::directoryContainsFmuRftData(const QString& filePath)
+{
+    QFileInfo baseFileInfo(filePath);
+    if (!(baseFileInfo.exists() && baseFileInfo.isDir() && baseFileInfo.isReadable()))
+    {
+        return false;
+    }
+
+    QDir dir(filePath);
+    if (!dir.exists("well_date_rft.txt"))
+    {
+        return false;
+    }
+    
+    QStringList obsFiles; obsFiles << "*.obs" << "*.txt";
+    QFileInfoList fileInfos = dir.entryInfoList(obsFiles, QDir::Files, QDir::Name);
+
+    std::map<QString, int> fileStemCounts;
+    for (QFileInfo fileInfo : fileInfos)
+    {
+        // TODO: 
+        // Uses completeBaseName() to support wells with a dot in the name.
+        // Not sure if this is necessary or desired
+        fileStemCounts[fileInfo.completeBaseName()]++;
+        if (fileStemCounts[fileInfo.completeBaseName()] == 2)
+        {
+            // At least one matching obs and txt file.
+            return true;
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifReaderFmuRft::Status RifReaderFmuRft::status() const
 {
     return m_status;
@@ -57,7 +123,7 @@ RifReaderFmuRft::Status RifReaderFmuRft::initialize(QString* errorMsg)
         return STATUS_ERROR;
     }
 
-    QDir dir(fileInfo.dir());
+    QDir dir(m_filePath);
 
     if (STATUS_ERROR == loadWellDates(dir, errorMsg))
     {
@@ -135,8 +201,7 @@ RifReaderFmuRft::Status RifReaderFmuRft::observations(const QString&            
 
     *wellDate = it->second;
 
-    QFileInfo fileInfo(m_filePath);
-    QDir      dir(fileInfo.dir());
+    QDir      dir(m_filePath);
 
     QString txtFileName = dir.absoluteFilePath(QString("%1.txt").arg(wellName));
     QString obsFileName = dir.absoluteFilePath(QString("%1.obs").arg(wellName));
