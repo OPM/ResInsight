@@ -22,6 +22,7 @@
 
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderEclipseSummary.h"
+#include "RifReaderFmuRft.h"
 
 #include "RimTools.h"
 
@@ -42,7 +43,9 @@ CAF_PDM_SOURCE_INIT(RimFileSummaryCase,"FileSummaryCase");
 RimFileSummaryCase::RimFileSummaryCase()
 {
     CAF_PDM_InitField(&m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files", "", "", "");
+    CAF_PDM_InitField(&m_includeFmuRftFiles, "IncludeFmuRftFiles", true, "Include FMU Rft Files", "", "", "");
     m_includeRestartFiles.uiCapability()->setUiHidden(true);
+    m_includeFmuRftFiles.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,7 +87,15 @@ void RimFileSummaryCase::updateFilePathsFromProjectPath(const QString & newProje
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), m_includeRestartFiles);
+    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), m_includeRestartFiles);    
+    if (m_includeFmuRftFiles)
+    {
+        findFmuRftDataAndCreateReaders(this->summaryHeaderFilename());
+    }
+    if (!m_summaryFmuRftReaders.empty())
+    {
+        RiaLogging::info(QString("Found RFT FMU Data for %1").arg(this->summaryHeaderFilename()));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,6 +114,30 @@ RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(con
     }
 
     return summaryFileReader;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::findFmuRftDataAndCreateReaders(const QString& headerFileName)
+{
+    QFileInfo fileInfo(headerFileName);
+    QString folder = fileInfo.absolutePath();
+    QStringList subDirsContainingFmuRftData = RifReaderFmuRft::findSubDirectoriesWithFmuRftData(folder);
+
+    for (QString subDir : subDirsContainingFmuRftData)
+    {
+        cvf::ref<RifReaderFmuRft> fmuRftReader(new RifReaderFmuRft(subDir));
+        QString errorMsg;
+        if (fmuRftReader->initialize(&errorMsg))
+        {
+            m_summaryFmuRftReaders.push_back(fmuRftReader);
+        }
+        else
+        {
+            RiaLogging::error(QString("FMU Rft Error: %1").arg(errorMsg));
+        }
+    }    
 }
 
 //--------------------------------------------------------------------------------------------------

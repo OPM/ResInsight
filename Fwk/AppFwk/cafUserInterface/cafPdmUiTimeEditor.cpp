@@ -35,7 +35,7 @@
 //##################################################################################################
 
 
-#include "cafPdmUiDateEditor.h"
+#include "cafPdmUiTimeEditor.h"
 
 #include "cafFactory.h"
 #include "cafPdmField.h"
@@ -62,62 +62,61 @@
 namespace caf
 {
 
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiDateEditor);
+	CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiTimeEditor);
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiDateEditor::configureAndUpdateUi(const QString& uiConfigName)
-{
-    CAF_ASSERT(!m_dateEdit.isNull());
+	//--------------------------------------------------------------------------------------------------
+	/// 
+	//--------------------------------------------------------------------------------------------------
+	void PdmUiTimeEditor::configureAndUpdateUi(const QString& uiConfigName)
+	{
+		CAF_ASSERT(!m_timeEdit.isNull());
 
-    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
+		PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-    m_dateEdit->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+		m_timeEdit->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-    if (uiObject)
-    {
-        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
-    }
+		caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
+		if (uiObject)
+		{
+			uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
+		}
 
-    if (!m_attributes.dateFormat.isEmpty())
-    {
-        m_dateEdit->setDisplayFormat(m_attributes.dateFormat);
-    }
+		if (!m_attributes.timeFormat.isEmpty())
+		{
+			m_timeEdit->setDisplayFormat(m_attributes.timeFormat);
+		}
 
-    m_dateEdit->setDate(uiField()->uiValue().toDate());
-	m_dateEdit->setTime(uiField()->uiValue().toTime());
-}
+		m_timeEdit->setDate(uiField()->uiValue().toDate());
+	}
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDateEditor::createEditorWidget(QWidget* parent)
-{
-    m_dateEdit = new QDateTimeEdit(parent);
-    m_dateEdit->setCalendarPopup(true);
-    connect(m_dateEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
-    return m_dateEdit;
-}
+	//--------------------------------------------------------------------------------------------------
+	/// 
+	//--------------------------------------------------------------------------------------------------
+	QWidget* PdmUiTimeEditor::createEditorWidget(QWidget* parent)
+	{
+		m_timeEdit = new QTimeEdit(parent);
+		m_timeEdit->setCalendarPopup(true);
+		connect(m_timeEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
+		return m_timeEdit;
+	}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDateEditor::createLabelWidget(QWidget* parent)
-{
-    m_label = new QShortenedLabel(parent);
-    return m_label;
-}
+	//--------------------------------------------------------------------------------------------------
+	/// 
+	//--------------------------------------------------------------------------------------------------
+	QWidget* PdmUiTimeEditor::createLabelWidget(QWidget* parent)
+	{
+		m_label = new QShortenedLabel(parent);
+		return m_label;
+	}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiDateEditor::slotEditingFinished()
-{
-    this->setValueToField(m_dateEdit->dateTime());
-}
+	//--------------------------------------------------------------------------------------------------
+	/// 
+	//--------------------------------------------------------------------------------------------------
+	void PdmUiTimeEditor::slotEditingFinished()
+	{
+		this->setValueToField(m_timeEdit->date());
+	}
 
 } // end namespace caf

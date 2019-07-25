@@ -22,6 +22,7 @@
 #include "cvfObject.h"
 #include "cafPdmField.h"
 
+class RifReaderFmuRft;
 class RifReaderEclipseSummary;
 
 //==================================================================================================
@@ -46,8 +47,12 @@ public:
     void                    setIncludeRestartFiles(bool includeRestartFiles);
 
     static RifReaderEclipseSummary* findRelatedFilesAndCreateReader(const QString& headerFileName, bool includeRestartFiles);
+    
+    void findFmuRftDataAndCreateReaders(const QString& headerFileName);
 
 private:
-    cvf::ref<RifReaderEclipseSummary> m_summaryFileReader;
-    caf::PdmField<bool>               m_includeRestartFiles;
+    cvf::ref<RifReaderEclipseSummary>      m_summaryFileReader;
+    std::vector<cvf::ref<RifReaderFmuRft>> m_summaryFmuRftReaders;
+    caf::PdmField<bool>                    m_includeRestartFiles;
+    caf::PdmField<bool>                    m_includeFmuRftFiles;
 };

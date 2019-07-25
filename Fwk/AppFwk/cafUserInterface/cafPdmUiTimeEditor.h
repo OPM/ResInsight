@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2017 Ceetron Solutions AS
+//   Copyright (C) 2019- Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -39,55 +39,55 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QDateTimeEdit>
+#include <QTimeEdit>
 #include <QLabel>
 #include <QPointer>
 #include <QString>
 #include <QWidget>
 
-namespace caf 
+namespace caf
 {
 
-//==================================================================================================
-/// 
-//==================================================================================================
-class PdmUiDateEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    QString dateFormat;
+	//==================================================================================================
+	/// 
+	//==================================================================================================
+	class PdmUiTimeEditorAttribute : public PdmUiEditorAttribute
+	{
+	public:
+		QString timeFormat;
 
-public:
-    PdmUiDateEditorAttribute()
-    {
-    }
-};
+	public:
+		PdmUiTimeEditorAttribute()
+		{
+		}
+	};
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class PdmUiDateEditor : public PdmUiFieldEditorHandle
-{
-    Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+	//--------------------------------------------------------------------------------------------------
+	/// 
+	//--------------------------------------------------------------------------------------------------
+	class PdmUiTimeEditor : public PdmUiFieldEditorHandle
+	{
+		Q_OBJECT
+			CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
-public:
-    PdmUiDateEditor()          {} 
-    ~PdmUiDateEditor() override {} 
+	public:
+		PdmUiTimeEditor() {}
+		~PdmUiTimeEditor() override {}
 
-protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
+	protected:
+		QWidget*    createEditorWidget(QWidget * parent) override;
+		QWidget*    createLabelWidget(QWidget * parent) override;
+		void        configureAndUpdateUi(const QString& uiConfigName) override;
 
-protected slots:
-    void                slotEditingFinished();
+	protected slots:
+		void                slotEditingFinished();
 
-private:
-    QPointer<QDateTimeEdit>           m_dateEdit;
-    QPointer<QShortenedLabel>         m_label;
+	private:
+		QPointer<QTimeEdit>      m_timeEdit;
+		QPointer<QShortenedLabel>         m_label;
 
-    PdmUiDateEditorAttribute m_attributes;
-};
+		PdmUiTimeEditorAttribute m_attributes;
+	};
 
 
 } // end namespace caf
