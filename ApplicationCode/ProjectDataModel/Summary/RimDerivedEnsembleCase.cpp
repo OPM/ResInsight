@@ -20,7 +20,7 @@
 
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
-#include "RiaTimeHistoryCurveMerger.h"
+#include "RiaCurveMerger.h"
 
 #include "RifDerivedEnsembleReader.h"
 
@@ -151,14 +151,14 @@ void RimDerivedEnsembleCase::calculate(const RifEclipseSummaryAddress& address)
     reader1->values(address, &values1);
     reader2->values(address, &values2);
 
-    merger.addCurveData(values1, reader1->timeSteps(address));
-    merger.addCurveData(values2, reader2->timeSteps(address));
+    merger.addCurveData(reader1->timeSteps(address), values1);
+    merger.addCurveData(reader2->timeSteps(address), values2);
     merger.computeInterpolatedValues();
 
-    std::vector<double>& allValues1 = merger.interpolatedCurveValuesForAllTimeSteps(0);
-    std::vector<double>& allValues2 = merger.interpolatedCurveValuesForAllTimeSteps(1);
+    std::vector<double>& allValues1 = merger.interpolatedYValuesForAllXValues(0);
+    std::vector<double>& allValues2 = merger.interpolatedYValuesForAllXValues(1);
 
-    size_t              sampleCount = merger.allTimeSteps().size();
+    size_t              sampleCount = merger.allXValues().size();
     std::vector<double> calculatedValues;
     calculatedValues.reserve(sampleCount);
     for (size_t i = 0; i < sampleCount; i++)
@@ -174,7 +174,7 @@ void RimDerivedEnsembleCase::calculate(const RifEclipseSummaryAddress& address)
     }
 
     auto& dataItem  = m_data[address];
-    dataItem.first  = merger.allTimeSteps();
+    dataItem.first  = merger.allXValues();
     dataItem.second = calculatedValues;
 }
 

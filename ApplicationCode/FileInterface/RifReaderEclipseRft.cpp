@@ -81,39 +81,39 @@ void RifReaderEclipseRft::open()
         timeStep.setTime_t(timeStepTime_t);
 
         RifEclipseRftAddress addressPressure(wellName, timeStep, RifEclipseRftAddress::PRESSURE);
-        m_eclipseRftAddresses.push_back(addressPressure);
+        m_eclipseRftAddresses.insert(addressPressure);
         m_rftAddressToLibeclNodeIdx[addressPressure] = i;
 
-        RifEclipseRftAddress addressDepth(wellName, timeStep, RifEclipseRftAddress::DEPTH);
-        m_eclipseRftAddresses.push_back(addressDepth);
+        RifEclipseRftAddress addressDepth(wellName, timeStep, RifEclipseRftAddress::TVD);
+        m_eclipseRftAddresses.insert(addressDepth);
         m_rftAddressToLibeclNodeIdx[addressDepth] = i;
 
         if (ecl_rft_node_is_RFT(node))
         {
             RifEclipseRftAddress addressSwat(wellName, timeStep, RifEclipseRftAddress::SWAT);
-            m_eclipseRftAddresses.push_back(addressSwat);
+            m_eclipseRftAddresses.insert(addressSwat);
             m_rftAddressToLibeclNodeIdx[addressSwat] = i;
 
             RifEclipseRftAddress addressSoil(wellName, timeStep, RifEclipseRftAddress::SOIL);
-            m_eclipseRftAddresses.push_back(addressSoil);
+            m_eclipseRftAddresses.insert(addressSoil);
             m_rftAddressToLibeclNodeIdx[addressSoil] = i;
 
             RifEclipseRftAddress addressSgas(wellName, timeStep, RifEclipseRftAddress::SGAS);
-            m_eclipseRftAddresses.push_back(addressSgas);
+            m_eclipseRftAddresses.insert(addressSgas);
             m_rftAddressToLibeclNodeIdx[addressSgas] = i;
         }
         else if (ecl_rft_node_is_PLT(node))
         {
             RifEclipseRftAddress addressWrat(wellName, timeStep, RifEclipseRftAddress::WRAT);
-            m_eclipseRftAddresses.push_back(addressWrat);
+            m_eclipseRftAddresses.insert(addressWrat);
             m_rftAddressToLibeclNodeIdx[addressWrat] = i;
 
             RifEclipseRftAddress addressOrat(wellName, timeStep, RifEclipseRftAddress::ORAT);
-            m_eclipseRftAddresses.push_back(addressOrat);
+            m_eclipseRftAddresses.insert(addressOrat);
             m_rftAddressToLibeclNodeIdx[addressOrat] = i;
 
             RifEclipseRftAddress addressGrat(wellName, timeStep, RifEclipseRftAddress::GRAT);
-            m_eclipseRftAddresses.push_back(addressGrat);
+            m_eclipseRftAddresses.insert(addressGrat);
             m_rftAddressToLibeclNodeIdx[addressGrat] = i;
         }
     }
@@ -124,7 +124,7 @@ void RifReaderEclipseRft::open()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<RifEclipseRftAddress>& RifReaderEclipseRft::eclipseRftAddresses()
+std::set<RifEclipseRftAddress> RifReaderEclipseRft::eclipseRftAddresses()
 {
     if (!m_ecl_rft_file)
     {
@@ -157,7 +157,7 @@ void RifReaderEclipseRft::values(const RifEclipseRftAddress& rftAddress, std::ve
 
     switch (wellLogChannelName)
     {
-    case RifEclipseRftAddress::DEPTH:
+    case RifEclipseRftAddress::TVD:
     {
         for (int i = 0; i < ecl_rft_node_get_size(node); i++)
         {
@@ -258,14 +258,14 @@ void RifReaderEclipseRft::cellIndices(const RifEclipseRftAddress& rftAddress, st
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RifReaderEclipseRft::availableTimeSteps(const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName)
+std::set<QDateTime> RifReaderEclipseRft::availableTimeSteps(const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName)
 {
     if (!m_ecl_rft_file)
     {
         open();
     }
 
-    std::vector<QDateTime> timeSteps;
+    std::set<QDateTime> timeSteps;
 
     if (wellName == "") return timeSteps;
 
@@ -273,7 +273,7 @@ std::vector<QDateTime> RifReaderEclipseRft::availableTimeSteps(const QString& we
     {
         if (address.wellName() == wellName && address.wellLogChannel() == wellLogChannelName)
         {
-            timeSteps.push_back(address.timeStep());
+            timeSteps.insert(address.timeStep());
         }
     }
     return timeSteps;
@@ -304,16 +304,25 @@ std::set<QDateTime> RifReaderEclipseRft::availableTimeSteps(const QString& wellN
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime> RifReaderEclipseRft::availableTimeSteps(const QString& wellName)
+{
+    auto wellLogChannels = availableWellLogChannels(wellName);
+    return availableTimeSteps(wellName, wellLogChannels);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseRftAddress::RftWellLogChannelType> RifReaderEclipseRft::availableWellLogChannels(const QString& wellName)
+std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderEclipseRft::availableWellLogChannels(const QString& wellName)
 {
     if (!m_ecl_rft_file)
     {
         open();
     }
 
-    std::vector<RifEclipseRftAddress::RftWellLogChannelType> wellLogChannelNames;
+    std::set<RifEclipseRftAddress::RftWellLogChannelType> wellLogChannelNames;
 
     if (wellName == "") return wellLogChannelNames;
 
@@ -359,19 +368,19 @@ std::vector<RifEclipseRftAddress::RftWellLogChannelType> RifReaderEclipseRft::av
 
     if (pressureFound)
     {
-        wellLogChannelNames.push_back(RifEclipseRftAddress::PRESSURE);
+        wellLogChannelNames.insert(RifEclipseRftAddress::PRESSURE);
     }
     if (rftFound)
     {
-        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelType::SWAT);
-        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelType::SOIL);
-        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelType::SGAS);
+        wellLogChannelNames.insert(RifEclipseRftAddress::RftWellLogChannelType::SWAT);
+        wellLogChannelNames.insert(RifEclipseRftAddress::RftWellLogChannelType::SOIL);
+        wellLogChannelNames.insert(RifEclipseRftAddress::RftWellLogChannelType::SGAS);
     }
     if (pltFound)
     {
-        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelType::WRAT);
-        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelType::ORAT);
-        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelType::GRAT);
+        wellLogChannelNames.insert(RifEclipseRftAddress::RftWellLogChannelType::WRAT);
+        wellLogChannelNames.insert(RifEclipseRftAddress::RftWellLogChannelType::ORAT);
+        wellLogChannelNames.insert(RifEclipseRftAddress::RftWellLogChannelType::GRAT);
     }
 
     return wellLogChannelNames;
@@ -380,7 +389,7 @@ std::vector<RifEclipseRftAddress::RftWellLogChannelType> RifReaderEclipseRft::av
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::set<QString>& RifReaderEclipseRft::wellNames()
+std::set<QString> RifReaderEclipseRft::wellNames()
 {
     if (!m_ecl_rft_file)
     {

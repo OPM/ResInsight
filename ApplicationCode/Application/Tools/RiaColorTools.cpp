@@ -145,6 +145,21 @@ cvf::Color3f RiaColorTools::fromQColorTo3f(QColor color)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTools::blendCvfColors(const cvf::Color3f& color1,
+                                           const cvf::Color3f& color2,
+                                           int                 weight1 /*= 1*/,
+                                           int                 weight2 /*= 1*/)
+{
+    CVF_ASSERT(weight1 > 0 && weight2 > 0);
+    int weightsum = weight1 + weight2;
+    return cvf::Color3f((color1.r() * weight1 + color2.r() * weight2) / weightsum,
+                  (color1.g() * weight1 + color2.g() * weight2) / weightsum,
+                  (color1.b() * weight1 + color2.b() * weight2) / weightsum);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QColor RiaColorTools::blendQColors(const QColor& color1, const QColor& color2, int weight1 /*= 1*/, int weight2 /*= 1*/)
 {
     CVF_ASSERT(weight1 > 0 && weight2 > 0);

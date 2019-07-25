@@ -28,7 +28,6 @@
 #include "RifReaderEclipseSummary.h"
 
 #include "RigStatisticsMath.h"
-#include "RiaTimeHistoryCurveMerger.h"
 
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveFilter.h"

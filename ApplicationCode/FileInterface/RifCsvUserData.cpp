@@ -141,6 +141,14 @@ std::string RifCsvUserData::unitName(const RifEclipseSummaryAddress& resultAddre
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RifCsvUserData::unitSystem() const
+{
+    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RifCsvUserData::buildTimeStepsAndMappings()

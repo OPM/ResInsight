@@ -16,7 +16,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RifColumnBasedUserDataParser.h
 ${CMAKE_CURRENT_LIST_DIR}/RifKeywordVectorParser.h
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderObservedData.h
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary.h
+${CMAKE_CURRENT_LIST_DIR}/RifReaderRftInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseRft.h
+${CMAKE_CURRENT_LIST_DIR}/RifReaderFmuRft.h
 ${CMAKE_CURRENT_LIST_DIR}/RifJsonEncodeDecode.h
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderMockModel.h
@@ -42,6 +44,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.h
 ${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifFileParseTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleStatisticsReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifReaderEnsembleStatisticsRft.h
 ${CMAKE_CURRENT_LIST_DIR}/RifDerivedEnsembleReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.h
@@ -68,7 +71,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RifColumnBasedUserDataParser.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifKeywordVectorParser.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderObservedData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifReaderRftInterface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseRft.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifReaderFmuRft.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifJsonEncodeDecode.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderInterface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderMockModel.cpp
@@ -95,6 +100,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleStatisticsReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifDerivedEnsembleReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifReaderEnsembleStatisticsRft.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.cpp

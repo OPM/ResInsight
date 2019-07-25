@@ -57,6 +57,22 @@ std::vector<time_t> getTimeSteps(ecl_sum_type* ecl_sum)
     return timeSteps;
 }
 
+RiaEclipseUnitTools::UnitSystem readUnitSystem(ecl_sum_type* ecl_sum)
+{
+    ert_ecl_unit_enum eclUnitEnum = ecl_sum_get_unit_system(ecl_sum);
+    switch (eclUnitEnum)
+    {
+    case ECL_METRIC_UNITS:
+        return RiaEclipseUnitTools::UNITS_METRIC;
+    case ECL_FIELD_UNITS:
+        return RiaEclipseUnitTools::UNITS_FIELD;
+    case ECL_LAB_UNITS:
+        return RiaEclipseUnitTools::UNITS_LAB;
+    default:
+        return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +121,7 @@ void closeEclSum(ecl_sum_type* ecl_sum)
 RifReaderEclipseSummary::RifReaderEclipseSummary()
     : m_ecl_sum(nullptr)
     , m_ecl_SmSpec(nullptr)
+    , m_unitSystem(RiaEclipseUnitTools::UNITS_METRIC)
 {
     m_valuesCache.reset(new ValuesCache());
 }
@@ -135,7 +152,7 @@ bool RifReaderEclipseSummary::open(const QString& headerFileName, bool includeRe
         m_timeSteps.clear();
         m_ecl_SmSpec = ecl_sum_get_smspec(m_ecl_sum);
         m_timeSteps  = getTimeSteps(m_ecl_sum);
-
+        m_unitSystem = readUnitSystem(m_ecl_sum);
         buildMetaData();
 
         return true;
@@ -513,6 +530,14 @@ std::string RifReaderEclipseSummary::unitName(const RifEclipseSummaryAddress& re
 
     const ecl::smspec_node& ertSumVarNode = ecl_smspec_iget_node_w_node_index(m_ecl_SmSpec, variableIndex);
     return ertSumVarNode.get_unit();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RifReaderEclipseSummary::unitSystem() const
+{
+    return m_unitSystem;
 }
 
 //--------------------------------------------------------------------------------------------------

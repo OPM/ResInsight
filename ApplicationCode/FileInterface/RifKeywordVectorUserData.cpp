@@ -232,6 +232,14 @@ std::string RifKeywordVectorUserData::unitName(const RifEclipseSummaryAddress& r
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RifKeywordVectorUserData::unitSystem() const
+{
+    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RifKeywordVectorUserData::isTimeHeader(const std::map<QString, QString>& header)

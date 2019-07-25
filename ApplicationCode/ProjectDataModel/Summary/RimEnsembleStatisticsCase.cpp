@@ -21,7 +21,6 @@
 #include "RifEnsembleStatisticsReader.h"
 
 #include "RigStatisticsMath.h"
-#include "RiaTimeHistoryCurveMerger.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "RimEnsembleCurveSet.h"
@@ -173,14 +172,25 @@ void RimEnsembleStatisticsCase::calculate(const std::vector<RimSummaryCase*> sum
         }
 
         double p10, p50, p90, mean;
-        calculateStatistics(valuesAtTimeStep, &p10, &p50, &p90, &mean);
+        RigStatisticsMath::calculateStatisticsCurves(valuesAtTimeStep, &p10, &p50, &p90, &mean);
 
-        if (p10 != DOUBLE_INF) m_p10Data.push_back(p10);
-        if (p50 != DOUBLE_INF) m_p50Data.push_back(p50);
-        if (p90 != DOUBLE_INF) m_p90Data.push_back(p90);
+        if (p10 != HUGE_VAL) m_p10Data.push_back(p10);
+        if (p50 != HUGE_VAL) m_p50Data.push_back(p50);
+        if (p90 != HUGE_VAL) m_p90Data.push_back(p90);
         m_meanData.push_back(mean);
     }
-    m_addressUsedInLastCalculation = inputAddress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RimEnsembleStatisticsCase::unitSystem() const
+{
+    if (m_curveSet)
+    {
+        return m_curveSet->summaryCaseCollection()->unitSystem();
+    }
+    return RiaEclipseUnitTools::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,7 +203,6 @@ void RimEnsembleStatisticsCase::clearData()
     m_p50Data.clear();
     m_p90Data.clear();
     m_meanData.clear();
-    m_addressUsedInLastCalculation = RifEclipseSummaryAddress();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,59 +246,5 @@ std::vector<RimSummaryCase*> RimEnsembleStatisticsCase::validSummaryCases(const 
         }
     }
     return validCases;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Algorithm:
-/// https://en.wikipedia.org/wiki/Percentile#Third_variant,_'%22%60UNIQ--postMath-00000052-QINU%60%22'
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleStatisticsCase::calculateStatistics(const std::vector<double>& values, double* p10, double* p50, double* p90, double* mean)
-{
-    CVF_ASSERT(p10 && p50 && p90 && mean);
-
-    enum PValue { P10, P50, P90 };
-
-    std::vector<double> sortedValues;
-    double valueSum = 0;
-
-    {
-        std::multiset<double> vSet(values.begin(), values.end());
-        for (double v : vSet)
-        {
-            if (RiaStatisticsTools::isValidNumber(v))
-            {
-                sortedValues.push_back(v);
-                valueSum += v;
-            }
-        }
-    }
-
-    int valueCount = (int)sortedValues.size();
-    double percentiles[] = { 0.1, 0.5, 0.9 };
-    double pValues[] = { DOUBLE_INF, DOUBLE_INF, DOUBLE_INF };
-
-    for (int i = P10; i <= P90; i++)
-    {
-        // Check valid params
-        if ((percentiles[i] < 1.0 / ((double)valueCount + 1)) || (percentiles[i] > (double)valueCount / ((double)valueCount + 1))) continue;
-
-        double rank = percentiles[i] * (valueCount + 1) - 1;
-        double rankInt;
-        double rankFrac = std::modf(rank, &rankInt);
-
-        if (rankInt < valueCount - 1)
-        {
-            pValues[i] = sortedValues[rankInt] + rankFrac * (sortedValues[rankInt + 1] - sortedValues[rankInt]);
-        }
-        else
-        {
-            pValues[i] = sortedValues[rankInt];
-        }
-    }
-
-    *p10 = pValues[P10];
-    *p50 = pValues[P50];
-    *p90 = pValues[P90];
-    *mean = valueSum / valueCount;
 }
 

@@ -33,13 +33,16 @@ class RimSummaryCase;
 class RiaRftPltCurveDefinition
 {
 public:
-    explicit RiaRftPltCurveDefinition(RifDataSourceForRftPlt address, const QDateTime timeStep);
+    explicit RiaRftPltCurveDefinition(const RifDataSourceForRftPlt& address, const QString& wellName, const QDateTime& timeStep);
 
-    RifDataSourceForRftPlt               address() const;
-    QDateTime                       timeStep() const;
+    const RifDataSourceForRftPlt&          address() const;
+    const QString&                         wellName() const;
+    const QDateTime&                       timeStep() const;
 
     bool operator < (const RiaRftPltCurveDefinition& other) const;
 
 private:
-    std::pair<RifDataSourceForRftPlt, QDateTime>  m_curveDefinition;
+    RifDataSourceForRftPlt m_curveAddress;
+    QString                m_wellName;
+    QDateTime              m_timeStep;
 };

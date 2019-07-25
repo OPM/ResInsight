@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "RiaTimeHistoryCurveMerger.h"
+#include "RiaCurveMerger.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
@@ -13,25 +13,25 @@ TEST(RiaTimeHistoryCurveMergerTest, TestDateInterpolation)
     std::vector<time_t> timeSteps{    1,   5,  10,  15};
 
     {
-        double val = RiaTimeHistoryCurveMerger::interpolationValue(1, values, timeSteps);
+        double val = RiaTimeHistoryCurveMerger::interpolatedYValue(1, timeSteps, values);
 
         EXPECT_EQ(2.0, val);
     }
 
     {
-        double val = RiaTimeHistoryCurveMerger::interpolationValue(0, values, timeSteps);
+        double val = RiaTimeHistoryCurveMerger::interpolatedYValue(0, timeSteps, values);
 
         EXPECT_EQ(HUGE_VAL, val);
     }
 
     {
-        double val = RiaTimeHistoryCurveMerger::interpolationValue(20, values, timeSteps);
+        double val = RiaTimeHistoryCurveMerger::interpolatedYValue(20, timeSteps, values);
 
         EXPECT_EQ(HUGE_VAL, val);
     }
 
     {
-        double val = RiaTimeHistoryCurveMerger::interpolationValue(3, values, timeSteps);
+        double val = RiaTimeHistoryCurveMerger::interpolatedYValue(3, timeSteps, values);
 
         EXPECT_EQ(2.75, val);
     }
@@ -54,12 +54,12 @@ TEST(RiaTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeSteps)
     }
 
     RiaTimeHistoryCurveMerger interpolate;
-    interpolate.addCurveData(valuesA, timeSteps);
-    interpolate.addCurveData(valuesB, timeSteps);
+    interpolate.addCurveData(timeSteps, valuesA);
+    interpolate.addCurveData(timeSteps, valuesB);
     interpolate.computeInterpolatedValues();
 
-    auto interpolatedTimeSteps = interpolate.allTimeSteps();
-    auto intervals = interpolate.validIntervalsForAllTimeSteps();
+    auto interpolatedTimeSteps = interpolate.allXValues();
+    auto intervals             = interpolate.validIntervalsForAllXValues();
     
     EXPECT_EQ(10, static_cast<int>(interpolatedTimeSteps.size()));
     EXPECT_EQ(3, static_cast<int>(intervals.size()));
@@ -82,12 +82,12 @@ TEST(RiaTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeStepsOneComplete
     }
 
     RiaTimeHistoryCurveMerger interpolate;
-    interpolate.addCurveData(valuesA, timeSteps);
-    interpolate.addCurveData(valuesB, timeSteps);
+    interpolate.addCurveData(timeSteps, valuesA);
+    interpolate.addCurveData(timeSteps, valuesB);
     interpolate.computeInterpolatedValues();
 
-    auto interpolatedTimeSteps = interpolate.allTimeSteps();
-    auto intervals = interpolate.validIntervalsForAllTimeSteps();
+    auto interpolatedTimeSteps = interpolate.allXValues();
+    auto intervals             = interpolate.validIntervalsForAllXValues();
     
     EXPECT_EQ(7, static_cast<int>(interpolatedTimeSteps.size()));
     EXPECT_EQ(3, static_cast<int>(intervals.size()));
@@ -110,12 +110,12 @@ TEST(RiaTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeStepsBothComplet
     }
 
     RiaTimeHistoryCurveMerger interpolate;
-    interpolate.addCurveData(valuesA, timeSteps);
-    interpolate.addCurveData(valuesB, timeSteps);
+    interpolate.addCurveData(timeSteps, valuesA);
+    interpolate.addCurveData(timeSteps, valuesB);
     interpolate.computeInterpolatedValues();
 
-    auto interpolatedTimeSteps = interpolate.allTimeSteps();
-    auto intervals = interpolate.validIntervalsForAllTimeSteps();
+    auto interpolatedTimeSteps = interpolate.allXValues();
+    auto intervals             = interpolate.validIntervalsForAllXValues();
 
     EXPECT_EQ(7, static_cast<int>(interpolatedTimeSteps.size()));
     EXPECT_EQ(1, static_cast<int>(intervals.size()));
@@ -135,12 +135,13 @@ TEST(RiaTimeHistoryCurveMergerTest, OverlappintTimes)
     std::vector<time_t> timeStepsB{ 1, 2, 3, 5, 7 };
 
     RiaTimeHistoryCurveMerger interpolate;
-    interpolate.addCurveData(valuesA, timeStepsA);
-    interpolate.addCurveData(valuesB, timeStepsB);
+    interpolate.addCurveData(timeStepsA, valuesA);
+    interpolate.addCurveData(timeStepsB, valuesB);
     interpolate.computeInterpolatedValues();
+    EXPECT_EQ(2, static_cast<int>(interpolate.curveCount()));
 
-    auto interpolatedTimeSteps = interpolate.allTimeSteps();
-    auto intervals = interpolate.validIntervalsForAllTimeSteps();
+    auto interpolatedTimeSteps = interpolate.allXValues();
+    auto intervals             = interpolate.validIntervalsForAllXValues();
 
     EXPECT_EQ(10, static_cast<int>(interpolatedTimeSteps.size()));
     EXPECT_EQ(1, static_cast<int>(intervals.size()));
@@ -154,7 +155,7 @@ TEST(RiaTimeHistoryCurveMergerTest, RobustUse)
     {
         RiaTimeHistoryCurveMerger curveMerger;
         curveMerger.computeInterpolatedValues();
-        EXPECT_EQ(0, static_cast<int>(curveMerger.allTimeSteps().size()));
+        EXPECT_EQ(0, static_cast<int>(curveMerger.allXValues().size()));
     }
 
     std::vector<double> valuesA{ 1,  2,  3,  4,  5 };
@@ -165,23 +166,23 @@ TEST(RiaTimeHistoryCurveMergerTest, RobustUse)
 
     {
         RiaTimeHistoryCurveMerger curveMerger;
-        curveMerger.addCurveData(valuesA, timeStepsA);
+        curveMerger.addCurveData(timeStepsA, valuesA);
         curveMerger.computeInterpolatedValues();
-        EXPECT_EQ(timeStepsA.size(), curveMerger.allTimeSteps().size());
-        EXPECT_EQ(timeStepsA.size(), curveMerger.interpolatedCurveValuesForAllTimeSteps(0).size());
+        EXPECT_EQ(timeStepsA.size(), curveMerger.allXValues().size());
+        EXPECT_EQ(timeStepsA.size(), curveMerger.interpolatedYValuesForAllXValues(0).size());
     }
 
     {
         RiaTimeHistoryCurveMerger curveMerger;
-        curveMerger.addCurveData(valuesA, timeStepsA);
-        curveMerger.addCurveData(valuesB, timeStepsB);
+        curveMerger.addCurveData(timeStepsA, valuesA);
+        curveMerger.addCurveData(timeStepsB, valuesB);
 
         // Execute interpolation twice is allowed
         curveMerger.computeInterpolatedValues();
         curveMerger.computeInterpolatedValues();
-        EXPECT_EQ(8, static_cast<int>(curveMerger.allTimeSteps().size()));
-        EXPECT_EQ(8, static_cast<int>(curveMerger.interpolatedCurveValuesForAllTimeSteps(0).size()));
-        EXPECT_EQ(8, static_cast<int>(curveMerger.interpolatedCurveValuesForAllTimeSteps(1).size()));
+        EXPECT_EQ(8, static_cast<int>(curveMerger.allXValues().size()));
+        EXPECT_EQ(8, static_cast<int>(curveMerger.interpolatedYValuesForAllXValues(0).size()));
+        EXPECT_EQ(8, static_cast<int>(curveMerger.interpolatedYValuesForAllXValues(1).size()));
     }
 }
 
@@ -198,13 +199,13 @@ TEST(RiaTimeHistoryCurveMergerTest, NoTimeStepOverlap)
 
     {
         RiaTimeHistoryCurveMerger curveMerger;
-        curveMerger.addCurveData(valuesA, timeStepsA);
-        curveMerger.addCurveData(valuesB, timeStepsB);
+        curveMerger.addCurveData(timeStepsA, valuesA);
+        curveMerger.addCurveData(timeStepsB, valuesB);
 
         // Execute interpolation twice is allowed
         curveMerger.computeInterpolatedValues();
-        EXPECT_EQ(8, static_cast<int>(curveMerger.allTimeSteps().size()));
-        EXPECT_EQ(0, static_cast<int>(curveMerger.validIntervalsForAllTimeSteps().size()));
+        EXPECT_EQ(8, static_cast<int>(curveMerger.allXValues().size()));
+        EXPECT_EQ(0, static_cast<int>(curveMerger.validIntervalsForAllXValues().size()));
     }
 }
 

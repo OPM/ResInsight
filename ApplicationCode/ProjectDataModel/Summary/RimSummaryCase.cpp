@@ -19,6 +19,7 @@
 #include "RimSummaryCase.h"
 
 #include "RiaSummaryTools.h"
+#include "RifSummaryReaderInterface.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -169,6 +170,14 @@ void RimSummaryCase::updateOptionSensitivity()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderRftInterface* RimSummaryCase::rftReader()
+{
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateTreeItemName()
@@ -185,6 +194,19 @@ void RimSummaryCase::updateTreeItemName()
 QString RimSummaryCase::shortName() const
 {
     return m_shortName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystemType RimSummaryCase::unitsSystem()
+{
+    RifSummaryReaderInterface* reader = summaryReader();
+    if (reader)
+    {
+        return reader->unitSystem();
+    }
+    return RiaEclipseUnitTools::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

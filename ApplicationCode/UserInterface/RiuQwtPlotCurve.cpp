@@ -217,7 +217,7 @@ void RiuQwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
         }
 
         float sqSkipDist = m_symbolSkipPixelDistance * m_symbolSkipPixelDistance;
-
+        float sqSkipToLastDiff = m_symbolSkipPixelDistance / 10 * m_symbolSkipPixelDistance / 10;
         for (int pIdx = 1; pIdx < pointCount - 1; ++pIdx)
         {
             QPointF diff = points[pIdx] - lastDrawnSymbolPos;
@@ -225,6 +225,13 @@ void RiuQwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
 
             if (sqDistBetweenSymbols > sqSkipDist)
             {
+				if (pIdx == pointCount - 2)
+				{
+                    QPointF diffToBack = points.back() - points[pIdx];
+                    float   sqDistToBack = diffToBack.x() * diffToBack.x() + diffToBack.y() * diffToBack.y();
+					if (sqDistToBack < sqSkipToLastDiff)
+						continue;
+				}
                 pointsToDisplay.push_back(points[pIdx]);
                 lastDrawnSymbolPos = points[pIdx];
             }

@@ -110,3 +110,11 @@ RimSummaryCalculation* RifCalculatedSummaryCurveReader::findCalculationByName(co
 
     return nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RifCalculatedSummaryCurveReader::unitSystem() const
+{
+    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+}

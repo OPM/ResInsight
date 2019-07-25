@@ -34,6 +34,7 @@ public:
     enum LabelPosition
     {
         LabelAboveSymbol,
+        LabelBelowSymbol,
         LabelLeftOfSymbol,
         LabelRightOfSymbol
     };
@@ -47,14 +48,16 @@ public:
         SYMBOL_DOWN_TRIANGLE,
         SYMBOL_CROSS,
         SYMBOL_XCROSS,
-        SYMBOL_LEFT_TRIANGLE,
-        SYMBOL_RIGHT_TRIANGLE,
+        SYMBOL_LEFT_ALIGNED_TRIANGLE, // Aligned so pin point is at lower right corner
+        SYMBOL_RIGHT_ALIGNED_TRIANGLE, // Aligned so pin point is at lower left corner
         SYMBOL_LEFT_ANGLED_TRIANGLE,
         SYMBOL_RIGHT_ANGLED_TRIANGLE,
         SYMBOL_UP_TRIANGLE,
         SYMBOL_STAR1,
         SYMBOL_STAR2,
-        SYMBOL_HEXAGON
+        SYMBOL_HEXAGON,
+        SYMBOL_LEFT_TRIANGLE,
+        SYMBOL_RIGHT_TRIANGLE
     };
 
     RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition = LabelAboveSymbol);

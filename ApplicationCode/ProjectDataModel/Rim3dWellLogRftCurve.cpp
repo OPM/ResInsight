@@ -191,7 +191,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogRftCurve::calculateValueOptions(const 
             if (reader)
             {
                 QString dateFormat = "dd MMM yyyy";
-                std::vector<QDateTime> timeStamps = reader->availableTimeSteps(wellName(), m_wellLogChannelName());
+                std::set<QDateTime> timeStamps = reader->availableTimeSteps(wellName(), m_wellLogChannelName());
                 for (const QDateTime& dt : timeStamps)
                 {
                     QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(dt, dateFormat);
