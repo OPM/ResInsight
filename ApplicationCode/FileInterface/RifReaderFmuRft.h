@@ -28,19 +28,6 @@
 
 #include <QDateTime>
 
-struct RifReaderFmuRftObservation
-{
-    double utmx;
-    double utmy;
-    double mdrkb;
-    double tvdmsl;
-
-    double pressure;
-    double pressure_error;
-
-    QString formation;
-};
-
 //==================================================================================================
 //
 //
@@ -48,23 +35,52 @@ struct RifReaderFmuRftObservation
 class RifReaderFmuRft : public cvf::Object
 {
 public:
+    enum Status
+    {
+        UNINITIALIZED  = 0,
+        STATUS_OK      = 1,
+        STATUS_WARNING = 2,
+        STATUS_ERROR   = 3
+    };
+
+    struct Observation
+    {
+        int    measurementIndex;
+        double utmx;
+        double utmy;
+        double mdrkb;
+        double tvdmsl;
+
+        double pressure;
+        double pressure_error;
+
+        QString formation;
+    };
+
+    struct WellDate
+    {
+        QString   wellName;
+        QDateTime date;
+        int       measurementIndex;
+    };
+
+public:
     RifReaderFmuRft(const QString& filePath);
     ~RifReaderFmuRft() = default;
 
-    bool valid() const;
+    Status status() const;
+    Status initialize(QString* errorMsg);
 
-    std::set<QDateTime>      availableTimeSteps(const QString& wellName) const;
-    const std::set<QString>& wellNamesWithRftData() const;
+    std::set<QDateTime> availableTimeSteps(const QString& wellName) const;
+    std::set<QString>   wellNamesWithRftData() const;
 
-    std::map<QDateTime, std::vector<RifReaderFmuRftObservation>> observations(const QString& wellName) const;
-
-private:
-    void loadWellNames();
+    Status observations(const QString& wellName, std::map<QDateTime, std::vector<Observation>>* observations, QString* errorMsg) const;
 
 private:
-    QString                             m_filePath;
-    std::map<QString, QDateTime>        m_wellNames;
+    Status readWellDates(QDir& dir, QString* errorMsg);
+
+private:
+    Status                                   m_status;
+    QString                                  m_filePath;
+    std::map<QString, std::vector<WellDate>> m_wellDates;
 };
-
-
-
