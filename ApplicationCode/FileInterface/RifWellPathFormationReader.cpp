@@ -18,6 +18,7 @@
 
 #include "RifWellPathFormationReader.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "Riu3DMainWindowTools.h"
 
@@ -63,16 +64,22 @@ std::map<QString, cvf::ref<RigWellPathFormations>>
 
     if (wellNames.empty() || formationNames.empty())
     {
-        QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), "Import failure",
-                             QString("Failed to parse %1 as a well pick file").arg(filePath));
+        if (RiaGuiApplication::isRunning())
+        {
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), "Import failure",
+                QString("Failed to parse %1 as a well pick file").arg(filePath));
+        }
         RiaLogging::error(QString("Failed to parse %1 as a well pick file").arg(filePath));
 
         return result;
     }
     else if (!(mdIsPresent || tvdIsPresent))
     {
-        QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), "Import failure",
-                             QString("Failed to parse %1 as a well pick file. Neither MD or TVD is present.").arg(filePath));
+        if (RiaGuiApplication::isRunning())
+        {
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), "Import failure",
+                QString("Failed to parse %1 as a well pick file. Neither MD or TVD is present.").arg(filePath));
+        }
         RiaLogging::error(QString("Failed to parse %1 as a well pick file. Neither MD or TVD is present.").arg(filePath));
 
         return result;

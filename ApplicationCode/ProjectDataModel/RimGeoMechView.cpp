@@ -142,9 +142,13 @@ void RimGeoMechView::onLoadDataAndUpdate()
             {
                 QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName() : QString::fromStdString(errorMessage);
 
-                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), 
-                                     "File open error", 
-                                     displayMessage);
+                if (RiaGuiApplication::isRunning())
+                {
+                    QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                        "File open error",
+                        displayMessage);
+                }
+                RiaLogging::error(displayMessage);
             }
 
             m_geomechCase = nullptr;

@@ -20,6 +20,9 @@
 
 #include "RimIdenticalGridCaseGroup.h"
 
+#include "RiaGuiApplication.h"
+#include "RiaLogging.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -173,11 +176,15 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RimEclipseCase* mainCase = caseCollection()->reservoirs[0];
     if (!mainCase->openReserviorCase())
     {
-        QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
-                             "Error when opening project file",
-                             "Could not open the Eclipse Grid file: \n"+ mainCase->gridFileName() + "\n"+ 
-                             "Current working directory is: \n" +
-                             QDir::currentPath());
+        QString errorMessage = QString("Could not open the Eclipse Grid file: \n") + mainCase->gridFileName() + "\n" +
+                               "Current working directory is: \n" + QDir::currentPath();
+
+        if (RiaGuiApplication::isRunning())
+        {
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                "Error when opening project file", errorMessage);
+        }
+        RiaLogging::error(errorMessage);
         return;
     }
 

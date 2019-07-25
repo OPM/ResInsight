@@ -180,10 +180,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
 
     project->activeOilField()->completionTemplateCollection()->setDefaultUnitSystemBasedOnLoadedCases();
 
-    if (RiaGuiApplication::isRunning())
-    {
-        RiuPlotMainWindowTools::refreshToolbars();
-    }
+    RiuPlotMainWindowTools::refreshToolbars();    
 
     if (openedFilesOut)
     {
