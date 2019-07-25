@@ -15,7 +15,7 @@ if resInsight is not None:
         assert(case.classKeyword() == "EclipseCase")
         print("\n#### Case ####")
         for keyword in case.keywords():
-            print (keyword + ": " + case.getValue(keyword))
+            print (keyword + ": " + str(case.getValue(keyword)))
         print ("\n####Project#####")
         pdmProject = case.ancestor(classKeyword="ResInsightProject")
         assert(pdmProject)
@@ -23,7 +23,7 @@ if resInsight is not None:
         assert(pdmProject.address() == resInsight.project.address())
 
         for keyword in resInsight.project.keywords():
-            print (keyword + ": " + resInsight.project.getValue(keyword))
+            print (keyword + ": " + str(resInsight.project.getValue(keyword)))
         pdmViews = resInsight.project.views()
         for view in pdmViews:
             print ("\n####View####")
