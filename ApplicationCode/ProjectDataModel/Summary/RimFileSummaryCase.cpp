@@ -22,6 +22,7 @@
 
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderEclipseSummary.h"
+#include "RifReaderEclipseRft.h"
 
 #include "RimTools.h"
 
@@ -42,6 +43,7 @@ CAF_PDM_SOURCE_INIT(RimFileSummaryCase,"FileSummaryCase");
 RimFileSummaryCase::RimFileSummaryCase()
 {
     CAF_PDM_InitField(&m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files", "", "", "");
+
     m_includeRestartFiles.uiCapability()->setUiHidden(true);
 }
 
@@ -84,7 +86,12 @@ void RimFileSummaryCase::updateFilePathsFromProjectPath(const QString & newProje
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), m_includeRestartFiles);
+    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), m_includeRestartFiles);    
+    m_summaryEclipseRftReader = RimFileSummaryCase::findRftDataAndCreateReader(this->summaryHeaderFilename());
+    if (m_summaryEclipseRftReader.notNull())
+    {
+        RiaLogging::info(QString("Found RFT Data for %1").arg(this->summaryHeaderFilename()));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,11 +113,39 @@ RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(con
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderEclipseRft* RimFileSummaryCase::findRftDataAndCreateReader(const QString& headerFileName)
+{
+    QFileInfo fileInfo(headerFileName);
+    QString folder = fileInfo.absolutePath();
+
+    QString   rftFileName = folder + "/" + fileInfo.completeBaseName() + ".RFT";
+    QFileInfo rftFileInfo(rftFileName);
+
+    if (rftFileInfo.exists())
+    {
+        std::unique_ptr<RifReaderEclipseRft> rftReader(new RifReaderEclipseRft(rftFileInfo.filePath()));
+        return rftReader.release();
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimFileSummaryCase::summaryReader()
 {
     return m_summaryFileReader.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderRftInterface* RimFileSummaryCase::rftReader()
+{
+    return m_summaryEclipseRftReader.p();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -80,6 +80,72 @@ void RigStatisticsMath::calculateBasicStatistics(const std::vector<double>& valu
 
 
 //--------------------------------------------------------------------------------------------------
+/// Algorithm:
+/// https://en.wikipedia.org/wiki/Percentile#Third_variant,_'%22%60UNIQ--postMath-00000052-QINU%60%22'
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsMath::calculateStatisticsCurves(const std::vector<double>& values,
+                                                  double*                    p10,
+                                                  double*                    p50,
+                                                  double*                    p90,
+                                                  double*                    mean)
+{
+    CVF_ASSERT(p10 && p50 && p90 && mean);
+
+    enum PValue
+    {
+        P10,
+        P50,
+        P90
+    };
+
+    std::vector<double> sortedValues;
+    double              valueSum = 0;
+
+    {
+        std::multiset<double> vSet(values.begin(), values.end());
+        for (double v : vSet)
+        {
+            if (RiaStatisticsTools::isValidNumber(v))
+            {
+                sortedValues.push_back(v);
+                valueSum += v;
+            }
+        }
+    }
+
+    int    valueCount    = (int)sortedValues.size();
+    double percentiles[] = {0.1, 0.5, 0.9};
+    double pValues[]     = {HUGE_VAL, HUGE_VAL, HUGE_VAL};
+
+    for (int i = P10; i <= P90; i++)
+    {
+        // Check valid params
+        if ((percentiles[i] < 1.0 / ((double)valueCount + 1)) || (percentiles[i] > (double)valueCount / ((double)valueCount + 1)))
+            continue;
+
+        double rank = percentiles[i] * (valueCount + 1) - 1;
+        double rankRem;
+        double rankFrac = std::modf(rank, &rankRem);
+        int rankInt = static_cast<int>(rankRem);
+
+
+        if (rankInt < valueCount - 1)
+        {
+            pValues[i] = sortedValues[rankInt] + rankFrac * (sortedValues[rankInt + 1] - sortedValues[rankInt]);
+        }
+        else
+        {
+            pValues[i] = sortedValues.back();
+        }
+    }
+
+    *p10  = pValues[P10];
+    *p50  = pValues[P50];
+    *p90  = pValues[P90];
+    *mean = valueSum / valueCount;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Calculate the percentiles of /a inputValues at the pValPosition percentages using the "Nearest Rank"
 /// method. This method treats HUGE_VAL as "undefined" values, and ignores these. Will return HUGE_VAL if
 /// the inputValues does not contain any valid values

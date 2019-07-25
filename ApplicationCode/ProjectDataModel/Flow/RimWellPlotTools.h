@@ -33,6 +33,7 @@
 
 class RimEclipseCase;
 class RimEclipseResultCase;
+class RimSummaryCaseCollection;
 class RimWellLogCurve;
 class RimWellLogFileChannel;
 class RimWellLogPlot;
@@ -82,6 +83,8 @@ public:
 // Both
     static std::vector<RimEclipseResultCase*>               gridCasesForWell(const QString& simWellName);
     static std::vector<RimEclipseResultCase*>               rftCasesForWell(const QString& simWellName);
+    static std::vector<RimSummaryCaseCollection*>           rftEnsemblesForWell(const QString& simWellName);
+    static std::vector<RimSummaryCaseCollection*>           rftEnsembles();
     static QString                                  simWellName(const QString& wellPathNameOrSimWellName);
 
     static std::map<QDateTime, std::set<RifDataSourceForRftPlt>>

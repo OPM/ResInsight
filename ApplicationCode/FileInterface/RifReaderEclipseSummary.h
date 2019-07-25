@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
@@ -67,7 +68,7 @@ public:
 
     bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
     std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
-
+    RiaEclipseUnitTools::UnitSystem     unitSystem() const override;
     QStringList                         warnings() const { return m_warnings; }
 
     void                        markForCachePurge(const RifEclipseSummaryAddress& address) override;
@@ -87,6 +88,8 @@ private:
     ecl_sum_type*               m_ecl_sum;
     const ecl_smspec_type *     m_ecl_SmSpec;
     std::vector<time_t>         m_timeSteps;
+
+    RiaEclipseUnitTools::UnitSystem m_unitSystem;
 
     std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
 

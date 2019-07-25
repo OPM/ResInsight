@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaApplication.h"
-#include "RiaTimeHistoryCurveMerger.h"
 
 #include "SummaryPlotCommands/RicNewDerivedEnsembleFeature.h"
 

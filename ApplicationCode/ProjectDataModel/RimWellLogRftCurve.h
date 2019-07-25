@@ -31,9 +31,11 @@
 
 #include <map>
 
-class RifReaderEclipseRft;
+class RifReaderRftInterface;
 class RigEclipseWellLogExtractor;
 class RimEclipseResultCase;
+class RimSummaryCase;
+class RimSummaryCaseCollection;
 class RimWellPath;
 
 //==================================================================================================
@@ -54,6 +56,12 @@ public:
     void                  setEclipseResultCase(RimEclipseResultCase* eclipseResultCase);
     RimEclipseResultCase* eclipseResultCase() const;
 
+    void                  setSummaryCase(RimSummaryCase* summaryCase);
+    RimSummaryCase*       summaryCase() const;
+
+	void                  setEnsemble(RimSummaryCaseCollection* ensemble);
+    RimSummaryCaseCollection* ensemble() const;
+
     void                  setRftAddress(RifEclipseRftAddress address);
     RifEclipseRftAddress  rftAddress() const;
 
@@ -73,7 +81,7 @@ protected:
     void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    RifReaderEclipseRft* rftReader() const;
+    RifReaderRftInterface* rftReader() const;
 
     RigEclipseWellLogExtractor* extractor();
 
@@ -86,11 +94,13 @@ private:
     std::vector<double>  measuredDepthValues();
 
 private:
-    caf::PdmPtrField<RimEclipseResultCase*> m_eclipseResultCase;
-    caf::PdmField<QDateTime>                m_timeStep;
-    caf::PdmField<QString>                  m_wellName;
-    caf::PdmField<int>                      m_branchIndex;
-    caf::PdmField<bool>                     m_branchDetection;
+    caf::PdmPtrField<RimEclipseResultCase*>     m_eclipseResultCase;
+    caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
+    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
+    caf::PdmField<QDateTime>                    m_timeStep;
+    caf::PdmField<QString>                      m_wellName;
+    caf::PdmField<int>                          m_branchIndex;
+    caf::PdmField<bool>                         m_branchDetection;
 
     std::map<size_t, size_t>                                                 m_idxInWellPathToIdxInRftFile;
     bool                                                                     m_isUsingPseudoLength;

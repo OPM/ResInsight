@@ -41,6 +41,7 @@ public:
     typedef caf::AppEnum<RiuQwtPlotCurve::CurveInterpolationEnum> CurveInterpolation;
     typedef caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum> LineStyle;
     typedef caf::AppEnum<RiuQwtSymbol::PointSymbolEnum> PointSymbol;
+	typedef caf::AppEnum<RiuQwtSymbol::LabelPosition> LabelPosition;
 
 public:
     RimPlotCurve();
@@ -62,10 +63,12 @@ public:
     void                            setLineStyle(RiuQwtPlotCurve::LineStyleEnum lineStyle);
     void                            setSymbol(RiuQwtSymbol::PointSymbolEnum symbolStyle);
     RiuQwtSymbol::PointSymbolEnum   symbol();
+    int                             symbolSize() const;
     cvf::Color3f                    symbolEdgeColor() const;
     void                            setSymbolEdgeColor(const cvf::Color3f& edgeColor);
     void                            setSymbolSkipDistance(float distance);
     void                            setSymbolLabel(const QString& label);
+    void                            setSymbolLabelPosition(RiuQwtSymbol::LabelPosition labelPosition);
     void                            setSymbolSize(int sizeInPixels);
     void                            setLineThickness(int thickness);
     void                            resetAppearance();
@@ -128,7 +131,7 @@ protected:
     caf::PdmField<QString>            m_curveName;
     caf::PdmField<QString>            m_customCurveName;
     caf::PdmField<bool>               m_showLegend;
-    QString                           m_symbolLabel;
+    caf::PdmField<QString>            m_symbolLabel;
     caf::PdmField<int>                m_symbolSize;
     caf::PdmField<QString>            m_legendEntryText;
     
@@ -141,7 +144,7 @@ protected:
     caf::PdmField<PointSymbol>        m_pointSymbol;
     caf::PdmField<LineStyle>          m_lineStyle;
     caf::PdmField<CurveInterpolation> m_curveInterpolation;
-    RiuQwtSymbol::LabelPosition       m_symbolLabelPosition;
+    caf::PdmField<LabelPosition>      m_symbolLabelPosition;
     caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;
 };
 

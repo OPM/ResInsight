@@ -22,10 +22,12 @@
 
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
+#include "RifReaderEnsembleStatisticsRft.h"
 #include "RimGridSummaryCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 
+#include "RifReaderEclipseRft.h"
 #include "RifSummaryReaderInterface.h"
 
 #include <QFileDialog>
@@ -145,6 +147,8 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 
     CAF_PDM_InitField(&m_isEnsemble, "IsEnsemble", false, "Is Ensemble", "", "", "");
     m_isEnsemble.uiCapability()->setUiHidden(true);
+
+    m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft(this);
 
     m_commonAddressCount = 0;
 }
@@ -282,6 +286,50 @@ std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::ensembleSummaryAddr
        addresses.insert(addrs.begin(), addrs.end());
    }
    return addresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QString> RimSummaryCaseCollection::wellsWithRftData() const
+{
+    std::set<QString> allWellNames;
+    for (RimSummaryCase* summaryCase : m_cases)
+    {
+        RifReaderRftInterface* reader = summaryCase->rftReader();
+        if (reader)
+        {
+            std::set<QString> wellNames = reader->wellNames();
+            allWellNames.insert(wellNames.begin(), wellNames.end());
+        }
+    }
+    return allWellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime> RimSummaryCaseCollection::rftTimeStepsForWell(const QString& wellName) const
+{
+    std::set<QDateTime> allTimeSteps;
+    for (RimSummaryCase* summaryCase : m_cases)
+    {
+        RifReaderRftInterface* reader = summaryCase->rftReader();
+        if (reader)
+        {
+            std::set<QDateTime> timeStep = reader->availableTimeSteps(wellName);
+            allTimeSteps.insert(timeStep.begin(), timeStep.end());
+        }
+    }
+    return allTimeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderRftInterface* RimSummaryCaseCollection::rftStatisticsReader()
+{
+    return m_statisticsEclipseRftReader.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -526,6 +574,18 @@ bool RimSummaryCaseCollection::validateEnsembleCases(const std::vector<RimSummar
 bool RimSummaryCaseCollection::operator<(const RimSummaryCaseCollection& rhs) const
 {
     return name() < rhs.name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RimSummaryCaseCollection::unitSystem() const
+{
+    if (m_cases.empty())
+    {
+        return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    }
+    return m_cases[0]->unitsSystem();
 }
 
 //--------------------------------------------------------------------------------------------------

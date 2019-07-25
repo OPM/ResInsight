@@ -14,3 +14,6 @@ for i in range (0, len(timeStepInfo)):
 
     case.properties.setActiveCellProperty(results, 'GENERATED', 'SOILPORVSync', i)
 print("Transferred all results back")
+
+view = resInsight.project.view(0)
+view.applyCellResult(resultType='GENERATED', resultVariable='SOILPORVSync')

@@ -32,7 +32,9 @@
 
 class RimWellLogFile;
 class RimEclipseCase;
-class RifReaderEclipseRft;
+class RifReaderRftInterface;
+class RimSummaryCase;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 ///  
@@ -46,16 +48,22 @@ public:
         NONE,
         OBSERVED,
         RFT,
-        GRID
+        GRID,
+        ENSEMBLE_RFT,
+        SUMMARY_RFT
     };
 
     RifDataSourceForRftPlt();
     RifDataSourceForRftPlt(SourceType sourceType, RimEclipseCase* eclCase);
+    RifDataSourceForRftPlt(SourceType sourceType, RimSummaryCaseCollection* ensemble);
+    RifDataSourceForRftPlt(SourceType sourceType, RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble);
     RifDataSourceForRftPlt(SourceType sourceType, RimWellLogFile* wellLogFile = nullptr);
 
     SourceType   sourceType() const;
     RimEclipseCase* eclCase() const;
-    RifReaderEclipseRft* rftReader() const;
+    RifReaderRftInterface* rftReader() const;
+    RimSummaryCaseCollection* ensemble() const;
+    RimSummaryCase* summaryCase() const;
     RimWellLogFile* wellLogFile() const;
 
     static QString sourceTypeUiText(SourceType sourceType);
@@ -64,9 +72,11 @@ public:
     friend bool operator<(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2);
 
 private:
-    SourceType                      m_sourceType;
-    caf::PdmPointer<RimEclipseCase> m_eclCase;
-    caf::PdmPointer<RimWellLogFile> m_wellLogFile;
+    SourceType                                m_sourceType;
+    caf::PdmPointer<RimEclipseCase>           m_eclCase;
+    caf::PdmPointer<RimSummaryCase>           m_summaryCase;
+    caf::PdmPointer<RimSummaryCaseCollection> m_ensemble;
+    caf::PdmPointer<RimWellLogFile>           m_wellLogFile;
 };
 
 bool operator==(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2);

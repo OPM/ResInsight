@@ -201,16 +201,16 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate(bool updateParentPlot)
         double markerDepth = startDepth;
         while (markerDepth < endDepth - 5)
         {
-            addMarker(-casingTrackEnd, markerDepth, markerSize, RiuQwtSymbol::SYMBOL_LEFT_TRIANGLE, componentColor());
-            addMarker(casingTrackEnd,  markerDepth, markerSize, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, componentColor());
+            addMarker(-casingTrackEnd, markerDepth, markerSize, RiuQwtSymbol::SYMBOL_LEFT_ALIGNED_TRIANGLE, componentColor());
+            addMarker(casingTrackEnd,  markerDepth, markerSize, RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor());
 
             markerDepth += markerSpacing;
         }
-        addMarker(casingTrackEnd, midDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, componentColor(0.0), label());
+        addMarker(casingTrackEnd, midDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor(0.0), label());
 
-        QwtPlotItem* legendItem1 = createMarker(16.0, 0.0, 6, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, componentColor());
+        QwtPlotItem* legendItem1 = createMarker(16.0, 0.0, 6, RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor());
         legendItem1->setLegendIconSize(QSize(4, 8));
-        QwtPlotItem* legendItem2 = createMarker(16.0, 8.0, 6, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, componentColor());
+        QwtPlotItem* legendItem2 = createMarker(16.0, 8.0, 6, RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor());
         legendItem2->setLegendIconSize(QSize(4, 8));
         m_combinedComponentGroup.addLegendItem(legendItem1);
         m_combinedComponentGroup.addLegendItem(legendItem2);

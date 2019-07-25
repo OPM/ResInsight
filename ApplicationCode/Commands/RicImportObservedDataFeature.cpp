@@ -40,13 +40,6 @@ CAF_CMD_SOURCE_INIT(RicImportObservedDataFeature, "RicImportObservedDataFeature"
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicImportObservedDataFeature::RicImportObservedDataFeature()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 {
     RiaApplication* app = RiaApplication::instance();

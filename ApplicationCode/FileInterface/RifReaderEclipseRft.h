@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RifEclipseRftAddress.h"
+#include "RifReaderRftInterface.h"
 
 #include <map>
 #include <string>
@@ -38,26 +38,27 @@ namespace caf
 //
 //
 //==================================================================================================
-class RifReaderEclipseRft : public cvf::Object
+class RifReaderEclipseRft : public RifReaderRftInterface, public cvf::Object
 {
 public:
     RifReaderEclipseRft(const QString& fileName);
     ~RifReaderEclipseRft() override;
 
-    const std::vector<RifEclipseRftAddress>&                    eclipseRftAddresses();
-    void                                                        values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values);
-    void                                                        cellIndices(const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices);
+    std::set<RifEclipseRftAddress>                            eclipseRftAddresses() override;
+    void                                                      values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values) override;
+    void                                                      cellIndices(const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices);
 
-    std::set<QDateTime>                                         availableTimeSteps(const QString& wellName, const std::set<RifEclipseRftAddress::RftWellLogChannelType> relevantChannels);
+    std::set<QDateTime>                                       availableTimeSteps(const QString& wellName) override;
+    std::set<QDateTime>                                       availableTimeSteps(const QString& wellName, const std::set<RifEclipseRftAddress::RftWellLogChannelType> relevantChannels) override;
 
-    std::vector<QDateTime>                                      availableTimeSteps(const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName);
-    std::vector<RifEclipseRftAddress::RftWellLogChannelType>    availableWellLogChannels(const QString& wellName);
-    const std::set<QString>&                                    wellNames();
-    bool                                                        wellHasRftData(QString wellName);
+    std::set<QDateTime>                                       availableTimeSteps(const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName) override;
+    std::set<RifEclipseRftAddress::RftWellLogChannelType>     availableWellLogChannels(const QString& wellName) override;
+    std::set<QString>                                         wellNames() override;
+    bool                                                      wellHasRftData(QString wellName);
 
 private:
-    void                                                        open();
-    int                                                         indexFromAddress(const RifEclipseRftAddress& rftAddress) const;
+    void                                                      open();
+    int                                                       indexFromAddress(const RifEclipseRftAddress& rftAddress) const;
 
 private:
     // Taken from ecl_rft_file.h and ecl_rft_node.h
@@ -65,7 +66,7 @@ private:
 
     QString                             m_fileName;
     ecl_rft_file_type*                  m_ecl_rft_file;
-    std::vector<RifEclipseRftAddress>   m_eclipseRftAddresses;
+    std::set<RifEclipseRftAddress>      m_eclipseRftAddresses;
     std::set<QString>                   m_wellNames;
     std::map<RifEclipseRftAddress, int> m_rftAddressToLibeclNodeIdx;
 };

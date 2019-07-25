@@ -26,3 +26,7 @@ for i in range (0, len(timeStepInfo)):
     case.properties.setActiveCellPropertyAsync(input_iterator, 'GENERATED', 'SOILPORVAsync', i)
 
 print("Transferred all results back")
+
+
+view = resInsight.project.view(0)
+view.applyCellResult(resultType='GENERATED', resultVariable='SOILPORVAsync')

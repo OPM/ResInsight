@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2019- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,55 +15,56 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+#include "RicImportFmuObservedDataFeature.h"
 
-#include "RiaRftPltCurveDefinition.h"
+#include "RiaApplication.h"
+#include "RifReaderFmuRft.h"
+
+#include "RimObservedData.h"
+#include "RimObservedDataCollection.h"
+#include "RimProject.h"
+
+#include "RiuPlotMainWindowTools.h"
+
+#include "cafSelectionManager.h"
+
+#include <QAction>
+#include <QFileDialog>
+#include <QMessageBox>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaRftPltCurveDefinition::RiaRftPltCurveDefinition(const RifDataSourceForRftPlt& address, const QString& wellName, const QDateTime& timeStep)
-    : m_curveAddress(address)
-	, m_wellName(wellName)
-	, m_timeStep(timeStep)
+void RicImportFmuObservedDataFeature::selectObservedDataPathInDialog()
 {
+    RiaApplication* app       = RiaApplication::instance();
+    QString defaultDir = app->lastUsedDialogDirectory("SUMMARY_CASE_DIR");
+    QString directory  = QFileDialog::getExistingDirectory(
+        nullptr, "Import Fmu Observed Data Recursively from Directory", defaultDir, QFileDialog::ShowDirsOnly);
+
+	QStringList subDirsWithFmuData = RifReaderFmuRft::findSubDirectoriesWithFmuRftData(directory);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RifDataSourceForRftPlt& RiaRftPltCurveDefinition::address() const
+bool RicImportFmuObservedDataFeature::isCommandEnabled()
 {
-    return m_curveAddress;
+    std::vector<RimObservedDataCollection*> selectionObservedDataCollection;
+    caf::SelectionManager::instance()->objectsByType(&selectionObservedDataCollection);
+
+    std::vector<RimObservedData*> selectionObservedData;
+    caf::SelectionManager::instance()->objectsByType(&selectionObservedData);
+
+    return (selectionObservedDataCollection.size() > 0 || selectionObservedData.size() > 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RiaRftPltCurveDefinition::wellName() const
-{
-    return m_wellName;
-}
+void RicImportFmuObservedDataFeature::onActionTriggered(bool isChecked) {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QDateTime& RiaRftPltCurveDefinition::timeStep() const
-{
-    return m_timeStep;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaRftPltCurveDefinition::operator<(const RiaRftPltCurveDefinition& other) const
-{
-	if (m_curveAddress == other.m_curveAddress)
-	{
-		if (m_wellName == other.m_wellName)
-		{
-            return m_timeStep < other.m_timeStep;
-		}
-        return m_wellName < other.m_wellName;
-	}
-    return m_curveAddress < other.m_curveAddress;
-}
+void RicImportFmuObservedDataFeature::setupActionLook(QAction* actionToSetup) {}

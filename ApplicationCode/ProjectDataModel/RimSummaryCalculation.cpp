@@ -23,7 +23,7 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 
-#include "RiaTimeHistoryCurveMerger.h"
+#include "RiaCurveMerger.h"
 
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
@@ -267,7 +267,7 @@ bool RimSummaryCalculation::calculate()
 
         std::vector<time_t> curveTimeSteps = RiaSummaryCurveDefinition::timeSteps(curveDef);
 
-        timeHistoryCurveMerger.addCurveData(curveValues, curveTimeSteps);
+        timeHistoryCurveMerger.addCurveData(curveTimeSteps, curveValues);
     }
 
     timeHistoryCurveMerger.computeInterpolatedValues();
@@ -277,11 +277,11 @@ bool RimSummaryCalculation::calculate()
     {
         RimSummaryCalculationVariable* v = m_variables[i];
 
-        parser.assignVector(v->name(), timeHistoryCurveMerger.interpolatedCurveValuesForAllTimeSteps(i));
+        parser.assignVector(v->name(), timeHistoryCurveMerger.interpolatedYValuesForAllXValues(i));
     }
 
     std::vector<double> resultValues;
-    resultValues.resize(timeHistoryCurveMerger.allTimeSteps().size());
+    resultValues.resize(timeHistoryCurveMerger.allXValues().size());
 
     parser.assignVector(leftHandSideVariableName, resultValues);
 
@@ -293,16 +293,16 @@ bool RimSummaryCalculation::calculate()
         m_timesteps.v().clear();
         m_calculatedValues.v().clear();
 
-        if (timeHistoryCurveMerger.validIntervalsForAllTimeSteps().size() > 0)
+        if (timeHistoryCurveMerger.validIntervalsForAllXValues().size() > 0)
         {
-            size_t firstValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllTimeSteps().front().first;
-            size_t lastValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllTimeSteps().back().second + 1;
+            size_t firstValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllXValues().front().first;
+            size_t lastValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllXValues().back().second + 1;
 
             if (lastValidTimeStep > firstValidTimeStep &&
-                lastValidTimeStep <= timeHistoryCurveMerger.allTimeSteps().size())
+                lastValidTimeStep <= timeHistoryCurveMerger.allXValues().size())
             {
-                std::vector<time_t> validTimeSteps(timeHistoryCurveMerger.allTimeSteps().begin() + firstValidTimeStep, 
-                                                   timeHistoryCurveMerger.allTimeSteps().begin() + lastValidTimeStep);
+                std::vector<time_t> validTimeSteps(timeHistoryCurveMerger.allXValues().begin() + firstValidTimeStep, 
+                                                   timeHistoryCurveMerger.allXValues().begin() + lastValidTimeStep);
 
 
                 std::vector<double> validValues(resultValues.begin() + firstValidTimeStep,

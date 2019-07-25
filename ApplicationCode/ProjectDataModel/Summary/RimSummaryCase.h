@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
 #include "RigCaseRealizationParameters.h"
 
 #include "cafPdmField.h"
@@ -24,6 +25,7 @@
 
 #include <memory>
 
+class RifReaderRftInterface;
 class RifSummaryReaderInterface;
 class RimSummaryCaseCollection;
 
@@ -43,12 +45,15 @@ public:
     virtual QString     summaryHeaderFilename() const; 
     virtual QString     caseName() const = 0; 
     QString             shortName() const;
+    
+    RiaEclipseUnitTools::UnitSystemType unitsSystem();
 
     void                updateAutoShortName();
     void                updateOptionSensitivity();
 
     virtual void        createSummaryReaderInterface() = 0;
     virtual RifSummaryReaderInterface* summaryReader() = 0;
+    virtual RifReaderRftInterface* rftReader();
     virtual QString     errorMessagesFromReader()               { return QString(); }
 
     virtual void        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) = 0;

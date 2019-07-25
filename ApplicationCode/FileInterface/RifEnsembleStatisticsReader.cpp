@@ -86,6 +86,14 @@ std::string RifEnsembleStatisticsReader::unitName(const RifEclipseSummaryAddress
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RifEnsembleStatisticsReader::unitSystem() const
+{
+    return m_ensembleStatCase->unitSystem();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifEnsembleStatisticsReader::validateAddress(const RifEclipseSummaryAddress& address) const
 {
     return address.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS && !address.quantityName().empty();

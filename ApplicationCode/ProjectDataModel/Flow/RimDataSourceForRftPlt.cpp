@@ -34,6 +34,7 @@ namespace caf
         addItem(RifDataSourceForRftPlt::SourceType::RFT, "RFT", "RFT Cases");
         addItem(RifDataSourceForRftPlt::SourceType::GRID, "GRID", "Grid Cases");
         addItem(RifDataSourceForRftPlt::SourceType::OBSERVED, "OBSERVED", "Observed Data");
+        addItem(RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT, "ENSEMBLE", "Ensembles with RFT Data");
         setDefault(RifDataSourceForRftPlt::SourceType::NONE);
     }
 }
