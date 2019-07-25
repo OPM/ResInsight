@@ -27,6 +27,7 @@
 #include "cvfObject.h"
 
 #include <QDateTime>
+#include <QDir>
 
 //==================================================================================================
 //
@@ -45,7 +46,6 @@ public:
 
     struct Observation
     {
-        int    measurementIndex;
         double utmx;
         double utmy;
         double mdrkb;
@@ -74,13 +74,14 @@ public:
     std::set<QDateTime> availableTimeSteps(const QString& wellName) const;
     std::set<QString>   wellNamesWithRftData() const;
 
-    Status observations(const QString& wellName, std::map<QDateTime, std::vector<Observation>>* observations, QString* errorMsg) const;
+    Status observations(const QString& wellName, WellDate* wellDate, std::vector<Observation>* observations, QString* errorMsg) const;
 
 private:
-    Status readWellDates(QDir& dir, QString* errorMsg);
-
+    Status loadWellDates(QDir& dir, QString* errorMsg);
+    Status readTxtFile(const QString& txtFileName, std::vector<Observation>* observations, QString* errorMsg) const;
+    Status readObsFile(const QString& obsFileName, std::vector<Observation>* observations, QString* errorMsg) const;
 private:
-    Status                                   m_status;
-    QString                                  m_filePath;
-    std::map<QString, std::vector<WellDate>> m_wellDates;
+    Status                      m_status;
+    QString                     m_filePath;
+    std::map<QString, WellDate> m_wellDates;
 };

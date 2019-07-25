@@ -17,8 +17,14 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RifReaderFmuRft.h"
 
+#include "cvfAssert.h"
+
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
+#include <QTextStream>
+
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -42,10 +48,10 @@ RifReaderFmuRft::Status RifReaderFmuRft::status() const
 //--------------------------------------------------------------------------------------------------
 RifReaderFmuRft::Status RifReaderFmuRft::initialize(QString* errorMsg)
 {
-    CAF_ASSERT(errorMsg);
+    CVF_ASSERT(errorMsg);
 
     QFileInfo fileInfo(m_filePath);
-    if (!fileInfo.exists() && fileInfo.isDir() && fileInfo.isReadable())
+    if (!(fileInfo.exists() && fileInfo.isDir() && fileInfo.isReadable()))
     {
         *errorMsg = QString("Directory '%s' does not exist or isn't readable").arg(m_filePath);
         return STATUS_ERROR;
@@ -53,16 +59,16 @@ RifReaderFmuRft::Status RifReaderFmuRft::initialize(QString* errorMsg)
 
     QDir dir(fileInfo.dir());
 
-    if (STATUS_ERROR == readWellDates(dir, errorMsg))
+    if (STATUS_ERROR == loadWellDates(dir, errorMsg))
     {
         return STATUS_ERROR;
     }
    
-    std::map<QString, std::vector<WellDate>> validWellDates;
+    std::map<QString, WellDate> validWellDates;
     for (auto wellDatePair : m_wellDates)
     {
-        QString txtFile = QString("%1.txt").arg(wellDatePair.first.wellName);
-        QString obsFile = QString("%1.obs").arg(wellDatePair.first.wellName);
+        QString txtFile = QString("%1.txt").arg(wellDatePair.first);
+        QString obsFile = QString("%1.obs").arg(wellDatePair.first);
         QFileInfo txtFileInfo(dir.absoluteFilePath(txtFile));
         QFileInfo obsFileInfo(dir.absoluteFilePath(obsFile));
         if (txtFileInfo.exists() && txtFileInfo.isFile() && txtFileInfo.isReadable() &&
@@ -90,9 +96,9 @@ RifReaderFmuRft::Status RifReaderFmuRft::initialize(QString* errorMsg)
 std::set<QDateTime> RifReaderFmuRft::availableTimeSteps(const QString& wellName) const
 {
     std::set<QDateTime> dates;
-    for (const WellDate& wellDate : m_wellDates[wellName])
+    for (auto wellDatePair : m_wellDates)
     {
-        dates.insert(wellDate.date);
+        dates.insert(wellDatePair.second.date);
     }
     return  dates;
 }
@@ -105,7 +111,7 @@ std::set<QString> RifReaderFmuRft::wellNamesWithRftData() const
     std::set<QString> wellNames;
     for (auto wellDatePair : m_wellDates)
     {
-        wellNames.insert(wellDate.wellName);
+        wellNames.insert(wellDatePair.first);
     }
     return wellNames;
 }
@@ -113,19 +119,47 @@ std::set<QString> RifReaderFmuRft::wellNamesWithRftData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderFmuRft::Status RifReaderFmuRft::observations(const QString&                                 wellName,
-                                                      std::map<QDateTime, std::vector<Observation>>* observations,
-                                                      QString*                                       errorMsg) const
+RifReaderFmuRft::Status RifReaderFmuRft::observations(const QString&            wellName,
+                                                      WellDate*                 wellDate,
+                                                      std::vector<Observation>* observations,
+                                                      QString*                  errorMsg) const
 {
+    CVF_ASSERT(observations && errorMsg);
 
+    auto it = m_wellDates.find(wellName);
+    if (it == m_wellDates.end())
+    {
+        *errorMsg = QString("No such well name '%1'").arg(wellName);
+        return STATUS_ERROR;
+    }
+
+    *wellDate = it->second;
+
+    QFileInfo fileInfo(m_filePath);
+    QDir      dir(fileInfo.dir());
+
+    QString txtFileName = dir.absoluteFilePath(QString("%1.txt").arg(wellName));
+    QString obsFileName = dir.absoluteFilePath(QString("%1.obs").arg(wellName));
+
+    if (STATUS_ERROR == readTxtFile(txtFileName, observations, errorMsg))
+    {
+        return STATUS_ERROR;
+    }
+
+    if (STATUS_ERROR == readObsFile(obsFileName, observations, errorMsg))
+    {
+        return STATUS_ERROR;
+    }
+
+    return STATUS_OK;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderFmuRft::Status RifReaderFmuRft::readWellDates(QDir& dir, QString* errorMsg)
+RifReaderFmuRft::Status RifReaderFmuRft::loadWellDates(QDir& dir, QString* errorMsg)
 {
-    CAF_ASSERT(errorMsg);
+    CVF_ASSERT(errorMsg);
 
     QFileInfo wellDateFileInfo(dir.absoluteFilePath("well_date_rft.txt"));
     if (!(wellDateFileInfo.exists() && wellDateFileInfo.isFile() && wellDateFileInfo.isReadable()))
@@ -134,7 +168,6 @@ RifReaderFmuRft::Status RifReaderFmuRft::readWellDates(QDir& dir, QString* error
         return STATUS_ERROR;
     }
 
-    QStringList wellTimeStepLines;
     {
         QFile wellDateFile(wellDateFileInfo.absoluteFilePath());
         if (!wellDateFile.open(QIODevice::Text | QIODevice::ReadOnly))
@@ -152,29 +185,132 @@ RifReaderFmuRft::Status RifReaderFmuRft::readWellDates(QDir& dir, QString* error
             }
             else
             {
-                wellTimeStepLines.push_back(line);
+                QTextStream lineStream(&line);
+
+                QString wellName;
+                int     day, month, year, measurementIndex;
+
+                lineStream >> wellName >> day >> month >> year >> measurementIndex;
+                if (lineStream.status() != QTextStream::Ok)
+                {
+                    *errorMsg = QString("Failed to parse '%1'").arg(wellDateFileInfo.absoluteFilePath());
+                    return STATUS_ERROR;
+                }
+
+                QDateTime dateTime(QDate(year, month, day));
+                WellDate  wellDate = {wellName, dateTime, measurementIndex};
+                m_wellDates[wellName] = wellDate;
             }
         }
     }
+  
+    return STATUS_OK;
+}
 
-    for (QString line : wellTimeStepLines)
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderFmuRft::Status RifReaderFmuRft::readTxtFile(const QString& fileName, std::vector<Observation>* observations, QString* errorMsg) const
+{
+    CVF_ASSERT(observations);
+
+    QFile file(fileName);
+    if (!(file.open(QIODevice::Text | QIODevice::ReadOnly)))
     {
-        QTextStream lineStream(&line);
-
-        QString wellName;
-        int day, month, year, measurementIndex;
-
-        lineStream >> wellName >> day >> month >> year;
-        if (lineStream.status() != QTextStream::Ok)
+        *errorMsg = QString("Could not open '%1'").arg(fileName);
+        return STATUS_ERROR;
+    }
+    QTextStream stream(&file);
+    while (true)
+    {
+        QString line = stream.readLine();
+        if (line.isNull())
         {
-            *errorMsg = QString("Failed to parse '%1'").arg(wellDateFileInfo.absoluteFilePath();
+            break;
+        }
+        else
+        {
+            QTextStream lineStream(&line);
+
+            double  utmx, utmy, mdrkb, tvdmsl;
+            QString formationName;
+
+            lineStream >> utmx >> utmy >> mdrkb >> tvdmsl >> formationName;
+
+            if (lineStream.status() != QTextStream::Ok)
+            {
+                *errorMsg = QString("Failed to parse '%1'").arg(fileName);
+                return STATUS_ERROR;
+            }
+
+            Observation observation = {utmx,
+                                       utmy,
+                                       mdrkb,
+                                       tvdmsl,
+                                       -std::numeric_limits<double>::infinity(),
+                                       -std::numeric_limits<double>::infinity(),
+                                       formationName};
+            observations->push_back(observation);
+        }
+    }
+    return STATUS_OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderFmuRft::Status RifReaderFmuRft::readObsFile(const QString& fileName, std::vector<Observation>* observations, QString* errorMsg) const
+{
+    CVF_ASSERT(observations);
+
+    QFile file(fileName);
+    if (!(file.open(QIODevice::Text | QIODevice::ReadOnly)))
+    {
+        *errorMsg = QString("Could not open '%1'").arg(fileName);
+        return STATUS_ERROR;
+    }
+
+    size_t lineNumber = 0u;
+
+    QTextStream stream(&file);
+    while (true)
+    {
+        if (lineNumber >= observations->size())
+        {
+            *errorMsg = QString("Too many lines in '%1'").arg(fileName);
             return STATUS_ERROR;
         }
 
-        QDateTime dateTime(QDate(year, month, day));
-        WellDate wellDate = { wellName, dateTime, measurementIndex };
-        m_wellDates[wellName].push_back(wellDate);
+        QString line = stream.readLine();
+        if (line.isNull())
+        {
+            break;
+        }
+        else
+        {
+            QTextStream lineStream(&line);
+
+            double  pressure, pressure_error;
+
+            lineStream >> pressure >> pressure_error;
+
+            if (lineStream.status() != QTextStream::Ok)
+            {
+                *errorMsg = QString("Failed to parse '%1'").arg(fileName);
+                return STATUS_ERROR;
+            }
+
+            Observation& observation   = observations->at(lineNumber);
+            observation.pressure       = pressure;
+            observation.pressure_error = pressure_error;
+        }
+        lineNumber++;
     }
 
+    if (lineNumber != observations->size())
+    {
+        *errorMsg = QString("Not enough lines in '%1'").arg(fileName);
+        return STATUS_ERROR;
+    }
     return STATUS_OK;
 }
