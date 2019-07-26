@@ -899,7 +899,73 @@ QStringList RiaApplication::octaveArguments() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::launchProcess(const QString& program, const QStringList& arguments)
+QProcessEnvironment RiaApplication::octaveProcessEnvironment() const
+{
+    QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
+
+#ifdef WIN32
+    // Octave plugins compiled by ResInsight are dependent on Qt (currently Qt 32-bit only)
+    // Some Octave installations for Windows have included Qt, and some don't. To make sure these plugins always can be
+    // executed, the path to octave_plugin_dependencies is added to global path
+
+    QString pathString = penv.value("PATH", "");
+
+    if (pathString == "")
+        pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies";
+    else
+        pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies" + ";" + pathString;
+
+    penv.insert("PATH", pathString);
+#else
+    // Set the LD_LIBRARY_PATH to make the octave plugins find the embedded Qt
+    QString ldPath = penv.value("LD_LIBRARY_PATH", "");
+
+    if (ldPath == "")
+        ldPath = QApplication::applicationDirPath();
+    else
+        ldPath = QApplication::applicationDirPath() + ":" + ldPath;
+
+    penv.insert("LD_LIBRARY_PATH", ldPath);
+#endif
+
+    return penv;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaApplication::pythonPath() const
+{
+    return m_preferences->pythonExecutable();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QProcessEnvironment RiaApplication::pythonProcessEnvironment() const
+{
+    QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
+    penv.insert("RESINSIGHT_GRPC_PORT", QString("%1").arg(m_grpcServer->portNumber()));
+    penv.insert("RESINSIGHT_EXECUTABLE", QCoreApplication::applicationFilePath());
+
+    QStringList ripsLocations;
+#ifdef WIN32
+    ripsLocations << QCoreApplication::applicationDirPath() + "\\Python"
+                  << QCoreApplication::applicationDirPath() + "\\..\\..\\Python";
+
+#else
+    ripsLocations << QCoreApplication::applicationDirPath() + "/Python";
+#endif
+
+    penv.insert("PYTHONPATH", QString("%1;%2").arg(penv.value("PYTHONPATH")).arg(ripsLocations.join(";")));
+
+    return penv;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::launchProcess(const QString& program, const QStringList& arguments, const QProcessEnvironment& processEnvironment)
 {
     if (m_workerProcess == nullptr)
     {
@@ -920,34 +986,7 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
         m_runningWorkerProcess = true;
         m_workerProcess        = new caf::UiProcess(QCoreApplication::instance());
 
-        QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
-
-#ifdef WIN32
-        // Octave plugins compiled by ResInsight are dependent on Qt (currently Qt 32-bit only)
-        // Some Octave installations for Windows have included Qt, and some don't. To make sure these plugins always can be
-        // executed, the path to octave_plugin_dependencies is added to global path
-
-        QString pathString = penv.value("PATH", "");
-
-        if (pathString == "")
-            pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies";
-        else
-            pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies" + ";" + pathString;
-
-        penv.insert("PATH", pathString);
-#else
-        // Set the LD_LIBRARY_PATH to make the octave plugins find the embedded Qt
-        QString ldPath = penv.value("LD_LIBRARY_PATH", "");
-
-        if (ldPath == "")
-            ldPath = QApplication::applicationDirPath();
-        else
-            ldPath = QApplication::applicationDirPath() + ":" + ldPath;
-
-        penv.insert("LD_LIBRARY_PATH", ldPath);
-#endif
-
-        m_workerProcess->setProcessEnvironment(penv);
+        m_workerProcess->setProcessEnvironment(processEnvironment);
 
         QCoreApplication::instance()->connect(m_workerProcess,
                 SIGNAL(finished(int, QProcess::ExitStatus)),
@@ -989,7 +1028,8 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::launchProcessForMultipleCases(const QString&          program,
                                                    const QStringList&      arguments,
-                                                   const std::vector<int>& caseIds)
+                                                   const std::vector<int>& caseIds,
+                                                   const QProcessEnvironment& processEnvironment)
 {
     m_currentCaseIds.clear();
     std::copy(caseIds.begin(), caseIds.end(), std::back_inserter(m_currentCaseIds));
@@ -997,7 +1037,7 @@ bool RiaApplication::launchProcessForMultipleCases(const QString&          progr
     m_currentProgram   = program;
     m_currentArguments = arguments;
 
-    return launchProcess(m_currentProgram, m_currentArguments);
+    return launchProcess(m_currentProgram, m_currentArguments, processEnvironment);
 }
 
 //--------------------------------------------------------------------------------------------------

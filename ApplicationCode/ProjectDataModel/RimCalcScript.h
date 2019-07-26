@@ -30,11 +30,25 @@ class RimCalcScript : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum ScriptType
+    {
+        OCTAVE  = 0,
+        PYTHON  = 1,
+        UNKNOWN = 2
+    };
+
     RimCalcScript();
     ~RimCalcScript() override;
+
+    ScriptType        scriptType() const;
+    static ScriptType scriptType(const QString& fileName);
 
     static QStringList createCommandLineArguments(const QString& absoluteFileNameScript);
 
     caf::PdmField<QString>  absoluteFileName;
     caf::PdmField<QString>  content;    // TODO: Obsolete field, can be deleted on next project file revision.
+
+protected:
+    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+
 };

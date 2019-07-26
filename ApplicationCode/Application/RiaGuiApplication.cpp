@@ -1655,6 +1655,8 @@ void RiaGuiApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitSt
 {
     m_mainWindow->processMonitor()->stopMonitorWorkProcess();
 
+    QProcessEnvironment processEnvironment = m_workerProcess->processEnvironment();
+
     // Execute delete later so that other slots that are hooked up
     // get a chance to run before we delete the object
     if (m_workerProcess)
@@ -1684,7 +1686,7 @@ void RiaGuiApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitSt
     // If multiple cases are present, invoke launchProcess() which will set next current case, and run script on this case
     if (!m_currentCaseIds.empty())
     {
-        launchProcess(m_currentProgram, m_currentArguments);
+        launchProcess(m_currentProgram, m_currentArguments, processEnvironment);
     }
     else
     {

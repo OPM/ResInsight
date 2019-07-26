@@ -51,24 +51,56 @@ RimCalcScript::~RimCalcScript() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCalcScript::ScriptType RimCalcScript::scriptType(const QString& absoluteFileNameScript)
+{
+    QFileInfo fileInfo(absoluteFileNameScript);
+    if (fileInfo.suffix() == "py")
+    {
+        return PYTHON;
+    }
+    else if (fileInfo.suffix() == "m")
+    {
+        return OCTAVE;
+    }
+    return UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCalcScript::ScriptType RimCalcScript::scriptType() const
+{
+    return scriptType(absoluteFileName());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RimCalcScript::createCommandLineArguments(const QString& absoluteFileNameScript)
 {
     QStringList arguments;
 
+    if (scriptType(absoluteFileNameScript) == PYTHON)
     {
-        auto app = RiaApplication::instance();
-
-        arguments = app->octaveArguments();
-        arguments.append("--path");
+        arguments.append(absoluteFileNameScript);
     }
-
+    else if (scriptType(absoluteFileNameScript) == OCTAVE)
     {
-        QFileInfo fi(absoluteFileNameScript);
-        QString   octaveFunctionSearchPath = fi.absolutePath();
-        QString   absFilePath              = fi.absoluteFilePath();
+        {
+            auto app = RiaApplication::instance();
 
-        arguments << octaveFunctionSearchPath;
-        arguments << absFilePath;
+            arguments = app->octaveArguments();
+            arguments.append("--path");
+        }
+
+        {
+            QFileInfo fi(absoluteFileNameScript);
+            QString   octaveFunctionSearchPath = fi.absolutePath();
+            QString   absFilePath = fi.absoluteFilePath();
+
+            arguments << octaveFunctionSearchPath;
+            arguments << absFilePath;
+        }
     }
 
     bool debugPrintArgumentText = false;
@@ -76,8 +108,19 @@ QStringList RimCalcScript::createCommandLineArguments(const QString& absoluteFil
     {
         QString argumentString = arguments.join(" ");
 
-        RiaLogging::info("Octave arguments : " + argumentString);
+        RiaLogging::info("Scriptarguments : " + argumentString);
     }
 
     return arguments;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCalcScript::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    if (scriptType() == PYTHON)
+    {
+        uiCapability()->setUiIconFromResourceString(":/PythonScriptFile16x16.png");
+    }
 }

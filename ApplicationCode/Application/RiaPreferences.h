@@ -77,6 +77,8 @@ public: // Pdm Fields
     caf::PdmField<QString>  octaveExecutable;
     caf::PdmField<bool>     octaveShowHeaderInfoWhenExecutingScripts;
     
+    caf::PdmField<QString>  pythonExecutable;
+
     caf::PdmField<QString>  ssihubAddress;
 
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>> defaultMeshModeType;

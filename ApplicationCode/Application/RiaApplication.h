@@ -33,6 +33,7 @@
 #include <QApplication>
 #include <QMutex>
 #include <QProcess>
+#include <QProcessEnvironment>
 #include <QString>
 
 #include <iostream>
@@ -144,9 +145,13 @@ public:
 
     QString     octavePath() const;
     QStringList octaveArguments() const;
+    QProcessEnvironment octaveProcessEnvironment() const;
 
-    bool launchProcess(const QString& program, const QStringList& arguments);
-    bool launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds);
+    QString             pythonPath() const;
+    QProcessEnvironment pythonProcessEnvironment() const;
+
+    bool launchProcess(const QString& program, const QStringList& arguments, const QProcessEnvironment& processEnvironment);
+    bool launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds, const QProcessEnvironment& processEnvironment);
     void terminateProcess();
     void waitForProcess() const;
 

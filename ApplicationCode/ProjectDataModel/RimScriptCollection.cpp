@@ -81,8 +81,8 @@ void RimScriptCollection::readContentFromDisc()
 
     // Build a list of all scripts in the specified directory
     {
-        QString     filter   = "*.m";
-        QStringList fileList = caf::Utils::getFilesInDirectory(directory, filter, true);
+        QStringList nameFilters; nameFilters << "*.m" << "*.py";
+        QStringList fileList = caf::Utils::getFilesInDirectory(directory, nameFilters, true);
 
         int i;
         for (i = 0; i < fileList.size(); i++)

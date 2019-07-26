@@ -65,11 +65,11 @@ RicfCommandResponse RicfRunOctaveScript::execute()
     bool ok;
     if (caseIds.empty())
     {
-        ok = RiaApplication::instance()->launchProcess(octavePath, processArguments);
+        ok = RiaApplication::instance()->launchProcess(octavePath, processArguments, RiaApplication::instance()->octaveProcessEnvironment());
     }
     else
     {
-        ok = RiaApplication::instance()->launchProcessForMultipleCases(octavePath, processArguments, caseIds);
+        ok = RiaApplication::instance()->launchProcessForMultipleCases(octavePath, processArguments, caseIds, RiaApplication::instance()->octaveProcessEnvironment());
     }
 
     RicfCommandResponse response;

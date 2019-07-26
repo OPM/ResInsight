@@ -80,18 +80,32 @@ QString Utils::absoluteFileName(const QString& fileName)
     return QDir::toNativeSeparators(fi.absoluteFilePath());
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList Utils::getFilesInDirectory(const QString& dirPath,
+                                       const QString& nameFilter,
+                                       bool getAbsoluteFileNames)
+{
+    QStringList nameFilters; nameFilters << nameFilter;
+    return getFilesInDirectory(dirPath, nameFilters, getAbsoluteFileNames);
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList Utils::getFilesInDirectory(const QString& dirPath, const QString& filter, bool getAbsoluteFileNames)
+QStringList Utils::getFilesInDirectory(const QString& dirPath, const QStringList& nameFilters, bool getAbsoluteFileNames)
 {
     QDir::SortFlags sortFlags = QDir::SortFlags(QDir::Name | QDir::IgnoreCase);
 
     // Only get files
-    QDir::Filters filters = QDir::Files;
+    QDir::Filters typeFilter = QDir::Files;
 
-    QDir dir(dirPath, filter, sortFlags, filters);
+    QDir dir(dirPath);
+    dir.setFilter(typeFilter);
+    dir.setNameFilters(nameFilters);
+    dir.setSorting(sortFlags);
 
     QFileInfoList fileInfoList = dir.entryInfoList();
     
@@ -109,7 +123,6 @@ QStringList Utils::getFilesInDirectory(const QString& dirPath, const QString& fi
 
     return retFileNames;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
