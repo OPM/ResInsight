@@ -1640,6 +1640,9 @@ void RifEclipseInputFileTools::readFaults(QFile&                     data,
 
     // qDebug() << "Reading faults from\n  " << data.fileName();
 
+    std::set<QString> errorMessages;
+    std::set<QString> warningMessages;
+
     RigFault* fault = nullptr;
 
     do
@@ -1655,7 +1658,7 @@ void RifEclipseInputFileTools::readFaults(QFile&                     data,
         else if (line.startsWith("/", Qt::CaseInsensitive))
         {
             // Detected end of keyword data section
-            return;
+            break;
         }
         else if (line.startsWith(editKeyword, Qt::CaseInsensitive))
         {
@@ -1666,7 +1669,7 @@ void RifEclipseInputFileTools::readFaults(QFile&                     data,
                 *isEditKeywordDetected = true;
             }
 
-            return;
+            break;
         }
 
         // Replace tab with space to be able to split the string using space as splitter
@@ -1704,14 +1707,14 @@ void RifEclipseInputFileTools::readFaults(QFile&                     data,
 
         if (faultName.contains(' '))
         {
-            RiaLogging::error(QString("Fault name '%1' contains spaces").arg(faultName));
+            errorMessages.insert(QString("Fault name '%1' contains spaces").arg(faultName));
             continue;
         }
         else if (faultName.length() > 8)
         {
             // Keep going anyway, eclipse files sometimes have longer than
             // the specified 8 characters in the name without Eclipse complaining
-            RiaLogging::warning(QString("Fault name '%1' is longer than 8 characters").arg(faultName));
+            warningMessages.insert(QString("Fault name '%1' is longer than 8 characters").arg(faultName));
         }
 
         int i1, i2, j1, j2, k1, k2;
@@ -1760,4 +1763,14 @@ void RifEclipseInputFileTools::readFaults(QFile&                     data,
         fault->addCellRangeForFace(cellFaceEnum, cellrange);
 
     } while (!data.atEnd());
+
+    for (QString errorMessage : errorMessages)
+    {
+        RiaLogging::error(errorMessage);
+    }
+
+    for (QString warningMessage : warningMessages)
+    {
+        RiaLogging::warning(warningMessage);
+    }
 }
