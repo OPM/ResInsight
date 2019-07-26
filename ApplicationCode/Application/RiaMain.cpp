@@ -24,6 +24,11 @@
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
+#ifndef WIN32
+#include <unistd.h>
+#include <sys/types.h>
+#endif
+
 RiaApplication* createApplication(int &argc, char *argv[])
 {
     for (int i = 1; i < argc; ++i)
@@ -38,6 +43,15 @@ RiaApplication* createApplication(int &argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+#ifndef WIN32
+    // From Qt 5.3 and onwards Qt has a mechanism for checking this automatically
+    // But it only checks user id not group id, so better to do it ourselves.
+    if (getuid() != geteuid() || getgid() != getegid())
+    {
+        std::cerr << "FATAL: The application binary appears to be running setuid or setgid, this is a security hole." << std::endl;
+        return 1;
+    }
+#endif
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
 
     std::unique_ptr<RiaApplication> app (createApplication(argc, argv));
