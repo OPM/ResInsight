@@ -200,9 +200,8 @@ void RimPlotAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     if (numberFormat() != NUMBER_FORMAT_AUTO)
     {
         scaleGroup.add(&numberOfDecimals);
-        scaleGroup.add(&scaleFactor);
     }
-
+    scaleGroup.add(&scaleFactor);
     scaleGroup.add(&visibleRangeMin);
     scaleGroup.add(&visibleRangeMax);
     scaleGroup.add(&m_valuesFontSize);
