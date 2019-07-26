@@ -23,6 +23,8 @@
 
 class RigFormationNames;
 
+class QTextStream;
+
 //==================================================================================================
 ///  
 //==================================================================================================
@@ -41,7 +43,7 @@ public:
     RigFormationNames*          formationNamesData() { return m_formationNamesData.p();}
     void                        updateConnectedViews();
 
-    void                        readFormationNamesFile(QString * errorMessage);
+    void                        readFormationNamesFile(QString* errorMessage);
     void                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
 protected:
@@ -50,7 +52,10 @@ protected:
 
 private:
     void                        updateUiTreeName();
+    void                        readLyrFormationNameFile(QTextStream& stream, QString* errorMessage);
+    void                        readFmuFormationNameFile(QTextStream& stream, QString* errorMessage);
 
+private:
     caf::PdmField<QString>      m_formationNamesFileName;
 
     cvf::ref<RigFormationNames> m_formationNamesData;

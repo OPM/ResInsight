@@ -25,6 +25,7 @@
 #include "Rim3dView.h"
 #include "RimWellLogTrack.h"
 
+#include "cafAssert.h"
 #include "cafPdmUiFilePathEditor.h"
 
 #include <QFile>
@@ -77,14 +78,6 @@ void RimFormationNames::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 void RimFormationNames::initAfterRead()
 {
     updateUiTreeName();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFormationNames::updateUiTreeName()
-{
-    this->uiCapability()->setUiName(fileNameWoPath());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,7 +138,7 @@ void RimFormationNames::updateConnectedViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFormationNames::readFormationNamesFile(QString * errorMessage)
+void RimFormationNames::readFormationNamesFile(QString* errorMessage)
 {
     QFile dataFile(m_formationNamesFileName());
 
@@ -156,28 +149,63 @@ void RimFormationNames::readFormationNamesFile(QString * errorMessage)
     }
 
     m_formationNamesData = new RigFormationNames;
-
     QTextStream stream(&dataFile);
+
+    QFileInfo fileInfo(m_formationNamesFileName());
+    
+    if (fileInfo.fileName() == "layer_zone_table.txt")
+    {
+        readFmuFormationNameFile(stream, errorMessage);
+    }
+    else
+    {
+        CAF_ASSERT(fileInfo.suffix() == "lyr");
+        readLyrFormationNameFile(stream, errorMessage);
+    }  
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFormationNames::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
+{
+    m_formationNamesFileName = RimTools::relocateFile(m_formationNamesFileName(), newProjectPath, oldProjectPath, nullptr, nullptr);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFormationNames::updateUiTreeName()
+{
+    this->uiCapability()->setUiName(fileNameWoPath());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFormationNames::readLyrFormationNameFile(QTextStream& stream, QString* errorMessage)
+{
     int lineNumber = 1;
     while (!stream.atEnd())
     {
-        QString line = stream.readLine();
+        QString     line     = stream.readLine();
         QStringList lineSegs = line.split("'", QString::KeepEmptyParts);
 
-        if(lineSegs.size() == 0) continue; // Empty line
-        if(lineSegs.size() == 1) continue; // No name present. Comment line ?
-        if(lineSegs.size() == 2) 
-        { 
+        if (lineSegs.size() == 0) continue; // Empty line
+        if (lineSegs.size() == 1) continue; // No name present. Comment line ?
+        if (lineSegs.size() == 2)
+        {
             if (errorMessage) (*errorMessage) += "Missing quote on line : " + QString::number(lineNumber) + "\n";
-            continue; // One quote present 
+            continue; // One quote present
         }
 
         if (lineSegs.size() == 3) // Normal case
         {
-            if ( lineSegs[0].contains("--")) continue; // Comment line
-            QString formationName = lineSegs[1];
-            int commentMarkPos = lineSegs[2].indexOf("--");
-            QString numberString = lineSegs[2];
+            if (lineSegs[0].contains("--")) continue; // Comment line
+            QString formationName  = lineSegs[1];
+            int     commentMarkPos = lineSegs[2].indexOf("--");
+            QString numberString   = lineSegs[2];
             if (commentMarkPos >= 0) numberString.truncate(commentMarkPos);
 
             QStringList numberWords = numberString.split(QRegExp("-"), QString::SkipEmptyParts);
@@ -185,8 +213,8 @@ void RimFormationNames::readFormationNamesFile(QString * errorMessage)
             {
                 bool isNumber1 = false;
                 bool isNumber2 = false;
-                int startK = numberWords[0].toInt(&isNumber1);
-                int endK = numberWords[1].toInt(&isNumber2);
+                int  startK    = numberWords[0].toInt(&isNumber1);
+                int  endK      = numberWords[1].toInt(&isNumber2);
 
                 if (!(isNumber2 && isNumber1))
                 {
@@ -194,19 +222,20 @@ void RimFormationNames::readFormationNamesFile(QString * errorMessage)
                     continue;
                 }
 
-                int tmp = startK; startK  = tmp < endK ? tmp : endK;
-                endK = tmp > endK ? tmp: endK;
+                int tmp = startK;
+                startK  = tmp < endK ? tmp : endK;
+                endK    = tmp > endK ? tmp : endK;
 
-                m_formationNamesData->appendFormationRange(formationName, startK-1, endK-1);
+                m_formationNamesData->appendFormationRange(formationName, startK - 1, endK - 1);
             }
             else if (numberWords.size() == 1)
             {
-                bool isNumber1 = false;
-                int kLayerCount = numberWords[0].toInt(&isNumber1);
+                bool isNumber1   = false;
+                int  kLayerCount = numberWords[0].toInt(&isNumber1);
 
-                if ( !isNumber1 )
+                if (!isNumber1)
                 {
-                    if ( errorMessage ) (*errorMessage) += "Format error on line: " + QString::number(lineNumber) + "\n";
+                    if (errorMessage) (*errorMessage) += "Format error on line: " + QString::number(lineNumber) + "\n";
                     continue;
                 }
 
@@ -223,10 +252,60 @@ void RimFormationNames::readFormationNamesFile(QString * errorMessage)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimFormationNames::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
+void RimFormationNames::readFmuFormationNameFile(QTextStream& stream, QString* errorMessage)
 {
-    m_formationNamesFileName = RimTools::relocateFile(m_formationNamesFileName(), newProjectPath, oldProjectPath, nullptr, nullptr);
-}
+    int lineNumber = 1;
 
+    QString currentFormationName;
+    int startK = -1;
+    int endK   = -1;
+
+    while (!stream.atEnd())
+    {
+        QString line = stream.readLine();
+        if (line.isNull())
+        {
+            // Make sure we append the last formation
+            if (!currentFormationName.isEmpty())
+            {
+                m_formationNamesData->appendFormationRange(currentFormationName, startK - 1, endK - 1);
+            }
+            break;
+        }
+        else
+        {
+            QTextStream lineStream(&line);
+
+            double kLayer;
+            QString formationName;
+
+            lineStream >> kLayer >> formationName;
+
+            if (lineStream.status() != QTextStream::Ok)
+            {
+                *errorMessage = QString("Failed to parse line %1 of '%2'").arg(lineNumber).arg(m_formationNamesFileName());
+                return;
+            }
+
+            if (formationName != currentFormationName)
+            {
+                // Append previous formation
+                if (!currentFormationName.isEmpty())
+                {
+                    m_formationNamesData->appendFormationRange(currentFormationName, startK - 1, endK - 1);
+                }
+
+                // Start new formation
+                currentFormationName = formationName;
+                startK               = kLayer;
+                endK                 = kLayer;
+            }
+            else
+            {
+                endK = kLayer;
+            }
+        }
+    }
+}
