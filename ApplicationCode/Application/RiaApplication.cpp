@@ -945,6 +945,7 @@ QString RiaApplication::pythonPath() const
 QProcessEnvironment RiaApplication::pythonProcessEnvironment() const
 {
     QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
+#ifdef ENABLE_GRPC
     penv.insert("RESINSIGHT_GRPC_PORT", QString("%1").arg(m_grpcServer->portNumber()));
     penv.insert("RESINSIGHT_EXECUTABLE", QCoreApplication::applicationFilePath());
 
@@ -958,7 +959,7 @@ QProcessEnvironment RiaApplication::pythonProcessEnvironment() const
 #endif
 
     penv.insert("PYTHONPATH", QString("%1;%2").arg(penv.value("PYTHONPATH")).arg(ripsLocations.join(";")));
-
+#endif
     return penv;
 }
 
