@@ -111,17 +111,17 @@ RimEclipseResultDefinition::RimEclipseResultDefinition(caf::PdmUiItemInfo::Label
     CAF_PDM_InitFieldNoDefault(&m_selectedTracers_OBSOLETE, "SelectedTracers", "Tracers", "", "", "");
     m_selectedTracers_OBSOLETE.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedInjectorTracers, "SelectedInjectorTracers", "Injector Tracers", "", "", "");
+    RICF_InitFieldNoDefault(&m_selectedInjectorTracers, "SelectedInjectorTracers", "Injector Tracers", "", "", "");
     m_selectedInjectorTracers.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedProducerTracers, "SelectedProducerTracers", "Producer Tracers", "", "", "");
+    RICF_InitFieldNoDefault(&m_selectedProducerTracers, "SelectedProducerTracers", "Producer Tracers", "", "", "");
     m_selectedProducerTracers.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedSouringTracers, "SelectedSouringTracers", "Tracers", "", "", "");
+    RICF_InitFieldNoDefault(&m_selectedSouringTracers, "SelectedSouringTracers", "Tracers", "", "", "");
     m_selectedSouringTracers.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_phaseSelection, "PhaseSelection", "Phases", "", "", "");
+    RICF_InitFieldNoDefault(&m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "");
+    RICF_InitFieldNoDefault(&m_phaseSelection, "PhaseSelection", "Phases", "", "", "");
     m_phaseSelection.uiCapability()->setUiLabelPosition(m_labelPosition);
     // Ui only fields
 
