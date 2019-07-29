@@ -223,10 +223,9 @@ class Commands:
     def setMainWindowSize(self, width, height):
         return self.__execute(setMainWindowSize=Cmd.SetMainWindowSizeParams(width=width, height=height))
 
-    def computeCaseGroupStatistics(self, caseIds):
-        if isinstance(caseIds, int):
-            caseIds = [caseIds]
-        return self.__execute(computeCaseGroupStatistics=Cmd.ComputeCaseGroupStatRequest(caseIds=caseIds))
+    def computeCaseGroupStatistics(self, caseIds = [], caseGroupId = -1):
+        return self.__execute(computeCaseGroupStatistics=Cmd.ComputeCaseGroupStatRequest(caseIds=caseIds,
+                                                                                         caseGroupId=caseGroupId))
 
     def setTimeStep(self, caseId, timeStep):
         return self.__execute(setTimeStep=Cmd.SetTimeStepParams(caseId=caseId, timeStep=timeStep))

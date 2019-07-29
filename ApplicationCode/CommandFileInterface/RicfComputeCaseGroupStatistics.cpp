@@ -37,6 +37,7 @@ CAF_PDM_SOURCE_INIT(RicfComputeCaseGroupStatistics, "computeCaseGroupStatistics"
 //--------------------------------------------------------------------------------------------------
 RicfComputeCaseGroupStatistics::RicfComputeCaseGroupStatistics()
 {
+    RICF_InitField(&m_groupId, "caseGroupId", -1, "Case Group ID", "", "", "");
     RICF_InitField(&m_caseIds, "caseIds", std::vector<int>(), "Case IDs",  "", "", "");
 }
 
@@ -47,7 +48,20 @@ RicfCommandResponse RicfComputeCaseGroupStatistics::execute()
 {
     RicfCommandResponse response;
 
-    for (int caseId : m_caseIds())
+    std::vector<int> caseIds = m_caseIds.v();
+
+    if (m_groupId() >= 0)
+    {
+        for (RimIdenticalGridCaseGroup* group : RiaApplication::instance()->project()->activeOilField()->analysisModels()->caseGroups)
+        {
+            for (RimEclipseCase* c : group->statisticsCaseCollection->reservoirs)
+            {
+                caseIds.push_back(c->caseId());
+            }
+        }
+    }
+
+    for (int caseId : caseIds)
     {
         bool foundCase = false;
         for (RimIdenticalGridCaseGroup* group : RiaApplication::instance()->project()->activeOilField()->analysisModels()->caseGroups)

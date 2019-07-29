@@ -168,6 +168,7 @@ message SetMainWindowSizeParams
 message ComputeCaseGroupStatRequest
 {
 	repeated int32 caseIds = 1;
+	int32      caseGroupId = 2;
 }
 
 message SetTimeStepParams

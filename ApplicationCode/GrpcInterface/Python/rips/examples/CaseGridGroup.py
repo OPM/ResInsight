@@ -7,34 +7,26 @@ import rips
 resInsight  = rips.Instance.find()
 
 casePaths = []
-casePaths.append("../../../../TestModels/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID")
-casePaths.append("../../../../TestModels/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID")
-groupId, groupName = resInsight.commands.createGridCaseGroup(casePaths=casePaths)
-print("Group id = " + str(groupId))
-print("Group name = " + groupName)
+casePaths.append("C:/Users/lindkvis/Projects/ResInsight/TestModels/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID")
+casePaths.append("C:/Users/lindkvis/Projects/ResInsight/TestModels/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID")
+for casePath in casePaths:
+    assert os.path.exists(casePath), "You need to set valid case paths for this script to work"
 
-caseId = resInsight.commands.createStatisticsCase(caseGroupId=groupId)
+caseGroup = resInsight.project.createGridCaseGroup(casePaths=casePaths)
 
-caseGroups = resInsight.project.descendants("RimIdenticalGridCaseGroup");
+caseGroup.printObjectInfo()
+    
+#statCases = caseGroup.statisticsCases()
+#caseIds = []
+#for statCase in statCases:
+#    statCase.setValue("DynamicPropertiesToCalculate", ["SWAT"])
+#    statCase.update()
+#    caseIds.append(statCase.getValue("CaseId"))
 
-caseIds = []
-for caseGroup in caseGroups:
-    print ("#### Case Group ####")
-    for kw in caseGroup.keywords():
-        print (kw, caseGroup.getValue(kw))
+resInsight.commands.computeCaseGroupStatistics(caseGroupId=caseGroup.groupId)
 
-    for caseCollection in caseGroup.children("StatisticsCaseCollection"):
-        print ("  ### Case Collection ###")
-        statCases = caseCollection.children("Reservoirs")                    
-
-        for statCase in statCases:
-            print("   ## Stat Case ##")
-            for skw in statCase.keywords():
-                print("   ", skw, statCase.getValue(skw))
-            statCase.setValue("DynamicPropertiesToCalculate", statCase.getValue("DynamicPropertiesToCalculate") + ["SWAT"])
-            statCase.update()
-            caseIds.append(statCase.getValue("CaseId"))
-
-print(caseIds)
-resInsight.commands.computeCaseGroupStatistics(caseIds=caseIds)
+view = caseGroup.views()[0]
+cellResult = view.cellResult()
+cellResult.setValue("ResultVariable", "PRESSURE_DEV")
+cellResult.update()
         

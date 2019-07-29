@@ -162,6 +162,7 @@ if (PYTHON_EXECUTABLE)
 			"rips/Case.py"
 			"rips/Commands.py"
 			"rips/Grid.py"
+			"rips/GridCaseGroup.py"
 			"rips/Project.py"
 			"rips/Properties.py"
 			"rips/Instance.py"	

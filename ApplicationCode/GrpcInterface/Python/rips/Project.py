@@ -4,6 +4,7 @@ import sys
 
 from .Case import Case
 from .Commands import Commands
+from .GridCaseGroup import GridCaseGroup
 from .PdmObject import PdmObject
 from .View import View
 
@@ -114,3 +115,28 @@ class Project (PdmObject):
             if viewObject.id == id:
                 return viewObject
         return None
+
+    def gridCaseGroups(self):
+        caseGroups = self.descendants("RimIdenticalGridCaseGroup");
+
+        caseGroupList = []
+        for pb2Group in caseGroups:
+            caseGroupList.append(GridCaseGroup(pb2Group))
+        return caseGroupList
+    
+    def gridCaseGroup(self, groupId):
+        """Get a particular grid case group belonging to a project
+        Arguments:
+            groupId(int): group id
+        
+        Returns: a grid case group object
+        """
+        caseGroups = self.gridCaseGroups()
+        for caseGroup in caseGroups:
+            if caseGroup.groupId == groupId:
+                return caseGroup
+        return None
+
+    def createGridCaseGroup(self, casePaths):
+        groupId, groupName = Commands(self.channel).createGridCaseGroup(casePaths)
+        return self.gridCaseGroup(groupId)

@@ -37,5 +37,6 @@ public:
     RicfCommandResponse execute() override;
 
 private:
+    caf::PdmField< int > m_groupId;
     caf::PdmField< std::vector<int> > m_caseIds;
 };
