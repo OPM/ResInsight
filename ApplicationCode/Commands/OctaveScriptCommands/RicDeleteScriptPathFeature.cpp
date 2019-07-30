@@ -56,9 +56,9 @@ void RicDeleteScriptPathFeature::onActionTriggered(bool isChecked)
         QString toBeRemoved = scriptCollection->directory;
 
         QString originalFilePathString = RiaApplication::instance()->preferences()->scriptDirectories();
-        QStringList allFilePaths = originalFilePathString.split(';');
+        QStringList allFilePaths = originalFilePathString.split(";");
         allFilePaths.removeOne(toBeRemoved);
-        QString filePathString = allFilePaths.join(';');
+        QString filePathString = allFilePaths.join(";");
 
         RiaApplication::instance()->preferences()->scriptDirectories = filePathString;
         RiaApplication::instance()->applyPreferences();
