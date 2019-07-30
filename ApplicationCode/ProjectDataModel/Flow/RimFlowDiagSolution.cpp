@@ -309,8 +309,6 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
                 CVF_ASSERT(false);
             }
         }
-
-        CVF_ASSERT(false);
     }
 
     return UNDEFINED;
