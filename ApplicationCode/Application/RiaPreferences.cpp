@@ -84,10 +84,11 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&defaultScaleFactorZ,                "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "");
 
     caf::AppEnum<RiaFontCache::FontSize> fontSize = RiaFontCache::FONT_SIZE_8;
+	caf::AppEnum<RiaFontCache::FontSize> plotFontSize = RiaFontCache::FONT_SIZE_10;
     CAF_PDM_InitField(&defaultSceneFontSize,        "fontSizeInScene", fontSize,  "Viewer Font Size", "", "", "");
     CAF_PDM_InitField(&defaultAnnotationFontSize,  "defaultAnnotationFontSize", fontSize, "Annotation Font Size", "", "", "");
     CAF_PDM_InitField(&defaultWellLabelFontSize,   "wellLabelFontSize", fontSize, "Well Label Font Size", "", "", "");
-    CAF_PDM_InitField(&defaultPlotFontSize,        "defaultPlotFontSize", fontSize, "Plot Font Size", "", "", "");
+    CAF_PDM_InitField(&defaultPlotFontSize,        "defaultPlotFontSize", plotFontSize, "Plot Font Size", "", "", "");
 
     CAF_PDM_InitField(&showLasCurveWithoutTvdWarning,   "showLasCurveWithoutTvdWarning", true, "Show LAS Curve Without TVD Warning", "", "", "");
     showLasCurveWithoutTvdWarning.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
