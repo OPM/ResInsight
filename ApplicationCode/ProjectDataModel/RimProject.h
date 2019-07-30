@@ -105,7 +105,6 @@ public:
     caf::PdmField<QString>                              plotWindowCurrentModelIndexPath;
 
     void            setScriptDirectories(const QString& scriptDirectories);
-    void            initScriptDirectories(const QString& scriptDirectories);
 
     QString         projectFileVersionString() const;
     bool            isProjectFileVersionEqualOrOlderThan(const QString& otherProjectFileVersion) const;

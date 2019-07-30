@@ -31,6 +31,7 @@
 #include "cvfAssert.h"
 
 #include <QAction>
+#include <QStringList>
 
 CAF_CMD_SOURCE_INIT(RicDeleteScriptPathFeature, "RicDeleteScriptPathFeature");
 
@@ -55,18 +56,9 @@ void RicDeleteScriptPathFeature::onActionTriggered(bool isChecked)
         QString toBeRemoved = scriptCollection->directory;
 
         QString originalFilePathString = RiaApplication::instance()->preferences()->scriptDirectories();
-        QString filePathString = originalFilePathString.remove(toBeRemoved);
-
-        // Remove duplicate separators
-        QChar separator(';');
-        QString regExpString = QString("%1{1,5}").arg(separator);
-        filePathString.replace(QRegExp(regExpString), separator);
-
-        // Remove separator at end
-        if (filePathString.endsWith(separator))
-        {
-            filePathString = filePathString.left(filePathString.size() - 1);
-        }
+        QStringList allFilePaths = originalFilePathString.split(';');
+        allFilePaths.removeOne(toBeRemoved);
+        QString filePathString = allFilePaths.join(';');
 
         RiaApplication::instance()->preferences()->scriptDirectories = filePathString;
         RiaApplication::instance()->applyPreferences();

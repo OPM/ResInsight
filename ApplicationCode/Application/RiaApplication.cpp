@@ -1098,6 +1098,7 @@ void RiaApplication::applyPreferences(const RiaPreferences* oldPreferences)
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
         this->project()->updateConnectedEditors();
     }
+    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 }
 
 
@@ -1382,7 +1383,7 @@ void RiaApplication::initialize()
 
     // Start with a project
     m_project = new RimProject;
-    m_project->initScriptDirectories(m_preferences->scriptDirectories());
+    m_project->setScriptDirectories(m_preferences->scriptDirectories());
 }
 
 //--------------------------------------------------------------------------------------------------

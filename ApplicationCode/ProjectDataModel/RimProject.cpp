@@ -117,6 +117,7 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png", "", "");
     scriptCollection.uiCapability()->setUiHidden(true);
+    scriptCollection.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&wellPathImport, "WellPathImport", "WellPathImport", "", "", "");
     wellPathImport = new RimWellPathImport();
@@ -237,103 +238,6 @@ void RimProject::close()
     plotWindowCurrentModelIndexPath = "";
     plotWindowTreeViewState = "";
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimProject::initScriptDirectories(const QString& scriptDirectories)
-{
-    //
-    // TODO : Must store content of scripts in project file and notify user if stored content is different from disk on execute and edit
-    // 
-    this->setScriptDirectories(scriptDirectories);
-
-    // Find largest used caseId read from file and make sure all cases have a valid caseId
-    {
-        int largestCaseId = -1;
-
-        std::vector<RimCase*> cases;
-        allCases(cases);
-    
-        for (size_t i = 0; i < cases.size(); i++)
-        {
-            if (cases[i]->caseId > largestCaseId)
-            {
-                largestCaseId = cases[i]->caseId;
-            }
-        }
-
-        if (largestCaseId > this->nextValidCaseId)
-        {
-            this->nextValidCaseId = largestCaseId + 1;
-        }
-
-        // Assign case Id to cases with an invalid case Id
-        for (size_t i = 0; i < cases.size(); i++)
-        {
-            if (cases[i]->caseId < 0)
-            {
-                assignCaseIdToCase(cases[i]);
-            }
-        }
-    }
-
-    // Find largest used groupId read from file and make sure all groups have a valid groupId
-    RimEclipseCaseCollection* analysisModels = activeOilField() ? activeOilField()->analysisModels() : nullptr;
-    if (analysisModels)
-    {
-        int largestGroupId = -1;
-        
-        for (size_t i = 0; i < analysisModels->caseGroups().size(); i++)
-        {
-            RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups()[i];
-
-            if (cg->groupId > largestGroupId)
-            {
-                largestGroupId = cg->groupId;
-            }
-        }
-
-        if (largestGroupId > this->nextValidCaseGroupId)
-        {
-            this->nextValidCaseGroupId = largestGroupId + 1;
-        }
-
-        // Assign group Id to groups with an invalid Id
-        for (size_t i = 0; i < analysisModels->caseGroups().size(); i++)
-        {
-            RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups()[i];
-
-            if (cg->groupId < 0)
-            {
-                assignIdToCaseGroup(cg);
-            }
-        }
-    }
-
-    int maxViewId = -1;
-    std::vector<Rim3dView*> views;
-    this->descendantsIncludingThisOfType(views);
-    for (Rim3dView* view : views)
-    {
-        maxViewId = std::max(maxViewId, view->id());
-    }
-
-    if (maxViewId >= this->nextValidViewId)
-    {
-        this->nextValidViewId = maxViewId + 1;
-    }
-
-    // Assign view id to views with invalid id
-    for (Rim3dView* view : views)
-    {
-        if (view->id() < 0)
-        {
-            assignViewIdToView(view);
-        }
-    }
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

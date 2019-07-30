@@ -55,7 +55,6 @@ void RicEditPreferencesFeature::onActionTriggered(bool isChecked)
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application
-        caf::PdmSettings::writeFieldsToApplicationStore(app->preferences());
         app->applyPreferences(oldPreferences.get());
         app->applyGuiPreferences(oldPreferences.get());
         app->updateGrpcServer();
