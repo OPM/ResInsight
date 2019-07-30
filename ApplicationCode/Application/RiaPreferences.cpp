@@ -30,6 +30,10 @@
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QStandardPaths>
+#endif
+
 namespace caf 
 {
     template<>
@@ -57,6 +61,20 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitFieldNoDefault(&scriptDirectories,        "scriptDirectory", "Shared Script Folder(s)", "", "", "");
     scriptDirectories.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
+    QString defaultTextEditor;
+#ifdef WIN32
+    defaultTextEditor = QString("notepad.exe");
+#else
+    defaultTextEditor = QString("kate");
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    defaultTextEditor = QStandardPaths::findExecutable("kate");
+    if (defaultTextEditor.isEmpty())
+    {
+        defaultTextEditor = QStandardPaths::findExecutable("gedit");
+    }
+#endif
+#endif
+
     CAF_PDM_InitField(&scriptEditorExecutable,          "scriptEditorExecutable", QString("kate"), "Script Editor", "", "", "");
     scriptEditorExecutable.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
