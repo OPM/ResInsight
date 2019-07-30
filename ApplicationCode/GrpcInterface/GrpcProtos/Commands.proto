@@ -238,6 +238,17 @@ message CreateGridCaseGroupRequest
 	repeated string casePaths = 1;
 }
 
+message ExportFlowInfoRequest
+{
+	int32 caseId                = 1;
+	repeated int32 timeSteps    = 2;
+	repeated string injectors   = 3;
+	repeated string producers   = 4;
+	string fileName             = 5;
+	double minimumCommunication = 6;
+	double aquiferCellThreshold = 7;
+}
+
 /* CommandParams handles both command name and parameters in one.
  * The message type and content is used as parameters and
  * the name of the variable is used to find the command name. */
@@ -276,6 +287,7 @@ message CommandParams
 		CreateSatPressPlotRequest    createSaturationPressurePlots    = 25;		
 		ReplaceCaseRequests          replaceMultipleCases             = 26;
 		CreateGridCaseGroupRequest   createGridCaseGroup              = 27;
+        ExportFlowInfoRequest        exportFlowCharacteristics        = 28;
 	}
 }
 

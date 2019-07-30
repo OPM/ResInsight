@@ -42,3 +42,11 @@ def test_loadGridCaseGroup(rips_instance, initializeTest):
      casePaths.append(dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID")
      groupId, groupName = rips_instance.commands.createGridCaseGroup(casePaths=casePaths)
      print(groupId, groupName)
+
+def test_exportFlowCharacteristics(rips_instance, initializeTest):
+    casePath = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
+    rips_instance.project.loadCase(casePath)
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        print("Temporary folder: ", tmpdirname)
+        fileName = tmpdirname + "/exportFlowChar.txt"
+        rips_instance.commands.exportFlowCharacteristics(caseId=0, timeSteps=8, producers=[], injectors = "I01", fileName = fileName)

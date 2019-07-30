@@ -267,3 +267,17 @@ class Commands:
             caseIds = [caseIds]
         return self.__execute(createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(caseIds=caseIds))
 
+    def exportFlowCharacteristics(self, caseId, timeSteps, injectors, producers, fileName, minimumCommunication=0.0, aquiferCellThreshold=0.1):
+        if isinstance(timeSteps, int):
+            timeSteps = [timeSteps]
+        if isinstance(injectors, str):
+            injectors = [injectors]
+        if isinstance(producers, str):
+            producers = [producers]
+        return self.__execute(exportFlowCharacteristics=Cmd.ExportFlowInfoRequest(caseId=caseId,
+                                                                                timeSteps=timeSteps,
+                                                                                injectors=injectors,
+                                                                                producers=producers,
+                                                                                fileName=fileName,
+                                                                                minimumCommunication = minimumCommunication,
+                                                                                aquiferCellThreshold = aquiferCellThreshold))
