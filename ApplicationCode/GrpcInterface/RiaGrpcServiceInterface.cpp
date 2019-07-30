@@ -85,7 +85,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips(const caf::PdmObject* s
             {
                 QString text;
                 QTextStream outStream(&text);
-                ricfHandle->writeFieldData(outStream);
+                ricfHandle->writeFieldData(outStream, false);
                 (*parametersMap)[keyword.toStdString()] = text.toStdString();
             }            
         }
@@ -127,7 +127,7 @@ void RiaGrpcServiceInterface::assignFieldValue(const QString& stringValue, caf::
     {
         QTextStream stream(stringValue.toLatin1());
         RicfMessages messages;
-        ricfHandle->readFieldData(stream, nullptr, &messages);
+        ricfHandle->readFieldData(stream, nullptr, &messages, false);
     }
 }
 

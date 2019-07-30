@@ -56,8 +56,6 @@ class PdmObject:
             for val in value:
                 listofstrings.append(self.__fromValue(val))
             return "[" + ", ".join(listofstrings) + "]"
-        elif isinstance(value, str):
-            return "\"" + str(value) + "\""
         else:
             return str(value)
 

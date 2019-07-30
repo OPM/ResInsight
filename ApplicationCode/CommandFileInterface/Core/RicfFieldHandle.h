@@ -19,6 +19,8 @@
 #pragma once
 #include "cafPdmFieldCapability.h"
 
+#include <QString>
+
 namespace caf
 {
 class PdmObjectFactory;
@@ -52,8 +54,9 @@ public:
 
     virtual void    readFieldData (QTextStream& inputStream, 
                                    caf::PdmObjectFactory* objectFactory,
-                                   RicfMessages* errorMessageContainer )  = 0;
-    virtual void    writeFieldData(QTextStream& outputStream) const = 0;
+                                   RicfMessages* errorMessageContainer,
+                                   bool stringsAreQuoted = true)  = 0;
+    virtual void    writeFieldData(QTextStream& outputStream, bool quoteStrings = true) const = 0;
 
 private:
     caf::PdmFieldHandle* m_owner;

@@ -23,19 +23,29 @@
 
 #include <QColor>
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfFieldReader<QString>::readFieldData(QString& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer)
+void RicfFieldReader<QString>::readFieldData(QString& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer, bool stringsAreQuoted)
 {
     fieldValue = "";
 
     errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
     QString accumulatedFieldValue;
+   
     QChar currentChar;
-    currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
-    if ( currentChar == QChar('"') )
+    bool validStringStart = !stringsAreQuoted;
+    bool validStringEnd   = !stringsAreQuoted;
+    if (stringsAreQuoted)
+    {
+        currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
+        if (currentChar == QChar('"'))
+        {
+            validStringStart = true;
+        }
+    }
+
+    if (validStringStart)
     {
         while ( !inputStream.atEnd() )
         {
@@ -45,6 +55,7 @@ void RicfFieldReader<QString>::readFieldData(QString& fieldValue, QTextStream& i
                 if ( currentChar == QChar('"') ) // End Quote
                 {
                     // Reached end of string
+                    validStringEnd = true;
                     break;
                 }
                 else
@@ -59,13 +70,22 @@ void RicfFieldReader<QString>::readFieldData(QString& fieldValue, QTextStream& i
             }
         }
     }
-    else
+    if (!validStringStart)
     {
         // Unexpected start of string, Missing '"'
         // Error message
         errorMessageContainer->addError("String argument does not seem to be quoted. Missing the start '\"' in the \"" 
                                         + errorMessageContainer->currentArgument + "\" argument of the command: \"" 
                                         + errorMessageContainer->currentCommand + "\"" );
+        // Could interpret as unquoted text
+    }
+    else if (!validStringEnd)
+    {
+        // Unexpected end of string, Missing '"'
+        // Error message
+        errorMessageContainer->addError("String argument does not seem to be quoted. Missing the end '\"' in the \"" +
+                                        errorMessageContainer->currentArgument + "\" argument of the command: \"" +
+                                        errorMessageContainer->currentCommand + "\"");
         // Could interpret as unquoted text
     }
 
@@ -75,7 +95,7 @@ void RicfFieldReader<QString>::readFieldData(QString& fieldValue, QTextStream& i
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfFieldWriter<QString>::writeFieldData(const QString& fieldValue, QTextStream& outputStream)
+void RicfFieldWriter<QString>::writeFieldData(const QString& fieldValue, QTextStream& outputStream, bool quoteStrings)
 {
     outputStream << "\"";
     for ( int i = 0; i < fieldValue.size(); ++i )
@@ -92,7 +112,7 @@ void RicfFieldWriter<QString>::writeFieldData(const QString& fieldValue, QTextSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfFieldReader<bool>::readFieldData(bool& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer)
+void RicfFieldReader<bool>::readFieldData(bool& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer, bool stringsAreQuoted)
 {
     errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
     QString accumulatedFieldValue;
@@ -127,7 +147,7 @@ void RicfFieldReader<bool>::readFieldData(bool& fieldValue, QTextStream& inputSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldWriter<bool>::writeFieldData(const bool& fieldValue, QTextStream& outputStream)
+void RicfFieldWriter<bool>::writeFieldData(const bool& fieldValue, QTextStream& outputStream, bool quoteStrings)
 {
     // Lower-case true/false is used in the documentation.
     outputStream << (fieldValue ? "true" : "false");
@@ -136,10 +156,10 @@ void RicfFieldWriter<bool>::writeFieldData(const bool& fieldValue, QTextStream& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldReader<cvf::Color3f>::readFieldData(cvf::Color3f& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer)
+void RicfFieldReader<cvf::Color3f>::readFieldData(cvf::Color3f& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer, bool stringsAreQuoted)
 {
     QString fieldStringValue;
-    RicfFieldReader<QString>::readFieldData(fieldStringValue, inputStream, errorMessageContainer);
+    RicfFieldReader<QString>::readFieldData(fieldStringValue, inputStream, errorMessageContainer, stringsAreQuoted);
 
     QColor qColor(fieldStringValue);
     if (qColor.isValid())
@@ -151,9 +171,9 @@ void RicfFieldReader<cvf::Color3f>::readFieldData(cvf::Color3f& fieldValue, QTex
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldWriter<cvf::Color3f>::writeFieldData(const cvf::Color3f& fieldValue, QTextStream& outputStream)
+void RicfFieldWriter<cvf::Color3f>::writeFieldData(const cvf::Color3f& fieldValue, QTextStream& outputStream, bool quoteStrings)
 {
     QColor qColor = RiaColorTools::toQColor(fieldValue);
     QString fieldStringValue = qColor.name();
-    RicfFieldWriter<QString>::writeFieldData(fieldStringValue, outputStream);
+    RicfFieldWriter<QString>::writeFieldData(fieldStringValue, outputStream, quoteStrings);
 }
