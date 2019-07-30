@@ -95,6 +95,8 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include <iostream>
+
 #ifdef WIN32
 #include <windows.h>
 #else
@@ -950,15 +952,18 @@ QProcessEnvironment RiaApplication::pythonProcessEnvironment() const
     penv.insert("RESINSIGHT_EXECUTABLE", QCoreApplication::applicationFilePath());
 
     QStringList ripsLocations;
+    QString separator;
 #ifdef WIN32
     ripsLocations << QCoreApplication::applicationDirPath() + "\\Python"
                   << QCoreApplication::applicationDirPath() + "\\..\\..\\Python";
+    separator = ";";
 
 #else
-    ripsLocations << QCoreApplication::applicationDirPath() + "/Python";
+    ripsLocations << QCoreApplication::applicationDirPath() + "/Python"
+                  << QCoreApplication::applicationDirPath() + "/../../Python";
+    separator = ":";
 #endif
-
-    penv.insert("PYTHONPATH", QString("%1;%2").arg(penv.value("PYTHONPATH")).arg(ripsLocations.join(";")));
+    penv.insert("PYTHONPATH", QString("%1%2%3").arg(penv.value("PYTHONPATH")).arg(separator).arg(ripsLocations.join(separator)));
 #endif
     return penv;
 }
