@@ -75,6 +75,7 @@ void RicNewPythonScriptFeature::onActionTriggered(bool isChecked)
     {
         QFileInfo existingScriptFileInfo(calcScript->absoluteFileName());
         fullPathNewScript = existingScriptFileInfo.absolutePath();
+        calcScript->firstAncestorOrThisOfTypeAsserted(scriptColl);
     }
     else if (scriptColl)
     {
@@ -120,7 +121,8 @@ void RicNewPythonScriptFeature::onActionTriggered(bool isChecked)
             stream << "# Load ResInsight Processing Server Client Library\nimport rips\n# Connect to ResInsight instance\nresInsight = rips.Instance.find()\n# Example code\nprint(\"ResInsight version:\" + resInsight.app.versionString())\n";
         }
 
-        RicRefreshScriptsFeature::refreshScriptFolders();
+        scriptColl->readContentFromDisc();
+        scriptColl->updateConnectedEditors();
 
         if (calcScript)
         {
