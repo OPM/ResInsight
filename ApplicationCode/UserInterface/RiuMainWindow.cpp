@@ -271,7 +271,6 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 void RiuMainWindow::closeEvent(QCloseEvent* event)
 {
     this->saveWinGeoAndDockToolBarLayout();
-    this->hideAllDockWidgets();
 
     RiaGuiApplication* app = RiaGuiApplication::instance();
     if (app->isMainPlotWindowVisible())
@@ -287,8 +286,8 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
         return;
     }
 
+    this->hideAllDockWidgets();
     app->closeMainPlotWindowIfOpenButHidden();
-
     app->closeProject();
 }
 
