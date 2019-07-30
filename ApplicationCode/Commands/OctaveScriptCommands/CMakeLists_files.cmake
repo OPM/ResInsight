@@ -5,7 +5,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteScriptPathFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicEditScriptFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExecuteScriptFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExecuteScriptForCasesFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicNewScriptFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewOctaveScriptFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewPythonScriptFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicScriptFeatureImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRefreshScriptsFeature.h
 )
@@ -16,7 +17,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteScriptPathFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicEditScriptFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExecuteScriptFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExecuteScriptForCasesFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicNewScriptFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewOctaveScriptFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewPythonScriptFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicScriptFeatureImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRefreshScriptsFeature.cpp
 )

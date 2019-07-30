@@ -427,13 +427,19 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicEditScriptFeature";
             menuBuilder << "Separator";
-            menuBuilder << "RicNewScriptFeature";
+            menuBuilder << "RicNewOctaveScriptFeature";
+#ifdef ENABLE_GRPC
+            menuBuilder << "RicNewPythonScriptFeature";
+#endif
             menuBuilder << "Separator";
             menuBuilder << "RicExecuteScriptFeature";
         }
         else if (dynamic_cast<RimScriptCollection*>(uiItem))
         {
-            menuBuilder << "RicNewScriptFeature";
+            menuBuilder << "RicNewOctaveScriptFeature";
+#ifdef ENABLE_GRPC
+            menuBuilder << "RicNewPythonScriptFeature";
+#endif
             menuBuilder << "Separator";
             menuBuilder << "RicAddScriptPathFeature";
             menuBuilder << "RicRefreshScriptsFeature";
