@@ -118,7 +118,7 @@ void RicNewPythonScriptFeature::onActionTriggered(bool isChecked)
         else
         {
             QTextStream stream(&file);
-            stream << "# Load ResInsight Processing Server Client Library\nimport rips\n# Connect to ResInsight instance\nresInsight = rips.Instance.find()\n# Example code\nprint(\"ResInsight version:\" + resInsight.app.versionString())\n";
+            stream << "# Load ResInsight Processing Server Client Library\nimport rips\n# Connect to ResInsight instance\nresInsight = rips.Instance.find()\n# Example code\nprint(\"ResInsight version: \" + resInsight.app.versionString())\n";
         }
 
         scriptColl->readContentFromDisc();
