@@ -26,6 +26,11 @@ class PdmObject:
             listOfKeywords.append(keyword)
         return listOfKeywords
     
+    def printObjectInfo(self):
+        print ("Class Keyword: " + self.classKeyword())
+        for keyword in self.keywords():
+            print(keyword + " [" + type(self.getValue(keyword)).__name__ + "]: " + str(self.getValue(keyword)))
+
     def __toValue(self, value):
         if value.lower() == 'false':
                 return False

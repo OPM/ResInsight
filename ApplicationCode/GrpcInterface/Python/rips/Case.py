@@ -111,7 +111,7 @@ class Case (PdmObject):
 
     def views(self):
         """Get a list of views belonging to a case"""
-        pbmObjects = self.children("ReservoirView")
+        pbmObjects = self.children("ReservoirViews")
         viewList = []
         for pbmObject in pbmObjects:
             viewList.append(View(pbmObject))

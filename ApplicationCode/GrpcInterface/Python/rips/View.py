@@ -30,4 +30,4 @@ class View (PdmObject):
 
     def cellResult(self):
         """Retrieve the current cell results"""
-        return self.children("ResultSlot")[0]
+        return self.children("GridCellResult")[0]
