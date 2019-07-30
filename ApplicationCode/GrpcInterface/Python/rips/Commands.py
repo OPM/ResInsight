@@ -192,7 +192,7 @@ class Commands:
 
     def exportWellPaths(self, wellPaths=[], mdStepSize=5.0):
         if isinstance(wellPaths, str):
-            wellPaths = [wellpaths]
+            wellPaths = [wellPaths]
         return self.__execute(exportWellPaths=Cmd.ExportWellPathRequest(wellPathNames=wellPaths, mdStepSize=mdStepSize))
 
     def exportVisibleCells(self, caseId, viewName, exportKeyword='FLUXNUM', visibleActiveCellsValue=1, hiddenActiveCellsValue=0, inactiveCellsValue=0):
