@@ -1210,8 +1210,12 @@ void RimEclipseResultDefinition::setSelectedSouringTracers(const std::vector<QSt
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::updateUiFieldsFromActiveResult()
 {
-    m_resultTypeUiField     = m_resultType;
-    m_resultVariableUiField = resultVariable();
+    m_resultTypeUiField              = m_resultType;
+    m_resultVariableUiField          = resultVariable();
+    m_selectedInjectorTracersUiField = m_selectedInjectorTracers;
+    m_selectedProducerTracersUiField = m_selectedProducerTracers;
+    m_selectedSouringTracersUiField  = m_selectedSouringTracers;
+    m_porosityModelUiField           = m_porosityModel;
 }
 
 //--------------------------------------------------------------------------------------------------
