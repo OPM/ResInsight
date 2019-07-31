@@ -22,6 +22,7 @@ class GridCaseGroup (PdmObject):
         PdmObject.__init__(self, pdmObject.pb2Object, pdmObject.channel)
 
     def statisticsCases(self):
+        """Get a list of all statistics cases in the Grid Case Group"""
         statCaseCollection = self.children("StatisticsCaseCollection")[0]
         return statCaseCollection.children("Reservoirs")
     

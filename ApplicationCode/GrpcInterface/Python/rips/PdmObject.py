@@ -15,18 +15,27 @@ class PdmObject:
         self.pdmObjectStub = PdmObject_pb2_grpc.PdmObjectServiceStub(self.channel)
     
     def address(self):
+        """Get the unique address of the PdmObject
+        
+        Returns:
+            A 64-bit unsigned integer address
+        """
+
         return self.pb2Object.address
 
     def classKeyword(self):
+        """Get the class keyword in the ResInsight Data Model for the given PdmObject"""
         return self.pb2Object.class_keyword
 
     def keywords(self):
+        """Get a list of all parameter keywords available in the object"""
         listOfKeywords = []
         for keyword in self.pb2Object.parameters:
             listOfKeywords.append(keyword)
         return listOfKeywords
     
     def printObjectInfo(self):
+        """Print the structure and data content of the PdmObject"""
         print ("Class Keyword: " + self.classKeyword())
         for keyword in self.keywords():
             print(keyword + " [" + type(self.getValue(keyword)).__name__ + "]: " + str(self.getValue(keyword)))
@@ -65,6 +74,13 @@ class PdmObject:
             return str(value)
 
     def getValue(self, keyword):
+        """Get the value associated with the provided keyword
+        Arguments:
+            keyword(str): A string containing the parameter keyword
+        
+        Returns:
+            The value of the parameter. Can be int, str or list.
+        """
         value = self.pb2Object.parameters[keyword]
         return self.__toValue(value)
 
@@ -81,9 +97,23 @@ class PdmObject:
         return values
 
     def setValue(self, keyword, value):
+        """Set the value associated with the provided keyword
+        Arguments:
+            keyword(str): A string containing the parameter keyword
+            value(varying): A value matching the type of the parameter.
+                See keyword documentation and/or printObjectInfo() to find
+                the correct data type.
+        """
         self.pb2Object.parameters[keyword] = self.__fromValue(value)
 
     def descendants(self, classKeyword):
+        """Get a list of all project tree descendants matching the class keyword
+        Arguments:
+            classKeyword[str]: A class keyword matching the type of class wanted
+
+        Returns:
+            A list of PdmObjects matching the keyword provided
+        """
         request = PdmObject_pb2.PdmDescendantObjectRequest(object=self.pb2Object, child_keyword=classKeyword)
         objectList = self.pdmObjectStub.GetDescendantPdmObjects(request).objects
         childList = []
@@ -92,6 +122,12 @@ class PdmObject:
         return childList
 
     def children(self, childField):
+        """Get a list of all direct project tree children inside the provided childField
+        Arguments:
+            childField[str]: A field name
+        Returns:
+            A list of PdmObjects inside the childField
+        """
         request = PdmObject_pb2.PdmChildObjectRequest(object=self.pb2Object, child_field=childField)
         objectList = self.pdmObjectStub.GetChildPdmObjects(request).objects
         childList = []
@@ -100,10 +136,15 @@ class PdmObject:
         return childList
 
     def ancestor(self, classKeyword):
+        """Find the first ancestor that matches the provided classKeyword
+        Arguments:
+            classKeyword[str]: A class keyword matching the type of class wanted
+        """
         request = PdmObject_pb2.PdmParentObjectRequest(object=self.pb2Object, parent_keyword=classKeyword)
         return PdmObject(self.pdmObjectStub.GetAncestorPdmObject(request), self.channel)
 
     def update(self):
+        """Sync all fields from the Python Object to ResInsight"""
         self.pdmObjectStub.UpdateExistingPdmObject(self.pb2Object)
 
 #    def createChild(self, childField, childClassKeyword):

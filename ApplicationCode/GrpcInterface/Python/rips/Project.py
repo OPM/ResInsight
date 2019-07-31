@@ -117,6 +117,7 @@ class Project (PdmObject):
         return None
 
     def gridCaseGroups(self):
+        """Get a list of all grid case groups in the project"""
         caseGroups = self.descendants("RimIdenticalGridCaseGroup");
 
         caseGroupList = []
@@ -138,5 +139,11 @@ class Project (PdmObject):
         return None
 
     def createGridCaseGroup(self, casePaths):
+        """Create a new grid case group from the provided case paths
+        Arguments:
+            casePaths(list): a list of paths to the cases to be loaded and included in the group
+        Returns:
+            A new grid case group object
+        """
         groupId, groupName = Commands(self.channel).createGridCaseGroup(casePaths)
         return self.gridCaseGroup(groupId)
