@@ -622,8 +622,8 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingCurves(const RigEclipseCros
     {
         // NB : Make sure iteration of curve and groups are syncronized with fillCurveDataInExistingCurves()
         auto curveIt = m_crossPlotCurves.begin();
-        auto groupIt = m_groupedResults.begin();
-        for (; curveIt != m_crossPlotCurves.end() && groupIt != m_groupedResults.end(); ++curveIt, ++groupIt)
+        auto groupIt = m_groupedResults.rbegin();
+        for (; curveIt != m_crossPlotCurves.end() && groupIt != m_groupedResults.rend(); ++curveIt, ++groupIt)
         {
             RimGridCrossPlotCurve* curve = *curveIt;
             curve->setSamples(groupIt->second.xValues, groupIt->second.yValues);
