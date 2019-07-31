@@ -580,6 +580,7 @@ void RimGridCrossPlotDataSet::createCurves(const RigEclipseCrossPlotResult& resu
             legendConfig()->scalarMapper()->majorTickValues(&tickValues);
         }
 
+        // NB : Make sure iteration of curve and groups are syncronized with createCurves()
         for (auto it = m_groupedResults.rbegin(); it != m_groupedResults.rend(); ++it)
         {
             RimGridCrossPlotCurve* curve = new RimGridCrossPlotCurve();
@@ -619,6 +620,7 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingCurves(const RigEclipseCros
     }
     else
     {
+        // NB : Make sure iteration of curve and groups are syncronized with fillCurveDataInExistingCurves()
         auto curveIt = m_crossPlotCurves.begin();
         auto groupIt = m_groupedResults.begin();
         for (; curveIt != m_crossPlotCurves.end() && groupIt != m_groupedResults.end(); ++curveIt, ++groupIt)
