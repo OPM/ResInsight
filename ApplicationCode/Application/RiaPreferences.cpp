@@ -75,7 +75,7 @@ RiaPreferences::RiaPreferences(void)
 #endif
 #endif
 
-    CAF_PDM_InitField(&scriptEditorExecutable,          "scriptEditorExecutable", QString("kate"), "Script Editor", "", "", "");
+    CAF_PDM_InitField(&scriptEditorExecutable,          "scriptEditorExecutable", defaultTextEditor, "Script Editor", "", "", "");
     scriptEditorExecutable.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
     CAF_PDM_InitField(&octaveExecutable,                "octaveExecutable", QString("octave"), "Octave Executable Location", "", "", "");
