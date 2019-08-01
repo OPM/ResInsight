@@ -61,6 +61,7 @@ void RicEditScriptFeature::onActionTriggered(bool isChecked)
         arguments << calcScript->absoluteFileName;
 
         QProcess* myProcess = new QProcess(this);
+        myProcess->setProcessEnvironment(app->pythonProcessEnvironment());
         myProcess->start(scriptEditor, arguments);
 
         if (!myProcess->waitForStarted(1000))
