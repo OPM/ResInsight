@@ -19,6 +19,7 @@
 
 #include "RiaColorTools.h"
 
+#include "cvfAssert.h"
 #include "cvfMath.h"
 
 #include <algorithm>
@@ -139,6 +140,18 @@ QColor RiaColorTools::toQColor(cvf::Color4f color)
 cvf::Color3f RiaColorTools::fromQColorTo3f(QColor color)
 {
     return cvf::Color3f(color.redF(), color.greenF(), color.blueF());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RiaColorTools::blendQColors(const QColor& color1, const QColor& color2, int weight1 /*= 1*/, int weight2 /*= 1*/)
+{
+    CVF_ASSERT(weight1 > 0 && weight2 > 0);
+    int weightsum = weight1 + weight2;
+    return QColor((color1.red() * weight1 + color2.red() * weight2) / weightsum,
+                  (color1.green() * weight1 + color2.green() * weight2) / weightsum,
+                  (color1.blue() * weight1 + color2.blue() * weight2) / weightsum);
 }
 
 //--------------------------------------------------------------------------------------------------

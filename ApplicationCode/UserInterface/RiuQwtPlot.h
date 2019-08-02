@@ -61,18 +61,30 @@ protected:
 
     virtual void            selectSample(QwtPlotCurve* curve, int sampleNumber);
     virtual void            clearSampleSelection();
+
+    virtual void            hideEvent(QHideEvent *event) override;
+
 private:
     void                    selectClosestCurve(const QPoint& pos);
 
+    void                    highlightCurve(const QwtPlotCurve* closestCurve);
+    void                    resetCurveHighlighting();
 private slots:
     void                    onZoomedSlot( );
     void                    onAxisClicked(int axis, double value);
 
 private:
+    struct CurveColors
+    {
+        QColor lineColor;
+        QColor symbolColor;
+        QColor symbolLineColor;
+    };
     caf::PdmPointer<RimViewWindow>      m_ownerViewWindow;
 
     QPointer<QwtPlotZoomer>             m_zoomerLeft;
     QPointer<QwtPlotZoomer>             m_zoomerRight;
 
+    std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
 };
 
