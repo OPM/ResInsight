@@ -107,6 +107,13 @@ void RigEclipseNativeVisibleCellsStatCalc::mobileVolumeWeightedMean(size_t timeS
 {
     RigEclipseResultAddress mobPorvAddress(RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName());
 
+    // For statistics result cases, the pore volume is not available, as RigCaseCellResultsData::createPlaceholderResultEntries
+    // has not been executed
+    if (!m_caseData->ensureKnownResultLoaded(mobPorvAddress))
+    {
+        return;
+    }
+
     m_caseData->ensureKnownResultLoaded(mobPorvAddress);
 
     const std::vector<double>& weights = m_caseData->cellScalarResults(mobPorvAddress, 0);

@@ -48,6 +48,7 @@
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
@@ -926,6 +927,11 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     RimEclipseView* reservoirView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     if (reservoirView)
     {
+        const RimEclipseStatisticsCase* eclipseStat = dynamic_cast<const RimEclipseStatisticsCase*>(reservoirView->eclipseCase());    
+        if (eclipseStat)
+        {
+            m_showVolumeWeightedMean = false;
+        }
         updateEclipse3DInfo(reservoirView);
 
         // Update statistics dialog
@@ -933,6 +939,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     }
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+    
     if (geoMechView)
     {
         m_showVolumeWeightedMean = false;
@@ -964,11 +971,18 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     RimEclipseView*           eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     RimEclipseContourMapView* contourMap  = dynamic_cast<RimEclipseContourMapView*>(eclipseView);
     RimGeoMechView*           geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+    
+    bool isEclipseStatsCase = false;
+    if (eclipseView)
+    {
+        isEclipseStatsCase = dynamic_cast<RimEclipseStatisticsCase*>(eclipseView->eclipseCase()) != nullptr;
+    }
+
 
     visGroup->add(&m_showAnimProgress);
     visGroup->add(&m_showCaseInfo);
     visGroup->add(&m_showResultInfo);
-    if (!geoMechView && !contourMap)
+    if (!geoMechView && !contourMap && !isEclipseStatsCase)
     {
         visGroup->add(&m_showVolumeWeightedMean);
     }
