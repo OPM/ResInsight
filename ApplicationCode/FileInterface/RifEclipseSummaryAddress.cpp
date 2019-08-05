@@ -581,7 +581,7 @@ std::string RifEclipseSummaryAddress::uiText() const
         case SUMMARY_WELL_COMPLETION:
         {
             text += ":" + this->wellName();
-            text += ":" + formatUiTextIJK();
+            text += ":" + blockAsString();
         }
         break;
         case SUMMARY_WELL_LGR:
@@ -594,7 +594,7 @@ std::string RifEclipseSummaryAddress::uiText() const
         {
             text += ":" + this->lgrName();
             text += ":" + this->wellName();
-            text += ":" + formatUiTextIJK();
+            text += ":" + blockAsString();
         }
         break;
         case SUMMARY_WELL_SEGMENT:
@@ -605,13 +605,13 @@ std::string RifEclipseSummaryAddress::uiText() const
         break;
         case SUMMARY_BLOCK:
         {
-            text += ":" + formatUiTextIJK();
+            text += ":" + blockAsString();
         }
         break;
         case SUMMARY_BLOCK_LGR:
         {
             text += ":" + this->lgrName();
-            text += ":" + formatUiTextIJK();
+            text += ":" + blockAsString();
         }
         break;
         case SUMMARY_AQUIFER:
@@ -635,7 +635,7 @@ std::string RifEclipseSummaryAddress::uiText(RifEclipseSummaryAddress::SummaryId
     case INPUT_REGION_2_REGION: return formatUiTextRegionToRegion();
     case INPUT_WELL_NAME: return wellName();
     case INPUT_WELL_GROUP_NAME: return wellGroupName();
-    case INPUT_CELL_IJK: return formatUiTextIJK();
+    case INPUT_CELL_IJK: return blockAsString();
     case INPUT_LGR_NAME: return lgrName();
     case INPUT_SEGMENT_NUMBER: return std::to_string(wellSegmentNumber());
     case INPUT_AQUIFER_NUMBER: return std::to_string(aquiferNumber());
@@ -720,6 +720,18 @@ bool RifEclipseSummaryAddress::isValid() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setCellIjk(const std::string& uiText)
+{
+    auto vec = RifEclipseSummaryAddress::ijkTupleFromUiText(uiText);
+
+    m_cellI = std::get<0>(vec);
+    m_cellJ = std::get<1>(vec);
+    m_cellK = std::get<2>(vec);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseSummaryAddress::hasAccumulatedData() const
@@ -770,7 +782,7 @@ std::string RifEclipseSummaryAddress::baseQuantityName(const std::string& quanti
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddress::formatUiTextIJK() const
+std::string RifEclipseSummaryAddress::blockAsString() const
 {
     return std::to_string(this->cellI()) + ", "
         + std::to_string(this->cellJ()) + ", "

@@ -162,6 +162,7 @@ public:
     int                 cellJ() const               { return m_cellJ; }
     int                 cellK() const               { return m_cellK; }
     int                 aquiferNumber() const       { return m_aquiferNumber; }
+    std::string         blockAsString() const;
 
     const std::string   ensembleStatisticsQuantityName() const;
 
@@ -176,6 +177,8 @@ public:
     void            setWellGroupName(const std::string& wellGroupName)  { m_wellGroupName = wellGroupName; }
     void            setRegion(int region)                               { m_regionNumber = (int16_t)region; }
     void            setAquiferNumber(int aquiferNumber)                 { m_aquiferNumber = (int16_t)aquiferNumber; }
+    void            setCellIjk(const std::string& uiText);
+    void            setWellSegmentNumber(int segment)                   { m_wellSegmentNumber = (int16_t)segment; }
 
     void            setAsErrorResult()                                  { m_isErrorResult = true; }
     bool            isErrorResult() const                               { return m_isErrorResult; }
@@ -184,7 +187,6 @@ public:
 private:
     bool                                            isValidEclipseCategory() const;
     static std::string                              baseQuantityName(const std::string& quantityName);
-    std::string                                     formatUiTextIJK() const;
     static std::tuple<int32_t, int32_t, int32_t>    ijkTupleFromUiText(const std::string &s);
     std::string                                     formatUiTextRegionToRegion() const;
     std::pair<int16_t, int16_t>                     regionToRegionPairFromUiText(const std::string &s);

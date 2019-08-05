@@ -26,8 +26,6 @@
 
 #include <QString>
 
-#include <set>
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -128,6 +126,50 @@ std::set<int> RiaSummaryCurveAnalyzer::regionNumbers() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<std::string> RiaSummaryCurveAnalyzer::wellCompletions(const std::string& wellName) const
+{
+    std::set<std::string> connections;
+
+    for (const auto& conn : m_wellCompletions)
+    {
+        if (conn.first == wellName)
+        {
+            connections.insert(conn.second);
+        }
+    }
+
+    return connections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<int> RiaSummaryCurveAnalyzer::wellSegmentNumbers(const std::string& wellName) const
+{
+    std::set<int> segmentNumberForWell;
+
+    for (const auto& wellSegment : m_wellSegmentNumbers)
+    {
+        if (wellName.empty() || std::get<0>(wellSegment) == wellName)
+        {
+            segmentNumberForWell.insert(std::get<1>(wellSegment));
+        }
+    }
+
+    return segmentNumberForWell;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RiaSummaryCurveAnalyzer::blocks() const
+{
+    return m_blocks;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryCurveAnalyzer::categories() const
 {
     return m_categories;
@@ -136,33 +178,57 @@ std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryCurveAnalyzer::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaSummaryCurveAnalyzer::identifierTexts(RifEclipseSummaryAddress::SummaryVarCategory category) const
+std::vector<QString> RiaSummaryCurveAnalyzer::identifierTexts(RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                              const std::string& secondaryIdentifier) const
 {
-    std::vector<QString> stringSet;
+    std::vector<QString> identifierStrings;
 
     if (category == RifEclipseSummaryAddress::SUMMARY_REGION)
     {
         for (const auto& regionNumber : m_regionNumbers)
         {
-            stringSet.push_back(QString::number(regionNumber));
+            identifierStrings.push_back(QString::number(regionNumber));
         }
     }
     else if (category == RifEclipseSummaryAddress::SUMMARY_WELL)
     {
         for (const auto& wellName : m_wellNames)
         {
-            stringSet.push_back(QString::fromStdString(wellName));
+            identifierStrings.push_back(QString::fromStdString(wellName));
         }
     }
     else if (category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
     {
         for (const auto& wellGroupName : m_wellGroupNames)
         {
-            stringSet.push_back(QString::fromStdString(wellGroupName));
+            identifierStrings.push_back(QString::fromStdString(wellGroupName));
+        }
+    }
+    else if (category == RifEclipseSummaryAddress::SUMMARY_BLOCK)
+    {
+        for (const auto& ijkBlock : m_blocks)
+        {
+            identifierStrings.push_back(QString::fromStdString(ijkBlock));
+        }
+    }
+    else if (category == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT)
+    {
+        auto segmentNumbers = wellSegmentNumbers(secondaryIdentifier);
+        for (const auto& segment : segmentNumbers)
+        {
+            identifierStrings.push_back(QString::number(segment));
+        }
+    }
+    else if (category == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION)
+    {
+        auto connections = wellCompletions(secondaryIdentifier);
+        for (const auto& conn : connections)
+        {
+            identifierStrings.push_back(QString::fromStdString(conn));
         }
     }
 
-    return stringSet;
+    return identifierStrings;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,6 +279,9 @@ void RiaSummaryCurveAnalyzer::clear()
     m_wellGroupNames.clear();
     m_regionNumbers.clear();
     m_categories.clear();
+    m_wellCompletions.clear();
+    m_wellSegmentNumbers.clear();
+    m_blocks.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,9 +336,11 @@ void RiaSummaryCurveAnalyzer::computeQuantityNamesWithHistory() const
 //--------------------------------------------------------------------------------------------------
 void RiaSummaryCurveAnalyzer::analyzeSingleAddress(const RifEclipseSummaryAddress& address)
 {
-    if (!address.wellName().empty())
+    const std::string& wellName = address.wellName();
+
+    if (!wellName.empty())
     {
-        m_wellNames.insert(address.wellName());
+        m_wellNames.insert(wellName);
     }
 
     if (!address.quantityName().empty())
@@ -285,6 +356,22 @@ void RiaSummaryCurveAnalyzer::analyzeSingleAddress(const RifEclipseSummaryAddres
     if (address.regionNumber() != -1)
     {
         m_regionNumbers.insert(address.regionNumber());
+    }
+
+    if (address.category() == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION)
+    {
+        auto wellNameAndCompletion = std::make_pair(wellName, address.blockAsString());
+        m_wellCompletions.insert(wellNameAndCompletion);
+    }
+    else if (address.category() == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT)
+    {
+        auto wellNameAndSegment = std::make_pair(wellName, address.wellSegmentNumber());
+        m_wellSegmentNumbers.insert(wellNameAndSegment);
+    }
+    else if (address.category() == RifEclipseSummaryAddress::SUMMARY_BLOCK)
+    {
+        auto text = address.blockAsString();
+        m_blocks.insert(text);
     }
 
     if (address.category() != RifEclipseSummaryAddress::SUMMARY_INVALID)

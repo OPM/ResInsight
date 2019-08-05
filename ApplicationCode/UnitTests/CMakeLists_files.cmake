@@ -57,6 +57,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveAnalyzer-Test.cpp
 )
 
 if (RESINSIGHT_ENABLE_GRPC)
