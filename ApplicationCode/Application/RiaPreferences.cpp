@@ -22,6 +22,7 @@
 #include "RiaPreferences.h"
 
 #include "RiaColorTables.h"
+#include "RiaQDateTimeTools.h"
 #include "RifReaderSettings.h"
 
 #include "cafPdmFieldCvfColor.h"
@@ -29,6 +30,9 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
+
+#include <QDate>
+#include <QLocale>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QStandardPaths>
@@ -167,6 +171,10 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
+    QLocale defaultLocale;
+    CAF_PDM_InitField(&m_dateFormat, "dateFormat", defaultLocale.dateFormat(QLocale::ShortFormat), "Date Format", "", "", "");
+    m_dateFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,9 +265,10 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         viewsGroup->add(&showHud);
         
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup("Other");
+        otherGroup->add(&m_dateFormat);
         otherGroup->add(&ssihubAddress);
         otherGroup->add(&showLasCurveWithoutTvdWarning);
-        otherGroup->add(&holoLensDisableCertificateVerification);
+        otherGroup->add(&holoLensDisableCertificateVerification);        
     }
     else if (uiConfigName == RiaPreferences::tabNameEclipse())
     {
@@ -352,6 +361,15 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
 
         options.push_back(caf::PdmOptionItemInfo(skip.uiText(), RiaPreferences::NOT_IMPORT));
         options.push_back(caf::PdmOptionItemInfo(allowImport.uiText(), RiaPreferences::IMPORT));
+    }
+    else if (fieldNeedingOptions == &m_dateFormat)
+    {
+        for (QString dateFormat : RiaQDateTimeTools::supportedDateFormats())
+        {
+            QDate exampleDate = QDateTime::currentDateTime().date();
+            QString uiText = QString("%1 (Today is: %2)").arg(dateFormat).arg(exampleDate.toString(dateFormat));
+            options.push_back(caf::PdmOptionItemInfo(uiText, dateFormat));
+        }
     }
 
     return options;
@@ -498,6 +516,14 @@ bool RiaPreferences::showProjectChangedDialog() const
 QString RiaPreferences::holoLensExportFolder() const
 {
     return m_holoLensExportFolder();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::dateFormat() const
+{
+    return m_dateFormat();
 }
 
 //--------------------------------------------------------------------------------------------------

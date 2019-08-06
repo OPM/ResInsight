@@ -70,6 +70,7 @@ public:
     bool includeFractureDebugInfoFile() const;
     bool showProjectChangedDialog() const;
     QString holoLensExportFolder() const;
+    QString dateFormat() const;
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
@@ -129,7 +130,6 @@ protected:
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     void                            initAfterRead() override;
-
 private:
     static QString tabNameGeneral();
     static QString tabNameEclipse();
@@ -148,4 +148,5 @@ private:
     caf::PdmField<bool>                    m_showTestToolbar;
     caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
     caf::PdmField<QString>                 m_holoLensExportFolder;
+    caf::PdmField<QString>                 m_dateFormat;
 };

@@ -22,6 +22,7 @@
 #include <qnamespace.h>
 
 #include <QString>
+#include <QStringList>
 
 #include <string>
 #include <vector>
@@ -103,6 +104,8 @@ public:
 
     static QString createTimeFormatStringFromDates(const std::vector<QDateTime>& dates);
     static QString dateFormatString();
+
+    static QStringList supportedDateFormats();
 
 private:
     static quint64  secondsInDay();

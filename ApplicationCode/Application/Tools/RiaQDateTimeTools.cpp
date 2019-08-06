@@ -393,3 +393,36 @@ QString RiaQDateTimeTools::dateFormatString()
 {
     return "dd.MMM yyyy";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaQDateTimeTools::supportedDateFormats()
+{
+    QLocale defaultLocale;
+    QStringList dateFormats;
+    dateFormats
+        << defaultLocale.dateFormat(QLocale::ShortFormat)
+        << "yyyy-MM-dd"
+        << "dd.MMM yyyy"
+        << "MMM dd. yyyy";
+    if (defaultLocale.dateFormat(QLocale::ShortFormat) != QString("dd/MM/yyyy"))
+    {
+        dateFormats << "dd/MM/yyyy";
+    }
+    if (defaultLocale.dateFormat(QLocale::ShortFormat) != QString("M/d/yyyy"))
+    {
+        dateFormats << "M/d/yyyy";
+    }
+    dateFormats << "d/M/yyyy"
+        << "dd-MM-yyyy"
+        << "dd.MM.yyyy"
+        << "MM-dd-yyyy"
+        << "dd-MM-yy"
+        << "MM-dd-yy"
+        << "yyyy-MM"
+        << "MMM yyyy"
+        << "MM-yyyy"
+        << "yyyy";
+    return dateFormats;
+}
