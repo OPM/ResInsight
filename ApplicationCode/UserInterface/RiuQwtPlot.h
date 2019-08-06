@@ -86,5 +86,6 @@ private:
     QPointer<QwtPlotZoomer>             m_zoomerRight;
 
     std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
+    std::map<QwtPlotCurve*, double>      m_originalZValues;
 };
 

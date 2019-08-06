@@ -263,22 +263,10 @@ void RiuQwtPlot::highlightCurve(const QwtPlotCurve* closestCurve)
                 symbolLineColor = symbol->pen().color();
             }
 
+            double zValue = plotCurve->z();
             if (plotCurve == closestCurve)
             {
-                cvf::Color3f cvfBgColor = RiaColorTools::fromQColorTo3f(bgColor);
-                cvf::Color3f cvfFgColor = RiaColorTools::contrastColor(cvfBgColor);
-                QColor       fgColor    = RiaColorTools::toQColor(cvfFgColor);
-
-                QColor blendedColor           = RiaColorTools::blendQColors(fgColor, curveColor, 1, 2);
-                QColor blendedSymbolColor     = RiaColorTools::blendQColors(fgColor, symbolColor, 1, 2);
-                QColor blendedSymbolLineColor = RiaColorTools::blendQColors(fgColor, symbolLineColor, 1, 2);
-
-                plotCurve->setPen(blendedColor, existingPen.width(), existingPen.style());
-                if (symbol)
-                {
-                    symbol->setColor(blendedSymbolColor);
-                    symbol->setPen(blendedSymbolLineColor, symbol->pen().width(), symbol->pen().style());
-                }
+                plotCurve->setZ(zValue + 100.0);
             }
             else
             {
@@ -295,6 +283,7 @@ void RiuQwtPlot::highlightCurve(const QwtPlotCurve* closestCurve)
             }
             CurveColors curveColors = {curveColor, symbolColor, symbolLineColor};
             m_originalCurveColors.insert(std::make_pair(plotCurve, curveColors));
+            m_originalZValues.insert(std::make_pair(plotCurve, zValue));
         }
     }
 }
@@ -311,8 +300,10 @@ void RiuQwtPlot::resetCurveHighlighting()
         {
             const QPen& existingPen = plotCurve->pen();
             auto        colors      = m_originalCurveColors[plotCurve];
+            double      zValue      = m_originalZValues[plotCurve];
+            
             plotCurve->setPen(colors.lineColor, existingPen.width(), existingPen.style());
-
+            plotCurve->setZ(zValue);
             QwtSymbol* symbol = const_cast<QwtSymbol*>(plotCurve->symbol());
             if (symbol)
             {
@@ -322,6 +313,7 @@ void RiuQwtPlot::resetCurveHighlighting()
         }
     }
     m_originalCurveColors.clear();
+    m_originalZValues.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
