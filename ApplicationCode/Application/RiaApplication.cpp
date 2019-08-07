@@ -381,7 +381,7 @@ bool RiaApplication::loadProject(const QString&      projectFileName,
 
     // Create a absolute path file name, as this is required for update of file references in the project modifier object
     QString fullPathProjectFileName = caf::Utils::absoluteFileName(projectFileName);
-    if (!isProjectSavedToDisc())
+    if (!caf::Utils::fileExists(fullPathProjectFileName))
     {
         RiaLogging::info(QString("File does not exist : '%1'").arg(fullPathProjectFileName));
         return false;
