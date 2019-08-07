@@ -137,7 +137,8 @@ else()
     endif()
 
     list(APPEND THIRD_PARTY_LIBRARIES
-        ecl 
+        ecl
+		catch2
     )
 
     if (MSVC)
