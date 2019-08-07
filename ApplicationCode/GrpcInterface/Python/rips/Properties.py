@@ -78,7 +78,7 @@ class Properties:
                                                     porosity_model = porosityModelEnum)
         return self.propertiesStub.GetAvailableProperties(request).property_names
 
-    def activeCellProperty(self, propertyType, propertyName, timeStep, porosityModel = 'MATRIX_MODEL'):
+    def activeCellPropertyAsync(self, propertyType, propertyName, timeStep, porosityModel = 'MATRIX_MODEL'):
         """Get a cell property for all active cells. Async, so returns an iterator
             
             Arguments:
@@ -101,7 +101,27 @@ class Properties:
         for chunk in self.propertiesStub.GetActiveCellProperty(request):
             yield chunk
 
-    def gridProperty(self, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+    def activeCellProperty(self, propertyType, propertyName, timeStep, porosityModel = 'MATRIX_MODEL'):
+        """Get a cell property for all active cells. Sync, so returns a list
+            
+            Arguments:
+                propertyType(str): string enum. See available()
+                propertyName(str): name of an Eclipse property
+                timeStep(int): the time step for which to get the property for
+                porosityModel(str): string enum. See available()
+
+            Returns:
+                A list containing double values
+                You first loop through the chunks and then the values within the chunk to get all values.
+        """
+        allValues = []
+        generator = self.activeCellPropertyAsync(propertyType, propertyName, timeStep, porosityModel)
+        for chunk in generator:
+            for value in chunk.values:
+                allValues.append(value)
+        return allValues
+
+    def gridPropertyAsync(self, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         """Get a cell property for all grid cells. Async, so returns an iterator
             
             Arguments:
@@ -125,6 +145,26 @@ class Properties:
                                                  porosity_model = porosityModelEnum)
         for chunk in self.propertiesStub.GetGridProperty(request):
             yield chunk
+
+    def gridProperty(self, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
+        """Get a cell property for all grid cells. Synchronous, so returns a list
+            
+            Arguments:
+                propertyType(str): string enum. See available()
+                propertyName(str): name of an Eclipse property
+                timeStep(int): the time step for which to get the property for
+                gridIndex(int): index to the grid we're getting values for
+                porosityModel(str): string enum. See available()
+
+            Returns:
+                A list of double values
+        """
+        allValues = []
+        generator = self.gridPropertyAsync(propertyType, propertyName, timeStep, gridIndex, porosityModel)
+        for chunk in generator:
+            for value in chunk.values:
+                allValues.append(value)
+        return allValues
 
     def setActiveCellPropertyAsync(self, values_iterator, propertyType, propertyName, timeStep, porosityModel = 'MATRIX_MODEL'):
         """Set a cell property for all active cells. Async, and so takes an iterator to the input values

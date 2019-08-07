@@ -16,8 +16,8 @@ resInsight     = rips.Instance.find()
 start = time.time()
 case = resInsight.project.case(id=0)
 
-poroChunks = case.properties.activeCellProperty('STATIC_NATIVE', 'PORO', 0)
-permxChunks = case.properties.activeCellProperty('STATIC_NATIVE', 'PERMX', 0)
+poroChunks = case.properties.activeCellPropertyAsync('STATIC_NATIVE', 'PORO', 0)
+permxChunks = case.properties.activeCellPropertyAsync('STATIC_NATIVE', 'PERMX', 0)
 
 case.properties.setActiveCellPropertyAsync(createResult(poroChunks, permxChunks),
                                            'GENERATED', 'POROPERMXAS', 0)

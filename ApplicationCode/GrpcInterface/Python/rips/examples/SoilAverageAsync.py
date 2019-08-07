@@ -15,7 +15,7 @@ timeSteps      = case.timeSteps()
 
 averages = []
 for i in range(0, len(timeSteps)):
-	resultChunks = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', i)
+	resultChunks = case.properties.activeCellPropertyAsync('DYNAMIC_NATIVE', 'SOIL', i)
 	mysum = 0.0
 	count = 0
 	for chunk in resultChunks:
