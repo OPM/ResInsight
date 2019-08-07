@@ -17,10 +17,13 @@ git clone https://github.com/microsoft/vcpkg.git
   python -m pip install grpcio-tools
 * Make sure the python executable is found by setting -DPYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
    
-5. Run cmake with the following statements
+5. Run cmake with the following statements: 
 -DRESINSIGHT_ENABLE_GRPC=true
 -DPYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
 -DCMAKE_TOOLCHAIN_FILE=LOCATION_OF_VCPKG/scripts/buildsystems/vcpkg.cmake
+NOTE: When using the CMake gui, you need to select "Specify toolchain for cross-compiling" 
+      and enter the "LOCATION_OF_VCPKG/scripts/buildsystems/vcpkg.cmake" there. 
+	  This path ends up in the CMAKE_TOOLCHAIN_FILE variable. If you do not, protobuffers are not found.
 -A x64
 
 ############ Linux as STANDALONE GPRC ####################################################################
