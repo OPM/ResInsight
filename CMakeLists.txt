@@ -138,15 +138,12 @@ else()
 
     list(APPEND THIRD_PARTY_LIBRARIES
         ecl
-		catch2
     )
 
-    if (MSVC)
-      set_property(TARGET  
-          ecl
-	      PROPERTY FOLDER "Thirdparty/ERT"
-      )
-    endif()
+    set_property(TARGET  
+      catch2
+	  PROPERTY FOLDER "Thirdparty"
+    )
     
     # Restore original state
     set(BUILD_SHARED_LIBS ${ORIGINAL_BUILD_SHARED_LIBS})
