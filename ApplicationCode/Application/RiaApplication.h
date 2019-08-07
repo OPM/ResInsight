@@ -121,6 +121,7 @@ public:
 
     bool openFile(const QString& fileName);
 
+    bool        isProjectSavedToDisc() const;
     QString     currentProjectPath() const;
     QString     createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
     bool        loadProject(const QString& projectFileName);

@@ -27,8 +27,6 @@
 #include "RiuMainWindow.h"
 #include "RiuWellImportWizard.h"
 
-#include "cafUtils.h"
-
 #include <QAction>
 #include <QDir>
 #include <QFile>
@@ -52,7 +50,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     if (!app->project()) return;
 
-    if (!caf::Utils::fileExists(app->project()->fileName()))
+    if (!app->isProjectSavedToDisc())
     {
         RiaGuiApplication* guiApp = RiaGuiApplication::instance();
         if (guiApp)
@@ -74,7 +72,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
             }
         }
 
-        if (!caf::Utils::fileExists(app->project()->fileName()))
+        if (!app->isProjectSavedToDisc())
         {
             return;
         }

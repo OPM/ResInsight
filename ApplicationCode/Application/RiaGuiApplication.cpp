@@ -204,7 +204,7 @@ bool RiaGuiApplication::saveProject()
 {
     CVF_ASSERT(m_project.notNull());
 
-    if (!caf::Utils::fileExists(m_project->fileName()))
+    if (!isProjectSavedToDisc())
     {
         return saveProjectPromptForFileName();
     }

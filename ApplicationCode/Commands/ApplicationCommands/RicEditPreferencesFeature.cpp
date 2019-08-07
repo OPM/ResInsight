@@ -24,6 +24,7 @@
 #include "RiuPropertyViewTabWidget.h"
 
 #include "cafPdmSettings.h"
+#include "cafPdmUiModelChangeDetector.h"
 
 #include <QAction>
 
@@ -64,6 +65,13 @@ void RicEditPreferencesFeature::onActionTriggered(bool isChecked)
         // Read back currently stored values using QSettings
         caf::PdmSettings::readFieldsFromApplicationStore(app->preferences());
         app->preferences()->initAfterReadRecursively();
+    }
+
+    if (!app->isProjectSavedToDisc())
+    {
+        // Always reset change detector when modifying preferences, as these changes are irrelevant
+        // when the project we work on is not saved to disc
+        caf::PdmUiModelChangeDetector::instance()->reset();
     }
 }
 

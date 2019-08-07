@@ -84,6 +84,7 @@
 #include "RimWellRftPlot.h"
 
 #include "cafPdmSettings.h"
+#include "cafPdmUiModelChangeDetector.h"
 #include "cafProgressInfo.h"
 #include "cafUiProcess.h"
 #include "cafUtils.h"
@@ -308,6 +309,16 @@ bool RiaApplication::openFile(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaApplication::isProjectSavedToDisc() const
+{
+    if (m_project.isNull()) return false;
+
+    return caf::Utils::fileExists(m_project->fileName());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaApplication::currentProjectPath() const
 {
     QString projectFolder;
@@ -370,7 +381,7 @@ bool RiaApplication::loadProject(const QString&      projectFileName,
 
     // Create a absolute path file name, as this is required for update of file references in the project modifier object
     QString fullPathProjectFileName = caf::Utils::absoluteFileName(projectFileName);
-    if (!caf::Utils::fileExists(fullPathProjectFileName))
+    if (!isProjectSavedToDisc())
     {
         RiaLogging::info(QString("File does not exist : '%1'").arg(fullPathProjectFileName));
         return false;
@@ -677,6 +688,8 @@ void RiaApplication::closeProject()
     m_commandQueue.clear();
 
     onProjectClosed();
+
+    caf::PdmUiModelChangeDetector::instance()->reset();
 }
 
 //--------------------------------------------------------------------------------------------------
