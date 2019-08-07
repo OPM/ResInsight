@@ -483,13 +483,23 @@ endif()
 if (MSVC)
 
     # Qt DLLs
-    if (RESINSIGHT_BUILD_WITH_QT5)
+    if (RESINSIGHT_BUILD_WITH_QT5)	
         message(STATUS "Creating post build step for copying Qt DLLs")
-        foreach (qtlib ${QT_LIBRARIES})
-            add_custom_command(TARGET ResInsight POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:ResInsight>
-            )
-        endforeach(qtlib)
+		
+		foreach (qtlib ${QT_LIBRARIES})
+			add_custom_command(TARGET ResInsight POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:ResInsight>
+			)
+		endforeach(qtlib)
+			
+		if (_unityTargetName)
+			foreach (qtlib ${QT_LIBRARIES})
+				add_custom_command(TARGET ${_unityTargetName} POST_BUILD
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${_unityTargetName}>
+				)
+			endforeach(qtlib)
+		endif(_unityTargetName)
+
     else()
         set (QTLIBLIST QtCore QtGui QtGui QtOpenGl QtNetwork QtScript QtScriptTools)
         foreach (qtlib ${QTLIBLIST})		  
