@@ -70,11 +70,34 @@ void RiaConsoleApplication::initialize()
 #ifdef _WIN32
 #pragma warning(push) // Saves the current warning state.
 #pragma warning(disable : 4996) // Temporarily disables warning 4996.
-    if (AttachConsole(ATTACH_PARENT_PROCESS) || AllocConsole())
+
+    bool isReOpenStdToConsoleNeeded = false;
+    
+    if ( AttachConsole(ATTACH_PARENT_PROCESS) )
     {
-        freopen("CONOUT$", "w", stdout);
-        freopen("CONOUT$", "w", stderr);
+        int fileType = GetFileType(GetStdHandle(STD_OUTPUT_HANDLE));
+        
+        // FILE_TYPE_CHAR indicates a windows console buffer. 
+        // FILE_TYPE_PIPE indicates redirection imposed by the starting shell (eg migw shell)
+        // If we are dealing with a pipe, we do not want to do the reopen, and destroy the connection.
+
+        if (fileType == FILE_TYPE_CHAR ) 
+        {
+            isReOpenStdToConsoleNeeded = true;
+        }
     }
+    else if ( AllocConsole() )
+    {
+        isReOpenStdToConsoleNeeded = true;
+    }
+
+    if (isReOpenStdToConsoleNeeded)
+    {
+        freopen("conout$", "w", stdout);
+        freopen("conout$", "w", stderr);
+        freopen("conin$",  "r", stdin);
+    }
+
 #pragma warning(pop)
 #endif
 
