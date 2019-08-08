@@ -71,6 +71,13 @@ Example
 		print(dimensions.j)
 		print(dimensions.k)
 
+GridCaseGroup Module
+===========
+
+.. autoclass:: rips.GridCaseGroup
+    :members:
+
+
 Project Module
 ==============
 
@@ -83,7 +90,13 @@ Properties Module
 .. autoclass:: rips.Properties
     :members:
 
-Synchronous Example
+View Module
+=================
+
+.. autoclass:: rips.View
+    :members:
+
+    Synchronous Example
 --------------------
 Read two properties, multiply them together and push the results back to ResInsight in a naïve way, by reading PORO into a list, then reading PERMX into a list, then multiplying them both in a resulting list and finally transferring back the list.
 
