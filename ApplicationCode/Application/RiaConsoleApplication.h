@@ -42,8 +42,7 @@ public:
     // Public RiaApplication overrides
     void initialize() override;
     ApplicationStatus handleArguments(cvf::ProgramOptions* progOpt) override;
-    void showInformationMessage(const QString& text) override;
-    void showErrorMessage(const QString& errMsg) override;
+    void showFormattedTextInMessageBoxOrConsole(const QString& errMsg) override;
     void launchGrpcServer() override;
 #ifdef ENABLE_GRPC
     RiaGrpcServer* grpcServer() const override;

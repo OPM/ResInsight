@@ -100,6 +100,13 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments(cvf::Pr
         return KEEP_GOING;
     }
 
+    if (progOpt->option("help") || progOpt->option("?"))
+    {
+        this->showFormattedTextInMessageBoxOrConsole("\nThe current command line options in ResInsight are:\n"
+                                                     + this->commandLineParameterHelp());
+        return RiaApplication::EXIT_COMPLETED;
+    }
+
     // Unit testing
     // --------------------------------------------------------
     if (cvf::Option o = progOpt->option("unittest"))
@@ -324,19 +331,11 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments(cvf::Pr
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// 
 //--------------------------------------------------------------------------------------------------
-void RiaConsoleApplication::showInformationMessage(const QString& text)
+void RiaConsoleApplication::showFormattedTextInMessageBoxOrConsole(const QString& errMsg)
 {
-    RiaLogging::info(text);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaConsoleApplication::showErrorMessage(const QString& errMsg)
-{
-    RiaLogging::error(errMsg);
+    std::cout << errMsg.toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -375,7 +374,7 @@ void RiaConsoleApplication::invokeProcessEvents(QEventLoop::ProcessEventsFlags f
 //--------------------------------------------------------------------------------------------------
 void RiaConsoleApplication::onProjectOpeningError(const QString& errMsg)
 {
-    showErrorMessage(errMsg);
+    RiaLogging::error(errMsg);
 }
 
 //--------------------------------------------------------------------------------------------------

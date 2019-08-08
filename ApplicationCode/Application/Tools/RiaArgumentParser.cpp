@@ -103,8 +103,8 @@ bool RiaArgumentParser::parseArguments(cvf::ProgramOptions* progOpt)
                            "[<caseId>] <caseListFile>",
                            "Supply list of cases to replace in project, performing command file for each case.",
                            cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt->registerOption("help", "", "Displays help text.");
-    progOpt->registerOption("?", "", "Displays help text.");
+    progOpt->registerOption("help", "", "Displays help text and exits.");
+    progOpt->registerOption("?", "", "Displays help text and exits.");
     progOpt->registerOption("regressiontest", "<folder>", "System command", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt->registerOption("updateregressiontestbase", "<folder>", "System command", cvf::ProgramOptions::SINGLE_VALUE);
 #ifdef USE_UNIT_TESTS
@@ -120,7 +120,7 @@ bool RiaArgumentParser::parseArguments(cvf::ProgramOptions* progOpt)
 
     // If positional parameter functionality is to be supported, the test for existence of positionalParameters must be removed
     // This is based on a pull request by @andlaus https://github.com/OPM/ResInsight/pull/162
-    if (!parseOk || progOpt->hasOption("help") || progOpt->hasOption("?") || !progOpt->positionalParameters().empty())
+    if (!parseOk || !progOpt->positionalParameters().empty())
     {
         return false;
     }

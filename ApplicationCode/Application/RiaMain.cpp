@@ -59,21 +59,25 @@ int main(int argc, char *argv[])
     cvf::ProgramOptions progOpt;
     bool                result = RiaArgumentParser::parseArguments(&progOpt);
 
+    const cvf::String usageText = progOpt.usageText(110, 30);
     app->initialize();
+    app->setCommandLineHelpText( cvfqt::Utils::toQString(usageText) );
 
     if (!result)
     {
         std::vector<cvf::String> unknownOptions = progOpt.unknownOptions();
-        QStringList unknownOptionsText;
+        QString unknownOptionsText;
         for (cvf::String option : unknownOptions)
         {
-            unknownOptionsText += QString("Unknown option: %1").arg(cvfqt::Utils::toQString(option));
+            unknownOptionsText += QString("\tUnknown option: %1\n").arg(cvfqt::Utils::toQString(option));
         }
 
-        const cvf::String usageText = progOpt.usageText(110, 30);
-        app->showErrorMessage(RiaApplication::commandLineParameterHelp() +
-                              cvfqt::Utils::toQString(usageText) +
-                              unknownOptionsText.join("\n"));
+        app->showFormattedTextInMessageBoxOrConsole("ERROR: Unknown command line options detected ! \n"
+                                                    + unknownOptionsText
+                                                    + "\n\n"
+                                                    + "The current command line options in ResInsight are:\n"
+                                                    + app->commandLineParameterHelp());
+
         if (dynamic_cast<RiaGuiApplication*>(app.get()) == nullptr)
         {
             return 1;

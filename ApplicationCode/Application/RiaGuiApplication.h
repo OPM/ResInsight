@@ -130,8 +130,7 @@ public:
     ApplicationStatus   handleArguments(cvf::ProgramOptions* progOpt) override;
     int                 launchUnitTestsWithConsole() override;
     void                addToRecentFiles(const QString& fileName) override;
-    void                showInformationMessage(const QString& text) override;
-    void                showErrorMessage(const QString& errMsg) override;
+    void                showFormattedTextInMessageBoxOrConsole(const QString& errMsg) override;
     void                launchGrpcServer() override;
 #ifdef ENABLE_GRPC
     RiaGrpcServer*      grpcServer() const override;

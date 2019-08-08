@@ -1127,6 +1127,8 @@ QString RiaApplication::commandLineParameterHelp()
 {
     QString helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(RiaApplication::getVersionStringApp(false));
     helpText += "Copyright Equinor ASA, Ceetron Solution AS, Ceetron AS\n\n";
+    helpText += m_commandLineHelpText;
+
     return helpText;
 }
 
@@ -1295,6 +1297,14 @@ const QString RiaApplication::startDir() const
 void RiaApplication::setStartDir(const QString& startDir)
 {
     m_startupDefaultDirectory = startDir;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::setCommandLineHelpText(const QString& commandLineHelpText)
+{
+    m_commandLineHelpText = commandLineHelpText;
 }
 
 //--------------------------------------------------------------------------------------------------

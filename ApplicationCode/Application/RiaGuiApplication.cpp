@@ -120,6 +120,9 @@
 #include <QMessageBox>
 #include <QProcessEnvironment>
 #include <QTreeView>
+#include <QTextEdit>
+#include <QGridLayout>
+#include <QPushButton>
 
 #include <iostream>
 
@@ -151,6 +154,7 @@ void AppEnum<RiaGuiApplication::RINavigationPolicy>::setUp()
 /// Application class
 ///
 //==================================================================================================
+
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -588,6 +592,13 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::Progra
         return KEEP_GOING;
     }
 
+    if (progOpt->option("help") || progOpt->option("?"))
+    {
+        this->showFormattedTextInMessageBoxOrConsole("The current command line options in ResInsight are:\n"
+                                                     + this->commandLineParameterHelp());
+        return RiaApplication::EXIT_COMPLETED;
+    }
+    
     // Unit testing
     // --------------------------------------------------------
     if (cvf::Option o = progOpt->option("unittest"))
@@ -1201,33 +1212,43 @@ void RiaGuiApplication::clearAllSelections()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// 
 //--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::showInformationMessage(const QString& text)
+void RiaGuiApplication::showFormattedTextInMessageBoxOrConsole(const QString& text)
 {
-    QString helpText = text;
+    // Create a message dialog with cut/paste friendly text
+    QDialog dlg(RiuMainWindow::instance());
+    dlg.setModal(true);
 
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Information);
-    msgBox.setWindowTitle("ResInsight");
+    QGridLayout* layout = new QGridLayout;
+    dlg.setLayout(layout);
 
-    helpText.replace("&", "&amp;");
-    helpText.replace("<", "&lt;");
-    helpText.replace(">", "&gt;");
+    QTextEdit* textEdit = new QTextEdit(&dlg);
+    layout->addWidget(textEdit, 0, 1, 1, 2);
+    layout->setColumnStretch(1,3);
 
-    helpText = QString("<pre>%1</pre>").arg(helpText);
-    msgBox.setText(helpText);
+    QPushButton* okButton = new QPushButton;
+    okButton->setText("Ok");
+    layout->addWidget(okButton,2,2);
+    QObject::connect(okButton, SIGNAL(clicked()), &dlg, SLOT(accept()));
 
-    msgBox.exec();
-}
+    // Convert text to text edit friendly format
+    QString formattedText = text;
+    formattedText.replace("&", "&amp;");
+    formattedText.replace("<", "&lt;");
+    formattedText.replace(">", "&gt;");
+    formattedText = QString("<pre>%1</pre>").arg(formattedText);
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::showErrorMessage(const QString& errMsg)
-{
-    QErrorMessage errDialog(mainWindow());
-    errDialog.showMessage(errMsg);
+    textEdit->setText(formattedText);
+
+    // Resize dialog to fit text etc.
+    textEdit->document()->adjustSize();
+    QSizeF docSize =  textEdit->document()->size();
+    dlg.resize( 20 + docSize.width() + 2*layout->margin(), 
+               20 + docSize.height() + 2*layout->margin() + layout->spacing() + okButton->sizeHint().height());
+
+    dlg.exec();
+
 }
 
 //--------------------------------------------------------------------------------------------------

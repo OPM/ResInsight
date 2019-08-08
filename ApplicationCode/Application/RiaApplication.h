@@ -159,7 +159,8 @@ public:
     RiaPreferences* preferences();
     void            applyPreferences(const RiaPreferences* oldPreferences = nullptr);
 
-    static QString commandLineParameterHelp();
+    QString commandLineParameterHelp();
+    void setCommandLineHelpText(const QString& commandLineHelpText);
 
     void     setCacheDataObject(const QString& key, const QVariant& dataObject);
     QVariant cacheDataObject(const QString& key) const;
@@ -187,8 +188,7 @@ public:
     virtual ApplicationStatus handleArguments(cvf::ProgramOptions* progOpt) = 0;
     virtual int  launchUnitTestsWithConsole();
     virtual void addToRecentFiles(const QString& fileName) {}
-    virtual void showInformationMessage(const QString& infoText) = 0;
-    virtual void showErrorMessage(const QString& errMsg) = 0;
+    virtual void showFormattedTextInMessageBoxOrConsole(const QString& errMsg) = 0;
 
     virtual void launchGrpcServer() = 0;
 
@@ -230,7 +230,7 @@ protected:
 
     std::map<QString, QString> m_fileDialogDefaultDirectories;
     QString                    m_startupDefaultDirectory;
-
+    QString                    m_commandLineHelpText;
     QMap<QString, QVariant> m_sessionCache; // Session cache used to store username/passwords per session
 
     std::list<RimCommandObject*> m_commandQueue;

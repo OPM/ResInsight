@@ -192,7 +192,7 @@ void RicHelpCommandLineFeature::onActionTriggered(bool isChecked)
 
     RiaApplication* app  = RiaApplication::instance();
     QString         text = app->commandLineParameterHelp();
-    app->showInformationMessage(text);
+    app->showFormattedTextInMessageBoxOrConsole(text);
 }
 
 //--------------------------------------------------------------------------------------------------
