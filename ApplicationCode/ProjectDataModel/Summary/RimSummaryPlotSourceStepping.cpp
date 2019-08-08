@@ -993,7 +993,7 @@ bool RimSummaryPlotSourceStepping::updateAddressIfMatching(const QVariant&      
             return true;
         }
     }
-    else if (category == RifEclipseSummaryAddress::SUMMARY_BLOCK || RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION)
+    else if (category == RifEclipseSummaryAddress::SUMMARY_BLOCK || category == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION)
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
