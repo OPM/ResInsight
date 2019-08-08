@@ -477,6 +477,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicNewSummaryPlotDirectFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicShowSummaryCurveCalculatorFeature";
         }
@@ -542,6 +543,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicEditSummaryPlotFeature";
             menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicNewSummaryPlotDirectFeature";
             menuBuilder << "RicDuplicateSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCurveFeature";
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
@@ -621,6 +623,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewDerivedEnsembleFeature";
             menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicNewSummaryPlotDirectFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicConvertGroupToEnsembleFeature";
@@ -636,6 +639,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicNewSummaryPlotDirectFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
 
@@ -820,6 +824,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         
         menuBuilder << "RicNewDerivedEnsembleFeature";
         menuBuilder << "RicNewSummaryPlotFeature";
+        menuBuilder << "RicNewSummaryPlotDirectFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
         menuBuilder.addSeparator();

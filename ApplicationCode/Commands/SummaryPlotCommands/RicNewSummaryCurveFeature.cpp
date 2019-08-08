@@ -54,7 +54,7 @@ RimSummaryCurve* RicNewSummaryCurveFeature::addCurveToPlot(RimSummaryPlot* plot,
         cvf::Color3f curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(plot->singleColorCurveCount());
         newCurve->setColor(curveColor);
 
-        plot->addCurveAndUpdate(newCurve);
+        plot->addCurveNoUpdate(newCurve);
 
         if (summaryCase)
         {
@@ -62,8 +62,6 @@ RimSummaryCurve* RicNewSummaryCurveFeature::addCurveToPlot(RimSummaryPlot* plot,
         }
 
         newCurve->setSummaryAddressYAndApplyInterpolation(RifEclipseSummaryAddress::fieldAddress("FOPT"));
-
-        newCurve->loadDataAndUpdate(true);
 
         return newCurve;
     }
@@ -132,6 +130,7 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
 
         RimSummaryCurve* newCurve = addCurveToPlot(plot, defaultCase);
 
+        plot->loadDataAndUpdate();
         plot->updateConnectedEditors();
 
         app->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
