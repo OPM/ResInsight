@@ -141,6 +141,8 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&gridImportMode, "gridImportMode", SummaryRestartFilesImportModeType(RiaPreferences::NOT_IMPORT), "Default Grid Import Option", "", "", "");
     CAF_PDM_InitField(&summaryEnsembleImportMode, "summaryEnsembleImportMode", SummaryRestartFilesImportModeType(RiaPreferences::IMPORT), "Default Ensemble Summary Import Option", "", "", "");
 
+    CAF_PDM_InitField(&defaultSummaryCurvesTextFilter, "defaultSummaryCurvesTextFilter", QString("FOPT"), "Default Summary Curves", "", "Semicolon separated list of filters used to create curves in new summary plots", "");
+
     CAF_PDM_InitFieldNoDefault(&m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder", "", "", "");
     m_holoLensExportFolder.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_holoLensExportFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
@@ -282,6 +284,11 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         {
             caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup("Origin Ensemble Summary Files");
             group->add(&summaryEnsembleImportMode);
+        }
+
+        {
+            caf::PdmUiGroup* summaryPlotsGroup = uiOrdering.addNewGroup("Summary Plots");
+            summaryPlotsGroup->add(&defaultSummaryCurvesTextFilter);
         }
     }
     else if (uiConfigName == m_tabNames[2])

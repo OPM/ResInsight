@@ -44,6 +44,7 @@
 
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include "cafProgressInfo.h"
 #include "cafSelectionManagerTools.h"
@@ -83,7 +84,7 @@ void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
     addSummaryCases(cases);
     if (!cases.empty())
     {
-        createNewPlot(cases.front());
+        RicSummaryPlotFeatureImpl::createDefaultSummaryPlot(cases.front());
     }
 
     addCasesToGroupIfRelevant(cases);
@@ -132,7 +133,7 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStri
         addSummaryCases(*cases);
         if (!cases->empty())
         {
-            createNewPlot(cases->back());
+            RicSummaryPlotFeatureImpl::createDefaultSummaryPlot(cases->back());
         }
 
         RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
@@ -230,17 +231,6 @@ void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(const std::vector<R
             mainColl->updateConnectedEditors();
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicImportSummaryCasesFeature::createNewPlot(RimSummaryCase* summaryCase)
-{
-    RiaApplication* app  = RiaApplication::instance();
-    RimProject*     proj = app->project();
-
-    RicNewSummaryCurveFeature::createNewPlot(proj->mainPlotCollection->summaryPlotCollection(), summaryCase);
 }
 
 //--------------------------------------------------------------------------------------------------

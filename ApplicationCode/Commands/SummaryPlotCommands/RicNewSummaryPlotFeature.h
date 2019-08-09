@@ -41,7 +41,7 @@ protected:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewSummaryPlotDirectFeature : public caf::CmdFeature
+class RicNewDefaultSummaryPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

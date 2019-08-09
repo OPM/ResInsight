@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,33 +15,19 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafCmdFeature.h"
-
-#include <vector>
-
+class RimSummaryCurve;
 class RimSummaryPlot;
 class RimSummaryCase;
-class RimSummaryCurve;
 class RimSummaryPlotCollection;
 
-//==================================================================================================
-/// 
-//==================================================================================================
-class RicNewSummaryCurveFeature : public caf::CmdFeature
+class RicSummaryPlotFeatureImpl
 {
-    CAF_CMD_HEADER_INIT;
-
 public:
+    static RimSummaryCurve* addDefaultCurveToPlot(RimSummaryPlot* plot, RimSummaryCase* summaryCase);
+    static void ensureAtLeastOnePlot(RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase);
+    static void createDefaultSummaryPlot(RimSummaryCase* summaryCase);
 
-protected:
-    // Overrides
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    RimSummaryPlot* selectedSummaryPlot() const;
 };
+

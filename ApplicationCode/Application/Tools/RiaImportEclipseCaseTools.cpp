@@ -22,6 +22,7 @@
 
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
@@ -165,7 +166,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
             {
                 RimSummaryPlotCollection* summaryPlotColl = project->mainPlotCollection()->summaryPlotCollection();
 
-                RicNewSummaryCurveFeature::ensureAtLeastOnePlot(summaryPlotColl, newSumCases.front());
+                RicSummaryPlotFeatureImpl::ensureAtLeastOnePlot(summaryPlotColl, newSumCases.front());
 
                 RiuPlotMainWindowTools::setExpanded(newSumCases.front());
             }

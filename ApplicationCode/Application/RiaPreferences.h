@@ -110,6 +110,8 @@ public: // Pdm Fields
     caf::PdmField<SummaryRestartFilesImportModeType>    gridImportMode;
     caf::PdmField<SummaryRestartFilesImportModeType>    summaryEnsembleImportMode;
 
+    caf::PdmField<QString>  defaultSummaryCurvesTextFilter;
+
     caf::PdmField<bool>     holoLensDisableCertificateVerification;
     caf::PdmField<QString>  csvTextExportFieldSeparator;
 

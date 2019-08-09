@@ -38,69 +38,10 @@
 
 #include <QAction>
 #include "RiuPlotMainWindowTools.h"
+#include "RicSummaryPlotFeatureImpl.h"
 
 CAF_CMD_SOURCE_INIT(RicNewSummaryCurveFeature, "RicNewSummaryCurveFeature");
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RicNewSummaryCurveFeature::addCurveToPlot(RimSummaryPlot* plot, RimSummaryCase* summaryCase)
-{
-    if (plot)
-    {
-        RimSummaryCurve* newCurve = new RimSummaryCurve();
-
-        // Use same counting as RicNewSummaryEnsembleCurveSetFeature::onActionTriggered
-        cvf::Color3f curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(plot->singleColorCurveCount());
-        newCurve->setColor(curveColor);
-
-        plot->addCurveNoUpdate(newCurve);
-
-        if (summaryCase)
-        {
-            newCurve->setSummaryCaseY(summaryCase);
-        }
-
-        newCurve->setSummaryAddressYAndApplyInterpolation(RifEclipseSummaryAddress::fieldAddress("FOPT"));
-
-        return newCurve;
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicNewSummaryCurveFeature::ensureAtLeastOnePlot(RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase)
-{
-    if (summaryPlotCollection && summaryCase)
-    {
-        if (summaryPlotCollection->summaryPlots.empty())
-        {
-            createNewPlot(summaryPlotCollection, summaryCase);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicNewSummaryCurveFeature::createNewPlot(RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase)
-{
-    if (summaryPlotCollection && summaryCase)
-    {
-        auto plot = summaryPlotCollection->createSummaryPlotWithAutoTitle();
-
-        auto curve = RicNewSummaryCurveFeature::addCurveToPlot(plot, summaryCase);
-        plot->loadDataAndUpdate();
-
-        summaryPlotCollection->updateConnectedEditors();
-
-        RiuPlotMainWindowTools::setExpanded(curve);
-        RiuPlotMainWindowTools::selectAsCurrentItem(curve);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -128,7 +69,7 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
             defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase(0);
         }
 
-        RimSummaryCurve* newCurve = addCurveToPlot(plot, defaultCase);
+        RimSummaryCurve* newCurve = RicSummaryPlotFeatureImpl::addDefaultCurveToPlot(plot, defaultCase);
 
         plot->loadDataAndUpdate();
         plot->updateConnectedEditors();

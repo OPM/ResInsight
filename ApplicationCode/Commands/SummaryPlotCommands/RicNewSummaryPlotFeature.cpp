@@ -145,11 +145,16 @@ void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setIcon(QIcon(":/SummaryPlotLight16x16.png"));
 }
 
+//==================================================================================================
+/// 
+//==================================================================================================
+
 #include "RiuPlotMainWindowTools.h"
 #include "RicNewSummaryCurveFeature.h"
 #include "RimMainPlotCollection.h"
+#include "RicSummaryPlotFeatureImpl.h"
 
-CAF_CMD_SOURCE_INIT(RicNewSummaryPlotDirectFeature, "RicNewSummaryPlotDirectFeature");
+CAF_CMD_SOURCE_INIT(RicNewDefaultSummaryPlotFeature, "RicNewDefaultSummaryPlotFeature");
 
 
 std::pair<RimSummaryPlotCollection*, std::vector<RimSummaryCase*>> extractSumPlotCollectionOrSelectedSumCasesFromSelection()
@@ -177,7 +182,7 @@ std::pair<RimSummaryPlotCollection*, std::vector<RimSummaryCase*>> extractSumPlo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryPlotDirectFeature::isCommandEnabled()
+bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
 {
     auto sumPlotSumCasesPair = extractSumPlotCollectionOrSelectedSumCasesFromSelection();
 
@@ -187,7 +192,7 @@ bool RicNewSummaryPlotDirectFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryPlotDirectFeature::onActionTriggered(bool isChecked)
+void RicNewDefaultSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
     auto sumPlotSumCasesPair = extractSumPlotCollectionOrSelectedSumCasesFromSelection();
 
@@ -203,7 +208,7 @@ void RicNewSummaryPlotDirectFeature::onActionTriggered(bool isChecked)
 
         if (sumCaseVector.size())
         {
-            RicNewSummaryCurveFeature::addCurveToPlot(newPlot, sumCaseVector[0]);
+            RicSummaryPlotFeatureImpl::addDefaultCurveToPlot(newPlot, sumCaseVector[0]);
         }
     }
     else if (sumPlotSumCasesPair.second.size())
@@ -212,7 +217,7 @@ void RicNewSummaryPlotDirectFeature::onActionTriggered(bool isChecked)
 
         for (RimSummaryCase* sumCase : sumPlotSumCasesPair.second)
         {
-            RicNewSummaryCurveFeature::addCurveToPlot(newPlot, sumCase);
+            RicSummaryPlotFeatureImpl::addDefaultCurveToPlot(newPlot, sumCase);
         }
     }
 
@@ -230,7 +235,7 @@ void RicNewSummaryPlotDirectFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryPlotDirectFeature::setupActionLook(QAction* actionToSetup)
+void RicNewDefaultSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Summary Plot");
     actionToSetup->setIcon(QIcon(":/SummaryPlotLight16x16.png"));
