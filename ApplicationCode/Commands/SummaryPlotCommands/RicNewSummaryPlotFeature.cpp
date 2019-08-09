@@ -152,7 +152,7 @@ void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 CAF_CMD_SOURCE_INIT(RicNewSummaryPlotDirectFeature, "RicNewSummaryPlotDirectFeature");
 
 
-auto extractSumPlotCollectionOrSelectedSumCasesFromSelection()
+std::pair<RimSummaryPlotCollection*, std::vector<RimSummaryCase*>> extractSumPlotCollectionOrSelectedSumCasesFromSelection()
 {
     std::vector<RimSummaryCase*> selectedSumCases;
     RimSummaryPlotCollection* sumPlotColl = nullptr;
