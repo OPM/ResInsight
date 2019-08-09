@@ -240,7 +240,7 @@ bool RimSummaryFilter::isIncludedByFilter(const RifEclipseSummaryAddress& addr) 
 
     if(m_filterType() == SUM_FILTER_VAR_STRING)
     {
-        return isStringMatch(m_completeVarStringFilter(), addr.uiText());
+        return addr.isUiTextMatchingFilterText(m_completeVarStringFilter()); 
     }
 
     if(!isStringMatch(m_filterQuantityName(), addr.quantityName())) return false;

@@ -647,6 +647,24 @@ std::string RifEclipseSummaryAddress::uiText(RifEclipseSummaryAddress::SummaryId
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RifEclipseSummaryAddress::isUiTextMatchingFilterText(const QString& filterString) const
+{
+    std::string value = uiText();
+    if(filterString.isEmpty()) return true;
+    if(filterString.trimmed() == "*")
+    {
+        if(!value.empty()) return true;
+        else return false;
+    }
+
+    QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
+    QString qstrValue = QString::fromStdString(value);
+    return searcher.exactMatch(qstrValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RifEclipseSummaryAddress::isValid() const
 {
     if (m_quantityName.empty()) return false;

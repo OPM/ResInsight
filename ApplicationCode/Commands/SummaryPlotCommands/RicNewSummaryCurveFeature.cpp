@@ -71,6 +71,7 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
 
         RimSummaryCurve* newCurve = RicSummaryPlotFeatureImpl::addDefaultCurveToPlot(plot, defaultCase);
 
+        plot->applyDefaultCurveAppearances();
         plot->loadDataAndUpdate();
         plot->updateConnectedEditors();
 

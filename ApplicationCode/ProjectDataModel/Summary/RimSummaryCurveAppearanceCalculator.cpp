@@ -20,10 +20,15 @@
 
 #include "RiaColorTables.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaApplication.h"
+
 #include "RiuQwtPlotCurve.h"
 
 #include "RimSummaryCurve.h"
 #include "RimSummaryCase.h"
+#include "RimProject.h"
+
+#include "RifSummaryReaderInterface.h"
 
 #include "cvfVector3.h"
 
@@ -61,10 +66,10 @@ bool isExcplicitHandled(char secondChar)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const std::set<RiaSummaryCurveDefinition>& curveDefinitions, const std::set<std::string>& allSummaryCaseNames, const std::set<std::string>& allSummaryWellNames)
+RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const std::set<RiaSummaryCurveDefinition>& curveDefinitions)
 {
-    m_allSummaryCaseNames = allSummaryCaseNames;
-    m_allSummaryWellNames = allSummaryWellNames;
+    m_allSummaryCaseNames = getAllSummaryCaseNames();
+    m_allSummaryWellNames = getAllSummaryWellNames();
 
     for(const RiaSummaryCurveDefinition& curveDef : curveDefinitions)
     {
@@ -516,4 +521,54 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::gradeColor(const cvf::Color3f&
     cvf::Vec3f newColor = ((float)fabs(factor)) * (targetC - orgC) + orgC;
 
     return cvf::Color3f(newColor[0], newColor[1], newColor[2]);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RimSummaryCurveAppearanceCalculator::getAllSummaryCaseNames()
+{
+    std::set<std::string> summaryCaseHashes;
+    RimProject*           proj = RiaApplication::instance()->project();
+
+    std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
+    for (RimSummaryCase* rimCase : cases)
+    {
+        summaryCaseHashes.insert(rimCase->summaryHeaderFilename().toUtf8().constData());
+    }
+
+    return summaryCaseHashes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RimSummaryCurveAppearanceCalculator::getAllSummaryWellNames()
+{
+    std::set<std::string> summaryWellNames;
+    RimProject*           proj = RiaApplication::instance()->project();
+
+    std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
+    for (RimSummaryCase* rimCase : cases)
+    {
+        RifSummaryReaderInterface* reader = nullptr;
+        if (rimCase)
+        {
+            reader = rimCase->summaryReader();
+        }
+
+        if (reader)
+        {
+            const std::set<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
+
+            for (auto& address : allAddresses)
+            {
+                if (address.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+                {
+                    summaryWellNames.insert(address.wellName());
+                }
+            }
+        }
+    }
+    return summaryWellNames;
 }

@@ -441,8 +441,7 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
         if (!def.isEnsembleCurve()) summaryCurveDefsToDisplay.insert(def);
     }
 
-    RimSummaryCurveAppearanceCalculator curveLookCalc(
-        summaryCurveDefsToDisplay, getAllSummaryCaseNames(), getAllSummaryWellNames());
+    RimSummaryCurveAppearanceCalculator curveLookCalc(summaryCurveDefsToDisplay);
     initCurveAppearanceCalculator(curveLookCalc);
 
     // Delete curves
@@ -528,55 +527,6 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
     m_previewPlot->summaryCurveCollection()->updateConnectedEditors();
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<std::string> RicSummaryCurveCreator::getAllSummaryCaseNames()
-{
-    std::set<std::string> summaryCaseHashes;
-    RimProject*           proj = RiaApplication::instance()->project();
-
-    std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
-    for (RimSummaryCase* rimCase : cases)
-    {
-        summaryCaseHashes.insert(rimCase->summaryHeaderFilename().toUtf8().constData());
-    }
-
-    return summaryCaseHashes;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<std::string> RicSummaryCurveCreator::getAllSummaryWellNames()
-{
-    std::set<std::string> summaryWellNames;
-    RimProject*           proj = RiaApplication::instance()->project();
-
-    std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
-    for (RimSummaryCase* rimCase : cases)
-    {
-        RifSummaryReaderInterface* reader = nullptr;
-        if (rimCase)
-        {
-            reader = rimCase->summaryReader();
-        }
-
-        if (reader)
-        {
-            const std::set<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
-
-            for (auto& address : allAddresses)
-            {
-                if (address.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
-                {
-                    summaryWellNames.insert(address.wellName());
-                }
-            }
-        }
-    }
-    return summaryWellNames;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -816,9 +766,9 @@ void RicSummaryCurveCreator::initCurveAppearanceCalculator(RimSummaryCurveAppear
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::applyAppearanceToAllPreviewCurves()
 {
-    std::set<RiaSummaryCurveDefinition> allCurveDefs = allPreviewCurveDefs();
+    std::set<RiaSummaryCurveDefinition> allCurveDefs = m_previewPlot->summaryAndEnsembleCurveDefinitions();
 
-    RimSummaryCurveAppearanceCalculator curveLookCalc(allCurveDefs, getAllSummaryCaseNames(), getAllSummaryWellNames());
+    RimSummaryCurveAppearanceCalculator curveLookCalc(allCurveDefs);
     initCurveAppearanceCalculator(curveLookCalc);
 
     // Summary curves
@@ -842,24 +792,10 @@ void RicSummaryCurveCreator::applyAppearanceToAllPreviewCurves()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::updateAppearanceEditor()
 {
-    std::set<RiaSummaryCurveDefinition> allCurveDefs = allPreviewCurveDefs();
+    std::set<RiaSummaryCurveDefinition> allCurveDefs = m_previewPlot->summaryAndEnsembleCurveDefinitions();
 
-    RimSummaryCurveAppearanceCalculator curveLookCalc(allCurveDefs, getAllSummaryCaseNames(), getAllSummaryWellNames());
+    RimSummaryCurveAppearanceCalculator curveLookCalc(allCurveDefs);
     initCurveAppearanceCalculator(curveLookCalc);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<RiaSummaryCurveDefinition> RicSummaryCurveCreator::allPreviewCurveDefs() const
-{
-    std::set<RiaSummaryCurveDefinition> allCurveDefs;
-
-    for (const auto& curve : m_previewPlot->summaryAndEnsembleCurves())
-    {
-        allCurveDefs.insert(RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY()));
-    }
-    return allCurveDefs;
 }
 
 //--------------------------------------------------------------------------------------------------

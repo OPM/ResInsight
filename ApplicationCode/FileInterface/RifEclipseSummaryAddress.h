@@ -23,7 +23,7 @@
 #include <vector>
 
 class QTextStream;
-
+class QString;
 
 #define ENSEMBLE_STAT_P10_QUANTITY_NAME     "P10"
 #define ENSEMBLE_STAT_P50_QUANTITY_NAME     "P50"
@@ -170,6 +170,7 @@ public:
 
     std::string     uiText() const;
     std::string     uiText(RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput) const;
+    bool            isUiTextMatchingFilterText(const QString& filterString) const;
 
     bool            isValid() const;
     void            setQuantityName(const std::string& quantity)        { m_quantityName = quantity; }

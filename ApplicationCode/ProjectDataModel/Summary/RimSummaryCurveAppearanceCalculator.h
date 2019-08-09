@@ -32,9 +32,7 @@ class RiaSummaryCurveDefinition;
 class RimSummaryCurveAppearanceCalculator
 {
 public:
-    explicit RimSummaryCurveAppearanceCalculator(const std::set<RiaSummaryCurveDefinition>& curveDefinitions, 
-                                                 const std::set<std::string>& allSummaryCaseNames, 
-                                                 const std::set<std::string>& allSummaryWellNames);
+    explicit RimSummaryCurveAppearanceCalculator(const std::set<RiaSummaryCurveDefinition>& curveDefinitions);
     enum CurveAppearanceType
     {
         NONE,
@@ -79,6 +77,9 @@ private:
     float                          gradient(size_t totalCount, int index);
     
     cvf::Color3f                   gradeColor(const cvf::Color3f& color , float factor);
+
+    static std::set<std::string>                   getAllSummaryCaseNames();
+    static std::set<std::string>                   getAllSummaryWellNames();
 
     cvf::Color3f                   m_currentCurveBaseColor;
     float                          m_currentCurveGradient;

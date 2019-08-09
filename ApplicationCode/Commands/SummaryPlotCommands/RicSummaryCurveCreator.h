@@ -89,8 +89,6 @@ private:
                                                                                     const std::set<RiaSummaryCurveDefinition>& curveDefsToAdd,
                                                                                     const std::set<RimSummaryCurve*>& curvesToDelete,
                                                                                     const std::set<RimEnsembleCurveSet*>& curveSetsToDelete);
-    std::set<std::string>                   getAllSummaryCaseNames();
-    std::set<std::string>                   getAllSummaryWellNames();
 
     void                                    populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot);
     void                                    updateTargetPlot();
@@ -102,7 +100,6 @@ private:
     void                                    initCurveAppearanceCalculator(RimSummaryCurveAppearanceCalculator& curveAppearanceCalc);
     void                                    applyAppearanceToAllPreviewCurves();
     void                                    updateAppearanceEditor();
-    std::set<RiaSummaryCurveDefinition>     allPreviewCurveDefs() const;
     void                                    createNewPlot();
     bool                                    isObservedData(RimSummaryCase *sumCase) const;
 

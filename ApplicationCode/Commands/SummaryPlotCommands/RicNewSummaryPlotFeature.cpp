@@ -196,33 +196,33 @@ void RicNewDefaultSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
     auto sumPlotSumCasesPair = extractSumPlotCollectionOrSelectedSumCasesFromSelection();
 
-    RimSummaryPlotCollection* sumPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
-
-    RimSummaryPlot* newPlot = nullptr;
+    std::vector<RimSummaryCase*> summaryCasesToUse;
 
     if (sumPlotSumCasesPair.first)
     {
         auto sumCaseVector = RiaApplication::instance()->project()->allSummaryCases();
 
-        newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
-
         if (sumCaseVector.size())
         {
-            RicSummaryPlotFeatureImpl::addDefaultCurveToPlot(newPlot, sumCaseVector[0]);
+            summaryCasesToUse.push_back(sumCaseVector[0]);
         }
     }
     else if (sumPlotSumCasesPair.second.size())
     {
-        newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
-
-        for (RimSummaryCase* sumCase : sumPlotSumCasesPair.second)
-        {
-            RicSummaryPlotFeatureImpl::addDefaultCurveToPlot(newPlot, sumCase);
-        }
+        summaryCasesToUse = sumPlotSumCasesPair.second;
     }
 
-    if ( newPlot )
+    if ( summaryCasesToUse.size() )
     {
+        RimSummaryPlotCollection* sumPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+        RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+
+        for (RimSummaryCase* sumCase : summaryCasesToUse)
+        {
+            RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot(newPlot, sumCase);
+        }
+
+        newPlot->applyDefaultCurveAppearances();
         newPlot->loadDataAndUpdate();
 
         sumPlotColl->updateConnectedEditors();
