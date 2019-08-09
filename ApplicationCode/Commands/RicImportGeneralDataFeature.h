@@ -47,6 +47,7 @@ public:
     };
 
     static OpenCaseResults openEclipseFilesFromFileNames(const QStringList& fileNames);
+    static QStringList fileNamesFromCaseNames(const QStringList& caseNames);
 
 protected:
 

@@ -19,7 +19,6 @@
 #include "RiaArgumentParser.h"
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
-#include "RiaEclipseFileNameTools.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"

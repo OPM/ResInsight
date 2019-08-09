@@ -257,9 +257,9 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments(cvf::Pr
 
     if (cvf::Option o = progOpt->option("case"))
     {
-        QStringList                                  caseNames = cvfqt::Utils::toQStringList(o.values());
+        QStringList fileNames = RicImportGeneralDataFeature::fileNamesFromCaseNames(cvfqt::Utils::toQStringList(o.values()));
         RicImportGeneralDataFeature::OpenCaseResults results =
-            RicImportGeneralDataFeature::openEclipseFilesFromFileNames(caseNames);
+            RicImportGeneralDataFeature::openEclipseFilesFromFileNames(fileNames);
     }
 
     if (cvf::Option o = progOpt->option("commandFile"))
