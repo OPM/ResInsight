@@ -1,6 +1,3 @@
-import sys
-import os
-sys.path.insert(1, os.path.join(sys.path[0], '../../'))
 import rips
 import itertools
 import time
@@ -14,8 +11,10 @@ grid           = case.grid(index = 0)
 timeSteps      = case.timeSteps()
 
 averages = []
+allResults = []
 for i in range(0, len(timeSteps)):
 	results = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', i)
+	allResults.append(results)
 	mysum = sum(results)
 	averages.append(mysum/len(results))
 

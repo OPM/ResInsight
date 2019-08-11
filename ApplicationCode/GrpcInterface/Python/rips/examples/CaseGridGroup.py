@@ -1,14 +1,11 @@
-import sys
 import os
-
-sys.path.insert(1, os.path.join(sys.path[0], '../../'))
 import rips
 
 resInsight  = rips.Instance.find()
 
 casePaths = []
-casePaths.append("C:/Users/lindkvis/Projects/ResInsight/TestModels/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID")
-casePaths.append("C:/Users/lindkvis/Projects/ResInsight/TestModels/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID")
+casePaths.append("C:/Users/lindk/source/repos/ResInsight/TestModels/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID")
+casePaths.append("C:/Users/lindk/source/repos/ResInsight/TestModels/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID")
 for casePath in casePaths:
     assert os.path.exists(casePath), "You need to set valid case paths for this script to work"
 
