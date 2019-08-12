@@ -162,6 +162,7 @@ list( APPEND REFERENCED_CMAKE_FILES
 )
 
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
+mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
 if (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
     add_definitions(-DUSE_UNIT_TESTS)
 
@@ -685,6 +686,8 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
         # OpenSSL
         option(RESINSIGHT_BUNDLE_OPENSSL "Bundle the OpenSSL binary DLLs" OFF)
+        mark_as_advanced(FORCE RESINSIGHT_BUNDLE_OPENSSL)
+
         if (RESINSIGHT_BUNDLE_OPENSSL)
           find_package(OpenSSL)
           if (OPENSSL_FOUND)

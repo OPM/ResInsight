@@ -252,6 +252,7 @@ list(APPEND THIRD_PARTY_LIBRARIES
 # Qt
 ################################################################################
 option(RESINSIGHT_BUILD_WITH_QT5 "Use Qt5" ON)
+mark_as_advanced(FORCE RESINSIGHT_BUILD_WITH_QT5)
 
 if (RESINSIGHT_BUILD_WITH_QT5)
 	find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Network Script ScriptTools Widgets)
@@ -413,6 +414,8 @@ set_property(TARGET
 )
 
 option (RESINSIGHT_INCLUDE_APPFWK_TESTS "Enable AppFwk Tests" OFF)
+mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPFWK_TESTS)
+
 if (RESINSIGHT_INCLUDE_APPFWK_TESTS)
     # Unit Tests
     add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
