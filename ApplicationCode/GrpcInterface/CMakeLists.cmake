@@ -71,9 +71,9 @@ else()
 endif()
 
 # Cannot use the nice new FindPackage modules for python since that is CMake 3.12+
-if(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
-    message(STATUS "Using Python ${PYTHON_EXECUTABLE}")
-endif(PYTHON_EXECUTABLE AND EXISTS ${PYTHON_EXECUTABLE})
+if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+    message(STATUS "Using Python ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}")
+endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
 
 # Proto files
 set(PROTO_FILES
@@ -112,14 +112,14 @@ foreach(proto_file ${PROTO_FILES})
         DEPENDS "${rips_proto}"
     )
     
-    if (PYTHON_EXECUTABLE)
-		if (EXISTS ${PYTHON_EXECUTABLE})
+    if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+		if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
 			set(rips_proto_python "rips/generated/${proto_file}_pb2.py")
 			set(rips_grpc_python "rips/generated/${proto_file}_pb2_grpc.py")
 
 			add_custom_command(
 				OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${rips_proto_python}" "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}"
-				COMMAND ${PYTHON_EXECUTABLE}
+				COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}
 				ARGS -m grpc_tools.protoc
 					-I "${rips_proto_path}"
 					--python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
@@ -134,11 +134,11 @@ foreach(proto_file ${PROTO_FILES})
 				${rips_grpc_python}
 			)
 		else()
-			message(STATUS "Error generating Python for ${rips_proto}: PYTHON_EXECUTABLE set but ${PYTHON_EXECUTABLE} not found")
-		endif(EXISTS ${PYTHON_EXECUTABLE})
+			message(STATUS "Error generating Python for ${rips_proto}: RESINSIGHT_GRPC_PYTHON_EXECUTABLE set but ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} not found")
+		endif(EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
 	else()
-		message(STATUS "PYTHON_EXECUTABLE not specified. Will not generate GRPC Python code.")
-	endif(PYTHON_EXECUTABLE)	
+		message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not generate GRPC Python code.")
+	endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)	
 
     list( APPEND GRPC_HEADER_FILES
           ${rips_proto_hdrs}
@@ -152,8 +152,8 @@ foreach(proto_file ${PROTO_FILES})
 
 endforeach(proto_file)
 
-if (PYTHON_EXECUTABLE)
-	if (EXISTS ${PYTHON_EXECUTABLE})
+if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+	if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
 	    list(APPEND GRPC_PYTHON_SOURCES
 		    ${GRPC_PYTHON_GENERATED_SOURCES}
 			"rips/generated/RiaVersionInfo.py"
@@ -205,11 +205,11 @@ if (PYTHON_EXECUTABLE)
 			source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
 		endif(MSVC)
 	else()
-		message(STATUS "Error copying GRPC Python Code to build folder: PYTHON_EXECUTABLE set but ${PYTHON_EXECUTABLE} not found")
-	endif(EXISTS ${PYTHON_EXECUTABLE})
+		message(STATUS "Error copying GRPC Python Code to build folder: RESINSIGHT_GRPC_PYTHON_EXECUTABLE set but ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} not found")
+	endif(EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
 else()
-	message(STATUS "PYTHON_EXECUTABLE not specified. Will not copy grpc Python code to build folder")
-endif(PYTHON_EXECUTABLE)	
+	message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not copy grpc Python code to build folder")
+endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)	
 
 list ( APPEND GRPC_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list ( APPEND GRPC_CPP_SOURCES ${SOURCE_GROUP_SOURCE_FILES})
