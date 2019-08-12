@@ -55,61 +55,64 @@
 bool RiaArgumentParser::parseArguments(cvf::ProgramOptions* progOpt)
 {
     CVF_ASSERT(progOpt);
-    progOpt->registerOption("grpcserver", "[<portnumber>]", "Run as a GRPC server. Default port is 50051", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt->registerOption("console", "", "Run as a console application without Graphics");
-    progOpt->registerOption("last", "", "Open last used project.");
-    progOpt->registerOption("project", "<filename>", "Open project file <filename>.", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt->registerOption("case",
-                           "<case name without extension or filename>",
-                           "If case or grid filename, import simulation grid data. If summary file name, import summary data",
-                           cvf::ProgramOptions::MULTI_VALUE);
-    progOpt->registerOption("startdir", "<folder>", "Set startup directory.", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt->registerOption("savesnapshots",
-                           "all|views|plots",
-                           "Save snapshot of all views or plots to project file location sub folder 'snapshots'. Option 'all' "
-                           "will include both views and plots. Application closes after snapshots have been written.",
-                           cvf::ProgramOptions::OPTIONAL_MULTI_VALUE);
-    progOpt->registerOption(
-        "size", "<width> <height>", "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt->registerOption(
-        "replaceCase",
-        "[<caseId>] <newGridFile>",
-        "Replace grid in <caseId> or first case with <newgridFile>. Repeat parameter for multiple replace operations.",
-        cvf::ProgramOptions::MULTI_VALUE,
-        cvf::ProgramOptions::COMBINE_REPEATED);
-    progOpt->registerOption("replaceSourceCases",
-                           "[<caseGroupId>] <gridListFile>",
-                           "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the "
-                           "<gridListFile> file. Repeat parameter for multiple replace operations.",
-                           cvf::ProgramOptions::MULTI_VALUE,
-                           cvf::ProgramOptions::COMBINE_REPEATED);
-    progOpt->registerOption("replacePropertiesFolder",
-                           "[<caseId>] <newPropertiesFolder>",
-                           "Replace the folder containing property files for an eclipse input case.",
-                           cvf::ProgramOptions::MULTI_VALUE);
-    progOpt->registerOption("multiCaseSnapshots",
-                           "<gridListFile>",
-                           "For each grid file listed in the <gridListFile> file, replace the first case in the project and save "
-                           "snapshot of all views.",
-                           cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt->registerOption("commandFile", "<commandfile>", "Execute the command file.", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt->registerOption(
-        "commandFileProject",
-        "<filename>",
-        "Project to use if performing case looping for command file. Used in conjunction with 'commandFileReplaceCases'.",
-        cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt->registerOption("commandFileReplaceCases",
-                           "[<caseId>] <caseListFile>",
-                           "Supply list of cases to replace in project, performing command file for each case.",
-                           cvf::ProgramOptions::SINGLE_VALUE);
     progOpt->registerOption("help", "", "Displays help text and exits.");
     progOpt->registerOption("?", "", "Displays help text and exits.");
-    progOpt->registerOption("regressiontest", "<folder>", "System command", cvf::ProgramOptions::SINGLE_VALUE);
+
+    progOpt->registerOption("project", "<filename>", "Open project file <filename>.", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt->registerOption("last", "", "Open last used project.");
+    progOpt->registerOption("case",
+                            "<casename> [<casename> ...]",
+                            "Imports the Eclipse cases. <casename> is the filepath to the case without extension (.GRID/.EGRID)",
+                            cvf::ProgramOptions::MULTI_VALUE);
+    progOpt->registerOption("size", "<width> <height>", "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt->registerOption("console", "", "Run as a console application without Graphics");
+    progOpt->registerOption("grpcserver", "[<portnumber>]", "Run as a GRPC server. Default port is 50051", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt->registerOption("startdir", "<folder>", "Set startup directory.\n", cvf::ProgramOptions::SINGLE_VALUE);
+
+    progOpt->registerOption("commandFile", "<commandfile>", "Execute the command file.", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt->registerOption("commandFileReplaceCases",
+                            "[<caseId>] <caseListFile>",
+                            "Supply list of cases to replace in project, performing command file for each case.",
+                            cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt->registerOption("commandFileProject",
+                            "<filename>",
+                            "Project to use if performing case looping for command file. Used in conjunction with 'commandFileReplaceCases'.\n",
+                            cvf::ProgramOptions::SINGLE_VALUE);
+
+    progOpt->registerOption("savesnapshots",
+                            "all|views|plots",
+                            "Save snapshot of all views or plots to project file location sub folder 'snapshots'. Option 'all' "
+                            "will include both views and plots. Application closes after snapshots have been written.",
+                            cvf::ProgramOptions::OPTIONAL_MULTI_VALUE);
+    progOpt->registerOption("multiCaseSnapshots",
+                            "<gridListFile>",
+                            "For each grid file listed in the <gridListFile> file, replace the first case in the project and save "
+                            "snapshots of all views.\n",
+                            cvf::ProgramOptions::SINGLE_VALUE);
+
+    progOpt->registerOption("replaceCase",
+                            "[<caseId>] <newGridFile>",
+                            "Replace grid in <caseId> or first case with <newgridFile>. Repeat parameter for multiple replace operations.",
+                            cvf::ProgramOptions::MULTI_VALUE,
+                            cvf::ProgramOptions::COMBINE_REPEATED);
+    progOpt->registerOption("replaceSourceCases",
+                            "[<caseGroupId>] <gridListFile>",
+                            "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the "
+                            "<gridListFile> file. Repeat parameter for multiple replace operations.",
+                            cvf::ProgramOptions::MULTI_VALUE,
+                            cvf::ProgramOptions::COMBINE_REPEATED);
+    progOpt->registerOption("replacePropertiesFolder",
+                            "[<caseId>] <newPropertiesFolder>",
+                            "Replace the folder containing property files for an eclipse input case.\n",
+                            cvf::ProgramOptions::MULTI_VALUE);
+
+    
     progOpt->registerOption("updateregressiontestbase", "<folder>", "System command", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt->registerOption("regressiontest", "<folder>", "System command", cvf::ProgramOptions::SINGLE_VALUE);
 #ifdef USE_UNIT_TESTS
     progOpt->registerOption("unittest", "", "System command");
 #endif
-    progOpt->registerOption("ignoreArgs", "", "Ignore all arguments. Mostly for testing purposes");
+    progOpt->registerOption("ignoreArgs", "", "System command. Ignore all arguments. Mostly for testing purposes");
 
     progOpt->setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
 
