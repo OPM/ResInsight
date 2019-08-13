@@ -244,7 +244,10 @@ void RiuQwtPlot::selectClosestCurve(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlot::highlightCurve(const QwtPlotCurve* closestCurve)
 {
-    for (QwtPlotItem* plotItem : this->itemList())
+    // NB! Create a copy of the item list before the loop to avoid invalidated iterators when iterating the list
+    // plotCurve->setZ() causes the ordering of items in the list to change
+    auto plotItemList = this->itemList();
+    for (QwtPlotItem* plotItem : plotItemList)
     {
         QwtPlotCurve* plotCurve = dynamic_cast<QwtPlotCurve*>(plotItem);
         if (plotCurve)
@@ -293,7 +296,10 @@ void RiuQwtPlot::highlightCurve(const QwtPlotCurve* closestCurve)
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlot::resetCurveHighlighting()
 {
-    for (QwtPlotItem* plotItem : this->itemList())
+    // NB! Create a copy of the item list before the loop to avoid invalidated iterators when iterating the list
+    // plotCurve->setZ() causes the ordering of items in the list to change
+    auto plotItemList = this->itemList();
+    for (QwtPlotItem* plotItem : plotItemList)
     {
         QwtPlotCurve* plotCurve = dynamic_cast<QwtPlotCurve*>(plotItem);
         if (plotCurve && m_originalCurveColors.count(plotCurve))
