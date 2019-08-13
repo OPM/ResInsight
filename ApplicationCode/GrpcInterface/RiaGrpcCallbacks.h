@@ -139,7 +139,7 @@ private:
 //
 //==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-class RiaGrpcServerStreamCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
+class RiaGrpcServerToClientStreamCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
 {
 public:
     typedef ServerAsyncWriter<ReplyT>                                                                  ResponseWriterT;
@@ -148,7 +148,7 @@ public:
         void(ServiceT&, ServerContext*, RequestT*, ResponseWriterT*, CompletionQueue*, ServerCompletionQueue*, void*)>
         MethodRequestT;
 
-    RiaGrpcServerStreamCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest, StateHandlerT* stateHandler);
+    RiaGrpcServerToClientStreamCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest, StateHandlerT* stateHandler);
 
     RiaGrpcCallbackInterface* createNewFromThis() const override;
     void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
@@ -179,7 +179,7 @@ private:
 //
 //==================================================================================================
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-class RiaGrpcClientStreamCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
+class RiaGrpcClientToServerStreamCallback : public RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>
 {
 public:
     typedef ServerAsyncReader<ReplyT, RequestT>                                                        RequestReaderT;
@@ -188,7 +188,7 @@ public:
         void(ServiceT&, ServerContext*, RequestReaderT*, CompletionQueue*, ServerCompletionQueue*, void*)>
         MethodRequestT;
 
-    RiaGrpcClientStreamCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest, StateHandlerT* stateHandler);
+    RiaGrpcClientToServerStreamCallback(ServiceT* service, MethodImplT methodImpl, MethodRequestT methodRequest, StateHandlerT* stateHandler);
 
     RiaGrpcCallbackInterface* createNewFromThis() const override;
     void                     createRequestHandler(ServerCompletionQueue* completionQueue) override;
