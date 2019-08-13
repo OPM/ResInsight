@@ -1241,6 +1241,7 @@ void RiaGuiApplication::showFormattedTextInMessageBoxOrConsole(const QString& te
     formattedText = QString("<pre>%1</pre>").arg(formattedText);
 
     textEdit->setText(formattedText);
+    textEdit->setReadOnly(true);
 
     // Resize dialog to fit text etc.
     textEdit->document()->adjustSize();
