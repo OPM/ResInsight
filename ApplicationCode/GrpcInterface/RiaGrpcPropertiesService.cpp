@@ -38,7 +38,7 @@
 
 using namespace rips;
 
-#define NUM_CONCURRENT_SERVER_STREAMS 10
+#define NUM_CONCURRENT_CLIENT_TO_SERVER_STREAMS 10
 
 //--------------------------------------------------------------------------------------------------
 /// Abstract handler base class for streaming cell results to client
@@ -56,10 +56,26 @@ public:
     RiaCellResultsStateHandler(bool clientStreamer = false)
         : m_request(nullptr)
         , m_eclipseCase(nullptr)
-        , m_currentCellIdx(0u)
+        , m_nrOfValuesReceived(0u)
         , m_cellCount(0u)
         , m_clientStreamer(clientStreamer)
     {
+    }
+
+	//--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    size_t cellCount() const
+    {
+        return m_cellCount;
+    }
+
+	//--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    size_t nrOfValuesReceived() const
+    {
+        return m_nrOfValuesReceived;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -79,31 +95,32 @@ public:
             auto                    resultData    = caseData->results(porosityModel);
             auto                    resultType    = static_cast<RiaDefines::ResultCatType>(request->property_type());
             size_t                  timeStep      = static_cast<size_t>(request->time_step());
-            RigEclipseResultAddress resAddr(resultType, QString::fromStdString(request->property_name()));
+            
+			m_resultAddress = RigEclipseResultAddress(resultType, QString::fromStdString(request->property_name()));
 
-            if (resultData->ensureKnownResultLoaded(resAddr))
+            if (resultData->ensureKnownResultLoaded(m_resultAddress))
             {
-                if (timeStep < resultData->timeStepCount(resAddr))
+                if (timeStep < resultData->timeStepCount(m_resultAddress))
                 {
-                    initResultAccess(caseData, request->grid_index(), porosityModel, timeStep, resAddr);
+                    initResultAccess(caseData, request->grid_index(), porosityModel, timeStep, m_resultAddress);
                     return grpc::Status::OK;
                 }
                 return grpc::Status(grpc::NOT_FOUND, "No such time step");
             }
             else if (m_clientStreamer)
             {
-                resultData->createResultEntry(resAddr, true);
+                resultData->createResultEntry(m_resultAddress, true);
                 RigEclipseResultAddress addrToMaxTimeStepCountResult;
 
                 size_t timeStepCount = resultData->maxTimeStepCount(&addrToMaxTimeStepCountResult);
                 const std::vector<RigEclipseTimeStepInfo> timeStepInfos =
                     resultData->timeStepInfos(addrToMaxTimeStepCountResult);
-                resultData->setTimeStepInfos(resAddr, timeStepInfos);
-                auto scalarResultFrames = resultData->modifiableCellScalarResultTimesteps(resAddr);
+                resultData->setTimeStepInfos(m_resultAddress, timeStepInfos);
+                auto scalarResultFrames = resultData->modifiableCellScalarResultTimesteps(m_resultAddress);
                 scalarResultFrames.resize(timeStepCount);
-                if (timeStep < resultData->timeStepCount(resAddr))
+                if (timeStep < resultData->timeStepCount(m_resultAddress))
                 {
-                    initResultAccess(caseData, request->grid_index(), porosityModel, timeStep, resAddr);
+                    initResultAccess(caseData, request->grid_index(), porosityModel, timeStep, m_resultAddress);
                     return grpc::Status::OK;
                 }
                 return grpc::Status(grpc::NOT_FOUND, "No such time step");
@@ -133,9 +150,9 @@ public:
         const size_t packageSize  = RiaGrpcServiceInterface::numberOfMessagesForByteCount(sizeof(rips::PropertyChunk));
         size_t       packageIndex = 0u;
         reply->mutable_values()->Reserve((int)packageSize);
-        for (; packageIndex < packageSize && m_currentCellIdx < m_cellCount; ++packageIndex, ++m_currentCellIdx)
+        for (; packageIndex < packageSize && m_nrOfValuesReceived < m_cellCount; ++packageIndex, ++m_nrOfValuesReceived)
         {
-            reply->add_values(cellResult(m_currentCellIdx));
+            reply->add_values(cellResult(m_nrOfValuesReceived));
         }
         if (packageIndex > 0u)
         {
@@ -148,23 +165,31 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    Status receiveStreamRequest(const PropertyInputChunk* request)
+    Status receiveStreamRequest(const PropertyInputChunk* request, ClientToServerStreamReply* reply)
     {
+        CAF_ASSERT(!request->has_params());
         if (request->has_values())
         {
             auto values = request->values().values();
-            for (int i = 0; i < values.size() && m_currentCellIdx < m_cellCount; ++i, ++m_currentCellIdx)
-            {
-                setCellResult(m_currentCellIdx, values[i]);
-            }
-            if (m_currentCellIdx >= m_cellCount - 1)
-            {
-                return grpc::Status(grpc::OUT_OF_RANGE, "All values have been written");
-            }
+			if (!values.empty())
+			{
+                size_t currentCellIdx = m_nrOfValuesReceived; 
+				m_nrOfValuesReceived  += values.size();
+				
+				for (int i = 0; i < values.size() && currentCellIdx < m_cellCount; ++i, ++currentCellIdx)
+				{
+					setCellResult(currentCellIdx, values[i]);
+				}
 
-            return Status::OK;
+				if (m_nrOfValuesReceived > m_cellCount)
+				{
+					return grpc::Status(grpc::OUT_OF_RANGE, "Attempting to write out of bounds");
+				}
+                reply->set_values_accepted(static_cast<int64_t>(currentCellIdx));
+				return Status::OK;
+			}
         }
-        return grpc::Status(grpc::OUT_OF_RANGE, "No messages to write");
+        return Status::OK;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -174,6 +199,11 @@ public:
     {
         if (m_eclipseCase)
         {
+            auto porosityModel = static_cast<RiaDefines::PorosityModelType>(m_request->porosity_model());
+            auto caseData      = m_eclipseCase->eclipseCaseData();
+            auto resultData    = caseData->results(porosityModel);
+            resultData->recalculateStatistics(m_resultAddress);
+
             for (Rim3dView* view : m_eclipseCase->views())
             {
                 view->setCurrentTimeStepAndUpdate(view->currentTimeStep());
@@ -192,11 +222,12 @@ protected:
     virtual void   setCellResult(size_t currentCellIndex, double value)       = 0;
 
 protected:
-    const rips::PropertyRequest*  m_request;
-    RimEclipseCase*             m_eclipseCase;
-    size_t                      m_currentCellIdx;
-    size_t                      m_cellCount;
-    bool                        m_clientStreamer;
+    const rips::PropertyRequest* m_request;
+    RimEclipseCase*              m_eclipseCase;
+    size_t                       m_nrOfValuesReceived;
+    size_t                       m_cellCount;
+    bool                         m_clientStreamer;
+    RigEclipseResultAddress      m_resultAddress;
 };
 
 class RiaActiveCellResultsStateHandler : public RiaCellResultsStateHandler
@@ -328,22 +359,22 @@ grpc::Status RiaGrpcPropertiesService::GetGridProperty(grpc::ServerContext*     
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcPropertiesService::SetActiveCellProperty(grpc::ServerContext*             context,
                                                             const rips::PropertyInputChunk*   request,
-                                                            rips::Empty*                      reply,
+                                                            rips::ClientToServerStreamReply*  reply,
                                                             RiaActiveCellResultsStateHandler* stateHandler)
 {
-    return stateHandler->receiveStreamRequest(request);
+    return stateHandler->receiveStreamRequest(request, reply);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcPropertiesService::SetGridProperty(grpc::ServerContext*           context,
-                                                      const rips::PropertyInputChunk* request,
-                                                      rips::Empty*                    reply,
-                                                      RiaGridCellResultsStateHandler* stateHandler)
+grpc::Status RiaGrpcPropertiesService::SetGridProperty(grpc::ServerContext*            context,
+                                                      const rips::PropertyInputChunk*  request,
+                                                      rips::ClientToServerStreamReply* reply,
+                                                      RiaGridCellResultsStateHandler*  stateHandler)
 {
-    return stateHandler->receiveStreamRequest(request);
+    return stateHandler->receiveStreamRequest(request, reply);
 }
 //--------------------------------------------------------------------------------------------------
 ///
@@ -356,12 +387,12 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcPropertiesService::createCallbacks
     callbacks = {
         new RiaGrpcUnaryCallback<Self, AvailablePropertiesRequest, AvailableProperties>(
             this, &Self::GetAvailableProperties, &Self::RequestGetAvailableProperties),
-        new RiaGrpcClientToServerStreamCallback<Self, PropertyInputChunk, Empty, RiaActiveCellResultsStateHandler>(
+        new RiaGrpcClientToServerStreamCallback<Self, PropertyInputChunk, ClientToServerStreamReply, RiaActiveCellResultsStateHandler>(
             this, &Self::SetActiveCellProperty, &Self::RequestSetActiveCellProperty, new RiaActiveCellResultsStateHandler(true)),
-        new RiaGrpcClientToServerStreamCallback<Self, PropertyInputChunk, Empty, RiaGridCellResultsStateHandler>(
+        new RiaGrpcClientToServerStreamCallback<Self, PropertyInputChunk, ClientToServerStreamReply, RiaGridCellResultsStateHandler>(
             this, &Self::SetGridProperty, &Self::RequestSetGridProperty, new RiaGridCellResultsStateHandler(true))};
 
-    for (int i = 0; i < NUM_CONCURRENT_SERVER_STREAMS; ++i)
+    for (int i = 0; i < NUM_CONCURRENT_CLIENT_TO_SERVER_STREAMS; ++i)
     {
         callbacks.push_back(new RiaGrpcServerToClientStreamCallback<Self, PropertyRequest, PropertyChunk, RiaActiveCellResultsStateHandler>(
             this, &Self::GetActiveCellProperty, &Self::RequestGetActiveCellProperty, new RiaActiveCellResultsStateHandler));

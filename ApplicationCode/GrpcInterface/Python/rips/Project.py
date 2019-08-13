@@ -10,7 +10,7 @@ from .View import View
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
-from Empty_pb2 import Empty
+from Definitions_pb2 import Empty
 import Project_pb2
 import Project_pb2_grpc
 

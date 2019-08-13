@@ -78,7 +78,7 @@ endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND EXISTS ${RESINSIGHT_GRPC_PYTHON_EXEC
 
 # Proto files
 set(PROTO_FILES
-    "Empty"
+    "Definitions"
 	"PdmObject"
     "Case"
     "Project"

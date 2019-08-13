@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 import "Case.proto";
-import "Empty.proto";
+import "Definitions.proto";
 
 package rips;
 

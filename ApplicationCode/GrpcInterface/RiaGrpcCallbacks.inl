@@ -333,23 +333,25 @@ void RiaGrpcClientToServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandle
   
     // Call request handler method
     this->m_status = m_methodImpl(*this->m_service, &m_context, &this->m_request, &this->m_reply, m_stateHandler.get());
-    
+
     if (!this->m_status.ok())
     {
         this->setNextCallState(RiaGrpcCallbackInterface::FINISH_REQUEST);
-        if (this->m_status.error_code() == grpc::OUT_OF_RANGE)
+        m_reader.FinishWithError(this->m_status, this);
+    }
+    else
+    {
+        CAF_ASSERT(m_stateHandler->nrOfValuesReceived() <= m_stateHandler->cellCount());
+		if (m_stateHandler->nrOfValuesReceived() == m_stateHandler->cellCount())
         {
+            this->setNextCallState(RiaGrpcCallbackInterface::FINISH_REQUEST);
             m_reader.Finish(this->m_reply, grpc::Status::OK, this);
         }
         else
         {
-            m_reader.FinishWithError(this->m_status, this);
+            m_reader.Read(&this->m_request, this);
         }
-    }
-    else
-    {
-        m_reader.Read(&this->m_request, this);
-    }
+	}
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -8,6 +8,7 @@ import Properties_pb2
 import Properties_pb2_grpc
 import Case_pb2
 import Case_pb2_grpc
+from Definitions_pb2 import ClientToServerStreamReply
 
 class Properties:
     """ Class for streaming properties to and from ResInsight
@@ -35,13 +36,13 @@ class Properties:
          # Meaning ideal number of doubles would be 8192.
          # However we need overhead space, so if we choose 8160 in chunk size
          # We have 256B left for overhead which should be plenty
-        chunkSize = 8000
+        chunkSize = 44431
         index = -1
         while index < len(array):
             chunk = Properties_pb2.PropertyInputChunk()
             if index is -1:
                 chunk.params.CopyFrom(parameters)
-                index += 1;
+                index += 1
             else:
                 actualChunkSize = min(len(array) - index + 1, chunkSize)
                 chunk.values.CopyFrom(Properties_pb2.PropertyChunk(values = array[index:index+actualChunkSize]))
@@ -184,8 +185,8 @@ class Properties:
                                                  time_step      = timeStep,
                                                  porosity_model = porosityModelEnum)
         try:
-            reply_iterator = self.__generatePropertyInputIterator(values_iterator, request)
-            self.propertiesStub.SetActiveCellProperty(reply_iterator)
+            request_iterator = self.__generatePropertyInputIterator(values_iterator, request)
+            self.propertiesStub.SetActiveCellProperty(request_iterator)
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 print("Command not found")
@@ -211,7 +212,10 @@ class Properties:
                                                  porosity_model = porosityModelEnum)
         try:
             request_iterator = self.__generatePropertyInputChunks(values, request)
-            self.propertiesStub.SetActiveCellProperty(request_iterator)
+            reply = self.propertiesStub.SetActiveCellProperty(request_iterator)
+            if reply.values_accepted != len(values):
+                print("ERROR: Attempted to write outside bounds of " + propertyName + " data storage");
+
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 print("Command not found")
@@ -239,7 +243,10 @@ class Properties:
                                                  porosity_model = porosityModelEnum)
         try:
             request_iterator = self.__generatePropertyInputChunks(values, request)
-            self.propertiesStub.SetGridProperty(request_iterator)
+            reply = self.propertiesStub.SetGridProperty(request_iterator)
+            if reply.values_accepted != len(values):
+                print("ERROR: Attempted to write outside bounds of " + propertyName + " data storage");
+
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 print("Command not found")
