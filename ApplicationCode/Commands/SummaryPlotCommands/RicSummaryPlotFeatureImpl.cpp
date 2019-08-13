@@ -262,15 +262,27 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
 
     const std::set<RifEclipseSummaryAddress>&  addrs = summaryCase->summaryReader()->allResultAddresses();
     std::vector<RifEclipseSummaryAddress> curveAddressesToUse;
+    int curveFilterCount = curveFilters.size();
+
+    std::vector<bool> usedFilters(curveFilterCount, false);
 
     for (const auto & addr : addrs)
     {
-        for (const QString& filter: curveFilters)
+        for (int cfIdx = 0 ; cfIdx < curveFilterCount ;  ++cfIdx)
         {
-            if ( addr.isUiTextMatchingFilterText(filter) )
+            if ( addr.isUiTextMatchingFilterText( curveFilters[cfIdx]) )
             {
                 curveAddressesToUse.push_back(addr); 
+                usedFilters[cfIdx] = true;
             }
+        }
+    }
+
+    for (int cfIdx = 0 ; cfIdx < curveFilterCount ;  ++cfIdx)
+    {
+        if (!usedFilters[cfIdx])
+        {
+            RiaLogging::warning("Vector filter \"" + curveFilters[cfIdx] +   "\" did not match anything in case: \"" + summaryCase->caseName() + "\"");
         }
     }
 
