@@ -42,7 +42,8 @@ CAF_CMD_SOURCE_INIT(RicImportGeneralDataFeature, "RicImportGeneralDataFeature");
 ///
 //--------------------------------------------------------------------------------------------------
 RicImportGeneralDataFeature::OpenCaseResults
-    RicImportGeneralDataFeature::openEclipseFilesFromFileNames(const QStringList& fileNames)
+    RicImportGeneralDataFeature::openEclipseFilesFromFileNames(const QStringList& fileNames, 
+                                                               bool doCreateDefaultPlot)
 {
     CVF_ASSERT(!fileNames.empty());
 
@@ -89,7 +90,7 @@ RicImportGeneralDataFeature::OpenCaseResults
     }
     if (!eclipseSummaryFiles.empty())
     {
-        if (!openSummaryCaseFromFileNames(eclipseSummaryFiles))
+        if (!openSummaryCaseFromFileNames(eclipseSummaryFiles, doCreateDefaultPlot))
         {
             return OpenCaseResults();
         }
@@ -199,7 +200,7 @@ void RicImportGeneralDataFeature::openFileDialog(ImportFileType fileTypes)
         RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ANY_ECLIPSE_FILE), fileNames.front());
     }
 
-    if (!openEclipseFilesFromFileNames(fileNames))
+    if (!openEclipseFilesFromFileNames(fileNames, true))
     {
         RiaLogging::error(QString("Failed to open file names: %1").arg(fileNames.join(", ")));
     }
@@ -239,10 +240,11 @@ bool RicImportGeneralDataFeature::openInputEclipseCaseFromFileNames(const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames(const QStringList& fileNames)
+bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames(const QStringList& fileNames, 
+                                                               bool doCreateDefaultPlot)
 {
     std::vector<RimSummaryCase*> newCases;
-    if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames, &newCases))
+    if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames, doCreateDefaultPlot, &newCases))
     {
         RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(newCases);
         for (const RimSummaryCase* newCase : newCases)
