@@ -23,14 +23,20 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
+#include "RimSummaryCase.h"
 
 #include "RiuPlotMainWindowTools.h"
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
+#include "RiaEclipseFileNameTools.h"
+
 #include "RifSummaryReaderInterface.h"
-#include "RimSummaryCase.h"
+
+#include "RicImportGeneralDataFeature.h"
+
+#include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -91,33 +97,7 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot(
     QString curvesTextFilter = RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter;
     QStringList curveFilters = curvesTextFilter.split(";", QString::SkipEmptyParts);
 
-    const std::set<RifEclipseSummaryAddress>&  addrs = summaryCase->summaryReader()->allResultAddresses();
-    std::vector<RifEclipseSummaryAddress> curveAddressesToUse;
-
-    for (const auto & addr : addrs)
-    {
-        for (const QString& filter: curveFilters)
-        {
-            if ( addr.isUiTextMatchingFilterText(filter) )
-            {
-                curveAddressesToUse.push_back(addr); 
-            }
-        }
-    }
-
-    for (const auto & addr : curveAddressesToUse)
-    {
-        RimSummaryCurve* newCurve = new RimSummaryCurve();
-        plot->addCurveNoUpdate(newCurve);
-        if (summaryCase)
-        {
-            newCurve->setSummaryCaseY(summaryCase);
-        }
-        newCurve->setSummaryAddressYAndApplyInterpolation(addr);
-        defaultCurves.push_back(newCurve);
-    }
-
-    return defaultCurves;
+    return addCurvesFromAddressFiltersToPlot(curveFilters,  plot, summaryCase);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,7 +121,7 @@ void RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( RimSummaryCase* summar
 {
     RimSummaryPlotCollection* summaryPlotCollection = RiaApplication::instance()->project()->mainPlotCollection->summaryPlotCollection();
 
-    if (summaryPlotCollection && summaryCase)
+    if (summaryPlotCollection && summaryCase && !RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter().isEmpty())
     {
         auto plot = summaryPlotCollection->createSummaryPlotWithAutoTitle();
 
@@ -160,4 +140,145 @@ void RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( RimSummaryCase* summar
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromCommandLine(const QStringList & arguments)
+{
+    RimSummaryPlot* plot = RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(arguments);
+    return plot;
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(const QStringList & arguments)
+{
+    // Split arguments in options, vectors and filenames
+
+    QStringList options;
+    QStringList summaryAddressFilters;
+    QStringList summaryFiles;
+
+
+    for (int optionIdx = 0; optionIdx < arguments.size(); ++optionIdx)
+    {
+        if (arguments[optionIdx].startsWith("-"))
+        {
+            if (arguments[optionIdx] == "-help")
+            {
+                RiaApplication::instance()->showFormattedTextInMessageBoxOrConsole(
+                    "The --summaryplot option has the following syntax:\n"
+                    "\n"
+                    "[<plotOptions>] <eclipsesummaryvectors> [<eclipsedatafiles>]\n"
+                    "\n"
+                    "It Creates a summary plot using all the <eclipsedatafiles>, and all the summary vectors defined in <eclipsesummaryvectors>.\n"
+                    "The <eclipsesummaryvectors> has the syntax <vectorname>[:<item>[:<subitem>[:i,j,k]]] and can be repeated.\n"
+                    "Wildcards can also be used, eg. \"WOPT:*\" to select the total oil production from all the wells.\n"
+                    "The <eclipsedatafiles> can be written with or without extension. Only the corresponding SMSPEC file will be opened for each case.\n"
+                    "\n"
+                    "The summary plot options are: \n"
+                    "  -help\t Show this help text and ignore the rest of the options.\n"
+                    "  -nl Omit legend in plot."
+                );
+                return nullptr;
+            }
+            options.push_back(arguments[optionIdx]);
+        }
+        else 
+        {
+            RiaEclipseFileNameTools nameTool(arguments[optionIdx]);
+            QString smSpecFileName = nameTool.findRelatedSummarySpecFile();
+            if (smSpecFileName != "")
+            {
+                summaryFiles.push_back(smSpecFileName);
+            }
+            else
+            {
+                summaryAddressFilters.push_back(arguments[optionIdx]) ;
+            }
+        }
+    }
+
+    if ( summaryAddressFilters.empty() )
+    {
+        RiaLogging::error("Needs at least one summary vector to create a plot.");
+    }
+    
+    if ( summaryFiles.size() )
+    {
+        RicImportGeneralDataFeature::OpenCaseResults results =
+            RicImportGeneralDataFeature::openEclipseFilesFromFileNames(summaryFiles, false);
+    }
+
+    std::vector<RimSummaryCase*> summaryCasesToUse = RiaApplication::instance()->project()->allSummaryCases();
+
+    if ( summaryCasesToUse.size() )
+    {
+        RimSummaryPlotCollection* sumPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+        RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+
+        for (RimSummaryCase* sumCase : summaryCasesToUse)
+        {
+            RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(summaryAddressFilters, newPlot, sumCase);
+        }
+
+        if (options.contains("-nl"))
+        {
+            newPlot->showLegend(false);
+        }
+
+        newPlot->applyDefaultCurveAppearances();
+        newPlot->loadDataAndUpdate();
+
+        sumPlotColl->updateConnectedEditors();
+
+        RiuPlotMainWindowTools::setExpanded(newPlot);
+        RiuPlotMainWindowTools::selectAsCurrentItem(newPlot);
+    }
+    else
+    {
+        RiaLogging::error("Needs at least one summary case to create a plot.");
+    }
+
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(const QStringList& curveFilters, 
+                                                                                           RimSummaryPlot* plot, 
+                                                                                           RimSummaryCase* summaryCase)
+{
+    std::vector<RimSummaryCurve*> createdCurves;
+
+    const std::set<RifEclipseSummaryAddress>&  addrs = summaryCase->summaryReader()->allResultAddresses();
+    std::vector<RifEclipseSummaryAddress> curveAddressesToUse;
+
+    for (const auto & addr : addrs)
+    {
+        for (const QString& filter: curveFilters)
+        {
+            if ( addr.isUiTextMatchingFilterText(filter) )
+            {
+                curveAddressesToUse.push_back(addr); 
+            }
+        }
+    }
+
+    for (const auto & addr : curveAddressesToUse)
+    {
+        RimSummaryCurve* newCurve = new RimSummaryCurve();
+        plot->addCurveNoUpdate(newCurve);
+        if (summaryCase)
+        {
+            newCurve->setSummaryCaseY(summaryCase);
+        }
+        newCurve->setSummaryAddressYAndApplyInterpolation(addr);
+        createdCurves.push_back(newCurve);
+    }
+
+    return createdCurves;
+}

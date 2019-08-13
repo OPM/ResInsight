@@ -133,6 +133,7 @@
 #ifdef USE_UNIT_TESTS
 #include "gtest/gtest.h"
 #endif // USE_UNIT_TESTS
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 namespace caf
 {
@@ -657,6 +658,11 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::Progra
         }
     }
 
+    if (cvf::Option o = progOpt->option("summaryplot"))
+    {
+        RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine( cvfqt::Utils::toQStringList(o.values()));
+    }
+
     QString projectFileName;
 
     if (progOpt->hasOption("last"))
@@ -777,7 +783,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::Progra
         QStringList fileNames = RicImportGeneralDataFeature::fileNamesFromCaseNames(cvfqt::Utils::toQStringList(o.values()));
 
         RicImportGeneralDataFeature::OpenCaseResults results =
-            RicImportGeneralDataFeature::openEclipseFilesFromFileNames(fileNames);
+            RicImportGeneralDataFeature::openEclipseFilesFromFileNames(fileNames, true);
         if (results && !results.eclipseSummaryFiles.empty())
         {
             getOrCreateAndShowMainPlotWindow();

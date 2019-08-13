@@ -122,6 +122,7 @@ void RicImportSummaryCasesFeature::setupActionLook(QAction* actionToSetup)
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStringList&            fileNames,
+                                                                     bool doCreateDefaultPlot,
                                                                      std::vector<RimSummaryCase*>* newCases)
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();
@@ -131,7 +132,7 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStri
     if (createSummaryCasesFromFiles(fileNames, cases))
     {
         addSummaryCases(*cases);
-        if (!cases->empty())
+        if (!cases->empty() && doCreateDefaultPlot)
         {
             RicSummaryPlotFeatureImpl::createDefaultSummaryPlot(cases->back());
         }

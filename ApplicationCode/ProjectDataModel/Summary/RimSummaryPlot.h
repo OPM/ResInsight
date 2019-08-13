@@ -148,6 +148,7 @@ public:
     void selectAxisInPropertyEditor(int axis) override;
     void setAutoZoomForAllAxes(bool enableAutoZoom) override;
     caf::PdmObject* findRimPlotObjectFromQwtCurve(const QwtPlotCurve* curve) const override;
+    void showLegend(bool enable);
 
 public:
     // RimViewWindow overrides

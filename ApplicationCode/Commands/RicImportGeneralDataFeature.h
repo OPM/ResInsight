@@ -46,7 +46,8 @@ public:
         }
     };
 
-    static OpenCaseResults openEclipseFilesFromFileNames(const QStringList& fileNames);
+    static OpenCaseResults openEclipseFilesFromFileNames(const QStringList& fileNames, 
+                                                         bool doCreateDefaultPlot);
     static QStringList fileNamesFromCaseNames(const QStringList& caseNames);
 
 protected:
@@ -60,6 +61,7 @@ protected:
 
     static bool openEclipseCaseFromFileNames(const QStringList& fileNames);
     static bool openInputEclipseCaseFromFileNames(const QStringList& fileNames);
-    static bool openSummaryCaseFromFileNames(const QStringList& fileNames);
+    static bool openSummaryCaseFromFileNames(const QStringList& fileNames, 
+                                             bool doCreateDefaultPlot = true);
 
 };
