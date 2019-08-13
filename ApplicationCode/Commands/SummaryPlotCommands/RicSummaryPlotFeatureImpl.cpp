@@ -97,7 +97,7 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot(
     QString curvesTextFilter = RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter;
     QStringList curveFilters = curvesTextFilter.split(";", QString::SkipEmptyParts);
 
-    return addCurvesFromAddressFiltersToPlot(curveFilters,  plot, summaryCase);
+    return addCurvesFromAddressFiltersToPlot(curveFilters,  plot, summaryCase, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,7 +179,9 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
                     "\n"
                     "The summary plot options are: \n"
                     "  -help\t Show this help text and ignore the rest of the options.\n"
-                    "  -nl Omit legend in plot."
+                    "  -nl Omit legend in plot.\n"
+                    "  -h Include history vectors. Will be read from the summary file if the vectors exist.\n" 
+                    "     Only history vectors from the first summary case in the project will be included.\n"
                 );
                 return nullptr;
             }
@@ -210,6 +212,8 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
         RicImportGeneralDataFeature::OpenCaseResults results =
             RicImportGeneralDataFeature::openEclipseFilesFromFileNames(summaryFiles, false);
     }
+    bool hideLegend = options.contains("-nl");
+    bool addHistoryCurves = options.contains("-h");
 
     std::vector<RimSummaryCase*> summaryCasesToUse = RiaApplication::instance()->project()->allSummaryCases();
 
@@ -220,10 +224,11 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
 
         for (RimSummaryCase* sumCase : summaryCasesToUse)
         {
-            RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(summaryAddressFilters, newPlot, sumCase);
+            RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(summaryAddressFilters, newPlot, sumCase, addHistoryCurves);
+            addHistoryCurves = false;
         }
 
-        if (options.contains("-nl"))
+        if (hideLegend)
         {
             newPlot->showLegend(false);
         }
@@ -250,7 +255,8 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(const QStringList& curveFilters, 
                                                                                            RimSummaryPlot* plot, 
-                                                                                           RimSummaryCase* summaryCase)
+                                                                                           RimSummaryCase* summaryCase, 
+                                                                                           bool addHistoryCurves)
 {
     std::vector<RimSummaryCurve*> createdCurves;
 
@@ -267,6 +273,21 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
             }
         }
     }
+
+    if (addHistoryCurves)
+    {
+        std::vector<RifEclipseSummaryAddress> historyAddressesToUse;
+        for (RifEclipseSummaryAddress historyAddr : curveAddressesToUse)
+        {
+            historyAddr.setQuantityName(historyAddr.quantityName() + "H");
+            if (addrs.count(historyAddr))
+            {
+                historyAddressesToUse.push_back(historyAddr);
+            }
+        }
+        curveAddressesToUse.insert( curveAddressesToUse.end(), historyAddressesToUse.begin(), historyAddressesToUse.end() );
+    }
+
 
     for (const auto & addr : curveAddressesToUse)
     {
