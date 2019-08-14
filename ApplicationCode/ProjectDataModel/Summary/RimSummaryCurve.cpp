@@ -265,6 +265,22 @@ std::vector<double> RimSummaryCurve::valuesY() const
     RifEclipseSummaryAddress addr = m_yValuesCurveVariable()->address();
     reader->values(addr, &values);
 
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
+    bool isNormalized = plot->isNormalizationEnabled();
+    if (isNormalized)
+    {
+         auto minMaxPair = std::minmax_element(values.begin(), values.end());
+         double min = *minMaxPair.first;
+         double max = *minMaxPair.second;
+         double range = max - min;
+
+         for (double & v: values)
+         {
+            v = (v - min)/range;
+         }
+    }
+   
     return values;
 }
 
