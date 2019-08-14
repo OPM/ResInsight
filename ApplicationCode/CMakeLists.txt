@@ -162,6 +162,7 @@ list( APPEND REFERENCED_CMAKE_FILES
 )
 
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
+mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
 if (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
     add_definitions(-DUSE_UNIT_TESTS)
 
@@ -548,8 +549,9 @@ endforeach()
 
 # Copy all grpc libraries and python files
 if (RESINSIGHT_ENABLE_GRPC)	
-    if (PYTHON_EXECUTABLE)
-		if (EXISTS ${PYTHON_EXECUTABLE})
+    set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
+    if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+		if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
 			add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
 			add_dependencies(ResInsight GeneratedPythonSources)
 
@@ -561,11 +563,11 @@ if (RESINSIGHT_ENABLE_GRPC)
 				endif(EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
 			endforeach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
 		else()
-			message(STATUS "Error installing python code: PYTHON_EXECUTABLE set but ${PYTHON_EXECUTABLE} not found")
-		endif(EXISTS ${PYTHON_EXECUTABLE})
+			message(STATUS "Error installing python code: RESINSIGHT_GRPC_PYTHON_EXECUTABLE set but ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} not found")
+		endif(EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
 	else()
-		message(STATUS "PYTHON_EXECUTABLE not specified. Will not install GRPC Python code.")
-	endif(PYTHON_EXECUTABLE)	
+		message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install GRPC Python code.")
+	endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)	
 endif(RESINSIGHT_ENABLE_GRPC)
 
 #############################################################################
@@ -685,6 +687,8 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
         # OpenSSL
         option(RESINSIGHT_BUNDLE_OPENSSL "Bundle the OpenSSL binary DLLs" OFF)
+        mark_as_advanced(FORCE RESINSIGHT_BUNDLE_OPENSSL)
+
         if (RESINSIGHT_BUNDLE_OPENSSL)
           find_package(OpenSSL)
           if (OPENSSL_FOUND)

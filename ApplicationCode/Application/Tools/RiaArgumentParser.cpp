@@ -61,8 +61,11 @@ bool RiaArgumentParser::parseArguments(cvf::ProgramOptions* progOpt)
     progOpt->registerOption("project", "<filename>", "Open project file <filename>.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt->registerOption("last", "", "Open last used project.");
     progOpt->registerOption("case",
-                            "<casename> [<casename> ...]",
-                            "Imports the Eclipse cases. <casename> is the filepath to the case without extension (.GRID/.EGRID)",
+                            "<casename|filename> [<casename|filename> ...]",
+                            "Imports the Eclipse cases specified by case name with or without extension."
+                            "If <casename>, import the corresponding grid file and summary file"
+                            "If <filename> has extension .GRRID/.EGRID, import the grid file and corresponding summary file"
+                            "If <filename> has extension .SMSPEC, import the summary file (does not open the corresponding grid file)",
                             cvf::ProgramOptions::MULTI_VALUE);
     progOpt->registerOption("size", "<width> <height>", "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE);
     progOpt->registerOption("console", "", "Run as a console application without Graphics");

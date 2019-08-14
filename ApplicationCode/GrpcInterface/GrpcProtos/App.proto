@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package rips;
 
-import "Empty.proto";
+import "Definitions.proto";
 
 service App {
   rpc GetVersion(Empty) returns (Version) {}

@@ -2,6 +2,7 @@ import sys
 import os
 import tempfile
 import pytest
+import grpc
 
 sys.path.insert(1, os.path.join(sys.path[0], '../../'))
 import rips
@@ -50,3 +51,8 @@ def test_exportFlowCharacteristics(rips_instance, initializeTest):
         print("Temporary folder: ", tmpdirname)
         fileName = tmpdirname + "/exportFlowChar.txt"
         rips_instance.commands.exportFlowCharacteristics(caseId=0, timeSteps=8, producers=[], injectors = "I01", fileName = fileName)
+
+def test_loadNonExistingCase(rips_instance, initializeTest):
+    casePath = "Nonsense/Nonsense/Nonsense"
+    with pytest.raises(grpc.RpcError):
+        assert rips_instance.project.loadCase(casePath)

@@ -111,7 +111,8 @@ QStringList RicImportGeneralDataFeature::fileNamesFromCaseNames(const QStringLis
         {
             if (caseName.lastIndexOf(".") != -1)
             {
-                fileNames.push_back(caseName);
+                QFileInfo fi(caseName);
+                fileNames.push_back(fi.absoluteFilePath());
             }
             else
             {

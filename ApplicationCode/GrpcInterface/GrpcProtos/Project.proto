@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "Empty.proto";
+import "Definitions.proto";
 import "Case.proto";
 import "PdmObject.proto";
 

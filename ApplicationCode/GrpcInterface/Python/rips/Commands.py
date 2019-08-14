@@ -4,7 +4,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
-from Empty_pb2 import Empty
+from Definitions_pb2 import Empty
 import Commands_pb2 as Cmd
 import Commands_pb2_grpc as CmdRpc
 from .Case import Case
@@ -25,14 +25,8 @@ class Commands:
         self.commands = CmdRpc.CommandsStub(channel)
 
     def __execute(self, **commandParams):
-        try:
-            return self.commands.Execute(Cmd.CommandParams(**commandParams))
-        except grpc.RpcError as e:
-            if e.code() == grpc.StatusCode.NOT_FOUND:
-                print("Command not found", commandParams.keys())
-            else:
-                print("Other error", e)
-
+        return self.commands.Execute(Cmd.CommandParams(**commandParams))
+    
     ########################
     # Case Control Commands
     ########################
@@ -71,8 +65,6 @@ class Commands:
         
         """
         commandReply = self.__execute(loadCase=Cmd.FilePathRequest(path=path))
-        assert(commandReply is not None)
-        assert(commandReply.HasField("loadCaseResult"))
         return Case(self.channel, commandReply.loadCaseResult.id)
 
     def replaceCase(self, newGridFile, caseId=0):
@@ -107,14 +99,10 @@ class Commands:
             A case group id and name
         """
         commandReply = self.__execute(createGridCaseGroup=Cmd.CreateGridCaseGroupRequest(casePaths=casePaths))
-        assert(commandReply is not None)
-        assert(commandReply.HasField("createGridCaseGroupResult"))
         return (commandReply.createGridCaseGroupResult.groupId, commandReply.createGridCaseGroupResult.groupName)
 
     def createStatisticsCase(self, caseGroupId):
         commandReply = self.__execute(createStatisticsCase=Cmd.CreateStatisticsCaseRequest(caseGroupId=caseGroupId))
-        assert(commandReply is not None)
-        assert(commandReply.HasField("createStatisticsCaseResult"))
         return commandReply.createStatisticsCaseResult.caseId;
 
     ##################

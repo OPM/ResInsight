@@ -8,10 +8,18 @@ import Properties_pb2
 import Properties_pb2_grpc
 import Case_pb2
 import Case_pb2_grpc
+from Definitions_pb2 import ClientToServerStreamReply
 
 class Properties:
     """ Class for streaming properties to and from ResInsight
-    """
+
+    Attributes:
+        chunkSize(int): The size of each chunk during value streaming.
+                        A good chunk size is 64KiB = 65536B.
+                        Meaning the ideal number of doubles would be 8192.
+                        However we need overhead space, so the default is 8160.
+                        This leaves 256B for overhead.
+    """    
     def __init__(self, case):
         """
             Arguments:
@@ -19,6 +27,8 @@ class Properties:
         """
         self.case = case
         self.propertiesStub = Properties_pb2_grpc.PropertiesStub(self.case.channel)
+        self.chunkSize = 8160
+
     
     def __generatePropertyInputIterator(self, values_iterator, parameters):
         chunk = Properties_pb2.PropertyInputChunk()
@@ -31,19 +41,15 @@ class Properties:
             yield chunk
 
     def __generatePropertyInputChunks(self, array, parameters):
-         # Each double is 8 bytes. A good chunk size is 64KiB = 65536B
-         # Meaning ideal number of doubles would be 8192.
-         # However we need overhead space, so if we choose 8160 in chunk size
-         # We have 256B left for overhead which should be plenty
-        chunkSize = 8000
+       
         index = -1
         while index < len(array):
             chunk = Properties_pb2.PropertyInputChunk()
             if index is -1:
                 chunk.params.CopyFrom(parameters)
-                index += 1;
+                index += 1
             else:
-                actualChunkSize = min(len(array) - index + 1, chunkSize)
+                actualChunkSize = min(len(array) - index + 1, self.chunkSize)
                 chunk.values.CopyFrom(Properties_pb2.PropertyChunk(values = array[index:index+actualChunkSize]))
                 index += actualChunkSize
 
@@ -183,15 +189,10 @@ class Properties:
                                                  property_name  = propertyName,
                                                  time_step      = timeStep,
                                                  porosity_model = porosityModelEnum)
-        try:
-            reply_iterator = self.__generatePropertyInputIterator(values_iterator, request)
-            self.propertiesStub.SetActiveCellProperty(reply_iterator)
-        except grpc.RpcError as e:
-            if e.code() == grpc.StatusCode.NOT_FOUND:
-                print("Command not found")
-            else:
-                print("Other error", e)
-
+        
+        request_iterator = self.__generatePropertyInputIterator(values_iterator, request)
+        self.propertiesStub.SetActiveCellProperty(request_iterator)
+    
     def setActiveCellProperty(self, values, propertyType, propertyName, timeStep, porosityModel = 'MATRIX_MODEL'):
         """Set a cell property for all active cells.
             
@@ -209,14 +210,10 @@ class Properties:
                                                  property_name  = propertyName,
                                                  time_step      = timeStep,
                                                  porosity_model = porosityModelEnum)
-        try:
-            request_iterator = self.__generatePropertyInputChunks(values, request)
-            self.propertiesStub.SetActiveCellProperty(request_iterator)
-        except grpc.RpcError as e:
-            if e.code() == grpc.StatusCode.NOT_FOUND:
-                print("Command not found")
-            else:
-                print("Other error", e)
+        request_iterator = self.__generatePropertyInputChunks(values, request)
+        reply = self.propertiesStub.SetActiveCellProperty(request_iterator)
+        if reply.accepted_value_count < len(values):
+            raise IndexError
 
     def setGridProperty(self, values, propertyType, propertyName, timeStep, gridIndex = 0, porosityModel = 'MATRIX_MODEL'):
         """Set a cell property for all grid cells.
@@ -237,11 +234,8 @@ class Properties:
                                                  time_step      = timeStep,
                                                  grid_index     = gridIndex,
                                                  porosity_model = porosityModelEnum)
-        try:
-            request_iterator = self.__generatePropertyInputChunks(values, request)
-            self.propertiesStub.SetGridProperty(request_iterator)
-        except grpc.RpcError as e:
-            if e.code() == grpc.StatusCode.NOT_FOUND:
-                print("Command not found")
-            else:
-                print("Other error", e)
+        request_iterator = self.__generatePropertyInputChunks(values, request)
+        reply = self.propertiesStub.SetGridProperty(request_iterator)
+        if reply.accepted_value_count < len(values):
+            raise IndexError
+            

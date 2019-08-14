@@ -150,7 +150,7 @@ QString RiaGrpcUnaryCallback<ServiceT, RequestT, ReplyT>::methodType() const
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGrpcServerStreamCallback(ServiceT*      service,
+RiaGrpcServerToClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGrpcServerToClientStreamCallback(ServiceT*      service,
                                                                                         MethodImplT    methodImpl,
                                                                                         MethodRequestT methodRequest,
                                                                                         StateHandlerT* stateHandler)
@@ -166,9 +166,9 @@ RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGrpcS
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-RiaGrpcCallbackInterface* RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createNewFromThis() const
+RiaGrpcCallbackInterface* RiaGrpcServerToClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createNewFromThis() const
 {
-    return new RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>(
+    return new RiaGrpcServerToClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>(
         this->m_service, m_methodImpl, m_methodRequest, new StateHandlerT);
 }
 
@@ -176,7 +176,7 @@ RiaGrpcCallbackInterface* RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-void RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createRequestHandler(
+void RiaGrpcServerToClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createRequestHandler(
     ServerCompletionQueue* completionQueue)
 {
     // The Request-method is where the service gets registered to respond to a given request.
@@ -190,7 +190,7 @@ void RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::cre
 /// Perform initialisation tasks at the time of receiving a complete request
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-void RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onInitRequestCompleted()
+void RiaGrpcServerToClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onInitRequestCompleted()
 {
     // Initialise streaming state handler
     this->m_status = m_stateHandler->init(&this->m_request);
@@ -213,7 +213,7 @@ void RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onI
 /// Process a streaming request and send one package
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-void RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onProcessRequest()
+void RiaGrpcServerToClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onProcessRequest()
 {
     this->m_reply = ReplyT(); // Make sure it is reset
    
@@ -243,7 +243,7 @@ void RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onP
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-QString RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::methodType() const
+QString RiaGrpcServerToClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::methodType() const
 {
     return "StreamingMethod";
 }
@@ -253,7 +253,7 @@ QString RiaGrpcServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGrpcClientStreamCallback(ServiceT*      service,
+RiaGrpcClientToServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGrpcClientToServerStreamCallback(ServiceT*      service,
                                                                                                     MethodImplT    methodImpl,
                                                                                                     MethodRequestT methodRequest,
                                                                                                     StateHandlerT* stateHandler)
@@ -269,9 +269,9 @@ RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::RiaGrpcC
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-RiaGrpcCallbackInterface* RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createNewFromThis() const
+RiaGrpcCallbackInterface* RiaGrpcClientToServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createNewFromThis() const
 {
-    return new RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>(
+    return new RiaGrpcClientToServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>(
         this->m_service, m_methodImpl, m_methodRequest, new StateHandlerT(true));
 }
 
@@ -279,7 +279,7 @@ RiaGrpcCallbackInterface* RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-void RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createRequestHandler(
+void RiaGrpcClientToServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::createRequestHandler(
     ServerCompletionQueue* completionQueue)
 {
     // The Request-method is where the service gets registered to respond to a given request.
@@ -293,7 +293,7 @@ void RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::cre
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-void RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onInitRequestStarted()
+void RiaGrpcClientToServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onInitRequestStarted()
 {
     this->setNextCallState(RiaGrpcCallbackInterface::INIT_REQUEST_COMPLETED);
     // The read call will start reading the request data and push this callback back onto the command queue
@@ -305,7 +305,7 @@ void RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onI
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-void RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onInitRequestCompleted()
+void RiaGrpcClientToServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onInitRequestCompleted()
 {
     this->setNextCallState(RiaGrpcCallbackInterface::PROCESS_REQUEST); 
     // Fully received the stream package so can now init
@@ -327,36 +327,38 @@ void RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onI
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-void RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onProcessRequest()
+void RiaGrpcClientToServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onProcessRequest()
 {
     this->m_reply = ReplyT(); // Make sure it is reset
   
     // Call request handler method
     this->m_status = m_methodImpl(*this->m_service, &m_context, &this->m_request, &this->m_reply, m_stateHandler.get());
-    
+
     if (!this->m_status.ok())
     {
         this->setNextCallState(RiaGrpcCallbackInterface::FINISH_REQUEST);
-        if (this->m_status.error_code() == grpc::OUT_OF_RANGE)
+        m_reader.FinishWithError(this->m_status, this);
+    }
+    else
+    {
+        CAF_ASSERT(m_stateHandler->streamedValueCount() <= m_stateHandler->cellCount());
+		if (m_stateHandler->streamedValueCount() == m_stateHandler->cellCount())
         {
+            this->setNextCallState(RiaGrpcCallbackInterface::FINISH_REQUEST);
             m_reader.Finish(this->m_reply, grpc::Status::OK, this);
         }
         else
         {
-            m_reader.FinishWithError(this->m_status, this);
+            m_reader.Read(&this->m_request, this);
         }
-    }
-    else
-    {
-        m_reader.Read(&this->m_request, this);
-    }
+	}
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-void RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onFinishRequest()
+void RiaGrpcClientToServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onFinishRequest()
 {
     m_stateHandler->finish();
 }
@@ -365,7 +367,7 @@ void RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::onF
 ///
 //--------------------------------------------------------------------------------------------------
 template<typename ServiceT, typename RequestT, typename ReplyT, typename StateHandlerT>
-QString RiaGrpcClientStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::methodType() const
+QString RiaGrpcClientToServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandlerT>::methodType() const
 {
     return "ClientStreamingMethod";
 }

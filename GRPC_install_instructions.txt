@@ -15,11 +15,11 @@ git clone https://github.com/microsoft/vcpkg.git
 * Install Python 3
 * Execute the following using Python3
   python -m pip install grpcio-tools
-* Make sure the python executable is found by setting -DPYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
+* Make sure the python executable is found by setting -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
    
 5. Run cmake with the following statements: 
 -DRESINSIGHT_ENABLE_GRPC=true
--DPYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
+-DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
 -DCMAKE_TOOLCHAIN_FILE=LOCATION_OF_VCPKG/scripts/buildsystems/vcpkg.cmake
 NOTE: When using the CMake gui, you need to select "Specify toolchain for cross-compiling" 
       and enter the "LOCATION_OF_VCPKG/scripts/buildsystems/vcpkg.cmake" there. 
@@ -90,8 +90,8 @@ python -m pip install --user grpcio-tools
 #################################################################################
 # 6. Building ResInsight with GRPC enabled:
 # Run cmake making sure of the following:
-#    * GRPC_INSTALL_PREFIX is set to the Grpc install folder, 
-#    * PYTHON_EXECUTABLE set to a good python 3
 #    * RESINSIGHT_ENABLE_GRPC = true
+#    * RESINSIGHT_GRPC_INSTALL_PREFIX is set to the Grpc install folder
+#    * RESINSIGHT_GRPC_PYTHON_EXECUTABLE set to a good python 3
 ################################
 See regular build instructions for the rest

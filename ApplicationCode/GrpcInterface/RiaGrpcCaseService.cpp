@@ -373,7 +373,7 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
             new RiaGrpcUnaryCallback<Self, CaseRequest, DaysSinceStart>(this, &Self::GetDaysSinceStart, &Self::RequestGetDaysSinceStart),
             new RiaGrpcUnaryCallback<Self, CaseRequest, CaseInfo>(this, &Self::GetCaseInfo, &Self::RequestGetCaseInfo),
             new RiaGrpcUnaryCallback<Self, CaseRequest, PdmObject>(this, &Self::GetPdmObject, &Self::RequestGetPdmObject),
-            new RiaGrpcServerStreamCallback<Self, CellInfoRequest, CellInfoArray, RiaActiveCellInfoStateHandler>(
+            new RiaGrpcServerToClientStreamCallback<Self, CellInfoRequest, CellInfoArray, RiaActiveCellInfoStateHandler>(
                 this, &Self::GetCellInfoForActiveCells, &Self::RequestGetCellInfoForActiveCells, new RiaActiveCellInfoStateHandler)};
 }
 

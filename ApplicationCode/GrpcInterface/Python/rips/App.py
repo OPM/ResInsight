@@ -4,7 +4,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
-from Empty_pb2 import Empty
+from Definitions_pb2 import Empty
 
 import App_pb2
 import App_pb2_grpc

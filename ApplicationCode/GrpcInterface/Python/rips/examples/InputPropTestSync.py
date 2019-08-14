@@ -1,5 +1,6 @@
 import rips
 import time
+import grpc
 
 resInsight     = rips.Instance.find()
 start = time.time()
@@ -12,7 +13,11 @@ results = []
 for (poro, permx) in zip(poroResults, permxResults):
     results.append(poro * permx)
 
-case.properties.setActiveCellProperty(results, 'GENERATED', 'POROPERMXSY', 0)
+try:        
+    case.properties.setActiveCellProperty(results, 'GENERATED', 'POROPERMXSY', 0)
+except grpc.RpcError as e:
+    print("Exception Received: ", e)
+
 
 end = time.time()
 print("Time elapsed: ", end - start)

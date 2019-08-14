@@ -196,7 +196,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
 //--------------------------------------------------------------------------------------------------
 int RiaImportEclipseCaseTools::openEclipseCaseFromFile(const QString& fileName)
 {
-    if (!caf::Utils::fileExists(fileName)) return false;
+    if (!caf::Utils::fileExists(fileName)) return -1;
 
     return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(fileName, false);
 }

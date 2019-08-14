@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "Empty.proto";
+import "Definitions.proto";
 import "Case.proto";
 
 package rips;
@@ -10,8 +10,8 @@ service Properties
 	rpc GetAvailableProperties(AvailablePropertiesRequest) returns (AvailableProperties) {}
 	rpc GetActiveCellProperty(PropertyRequest) returns (stream PropertyChunk) {}
 	rpc GetGridProperty(PropertyRequest)       returns (stream PropertyChunk) {}
-	rpc SetActiveCellProperty(stream PropertyInputChunk) returns (Empty) {}
-	rpc SetGridProperty(stream PropertyInputChunk) returns (Empty) {}
+	rpc SetActiveCellProperty(stream PropertyInputChunk) returns (ClientToServerStreamReply) {}
+	rpc SetGridProperty(stream PropertyInputChunk) returns (ClientToServerStreamReply) {}
 }
 
 enum PropertyType
