@@ -140,6 +140,8 @@ public:
     bool hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const override;
     bool applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange = false) override;
 
+    bool isNormalizationEnabled();
+    void showLegend(bool enable);
 public:
     // Rim2dPlotInterface overrides
     void updateAxisScaling() override;
@@ -148,7 +150,6 @@ public:
     void selectAxisInPropertyEditor(int axis) override;
     void setAutoZoomForAllAxes(bool enableAutoZoom) override;
     caf::PdmObject* findRimPlotObjectFromQwtCurve(const QwtPlotCurve* curve) const override;
-    void showLegend(bool enable);
 
 public:
     // RimViewWindow overrides
@@ -195,6 +196,8 @@ private:
 private:
     caf::PdmField<bool>                                 m_showPlotTitle;
     caf::PdmField<bool>                                 m_showLegend;
+    caf::PdmField<bool>                                 m_normalizeCurveYValues;
+
     caf::PdmField<int>                                  m_legendFontSize;
 
     caf::PdmField<bool>                                 m_useAutoPlotTitle;

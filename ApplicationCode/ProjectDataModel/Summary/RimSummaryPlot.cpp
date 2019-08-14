@@ -140,6 +140,9 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitField(&m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Name", "", "", "");
     m_useAutoPlotTitle.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
+    CAF_PDM_InitField(&m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", ""); 
+    m_normalizeCurveYValues.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
     CAF_PDM_InitFieldNoDefault(&m_curveFilters_OBSOLETE, "SummaryCurveFilters", "", "", "", "");
     m_curveFilters_OBSOLETE.uiCapability()->setUiTreeHidden(true);
 
@@ -633,6 +636,14 @@ bool RimSummaryPlot::applyFontSize(RiaDefines::FontSettingType fontSettingType, 
     if (anyChange) loadDataAndUpdate();
     
     return anyChange;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::isNormalizationEnabled()
+{
+    return m_normalizeCurveYValues();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1221,6 +1232,11 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
             c->updateCurveNameNoLegendUpdate();
         }
     }
+
+    if (changedField == &m_normalizeCurveYValues)
+    {
+        this->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1503,6 +1519,8 @@ void RimSummaryPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     {
         uiOrdering.add(&m_legendFontSize);
     }
+
+    uiOrdering.add(&m_normalizeCurveYValues);
 
     m_userDefinedPlotTitle.uiCapability()->setUiReadOnly(m_useAutoPlotTitle);
 
@@ -1811,7 +1829,8 @@ void RimSummaryPlot::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
 {
     if (field == &m_showLegend || 
         field == &m_showPlotTitle ||
-        field == &m_useAutoPlotTitle)
+        field == &m_useAutoPlotTitle ||
+        field == &m_normalizeCurveYValues)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
