@@ -23,6 +23,9 @@ class RimSummaryCase;
 class RimSummaryPlotCollection;
 
 #include <vector>
+#include <set>
+#include "RifEclipseSummaryAddress.h"
+
 class QStringList;
 
 
@@ -34,6 +37,10 @@ public:
                                                                            RimSummaryPlot* plot, 
                                                                            RimSummaryCase* summaryCase, 
                                                                            bool addHistoryCurves);
+    static void filteredSummaryAdressesFromCase(const QStringList& curveFilters,
+                                                const std::set<RifEclipseSummaryAddress>&  allAddressesInCase,
+                                                std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
+                                                std::vector<bool>* usedFilters);
     static std::vector<RimSummaryCurve*> addDefaultCurvesToPlot(RimSummaryPlot* plot, RimSummaryCase* summaryCase);
     static void ensureAtLeastOnePlot(RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase);
     static void createDefaultSummaryPlot(RimSummaryCase* summaryCase);
