@@ -179,9 +179,10 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
                     "\n"
                     "The summary plot options are: \n"
                     "  -help\t Show this help text and ignore the rest of the options.\n"
-                    "  -nl Omit legend in plot.\n"
-                    "  -h Include history vectors. Will be read from the summary file if the vectors exist.\n" 
-                    "     Only history vectors from the first summary case in the project will be included.\n"
+                    "  -nl\t Omit legend in plot.\n"
+                    "  -h\t Include history vectors. Will be read from the summary file if the vectors exist.\n" 
+                    "    \t Only history vectors from the first summary case in the project will be included.\n"
+                    "  -n\t Scale all curves into the range 0.0-1.0."
                 );
                 return nullptr;
             }
@@ -214,6 +215,7 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
     }
     bool hideLegend = options.contains("-nl");
     bool addHistoryCurves = options.contains("-h");
+    bool isNormalizedY = options.contains("-n");
 
     std::vector<RimSummaryCase*> summaryCasesToUse = RiaApplication::instance()->project()->allSummaryCases();
 
@@ -228,10 +230,8 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
             addHistoryCurves = false;
         }
 
-        if (hideLegend)
-        {
-            newPlot->showLegend(false);
-        }
+        newPlot->showLegend(!hideLegend);
+        newPlot->setNormalizationEnabled(isNormalizedY);
 
         newPlot->applyDefaultCurveAppearances();
         newPlot->loadDataAndUpdate();
