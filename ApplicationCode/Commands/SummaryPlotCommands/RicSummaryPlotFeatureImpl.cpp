@@ -170,19 +170,20 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
                 RiaApplication::instance()->showFormattedTextInMessageBoxOrConsole(
                     "The --summaryplot option has the following syntax:\n"
                     "\n"
-                    "[<plotOptions>] <eclipsesummaryvectors> [<eclipsedatafiles>]\n"
+                    "[<plotOptions>] <eclipsesummaryvectorfilters> [<eclipsedatafiles>]\n"
                     "\n"
-                    "It Creates a summary plot using all the <eclipsedatafiles>, and all the summary vectors defined in <eclipsesummaryvectors>.\n"
-                    "The <eclipsesummaryvectors> has the syntax <vectorname>[:<item>[:<subitem>[:i,j,k]]] and can be repeated.\n"
+                    "It Creates one summary plot using all the <eclipsedatafiles> for each of the the summary vectors matched by the <eclipsesummaryvectorfilters>.\n"
+                    "The <eclipsesummaryvectorfilters> has the syntax <vectorname>[:<item>[:<subitem>[:i,j,k]]] and can be repeated.\n"
                     "Wildcards can also be used, eg. \"WOPT:*\" to select the total oil production from all the wells.\n"
                     "The <eclipsedatafiles> can be written with or without extension. Only the corresponding SMSPEC file will be opened for each case.\n"
                     "\n"
                     "The summary plot options are: \n"
                     "  -help\t Show this help text and ignore the rest of the options.\n"
-                    "  -nl\t Omit legend in plot.\n"
                     "  -h\t Include history vectors. Will be read from the summary file if the vectors exist.\n" 
                     "    \t Only history vectors from the first summary case in the project will be included.\n"
-                    "  -n\t Scale all curves into the range 0.0-1.0."
+                    "  -nl\t Omit legend in plot.\n"
+                    "  -s\t Create only one plot including all the defined vectors and cases."
+                    "  -n\t Scale all curves into the range 0.0-1.0. Useful when using -s"
                 );
                 return nullptr;
             }
@@ -213,33 +214,114 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
         RicImportGeneralDataFeature::OpenCaseResults results =
             RicImportGeneralDataFeature::openEclipseFilesFromFileNames(summaryFiles, false);
     }
+
     bool hideLegend = options.contains("-nl");
     bool addHistoryCurves = options.contains("-h");
     bool isNormalizedY = options.contains("-n");
+    bool isSinglePlot = options.contains("-s");
 
     std::vector<RimSummaryCase*> summaryCasesToUse = RiaApplication::instance()->project()->allSummaryCases();
 
     if ( summaryCasesToUse.size() )
     {
         RimSummaryPlotCollection* sumPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
-        RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
-
-        for (RimSummaryCase* sumCase : summaryCasesToUse)
+        if ( isSinglePlot )
         {
-            RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(summaryAddressFilters, newPlot, sumCase, addHistoryCurves);
-            addHistoryCurves = false;
+            RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+
+            for ( RimSummaryCase* sumCase : summaryCasesToUse )
+            {
+                RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(summaryAddressFilters, newPlot, sumCase, addHistoryCurves);
+                addHistoryCurves = false;
+            }
+
+            newPlot->showLegend(!hideLegend);
+            newPlot->setNormalizationEnabled(isNormalizedY);
+
+            newPlot->applyDefaultCurveAppearances();
+            newPlot->loadDataAndUpdate();
+
+            sumPlotColl->updateConnectedEditors();
+
+            RiuPlotMainWindowTools::setExpanded(newPlot);
+            RiuPlotMainWindowTools::selectAsCurrentItem(newPlot);
         }
+        else // Multiplot, one for each separate summary address
+        {
+            std::set<RifEclipseSummaryAddress> filteredAdressesFromCases;
+            RimSummaryPlot* lastPlotCreated = nullptr;
 
-        newPlot->showLegend(!hideLegend);
-        newPlot->setNormalizationEnabled(isNormalizedY);
+            for ( RimSummaryCase* sumCase : summaryCasesToUse )
+            {
+                const std::set<RifEclipseSummaryAddress>&  addrs = sumCase->summaryReader()->allResultAddresses();
+                std::vector<bool> usedFilters;
 
-        newPlot->applyDefaultCurveAppearances();
-        newPlot->loadDataAndUpdate();
+                filteredSummaryAdressesFromCase(summaryAddressFilters, addrs, &filteredAdressesFromCases, &usedFilters);
 
-        sumPlotColl->updateConnectedEditors();
+                for (int cfIdx = 0 ; cfIdx < usedFilters.size() ;  ++cfIdx)
+                {
+                    if (!usedFilters[cfIdx])
+                    {
+                        RiaLogging::warning("Vector filter \"" + summaryAddressFilters[cfIdx] +   "\" did not match anything in case: \"" + sumCase->caseName() + "\"");
+                    }
+                }
+            }
 
-        RiuPlotMainWindowTools::setExpanded(newPlot);
-        RiuPlotMainWindowTools::selectAsCurrentItem(newPlot);
+            for (const auto & addr : filteredAdressesFromCases)
+            {
+                std::vector<RimSummaryCurve*> createdCurves;
+                bool isFirstCase = true;
+                for ( RimSummaryCase* sumCase : summaryCasesToUse )
+                {
+                    const std::set<RifEclipseSummaryAddress>&  addrs = sumCase->summaryReader()->allResultAddresses();
+                    if (addrs.count(addr))
+                    {
+                        RimSummaryCurve* newCurve = new RimSummaryCurve();
+                        newCurve->setSummaryCaseY(sumCase);
+                        newCurve->setSummaryAddressYAndApplyInterpolation(addr);
+                        createdCurves.push_back(newCurve);
+
+                        if ( addHistoryCurves && isFirstCase)
+                        {
+                            RifEclipseSummaryAddress historyAddr = addr;
+                            historyAddr.setQuantityName(historyAddr.quantityName() + "H");
+                            if ( addrs.count(historyAddr) )
+                            {
+                                RimSummaryCurve* historyCurve = new RimSummaryCurve();
+                                historyCurve->setSummaryCaseY(sumCase);
+                                historyCurve->setSummaryAddressYAndApplyInterpolation(historyAddr);
+                                createdCurves.push_back(historyCurve);
+                            }
+                        }
+                    }
+
+                    isFirstCase = false;
+                }
+
+                if ( createdCurves.size() )
+                {
+                    RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+                    for ( auto curve : createdCurves )
+                    {
+                        newPlot->addCurveNoUpdate(curve);
+                    }
+
+                    newPlot->showLegend(!hideLegend);
+                    newPlot->setNormalizationEnabled(isNormalizedY);
+
+                    newPlot->applyDefaultCurveAppearances();
+                    newPlot->loadDataAndUpdate();
+                    lastPlotCreated = newPlot;
+                }
+            }
+
+            sumPlotColl->updateConnectedEditors();
+            if ( lastPlotCreated )
+            {
+                RiuPlotMainWindowTools::setExpanded(lastPlotCreated);
+                RiuPlotMainWindowTools::selectAsCurrentItem(lastPlotCreated);
+            }
+        }
     }
     else
     {
@@ -260,25 +342,14 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
 {
     std::vector<RimSummaryCurve*> createdCurves;
 
+    std::set<RifEclipseSummaryAddress> curveAddressesToUse;
+
     const std::set<RifEclipseSummaryAddress>&  addrs = summaryCase->summaryReader()->allResultAddresses();
-    std::vector<RifEclipseSummaryAddress> curveAddressesToUse;
-    int curveFilterCount = curveFilters.size();
+    std::vector<bool> usedFilters;
 
-    std::vector<bool> usedFilters(curveFilterCount, false);
+    filteredSummaryAdressesFromCase(curveFilters, addrs, &curveAddressesToUse, &usedFilters);
 
-    for (const auto & addr : addrs)
-    {
-        for (int cfIdx = 0 ; cfIdx < curveFilterCount ;  ++cfIdx)
-        {
-            if ( addr.isUiTextMatchingFilterText( curveFilters[cfIdx]) )
-            {
-                curveAddressesToUse.push_back(addr); 
-                usedFilters[cfIdx] = true;
-            }
-        }
-    }
-
-    for (int cfIdx = 0 ; cfIdx < curveFilterCount ;  ++cfIdx)
+    for (int cfIdx = 0 ; cfIdx < usedFilters.size() ;  ++cfIdx)
     {
         if (!usedFilters[cfIdx])
         {
@@ -297,7 +368,7 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
                 historyAddressesToUse.push_back(historyAddr);
             }
         }
-        curveAddressesToUse.insert( curveAddressesToUse.end(), historyAddressesToUse.begin(), historyAddressesToUse.end() );
+        curveAddressesToUse.insert( historyAddressesToUse.begin(), historyAddressesToUse.end() );
     }
 
 
@@ -314,4 +385,27 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
     }
 
     return createdCurves;
+}
+
+void  RicSummaryPlotFeatureImpl::filteredSummaryAdressesFromCase(const QStringList& curveFilters,
+                                                                 const std::set<RifEclipseSummaryAddress>&  allAddressesInCase,
+                                                                 std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
+                                                                 std::vector<bool>* usedFilters)
+{
+    int curveFilterCount = curveFilters.size();
+
+    usedFilters->clear();
+    usedFilters->resize(curveFilterCount, false);
+
+    for (const auto & addr : allAddressesInCase)
+    {
+        for (int cfIdx = 0 ; cfIdx < curveFilterCount ;  ++cfIdx)
+        {
+            if ( addr.isUiTextMatchingFilterText( curveFilters[cfIdx]) )
+            {
+                setToInsertFilteredAddressesIn->insert(addr); 
+                (*usedFilters)[cfIdx] = true;
+            }
+        }
+    }
 }
