@@ -641,6 +641,14 @@ bool RimSummaryPlot::applyFontSize(RiaDefines::FontSettingType fontSettingType, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setNormalizationEnabled(bool enable)
+{
+    m_normalizeCurveYValues = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimSummaryPlot::isNormalizationEnabled()
 {
     return m_normalizeCurveYValues();
