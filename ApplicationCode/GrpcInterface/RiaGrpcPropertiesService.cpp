@@ -56,7 +56,7 @@ public:
     RiaCellResultsStateHandler(bool clientStreamer = false)
         : m_request(nullptr)
         , m_eclipseCase(nullptr)
-        , m_nrOfValuesReceived(0u)
+        , m_streamedValueCount(0u)
         , m_cellCount(0u)
         , m_clientStreamer(clientStreamer)
     {
@@ -73,9 +73,9 @@ public:
 	//--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    size_t nrOfValuesReceived() const
+    size_t streamedValueCount() const
     {
-        return m_nrOfValuesReceived;
+        return m_streamedValueCount;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -150,9 +150,9 @@ public:
         const size_t packageSize  = RiaGrpcServiceInterface::numberOfMessagesForByteCount(sizeof(rips::PropertyChunk));
         size_t       packageIndex = 0u;
         reply->mutable_values()->Reserve((int)packageSize);
-        for (; packageIndex < packageSize && m_nrOfValuesReceived < m_cellCount; ++packageIndex, ++m_nrOfValuesReceived)
+        for (; packageIndex < packageSize && m_streamedValueCount < m_cellCount; ++packageIndex, ++m_streamedValueCount)
         {
-            reply->add_values(cellResult(m_nrOfValuesReceived));
+            reply->add_values(cellResult(m_streamedValueCount));
         }
         if (packageIndex > 0u)
         {
@@ -167,25 +167,24 @@ public:
     //--------------------------------------------------------------------------------------------------
     Status receiveStreamRequest(const PropertyInputChunk* request, ClientToServerStreamReply* reply)
     {
-        CAF_ASSERT(!request->has_params());
         if (request->has_values())
         {
             auto values = request->values().values();
 			if (!values.empty())
 			{
-                size_t currentCellIdx = m_nrOfValuesReceived; 
-				m_nrOfValuesReceived  += values.size();
+                size_t currentCellIdx = m_streamedValueCount; 
+				m_streamedValueCount  += values.size();
 				
 				for (int i = 0; i < values.size() && currentCellIdx < m_cellCount; ++i, ++currentCellIdx)
 				{
 					setCellResult(currentCellIdx, values[i]);
 				}
 
-				if (m_nrOfValuesReceived > m_cellCount)
+				if (m_streamedValueCount > m_cellCount)
 				{
 					return grpc::Status(grpc::OUT_OF_RANGE, "Attempting to write out of bounds");
 				}
-                reply->set_values_accepted(static_cast<int64_t>(currentCellIdx));
+                reply->set_accepted_value_count(static_cast<int64_t>(currentCellIdx));
 				return Status::OK;
 			}
         }
@@ -224,7 +223,7 @@ protected:
 protected:
     const rips::PropertyRequest* m_request;
     RimEclipseCase*              m_eclipseCase;
-    size_t                       m_nrOfValuesReceived;
+    size_t                       m_streamedValueCount;
     size_t                       m_cellCount;
     bool                         m_clientStreamer;
     RigEclipseResultAddress      m_resultAddress;

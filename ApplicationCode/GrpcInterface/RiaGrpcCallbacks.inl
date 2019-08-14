@@ -341,8 +341,8 @@ void RiaGrpcClientToServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandle
     }
     else
     {
-        CAF_ASSERT(m_stateHandler->nrOfValuesReceived() <= m_stateHandler->cellCount());
-		if (m_stateHandler->nrOfValuesReceived() == m_stateHandler->cellCount())
+        CAF_ASSERT(m_stateHandler->streamedValueCount() <= m_stateHandler->cellCount());
+		if (m_stateHandler->streamedValueCount() == m_stateHandler->cellCount())
         {
             this->setNextCallState(RiaGrpcCallbackInterface::FINISH_REQUEST);
             m_reader.Finish(this->m_reply, grpc::Status::OK, this);

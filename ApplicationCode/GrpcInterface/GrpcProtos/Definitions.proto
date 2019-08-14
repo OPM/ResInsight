@@ -8,5 +8,5 @@ message Empty
 
 message ClientToServerStreamReply
 {
-	int64 values_accepted = 1;
+	int64 accepted_value_count = 1;
 }
