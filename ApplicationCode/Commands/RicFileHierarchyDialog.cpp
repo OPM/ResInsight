@@ -283,7 +283,7 @@ void RicFileHierarchyDialog::appendToFileList(const QString& fileName)
 {
     QString itemText = fileName;
     itemText.remove(0, rootDir().size());
-    QListWidgetItem* item = new QListWidgetItem(itemText, m_fileList);
+    QListWidgetItem* item = new QListWidgetItem(QDir::toNativeSeparators(itemText), m_fileList);
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
     item->setCheckState(Qt::Checked);
 }
@@ -715,7 +715,7 @@ void RicFileHierarchyDialog::slotDialogOkClicked()
         const QListWidgetItem* item = m_fileList->item(i);
         if ((item->flags() & Qt::ItemIsUserCheckable) != 0 && item->checkState())
         {
-            m_files.push_back(rootDir() + item->text());
+            m_files.push_back(rootDir() + RiaFilePathTools::toInternalSeparator(item->text()));
         }
     }
     accept();
@@ -737,7 +737,7 @@ void RicFileHierarchyDialog::slotDialogCancelClicked()
 void RicFileHierarchyDialog::slotBrowseButtonClicked()
 {
     QString folder = QFileDialog::getExistingDirectory(this, "Select root folder", m_rootDir->text());
-    if(!folder.isEmpty()) m_rootDir->setText(folder);
+    if(!folder.isEmpty()) m_rootDir->setText(QDir::toNativeSeparators(folder));
 }
 
 
