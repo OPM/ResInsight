@@ -71,6 +71,7 @@ public:
     bool showProjectChangedDialog() const;
     QString holoLensExportFolder() const;
     QString dateFormat() const;
+    QString timeFormat() const;
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
@@ -149,4 +150,5 @@ private:
     caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
     caf::PdmField<QString>                 m_holoLensExportFolder;
     caf::PdmField<QString>                 m_dateFormat;
+    caf::PdmField<QString>                 m_timeFormat;
 };

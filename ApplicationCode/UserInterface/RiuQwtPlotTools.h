@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include <qwt_date.h>
+
 class QwtPlot;
 
 class RiuQwtPlotTools
@@ -25,5 +27,6 @@ public:
     static void setCommonPlotBehaviour(QwtPlot* plot);
     static void setDefaultAxes(QwtPlot* plot);
     static void enableDateBasedBottomXAxis(QwtPlot* plot);
-};
 
+    static QString dateTimeFormatForInterval(QwtDate::IntervalType, const QString& dateFormat, const QString& timeFormat);
+};

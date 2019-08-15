@@ -24,6 +24,7 @@
 #include <QString>
 #include <QStringList>
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -61,6 +62,18 @@ class RiaQDateTimeTools
     static const DateTimeSpan TIMESPAN_DECADE;
 
 public:
+	struct ShortenedDateFormat
+	{
+        QString yearMonth;
+        QString year;
+	};
+	struct ShortenedTimeFormat
+	{
+        QString hourMinuteSecond;
+        QString hourMinute;
+        QString hour;
+	};
+
     static const QString TIMESPAN_DAY_NAME;
     static const QString TIMESPAN_WEEK_NAME;
     static const QString TIMESPAN_MONTH_NAME;
@@ -105,11 +118,13 @@ public:
     static QString createTimeFormatStringFromDates(const std::vector<QDateTime>& dates);
     static QString dateFormatString();
 
-    static QStringList supportedDateFormats();
+    static std::map<QString, ShortenedDateFormat> supportedDateFormats();
+    static std::map<QString, ShortenedTimeFormat> supportedTimeFormats();
 
 private:
     static quint64  secondsInDay();
     static quint64  secondsInYear();
+
 };
 
 //==================================================================================================

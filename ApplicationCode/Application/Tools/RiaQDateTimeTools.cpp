@@ -397,24 +397,29 @@ QString RiaQDateTimeTools::dateFormatString()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RiaQDateTimeTools::supportedDateFormats()
+std::map<QString, RiaQDateTimeTools::ShortenedDateFormat> RiaQDateTimeTools::supportedDateFormats()
 {
-    QLocale defaultLocale;
+    std::map<QString, RiaQDateTimeTools::ShortenedDateFormat> dateFormats;
+
+	dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("yyyy-MM-dd", {"yyyy-MM", "yyyy"}));
+    dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("dd.MMM yyyy", {"MMM yyyy", "yyyy"}));
+    dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("MMM dd. yyyy", {"MMM yyyy", "yyyy"}));
+    dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("dd/MM/yyyy", {"MM/yyyy", "yyyy"}));
+    dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("M/d/yyyy", {"M/yyyy", "yyyy"}));
+    dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("d/M/yyyy", {"M/yyyy", "yyyy"}));
+    dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("dd-MM-yyyy", {"MM-yyyy", "yyyy"}));
+
+
+
     QStringList dateFormats;
     dateFormats
-        << defaultLocale.dateFormat(QLocale::ShortFormat)
+        << systemLocale.dateFormat(QLocale::ShortFormat)
         << "yyyy-MM-dd"
         << "dd.MMM yyyy"
-        << "MMM dd. yyyy";
-    if (defaultLocale.dateFormat(QLocale::ShortFormat) != QString("dd/MM/yyyy"))
-    {
-        dateFormats << "dd/MM/yyyy";
-    }
-    if (defaultLocale.dateFormat(QLocale::ShortFormat) != QString("M/d/yyyy"))
-    {
-        dateFormats << "M/d/yyyy";
-    }
-    dateFormats << "d/M/yyyy"
+        << "MMM dd. yyyy"
+        << "dd/MM/yyyy"
+		<< "M/d/yyyy"
+		<< "d/M/yyyy"
         << "dd-MM-yyyy"
         << "dd.MM.yyyy"
         << "MM-dd-yyyy"
@@ -424,5 +429,22 @@ QStringList RiaQDateTimeTools::supportedDateFormats()
         << "MMM yyyy"
         << "MM-yyyy"
         << "yyyy";
+    dateFormats.removeDuplicates();
     return dateFormats;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::maop<QString, RiaQDateTimeTools::ShortenedTimeFormat> RiaQDateTimeTools::supportedTimeFormats()
+{
+    QLocale     systemLocale = QLocale::system();
+    QStringList timeFormats;
+    timeFormats << systemLocale.timeFormat(QLocale::LongFormat)
+				<< "HH:mm:ss.zzz"
+                << "H:mm:ss.zzz"
+                << "hh:mm:ss.zzz AP"
+				<< "h:mm:ss.zzz AP";
+    timeFormats.removeDuplicates();
+    return timeFormats;
 }

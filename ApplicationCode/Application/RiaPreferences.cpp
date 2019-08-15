@@ -171,9 +171,11 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
-    QLocale defaultLocale;
-    CAF_PDM_InitField(&m_dateFormat, "dateFormat", defaultLocale.dateFormat(QLocale::ShortFormat), "Date Format", "", "", "");
+    QLocale systemLocale = QLocale::system();
+    CAF_PDM_InitField(&m_dateFormat, "dateFormat", systemLocale.dateFormat(QLocale::ShortFormat), "Date Format", "", "", "");
+    CAF_PDM_InitField(&m_timeFormat, "timeFormat", systemLocale.timeFormat(QLocale::LongFormat), "Time Format", "", "", "");
     m_dateFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    m_timeFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 
 }
 
@@ -266,6 +268,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup("Other");
         otherGroup->add(&m_dateFormat);
+        otherGroup->add(&m_timeFormat);
         otherGroup->add(&ssihubAddress);
         otherGroup->add(&showLasCurveWithoutTvdWarning);
         otherGroup->add(&holoLensDisableCertificateVerification);        
@@ -367,8 +370,17 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
         for (QString dateFormat : RiaQDateTimeTools::supportedDateFormats())
         {
             QDate exampleDate = QDateTime::currentDateTime().date();
-            QString uiText = QString("%1 (Today is: %2)").arg(dateFormat).arg(exampleDate.toString(dateFormat));
+            QString uiText = QString("%1 (%2)").arg(dateFormat).arg(exampleDate.toString(dateFormat));
             options.push_back(caf::PdmOptionItemInfo(uiText, dateFormat));
+        }
+    }
+    else if (fieldNeedingOptions == &m_timeFormat)
+    {
+        for (QString timeFormat : RiaQDateTimeTools::supportedTimeFormats())
+        {
+            QTime   exampleTime = QDateTime::currentDateTime().time();
+            QString uiText      = QString("%1 (%2)").arg(timeFormat).arg(exampleTime.toString(timeFormat));
+            options.push_back(caf::PdmOptionItemInfo(uiText, timeFormat));
         }
     }
 
