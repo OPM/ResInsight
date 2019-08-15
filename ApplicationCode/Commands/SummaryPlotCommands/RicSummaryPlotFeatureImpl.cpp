@@ -28,6 +28,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RifSummaryReaderInterface.h"
 #include "RimSummaryCase.h"
