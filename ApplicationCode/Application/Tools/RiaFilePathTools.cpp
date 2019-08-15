@@ -112,3 +112,19 @@ std::pair<QString, QString> RiaFilePathTools::toFolderAndFileName(const QString&
         return std::make_pair("", absFN);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaFilePathTools::removeDuplicatePathSeparators(const QString& path)
+{
+    QString correctedPath = path;
+    int len;
+    do
+    {
+        len = correctedPath.size();
+        correctedPath.replace(QString("%1%1").arg(SEPARATOR), SEPARATOR);
+    } while (correctedPath.size() != len);
+
+    return correctedPath;
+}

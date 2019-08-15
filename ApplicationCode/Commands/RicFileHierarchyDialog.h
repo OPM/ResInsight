@@ -55,7 +55,7 @@ public:
 
 private:
     QStringList files() const;
-    QString     rootDir() const;
+    QString     rootDirWithEndSeparator() const;
     QString     pathFilter() const;
     QString     fileNameFilter() const;
     QStringList fileExtensions() const;
