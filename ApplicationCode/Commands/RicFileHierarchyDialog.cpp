@@ -71,7 +71,6 @@ static const QChar SEPARATOR = RiaFilePathTools::SEPARATOR;
 static QStringList  prefixStrings(const QStringList& strings, const QString& prefix);
 static QStringList  trimLeftStrings(const QStringList& strings, const QString& trimText);
 static void         sortStringsByLength(QStringList& strings, bool ascending = true);
-static QString      effectivePathFilter(const QString& enteredPathFilter);
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -216,7 +215,7 @@ QString RicFileHierarchyDialog::rootDir() const
 //--------------------------------------------------------------------------------------------------
 QString RicFileHierarchyDialog::pathFilter() const
 {
-    return RiaFilePathTools::toInternalSeparator(m_pathFilter->text().trimmed());
+    return RiaFilePathTools::toInternalSeparator(m_pathFilter->text().trimmed()).replace(QString("**"), QString("*"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -477,7 +476,7 @@ void RicFileHierarchyDialog::buildDirectoryListRecursiveSimple(const QString& cu
 QStringList RicFileHierarchyDialog::findFilesInDirs(const QStringList& dirs)
 {
     QStringList allFiles;
-    QStringList filters = createNameFilterList(fileNameFilter(), fileExtensions());
+    QStringList filters = createFileNameFilterList();
 
     for (const auto& dir : dirs)
     {
@@ -501,8 +500,11 @@ QStringList RicFileHierarchyDialog::findFilesInDirs(const QStringList& dirs)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RicFileHierarchyDialog::createNameFilterList(const QString &fileNameFilter, const QStringList &fileExtensions)
+QStringList RicFileHierarchyDialog::createFileNameFilterList()
 {
+    QString fileNameFilter = this->fileNameFilter();
+    QStringList fileExtensions = this->fileExtensions();
+
     QStringList nameFilter;
     QString effectiveFileNameFilter = !fileNameFilter.isEmpty() ? fileNameFilter : "*";
 
@@ -536,24 +538,28 @@ bool RicFileHierarchyDialog::pathFilterMatch(const QString& pathFilter, const QS
 //--------------------------------------------------------------------------------------------------
 void RicFileHierarchyDialog::updateEffectiveFilter()
 {
-    QString effFilter = QString("%1/%2/%3%4")
-        .arg(m_rootDir->text())
-        .arg(effectivePathFilter(m_pathFilter->text()))
-        .arg(fileNameFilter())
-        .arg(fileExtensionsText());
+    QString pathFilterText = pathFilter();
+    if (pathFilterText == "*" || pathFilterText.endsWith(QString(SEPARATOR) + "*")) 
+    {
+         pathFilterText.chop(1);
+         pathFilterText = pathFilterText + "...";
+    }
 
-    QString internalFilter(RiaFilePathTools::toInternalSeparator(effFilter));
+    QString effFilterText = QString("%1/%2/%3")
+        .arg(rootDir())
+        .arg(pathFilterText)
+        .arg(createFileNameFilterList().join("|"));
 
     // Remove duplicate separators
     int len;
     do
     {
-        len = internalFilter.size();
-        internalFilter.replace(QString("%1%1").arg(SEPARATOR), SEPARATOR);
-    } while (internalFilter.size() != len);
+        len = effFilterText.size();
+        effFilterText.replace(QString("%1%1").arg(SEPARATOR), SEPARATOR);
+    } while (effFilterText.size() != len);
 
     // Present native separators to the user
-    m_effectiveFilter->setText(QDir::toNativeSeparators(internalFilter));
+    m_effectiveFilter->setText(QDir::toNativeSeparators(effFilterText));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -809,13 +815,5 @@ void sortStringsByLength(QStringList& strings, bool ascending /*= true*/)
     } while (swapped);
 
 
-}
-
-QString effectivePathFilter(const QString& enteredPathFilter)
-{
-    QString p = RiaFilePathTools::toInternalSeparator(enteredPathFilter);
-
-    if (p == "*" || p.endsWith(QString(SEPARATOR) + "*")) return p + "*";
-    else                                                  return p;
 }
 

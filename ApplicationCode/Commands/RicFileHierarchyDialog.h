@@ -77,8 +77,7 @@ private:
 
     QStringList findFilesInDirs(const QStringList& dirs);
 
-    QStringList createNameFilterList(const QString& fileNameFilter,
-                                     const QStringList& fileExtensions);
+    QStringList createFileNameFilterList();
 
     bool        pathFilterMatch(const QString& pathFilter, const QString& relPath);
 
