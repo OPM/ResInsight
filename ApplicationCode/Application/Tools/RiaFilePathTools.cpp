@@ -20,6 +20,7 @@
 
 #include "RiaFilePathTools.h"
 #include <QDir>
+#include <set>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -127,4 +128,37 @@ QString RiaFilePathTools::removeDuplicatePathSeparators(const QString& path)
     } while (correctedPath.size() != len);
 
     return correctedPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaFilePathTools::rootSearchPathFromSearchFilter(const QString& searchFilter)
+{
+    std::set<QChar> globStartCharacters = {'*', '?', '['}; // ']' not needed
+
+    QStringList pathPartList = searchFilter.split(SEPARATOR);
+
+    QStringList::iterator pathPartIt= pathPartList.begin();
+
+    for ( ; pathPartIt != pathPartList.end(); ++pathPartIt)
+    {
+        QString pathPart = *pathPartIt;
+
+        // Remove allowed escaping of wildcards
+
+        pathPart.replace("[[]", "");
+        pathPart.replace("[]]", "");
+        pathPart.replace("[?]", "");
+        pathPart.replace("[*]", "");
+
+        if (pathPart.contains("*")) break;
+        if (pathPart.contains("?")) break;
+        if (pathPart.contains("[")) break;
+
+    }
+
+    pathPartList.erase(pathPartIt, pathPartList.end());
+
+    return pathPartList.join(SEPARATOR);
 }
