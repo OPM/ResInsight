@@ -799,7 +799,7 @@ QString RimSummaryCurve::curveExportDescription(const RifEclipseSummaryAddress& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::forceUpdateCurveAppearanceFromCaseType()
+void RimSummaryCurve::setCurveAppearanceFromCaseType()
 {
     if (m_yValuesSummaryCase)
     {
@@ -811,11 +811,8 @@ void RimSummaryCurve::forceUpdateCurveAppearanceFromCaseType()
             {
                 setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
             }
-        }
-        else
-        {
-            setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
-            setSymbol(RiuQwtSymbol::SYMBOL_NONE);
+
+            return;
         }
     }
 }

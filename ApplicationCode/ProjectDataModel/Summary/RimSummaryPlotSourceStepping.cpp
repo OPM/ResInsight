@@ -402,9 +402,8 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
                 {
                     if (previousCase == curve->summaryCaseY())
                     {
-                        bool doSetAppearance = curve->summaryCaseY()->isObservedData() != m_summaryCase->isObservedData();
                         curve->setSummaryCaseY(m_summaryCase);
-                        if (doSetAppearance) curve->forceUpdateCurveAppearanceFromCaseType();
+                        curve->setCurveAppearanceFromCaseType();
                     }
                 }
 
