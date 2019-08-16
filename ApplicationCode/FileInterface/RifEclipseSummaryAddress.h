@@ -150,6 +150,7 @@ public:
 
     SummaryVarCategory  category() const            { return m_variableCategory; }
     const std::string&  quantityName() const        { return m_quantityName; }
+    bool                isHistoryQuantity() const;
 
     int                 regionNumber() const        { return m_regionNumber; }
     int                 regionNumber2() const       { return m_regionNumber2; }
