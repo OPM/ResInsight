@@ -371,9 +371,11 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
     {
         for (auto dateFormat : RiaQDateTimeTools::supportedDateFormats())
         {
-            QDate exampleDate      = QDateTime::currentDateTime().date();
-			QString fullDateFormat = RiaQDateTimeTools::dateFormatString(dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
+            QDate   exampleDate = QDate(2019, 8, 16);
+            QString fullDateFormat =
+                RiaQDateTimeTools::dateFormatString(dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
             QString uiText = QString("%1 (%2)").arg(fullDateFormat).arg(exampleDate.toString(fullDateFormat));
+            uiText.replace("AP", "AM/PM");
             options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(dateFormat)));
         }
     }
@@ -381,9 +383,11 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
     {
         for (auto timeFormat : RiaQDateTimeTools::supportedTimeFormats())
         {
-            QTime   exampleTime      = QDateTime::currentDateTime().time();
-            QString timeFormatString = RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND);
-            QString uiText      = QString("%1 (%2)").arg(timeFormatString).arg(exampleTime.toString(timeFormatString));
+            QTime   exampleTime = QTime(15, 48, 22);
+            QString timeFormatString =
+                RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND);
+            QString uiText = QString("%1 (%2)").arg(timeFormatString).arg(exampleTime.toString(timeFormatString));
+            uiText.replace("AP", "AM/PM");
             options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(timeFormat)));
         }
     }

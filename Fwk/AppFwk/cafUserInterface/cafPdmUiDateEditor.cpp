@@ -88,6 +88,7 @@ void PdmUiDateEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     m_dateEdit->setDate(uiField()->uiValue().toDate());
+	m_dateEdit->setTime(uiField()->uiValue().toTime());
 }
 
 
@@ -96,7 +97,7 @@ void PdmUiDateEditor::configureAndUpdateUi(const QString& uiConfigName)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiDateEditor::createEditorWidget(QWidget* parent)
 {
-    m_dateEdit = new QDateEdit(parent);
+    m_dateEdit = new QDateTimeEdit(parent);
     m_dateEdit->setCalendarPopup(true);
     connect(m_dateEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
     return m_dateEdit;
@@ -116,7 +117,7 @@ QWidget* PdmUiDateEditor::createLabelWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiDateEditor::slotEditingFinished()
 {
-    this->setValueToField(m_dateEdit->date());
+    this->setValueToField(m_dateEdit->dateTime());
 }
 
 } // end namespace caf

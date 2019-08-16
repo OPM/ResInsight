@@ -85,26 +85,41 @@ public:
 
     bool isActive() const;
 
+	QDateTime visibleDateTimeMin() const;
+    QDateTime visibleDateTimeMax() const;
+
+	void setVisibleDateTimeMin(const QDateTime& dateTime);
+    void setVisibleDateTimeMax(const QDateTime& dateTime);
+
 protected:
     void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     caf::PdmFieldHandle*            objectToggleField() override;
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            initAfterRead() override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                          QString                    uiConfigName,
+                                                          caf::PdmUiEditorAttribute* attribute) override;
 
     double                                  fromDateToDisplayTime(const QDateTime& displayTime);
     QDateTime                               fromDisplayTimeToDate(double displayTime);
     void                                    updateTimeVisibleRange();
     void                                    updateDateVisibleRange();
 
+
+
 private:
     caf::PdmField< caf::AppEnum< TimeModeType > > m_timeMode;
     caf::PdmField< caf::AppEnum< TimeUnitType > > m_timeUnit;
 
     caf::PdmField<bool>                     m_isActive;
-    caf::PdmField<QDateTime>                m_visibleDateRangeMin;
-    caf::PdmField<QDateTime>                m_visibleDateRangeMax;
-    caf::PdmField<double>                   m_visibleTimeRangeMin;
-    caf::PdmField<double>                   m_visibleTimeRangeMax;
+    caf::PdmField<QDate>                    m_visibleDateRangeMin;
+    caf::PdmField<QDate>                    m_visibleDateRangeMax;
+    caf::PdmField<QTime>                    m_visibleTimeRangeMin;
+    caf::PdmField<QTime>                    m_visibleTimeRangeMax;
+
+    caf::PdmField<double>                   m_visibleTimeSinceStartRangeMin;
+    caf::PdmField<double>                   m_visibleTimeSinceStartRangeMax;
     caf::PdmField<bool>                     m_isAutoZoom;
 
     caf::PdmField<int>                                 m_titleFontSize;
@@ -112,4 +127,7 @@ private:
     caf::PdmField<int>                                 m_valuesFontSize;
     caf::PdmField<QString>                             m_dateFormat;
     caf::PdmField<QString>                             m_timeFormat;
+
+	caf::PdmField<QDateTime> m_visibleDateTimeRangeMin_OBSOLETE;
+    caf::PdmField<QDateTime> m_visibleDateTimeRangeMax_OBSOLETE;
 };
