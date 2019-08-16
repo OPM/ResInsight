@@ -44,7 +44,16 @@ namespace caf
         addItem(RiaPreferences::NOT_IMPORT, "NOT_IMPORT", "Skip");
         setDefault(RiaPreferences::IMPORT);
     }
-}
+    
+    template<>
+    void RiaPreferences::SummaryHistoryCurveStyleModeType::setUp()
+    {
+        addItem(RiaPreferences::SYMBOLS, "SYMBOLS", "Symbols");
+        addItem(RiaPreferences::LINES, "LINES", "Lines");
+        addItem(RiaPreferences::SYMBOLS_AND_LINES, "SYMBOLS_AND_LINES", "Symbols and Lines");
+        setDefault(RiaPreferences::SYMBOLS);
+    }
+    }
 
 
 CAF_PDM_SOURCE_INIT(RiaPreferences, "RiaPreferences");
@@ -141,6 +150,7 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&gridImportMode, "gridImportMode", SummaryRestartFilesImportModeType(RiaPreferences::NOT_IMPORT), "Default Grid Import Option", "", "", "");
     CAF_PDM_InitField(&summaryEnsembleImportMode, "summaryEnsembleImportMode", SummaryRestartFilesImportModeType(RiaPreferences::IMPORT), "Default Ensemble Summary Import Option", "", "", "");
 
+    CAF_PDM_InitField(&defaultSummaryHistoryCurveStyle, "defaultSummaryHistoryCurveStyle", SummaryHistoryCurveStyleModeType(RiaPreferences::SYMBOLS), "Default Curve Style for History Vectors", "", "", "");
     CAF_PDM_InitField(&defaultSummaryCurvesTextFilter, "defaultSummaryCurvesTextFilter", QString("FOPT"), "Default Summary Curves", "", "Semicolon separated list of filters used to create curves in new summary plots", "");
 
     CAF_PDM_InitFieldNoDefault(&m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder", "", "", "");
@@ -276,11 +286,11 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
             caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup("Origin Ensemble Summary Files");
             group->add(&summaryEnsembleImportMode);
         }
-
-        {
-            caf::PdmUiGroup* summaryPlotsGroup = uiOrdering.addNewGroup("Summary Plots");
-            summaryPlotsGroup->add(&defaultSummaryCurvesTextFilter);
-        }
+    }
+    else if (uiConfigName == RiaPreferences::tabNameEclipseSummary())
+    {
+        uiOrdering.add(&defaultSummaryCurvesTextFilter);
+        uiOrdering.add(&defaultSummaryHistoryCurveStyle);
     }
     else if (uiConfigName == RiaPreferences::tabNameScripting())
     {

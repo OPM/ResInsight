@@ -48,6 +48,14 @@ public:
     typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
     typedef RiaFontCache::FontSizeType FontSizeType;
 
+    enum SummaryHistoryCurveStyleMode
+    {
+        SYMBOLS,
+        LINES,
+        SYMBOLS_AND_LINES
+    };
+    typedef caf::AppEnum<SummaryHistoryCurveStyleMode> SummaryHistoryCurveStyleModeType;
+
     RiaPreferences(void);
     ~RiaPreferences(void) override;
 
@@ -110,7 +118,8 @@ public: // Pdm Fields
     caf::PdmField<SummaryRestartFilesImportModeType>    gridImportMode;
     caf::PdmField<SummaryRestartFilesImportModeType>    summaryEnsembleImportMode;
 
-    caf::PdmField<QString>  defaultSummaryCurvesTextFilter;
+    caf::PdmField<QString>                          defaultSummaryCurvesTextFilter;
+    caf::PdmField<SummaryHistoryCurveStyleModeType> defaultSummaryHistoryCurveStyle;
 
     caf::PdmField<bool>     holoLensDisableCertificateVerification;
     caf::PdmField<QString>  csvTextExportFieldSeparator;

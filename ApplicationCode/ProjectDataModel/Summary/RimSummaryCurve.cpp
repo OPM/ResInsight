@@ -18,12 +18,12 @@
 
 #include "RimSummaryCurve.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaDefines.h"
+#include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
+#include "RiaTimeHistoryCurveMerger.h"
 
 #include "RifReaderEclipseSummary.h"
-
-#include "RiaTimeHistoryCurveMerger.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSet.h"
@@ -806,14 +806,33 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
         if (m_yValuesSummaryCase->isObservedData())
         {
             setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
-
-            if (symbol() == RiuQwtSymbol::SYMBOL_NONE)
-            {
-                setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
-            }
+            setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
 
             return;
         }
+    }
+
+    if (m_yValuesCurveVariable && m_yValuesCurveVariable->address().isHistoryQuantity())
+    {
+        RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
+        if (prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SYMBOLS)
+        {
+            setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
+            setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
+        }
+        else if (prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SYMBOLS_AND_LINES)
+        {
+            setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
+            setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
+        }
+        else if (prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::LINES)
+        {
+            setSymbol(RiuQwtSymbol::SYMBOL_NONE);
+            setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
+        }
+
+        return;
     }
 }
 
