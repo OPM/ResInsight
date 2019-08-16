@@ -157,15 +157,6 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
-
-    m_tabNames << "General";
-    m_tabNames << "Eclipse";
-    m_tabNames << "Scripting";
-    m_tabNames << "Export";
-    if (RiaApplication::enableDevelopmentFeatures())
-    {
-        m_tabNames << "System";
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,7 +224,7 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
 {
-    if (uiConfigName == m_tabNames[0])
+    if (uiConfigName == RiaPreferences::tabNameGeneral())
     {
         caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup("Default Colors");
         colorGroup->add(&defaultViewerBackgroundColor);
@@ -260,7 +251,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         otherGroup->add(&showLasCurveWithoutTvdWarning);
         otherGroup->add(&holoLensDisableCertificateVerification);
     }
-    else if (uiConfigName == m_tabNames[1])
+    else if (uiConfigName == RiaPreferences::tabNameEclipse())
     {
         caf::PdmUiGroup* newCaseBehaviourGroup = uiOrdering.addNewGroup("Behavior When Loading Data");
         newCaseBehaviourGroup->add(&autocomputeDepthRelatedProperties);
@@ -291,7 +282,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
             summaryPlotsGroup->add(&defaultSummaryCurvesTextFilter);
         }
     }
-    else if (uiConfigName == m_tabNames[2])
+    else if (uiConfigName == RiaPreferences::tabNameScripting())
     {
         caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup("Octave");
         octaveGroup->add(&octaveExecutable);
@@ -307,11 +298,11 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         scriptGroup->add(&scriptDirectories);
         scriptGroup->add(&scriptEditorExecutable);
     }
-    else if (uiConfigName == m_tabNames[3])
+    else if (uiConfigName == RiaPreferences::tabNameExport())
     {
         uiOrdering.add(&csvTextExportFieldSeparator);
     }
-    else if (RiaApplication::enableDevelopmentFeatures() && uiConfigName == m_tabNames[4])
+    else if (RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem())
     {
         uiOrdering.add(&m_appendClassNameToUiText);
         uiOrdering.add(&m_appendFieldKeywordToToolTipText);
@@ -370,11 +361,72 @@ void RiaPreferences::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameGeneral()
+{
+    return "General";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameEclipse()
+{
+    return "Eclipse";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameEclipseSummary() 
+{
+    return "Summary";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameScripting()
+{
+    return "Scripting";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameExport()
+{
+    return "Export";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameSystem()
+{
+    return "System";
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QStringList RiaPreferences::tabNames()
 {
-    return m_tabNames;
+    QStringList names;
+
+    names << tabNameGeneral();
+    names << tabNameEclipse();
+    names << tabNameEclipseSummary();
+    names << tabNameScripting();
+    names << tabNameExport();
+
+    if (RiaApplication::enableDevelopmentFeatures())
+    {
+        names << tabNameSystem();
+    }
+
+    return names;
 }
 
 //--------------------------------------------------------------------------------------------------

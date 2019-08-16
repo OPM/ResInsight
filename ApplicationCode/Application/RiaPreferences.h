@@ -122,6 +122,14 @@ protected:
     void                            initAfterRead() override;
 
 private:
+    static QString tabNameGeneral();
+    static QString tabNameEclipse();
+    static QString tabNameEclipseSummary();
+    static QString tabNameScripting();
+    static QString tabNameExport();
+    static QString tabNameSystem();
+
+private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
     caf::PdmField<bool>                    m_appendClassNameToUiText;
     caf::PdmField<bool>                    m_appendFieldKeywordToToolTipText;
@@ -131,6 +139,4 @@ private:
     caf::PdmField<bool>                    m_showTestToolbar;
     caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
     caf::PdmField<QString>                 m_holoLensExportFolder;
-    QStringList                            m_tabNames;
-
 };
