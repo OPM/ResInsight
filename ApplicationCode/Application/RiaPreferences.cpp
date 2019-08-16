@@ -171,11 +171,13 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
-    QLocale systemLocale = QLocale::system();
-    CAF_PDM_InitField(&m_dateFormat, "dateFormat", systemLocale.dateFormat(QLocale::ShortFormat), "Date Format", "", "", "");
-    CAF_PDM_InitField(&m_timeFormat, "timeFormat", systemLocale.timeFormat(QLocale::LongFormat), "Time Format", "", "", "");
-    m_dateFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+	CAF_PDM_InitFieldNoDefault(&m_dateFormat, "dateFormat", "Date Format", "", "", "");
+	m_dateFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    m_dateFormat = RiaQDateTimeTools::supportedDateFormats().front();
+
+    CAF_PDM_InitFieldNoDefault(&m_timeFormat, "timeFormat", "Time Format", "", "", "");    
     m_timeFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    m_timeFormat = RiaQDateTimeTools::supportedTimeFormats().front();
 
 }
 
@@ -367,20 +369,22 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_dateFormat)
     {
-        for (QString dateFormat : RiaQDateTimeTools::supportedDateFormats())
+        for (auto dateFormat : RiaQDateTimeTools::supportedDateFormats())
         {
-            QDate exampleDate = QDateTime::currentDateTime().date();
-            QString uiText = QString("%1 (%2)").arg(dateFormat).arg(exampleDate.toString(dateFormat));
-            options.push_back(caf::PdmOptionItemInfo(uiText, dateFormat));
+            QDate exampleDate      = QDateTime::currentDateTime().date();
+			QString fullDateFormat = RiaQDateTimeTools::dateFormatString(dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
+            QString uiText = QString("%1 (%2)").arg(fullDateFormat).arg(exampleDate.toString(fullDateFormat));
+            options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(dateFormat)));
         }
     }
     else if (fieldNeedingOptions == &m_timeFormat)
     {
-        for (QString timeFormat : RiaQDateTimeTools::supportedTimeFormats())
+        for (auto timeFormat : RiaQDateTimeTools::supportedTimeFormats())
         {
-            QTime   exampleTime = QDateTime::currentDateTime().time();
-            QString uiText      = QString("%1 (%2)").arg(timeFormat).arg(exampleTime.toString(timeFormat));
-            options.push_back(caf::PdmOptionItemInfo(uiText, timeFormat));
+            QTime   exampleTime      = QDateTime::currentDateTime().time();
+            QString timeFormatString = RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND);
+            QString uiText      = QString("%1 (%2)").arg(timeFormatString).arg(exampleTime.toString(timeFormatString));
+            options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(timeFormat)));
         }
     }
 
@@ -533,9 +537,17 @@ QString RiaPreferences::holoLensExportFolder() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::dateFormat() const
+const QString& RiaPreferences::dateFormat() const
 {
     return m_dateFormat();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RiaPreferences::timeFormat() const
+{
+    return m_timeFormat();
 }
 
 //--------------------------------------------------------------------------------------------------

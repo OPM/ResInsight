@@ -25,7 +25,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
-
+#include "RiaQDateTimeTools.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -70,8 +70,9 @@ public:
     bool includeFractureDebugInfoFile() const;
     bool showProjectChangedDialog() const;
     QString holoLensExportFolder() const;
-    QString dateFormat() const;
-    QString timeFormat() const;
+
+    const QString& dateFormat() const;
+    const QString& timeFormat() const;
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
@@ -151,4 +152,5 @@ private:
     caf::PdmField<QString>                 m_holoLensExportFolder;
     caf::PdmField<QString>                 m_dateFormat;
     caf::PdmField<QString>                 m_timeFormat;
+    QStringList                            m_tabNames;
 };

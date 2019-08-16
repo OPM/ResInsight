@@ -23,6 +23,8 @@
 
 #include <QString>
 #include <QStringList>
+#include <QTextStream>
+#include <QVariant>
 
 #include <map>
 #include <string>
@@ -62,17 +64,24 @@ class RiaQDateTimeTools
     static const DateTimeSpan TIMESPAN_DECADE;
 
 public:
-	struct ShortenedDateFormat
-	{
-        QString yearMonth;
-        QString year;
+    enum DateFormatComponents
+    {
+		DATE_FORMAT_NONE = -1,
+        DATE_FORMAT_YEAR = 0,
+        DATE_FORMAT_YEAR_MONTH,
+		DATE_FORMAT_YEAR_MONTH_DAY,
+		DATE_FORMAT_SIZE
 	};
-	struct ShortenedTimeFormat
-	{
-        QString hourMinuteSecond;
-        QString hourMinute;
-        QString hour;
-	};
+
+    enum TimeFormatComponents
+    {
+		TIME_FORMAT_NONE = -1,
+        TIME_FORMAT_HOUR,
+        TIME_FORMAT_HOUR_MINUTE,
+        TIME_FORMAT_HOUR_MINUTE_SECOND,
+		TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND,			
+		TIME_FORMAT_SIZE
+    };
 
     static const QString TIMESPAN_DAY_NAME;
     static const QString TIMESPAN_WEEK_NAME;
@@ -118,8 +127,12 @@ public:
     static QString createTimeFormatStringFromDates(const std::vector<QDateTime>& dates);
     static QString dateFormatString();
 
-    static std::map<QString, ShortenedDateFormat> supportedDateFormats();
-    static std::map<QString, ShortenedTimeFormat> supportedTimeFormats();
+
+    static std::vector<QString> supportedDateFormats();
+    static std::vector<QString> supportedTimeFormats();
+
+	static QString dateFormatString(const QString& fullDateFormat, DateFormatComponents dateComponents);
+    static QString timeFormatString(const QString& fullTimeFormat, TimeFormatComponents timeComponents);
 
 private:
     static quint64  secondsInDay();

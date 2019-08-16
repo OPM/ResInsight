@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,16 +24,16 @@
 
 #include "RimSummaryPlot.h"
 
+#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 
-#include "qwt_date.h"
 #include "cvfAssert.h"
-
+#include "qwt_date.h"
 
 namespace caf
 {
 template<>
-void caf::AppEnum< RimSummaryTimeAxisProperties::TimeModeType >::setUp()
+void caf::AppEnum<RimSummaryTimeAxisProperties::TimeModeType>::setUp()
 {
     addItem(RimSummaryTimeAxisProperties::DATE, "DATE", "Date");
     addItem(RimSummaryTimeAxisProperties::TIME_FROM_SIMULATION_START, "TIME_FROM_SIMULATION_START", "Time From Simulation Start");
@@ -42,26 +42,23 @@ void caf::AppEnum< RimSummaryTimeAxisProperties::TimeModeType >::setUp()
 }
 
 template<>
-void caf::AppEnum< RimSummaryTimeAxisProperties::TimeUnitType >::setUp()
+void caf::AppEnum<RimSummaryTimeAxisProperties::TimeUnitType>::setUp()
 {
     addItem(RimSummaryTimeAxisProperties::SECONDS, "SECONDS", "Seconds");
     addItem(RimSummaryTimeAxisProperties::MINUTES, "MINUTES", "Minutes");
     addItem(RimSummaryTimeAxisProperties::HOURS, "HOURS", "Hours");
-    addItem(RimSummaryTimeAxisProperties::DAYS,  "DAYS ", "Days");
+    addItem(RimSummaryTimeAxisProperties::DAYS, "DAYS ", "Days");
     addItem(RimSummaryTimeAxisProperties::YEARS, "YEARS", "Years");
 
     setDefault(RimSummaryTimeAxisProperties::YEARS);
 }
 
-}
-
-
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT(RimSummaryTimeAxisProperties, "SummaryTimeAxisProperties");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 {
@@ -95,6 +92,13 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     CAF_PDM_InitField(&m_valuesFontSize, "ValuesFontSize", 10, "Font Size", "", "", "");
     m_valuesFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
 
+    CAF_PDM_InitFieldNoDefault(&m_dateFormat, "DateFormat", "Date Format", "", "", "");
+    m_dateFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    m_dateFormat = RiaApplication::instance()->preferences()->dateFormat();
+
+    CAF_PDM_InitFieldNoDefault(&m_timeFormat, "TimeFormat", "Time Format", "", "", "");
+    m_timeFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    m_timeFormat = RiaApplication::instance()->preferences()->timeFormat();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,33 +142,33 @@ void RimSummaryTimeAxisProperties::setValuesFontSize(int fontSize)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::visibleRangeMin() const
 {
-    if ( m_timeMode() == DATE )
+    if (m_timeMode() == DATE)
         return QwtDate::toDouble(m_visibleDateRangeMin());
     else
         return m_visibleTimeRangeMin();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::visibleRangeMax() const
 {
-    if ( m_timeMode() == DATE )
+    if (m_timeMode() == DATE)
         return QwtDate::toDouble(m_visibleDateRangeMax());
     else
         return m_visibleTimeRangeMax();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::setVisibleRangeMin(double value)
 {
-    if ( m_timeMode() == DATE )
+    if (m_timeMode() == DATE)
     {
         m_visibleDateRangeMin = QwtDate::toDateTime(value);
         m_visibleTimeRangeMin = fromDateToDisplayTime(m_visibleDateRangeMin());
@@ -178,15 +182,14 @@ void RimSummaryTimeAxisProperties::setVisibleRangeMin(double value)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::setVisibleRangeMax(double value)
 {
-    if ( m_timeMode() == DATE )
+    if (m_timeMode() == DATE)
     {
         m_visibleDateRangeMax = QwtDate::toDateTime(value);
         m_visibleTimeRangeMax = fromDateToDisplayTime(m_visibleDateRangeMax());
-
     }
     else
     {
@@ -197,7 +200,7 @@ void RimSummaryTimeAxisProperties::setVisibleRangeMax(double value)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryTimeAxisProperties::isAutoZoom() const
 {
@@ -205,7 +208,7 @@ bool RimSummaryTimeAxisProperties::isAutoZoom() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::setAutoZoom(bool enableAutoZoom)
 {
@@ -213,7 +216,7 @@ void RimSummaryTimeAxisProperties::setAutoZoom(bool enableAutoZoom)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::updateTimeVisibleRange()
 {
@@ -222,7 +225,7 @@ void RimSummaryTimeAxisProperties::updateTimeVisibleRange()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::updateDateVisibleRange()
 {
@@ -231,7 +234,7 @@ void RimSummaryTimeAxisProperties::updateDateVisibleRange()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QDateTime RimSummaryTimeAxisProperties::fromDisplayTimeToDate(double displayTime)
 {
@@ -239,7 +242,7 @@ QDateTime RimSummaryTimeAxisProperties::fromDisplayTimeToDate(double displayTime
     this->firstAncestorOrThisOfType(rimSummaryPlot);
     time_t startOfSimulation = rimSummaryPlot->firstTimeStepOfFirstCurve();
 
-    time_t secsSinceSimulationStart = displayTime/fromTimeTToDisplayUnitScale();
+    time_t    secsSinceSimulationStart = displayTime / fromTimeTToDisplayUnitScale();
     QDateTime date;
     date.setTime_t(startOfSimulation + secsSinceSimulationStart);
 
@@ -247,7 +250,7 @@ QDateTime RimSummaryTimeAxisProperties::fromDisplayTimeToDate(double displayTime
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::fromDateToDisplayTime(const QDateTime& displayTime)
 {
@@ -257,12 +260,11 @@ double RimSummaryTimeAxisProperties::fromDateToDisplayTime(const QDateTime& disp
     this->firstAncestorOrThisOfType(rimSummaryPlot);
     time_t startOfSimulation = rimSummaryPlot->firstTimeStepOfFirstCurve();
 
-    return fromTimeTToDisplayUnitScale()*(secsSinceEpoc - startOfSimulation);
+    return fromTimeTToDisplayUnitScale() * (secsSinceEpoc - startOfSimulation);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryTimeAxisProperties::isActive() const
 {
@@ -270,15 +272,15 @@ bool RimSummaryTimeAxisProperties::isActive() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimSummaryTimeAxisProperties::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimSummaryTimeAxisProperties::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                                  bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if (&m_titleFontSize == fieldNeedingOptions ||
-        &m_valuesFontSize == fieldNeedingOptions)
+    if (&m_titleFontSize == fieldNeedingOptions || &m_valuesFontSize == fieldNeedingOptions)
     {
         std::vector<int> fontSizes;
         fontSizes.push_back(8);
@@ -297,12 +299,33 @@ QList<caf::PdmOptionItemInfo> RimSummaryTimeAxisProperties::calculateValueOption
             options.push_back(caf::PdmOptionItemInfo(text, value));
         }
     }
-
+    else if (fieldNeedingOptions == &m_dateFormat)
+    {
+        for (auto dateFormat : RiaQDateTimeTools::supportedDateFormats())
+        {
+            QDate   exampleDate = QDateTime::currentDateTime().date();
+            QString fullDateFormat =
+                RiaQDateTimeTools::dateFormatString(dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
+            QString uiText = QString("%1 (%2)").arg(fullDateFormat).arg(exampleDate.toString(fullDateFormat));
+            options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(dateFormat)));
+        }
+    }
+    else if (fieldNeedingOptions == &m_timeFormat)
+    {
+        for (auto timeFormat : RiaQDateTimeTools::supportedTimeFormats())
+        {
+            QTime   exampleTime = QDateTime::currentDateTime().time();
+            QString timeFormatString =
+                RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND);
+            QString uiText = QString("%1 (%2)").arg(timeFormatString).arg(exampleTime.toString(timeFormatString));
+            options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(timeFormat)));
+        }
+    }
     return options;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryTimeAxisProperties::objectToggleField()
 {
@@ -326,7 +349,7 @@ void RimSummaryTimeAxisProperties::setTimeMode(TimeModeType val)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
 {
@@ -334,59 +357,75 @@ double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
     switch (m_timeUnit())
     {
         case SECONDS:
-        break;
+            break;
         case MINUTES:
-        scale = 1.0/60.0;
-        break;
+            scale = 1.0 / 60.0;
+            break;
         case HOURS:
-        scale = 1.0/(60.0*60.0);
-        break;
+            scale = 1.0 / (60.0 * 60.0);
+            break;
         case DAYS:
-        scale = 1.0/(60.0*60.0*24.0);
-        break;
+            scale = 1.0 / (60.0 * 60.0 * 24.0);
+            break;
         case YEARS:
-        scale = 1.0/31556952.0;
-        break;
+            scale = 1.0 / 31556952.0;
+            break;
         default:
-        CVF_ASSERT(false);
-        break;
+            CVF_ASSERT(false);
+            break;
     }
 
     return scale;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::fromDaysToDisplayUnitScale()
 {
     double scale = 1.0;
     switch (m_timeUnit())
     {
-    case SECONDS:
-        scale = 60.0 * 60.0 * 24.0;
-        break;
-    case MINUTES:
-        scale = 60.0 * 24.0;
-        break;
-    case HOURS:
-        scale = 24.0;
-        break;
-    case DAYS:
-        break;
-    case YEARS:
-        scale = 1.0/365.2425;
-        break;
-    default:
-        CVF_ASSERT(false);
-        break;
+        case SECONDS:
+            scale = 60.0 * 60.0 * 24.0;
+            break;
+        case MINUTES:
+            scale = 60.0 * 24.0;
+            break;
+        case HOURS:
+            scale = 24.0;
+            break;
+        case DAYS:
+            break;
+        case YEARS:
+            scale = 1.0 / 365.2425;
+            break;
+        default:
+            CVF_ASSERT(false);
+            break;
     }
 
     return scale;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RimSummaryTimeAxisProperties::dateFormat() const
+{
+    return m_dateFormat();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RimSummaryTimeAxisProperties::timeFormat() const
+{
+    return m_timeFormat();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -396,16 +435,18 @@ void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::P
     titleGroup.add(&m_titlePositionEnum);
     titleGroup.add(&m_titleFontSize);
 
-    caf::PdmUiGroup* timeGroup =  uiOrdering.addNewGroup("Time Values");
+    caf::PdmUiGroup* timeGroup = uiOrdering.addNewGroup("Time Values");
     timeGroup->add(&m_timeMode);
     if (m_timeMode() == DATE)
     {
-        timeGroup->add( &m_visibleDateRangeMax);
+        timeGroup->add(&m_visibleDateRangeMax);
         timeGroup->add(&m_visibleDateRangeMin);
+        timeGroup->add(&m_dateFormat);
+        timeGroup->add(&m_timeFormat);
     }
     else
     {
-        timeGroup->add(&m_timeUnit);     
+        timeGroup->add(&m_timeUnit);
         timeGroup->add(&m_visibleTimeRangeMax);
         timeGroup->add(&m_visibleTimeRangeMin);
     }
@@ -415,9 +456,11 @@ void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::P
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimSummaryTimeAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue)
 {
     RimSummaryPlot* rimSummaryPlot = nullptr;
     this->firstAncestorOrThisOfType(rimSummaryPlot);
@@ -460,7 +503,12 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* c
         rimSummaryPlot->loadDataAndUpdate();
         updateDateVisibleRange();
     }
+    else if (changedField == &m_dateFormat || changedField == &m_timeFormat)
+    {
+        updateTimeVisibleRange(); // Use the stored max min dates to update the visible time range to new unit
+        rimSummaryPlot->loadDataAndUpdate();
+        updateDateVisibleRange();
+    }
 
     rimSummaryPlot->updateAxes();
 }
-

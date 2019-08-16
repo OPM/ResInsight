@@ -397,54 +397,69 @@ QString RiaQDateTimeTools::dateFormatString()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, RiaQDateTimeTools::ShortenedDateFormat> RiaQDateTimeTools::supportedDateFormats()
+std::vector<QString> RiaQDateTimeTools::supportedDateFormats()
 {
-    std::map<QString, RiaQDateTimeTools::ShortenedDateFormat> dateFormats;
+    std::vector<QString> dateFormats;
 
-	dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("yyyy-MM-dd", {"yyyy-MM", "yyyy"}));
-    dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("dd.MMM yyyy", {"MMM yyyy", "yyyy"}));
-    dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("MMM dd. yyyy", {"MMM yyyy", "yyyy"}));
-    dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("dd/MM/yyyy", {"MM/yyyy", "yyyy"}));
-    dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("M/d/yyyy", {"M/yyyy", "yyyy"}));
-    dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("d/M/yyyy", {"M/yyyy", "yyyy"}));
-    dateFormats.insert(std::pair<QString, RiaQDateTimeTools::ShortenedDateFormat>("dd-MM-yyyy", {"MM-yyyy", "yyyy"}));
+    dateFormats.push_back("yyyy;yyyy-MM;yyyy-MM-dd");
+    dateFormats.push_back("yyyy;MMM yyyy;dd. MMM yyyy");
+    dateFormats.push_back("yyyy;MMM yyyy;MMM dd. yyyy");
+    dateFormats.push_back("yyyy;MM/yyyy;dd/MM/yyyy");
+    dateFormats.push_back("yyyy;M/yyyy;d/M/yyyy");
+    dateFormats.push_back("yyyy;M/yyyy;M/d/yyyy");
+    dateFormats.push_back("yy;M/yy;d/M/yy");
+    dateFormats.push_back("yy;M/yy;M/d/yy");
+    dateFormats.push_back("yyyy;MM-yyyy;dd-MM-yyyy");
+    dateFormats.push_back("yyyy;MM-yyyy;MM-dd-yyyy");
+    dateFormats.push_back("yy;MM-yy;dd-MM-yy");
+    dateFormats.push_back("yy;MM-yy;MM-dd-yy");
 
-
-
-    QStringList dateFormats;
-    dateFormats
-        << systemLocale.dateFormat(QLocale::ShortFormat)
-        << "yyyy-MM-dd"
-        << "dd.MMM yyyy"
-        << "MMM dd. yyyy"
-        << "dd/MM/yyyy"
-		<< "M/d/yyyy"
-		<< "d/M/yyyy"
-        << "dd-MM-yyyy"
-        << "dd.MM.yyyy"
-        << "MM-dd-yyyy"
-        << "dd-MM-yy"
-        << "MM-dd-yy"
-        << "yyyy-MM"
-        << "MMM yyyy"
-        << "MM-yyyy"
-        << "yyyy";
-    dateFormats.removeDuplicates();
     return dateFormats;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::maop<QString, RiaQDateTimeTools::ShortenedTimeFormat> RiaQDateTimeTools::supportedTimeFormats()
+std::vector<QString> RiaQDateTimeTools::supportedTimeFormats()
 {
-    QLocale     systemLocale = QLocale::system();
-    QStringList timeFormats;
-    timeFormats << systemLocale.timeFormat(QLocale::LongFormat)
-				<< "HH:mm:ss.zzz"
-                << "H:mm:ss.zzz"
-                << "hh:mm:ss.zzz AP"
-				<< "h:mm:ss.zzz AP";
-    timeFormats.removeDuplicates();
+    std::vector<QString> timeFormats;
+
+    timeFormats.push_back("HH;HH:mm;HH:mm:ss;HH:mm:ss.zzz");
+    timeFormats.push_back("H;H:mm;H:mm:ss;H:mm:ss.zzz");
+    timeFormats.push_back("hh AP;hh:mm AP;hh:mm:ss AP;hh:mm:ss.zzz AP");
+	timeFormats.push_back("h AP;h:mm AP;h:mm:ss AP;h:mm:ss.zzz AP");
+
     return timeFormats;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaQDateTimeTools::dateFormatString(const QString& fullDateFormat, DateFormatComponents dateComponents)
+{
+    if (dateComponents == DATE_FORMAT_NONE) return "";
+
+    QStringList allVariants = fullDateFormat.split(";");
+	if (static_cast<int>(dateComponents) < allVariants.size())
+	{
+        return allVariants[dateComponents];
+	}
+    CVF_ASSERT(false && "Date format string is malformed");
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaQDateTimeTools::timeFormatString(const QString& fullTimeFormat, TimeFormatComponents timeComponents)
+{
+    if (timeComponents == TIME_FORMAT_NONE) return "";
+
+    QStringList allVariants = fullTimeFormat.split(";");
+    if (static_cast<int>(timeComponents) < allVariants.size())
+    {
+        return allVariants[timeComponents];
+    }
+    CVF_ASSERT(false && "Time format string is malformed");
+    return "";
 }

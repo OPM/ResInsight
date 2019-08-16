@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "RiaQDateTimeTools.h"
 #include "RimPlotAxisPropertiesInterface.h"
 
 #include "cafPdmObject.h"
@@ -69,6 +70,9 @@ public:
     void                  setTimeMode(TimeModeType val);
     double                fromTimeTToDisplayUnitScale();
     double                fromDaysToDisplayUnitScale();
+    
+	const QString& dateFormat() const;
+    const QString& timeFormat() const;
 
     double visibleRangeMin() const;
     double visibleRangeMax() const;
@@ -106,5 +110,6 @@ private:
     caf::PdmField<int>                                 m_titleFontSize;
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
     caf::PdmField<int>                                 m_valuesFontSize;
-
+    caf::PdmField<QString>                             m_dateFormat;
+    caf::PdmField<QString>                             m_timeFormat;
 };
