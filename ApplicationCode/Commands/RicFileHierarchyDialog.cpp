@@ -90,9 +90,9 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     m_fileExtensionLabel = new QLabel();
     m_effectiveFilterLabel = new QLabel();
     m_effectiveFilter   = new QLabel();
+    m_findOrCancelButton = new QPushButton();
     m_fileListLabel     = new QLabel();
     m_fileList          = new QListWidget();
-    m_findOrCancelButton = new QPushButton();
 
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
@@ -126,6 +126,7 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     m_browseButton->setFixedWidth(25);
     m_findOrCancelButton->setText(FIND_BUTTON_FIND_TEXT);
     m_findOrCancelButton->setFixedWidth(75);
+    m_findOrCancelButton->setDefault(true);
 
     // Define layout
     QVBoxLayout* dialogLayout = new QVBoxLayout();
@@ -624,9 +625,9 @@ void RicFileHierarchyDialog::warningIfInvalidCharacters()
 //--------------------------------------------------------------------------------------------------
 void RicFileHierarchyDialog::slotFilterChanged(const QString& text)
 {
-    clearFileList();
     updateEffectiveFilter();
     warningIfInvalidCharacters();
+    m_findOrCancelButton->setDefault(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -751,6 +752,7 @@ void RicFileHierarchyDialog::slotFindOrCancelButtonClicked()
         }
 
         setOkButtonEnabled(!m_files.isEmpty());
+        m_buttons->button(QDialogButtonBox::Ok)->setDefault(true);
     }
     else
     {
