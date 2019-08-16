@@ -103,26 +103,26 @@ private slots:
 
 private:
     QLabel*                             m_rootDirLabel;
-    QLineEdit*                          m_rootDir;
+    QLineEdit*                          m_rootDirField;
     QPushButton*                        m_browseButton;
 
     QLabel*                             m_pathFilterLabel;
-    QLineEdit*                          m_pathFilter;
+    QLineEdit*                          m_pathFilterField;
 
     QLabel*                             m_fileFilterLabel;
-    QLineEdit*                          m_fileFilter;
-    QLabel*                             m_fileExtensionLabel;
+    QLineEdit*                          m_fileFilterField;
+    //QLabel*                             m_fileExtensionLabel;
 
     QLabel*                             m_effectiveFilterLabel;
-    QLabel*                             m_effectiveFilter;
+    QLabel*                             m_effectiveFilterContentLabel;
 
     QLabel*                             m_fileListLabel;
-    QListWidget*                        m_fileList;
+    QListWidget*                        m_fileListWidget;
 
     QPushButton*                        m_findOrCancelButton;
     QDialogButtonBox*                   m_buttons;
 
-    QStringList                         m_files;
+    QStringList                         m_foundFiles;
     QStringList                         m_fileExtensions;
 
     bool                                m_cancelPressed;
