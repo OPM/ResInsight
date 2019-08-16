@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicFileHierarchyDialog.h"
+#include "RicRecursiveFileSearchDialog.h"
 #include "ExportCommands/RicSnapshotViewToClipboardFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
 #include "ExportCommands/RicSnapshotFilenameGenerator.h"
@@ -76,7 +76,7 @@ static void         sortStringsByLength(QStringList& strings, bool ascending = t
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
+RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog(QWidget* parent)
     : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     // Create widgets
@@ -189,14 +189,14 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicFileHierarchyDialog::~RicFileHierarchyDialog()
+RicRecursiveFileSearchDialog::~RicRecursiveFileSearchDialog()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicFileHierarchyDialogResult RicFileHierarchyDialog::runRecursiveSearchDialog(QWidget *parent /*= 0*/,
+RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSearchDialog(QWidget *parent /*= 0*/,
                                                                               const QString &caption /*= QString()*/,
                                                                               const QString &dir /*= QString()*/,
                                                                               const QString &pathFilter /*= QString()*/,
@@ -204,7 +204,7 @@ RicFileHierarchyDialogResult RicFileHierarchyDialog::runRecursiveSearchDialog(QW
                                                                               const QStringList &fileExtensions /*= QStringList()*/)
 {
     QStringList             files;
-    RicFileHierarchyDialog  dialog(parent);
+    RicRecursiveFileSearchDialog  dialog(parent);
 
     dialog.setWindowTitle(caption);
 
@@ -220,7 +220,7 @@ RicFileHierarchyDialogResult RicFileHierarchyDialog::runRecursiveSearchDialog(QW
     dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
     dialog.exec();
 
-    return RicFileHierarchyDialogResult(dialog.result() == QDialog::Accepted, 
+    return RicRecursiveFileSearchDialogResult(dialog.result() == QDialog::Accepted, 
                                         dialog.files(), 
                                         dialog.rootDirWithEndSeparator(), 
                                         dialog.pathFilter(), 
@@ -230,7 +230,7 @@ RicFileHierarchyDialogResult RicFileHierarchyDialog::runRecursiveSearchDialog(QW
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RicFileHierarchyDialog::files() const
+QStringList RicRecursiveFileSearchDialog::files() const
 {
     return m_foundFiles;
 }
@@ -238,7 +238,7 @@ QStringList RicFileHierarchyDialog::files() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicFileHierarchyDialog::rootDirWithEndSeparator() const
+QString RicRecursiveFileSearchDialog::rootDirWithEndSeparator() const
 {
     QString rootDir = RiaFilePathTools::toInternalSeparator(m_rootDirField->text().trimmed());
     rootDir = RiaFilePathTools::removeDuplicatePathSeparators(rootDir);
@@ -248,7 +248,7 @@ QString RicFileHierarchyDialog::rootDirWithEndSeparator() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicFileHierarchyDialog::pathFilter() const
+QString RicRecursiveFileSearchDialog::pathFilter() const
 {
     QString pathFilter = m_pathFilterField->text().trimmed();
     pathFilter = RiaFilePathTools::toInternalSeparator(pathFilter);
@@ -259,7 +259,7 @@ QString RicFileHierarchyDialog::pathFilter() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicFileHierarchyDialog::fileNameFilter() const
+QString RicRecursiveFileSearchDialog::fileNameFilter() const
 {
     return m_fileFilterField->text().trimmed();
 }
@@ -267,7 +267,7 @@ QString RicFileHierarchyDialog::fileNameFilter() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RicFileHierarchyDialog::fileExtensions() const
+QStringList RicRecursiveFileSearchDialog::fileExtensions() const
 {
     QString extFromFilter = extensionFromFileNameFilter();
     if (!extFromFilter.isEmpty())
@@ -283,7 +283,7 @@ QStringList RicFileHierarchyDialog::fileExtensions() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicFileHierarchyDialog::fileExtensionsText() const
+QString RicRecursiveFileSearchDialog::fileExtensionsText() const
 {
     QString extFromFilter = extensionFromFileNameFilter();
     if (!extFromFilter.isEmpty())   return "";
@@ -293,7 +293,7 @@ QString RicFileHierarchyDialog::fileExtensionsText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicFileHierarchyDialog::extensionFromFileNameFilter() const
+QString RicRecursiveFileSearchDialog::extensionFromFileNameFilter() const
 {
     for (const QString& ext : m_fileExtensions)
     {
@@ -308,7 +308,7 @@ QString RicFileHierarchyDialog::extensionFromFileNameFilter() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicFileHierarchyDialog::cancelPressed() const
+bool RicRecursiveFileSearchDialog::cancelPressed() const
 {
     return m_cancelPressed;
 }
@@ -316,7 +316,7 @@ bool RicFileHierarchyDialog::cancelPressed() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::appendToFileList(const QString& fileName)
+void RicRecursiveFileSearchDialog::appendToFileList(const QString& fileName)
 {
     QString itemText = fileName;
     itemText.remove(0, rootDirWithEndSeparator().size());
@@ -328,7 +328,7 @@ void RicFileHierarchyDialog::appendToFileList(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::clearFileList()
+void RicRecursiveFileSearchDialog::clearFileList()
 {
     m_foundFiles.clear();
     m_fileListWidget->clear();
@@ -339,7 +339,7 @@ void RicFileHierarchyDialog::clearFileList()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::updateStatus(Status status, const QString& extraText)
+void RicRecursiveFileSearchDialog::updateStatus(Status status, const QString& extraText)
 {
     static int progressLoopStep = 0;
     static QTime lastStatusUpdate;
@@ -380,7 +380,7 @@ void RicFileHierarchyDialog::updateStatus(Status status, const QString& extraTex
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RicFileHierarchyDialog::findMatchingFiles()
+QStringList RicRecursiveFileSearchDialog::findMatchingFiles()
 {
     if (m_rootDirField->text().isEmpty()) return QStringList();
 
@@ -409,7 +409,7 @@ QStringList RicFileHierarchyDialog::findMatchingFiles()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RicFileHierarchyDialog::buildDirectoryListRecursive(const QString& currentDir, int level)
+QStringList RicRecursiveFileSearchDialog::buildDirectoryListRecursive(const QString& currentDir, int level)
 {
     QStringList allDirs;
 
@@ -458,7 +458,7 @@ QStringList RicFileHierarchyDialog::buildDirectoryListRecursive(const QString& c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::buildDirectoryListRecursiveSimple(const QString& currentDirFullPathNoEndSeparator,
+void RicRecursiveFileSearchDialog::buildDirectoryListRecursiveSimple(const QString& currentDirFullPathNoEndSeparator,
                                                                const QString& currentPathFilterNoEndSeparator,
                                                                QStringList* accumulatedDirs)
 {
@@ -513,7 +513,7 @@ void RicFileHierarchyDialog::buildDirectoryListRecursiveSimple(const QString& cu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RicFileHierarchyDialog::findFilesInDirs(const QStringList& dirs)
+QStringList RicRecursiveFileSearchDialog::findFilesInDirs(const QStringList& dirs)
 {
     QStringList allFiles;
     QStringList filters = createFileNameFilterList();
@@ -540,7 +540,7 @@ QStringList RicFileHierarchyDialog::findFilesInDirs(const QStringList& dirs)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RicFileHierarchyDialog::createFileNameFilterList()
+QStringList RicRecursiveFileSearchDialog::createFileNameFilterList()
 {
     QString fileNameFilter = this->fileNameFilter();
     QStringList fileExtensions = this->fileExtensions();
@@ -565,7 +565,7 @@ QStringList RicFileHierarchyDialog::createFileNameFilterList()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicFileHierarchyDialog::pathFilterMatch(const QString& pathFilter, const QString& relPath)
+bool RicRecursiveFileSearchDialog::pathFilterMatch(const QString& pathFilter, const QString& relPath)
 {
     QString pattern = pathFilter;
     if (relPath.endsWith(SEPARATOR) && !pathFilter.endsWith(SEPARATOR)) pattern += SEPARATOR;
@@ -576,7 +576,7 @@ bool RicFileHierarchyDialog::pathFilterMatch(const QString& pathFilter, const QS
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::updateEffectiveFilter()
+void RicRecursiveFileSearchDialog::updateEffectiveFilter()
 {
     QString pathFilterText = pathFilter();
     if (pathFilterText == "*" || pathFilterText.endsWith(QString(SEPARATOR) + "*")) 
@@ -599,7 +599,7 @@ void RicFileHierarchyDialog::updateEffectiveFilter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::setOkButtonEnabled(bool enabled)
+void RicRecursiveFileSearchDialog::setOkButtonEnabled(bool enabled)
 {
     m_buttons->button(QDialogButtonBox::Ok)->setEnabled(enabled);
 }
@@ -607,7 +607,7 @@ void RicFileHierarchyDialog::setOkButtonEnabled(bool enabled)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::warningIfInvalidCharacters()
+void RicRecursiveFileSearchDialog::warningIfInvalidCharacters()
 {
     if (m_fileFilterField->text().contains(QRegExp("[\\\\/:]")))
     {
@@ -623,7 +623,7 @@ void RicFileHierarchyDialog::warningIfInvalidCharacters()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::slotFilterChanged(const QString& text)
+void RicRecursiveFileSearchDialog::slotFilterChanged(const QString& text)
 {
     updateEffectiveFilter();
     warningIfInvalidCharacters();
@@ -633,7 +633,7 @@ void RicFileHierarchyDialog::slotFilterChanged(const QString& text)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::slotFileListCustomMenuRequested(const QPoint& point)
+void RicRecursiveFileSearchDialog::slotFileListCustomMenuRequested(const QPoint& point)
 {
     QMenu menu;
     QPoint globalPoint = point;
@@ -663,7 +663,7 @@ void RicFileHierarchyDialog::slotFileListCustomMenuRequested(const QPoint& point
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::slotToggleFileListItems()
+void RicRecursiveFileSearchDialog::slotToggleFileListItems()
 {
     for (auto& item : m_fileListWidget->selectedItems())
     {
@@ -677,7 +677,7 @@ void RicFileHierarchyDialog::slotToggleFileListItems()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::slotTurnOffFileListItems()
+void RicRecursiveFileSearchDialog::slotTurnOffFileListItems()
 {
     for (auto& item : m_fileListWidget->selectedItems())
     {
@@ -691,7 +691,7 @@ void RicFileHierarchyDialog::slotTurnOffFileListItems()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::slotTurnOnFileListItems()
+void RicRecursiveFileSearchDialog::slotTurnOnFileListItems()
 {
     for (auto& item : m_fileListWidget->selectedItems())
     {
@@ -705,7 +705,7 @@ void RicFileHierarchyDialog::slotTurnOnFileListItems()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::slotCopyFileItemText()
+void RicRecursiveFileSearchDialog::slotCopyFileItemText()
 {
     if (m_fileListWidget->currentItem())
     {
@@ -717,7 +717,7 @@ void RicFileHierarchyDialog::slotCopyFileItemText()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::slotFindOrCancelButtonClicked()
+void RicRecursiveFileSearchDialog::slotFindOrCancelButtonClicked()
 {
     if (m_findOrCancelButton->text() == FIND_BUTTON_FIND_TEXT)
     {
@@ -763,7 +763,7 @@ void RicFileHierarchyDialog::slotFindOrCancelButtonClicked()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::slotDialogOkClicked()
+void RicRecursiveFileSearchDialog::slotDialogOkClicked()
 {
     m_foundFiles.clear();
 
@@ -782,7 +782,7 @@ void RicFileHierarchyDialog::slotDialogOkClicked()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::slotDialogCancelClicked()
+void RicRecursiveFileSearchDialog::slotDialogCancelClicked()
 {
     m_foundFiles = QStringList();
     m_cancelPressed = true;
@@ -792,7 +792,7 @@ void RicFileHierarchyDialog::slotDialogCancelClicked()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFileHierarchyDialog::slotBrowseButtonClicked()
+void RicRecursiveFileSearchDialog::slotBrowseButtonClicked()
 {
     QString folder = QFileDialog::getExistingDirectory(this, "Select root folder", m_rootDirField->text());
     if(!folder.isEmpty()) m_rootDirField->setText(QDir::toNativeSeparators(folder));

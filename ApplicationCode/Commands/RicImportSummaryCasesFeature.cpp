@@ -24,7 +24,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
-#include "RicFileHierarchyDialog.h"
+#include "RicRecursiveFileSearchDialog.h"
 
 #include "RifSummaryCaseRestartSelector.h"
 
@@ -242,7 +242,7 @@ QStringList RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialo
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory(pathCacheName);
 
-    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::runRecursiveSearchDialog(
+    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog(
         nullptr, dialogTitle, defaultDir, m_pathFilter, m_fileNameFilter, QStringList(".SMSPEC"));
 
     // Remember filters
