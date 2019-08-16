@@ -152,9 +152,9 @@ QString RimSummaryPlotNameHelper::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotNameHelper::isQuantityInTitle() const
+bool RimSummaryPlotNameHelper::isPlotDisplayingSingleQuantity() const
 {
-    return !m_titleQuantity.empty();
+    return m_analyzer.quantities().size() == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,7 +236,6 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
 {
     clearTitleSubStrings();
 
-    auto quantities     = m_analyzer.quantities();
     auto wellNames      = m_analyzer.wellNames();
     auto wellGroupNames = m_analyzer.wellGroupNames();
     auto regions        = m_analyzer.regionNumbers();
@@ -245,10 +244,7 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
 
     if (categories.size() == 1)
     {
-        if (quantities.size() == 1)
-        {
-            m_titleQuantity = *(quantities.begin());
-        }
+        m_titleQuantity = m_analyzer.quantityNameForTitle();
 
         if (wellNames.size() == 1)
         {

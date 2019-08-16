@@ -49,7 +49,7 @@ public:
 
     QString plotTitle() const;
 
-    bool isQuantityInTitle() const;
+    bool isPlotDisplayingSingleQuantity() const;
     bool isWellNameInTitle() const;
     bool isWellGroupNameInTitle() const;
     bool isRegionInTitle() const;
