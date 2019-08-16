@@ -28,9 +28,10 @@
 
 #include <QPointer>
 
+class RiuQwtPlotZoomer;
+
 class QwtPlotCurve;
 class QwtPlotGrid;
-class QwtPlotZoomer;
 class QwtInterval;
 class QwtPicker;
 class QwtPlotMarker;
@@ -82,8 +83,8 @@ private:
     };
     caf::PdmPointer<RimViewWindow>      m_ownerViewWindow;
 
-    QPointer<QwtPlotZoomer>             m_zoomerLeft;
-    QPointer<QwtPlotZoomer>             m_zoomerRight;
+    QPointer<RiuQwtPlotZoomer>             m_zoomerLeft;
+    QPointer<RiuQwtPlotZoomer>             m_zoomerRight;
 
     std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
     std::map<QwtPlotCurve*, double>      m_originalZValues;

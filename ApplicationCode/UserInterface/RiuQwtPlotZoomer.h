@@ -27,6 +27,14 @@ public:
     {
     }
 
+    bool isActiveAndValid() const
+    {
+        if (!isActive()) return false;
+
+        auto currentSelection = selection();
+        return accept(currentSelection);
+    }
+
 protected:
     QSizeF minZoomSize() const override
     {
