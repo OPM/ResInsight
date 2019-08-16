@@ -110,6 +110,7 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     // Set widget properties
     m_rootDirLabel->setText("Root folder");
     m_pathFilterLabel->setText("Path pattern");
+
     m_fileFilterLabel->setText("File pattern");
     m_effectiveFilterLabel->setText("Effective filter");
     m_effectiveFilter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -155,6 +156,33 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     dialogLayout->addWidget(m_buttons);
 
     setLayout(dialogLayout);
+
+    QString pathFilterHelpText = 
+        "The path filter uses normal wildcard file globbing, like in any unix shell. \n"
+        "\n"
+        "An asterix \"*\" matches any number of any characters, except the path separator.\n"
+        "A question mark \"?\" matches any single character, except the path separator.\n"
+        "\n"
+        "When the filter ends with a single \"*\", however, ResInsight will \n"
+        "search recursively in all subdirectories from that point.\n"
+        "This is indicated by \"...\" in the Effective Filter label below.";
+
+    m_pathFilterLabel->setToolTip(pathFilterHelpText);
+    m_pathFilter->setToolTip(pathFilterHelpText);
+
+    QString fileFilterHelpText = 
+        "The file filter uses normal wildcards, but is not allowed to contain path separators. ";
+
+    m_fileFilterLabel->setToolTip(fileFilterHelpText);
+    m_fileFilter->setToolTip(fileFilterHelpText);
+
+    QString effectiveFilterHelpText = 
+        "This label displays the complete filter that is being applied. \n"
+        "The possible \"...\" indicates a complete recursive directory search.";
+
+    m_effectiveFilterLabel->setToolTip(effectiveFilterHelpText);
+    m_effectiveFilter->setToolTip(effectiveFilterHelpText);
+
 }
 
 //--------------------------------------------------------------------------------------------------
