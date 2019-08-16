@@ -89,10 +89,13 @@ private:
 
 private slots:
     void slotFilterChanged(const QString& text);
+    
     void slotFileListCustomMenuRequested(const QPoint& point);
     void slotToggleFileListItems();
     void slotTurnOffFileListItems();
     void slotTurnOnFileListItems();
+    void slotCopyFileItemText();
+
     void slotFindOrCancelButtonClicked();
     void slotDialogOkClicked();
     void slotDialogCancelClicked();

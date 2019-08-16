@@ -21,7 +21,7 @@
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
 #include "ExportCommands/RicSnapshotFilenameGenerator.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaFilePathTools.h"
 
 #include "RimEclipseView.h"
@@ -45,6 +45,7 @@
 #include <QMenu>
 #include <QTime>
 #include <QToolTip>
+#include <QClipboard>
 
 #include <vector>
 #include <ctime>
@@ -179,7 +180,7 @@ RicFileHierarchyDialogResult RicFileHierarchyDialog::runRecursiveSearchDialog(QW
     dialog.setWindowTitle(caption);
 
     dialog.m_rootDir->setText(QDir::toNativeSeparators(dir));
-    dialog.m_pathFilter->setText(pathFilter);
+    dialog.m_pathFilter->setText(QDir::toNativeSeparators(pathFilter));
     dialog.m_fileFilter->setText(fileNameFilter);
     dialog.m_fileExtensions = trimLeftStrings(fileExtensions, ".");
 
@@ -190,7 +191,11 @@ RicFileHierarchyDialogResult RicFileHierarchyDialog::runRecursiveSearchDialog(QW
     dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
     dialog.exec();
 
-    return RicFileHierarchyDialogResult(dialog.result() == QDialog::Accepted, dialog.files(), dialog.rootDirWithEndSeparator(), dialog.pathFilter(), dialog.fileNameFilter());
+    return RicFileHierarchyDialogResult(dialog.result() == QDialog::Accepted, 
+                                        dialog.files(), 
+                                        dialog.rootDirWithEndSeparator(), 
+                                        dialog.pathFilter(), 
+                                        dialog.fileNameFilter());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -605,6 +610,11 @@ void RicFileHierarchyDialog::slotFileListCustomMenuRequested(const QPoint& point
     QPoint globalPoint = point;
     QAction* action;
 
+    action = new QAction(QIcon(":/Copy.png"), "&Copy", this);
+    connect(action, SIGNAL(triggered()), SLOT(slotCopyFileItemText()));
+    menu.addAction(action);
+    menu.addSeparator();
+
     action = new QAction("On", this);
     connect(action, SIGNAL(triggered()), SLOT(slotTurnOnFileListItems()));
     menu.addAction(action);
@@ -660,6 +670,18 @@ void RicFileHierarchyDialog::slotTurnOnFileListItems()
         {
             item->setCheckState(Qt::Checked);
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicFileHierarchyDialog::slotCopyFileItemText()
+{
+    if (m_fileList->currentItem())
+    {
+        QString relativePathText = m_fileList->currentItem()->text();
+        RiaGuiApplication::instance()->clipboard()->setText(relativePathText);
     }
 }
 
