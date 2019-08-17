@@ -27,7 +27,7 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiLineEditor.h"
-
+#include "cafPdmUiTimeEditor.h"
 #include "cvfAssert.h"
 #include "qwt_date.h"
 
@@ -81,11 +81,11 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     m_visibleDateRangeMin.uiCapability()->setUiEditorTypeName(caf::PdmUiDateEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_visibleTimeRangeMax, "VisibleTimeRangeMax", "MaxTime", "", "", "");
-    m_visibleTimeRangeMax.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+    m_visibleTimeRangeMax.uiCapability()->setUiEditorTypeName(caf::PdmUiTimeEditor::uiEditorTypeName());
     m_visibleTimeRangeMax.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_visibleTimeRangeMin, "VisibleTimeRangeMin", "Min Time", "", "", "");
-    m_visibleTimeRangeMin.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+    m_visibleTimeRangeMin.uiCapability()->setUiEditorTypeName(caf::PdmUiTimeEditor::uiEditorTypeName());
     m_visibleTimeRangeMin.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_visibleTimeSinceStartRangeMax, "VisibleTimeModeRangeMax", "Max", "", "", "");
@@ -621,13 +621,22 @@ void RimSummaryTimeAxisProperties::defineEditorAttribute(const caf::PdmFieldHand
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute)
 {
-    auto dateAttrib = dynamic_cast<caf::PdmUiDateEditorAttribute*>(attribute);
-    if (dateAttrib)
+    if (field == &m_visibleDateRangeMin || field == &m_visibleDateRangeMax)
     {
-        if (field == &m_visibleDateRangeMin || field == &m_visibleDateRangeMax)
+        auto dateAttrib = dynamic_cast<caf::PdmUiDateEditorAttribute*>(attribute);
+        if (dateAttrib)
         {
             dateAttrib->dateFormat =
                 RiaQDateTimeTools::dateFormatString(m_dateFormat(), RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
+        }
+    }
+    else if (field == &m_visibleTimeRangeMin || field == &m_visibleTimeRangeMax)
+    {
+        auto timeAttrib = dynamic_cast<caf::PdmUiTimeEditorAttribute*>(attribute);
+        if (timeAttrib)
+        {
+            timeAttrib->timeFormat =
+                RiaQDateTimeTools::timeFormatString(m_timeFormat(), RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND);
         }
     }
 }

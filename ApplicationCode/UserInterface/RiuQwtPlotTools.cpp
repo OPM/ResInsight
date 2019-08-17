@@ -147,21 +147,21 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval(QwtDate::IntervalType interva
     switch (interval)
     {
         case QwtDate::Millisecond:
-            return RiaQDateTimeTools::timeFormatString(dateFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND);
+            return RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND);
         case QwtDate::Second:
-            return RiaQDateTimeTools::timeFormatString(dateFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND);
+            return RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND);
         case QwtDate::Minute:
-            return RiaQDateTimeTools::timeFormatString(dateFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE);
+            return RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE);
         case QwtDate::Hour:
-		{
+        {
             QString fullFormat = RiaQDateTimeTools::dateFormatString(dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY) +
-                                 RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR);
-			if (!fullFormat.endsWith("AP"))
-			{
+                                 " " + RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR);
+            if (!fullFormat.endsWith("AP"))
+            {
                 fullFormat += ":00";
 			}
             return fullFormat;
-		}
+        }
         case QwtDate::Day:
             return RiaQDateTimeTools::dateFormatString(dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
         case QwtDate::Week:
