@@ -171,14 +171,13 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
-	CAF_PDM_InitFieldNoDefault(&m_dateFormat, "dateFormat", "Date Format", "", "", "");
-	m_dateFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault(&m_dateFormat, "dateFormat", "Date Format", "", "", "");
+    m_dateFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
     m_dateFormat = RiaQDateTimeTools::supportedDateFormats().front();
 
-    CAF_PDM_InitFieldNoDefault(&m_timeFormat, "timeFormat", "Time Format", "", "", "");    
+    CAF_PDM_InitFieldNoDefault(&m_timeFormat, "timeFormat", "Time Format", "", "", "");
     m_timeFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
     m_timeFormat = RiaQDateTimeTools::supportedTimeFormats().front();
-
 }
 
 //--------------------------------------------------------------------------------------------------

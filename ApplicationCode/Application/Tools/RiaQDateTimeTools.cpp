@@ -427,7 +427,7 @@ std::vector<QString> RiaQDateTimeTools::supportedTimeFormats()
     timeFormats.push_back("HH;HH:mm;HH:mm:ss;HH:mm:ss.zzz");
     timeFormats.push_back("H;H:mm;H:mm:ss;H:mm:ss.zzz");
     timeFormats.push_back("hh AP;hh:mm AP;hh:mm:ss AP;hh:mm:ss.zzz AP");
-	timeFormats.push_back("h AP;h:mm AP;h:mm:ss AP;h:mm:ss.zzz AP");
+    timeFormats.push_back("h AP;h:mm AP;h:mm:ss AP;h:mm:ss.zzz AP");
 
     return timeFormats;
 }
