@@ -651,12 +651,31 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
     }
     else if (fieldNeedingOptions == &m_selectedSummaryCategories)
     {
-        for (size_t i = 0; i < caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::size(); ++i)
-        {
-            if (caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::fromIndex(i) == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS) continue;
+        std::vector<RifEclipseSummaryAddress::SummaryVarCategory> sortedCategoriesForUi;
 
-            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiTextFromIndex(i),
-                                                     caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::fromIndex(i)));
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_AQUIFER);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_NETWORK);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_MISC);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION_2_REGION);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_COMPLETION);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_SEGMENT);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_LGR);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK_LGR);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_CALCULATED);
+        sortedCategoriesForUi.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_IMPORTED);
+        // NB SUMMARY_ENSEMBLE_STATISTICS is intentionally excluded
+        //categoriesForUiDisplay.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS);
+
+        for (auto category : sortedCategoriesForUi)
+        {
+            auto uiText = caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText(category);
+            options.push_back(caf::PdmOptionItemInfo(uiText, category));
         }
     }
     else
