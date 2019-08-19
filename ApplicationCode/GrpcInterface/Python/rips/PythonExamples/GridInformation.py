@@ -1,6 +1,11 @@
+######################################################################################
+# This example prints information about the grids of all cases in the current project
+######################################################################################
+
 import rips
 
 resInsight  = rips.Instance.find()
+
 cases = resInsight.project.cases()
 print("Number of cases found: ", len(cases))
 for case in cases:

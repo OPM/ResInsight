@@ -1,3 +1,6 @@
+######################################################################
+# This script sets values for SOIL for all grid cells in the first case in the project
+######################################################################
 import rips
 
 resInsight     = rips.Instance.find()

@@ -1,3 +1,10 @@
+############################################################################
+# This example returns the currently selected cases in ResInsight
+# Because running this script in the GUI takes away the selection
+# This script does not run successfully from within the ResInsight GUI
+# And will need to be run from the command line separately from ResInsight
+############################################################################
+
 import rips
 
 resInsight  = rips.Instance.find()

@@ -1,3 +1,7 @@
+######################################################################
+# This script applies a flow diagnostics cell result to the first view in the project
+######################################################################
+
 # Load ResInsight Processing Server Client Library
 import rips
 # Connect to ResInsight instance
