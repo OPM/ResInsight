@@ -66,21 +66,21 @@ class RiaQDateTimeTools
 public:
     enum DateFormatComponents
     {
-		DATE_FORMAT_NONE = -1,
+        DATE_FORMAT_NONE = -1,
         DATE_FORMAT_YEAR = 0,
         DATE_FORMAT_YEAR_MONTH,
-		DATE_FORMAT_YEAR_MONTH_DAY,
-		DATE_FORMAT_SIZE
-	};
+        DATE_FORMAT_YEAR_MONTH_DAY,
+        DATE_FORMAT_SIZE
+    };
 
     enum TimeFormatComponents
     {
-		TIME_FORMAT_NONE = -1,
+        TIME_FORMAT_NONE = -1,
         TIME_FORMAT_HOUR,
         TIME_FORMAT_HOUR_MINUTE,
         TIME_FORMAT_HOUR_MINUTE_SECOND,
-		TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND,			
-		TIME_FORMAT_SIZE
+        TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND,
+        TIME_FORMAT_SIZE
     };
 
     static const QString TIMESPAN_DAY_NAME;
@@ -127,11 +127,10 @@ public:
     static QString createTimeFormatStringFromDates(const std::vector<QDateTime>& dates);
     static QString dateFormatString();
 
-
     static std::vector<QString> supportedDateFormats();
     static std::vector<QString> supportedTimeFormats();
 
-	static QString dateFormatString(const QString& fullDateFormat, DateFormatComponents dateComponents);
+    static QString dateFormatString(const QString& fullDateFormat, DateFormatComponents dateComponents);
     static QString timeFormatString(const QString& fullTimeFormat, TimeFormatComponents timeComponents);
 
 private:

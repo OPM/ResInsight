@@ -272,7 +272,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         otherGroup->add(&m_timeFormat);
         otherGroup->add(&ssihubAddress);
         otherGroup->add(&showLasCurveWithoutTvdWarning);
-        otherGroup->add(&holoLensDisableCertificateVerification);        
+        otherGroup->add(&holoLensDisableCertificateVerification);
     }
     else if (uiConfigName == RiaPreferences::tabNameEclipse())
     {
