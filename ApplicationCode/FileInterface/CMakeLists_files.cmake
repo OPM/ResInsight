@@ -17,7 +17,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RifKeywordVectorParser.h
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderObservedData.h
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary.h
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseRft.h
-${CMAKE_CURRENT_LIST_DIR}/RifReaderFmuRft.h
 ${CMAKE_CURRENT_LIST_DIR}/RifJsonEncodeDecode.h
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderMockModel.h
@@ -70,7 +69,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RifKeywordVectorParser.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderObservedData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseRft.cpp
-${CMAKE_CURRENT_LIST_DIR}/RifReaderFmuRft.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifJsonEncodeDecode.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderInterface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderMockModel.cpp
