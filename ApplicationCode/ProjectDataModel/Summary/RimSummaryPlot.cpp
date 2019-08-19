@@ -926,7 +926,10 @@ void RimSummaryPlot::updateTimeAxis()
 
     if (m_timeAxisProperties->timeMode() == RimSummaryTimeAxisProperties::DATE)
     {
-        m_qwtPlot->useDateBasedTimeAxis();
+        QString dateFormat = m_timeAxisProperties->dateFormat();        
+        QString timeFormat = m_timeAxisProperties->timeFormat();
+
+        m_qwtPlot->useDateBasedTimeAxis(dateFormat, timeFormat);
     }
     else 
     {

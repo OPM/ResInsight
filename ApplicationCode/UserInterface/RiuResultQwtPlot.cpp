@@ -183,7 +183,10 @@ void RiuResultQwtPlot::setDefaults()
     enableAxis(QwtPlot::xTop, false);
     enableAxis(QwtPlot::yRight, false);
 
-    RiuQwtPlotTools::enableDateBasedBottomXAxis(this);
+    QString dateFormat = RiaApplication::instance()->preferences()->dateFormat();
+    QString timeFormat = RiaApplication::instance()->preferences()->timeFormat();
+
+    RiuQwtPlotTools::enableDateBasedBottomXAxis(this, dateFormat, timeFormat);
     
     setAxisMaxMinor(QwtPlot::xBottom, 2);
     setAxisMaxMinor(QwtPlot::yLeft, 3);
