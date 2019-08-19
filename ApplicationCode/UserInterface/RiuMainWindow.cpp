@@ -1912,14 +1912,6 @@ void RiuMainWindow::slotShowWellCellsAction(bool doAdd)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::setExpanded(const caf::PdmUiItem* uiItem, bool expanded)
-{
-    m_projectTreeView->setExpanded(uiItem, expanded);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::customMenuRequested(const QPoint& pos)
 {
     QMenu menu;

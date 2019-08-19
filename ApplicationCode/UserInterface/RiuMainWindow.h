@@ -105,8 +105,6 @@ public:
 
     void            refreshDrawStyleActions();
     
-    void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
-
     void            tileSubWindows() override;
     void            storeSubWindowTiling(bool tiled) override;
     void            clearWindowTiling() override;
