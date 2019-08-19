@@ -54,16 +54,15 @@ public:
                                                                   const QStringList& fileExtensions = QStringList());
 
 private:
-    QStringList files() const;
+    QString     cleanTextFromPathFilterField() const;
     QString     rootDirWithEndSeparator() const;
-    QString     pathFilter() const;
+    QString     pathFilterWithoutStartSeparator() const;
     QString     fileNameFilter() const;
     QStringList fileExtensions() const;
     QString     fileExtensionsText() const;
     QString     extensionFromFileNameFilter() const;
 
-    bool        cancelPressed() const;
-    void        appendToFileList(const QString& fileName);
+    void        updateFileListWidget();
     void        clearFileList();
     void        updateStatus(Status status, const QString& extraText = "");
 
@@ -102,19 +101,19 @@ private slots:
     void slotBrowseButtonClicked();
 
 private:
-    QLabel*                             m_rootDirLabel;
-    QLineEdit*                          m_rootDirField;
-    QPushButton*                        m_browseButton;
 
     QLabel*                             m_pathFilterLabel;
     QLineEdit*                          m_pathFilterField;
+    QPushButton*                        m_browseButton;
 
     QLabel*                             m_fileFilterLabel;
     QLineEdit*                          m_fileFilterField;
-    //QLabel*                             m_fileExtensionLabel;
 
     QLabel*                             m_effectiveFilterLabel;
     QLabel*                             m_effectiveFilterContentLabel;
+
+    QLabel*                             m_searchRootLabel;
+    QLabel*                             m_searchRootContentLabel;
 
     QLabel*                             m_fileListLabel;
     QListWidget*                        m_fileListWidget;
@@ -125,7 +124,7 @@ private:
     QStringList                         m_foundFiles;
     QStringList                         m_fileExtensions;
 
-    bool                                m_cancelPressed;
+    bool                                m_isCancelPressed;
 };
 
 
