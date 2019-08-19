@@ -70,8 +70,8 @@ public:
     void                  setTimeMode(TimeModeType val);
     double                fromTimeTToDisplayUnitScale();
     double                fromDaysToDisplayUnitScale();
-    
-	const QString& dateFormat() const;
+
+    const QString& dateFormat() const;
     const QString& timeFormat() const;
 
     double visibleRangeMin() const;
@@ -85,7 +85,7 @@ public:
 
     bool isActive() const;
 
-	QDateTime visibleDateTimeMin() const;
+    QDateTime visibleDateTimeMin() const;
     QDateTime visibleDateTimeMax() const;
 
 	void setVisibleDateTimeMin(const QDateTime& dateTime);

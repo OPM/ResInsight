@@ -150,22 +150,20 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval(QwtDate::IntervalType interva
             return RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND);
         case QwtDate::Second:
             return RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND);
-        case QwtDate::Minute:
-		{
+        case QwtDate::Minute: {
             QString fullFormat = RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE);
             fullFormat += "\n";
             fullFormat += RiaQDateTimeTools::dateFormatString(dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
             return fullFormat;
-		}            
-        case QwtDate::Hour:
-		{
+        }
+        case QwtDate::Hour: {
             QString fullFormat = RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR);
             if (!fullFormat.endsWith("AP"))
             {
                 fullFormat += ":00";
-			}
+            }
             fullFormat += "\n";
-			fullFormat += RiaQDateTimeTools::dateFormatString(dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
+            fullFormat += RiaQDateTimeTools::dateFormatString(dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
             return fullFormat;
         }
         case QwtDate::Day:
