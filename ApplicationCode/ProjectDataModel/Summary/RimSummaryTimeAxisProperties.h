@@ -70,8 +70,8 @@ public:
     void                  setTimeMode(TimeModeType val);
     double                fromTimeTToDisplayUnitScale();
     double                fromDaysToDisplayUnitScale();
-    
-	const QString& dateFormat() const;
+
+    const QString& dateFormat() const;
     const QString& timeFormat() const;
 
     double visibleRangeMin() const;
@@ -85,10 +85,10 @@ public:
 
     bool isActive() const;
 
-	QDateTime visibleDateTimeMin() const;
+    QDateTime visibleDateTimeMin() const;
     QDateTime visibleDateTimeMax() const;
 
-	void setVisibleDateTimeMin(const QDateTime& dateTime);
+    void setVisibleDateTimeMin(const QDateTime& dateTime);
     void setVisibleDateTimeMax(const QDateTime& dateTime);
 
 protected:
@@ -128,6 +128,6 @@ private:
     caf::PdmField<QString>                             m_dateFormat;
     caf::PdmField<QString>                             m_timeFormat;
 
-	caf::PdmField<QDateTime> m_visibleDateTimeRangeMin_OBSOLETE;
+    caf::PdmField<QDateTime> m_visibleDateTimeRangeMin_OBSOLETE;
     caf::PdmField<QDateTime> m_visibleDateTimeRangeMax_OBSOLETE;
 };

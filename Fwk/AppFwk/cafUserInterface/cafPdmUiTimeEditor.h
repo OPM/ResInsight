@@ -68,7 +68,7 @@ namespace caf
 	class PdmUiTimeEditor : public PdmUiFieldEditorHandle
 	{
 		Q_OBJECT
-			CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+		CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 	public:
 		PdmUiTimeEditor() {}

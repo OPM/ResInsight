@@ -159,7 +159,7 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval(QwtDate::IntervalType interva
             if (!fullFormat.endsWith("AP"))
             {
                 fullFormat += ":00";
-			}
+            }
             return fullFormat;
         }
         case QwtDate::Day:
