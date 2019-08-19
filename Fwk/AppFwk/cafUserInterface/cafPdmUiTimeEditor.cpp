@@ -97,7 +97,6 @@ namespace caf
 	QWidget* PdmUiTimeEditor::createEditorWidget(QWidget* parent)
 	{
 		m_timeEdit = new QTimeEdit(parent);
-		m_timeEdit->setCalendarPopup(true);
 		connect(m_timeEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
 		return m_timeEdit;
 	}
