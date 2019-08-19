@@ -169,6 +169,7 @@ grpc::Status RiaGrpcPdmObjectService::UpdateExistingPdmObject(grpc::ServerContex
         if (resultDefinition)
         {
             resultDefinition->updateUiFieldsFromActiveResult();
+            resultDefinition->loadResult();
         }
 
         matchingObject->updateAllRequiredEditors();
