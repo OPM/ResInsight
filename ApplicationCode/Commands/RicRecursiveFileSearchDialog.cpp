@@ -44,7 +44,7 @@
 
 #define DEFAULT_DIALOG_FIND_HEIGHT  350
 #define FIND_BUTTON_FIND_TEXT       "Find"
-#define FILES_FOUND_TEXT            "Files found"
+#define FILES_FOUND_TEXT            "Files Found"
 
 //--------------------------------------------------------------------------------------------------
 /// Internal variables
@@ -75,7 +75,6 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog(QWidget* parent)
     m_searchRootLabel               = new QLabel();
     m_searchRootContentLabel        = new QLabel();
     m_findOrCancelButton            = new QPushButton();
-    m_fileListLabel                 = new QLabel();
     m_fileListWidget                = new QListWidget();
 
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -100,9 +99,6 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog(QWidget* parent)
     m_searchRootLabel->setText("Root");
     m_searchRootLabel->setVisible(false);
 
-    m_fileListLabel->setText("Files found");
-    m_fileListLabel->setVisible(false);
-
     m_effectiveFilterContentLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_searchRootContentLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_searchRootContentLabel->setVisible(false);
@@ -111,6 +107,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog(QWidget* parent)
     m_fileListWidget->setVisible(false);
     m_fileListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     m_fileListWidget->setSortingEnabled(true);
+    m_fileListWidget->setMinimumHeight(350);
     
     m_browseButton->setText("...");
     m_browseButton->setFixedWidth(25);
@@ -125,36 +122,36 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog(QWidget* parent)
     QGroupBox* inputGroup = new QGroupBox("Filter");
     QGridLayout* inputGridLayout = new QGridLayout();
     inputGridLayout->addWidget(m_pathFilterLabel, 0, 0);
-    inputGridLayout->addWidget(m_pathFilterField, 0, 1);
-    inputGridLayout->addWidget(m_browseButton, 0, 2);
+    inputGridLayout->addWidget(m_pathFilterField, 0, 1, 1, 2);
+    inputGridLayout->addWidget(m_browseButton, 0, 3);
     inputGridLayout->addWidget(m_fileFilterLabel, 1, 0);
-    inputGridLayout->addWidget(m_fileFilterField, 1, 1);
+    inputGridLayout->addWidget(m_fileFilterField, 1, 1, 1, 2);
+    inputGridLayout->addWidget(m_effectiveFilterLabel, 2, 0);
+    inputGridLayout->addWidget(m_effectiveFilterContentLabel, 2, 1);
+    inputGridLayout->addWidget(m_findOrCancelButton, 2, 2, 1, 2);
 
     inputGroup->setLayout(inputGridLayout);
 
-    QGroupBox* outputGroup = new QGroupBox("Files");
+    m_outputGroup = new QGroupBox("Files Found");
     QGridLayout* outputGridLayout = new QGridLayout();
-    outputGridLayout->addWidget(m_effectiveFilterLabel, 0, 0);
-    outputGridLayout->addWidget(m_effectiveFilterContentLabel, 0, 1);
     outputGridLayout->addWidget(m_searchRootLabel, 1, 0);
     outputGridLayout->addWidget(m_searchRootContentLabel, 1, 1);
 
-    outputGridLayout->addWidget(m_findOrCancelButton, 0, 2);
-    outputGridLayout->addWidget(m_fileListLabel, 2, 0);
-    outputGridLayout->addWidget(m_fileListWidget, 2, 1, 1, 2);
-    outputGroup->setLayout(outputGridLayout);
+    //outputGridLayout->addWidget(m_fileListLabel, 2, 0);
+    outputGridLayout->addWidget(m_fileListWidget, 2, 0, 1, 3);
+    m_outputGroup->setLayout(outputGridLayout);
 
     dialogLayout->addWidget(inputGroup);
-    dialogLayout->addWidget(outputGroup);
+    dialogLayout->addWidget(m_outputGroup);
     dialogLayout->addWidget(m_buttons);
 
     setLayout(dialogLayout);
 
     QString pathFilterHelpText = 
         "The path filter uses normal wildcard file globbing, like in any unix shell. \n"
-        "When the filter ends with a single \"*\", however, ResInsight will \n"
+        "When the filter ends with a single \"*\" (eg. \"/home/*\"), however, ResInsight will \n"
         "search recursively in all subdirectories from that point.\n"
-        "This is indicated by \"...\" in the Effective Filter label below."
+        "This is indicated by \"...\" in the Effective Filter label below.\n"
         "\n"
         "An asterix \"*\" matches any number of any characters, except the path separator.\n"
         "A question mark \"?\" matches any single character, except the path separator.\n"
@@ -214,7 +211,7 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
     dialog.clearFileList();
     dialog.setOkButtonEnabled(false);
 
-    dialog.resize(750, 150);
+    dialog.resize(800, 150);
     dialog.exec();
 
     return RicRecursiveFileSearchDialogResult(dialog.result() == QDialog::Accepted,
@@ -311,8 +308,6 @@ QString RicRecursiveFileSearchDialog::extensionFromFileNameFilter() const
 void RicRecursiveFileSearchDialog::updateFileListWidget()
 {
     m_fileListWidget->clear();
-    m_fileListLabel->setText(FILES_FOUND_TEXT);
-
 
     int rootSearchPathLenght = rootDirWithEndSeparator().size();
 
@@ -333,7 +328,7 @@ void RicRecursiveFileSearchDialog::clearFileList()
 {
     m_foundFiles.clear();
     m_fileListWidget->clear();
-    m_fileListLabel->setText(FILES_FOUND_TEXT);
+    m_outputGroup->setTitle(FILES_FOUND_TEXT);
     setOkButtonEnabled(false);
 }
 
@@ -389,7 +384,7 @@ QStringList RicRecursiveFileSearchDialog::findMatchingFiles()
 
     QString pathFilter = this->pathFilterWithoutStartSeparator();
     QString rootDir = this->rootDirWithEndSeparator();
-    if (rootDir.endsWith(SEPARATOR)) rootDir.chop(1);
+    if (rootDir.size() > 1 && rootDir.endsWith(SEPARATOR)) rootDir.chop(1);
 
     buildDirectoryListRecursiveSimple(rootDir, pathFilter, &dirs);
     
@@ -718,7 +713,6 @@ void RicRecursiveFileSearchDialog::slotFindOrCancelButtonClicked()
 
         if(!m_fileListWidget->isVisible())
         {
-            m_fileListLabel->setVisible(true);
             m_fileListWidget->setVisible(true);
             m_searchRootLabel->setVisible(true);
             m_searchRootContentLabel->setVisible(true);
@@ -744,7 +738,7 @@ void RicRecursiveFileSearchDialog::slotFindOrCancelButtonClicked()
         }
         else
         {
-            m_fileListLabel->setText(QString("%1\n(%2)").arg(FILES_FOUND_TEXT).arg(m_foundFiles.size()));
+            m_outputGroup->setTitle(QString("%1 (%2)").arg(FILES_FOUND_TEXT).arg(m_foundFiles.size()));
         }
 
         setOkButtonEnabled(!m_foundFiles.isEmpty());

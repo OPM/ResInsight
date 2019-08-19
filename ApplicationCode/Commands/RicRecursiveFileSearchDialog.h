@@ -31,6 +31,8 @@ class QDialogButtonBox;
 class QPushButton;
 class QMainWindow;
 class QListWidget;
+class QGroupBox;
+
 class RicRecursiveFileSearchDialogResult;
 
 //==================================================================================================
@@ -112,6 +114,7 @@ private:
     QLabel*                             m_effectiveFilterLabel;
     QLabel*                             m_effectiveFilterContentLabel;
 
+    QGroupBox*                          m_outputGroup;
     QLabel*                             m_searchRootLabel;
     QLabel*                             m_searchRootContentLabel;
 
