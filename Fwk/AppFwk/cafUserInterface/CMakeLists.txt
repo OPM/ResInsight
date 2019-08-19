@@ -15,6 +15,7 @@ set (MOC_HEADER_FILES
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.h
     cafPdmUiDateEditor.h
+	cafPdmUiTimeEditor.h
     cafPdmUiDefaultObjectEditor.h
     cafPdmUiDoubleSliderEditor.h
     cafPdmUiFilePathEditor.h
@@ -71,6 +72,8 @@ set( PROJECT_FILES
     cafPdmUiComboBoxEditor.h
     cafPdmUiDateEditor.cpp
     cafPdmUiDateEditor.h
+	cafPdmUiTimeEditor.cpp
+    cafPdmUiTimeEditor.h   
     cafPdmUiDoubleSliderEditor.cpp
     cafPdmUiDoubleSliderEditor.h
     cafPdmUiDragDropInterface.h

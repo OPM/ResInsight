@@ -82,7 +82,11 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
     RiuQwtPlotTools::setCommonPlotBehaviour(m_lorenzPlot);
     new RiuQwtPlotWheelZoomer(m_lorenzPlot);
     addWindowZoom(m_lorenzPlot);
-    RiuQwtPlotTools::enableDateBasedBottomXAxis(m_lorenzPlot);
+
+	QString dateFormat = RiaApplication::instance()->preferences()->dateFormat();
+    QString timeFormat = RiaApplication::instance()->preferences()->timeFormat();
+
+    RiuQwtPlotTools::enableDateBasedBottomXAxis(m_lorenzPlot, dateFormat, timeFormat);
     m_lorenzPlot->setTitle("Lorenz Coefficient");
 
     RiuQwtPlotTools::setCommonPlotBehaviour(m_sweepEffPlot);

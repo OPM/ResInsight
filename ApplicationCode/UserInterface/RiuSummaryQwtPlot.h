@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiaQDateTimeTools.h"
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuQwtPlot.h"
 
@@ -40,7 +41,7 @@ class RiuSummaryQwtPlot : public RiuQwtPlot
 public:
     RiuSummaryQwtPlot(RimViewWindow* ownerViewWindow, QWidget* parent = nullptr);
 
-    void useDateBasedTimeAxis();
+    void useDateBasedTimeAxis(const QString& dateFormat, const QString& timeFormat);
     void useTimeBasedTimeAxis();
 
     void addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet* curveSetToShowLegendFor);
