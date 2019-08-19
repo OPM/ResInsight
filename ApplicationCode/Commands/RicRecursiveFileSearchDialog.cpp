@@ -343,11 +343,11 @@ void RicRecursiveFileSearchDialog::clearFileList()
 void RicRecursiveFileSearchDialog::updateStatus(Status status, const QString& extraText)
 {
     static int progressLoopStep = 0;
-    static QTime lastStatusUpdate;
+    static QTime lastStatusUpdate = QTime::currentTime();
     QTime now = QTime::currentTime();
 
     // Do not update dialog more often than twice per second to avoid text update from slowing down search progress
-    if (status != NO_FILES_FOUND && lastStatusUpdate.msecsTo(now) < 500) return;
+    if (status != NO_FILES_FOUND && lastStatusUpdate.msecsTo(now) < 250) return;
 
     QString newStatus;
     if (status == SEARCHING_FOR_DIRS || status == SEARCHING_FOR_FILES )
