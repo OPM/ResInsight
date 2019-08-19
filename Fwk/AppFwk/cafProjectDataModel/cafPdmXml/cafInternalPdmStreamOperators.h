@@ -19,6 +19,22 @@ QTextStream& operator << (QTextStream& str, const bool& value);
 QTextStream&  operator >> (QTextStream& str, QDateTime& value);
 QTextStream&  operator << (QTextStream& str, const QDateTime& value);
 
+//==================================================================================================
+/// QTextStream Stream operator overloading for QDates
+/// 
+//==================================================================================================
+//class QDate;
+QTextStream&  operator >> (QTextStream& str, QDate& value);
+QTextStream&  operator << (QTextStream& str, const QDate& value);
+
+//==================================================================================================
+/// QTextStream Stream operator overloading for QTimes
+/// 
+//==================================================================================================
+//class QTime;
+QTextStream&  operator >> (QTextStream& str, QTime& value);
+QTextStream&  operator << (QTextStream& str, const QTime& value);
+
 
 //==================================================================================================
 /// QTextStream Stream operator overloading for std::vector of things.

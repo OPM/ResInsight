@@ -540,6 +540,16 @@ bool RifEclipseSummaryAddress::isDependentOnWellName(SummaryVarCategory category
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifEclipseSummaryAddress::isHistoryQuantity() const
+{
+    const std::string historyIdentifier = "H";
+
+    return RiaStdStringTools::endsWith(m_quantityName, historyIdentifier);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::string RifEclipseSummaryAddress::ensembleStatisticsQuantityName() const
 {
     QString qName = QString::fromStdString(m_quantityName);

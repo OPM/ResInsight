@@ -25,7 +25,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
-
+#include "RiaQDateTimeTools.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -48,6 +48,14 @@ public:
     typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
     typedef RiaFontCache::FontSizeType FontSizeType;
 
+    enum SummaryHistoryCurveStyleMode
+    {
+        SYMBOLS,
+        LINES,
+        SYMBOLS_AND_LINES
+    };
+    typedef caf::AppEnum<SummaryHistoryCurveStyleMode> SummaryHistoryCurveStyleModeType;
+
     RiaPreferences(void);
     ~RiaPreferences(void) override;
 
@@ -62,6 +70,9 @@ public:
     bool includeFractureDebugInfoFile() const;
     bool showProjectChangedDialog() const;
     QString holoLensExportFolder() const;
+
+    const QString& dateFormat() const;
+    const QString& timeFormat() const;
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
@@ -110,7 +121,8 @@ public: // Pdm Fields
     caf::PdmField<SummaryRestartFilesImportModeType>    gridImportMode;
     caf::PdmField<SummaryRestartFilesImportModeType>    summaryEnsembleImportMode;
 
-    caf::PdmField<QString>  defaultSummaryCurvesTextFilter;
+    caf::PdmField<QString>                          defaultSummaryCurvesTextFilter;
+    caf::PdmField<SummaryHistoryCurveStyleModeType> defaultSummaryHistoryCurveStyle;
 
     caf::PdmField<bool>     holoLensDisableCertificateVerification;
     caf::PdmField<QString>  csvTextExportFieldSeparator;
@@ -120,6 +132,13 @@ protected:
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     void                            initAfterRead() override;
+private:
+    static QString tabNameGeneral();
+    static QString tabNameEclipse();
+    static QString tabNameEclipseSummary();
+    static QString tabNameScripting();
+    static QString tabNameExport();
+    static QString tabNameSystem();
 
 private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
@@ -131,6 +150,7 @@ private:
     caf::PdmField<bool>                    m_showTestToolbar;
     caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
     caf::PdmField<QString>                 m_holoLensExportFolder;
+    caf::PdmField<QString>                 m_dateFormat;
+    caf::PdmField<QString>                 m_timeFormat;
     QStringList                            m_tabNames;
-
 };

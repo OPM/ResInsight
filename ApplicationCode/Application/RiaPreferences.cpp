@@ -22,6 +22,7 @@
 #include "RiaPreferences.h"
 
 #include "RiaColorTables.h"
+#include "RiaQDateTimeTools.h"
 #include "RifReaderSettings.h"
 
 #include "cafPdmFieldCvfColor.h"
@@ -29,6 +30,9 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
+
+#include <QDate>
+#include <QLocale>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QStandardPaths>
@@ -44,7 +48,16 @@ namespace caf
         addItem(RiaPreferences::NOT_IMPORT, "NOT_IMPORT", "Skip");
         setDefault(RiaPreferences::IMPORT);
     }
-}
+    
+    template<>
+    void RiaPreferences::SummaryHistoryCurveStyleModeType::setUp()
+    {
+        addItem(RiaPreferences::SYMBOLS, "SYMBOLS", "Symbols");
+        addItem(RiaPreferences::LINES, "LINES", "Lines");
+        addItem(RiaPreferences::SYMBOLS_AND_LINES, "SYMBOLS_AND_LINES", "Symbols and Lines");
+        setDefault(RiaPreferences::SYMBOLS);
+    }
+    }
 
 
 CAF_PDM_SOURCE_INIT(RiaPreferences, "RiaPreferences");
@@ -141,6 +154,7 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&gridImportMode, "gridImportMode", SummaryRestartFilesImportModeType(RiaPreferences::NOT_IMPORT), "Default Grid Import Option", "", "", "");
     CAF_PDM_InitField(&summaryEnsembleImportMode, "summaryEnsembleImportMode", SummaryRestartFilesImportModeType(RiaPreferences::IMPORT), "Default Ensemble Summary Import Option", "", "", "");
 
+    CAF_PDM_InitField(&defaultSummaryHistoryCurveStyle, "defaultSummaryHistoryCurveStyle", SummaryHistoryCurveStyleModeType(RiaPreferences::SYMBOLS), "Default Curve Style for History Vectors", "", "", "");
     CAF_PDM_InitField(&defaultSummaryCurvesTextFilter, "defaultSummaryCurvesTextFilter", QString("FOPT"), "Default Summary Curves", "", "Semicolon separated list of filters used to create curves in new summary plots", "");
 
     CAF_PDM_InitFieldNoDefault(&m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder", "", "", "");
@@ -157,15 +171,13 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
+    CAF_PDM_InitFieldNoDefault(&m_dateFormat, "dateFormat", "Date Format", "", "", "");
+    m_dateFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    m_dateFormat = RiaQDateTimeTools::supportedDateFormats().front();
 
-    m_tabNames << "General";
-    m_tabNames << "Eclipse";
-    m_tabNames << "Scripting";
-    m_tabNames << "Export";
-    if (RiaApplication::enableDevelopmentFeatures())
-    {
-        m_tabNames << "System";
-    }
+    CAF_PDM_InitFieldNoDefault(&m_timeFormat, "timeFormat", "Time Format", "", "", "");
+    m_timeFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    m_timeFormat = RiaQDateTimeTools::supportedTimeFormats().front();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,7 +245,7 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
 {
-    if (uiConfigName == m_tabNames[0])
+    if (uiConfigName == RiaPreferences::tabNameGeneral())
     {
         caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup("Default Colors");
         colorGroup->add(&defaultViewerBackgroundColor);
@@ -256,11 +268,13 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         viewsGroup->add(&showHud);
         
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup("Other");
+        otherGroup->add(&m_dateFormat);
+        otherGroup->add(&m_timeFormat);
         otherGroup->add(&ssihubAddress);
         otherGroup->add(&showLasCurveWithoutTvdWarning);
         otherGroup->add(&holoLensDisableCertificateVerification);
     }
-    else if (uiConfigName == m_tabNames[1])
+    else if (uiConfigName == RiaPreferences::tabNameEclipse())
     {
         caf::PdmUiGroup* newCaseBehaviourGroup = uiOrdering.addNewGroup("Behavior When Loading Data");
         newCaseBehaviourGroup->add(&autocomputeDepthRelatedProperties);
@@ -285,13 +299,13 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
             caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup("Origin Ensemble Summary Files");
             group->add(&summaryEnsembleImportMode);
         }
-
-        {
-            caf::PdmUiGroup* summaryPlotsGroup = uiOrdering.addNewGroup("Summary Plots");
-            summaryPlotsGroup->add(&defaultSummaryCurvesTextFilter);
-        }
     }
-    else if (uiConfigName == m_tabNames[2])
+    else if (uiConfigName == RiaPreferences::tabNameEclipseSummary())
+    {
+        uiOrdering.add(&defaultSummaryCurvesTextFilter);
+        uiOrdering.add(&defaultSummaryHistoryCurveStyle);
+    }
+    else if (uiConfigName == RiaPreferences::tabNameScripting())
     {
         caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup("Octave");
         octaveGroup->add(&octaveExecutable);
@@ -307,11 +321,11 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         scriptGroup->add(&scriptDirectories);
         scriptGroup->add(&scriptEditorExecutable);
     }
-    else if (uiConfigName == m_tabNames[3])
+    else if (uiConfigName == RiaPreferences::tabNameExport())
     {
         uiOrdering.add(&csvTextExportFieldSeparator);
     }
-    else if (RiaApplication::enableDevelopmentFeatures() && uiConfigName == m_tabNames[4])
+    else if (RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem())
     {
         uiOrdering.add(&m_appendClassNameToUiText);
         uiOrdering.add(&m_appendFieldKeywordToToolTipText);
@@ -352,6 +366,30 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
         options.push_back(caf::PdmOptionItemInfo(skip.uiText(), RiaPreferences::NOT_IMPORT));
         options.push_back(caf::PdmOptionItemInfo(allowImport.uiText(), RiaPreferences::IMPORT));
     }
+    else if (fieldNeedingOptions == &m_dateFormat)
+    {
+        for (auto dateFormat : RiaQDateTimeTools::supportedDateFormats())
+        {
+            QDate   exampleDate = QDate(2019, 8, 16);
+            QString fullDateFormat =
+                RiaQDateTimeTools::dateFormatString(dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
+            QString uiText = QString("%1 (%2)").arg(fullDateFormat).arg(exampleDate.toString(fullDateFormat));
+            uiText.replace("AP", "AM/PM");
+            options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(dateFormat)));
+        }
+    }
+    else if (fieldNeedingOptions == &m_timeFormat)
+    {
+        for (auto timeFormat : RiaQDateTimeTools::supportedTimeFormats())
+        {
+            QTime   exampleTime = QTime(15, 48, 22);
+            QString timeFormatString =
+                RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND);
+            QString uiText = QString("%1 (%2)").arg(timeFormatString).arg(exampleTime.toString(timeFormatString));
+            uiText.replace("AP", "AM/PM");
+            options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(timeFormat)));
+        }
+    }
 
     return options;
 }
@@ -370,11 +408,72 @@ void RiaPreferences::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameGeneral()
+{
+    return "General";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameEclipse()
+{
+    return "Eclipse";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameEclipseSummary() 
+{
+    return "Summary";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameScripting()
+{
+    return "Scripting";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameExport()
+{
+    return "Export";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameSystem()
+{
+    return "System";
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QStringList RiaPreferences::tabNames()
 {
-    return m_tabNames;
+    QStringList names;
+
+    names << tabNameGeneral();
+    names << tabNameEclipse();
+    names << tabNameEclipseSummary();
+    names << tabNameScripting();
+    names << tabNameExport();
+
+    if (RiaApplication::enableDevelopmentFeatures())
+    {
+        names << tabNameSystem();
+    }
+
+    return names;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -436,6 +535,22 @@ bool RiaPreferences::showProjectChangedDialog() const
 QString RiaPreferences::holoLensExportFolder() const
 {
     return m_holoLensExportFolder();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RiaPreferences::dateFormat() const
+{
+    return m_dateFormat();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RiaPreferences::timeFormat() const
+{
+    return m_timeFormat();
 }
 
 //--------------------------------------------------------------------------------------------------

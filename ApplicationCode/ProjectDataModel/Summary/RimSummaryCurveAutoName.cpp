@@ -70,7 +70,7 @@ QString RimSummaryCurveAutoName::curveNameY(const RifEclipseSummaryAddress& summ
 
     if (m_vectorName)
     {
-        bool skipSubString = nameHelper && nameHelper->isQuantityInTitle();
+        bool skipSubString = nameHelper && nameHelper->isPlotDisplayingSingleQuantity();
         if (!skipSubString)
         {
             text += summaryAddress.quantityName();
@@ -132,7 +132,7 @@ QString RimSummaryCurveAutoName::curveNameX(const RifEclipseSummaryAddress& summ
 
     if (m_vectorName)
     {
-        bool skipSubString = nameHelper && nameHelper->isQuantityInTitle();
+        bool skipSubString = nameHelper && nameHelper->isPlotDisplayingSingleQuantity();
         if (!skipSubString)
         {
             text += summaryAddress.quantityName();

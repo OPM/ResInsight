@@ -357,10 +357,7 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
     
     curve->setColor(gradeColor(m_currentCurveBaseColor, m_currentCurveGradient));
 
-    if ( curve->summaryCaseY()->isObservedData() )
-    {
-        curve->forceUpdateCurveAppearanceFromCaseType();
-    }
+    curve->setCurveAppearanceFromCaseType();
 }
 
 //--------------------------------------------------------------------------------------------------

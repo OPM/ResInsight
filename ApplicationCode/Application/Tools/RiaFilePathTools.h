@@ -40,4 +40,6 @@ public:
     static bool     equalPaths(const QString& path1, const QString& path2);
     static QString  canonicalPath(const QString& path);
     static std::pair<QString, QString> toFolderAndFileName(const QString& absFileName);
+    static QString  removeDuplicatePathSeparators(const QString& path);
+    static QString  rootSearchPathFromSearchFilter(const QString& searchFilter);
 };

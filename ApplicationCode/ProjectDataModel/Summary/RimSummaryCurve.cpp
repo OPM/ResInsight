@@ -18,8 +18,9 @@
 
 #include "RimSummaryCurve.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaDefines.h"
+#include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -815,24 +816,40 @@ QString RimSummaryCurve::curveExportDescription(const RifEclipseSummaryAddress& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::forceUpdateCurveAppearanceFromCaseType()
+void RimSummaryCurve::setCurveAppearanceFromCaseType()
 {
     if (m_yValuesSummaryCase)
     {
         if (m_yValuesSummaryCase->isObservedData())
         {
             setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
+            setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
 
-            if (symbol() == RiuQwtSymbol::SYMBOL_NONE)
-            {
-                setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
-            }
+            return;
         }
-        else
+    }
+
+    if (m_yValuesCurveVariable && m_yValuesCurveVariable->address().isHistoryQuantity())
+    {
+        RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
+        if (prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SYMBOLS)
         {
-            setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
-            setSymbol(RiuQwtSymbol::SYMBOL_NONE);
+            setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
+            setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
         }
+        else if (prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SYMBOLS_AND_LINES)
+        {
+            setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
+            setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
+        }
+        else if (prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::LINES)
+        {
+            setSymbol(RiuQwtSymbol::SYMBOL_NONE);
+            setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
+        }
+
+        return;
     }
 }
 

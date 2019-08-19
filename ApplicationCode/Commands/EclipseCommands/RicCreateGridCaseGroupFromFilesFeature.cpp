@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 
-#include "RicFileHierarchyDialog.h"
+#include "RicRecursiveFileSearchDialog.h"
 
 #include "RimEclipseCaseCollection.h"
 #include "RiuMultiCaseImportDialog.h"
@@ -50,7 +50,7 @@ void RicCreateGridCaseGroupFromFilesFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
 
-    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::runRecursiveSearchDialog(nullptr, 
+    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog(nullptr, 
                                                                                            "Create Grid Case Group from Files", 
                                                                                            defaultDir, 
                                                                                            m_pathFilter, 

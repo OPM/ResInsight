@@ -1,6 +1,8 @@
 import rips
+import time
 
 resInsight = rips.Instance.find()
+start = time.time()
 case       = resInsight.project.case(id=0)
 
 porvResults = case.properties.activeCellProperty('STATIC_NATIVE', 'PORV', 0)
@@ -13,7 +15,8 @@ for i in range (0, len(timeStepInfo)):
         results.append(soil * porv)
 
     case.properties.setActiveCellProperty(results, 'GENERATED', 'SOILPORVSync', i)
-print("Transferred all results back")
 
-view = resInsight.project.view(0)
-view.applyCellResult(resultType='GENERATED', resultVariable='SOILPORVSync')
+end = time.time()
+print("Time elapsed: ", end - start)
+
+print("Transferred all results back")

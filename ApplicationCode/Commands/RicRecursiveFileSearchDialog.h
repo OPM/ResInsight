@@ -31,22 +31,22 @@ class QDialogButtonBox;
 class QPushButton;
 class QMainWindow;
 class QListWidget;
-class RicFileHierarchyDialogResult;
+class QGroupBox;
+
+class RicRecursiveFileSearchDialogResult;
 
 //==================================================================================================
 ///  
 //==================================================================================================
-class RicFileHierarchyDialog : public QDialog
+class RicRecursiveFileSearchDialog : public QDialog
 {
     Q_OBJECT
 
     enum Status {SEARCHING_FOR_DIRS, SEARCHING_FOR_FILES, NO_FILES_FOUND};
 
 public:
-    RicFileHierarchyDialog(QWidget* parent);
-    ~RicFileHierarchyDialog() override;
 
-    static RicFileHierarchyDialogResult  runRecursiveSearchDialog(QWidget *parent = nullptr,
+    static RicRecursiveFileSearchDialogResult  runRecursiveSearchDialog(QWidget *parent = nullptr,
                                                                   const QString& caption = QString(),
                                                                   const QString& dir = QString(),
                                                                   const QString& pathFilter = QString(),
@@ -54,86 +54,87 @@ public:
                                                                   const QStringList& fileExtensions = QStringList());
 
 private:
-    QStringList files() const;
-    QString     rootDir() const;
-    QString     pathFilter() const;
+    RicRecursiveFileSearchDialog(QWidget* parent);
+    ~RicRecursiveFileSearchDialog() override;
+
+    QString     cleanTextFromPathFilterField() const;
+    QString     rootDirWithEndSeparator() const;
+    QString     pathFilterWithoutStartSeparator() const;
     QString     fileNameFilter() const;
+
     QStringList fileExtensions() const;
-    QString     fileExtensionsText() const;
     QString     extensionFromFileNameFilter() const;
 
-    bool        cancelPressed() const;
-    void        appendToFileList(const QString& fileName);
-    void        clearFileList();
+    void        setOkButtonEnabled(bool enabled);
+    void        warningIfInvalidCharacters();
+    void        updateEffectiveFilter();
     void        updateStatus(Status status, const QString& extraText = "");
 
+    void        updateFileListWidget();
+    void        clearFileList();
+
+    // File search methods
+
     QStringList findMatchingFiles();
-
-    QStringList buildDirectoryListRecursive(const QString& currentDir, int level = 0);
-
     void buildDirectoryListRecursiveSimple(const QString& currentDir,
                                            const QString& currentPathFilter,
                                            QStringList* accumulatedDirs);
-
     QStringList findFilesInDirs(const QStringList& dirs);
-
-    QStringList createNameFilterList(const QString& fileNameFilter,
-                                     const QStringList& fileExtensions);
-
-    bool        pathFilterMatch(const QString& pathFilter, const QString& relPath);
-
-    void        updateEffectiveFilter();
-
-    void        setOkButtonEnabled(bool enabled);
-
-    void        warningIfInvalidCharacters();
+    QStringList createFileNameFilterList();
 
 private slots:
     void slotFilterChanged(const QString& text);
+    void slotBrowseButtonClicked();
+    void slotFindOrCancelButtonClicked();
+    
     void slotFileListCustomMenuRequested(const QPoint& point);
+    void slotCopyFileItemText();
     void slotToggleFileListItems();
     void slotTurnOffFileListItems();
     void slotTurnOnFileListItems();
-    void slotFindOrCancelButtonClicked();
+
     void slotDialogOkClicked();
     void slotDialogCancelClicked();
-    void slotBrowseButtonClicked();
 
 private:
-    QLabel*                             m_rootDirLabel;
-    QLineEdit*                          m_rootDir;
-    QPushButton*                        m_browseButton;
 
     QLabel*                             m_pathFilterLabel;
-    QLineEdit*                          m_pathFilter;
+    QLineEdit*                          m_pathFilterField;
+    QPushButton*                        m_browseButton;
 
     QLabel*                             m_fileFilterLabel;
-    QLineEdit*                          m_fileFilter;
-    QLabel*                             m_fileExtensionLabel;
+    QLineEdit*                          m_fileFilterField;
 
     QLabel*                             m_effectiveFilterLabel;
-    QLabel*                             m_effectiveFilter;
-
-    QLabel*                             m_fileListLabel;
-    QListWidget*                        m_fileList;
-
+    QLabel*                             m_effectiveFilterContentLabel;
     QPushButton*                        m_findOrCancelButton;
+
+    QGroupBox*                          m_outputGroup;
+    QLabel*                             m_searchRootLabel;
+    QLabel*                             m_searchRootContentLabel;
+    QListWidget*                        m_fileListWidget;
+
     QDialogButtonBox*                   m_buttons;
 
-    QStringList                         m_files;
+    QStringList                         m_foundFiles;
     QStringList                         m_fileExtensions;
 
-    bool                                m_cancelPressed;
+    bool                                m_isCancelPressed;
+
+    // Obsolete. Here for reference if this search mode is needed later
+    QStringList buildDirectoryListRecursive(const QString& currentDir, int level = 0);
+    bool        pathFilterMatch(const QString& pathFilter, const QString& relPath);
+
 };
 
 
 //==================================================================================================
 ///  
 //==================================================================================================
-class RicFileHierarchyDialogResult
+class RicRecursiveFileSearchDialogResult
 {
 public:
-    RicFileHierarchyDialogResult(bool ok, 
+    RicRecursiveFileSearchDialogResult(bool ok, 
                                  const QStringList& files, 
                                  const QString& rootDir,
                                  const QString& pathFilter,

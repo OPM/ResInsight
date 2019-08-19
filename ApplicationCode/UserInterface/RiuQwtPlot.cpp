@@ -174,7 +174,22 @@ bool RiuQwtPlot::eventFilter(QObject* watched, QEvent* event)
         {
             if(mouseEvent->button() == Qt::LeftButton && mouseEvent->type() == QMouseEvent::MouseButtonRelease)
             {
-                selectClosestCurve(mouseEvent->pos());
+                bool anyZoomingActive = false;
+
+                if (m_zoomerLeft && m_zoomerLeft->isActiveAndValid())
+                {
+                    anyZoomingActive = true;
+                }
+
+                if (m_zoomerRight && m_zoomerRight->isActiveAndValid())
+                {
+                    anyZoomingActive = true;
+                }
+
+                if (!anyZoomingActive)
+                {
+                    selectClosestCurve(mouseEvent->pos());
+                }
             }
         }
     }
