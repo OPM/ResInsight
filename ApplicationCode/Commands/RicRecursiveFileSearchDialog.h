@@ -45,8 +45,6 @@ class RicRecursiveFileSearchDialog : public QDialog
     enum Status {SEARCHING_FOR_DIRS, SEARCHING_FOR_FILES, NO_FILES_FOUND};
 
 public:
-    RicRecursiveFileSearchDialog(QWidget* parent);
-    ~RicRecursiveFileSearchDialog() override;
 
     static RicRecursiveFileSearchDialogResult  runRecursiveSearchDialog(QWidget *parent = nullptr,
                                                                   const QString& caption = QString(),
@@ -56,51 +54,47 @@ public:
                                                                   const QStringList& fileExtensions = QStringList());
 
 private:
+    RicRecursiveFileSearchDialog(QWidget* parent);
+    ~RicRecursiveFileSearchDialog() override;
+
     QString     cleanTextFromPathFilterField() const;
     QString     rootDirWithEndSeparator() const;
     QString     pathFilterWithoutStartSeparator() const;
     QString     fileNameFilter() const;
+
     QStringList fileExtensions() const;
-    QString     fileExtensionsText() const;
     QString     extensionFromFileNameFilter() const;
+
+    void        setOkButtonEnabled(bool enabled);
+    void        warningIfInvalidCharacters();
+    void        updateEffectiveFilter();
+    void        updateStatus(Status status, const QString& extraText = "");
 
     void        updateFileListWidget();
     void        clearFileList();
-    void        updateStatus(Status status, const QString& extraText = "");
+
+    // File search methods
 
     QStringList findMatchingFiles();
-
-    QStringList buildDirectoryListRecursive(const QString& currentDir, int level = 0);
-
     void buildDirectoryListRecursiveSimple(const QString& currentDir,
                                            const QString& currentPathFilter,
                                            QStringList* accumulatedDirs);
-
     QStringList findFilesInDirs(const QStringList& dirs);
-
     QStringList createFileNameFilterList();
-
-    bool        pathFilterMatch(const QString& pathFilter, const QString& relPath);
-
-    void        updateEffectiveFilter();
-
-    void        setOkButtonEnabled(bool enabled);
-
-    void        warningIfInvalidCharacters();
 
 private slots:
     void slotFilterChanged(const QString& text);
+    void slotBrowseButtonClicked();
+    void slotFindOrCancelButtonClicked();
     
     void slotFileListCustomMenuRequested(const QPoint& point);
+    void slotCopyFileItemText();
     void slotToggleFileListItems();
     void slotTurnOffFileListItems();
     void slotTurnOnFileListItems();
-    void slotCopyFileItemText();
 
-    void slotFindOrCancelButtonClicked();
     void slotDialogOkClicked();
     void slotDialogCancelClicked();
-    void slotBrowseButtonClicked();
 
 private:
 
@@ -113,21 +107,24 @@ private:
 
     QLabel*                             m_effectiveFilterLabel;
     QLabel*                             m_effectiveFilterContentLabel;
+    QPushButton*                        m_findOrCancelButton;
 
     QGroupBox*                          m_outputGroup;
     QLabel*                             m_searchRootLabel;
     QLabel*                             m_searchRootContentLabel;
-
-    QLabel*                             m_fileListLabel;
     QListWidget*                        m_fileListWidget;
 
-    QPushButton*                        m_findOrCancelButton;
     QDialogButtonBox*                   m_buttons;
 
     QStringList                         m_foundFiles;
     QStringList                         m_fileExtensions;
 
     bool                                m_isCancelPressed;
+
+    // Obsolete. Here for reference if this search mode is needed later
+    QStringList buildDirectoryListRecursive(const QString& currentDir, int level = 0);
+    bool        pathFilterMatch(const QString& pathFilter, const QString& relPath);
+
 };
 
 
