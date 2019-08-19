@@ -22,6 +22,7 @@
 #include "RiaPreferences.h"
 
 #include "RiaColorTables.h"
+#include "RiaQDateTimeTools.h"
 #include "RifReaderSettings.h"
 
 #include "cafPdmFieldCvfColor.h"
@@ -29,6 +30,9 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
+
+#include <QDate>
+#include <QLocale>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QStandardPaths>
@@ -167,6 +171,13 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
+    CAF_PDM_InitFieldNoDefault(&m_dateFormat, "dateFormat", "Date Format", "", "", "");
+    m_dateFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    m_dateFormat = RiaQDateTimeTools::supportedDateFormats().front();
+
+    CAF_PDM_InitFieldNoDefault(&m_timeFormat, "timeFormat", "Time Format", "", "", "");
+    m_timeFormat.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
+    m_timeFormat = RiaQDateTimeTools::supportedTimeFormats().front();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,6 +268,8 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         viewsGroup->add(&showHud);
         
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup("Other");
+        otherGroup->add(&m_dateFormat);
+        otherGroup->add(&m_timeFormat);
         otherGroup->add(&ssihubAddress);
         otherGroup->add(&showLasCurveWithoutTvdWarning);
         otherGroup->add(&holoLensDisableCertificateVerification);
@@ -352,6 +365,30 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
 
         options.push_back(caf::PdmOptionItemInfo(skip.uiText(), RiaPreferences::NOT_IMPORT));
         options.push_back(caf::PdmOptionItemInfo(allowImport.uiText(), RiaPreferences::IMPORT));
+    }
+    else if (fieldNeedingOptions == &m_dateFormat)
+    {
+        for (auto dateFormat : RiaQDateTimeTools::supportedDateFormats())
+        {
+            QDate   exampleDate = QDate(2019, 8, 16);
+            QString fullDateFormat =
+                RiaQDateTimeTools::dateFormatString(dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
+            QString uiText = QString("%1 (%2)").arg(fullDateFormat).arg(exampleDate.toString(fullDateFormat));
+            uiText.replace("AP", "AM/PM");
+            options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(dateFormat)));
+        }
+    }
+    else if (fieldNeedingOptions == &m_timeFormat)
+    {
+        for (auto timeFormat : RiaQDateTimeTools::supportedTimeFormats())
+        {
+            QTime   exampleTime = QTime(15, 48, 22);
+            QString timeFormatString =
+                RiaQDateTimeTools::timeFormatString(timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND);
+            QString uiText = QString("%1 (%2)").arg(timeFormatString).arg(exampleTime.toString(timeFormatString));
+            uiText.replace("AP", "AM/PM");
+            options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(timeFormat)));
+        }
     }
 
     return options;
@@ -498,6 +535,22 @@ bool RiaPreferences::showProjectChangedDialog() const
 QString RiaPreferences::holoLensExportFolder() const
 {
     return m_holoLensExportFolder();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RiaPreferences::dateFormat() const
+{
+    return m_dateFormat();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RiaPreferences::timeFormat() const
+{
+    return m_timeFormat();
 }
 
 //--------------------------------------------------------------------------------------------------

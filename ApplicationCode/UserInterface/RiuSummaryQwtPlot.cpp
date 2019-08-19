@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuSummaryQwtPlot.h"
 
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
@@ -98,9 +101,10 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimViewWindow* viewWindow, QWidget* parent 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::useDateBasedTimeAxis()
+void RiuSummaryQwtPlot::useDateBasedTimeAxis(const QString& dateFormat,
+                                             const QString& timeFormat)
 {
-    RiuQwtPlotTools::enableDateBasedBottomXAxis(this);
+    RiuQwtPlotTools::enableDateBasedBottomXAxis(this, dateFormat, timeFormat);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,7 +202,10 @@ void RiuSummaryQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::setDefaults()
 {
-    useDateBasedTimeAxis();
+    QString dateFormat = RiaApplication::instance()->preferences()->dateFormat();
+    QString timeFormat = RiaApplication::instance()->preferences()->timeFormat();
+
+    useDateBasedTimeAxis(dateFormat, timeFormat);
 
     // The legend will be deleted in the destructor of the plot or when
     // another legend is inserted.
