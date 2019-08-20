@@ -97,6 +97,8 @@ public:
     RimEnsembleCurveFilterCollection*       filterCollection() const;
 
     ColorMode                               colorMode() const;
+    void                                    setColorMode(ColorMode mode);
+    void                                    setEnsembleParameter(const QString& parameterName);
     void                                    updateEnsembleLegendItem();
     EnsembleParameter::Type                 currentEnsembleParameterType() const;
     static QString                          ensembleParameterUiName(const NameParameterPair& paramPair);

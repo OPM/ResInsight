@@ -24,22 +24,26 @@
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
 #include "RimSummaryCase.h"
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
 
 #include "RiuPlotMainWindowTools.h"
+#include "RiuMainWindow.h"
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaEclipseFileNameTools.h"
+#include "RiaDefines.h"
 
 #include "RifSummaryReaderInterface.h"
 
 #include "RicImportGeneralDataFeature.h"
+#include "RicCreateSummaryCaseCollectionFeature.h"
+#include "RicImportSummaryCasesFeature.h"
 
 #include <QStringList>
-#include "RicImportSummaryCasesFeature.h"
-#include "RiaDefines.h"
 #include <QFileInfo>
 
 //--------------------------------------------------------------------------------------------------
@@ -144,26 +148,34 @@ void RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( RimSummaryCase* summar
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromCommandLine(const QStringList & arguments)
+RimSummaryCurve* createHistoryCurve(const  RifEclipseSummaryAddress& addr, RimSummaryCase* summaryCasesToUse)
 {
-    RimSummaryPlot* plot = RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(arguments);
-    return plot;
+    RifEclipseSummaryAddress historyAddr = addr;
+    historyAddr.setQuantityName(historyAddr.quantityName() + "H");
+    if ( summaryCasesToUse->summaryReader()->allResultAddresses().count(historyAddr) )
+    {
+        RimSummaryCurve* historyCurve = new RimSummaryCurve();
+        historyCurve->setSummaryCaseY(summaryCasesToUse);
+        historyCurve->setSummaryAddressYAndApplyInterpolation(historyAddr);
+        return historyCurve;
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(const QStringList & arguments)
+void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine(const QStringList & arguments)
 {
     // Split arguments in options, vectors and filenames
 
     QStringList options;
     QStringList summaryAddressFilters;
     QStringList summaryFiles;
+    QString ensembleColoringParameter;
 
+    std::set<QString> validOptions = {"-help", "-h", "-nl", "-s", "-n", "-e", "-c", "-cl"};
 
     for (int optionIdx = 0; optionIdx < arguments.size(); ++optionIdx)
     {
@@ -176,7 +188,7 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
                     "\n"
                     "[<plotOptions>] <eclipsesummaryvectorfilters> [<eclipsedatafiles>]\n"
                     "\n"
-                    "It Creates one summary plot using all the <eclipsedatafiles> for each of the the summary vectors matched by the <eclipsesummaryvectorfilters>.\n"
+                    "It Creates one summary plot for each of the the summary vectors matched by the <eclipsesummaryvectorfilters> using all the <eclipsedatafiles> in each plot.\n"
                     "The <eclipsesummaryvectorfilters> has the syntax <vectorname>[:<item>[:<subitem>[:i,j,k]]] and can be repeated.\n"
                     "Wildcards can also be used, eg. \"WOPT:*\" to select the total oil production from all the wells.\n"
                     "The <eclipsedatafiles> can be written with or without extension. Only the corresponding SMSPEC file will be opened for each case.\n"
@@ -186,12 +198,30 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
                     "  -h\t Include history vectors. Will be read from the summary file if the vectors exist.\n" 
                     "    \t Only history vectors from the first summary case in the project will be included.\n"
                     "  -nl\t Omit legend in plot.\n"
-                    "  -s\t Create only one plot including all the defined vectors and cases."
-                    "  -n\t Scale all curves into the range 0.0-1.0. Useful when using -s"
+                    "  -s\t Create only one plot including all the defined vectors and cases.\n"
+                    "  -n\t Scale all curves into the range 0.0-1.0. Useful when using -s.\n"
+                    "  -e\t Import all the cases as an ensemble, and create ensemble curves sets instead of single curves.\n"
+                    "  -c  <parametername>\t Same as -e, but colors the curves by the ensemble parameter <parametername> . \n"
+                    "  -cl <parametername>\t Same as -c, but uses logarithmic legend.\n"
                 );
-                return nullptr;
+
+                return;
             }
-            options.push_back(arguments[optionIdx]);
+
+            if ( validOptions.count(arguments[optionIdx]) )
+            {
+                options.push_back(arguments[optionIdx]);
+
+                if ( arguments[optionIdx] == "-c" || arguments[optionIdx] == "-cl" )
+                {
+                    optionIdx++;
+                    if ( optionIdx < arguments.size() ) ensembleColoringParameter = arguments[optionIdx];
+                }
+            }
+            else
+            {
+                RiaLogging::error("The summaryplot option: \"" + arguments[optionIdx]  + "\" is unknown.");
+            }
         }
         else 
         {
@@ -212,34 +242,90 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
     {
         RiaLogging::error("Needs at least one summary vector to create a plot.");
     }
-    
-    std::vector<RimSummaryCase*> summaryCasesToUse;
-
-    if ( summaryFiles.size() )
-    {
-        RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(summaryFiles, false, &summaryCasesToUse);
-        RiaApplication::instance()->setLastUsedDialogDirectory(RiaDefines::defaultDirectoryLabel(RiaDefines::ECLIPSE_SUMMARY_FILE), QFileInfo(summaryFiles[0]).absolutePath());
-    }
 
     bool hideLegend = options.contains("-nl");
     bool addHistoryCurves = options.contains("-h");
     bool isNormalizedY = options.contains("-n");
     bool isSinglePlot = options.contains("-s");
 
+    enum EnsembleColoringType { SINGLE_COLOR, PARAMETER, LOG_PARAMETER, NONE };
+    EnsembleColoringType ensembleColoringStyle = NONE;
+    {
+        int e_pos = options.lastIndexOf("-e");
+        int c_pos = options.lastIndexOf("-c");
+        int cl_pos = options.lastIndexOf("-cl");
+
  
+        int lastEnsembleOptionPos = -1;
+        if ( e_pos  > lastEnsembleOptionPos ) { lastEnsembleOptionPos = e_pos ; ensembleColoringStyle = SINGLE_COLOR; }
+        if ( c_pos  > lastEnsembleOptionPos ) { lastEnsembleOptionPos = c_pos ; ensembleColoringStyle = PARAMETER; }
+        if ( cl_pos > lastEnsembleOptionPos ) { lastEnsembleOptionPos = cl_pos ; ensembleColoringStyle = LOG_PARAMETER; }
+    }
+
+    bool isEnsembleMode = ensembleColoringStyle != NONE;
+    
+    std::vector<RimSummaryCase*> summaryCasesToUse;
+
+    if ( summaryFiles.size() )
+    {
+        RicImportSummaryCasesFeature::createSummaryCasesFromFiles(summaryFiles, &summaryCasesToUse, isEnsembleMode);
+        RicImportSummaryCasesFeature::addSummaryCases(summaryCasesToUse);
+        RiaApplication::instance()->setLastUsedDialogDirectory(RiaDefines::defaultDirectoryLabel(RiaDefines::ECLIPSE_SUMMARY_FILE), 
+                                                               QFileInfo(summaryFiles[0]).absolutePath());
+    }
+
 
     if ( summaryCasesToUse.size() )
     {
+        RimSummaryPlot* lastPlotCreated = nullptr;
         RimSummaryPlotCollection* sumPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+        RimSummaryCaseCollection* ensemble = nullptr;
+        if (isEnsembleMode) ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases(summaryCasesToUse, "Ensemble", true);
+
         if ( isSinglePlot )
         {
             RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
 
-            for ( RimSummaryCase* sumCase : summaryCasesToUse )
+            if ( isEnsembleMode )
             {
-                RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(summaryAddressFilters, newPlot, sumCase, addHistoryCurves);
-                addHistoryCurves = false;
+                std::set<RifEclipseSummaryAddress> filteredAdressesFromCases = applySummaryAddressFiltersToCases(summaryCasesToUse, 
+                                                                                                                 summaryAddressFilters);
+                for ( const auto & addr : filteredAdressesFromCases )
+                {
+                    RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
+
+                    curveSet->setSummaryCaseCollection(ensemble);
+                    curveSet->setSummaryAddress(addr);
+                    
+                    if ( ensembleColoringStyle == PARAMETER || ensembleColoringStyle == LOG_PARAMETER )
+                    {
+                        curveSet->setColorMode(RimEnsembleCurveSet::BY_ENSEMBLE_PARAM);
+                        curveSet->setEnsembleParameter(ensembleColoringParameter);
+                        if ( ensembleColoringStyle == LOG_PARAMETER )
+                        {
+                            curveSet->legendConfig()->setMappingMode(RimRegularLegendConfig::LOG10_CONTINUOUS);
+                        }
+                    }
+                    newPlot->ensembleCurveSetCollection()->addCurveSet(curveSet);
+
+
+                    if (addHistoryCurves)
+                    {
+                        RimSummaryCurve* historyCurve = createHistoryCurve(addr, summaryCasesToUse[0]);
+                        if (historyCurve) newPlot->addCurveNoUpdate(historyCurve);
+                    }
+                }
             }
+            else
+            {
+                for ( RimSummaryCase* sumCase : summaryCasesToUse )
+                {
+                    RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(summaryAddressFilters, newPlot, sumCase, addHistoryCurves);
+                    addHistoryCurves = false;
+                }
+            }
+
+            lastPlotCreated = newPlot;
 
             newPlot->showLegend(!hideLegend);
             newPlot->setNormalizationEnabled(isNormalizedY);
@@ -254,62 +340,64 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
         }
         else // Multiplot, one for each separate summary address
         {
-            std::set<RifEclipseSummaryAddress> filteredAdressesFromCases;
-            RimSummaryPlot* lastPlotCreated = nullptr;
 
-            for ( RimSummaryCase* sumCase : summaryCasesToUse )
-            {
-                const std::set<RifEclipseSummaryAddress>&  addrs = sumCase->summaryReader()->allResultAddresses();
-                std::vector<bool> usedFilters;
+            std::set<RifEclipseSummaryAddress> filteredAdressesFromCases = applySummaryAddressFiltersToCases(summaryCasesToUse, 
+                                                                                                             summaryAddressFilters);
 
-                filteredSummaryAdressesFromCase(summaryAddressFilters, addrs, &filteredAdressesFromCases, &usedFilters);
-
-                for (int cfIdx = 0 ; cfIdx < usedFilters.size() ;  ++cfIdx)
-                {
-                    if (!usedFilters[cfIdx])
-                    {
-                        RiaLogging::warning("Vector filter \"" + summaryAddressFilters[cfIdx] +   "\" did not match anything in case: \"" + sumCase->caseName() + "\"");
-                    }
-                }
-            }
-
-            for (const auto & addr : filteredAdressesFromCases)
+            for ( const auto & addr : filteredAdressesFromCases )
             {
                 std::vector<RimSummaryCurve*> createdCurves;
-                bool isFirstCase = true;
-                for ( RimSummaryCase* sumCase : summaryCasesToUse )
+                std::vector<RimEnsembleCurveSet*> createdEnsembleCurveSets;
+                if ( isEnsembleMode )
                 {
-                    const std::set<RifEclipseSummaryAddress>&  addrs = sumCase->summaryReader()->allResultAddresses();
-                    if (addrs.count(addr))
-                    {
-                        RimSummaryCurve* newCurve = new RimSummaryCurve();
-                        newCurve->setSummaryCaseY(sumCase);
-                        newCurve->setSummaryAddressYAndApplyInterpolation(addr);
-                        createdCurves.push_back(newCurve);
+                    RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
 
-                        if ( addHistoryCurves && isFirstCase)
+                    curveSet->setSummaryCaseCollection(ensemble);
+                    curveSet->setSummaryAddress(addr);
+                    if ( ensembleColoringStyle == PARAMETER || ensembleColoringStyle == LOG_PARAMETER )
+                    {
+                        curveSet->setColorMode(RimEnsembleCurveSet::BY_ENSEMBLE_PARAM);
+                        curveSet->setEnsembleParameter(ensembleColoringParameter);
+                        if ( ensembleColoringStyle == LOG_PARAMETER )
                         {
-                            RifEclipseSummaryAddress historyAddr = addr;
-                            historyAddr.setQuantityName(historyAddr.quantityName() + "H");
-                            if ( addrs.count(historyAddr) )
-                            {
-                                RimSummaryCurve* historyCurve = new RimSummaryCurve();
-                                historyCurve->setSummaryCaseY(sumCase);
-                                historyCurve->setSummaryAddressYAndApplyInterpolation(historyAddr);
-                                createdCurves.push_back(historyCurve);
-                            }
+                            curveSet->legendConfig()->setMappingMode(RimRegularLegendConfig::LOG10_CONTINUOUS);
                         }
                     }
-
-                    isFirstCase = false;
+                    createdEnsembleCurveSets.push_back(curveSet);
+                }
+                else
+                {
+                    for ( RimSummaryCase* sumCase : summaryCasesToUse )
+                    {
+                        const std::set<RifEclipseSummaryAddress>&  allAddrsInCase = sumCase->summaryReader()->allResultAddresses();
+                        if ( allAddrsInCase.count(addr) )
+                        {
+                            RimSummaryCurve* newCurve = new RimSummaryCurve();
+                            newCurve->setSummaryCaseY(sumCase);
+                            newCurve->setSummaryAddressYAndApplyInterpolation(addr);
+                            createdCurves.push_back(newCurve);
+                        }
+                    }
                 }
 
-                if ( createdCurves.size() )
+                if ( addHistoryCurves )
+                {
+                    RimSummaryCurve* historyCurve = createHistoryCurve(addr, summaryCasesToUse[0]);
+                    if (historyCurve) createdCurves.push_back(historyCurve);
+                }
+
+                if ( createdCurves.size() || createdEnsembleCurveSets.size() )
                 {
                     RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+
                     for ( auto curve : createdCurves )
                     {
                         newPlot->addCurveNoUpdate(curve);
+                    }
+
+                    for ( auto curveSet: createdEnsembleCurveSets )
+                    {
+                        newPlot->ensembleCurveSetCollection()->addCurveSet(curveSet);
                     }
 
                     newPlot->showLegend(!hideLegend);
@@ -320,22 +408,46 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
                     lastPlotCreated = newPlot;
                 }
             }
+        }
+        sumPlotColl->updateConnectedEditors();
 
-            sumPlotColl->updateConnectedEditors();
-            if ( lastPlotCreated )
-            {
-                RiuPlotMainWindowTools::setExpanded(lastPlotCreated);
-                RiuPlotMainWindowTools::selectAsCurrentItem(lastPlotCreated);
-            }
+        if ( lastPlotCreated )
+        {
+            RiuPlotMainWindowTools::setExpanded(lastPlotCreated);
+            RiuPlotMainWindowTools::selectAsCurrentItem(lastPlotCreated);
+            RiuPlotMainWindowTools::showPlotMainWindow();
+            RiuMainWindow::instance()->close();
         }
     }
     else
     {
         RiaLogging::error("Needs at least one summary case to create a plot.");
     }
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseSummaryAddress> RicSummaryPlotFeatureImpl::applySummaryAddressFiltersToCases(const std::vector<RimSummaryCase *>& summaryCasesToUse,
+                                                                                                const QStringList& summaryAddressFilters)
+{
+    std::set<RifEclipseSummaryAddress> filteredAdressesFromCases;
+    for ( RimSummaryCase* sumCase : summaryCasesToUse )
+    {
+        const std::set<RifEclipseSummaryAddress>&  addrs = sumCase->summaryReader()->allResultAddresses();
+        std::vector<bool> usedFilters;
 
-    return nullptr;
+        filteredSummaryAdressesFromCase(summaryAddressFilters, addrs, &filteredAdressesFromCases, &usedFilters);
+
+        for ( int cfIdx = 0 ; cfIdx < usedFilters.size() ; ++cfIdx )
+        {
+            if ( !usedFilters[cfIdx] )
+            {
+                RiaLogging::warning("Vector filter \"" + summaryAddressFilters[cfIdx] +   "\" did not match anything in case: \"" + sumCase->caseName() + "\"");
+            }
+        }
+    }
+    return filteredAdressesFromCases;
 }
 
 //--------------------------------------------------------------------------------------------------
