@@ -1,3 +1,6 @@
+#######################################
+# This example connects to ResInsight
+#######################################
 import rips
 
 resInsight  = rips.Instance.find()

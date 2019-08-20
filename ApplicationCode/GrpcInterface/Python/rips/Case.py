@@ -46,6 +46,9 @@ class Case (PdmObject):
             print("ERROR: ", e)
             return 0
     
+    def gridPath(self):
+        return self.getValue("CaseFileName")
+
     def grid(self, index):
         """Get Grid of a given index. Returns a rips Grid object
 		
@@ -80,7 +83,7 @@ class Case (PdmObject):
                                             porosity_model=porosityModel)
         return self.stub.GetCellCount(request)
 
-    def cellInfoForActiveCells(self, porosityModel='MATRIX_MODEL'):
+    def cellInfoForActiveCellsAsync(self, porosityModel='MATRIX_MODEL'):
         """Get Stream of cell info objects for current case
 		
         Arguments:
@@ -100,6 +103,28 @@ class Case (PdmObject):
         request =  Case_pb2.CellInfoRequest(case_request=self.request,
                                             porosity_model=porosityModel)
         return self.stub.GetCellInfoForActiveCells(request)
+
+    def cellInfoForActiveCells(self, porosityModel='MATRIX_MODEL'):
+        """Get list of cell info objects for current case
+		
+        Arguments:
+            porosityModel(str): String representing an enum.
+                must be 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
+		
+        Returns:
+            List of cell info objects with the following attributes:
+                grid_index(int): grid the cell belongs to
+                parent_grid_index(int): parent of the grid the cell belongs to
+                coarsening_box_index(int): the coarsening box index
+                local_ijk(Vec3i: i(int), j(int), k(int)): local cell index in i, j, k directions.
+                parent_ijk(Vec3i: i(int), j(int), k(int)): cell index in parent grid in i, j, k.		
+        """
+        activeCellInfoChunks = self.cellInfoForActiveCellsAsync()
+        receivedActiveCells = []
+        for activeCellChunk in activeCellInfoChunks:
+            for activeCell in activeCellChunk.data:
+                receivedActiveCells.append(activeCell)
+        return receivedActiveCells
 
     def timeSteps(self):
         """Get a list containing time step strings for all time steps"""

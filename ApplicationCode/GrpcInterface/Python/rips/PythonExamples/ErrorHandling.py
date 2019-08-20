@@ -1,3 +1,8 @@
+###################################################################
+# This example demonstrates the use of ResInsight exceptions 
+# for proper error handling
+###################################################################
+
 import rips
 import grpc
 
