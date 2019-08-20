@@ -23,7 +23,7 @@
 #include "RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -60,6 +60,7 @@ void RicReloadSummaryCaseFeature::onActionTriggered(bool isChecked)
     for (RimSummaryCase* summaryCase : caseSelection)
     {
         summaryCase->createSummaryReaderInterface();
+        summaryCase->createRftReaderInterface();
 
         RiaLogging::info(QString("Reloaded data for %1").arg(summaryCase->summaryHeaderFilename()));
     }
@@ -112,7 +113,7 @@ std::vector<RimSummaryCase*> RicReloadSummaryCaseFeature::selectedSummaryCases()
 
         for (auto collection : collectionSelection)
         {
-            std::vector<RimObservedData*> observedCases = collection->allObservedData();
+            std::vector<RimObservedSummaryData*> observedCases = collection->allObservedSummaryData();
             caseSelection.insert(caseSelection.end(), observedCases.begin(), observedCases.end());
         }
     }

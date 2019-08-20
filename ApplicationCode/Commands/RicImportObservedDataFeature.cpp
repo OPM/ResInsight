@@ -20,7 +20,7 @@
 
 #include "RiaApplication.h"
 
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -55,7 +55,7 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
     RimObservedDataCollection* observedDataCollection = proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if (!observedDataCollection) return;
 
-    RimObservedData* observedData = nullptr;
+    RimObservedSummaryData* observedData = nullptr;
 
     for (const QString& fileName : fileNames)
     {
@@ -67,13 +67,13 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 
             if (fileName.endsWith(".rsm", Qt::CaseInsensitive))
             {
-                observedData = observedDataCollection->createAndAddRsmObservedDataFromFile(fileName, &errorText);
+                observedData = observedDataCollection->createAndAddRsmObservedSummaryDataFromFile(fileName, &errorText);
                 retryImport = false;
             }
             else if (fileName.endsWith(".txt", Qt::CaseInsensitive) || fileName.endsWith(".csv", Qt::CaseInsensitive))
             {
                 bool useSavedFieldValuesInDialog = retryImport;
-                observedData = observedDataCollection->createAndAddCvsObservedDataFromFile(fileName, useSavedFieldValuesInDialog, &errorText);
+                observedData = observedDataCollection->createAndAddCvsObservedSummaryDataFromFile(fileName, useSavedFieldValuesInDialog, &errorText);
                 retryImport = !errorText.isEmpty();
             }
             else
@@ -105,7 +105,7 @@ bool RicImportObservedDataFeature::isCommandEnabled()
     std::vector<RimObservedDataCollection*> selectionObservedDataCollection;
     caf::SelectionManager::instance()->objectsByType(&selectionObservedDataCollection);
 
-    std::vector<RimObservedData*> selectionObservedData;
+    std::vector<RimObservedSummaryData*> selectionObservedData;
     caf::SelectionManager::instance()->objectsByType(&selectionObservedData);
 
     return (selectionObservedDataCollection.size() > 0 || selectionObservedData.size() > 0);

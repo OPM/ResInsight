@@ -330,6 +330,14 @@ size_t RimWellLogPlot::firstVisibleTrackIndex() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogTrack*> RimWellLogPlot::tracks() const
+{
+    return m_tracks.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::setDepthZoomByFactorAndCenter(double zoomFactor, double zoomCenter)

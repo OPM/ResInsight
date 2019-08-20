@@ -19,8 +19,8 @@
 #include "RimWellRftPlot.h"
 
 #include "RiaApplication.h"
-#include "RiaColorTools.h"
 #include "RiaColorTables.h"
+#include "RiaColorTools.h"
 #include "RiaDateStringParser.h"
 #include "RiaSimWellBranchTools.h"
 
@@ -35,6 +35,7 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimObservedFmuRftData.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCaseCollection.h"
@@ -144,32 +145,33 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
 
     RiuQwtPlotCurve::LineStyleEnum currentLineStyle = RiuQwtPlotCurve::STYLE_SOLID;
 
-	cvf::Color3f           currentColor;
-	if (newCurveDef.address().sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT)
-	{
+    cvf::Color3f currentColor;
+    if (newCurveDef.address().sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT)
+    {
         RifDataSourceForRftPlt sourceAddress(RifDataSourceForRftPlt::ENSEMBLE_RFT, newCurveDef.address().ensemble());
         currentColor = m_dataSourceColors[sourceAddress];
-		if (m_showStatisticsCurves)
-		{
-			cvf::Color3f backgroundColor =
-				RiaColorTools::fromQColorTo3f(m_wellLogPlot->trackByIndex(0)->viewer()->canvasBackground().color());
-			currentColor = RiaColorTools::blendCvfColors(backgroundColor, currentColor, 2, 1);
-		}
-	}
-	else
-	{
+        if (m_showStatisticsCurves)
+        {
+            cvf::Color3f backgroundColor =
+                RiaColorTools::fromQColorTo3f(m_wellLogPlot->trackByIndex(0)->viewer()->canvasBackground().color());
+            currentColor = RiaColorTools::blendCvfColors(backgroundColor, currentColor, 2, 1);
+        }
+    }
+    else
+    {
         currentColor = m_dataSourceColors[newCurveDef.address()];
-	}
+    }
 
     RiuQwtSymbol::PointSymbolEnum currentSymbol = RiuQwtSymbol::SYMBOL_NONE;
-	if (newCurveDef.address().sourceType() != RifDataSourceForRftPlt::ENSEMBLE_RFT)		
-	{
+    if (newCurveDef.address().sourceType() != RifDataSourceForRftPlt::ENSEMBLE_RFT)
+    {
         currentSymbol = m_timeStepSymbols[newCurveDef.timeStep()];
-	}
-    
+    }
+
+	bool isObservedData = newCurveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED ||
+                          newCurveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT;
     // Observed data
-    currentLineStyle = newCurveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED ? RiuQwtPlotCurve::STYLE_NONE
-                                                                                              : RiuQwtPlotCurve::STYLE_SOLID;
+    currentLineStyle = isObservedData ? RiuQwtPlotCurve::STYLE_NONE : RiuQwtPlotCurve::STYLE_SOLID;
 
     newCurve->setColor(currentColor);
     newCurve->setSymbolEdgeColor(currentColor);
@@ -251,6 +253,11 @@ void RimWellRftPlot::applyInitialSelections()
         {
             sourcesToSelect.push_back(RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED, wellLogFile));
         }
+    }
+
+    for (RimObservedFmuRftData* const observedFmuRftData : RimWellPlotTools::observedFmuRftData())
+    {
+        sourcesToSelect.push_back(RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED_FMU_RFT, observedFmuRftData));
     }
 
     m_selectedSources = sourcesToSelect;
@@ -402,7 +409,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
     // Delete curves
     plotTrack->deleteAllCurves();
 
-	defineCurveColorsAndSymbols(allCurveDefs);
+    defineCurveColorsAndSymbols(allCurveDefs);
 
     // Add new curves
     for (const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs)
@@ -420,6 +427,18 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
             curve->setZOrder(1);
             curve->setSimWellBranchData(m_branchDetection, m_branchIndex);
 
+            applyCurveAppearance(curve);
+        }
+        else if (curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT)
+        {
+            auto curve = new RimWellLogRftCurve();
+            plotTrack->addCurve(curve);
+
+			auto observedFmuRftData = curveDefToAdd.address().observedFmuRftData();
+            curve->setObservedFmuRftData(observedFmuRftData);
+            RifEclipseRftAddress address(simWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE);
+            curve->setRftAddress(address);
+            curve->setZOrder(RiuQwtPlotCurve::Z_SINGLE_CURVE_OBSERVED);
             applyCurveAppearance(curve);
         }
         else if (m_showEnsembleCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT)
@@ -617,6 +636,26 @@ const char* RimWellRftPlot::plotNameFormatString()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::deleteCurvesAssosicatedWithObservedData(const RimObservedFmuRftData* observedFmuRftData)
+{
+	for (auto track : m_wellLogPlot->tracks())
+	{
+        auto curves = track->curvesVector();
+		for (auto curve : curves)
+		{
+            RimWellLogRftCurve* rftCurve = dynamic_cast<RimWellLogRftCurve*>(curve);
+			if (rftCurve && rftCurve->observedFmuRftData() == observedFmuRftData)
+			{
+                track->takeOutCurve(rftCurve);
+                delete rftCurve;
+			}
+		}		
+	}
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                     bool*                      useOptionsOnly)
 {
@@ -685,6 +724,22 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
             item.setLevel(1);
             options.push_back(item);
         }
+
+		const std::vector<RimObservedFmuRftData*> observedFmuRftCases = RimWellPlotTools::observedFmuRftDataForWell(simWellName);            
+		if (!observedFmuRftCases.empty())
+		{
+            options.push_back(caf::PdmOptionItemInfo::createHeader(
+                RifDataSourceForRftPlt::sourceTypeUiText(RifDataSourceForRftPlt::OBSERVED_FMU_RFT), true));
+
+			for (const auto& observedFmuRftCase : observedFmuRftCases)
+			{
+                auto addr = RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED_FMU_RFT, observedFmuRftCase);
+                auto item = caf::PdmOptionItemInfo(observedFmuRftCase->name(), QVariant::fromValue(addr));
+                item.setLevel(1);
+                options.push_back(item);
+			}
+		}
+
     }
     else if (fieldNeedingOptions == &m_selectedTimeSteps)
     {
@@ -874,6 +929,19 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
             }
         }
 
+		// Observer FMU RFT wells
+        const std::vector<RimObservedFmuRftData*> allRftFmuData = RimWellPlotTools::observedFmuRftData();
+		if (!allRftFmuData.empty())
+		{
+			for (RimObservedFmuRftData* rftFmuData : allRftFmuData)
+			{
+				for (QString wellName : rftFmuData->wells())
+				{
+                    wellNames.insert(std::make_pair(wellName, wellName));
+				}
+			}
+		}
+
         for (const auto& wellName : wellNames)
         {
             options.push_back(caf::PdmOptionItemInfo(wellName.first, wellName.second));
@@ -1007,42 +1075,41 @@ void RimWellRftPlot::defineCurveColorsAndSymbols(const std::set<RiaRftPltCurveDe
 {
     m_dataSourceColors.clear();
     m_timeStepSymbols.clear();
-    
-	std::vector<cvf::Color3f> colorTable;
+
+    std::vector<cvf::Color3f> colorTable;
     RiaColorTables::summaryCurveDefaultPaletteColors().color3fArray().toStdVector(&colorTable);
 
-	 std::vector<RiuQwtSymbol::PointSymbolEnum> symbolTable = {RiuQwtSymbol::SYMBOL_ELLIPSE,
-                                                               RiuQwtSymbol::SYMBOL_RECT,
-                                                               RiuQwtSymbol::SYMBOL_DIAMOND,
-                                                               RiuQwtSymbol::SYMBOL_CROSS,
-                                                               RiuQwtSymbol::SYMBOL_XCROSS,
-                                                               RiuQwtSymbol::SYMBOL_STAR1};
+    std::vector<RiuQwtSymbol::PointSymbolEnum> symbolTable = {RiuQwtSymbol::SYMBOL_ELLIPSE,
+                                                              RiuQwtSymbol::SYMBOL_RECT,
+                                                              RiuQwtSymbol::SYMBOL_DIAMOND,
+                                                              RiuQwtSymbol::SYMBOL_CROSS,
+                                                              RiuQwtSymbol::SYMBOL_XCROSS,
+                                                              RiuQwtSymbol::SYMBOL_STAR1};
 
-     // Add new curves
-     for (const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs)
-     {
-         auto colorTableIndex  = m_dataSourceColors.size();
-         auto symbolTableIndex = m_timeStepSymbols.size();
+    // Add new curves
+    for (const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs)
+    {
+        auto colorTableIndex  = m_dataSourceColors.size();
+        auto symbolTableIndex = m_timeStepSymbols.size();
 
-         RifDataSourceForRftPlt address = curveDefToAdd.address();
-         
-		 if (address.sourceType() != RifDataSourceForRftPlt::SUMMARY_RFT)
-         {
-			 
-			 if (!m_dataSourceColors.count(curveDefToAdd.address()))
-			 {
-                 colorTableIndex                             = colorTableIndex % colorTable.size();
-                 m_dataSourceColors[curveDefToAdd.address()] = colorTable[colorTableIndex];
-			 }             
-         }
+        RifDataSourceForRftPlt address = curveDefToAdd.address();
 
-         if (address.sourceType() != RifDataSourceForRftPlt::ENSEMBLE_RFT)
-         {
-			 if (!m_timeStepSymbols.count(curveDefToAdd.timeStep()))
-             {
-                 symbolTableIndex                            = symbolTableIndex % symbolTable.size();
-                 m_timeStepSymbols[curveDefToAdd.timeStep()] = symbolTable[symbolTableIndex];
-             }             
-         }
+        if (address.sourceType() != RifDataSourceForRftPlt::SUMMARY_RFT)
+        {
+            if (!m_dataSourceColors.count(curveDefToAdd.address()))
+            {
+                colorTableIndex                             = colorTableIndex % colorTable.size();
+                m_dataSourceColors[curveDefToAdd.address()] = colorTable[colorTableIndex];
+            }
+        }
+
+        if (address.sourceType() != RifDataSourceForRftPlt::ENSEMBLE_RFT)
+        {
+            if (!m_timeStepSymbols.count(curveDefToAdd.timeStep()))
+            {
+                symbolTableIndex                            = symbolTableIndex % symbolTable.size();
+                m_timeStepSymbols[curveDefToAdd.timeStep()] = symbolTable[symbolTableIndex];
+            }
+        }
     }
 }

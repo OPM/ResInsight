@@ -35,6 +35,7 @@
 
 #include "RimEclipseResultCase.h"
 #include "RimMainPlotCollection.h"
+#include "RimObservedFmuRftData.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -99,6 +100,9 @@ RimWellLogRftCurve::RimWellLogRftCurve()
 
     CAF_PDM_InitFieldNoDefault(&m_ensemble, "CurveEnsemble", "Ensemble", "", "", "");
     m_ensemble.uiCapability()->setUiTreeChildrenHidden(true);
+
+	CAF_PDM_InitFieldNoDefault(&m_observedFmuRftData, "ObservedFmuRftData", "Observed FMU RFT Data", "", "", "");
+    m_observedFmuRftData.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_timeStep, "TimeStep", "Time Step", "", "", "");
 
@@ -185,6 +189,23 @@ RimSummaryCaseCollection* RimWellLogRftCurve::ensemble() const
 {
     return m_ensemble;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setObservedFmuRftData(RimObservedFmuRftData* observedFmuRftData)
+{
+    m_observedFmuRftData = observedFmuRftData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimObservedFmuRftData* RimWellLogRftCurve::observedFmuRftData() const
+{
+    return m_observedFmuRftData;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -316,6 +337,10 @@ QString RimWellLogRftCurve::createCurveAutoName()
     {
         name.push_back(m_ensemble->name());
     }
+	else if (m_observedFmuRftData)
+	{
+        name.push_back(m_observedFmuRftData->name());
+	}
     if (wellLogChannelName() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(RifEclipseRftAddress::NONE))
     {
         RifEclipseRftAddress::RftWellLogChannelType channelNameEnum =
@@ -369,6 +394,11 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 		else if (m_ensemble)
 		{
             unitSystem = m_ensemble->unitSystem();
+		}
+		else if (m_observedFmuRftData)
+		{
+			// TODO: Read unit system somewhere for FMU RFT Data
+            unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
 		}
 		else
         {
@@ -600,6 +630,10 @@ RifReaderRftInterface* RimWellLogRftCurve::rftReader() const
     {
         return m_ensemble()->rftStatisticsReader();
     }
+	else if (m_observedFmuRftData())
+	{
+        return m_observedFmuRftData()->rftReader();
+	}
     return nullptr;
 }
 
@@ -801,6 +835,18 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 {
+	if (m_observedFmuRftData)
+	{
+        RifReaderRftInterface* reader = rftReader();
+        std::vector<double>    values;
+
+        if (!reader) return values;
+
+        RifEclipseRftAddress depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::MD);
+        reader->values(depthAddress, &values);
+        return values;
+	}
+
     std::vector<double> measuredDepthForCells;
 
     RigEclipseWellLogExtractor* eclExtractor = extractor();

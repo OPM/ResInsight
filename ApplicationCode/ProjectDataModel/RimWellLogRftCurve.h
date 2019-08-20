@@ -34,6 +34,7 @@
 class RifReaderRftInterface;
 class RigEclipseWellLogExtractor;
 class RimEclipseResultCase;
+class RimObservedFmuRftData;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimWellPath;
@@ -59,8 +60,11 @@ public:
     void                  setSummaryCase(RimSummaryCase* summaryCase);
     RimSummaryCase*       summaryCase() const;
 
-	void                  setEnsemble(RimSummaryCaseCollection* ensemble);
+	void                      setEnsemble(RimSummaryCaseCollection* ensemble);
     RimSummaryCaseCollection* ensemble() const;
+    
+	void                   setObservedFmuRftData(RimObservedFmuRftData* observedFmuRftData);
+    RimObservedFmuRftData* observedFmuRftData() const;
 
     void                  setRftAddress(RifEclipseRftAddress address);
     RifEclipseRftAddress  rftAddress() const;
@@ -97,6 +101,7 @@ private:
     caf::PdmPtrField<RimEclipseResultCase*>     m_eclipseResultCase;
     caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
+    caf::PdmPtrField<RimObservedFmuRftData*>    m_observedFmuRftData;
     caf::PdmField<QDateTime>                    m_timeStep;
     caf::PdmField<QString>                      m_wellName;
     caf::PdmField<int>                          m_branchIndex;
@@ -105,4 +110,5 @@ private:
     std::map<size_t, size_t>                                                 m_idxInWellPathToIdxInRftFile;
     bool                                                                     m_isUsingPseudoLength;
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;
+
 };

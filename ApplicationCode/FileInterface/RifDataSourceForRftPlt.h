@@ -35,6 +35,7 @@ class RimEclipseCase;
 class RifReaderRftInterface;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
+class RimObservedFmuRftData;
 
 //==================================================================================================
 ///  
@@ -50,7 +51,8 @@ public:
         RFT,
         GRID,
         ENSEMBLE_RFT,
-        SUMMARY_RFT
+        SUMMARY_RFT,
+		OBSERVED_FMU_RFT
     };
 
     RifDataSourceForRftPlt();
@@ -58,6 +60,7 @@ public:
     RifDataSourceForRftPlt(SourceType sourceType, RimSummaryCaseCollection* ensemble);
     RifDataSourceForRftPlt(SourceType sourceType, RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble);
     RifDataSourceForRftPlt(SourceType sourceType, RimWellLogFile* wellLogFile = nullptr);
+    RifDataSourceForRftPlt(SourceType sourceType, RimObservedFmuRftData* observedFmuRftData);
 
     SourceType   sourceType() const;
     RimEclipseCase* eclCase() const;
@@ -65,6 +68,7 @@ public:
     RimSummaryCaseCollection* ensemble() const;
     RimSummaryCase* summaryCase() const;
     RimWellLogFile* wellLogFile() const;
+	RimObservedFmuRftData* observedFmuRftData() const;
 
     static QString sourceTypeUiText(SourceType sourceType);
 
@@ -77,6 +81,7 @@ private:
     caf::PdmPointer<RimSummaryCase>           m_summaryCase;
     caf::PdmPointer<RimSummaryCaseCollection> m_ensemble;
     caf::PdmPointer<RimWellLogFile>           m_wellLogFile;
+    caf::PdmPointer<RimObservedFmuRftData>    m_observedFmuRftData;
 };
 
 bool operator==(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2);

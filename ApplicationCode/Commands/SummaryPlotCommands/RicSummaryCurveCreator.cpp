@@ -33,7 +33,7 @@
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimMainPlotCollection.h"
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -873,7 +873,7 @@ void RicSummaryCurveCreator::updateCurveNames()
 //--------------------------------------------------------------------------------------------------
 bool RicSummaryCurveCreator::isObservedData(RimSummaryCase* sumCase) const
 {
-    return dynamic_cast<RimObservedData*>(sumCase) != nullptr;
+    return dynamic_cast<RimObservedSummaryData*>(sumCase) != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

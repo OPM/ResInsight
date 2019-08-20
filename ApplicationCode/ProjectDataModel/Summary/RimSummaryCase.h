@@ -52,6 +52,7 @@ public:
     void                updateOptionSensitivity();
 
     virtual void        createSummaryReaderInterface() = 0;
+	virtual void        createRftReaderInterface() {}
     virtual RifSummaryReaderInterface* summaryReader() = 0;
     virtual RifReaderRftInterface* rftReader();
     virtual QString     errorMessagesFromReader()               { return QString(); }

@@ -94,7 +94,7 @@ public:
     size_t                                          trackIndex(const RimWellLogTrack* track) const;
     RimWellLogTrack*                                trackByIndex(size_t index);
     size_t                                          firstVisibleTrackIndex() const;
-
+    std::vector<RimWellLogTrack*>                   tracks() const;
     void                                            updateTracks(bool autoScaleXAxis = false);
     void                                            updateTrackNames();
 

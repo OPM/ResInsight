@@ -90,6 +90,8 @@ public:
 
     static const char* plotNameFormatString();
 
+	void deleteCurvesAssosicatedWithObservedData(const RimObservedFmuRftData* observedFmuRftData);
+
 protected:
     // Overridden PDM methods
     caf::PdmFieldHandle* userDescriptionField() override

@@ -87,6 +87,13 @@ void RimFileSummaryCase::updateFilePathsFromProjectPath(const QString & newProje
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
     m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), m_includeRestartFiles);    
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::createRftReaderInterface()
+{
     m_summaryEclipseRftReader = RimFileSummaryCase::findRftDataAndCreateReader(this->summaryHeaderFilename());
     if (m_summaryEclipseRftReader.notNull())
     {

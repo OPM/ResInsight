@@ -68,7 +68,7 @@
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimPltPlotCollection.h"
@@ -643,7 +643,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
 
-            if (!dynamic_cast<RimObservedData*>(uiItem))
+            if (!dynamic_cast<RimObservedSummaryData*>(uiItem))
             {
                 menuBuilder << "RicShowSummaryCurveCalculatorFeature";
                 //menuBuilder << "RicNewSummaryPlotFeature";
@@ -834,6 +834,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicFlyToObjectFeature";
 
         menuBuilder << "RicImportObservedDataFeature";
+        menuBuilder << "RicImportObservedFmuDataFeature";
         menuBuilder << "RicReloadSummaryCaseFeature";
         menuBuilder << "RicCreateSummaryCaseCollectionFeature";
         menuBuilder << "Separator";

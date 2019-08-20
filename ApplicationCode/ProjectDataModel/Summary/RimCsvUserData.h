@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 
 #include "../../Commands/SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
@@ -32,7 +32,7 @@ class RifSummaryReaderInterface;
 //==================================================================================================
 //
 //==================================================================================================
-class RimCsvUserData : public RimObservedData
+class RimCsvUserData : public RimObservedSummaryData
 {
     CAF_PDM_HEADER_INIT;
 public:

@@ -131,6 +131,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimRiuQwtPlotOwnerInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h
+${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.h
 )
 
 
@@ -265,6 +267,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
