@@ -660,7 +660,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::Progra
 
     if (cvf::Option o = progOpt->option("summaryplot"))
     {
-        RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine( cvfqt::Utils::toQStringList(o.values()));
+        RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( cvfqt::Utils::toQStringList(o.values()));
     }
 
     QString projectFileName;
