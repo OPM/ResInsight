@@ -37,6 +37,9 @@
 #include "RicImportGeneralDataFeature.h"
 
 #include <QStringList>
+#include "RicImportSummaryCasesFeature.h"
+#include "RiaDefines.h"
+#include <QFileInfo>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -209,10 +212,12 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
         RiaLogging::error("Needs at least one summary vector to create a plot.");
     }
     
+    std::vector<RimSummaryCase*> summaryCasesToUse;
+
     if ( summaryFiles.size() )
     {
-        RicImportGeneralDataFeature::OpenCaseResults results =
-            RicImportGeneralDataFeature::openEclipseFilesFromFileNames(summaryFiles, false);
+        RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(summaryFiles, false, &summaryCasesToUse);
+        RiaApplication::instance()->setLastUsedDialogDirectory(RiaDefines::defaultDirectoryLabel(RiaDefines::ECLIPSE_SUMMARY_FILE), QFileInfo(summaryFiles[0]).absolutePath());
     }
 
     bool hideLegend = options.contains("-nl");
@@ -220,7 +225,7 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotFromArgumentLine(con
     bool isNormalizedY = options.contains("-n");
     bool isSinglePlot = options.contains("-s");
 
-    std::vector<RimSummaryCase*> summaryCasesToUse = RiaApplication::instance()->project()->allSummaryCases();
+ 
 
     if ( summaryCasesToUse.size() )
     {
