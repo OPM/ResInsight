@@ -18,23 +18,31 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
-#include "cafPdmField.h"
+#include "RimNamedObject.h"
+#include "RifReaderFmuRft.h"
 
-//==================================================================================================
-//
-//
-//
-//==================================================================================================
-class RicImportFmuObservedDataFeature : public caf::CmdFeature
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
+
+class RimObservedFmuRftData : public RimNamedObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    static void selectObservedDataPathInDialog();
+    RimObservedFmuRftData();
+
+	void setDirectoryPath(const QString& path);
+	void createRftReaderInterface();
+    RifReaderRftInterface* rftReader();
+
+	bool hasWell(const QString& simWellName) const;
+	std::vector<QString> wells() const;
 
 private:
-    bool isCommandEnabled() override;
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    cvf::ref<RifReaderFmuRft> m_fmuRftReader;
+
+	caf::PdmField<QString>                        m_directoryPath;
+    caf::PdmProxyValueField<std::vector<QString>> m_wells;
 };
+

@@ -43,6 +43,7 @@ public:
     void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
     void            createSummaryReaderInterface() override;
+	void            createRftReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
     RifReaderRftInterface*     rftReader() override;
 

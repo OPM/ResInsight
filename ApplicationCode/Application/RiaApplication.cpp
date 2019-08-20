@@ -55,7 +55,7 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimPltPlotCollection.h"
@@ -485,9 +485,10 @@ bool RiaApplication::loadProject(const QString&      projectFileName,
         {
             oilField->observedDataCollection = new RimObservedDataCollection();
         }
-        for (RimObservedData* observedData : oilField->observedDataCollection()->allObservedData())
+        for (RimObservedSummaryData* observedData : oilField->observedDataCollection()->allObservedSummaryData())
         {
             observedData->createSummaryReaderInterface();
+            observedData->createRftReaderInterface();
             observedData->updateMetaData();
         }
 

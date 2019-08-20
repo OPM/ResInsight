@@ -34,6 +34,8 @@
 #include <QDate>
 #include <QMetaType>
 
+class RimObservedFmuRftData;
+class RimSummaryCaseCollection;
 class RimWellLogFile;
 class RimEclipseCase;
 
@@ -58,7 +60,9 @@ public:
 private:
     void InitPdmObject();
 
-    caf::PdmField<caf::AppEnum<RifDataSourceForRftPlt::SourceType> > m_sourceType;
-    caf::PdmPtrField<RimEclipseCase*>                           m_eclCase;
-    caf::PdmPtrField<RimWellLogFile*>                           m_wellLogFile;
+    caf::PdmField<caf::AppEnum<RifDataSourceForRftPlt::SourceType>> m_sourceType;
+    caf::PdmPtrField<RimEclipseCase*>                               m_eclCase;
+    caf::PdmPtrField<RimWellLogFile*>                               m_wellLogFile;
+	caf::PdmPtrField<RimSummaryCaseCollection*>                     m_ensemble;
+    caf::PdmPtrField<RimObservedFmuRftData*>                        m_observedFmuRftData;
 };

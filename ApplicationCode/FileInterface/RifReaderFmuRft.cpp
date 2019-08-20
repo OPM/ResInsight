@@ -227,6 +227,7 @@ void RifReaderFmuRft::load()
     QDir dir(m_filePath);
 
 	WellObservationMap wellObservations = loadWellDates(dir, &errorMsg);
+    WellObservationMap validObservations;
 	if (wellObservations.empty())    
     {
 		if (errorMsg.isEmpty())
@@ -243,23 +244,22 @@ void RifReaderFmuRft::load()
         WellObservationSet& wellObservationSet = it->second;
         QString   txtFile = QString("%1.txt").arg(wellName);
         QString   obsFile = QString("%1.obs").arg(wellName);
-        QFileInfo txtFileInfo(dir.absoluteFilePath(txtFile));
-        QFileInfo obsFileInfo(dir.absoluteFilePath(obsFile));        
 
-		if (!readTxtFile(txtFile, &errorMsg, &wellObservationSet))
+		if (!readTxtFile(dir.absoluteFilePath(txtFile), &errorMsg, &wellObservationSet))
 		{
-            RiaLogging::error(errorMsg);
-            return;
+            RiaLogging::warning(errorMsg);
+            continue;
 		}
 
-		if (!readObsFile(obsFile, &errorMsg, &wellObservationSet))
+		if (!readObsFile(dir.absoluteFilePath(obsFile), &errorMsg, &wellObservationSet))
 		{
-            RiaLogging::error(errorMsg);
-            return;
+            RiaLogging::warning(errorMsg);
+            continue;
 		}
+        validObservations.insert(*it);
     }
 
-	m_allWellObservations.swap(wellObservations);
+	m_allWellObservations.swap(validObservations);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -390,6 +390,7 @@ RifReaderFmuRft::WellObservationMap RifReaderFmuRft::loadWellDates(QDir& dir, QS
                 }
 
                 QDateTime   dateTime(QDate(year, month, day));
+                dateTime.setTimeSpec(Qt::UTC);
                 WellObservationSet observationSet(dateTime, measurementIndex);
                 validObservations.insert(std::make_pair(wellName, observationSet));
             }
@@ -416,8 +417,8 @@ bool RifReaderFmuRft::readTxtFile(const QString& fileName, QString* errorMsg, We
     QTextStream stream(&file);
     while (true)
     {
-        QString line = stream.readLine();
-        if (line.isNull())
+        QString line = stream.readLine().trimmed();
+        if (line.isNull() || line.isEmpty())
         {
             break;
         }
@@ -465,16 +466,15 @@ bool RifReaderFmuRft::readObsFile(const QString& fileName, QString* errorMsg, We
     QTextStream stream(&file);
     while (true)
     {
-        if (lineNumber >= wellObservationSet->observations.size())
+        QString line        = stream.readLine().trimmed();
+        if (line.isNull() || line.isEmpty())
+        {
+            break;
+        }
+        else if (lineNumber >= wellObservationSet->observations.size())
         {
             *errorMsg = QString("'%1' has more lines than corresponding txt file").arg(fileName);
             return false;
-        }
-
-        QString line = stream.readLine();
-        if (line.isNull())
-        {
-            break;
         }
         else
         {

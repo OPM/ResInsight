@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 
 #include "RifSummaryReaderInterface.h"
 #include "RimTools.h"
@@ -25,12 +25,12 @@
 
 #include <QFileInfo>
 
-CAF_PDM_ABSTRACT_SOURCE_INIT(RimObservedData, "ObservedData");
+CAF_PDM_ABSTRACT_SOURCE_INIT(RimObservedSummaryData, "ObservedData");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedData::RimObservedData()
+RimObservedSummaryData::RimObservedSummaryData()
 {
     m_isObservedData = true;
 
@@ -50,7 +50,7 @@ RimObservedData::RimObservedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimObservedData::caseName() const
+QString RimObservedSummaryData::caseName() const
 {
     QFileInfo caseFileName(this->summaryHeaderFilename());
 
@@ -60,7 +60,7 @@ QString RimObservedData::caseName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimObservedData::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
+void RimObservedSummaryData::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
 {
     m_summaryHeaderFilename = RimTools::relocateFile(m_summaryHeaderFilename(), newProjectPath, oldProjectPath, nullptr, nullptr);
 }
@@ -68,7 +68,7 @@ void RimObservedData::updateFilePathsFromProjectPath(const QString & newProjectP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimObservedData::identifierName() const
+QString RimObservedSummaryData::identifierName() const
 {
     return m_identifierName();
 }
@@ -76,7 +76,7 @@ QString RimObservedData::identifierName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::SummaryVarCategory RimObservedData::summaryCategory() const
+RifEclipseSummaryAddress::SummaryVarCategory RimObservedSummaryData::summaryCategory() const
 {
     return m_summaryCategory();
 }
@@ -84,7 +84,7 @@ RifEclipseSummaryAddress::SummaryVarCategory RimObservedData::summaryCategory() 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimObservedData::updateMetaData()
+void RimObservedSummaryData::updateMetaData()
 {
     std::string metaDataString;
 
@@ -104,7 +104,7 @@ void RimObservedData::updateMetaData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimObservedData::customWellName() const
+QString RimObservedSummaryData::customWellName() const
 {
     if (m_useCustomIdentifier() && m_summaryCategory() == RifEclipseSummaryAddress::SUMMARY_WELL)
     {
@@ -117,7 +117,7 @@ QString RimObservedData::customWellName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimObservedData::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimObservedSummaryData::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     if (fieldNeedingOptions == &m_summaryCategory)
     {
@@ -136,7 +136,7 @@ QList<caf::PdmOptionItemInfo> RimObservedData::calculateValueOptions(const caf::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimObservedData::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimObservedSummaryData::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_useCustomIdentifier ||
         changedField == &m_summaryCategory ||

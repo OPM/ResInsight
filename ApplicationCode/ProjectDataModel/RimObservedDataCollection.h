@@ -21,7 +21,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
 
-class RimObservedData;
+class RimObservedFmuRftData;
+class RimObservedSummaryData;
 class QFile;
 
 //--------------------------------------------------------------------------------------------------
@@ -35,14 +36,18 @@ public:
     RimObservedDataCollection();
     ~RimObservedDataCollection() override;
 
-    void                            removeObservedData(RimObservedData* observedData);
-    RimObservedData*                createAndAddRsmObservedDataFromFile(const QString& fileName, QString* errorText = nullptr);
-    RimObservedData*                createAndAddCvsObservedDataFromFile(const QString& fileName, bool useSavedFieldsValuesInDialog, QString* errorText = nullptr);
-    std::vector<RimObservedData*>   allObservedData();
+    void                                       removeObservedSummaryData(RimObservedSummaryData* observedSummaryData);
+    void                                       removeObservedFmuRftData(RimObservedFmuRftData* observedFmuRftData);
+    RimObservedSummaryData*                    createAndAddRsmObservedSummaryDataFromFile(const QString& fileName, QString* errorText = nullptr);
+    RimObservedSummaryData*                    createAndAddCvsObservedSummaryDataFromFile(const QString& fileName, bool useSavedFieldsValuesInDialog, QString* errorText = nullptr);
+	RimObservedFmuRftData*                     createAndAddFmuRftDataFromPath(const QString& directoryPath);
+    std::vector<RimObservedSummaryData*>       allObservedSummaryData() const; 
+	std::vector<RimObservedFmuRftData*>        allObservedFmuRftData() const; 
 
 private:
     bool                            fileExists(const QString& fileName, QString* errorText = nullptr);
 
 private:
-    caf::PdmChildArrayField<RimObservedData*> m_observedDataArray;
+    caf::PdmChildArrayField<RimObservedSummaryData*> m_observedDataArray;
+    caf::PdmChildArrayField<RimObservedFmuRftData*>  m_observedFmuRftArray;
 };

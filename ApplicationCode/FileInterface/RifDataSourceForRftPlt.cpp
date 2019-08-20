@@ -18,6 +18,7 @@
 
 #include "RifDataSourceForRftPlt.h"
 #include "RimEclipseCase.h"
+#include "RimObservedFmuRftData.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimWellLogFile.h"
@@ -87,6 +88,17 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifDataSourceForRftPlt::RifDataSourceForRftPlt(SourceType sourceType, RimObservedFmuRftData* observedFmuRftData)
+{
+    CVF_ASSERT(sourceType == SourceType::OBSERVED_FMU_RFT);
+
+	m_sourceType         = sourceType;
+    m_observedFmuRftData = observedFmuRftData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifDataSourceForRftPlt::SourceType RifDataSourceForRftPlt::sourceType() const
 {
     return m_sourceType;
@@ -149,6 +161,14 @@ RimWellLogFile* RifDataSourceForRftPlt::wellLogFile() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimObservedFmuRftData* RifDataSourceForRftPlt::observedFmuRftData() const
+{
+    return m_observedFmuRftData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RifDataSourceForRftPlt::sourceTypeUiText(SourceType sourceType)
 {
     switch (sourceType)
@@ -163,6 +183,8 @@ QString RifDataSourceForRftPlt::sourceTypeUiText(SourceType sourceType)
             return QString("Ensembles with RFT Data");
         case SourceType::SUMMARY_RFT:
             return QString("Summary case with RFT Data");
+        case SourceType::OBSERVED_FMU_RFT:
+            return QString("Observed FMU data");
     }
     return QString();
 }
@@ -174,7 +196,7 @@ bool operator==(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
 {
     return addr1.sourceType() == addr2.sourceType() && addr1.eclCase() == addr2.eclCase() &&
            addr1.wellLogFile() == addr2.wellLogFile() && addr1.summaryCase() == addr2.summaryCase() &&
-           addr1.ensemble() == addr2.ensemble();
+           addr1.ensemble() == addr2.ensemble() && addr1.observedFmuRftData() == addr2.observedFmuRftData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,10 +238,7 @@ bool operator<(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt
         {
             return addr1.wellLogFile()->fileName() < addr2.wellLogFile()->fileName();
         }
-        else
-        {
-            return addr1.wellLogFile() < addr2.wellLogFile();
-        }
+        return addr1.wellLogFile() < addr2.wellLogFile();
     }
     else if (addr1.m_sourceType == RifDataSourceForRftPlt::SUMMARY_RFT)
     {
@@ -227,10 +246,7 @@ bool operator<(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt
         {
             return addr1.summaryCase()->caseName() < addr2.summaryCase()->caseName();
         }
-        else
-        {
-            return addr1.summaryCase() < addr2.summaryCase();
-        }
+		return addr1.summaryCase() < addr2.summaryCase();
     }
     else if (addr1.m_sourceType == RifDataSourceForRftPlt::ENSEMBLE_RFT)
     {
@@ -238,21 +254,23 @@ bool operator<(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt
         {
             return addr1.ensemble()->name() < addr2.ensemble()->name();
         }
-        else
-        {
-            return addr1.ensemble() < addr2.ensemble();
-        }
+        return addr1.ensemble() < addr2.ensemble();
     }
+	else if (addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED_FMU_RFT)
+    {
+		if (addr1.observedFmuRftData() && addr2.observedFmuRftData())
+		{
+            return addr1.observedFmuRftData()->name() < addr2.observedFmuRftData()->name();
+		}
+        return addr1.observedFmuRftData() < addr2.observedFmuRftData();
+	}
     else
     {
         if (addr1.eclCase() && addr2.eclCase())
         {
             return addr1.eclCase()->caseId() < addr2.eclCase()->caseId();
         }
-        else
-        {
-            return addr1.eclCase() < addr2.eclCase();
-        }
+		return addr1.eclCase() < addr2.eclCase();
     }
 }
 #if 0

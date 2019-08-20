@@ -49,7 +49,7 @@ class RimIdenticalGridCaseGroup;
 class RimMainPlotCollection;
 class RimMeasurement;
 class RimAdvancedSnapshotExportDefinition; 
-class RimObservedData;
+class RimObservedSummaryData;
 class RimOilField;
 class RimScriptCollection;
 class RimSummaryCase;

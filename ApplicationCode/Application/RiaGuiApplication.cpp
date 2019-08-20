@@ -59,7 +59,7 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimPltPlotCollection.h"

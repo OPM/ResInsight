@@ -27,7 +27,7 @@
 #include "RimFractureTemplateCollection.h"
 #include "RimValveTemplateCollection.h"
 #include "RimGeoMechModels.h"
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -121,7 +121,7 @@ QString RimOilField::uniqueShortNameForCase(RimSummaryCase* summaryCase)
     std::set<QString> allAutoShortNames;
 
     std::vector<RimSummaryCase*> allCases = summaryCaseMainCollection->allSummaryCases();
-    std::vector<RimObservedData*> observedDataCases = observedDataCollection->allObservedData();
+    std::vector<RimObservedSummaryData*> observedDataCases = observedDataCollection->allObservedSummaryData();
     
     for (auto observedData : observedDataCases)
     {
