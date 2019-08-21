@@ -154,6 +154,12 @@ endforeach(proto_file)
 
 if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 	if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+		foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
+			list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
+			# Copy into build folder so the python code is present for debugging
+			configure_file("${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}" "${CMAKE_BINARY_DIR}/Python/${PYTHON_SCRIPT}")
+		endforeach()
+
 	    list(APPEND GRPC_PYTHON_SOURCES
 		    ${GRPC_PYTHON_GENERATED_SOURCES}
 			"rips/generated/RiaVersionInfo.py"
@@ -200,11 +206,6 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 			"LICENSE"
 		)
 
-		foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
-			list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
-			# Copy into build folder so the python code is present for debugging
-			configure_file("${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}" "${CMAKE_BINARY_DIR}/Python/${PYTHON_SCRIPT}")
-		endforeach()
 		if (MSVC)
 			source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
 		endif(MSVC)

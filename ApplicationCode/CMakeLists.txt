@@ -704,13 +704,18 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     endif()
 
     # install gRPC Python files
-    if (RESINSIGHT_ENABLE_GRPC AND RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
-		if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)	
-			add_custom_command(
-				TARGET ResInsight
-				POST_BUILD
-				COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install --target=${CMAKE_BINARY_DIR}/Python grpcio
-			)
+    if (RESINSIGHT_ENABLE_GRPC)
+		message(STATUS "GRPC enabled")
+		if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+			message(STATUS "Python found")
+			if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)	
+				message(STATUS "Bundling Python GRPC modules")
+				add_custom_command(
+					TARGET ResInsight
+					POST_BUILD
+					COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install --target=${CMAKE_BINARY_DIR}/Python grpcio
+				)
+			endif()
 		endif()
 	endif()
 	install(DIRECTORY ${CMAKE_BINARY_DIR}/Python/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
