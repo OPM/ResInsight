@@ -31,6 +31,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResultAddress.h"
 #include "RigFlowDiagResults.h"
+#include "RigEclipseResultInfo.h"
 
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurve.h"
@@ -756,21 +757,31 @@ RigEclipseResultAddress RimEclipseResultDefinition::eclipseResultAddress() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::setFromEclipseResultAddress(const RigEclipseResultAddress& address)
 {
-    m_resultType            = address.m_resultCatType;
-    m_resultVariable        = address.m_resultName;
-    m_timeLapseBaseTimestep = address.m_timeLapseBaseFrameIdx;
+    RigEclipseResultAddress canonizedAddress = address;
 
-    if (address.hasDifferenceCase())
+    const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
+    if (gridCellResults)
+    {
+        canonizedAddress = gridCellResults->resultInfo(address)->eclipseResultAddress();    
+    }
+
+    m_resultType            = canonizedAddress.m_resultCatType;
+    m_resultVariable        = canonizedAddress.m_resultName;
+    m_timeLapseBaseTimestep = canonizedAddress.m_timeLapseBaseFrameIdx;
+
+    if (canonizedAddress.hasDifferenceCase())
     {
         auto eclipseCases = RiaApplication::instance()->project()->eclipseCases();
         for (RimEclipseCase* c : eclipseCases)
         {
-            if (c && c->caseId() == address.m_differenceCaseId)
+            if (c && c->caseId() == canonizedAddress.m_differenceCaseId)
             {
                 m_differenceCase = c;
             }
         }
     }
+
+    this->updateUiFieldsFromActiveResult();
 }
 
 //--------------------------------------------------------------------------------------------------

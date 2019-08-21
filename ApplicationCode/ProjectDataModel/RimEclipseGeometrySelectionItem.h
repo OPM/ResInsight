@@ -39,7 +39,11 @@ public:
     ~RimEclipseGeometrySelectionItem() override;
 
     void            setFromSelectionItem(const RiuEclipseSelectionItem* selectionItem);
-
+    void            setFromCaseGridAndIJK(RimEclipseCase* eclipseCase,
+                                          size_t gridIndex,
+                                          size_t i,
+                                          size_t j,
+                                          size_t k);
     QString geometrySelectionText() const override;
 
     RimEclipseCase* eclipseCase() const;
