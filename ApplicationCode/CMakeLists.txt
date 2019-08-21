@@ -6,6 +6,8 @@ project (ApplicationCode)
 find_package( OpenGL )
 
 option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
+option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE "Bundle the gRPC python modules into the install folder" OFF)
+
 if (RESINSIGHT_BUILD_WITH_QT5)
     find_package(Qt5 COMPONENTS Core QUIET)
 endif(RESINSIGHT_BUILD_WITH_QT5)
@@ -547,21 +549,13 @@ foreach (FILE_TO_COPY ${RI_DLL_FILENAMES})
     endif()
 endforeach()
 
-# Copy all grpc libraries and python files
+# Make sure we perform the Python code generation by having a target which ResInsight depends on
 if (RESINSIGHT_ENABLE_GRPC)	
     set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
     if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 		if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
 			add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
 			add_dependencies(ResInsight GeneratedPythonSources)
-
-			foreach (PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
-				if (EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
-					configure_file("${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}"  
-						            "${GRPC_PYTHON_DEST_PATH}/${PYTHON_SCRIPT}"
-							        COPYONLY)
-				endif(EXISTS "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
-			endforeach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
 		else()
 			message(STATUS "Error installing python code: RESINSIGHT_GRPC_PYTHON_EXECUTABLE set but ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} not found")
 		endif(EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
@@ -581,7 +575,6 @@ set (RESINSIGHT_LICENSE_FILES
 
 # bundle libraries together with private installation
 if (RESINSIGHT_PRIVATE_INSTALL)
-
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       # tell binary to first attempt to load libraries from its own directory
       set(RESINSIGHT_INSTALL_RPATH "\$ORIGIN")
@@ -710,11 +703,22 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
     endif()
 
-
     # install gRPC Python files
     if (RESINSIGHT_ENABLE_GRPC)
-        install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} FILES_MATCHING PATTERN "*.py")
+		message(STATUS "GRPC enabled")
+		if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+			message(STATUS "Python found")
+			if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)	
+				message(STATUS "Bundling Python GRPC modules")
+				add_custom_command(
+					TARGET ResInsight
+					POST_BUILD
+					COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install --target=${CMAKE_BINARY_DIR}/Python grpcio
+				)
+			endif()
+		endif()
 	endif()
+	install(DIRECTORY ${CMAKE_BINARY_DIR}/Python/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
 
     set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
         
