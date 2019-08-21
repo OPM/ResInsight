@@ -94,7 +94,8 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(const 
         RimCase* cas = projectCases[i];
         if (!cas) continue;
 
-		if (!(caseId == -1 || caseId == cas->caseId())) continue;
+        bool matchingCaseId = caseId == -1 || caseId == cas->caseId();
+        if (!matchingCaseId) continue;
 
         std::vector<Rim3dView*> views = cas->views();
 
