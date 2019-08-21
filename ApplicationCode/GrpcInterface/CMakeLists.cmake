@@ -89,9 +89,8 @@ set(PROTO_FILES
 )
 
 set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/Python")
-set(GRPC_PYTHON_DEST_PATH "${CMAKE_BINARY_DIR}/Python")
 
-foreach(proto_file ${PROTO_FILES})		
+foreach(proto_file ${PROTO_FILES})
     get_filename_component(rips_proto "${CMAKE_CURRENT_LIST_DIR}/GrpcProtos/${proto_file}.proto" ABSOLUTE)
     get_filename_component(rips_proto_path "${rips_proto}" PATH)
 
@@ -196,13 +195,15 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 			"rips/tests/conftest.py"
 			"rips/tests/dataroot.py"
 			"requirements.txt"
-			"setup.py.cmake"
+			"setup.py"
 			"README.md"
 			"LICENSE"
 		)
 
 		foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
 			list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
+			# Copy into build folder so the python code is present for debugging
+			configure_file("${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}" "${CMAKE_BINARY_DIR}/Python/${PYTHON_SCRIPT}")
 		endforeach()
 		if (MSVC)
 			source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
