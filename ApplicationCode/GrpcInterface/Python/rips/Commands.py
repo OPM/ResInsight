@@ -118,16 +118,18 @@ class Commands:
         """
         return self.__execute(exportMultiCaseSnapshot=Cmd.ExportMultiCaseRequest(gridListFile=gridListFile))
 
-    def exportSnapshots(self, type = 'ALL', prefix=''):
+    def exportSnapshots(self, type = 'ALL', prefix='', caseId = -1):
         """ Export snapshots of a given type
         
         Arguments:
             type (str): Enum string ('ALL', 'VIEWS' or 'PLOTS')
             prefix (str): Exported file name prefix
+            caseId (int): the case Id to export for. The default of -1 will export all cases
         
         """
         return self.__execute(exportSnapshots=Cmd.ExportSnapshotsRequest(type=type,
-                                                                       prefix=prefix))
+                                                                         prefix=prefix,
+                                                                         caseId=caseId))
 
     def exportProperty(self, caseId, timeStep, property, eclipseKeyword=property, undefinedValue=0.0, exportFile=property):
         """ Export an Eclipse property

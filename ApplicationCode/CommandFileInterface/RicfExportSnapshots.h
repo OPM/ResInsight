@@ -50,4 +50,5 @@ public:
 private:
     caf::PdmField<SnapshotsTypeEnum> m_type;
     caf::PdmField<QString>           m_prefix;
+    caf::PdmField<int>               m_caseId;
 };
