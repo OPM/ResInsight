@@ -44,6 +44,15 @@
 
 #include <QStringList>
 #include <QFileInfo>
+#include <QRegularExpression>
+#include "RiaImportEclipseCaseTools.h"
+#include "RimEclipseCase.h"
+#include "RimGridTimeHistoryCurve.h"
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+#include "RimEclipseResultCase.h"
+#include "RimOilField.h"
+#include "RimEclipseCaseCollection.h"
+#include "RigEclipseResultAddress.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -165,13 +174,127 @@ RimSummaryCurve* createHistoryCurve(const  RifEclipseSummaryAddress& addr, RimSu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+class RigGridCellResultAddress
+{
+public:
+    RigGridCellResultAddress() 
+        : gridIndex(-1)
+        , i(-1)
+        , j(-1)
+        , k(-1)
+    {}
+
+    RigGridCellResultAddress(size_t gridIndex,
+                             size_t i,
+                             size_t j,
+                             size_t k,
+                             const RigEclipseResultAddress & eclipseResultAddress)
+        : gridIndex(gridIndex)
+        , i(i)
+        , j(j)
+        , k(k)
+        , eclipseResultAddress(eclipseResultAddress)
+    {}
+
+    // Using zero based ijk
+
+    size_t gridIndex;
+    size_t i;
+    size_t j;
+    size_t k; 
+    RigEclipseResultAddress eclipseResultAddress;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigGridCellResultAddress> createGridCellAddressesFromFilter(const QString& text)
+{
+    std::vector<RigGridCellResultAddress> addresses;
+    QStringList addressParts = text.split(":");
+
+    if (addressParts.size() > 1)
+    {
+        QString resultVarName = addressParts[0];
+        size_t gridIdx = 0;
+        if (addressParts.size() > 2) 
+        {
+            gridIdx = addressParts[1].toULong();
+        }
+
+        QString ijkText = addressParts.back();
+        QStringList ijkTextParts = ijkText.split(",");
+        if (ijkTextParts.size() == 3)
+        {
+            bool isOk = true; 
+            bool allOk = true;
+            size_t i = ijkTextParts[0].toULong(&isOk);
+            allOk &= isOk;
+            size_t j = ijkTextParts[1].toULong(&isOk);
+            allOk &= isOk;
+            size_t k = ijkTextParts[2].toULong(&isOk);
+            allOk &= isOk;
+
+            if (allOk)
+            {
+                addresses.emplace_back(RigGridCellResultAddress(gridIdx, i-1, j-1, k-1, RigEclipseResultAddress(resultVarName )));
+            }
+        }
+    }
+
+    return addresses;
+}
+
+std::vector<RimEclipseCase*> openEclipseCasesForCellPlotting(QStringList gridFileNames)
+{
+    std::vector<RimEclipseCase*> openedCases;
+
+    RiaApplication* app = RiaApplication::instance();
+    RimProject* project = app->project();
+    RimEclipseCaseCollection* analysisModels = project->activeOilField()->analysisModels();
+    for ( const QString& fileName: gridFileNames )
+    {
+        QFileInfo gridFileInfo(fileName);
+        
+        if (!gridFileInfo.exists()) continue;
+
+        QString caseName = gridFileInfo.completeBaseName();
+
+        RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
+        rimResultReservoir->setCaseInfo(caseName, fileName);
+
+        analysisModels->cases.push_back(rimResultReservoir);
+
+        if ( !rimResultReservoir->openReserviorCase() )
+        {
+            analysisModels->removeCaseFromAllGroups(rimResultReservoir);
+
+            delete rimResultReservoir;
+
+            continue;
+        }
+        else
+        {
+            openedCases.push_back(rimResultReservoir);
+        }
+    }
+
+    analysisModels->updateConnectedEditors();
+    
+    return openedCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine(const QStringList & arguments)
 {
     // Split arguments in options, vectors and filenames
 
     QStringList options;
-    QStringList summaryAddressFilters;
-    QStringList summaryFiles;
+    QStringList allCurveAddressFilters;
+    QStringList summaryFileNames;
+    QStringList gridFileNames;
     QString ensembleColoringParameter;
 
     std::set<QString> validOptions = {"-help", "-h", "-nl", "-s", "-n", "-e", "-c", "-cl"};
@@ -226,20 +349,23 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine(const QString
         {
             RiaEclipseFileNameTools nameTool(arguments[optionIdx]);
             QString smSpecFileName = nameTool.findRelatedSummarySpecFile();
-            if (smSpecFileName != "")
+            QString gridFileName   = nameTool.findRelatedGridFile();
+
+            if (smSpecFileName != "" || gridFileName != "")
             {
-                summaryFiles.push_back(smSpecFileName);
+                if (smSpecFileName != "") summaryFileNames.push_back(smSpecFileName);
+                if (gridFileName != "") gridFileNames.push_back(gridFileName);
             }
             else
             {
-                summaryAddressFilters.push_back(arguments[optionIdx]) ;
+                allCurveAddressFilters.push_back(arguments[optionIdx]);
             }
         }
     }
 
-    if ( summaryAddressFilters.empty() )
+    if ( allCurveAddressFilters.empty() )
     {
-        RiaLogging::error("Needs at least one summary vector to create a plot.");
+        RiaLogging::error("Needs at least one vector to create a plot.");
     }
 
     bool hideLegend = options.contains("-nl");
@@ -265,155 +391,237 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine(const QString
     
     std::vector<RimSummaryCase*> summaryCasesToUse;
 
-    if ( summaryFiles.size() )
+    if ( summaryFileNames.size() )
     {
-        RicImportSummaryCasesFeature::createSummaryCasesFromFiles(summaryFiles, &summaryCasesToUse, isEnsembleMode);
+        RicImportSummaryCasesFeature::createSummaryCasesFromFiles(summaryFileNames, &summaryCasesToUse, isEnsembleMode);
         RicImportSummaryCasesFeature::addSummaryCases(summaryCasesToUse);
         RiaApplication::instance()->setLastUsedDialogDirectory(RiaDefines::defaultDirectoryLabel(RiaDefines::ECLIPSE_SUMMARY_FILE), 
-                                                               QFileInfo(summaryFiles[0]).absolutePath());
+                                                               QFileInfo(summaryFileNames[0]).absolutePath());
     }
 
+    // Sort in summary and grid curve addresses
 
+    QStringList gridResultAddressFilters;
+    QStringList summaryAddressFilters;
     if ( summaryCasesToUse.size() )
     {
-        RimSummaryPlot* lastPlotCreated = nullptr;
-        RimSummaryPlotCollection* sumPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
-        RimSummaryCaseCollection* ensemble = nullptr;
-        if (isEnsembleMode) ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases(summaryCasesToUse, "Ensemble", true);
+        const std::set<RifEclipseSummaryAddress>&  addrs = summaryCasesToUse[0]->summaryReader()->allResultAddresses();
+        std::vector<bool> usedFilters;
+        std::set<RifEclipseSummaryAddress> setToInsertFilteredAddressesIn;
+        filteredSummaryAdressesFromCase(allCurveAddressFilters, addrs, &setToInsertFilteredAddressesIn, &usedFilters);
 
-        if ( isSinglePlot )
+        QRegularExpression gridAddressPattern("^[A-Z]+:[0-9]+,[0-9]+,[0-9]+$");
+
+        for ( int filterIdx = 0; filterIdx < allCurveAddressFilters.size(); ++filterIdx )
         {
-            RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
-
-            if ( isEnsembleMode )
+            const QString& address = allCurveAddressFilters[filterIdx];
+            if ( usedFilters[filterIdx] )
             {
-                std::set<RifEclipseSummaryAddress> filteredAdressesFromCases = applySummaryAddressFiltersToCases(summaryCasesToUse, 
-                                                                                                                 summaryAddressFilters);
-                for ( const auto & addr : filteredAdressesFromCases )
-                {
-                    RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
-
-                    curveSet->setSummaryCaseCollection(ensemble);
-                    curveSet->setSummaryAddress(addr);
-                    
-                    if ( ensembleColoringStyle == PARAMETER || ensembleColoringStyle == LOG_PARAMETER )
-                    {
-                        curveSet->setColorMode(RimEnsembleCurveSet::BY_ENSEMBLE_PARAM);
-                        curveSet->setEnsembleParameter(ensembleColoringParameter);
-                        if ( ensembleColoringStyle == LOG_PARAMETER )
-                        {
-                            curveSet->legendConfig()->setMappingMode(RimRegularLegendConfig::LOG10_CONTINUOUS);
-                        }
-                    }
-                    newPlot->ensembleCurveSetCollection()->addCurveSet(curveSet);
-
-
-                    if (addHistoryCurves)
-                    {
-                        RimSummaryCurve* historyCurve = createHistoryCurve(addr, summaryCasesToUse[0]);
-                        if (historyCurve) newPlot->addCurveNoUpdate(historyCurve);
-                    }
-                }
+                summaryAddressFilters.push_back(address);
             }
             else
             {
-                for ( RimSummaryCase* sumCase : summaryCasesToUse )
+                if ( gridAddressPattern.match(address).hasMatch() )
                 {
-                    RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(summaryAddressFilters, newPlot, sumCase, addHistoryCurves);
-                    addHistoryCurves = false;
+                    gridResultAddressFilters.push_back(address);
+                }
+                else
+                {
+                    RiaLogging::warning("No summary or restart vectors matched \"" + address + "\"");
                 }
             }
-
-            lastPlotCreated = newPlot;
-
-            newPlot->showLegend(!hideLegend);
-            newPlot->setNormalizationEnabled(isNormalizedY);
-
-            newPlot->applyDefaultCurveAppearances();
-            newPlot->loadDataAndUpdate();
-
-            sumPlotColl->updateConnectedEditors();
-
-            RiuPlotMainWindowTools::setExpanded(newPlot);
-            RiuPlotMainWindowTools::selectAsCurrentItem(newPlot);
         }
-        else // Multiplot, one for each separate summary address
+    }
+
+    if ( summaryCasesToUse.size() )
+    {
+        if ( summaryAddressFilters.size() )
         {
+            RimSummaryPlotCollection* sumPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+            RimSummaryPlot* lastPlotCreated = nullptr;
+            RimSummaryCaseCollection* ensemble = nullptr;
+            if ( isEnsembleMode ) ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases(summaryCasesToUse, "Ensemble", true);
 
-            std::set<RifEclipseSummaryAddress> filteredAdressesFromCases = applySummaryAddressFiltersToCases(summaryCasesToUse, 
-                                                                                                             summaryAddressFilters);
-
-            for ( const auto & addr : filteredAdressesFromCases )
+            if ( isSinglePlot )
             {
-                std::vector<RimSummaryCurve*> createdCurves;
-                std::vector<RimEnsembleCurveSet*> createdEnsembleCurveSets;
+                RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+
                 if ( isEnsembleMode )
                 {
-                    RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
-
-                    curveSet->setSummaryCaseCollection(ensemble);
-                    curveSet->setSummaryAddress(addr);
-                    if ( ensembleColoringStyle == PARAMETER || ensembleColoringStyle == LOG_PARAMETER )
+                    std::set<RifEclipseSummaryAddress> filteredAdressesFromCases = applySummaryAddressFiltersToCases(summaryCasesToUse,
+                                                                                                                     summaryAddressFilters);
+                    for ( const auto & addr : filteredAdressesFromCases )
                     {
-                        curveSet->setColorMode(RimEnsembleCurveSet::BY_ENSEMBLE_PARAM);
-                        curveSet->setEnsembleParameter(ensembleColoringParameter);
-                        if ( ensembleColoringStyle == LOG_PARAMETER )
+                        RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
+
+                        curveSet->setSummaryCaseCollection(ensemble);
+                        curveSet->setSummaryAddress(addr);
+
+                        if ( ensembleColoringStyle == PARAMETER || ensembleColoringStyle == LOG_PARAMETER )
                         {
-                            curveSet->legendConfig()->setMappingMode(RimRegularLegendConfig::LOG10_CONTINUOUS);
+                            curveSet->setColorMode(RimEnsembleCurveSet::BY_ENSEMBLE_PARAM);
+                            curveSet->setEnsembleParameter(ensembleColoringParameter);
+                            if ( ensembleColoringStyle == LOG_PARAMETER )
+                            {
+                                curveSet->legendConfig()->setMappingMode(RimRegularLegendConfig::LOG10_CONTINUOUS);
+                            }
+                        }
+                        newPlot->ensembleCurveSetCollection()->addCurveSet(curveSet);
+
+
+                        if ( addHistoryCurves )
+                        {
+                            RimSummaryCurve* historyCurve = createHistoryCurve(addr, summaryCasesToUse[0]);
+                            if ( historyCurve ) newPlot->addCurveNoUpdate(historyCurve);
                         }
                     }
-                    createdEnsembleCurveSets.push_back(curveSet);
                 }
                 else
                 {
                     for ( RimSummaryCase* sumCase : summaryCasesToUse )
                     {
-                        const std::set<RifEclipseSummaryAddress>&  allAddrsInCase = sumCase->summaryReader()->allResultAddresses();
-                        if ( allAddrsInCase.count(addr) )
+                        RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot(summaryAddressFilters, newPlot, sumCase, addHistoryCurves);
+                        addHistoryCurves = false;
+                    }
+                }
+
+                lastPlotCreated = newPlot;
+
+                newPlot->showLegend(!hideLegend);
+                newPlot->setNormalizationEnabled(isNormalizedY);
+
+                newPlot->applyDefaultCurveAppearances();
+                newPlot->loadDataAndUpdate();
+
+                sumPlotColl->updateConnectedEditors();
+
+                RiuPlotMainWindowTools::setExpanded(newPlot);
+                RiuPlotMainWindowTools::selectAsCurrentItem(newPlot);
+            }
+            else // Multiplot, one for each separate summary address
+            {
+
+                std::set<RifEclipseSummaryAddress> filteredAdressesFromCases = applySummaryAddressFiltersToCases(summaryCasesToUse,
+                                                                                                                 summaryAddressFilters);
+
+                for ( const auto & addr : filteredAdressesFromCases )
+                {
+                    std::vector<RimSummaryCurve*> createdCurves;
+                    std::vector<RimEnsembleCurveSet*> createdEnsembleCurveSets;
+                    if ( isEnsembleMode )
+                    {
+                        RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
+
+                        curveSet->setSummaryCaseCollection(ensemble);
+                        curveSet->setSummaryAddress(addr);
+                        if ( ensembleColoringStyle == PARAMETER || ensembleColoringStyle == LOG_PARAMETER )
                         {
-                            RimSummaryCurve* newCurve = new RimSummaryCurve();
-                            newCurve->setSummaryCaseY(sumCase);
-                            newCurve->setSummaryAddressYAndApplyInterpolation(addr);
-                            createdCurves.push_back(newCurve);
+                            curveSet->setColorMode(RimEnsembleCurveSet::BY_ENSEMBLE_PARAM);
+                            curveSet->setEnsembleParameter(ensembleColoringParameter);
+                            if ( ensembleColoringStyle == LOG_PARAMETER )
+                            {
+                                curveSet->legendConfig()->setMappingMode(RimRegularLegendConfig::LOG10_CONTINUOUS);
+                            }
+                        }
+                        createdEnsembleCurveSets.push_back(curveSet);
+                    }
+                    else
+                    {
+                        for ( RimSummaryCase* sumCase : summaryCasesToUse )
+                        {
+                            const std::set<RifEclipseSummaryAddress>&  allAddrsInCase = sumCase->summaryReader()->allResultAddresses();
+                            if ( allAddrsInCase.count(addr) )
+                            {
+                                RimSummaryCurve* newCurve = new RimSummaryCurve();
+                                newCurve->setSummaryCaseY(sumCase);
+                                newCurve->setSummaryAddressYAndApplyInterpolation(addr);
+                                createdCurves.push_back(newCurve);
+                            }
                         }
                     }
-                }
 
-                if ( addHistoryCurves )
-                {
-                    RimSummaryCurve* historyCurve = createHistoryCurve(addr, summaryCasesToUse[0]);
-                    if (historyCurve) createdCurves.push_back(historyCurve);
-                }
-
-                if ( createdCurves.size() || createdEnsembleCurveSets.size() )
-                {
-                    RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
-
-                    for ( auto curve : createdCurves )
+                    if ( addHistoryCurves )
                     {
-                        newPlot->addCurveNoUpdate(curve);
+                        RimSummaryCurve* historyCurve = createHistoryCurve(addr, summaryCasesToUse[0]);
+                        if ( historyCurve ) createdCurves.push_back(historyCurve);
                     }
 
-                    for ( auto curveSet: createdEnsembleCurveSets )
+                    if ( createdCurves.size() || createdEnsembleCurveSets.size() )
                     {
-                        newPlot->ensembleCurveSetCollection()->addCurveSet(curveSet);
+                        RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+
+                        for ( auto curve : createdCurves )
+                        {
+                            newPlot->addCurveNoUpdate(curve);
+                        }
+
+                        for ( auto curveSet: createdEnsembleCurveSets )
+                        {
+                            newPlot->ensembleCurveSetCollection()->addCurveSet(curveSet);
+                        }
+
+                        newPlot->showLegend(!hideLegend);
+                        newPlot->setNormalizationEnabled(isNormalizedY);
+
+                        newPlot->applyDefaultCurveAppearances();
+                        newPlot->loadDataAndUpdate();
+                        lastPlotCreated = newPlot;
                     }
-
-                    newPlot->showLegend(!hideLegend);
-                    newPlot->setNormalizationEnabled(isNormalizedY);
-
-                    newPlot->applyDefaultCurveAppearances();
-                    newPlot->loadDataAndUpdate();
-                    lastPlotCreated = newPlot;
                 }
             }
-        }
-        sumPlotColl->updateConnectedEditors();
+            sumPlotColl->updateConnectedEditors();
 
-        if ( lastPlotCreated )
+            if ( lastPlotCreated )
+            {
+                RiuPlotMainWindowTools::setExpanded(lastPlotCreated);
+                RiuPlotMainWindowTools::selectAsCurrentItem(lastPlotCreated);
+                RiuPlotMainWindowTools::showPlotMainWindow();
+                RiuMainWindow::instance()->close();
+            }
+        }
+
+        // Grid Cell Result vectors
+
+        if ( gridResultAddressFilters.size() )
         {
-            RiuPlotMainWindowTools::setExpanded(lastPlotCreated);
-            RiuPlotMainWindowTools::selectAsCurrentItem(lastPlotCreated);
+            // Todo: Use identical grid case import if -e -c or -cl
+
+            std::vector<RimEclipseCase*> gridCasesToPlotFrom = openEclipseCasesForCellPlotting(gridFileNames);
+
+            RimSummaryPlotCollection* sumPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+
+            for (const QString& gridAddressFilter : gridResultAddressFilters)
+            {
+                std::vector<RigGridCellResultAddress> cellResAddrs = createGridCellAddressesFromFilter(gridAddressFilter);
+                for (RigGridCellResultAddress cellResAddr : cellResAddrs )
+                {
+                    RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+                    for ( RimEclipseCase* eclCase: gridCasesToPlotFrom )
+                    {
+                        RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
+                        newCurve->setFromEclipseCellAndResult(eclCase, 
+                                                              cellResAddr.gridIndex, 
+                                                              cellResAddr.i, 
+                                                              cellResAddr.j, 
+                                                              cellResAddr.k, 
+                                                              cellResAddr.eclipseResultAddress);
+                        newCurve->setLineThickness(2);
+                        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(newPlot->curveCount());
+                        newCurve->setColor(curveColor);
+
+                        newPlot->addGridTimeHistoryCurve(newCurve);
+
+                        newPlot->showLegend(!hideLegend);
+                        newPlot->setNormalizationEnabled(isNormalizedY);
+
+                        newPlot->applyDefaultCurveAppearances();
+                        newPlot->loadDataAndUpdate();
+                    }
+                }
+            }
+
+            sumPlotColl->updateConnectedEditors();
+
             RiuPlotMainWindowTools::showPlotMainWindow();
             RiuMainWindow::instance()->close();
         }
@@ -504,6 +712,9 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
     return createdCurves;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void  RicSummaryPlotFeatureImpl::filteredSummaryAdressesFromCase(const QStringList& curveFilters,
                                                                  const std::set<RifEclipseSummaryAddress>&  allAddressesInCase,
                                                                  std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
