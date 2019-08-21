@@ -118,7 +118,7 @@ class Commands:
         """
         return self.__execute(exportMultiCaseSnapshot=Cmd.ExportMultiCaseRequest(gridListFile=gridListFile))
 
-    def exportSnapshots(self, type = 'ALL', prefix=''):
+    def exportSnapshots(self, type = 'ALL', caseId = -1, prefix=''):
         """ Export snapshots of a given type
         
         Arguments:
@@ -127,7 +127,8 @@ class Commands:
         
         """
         return self.__execute(exportSnapshots=Cmd.ExportSnapshotsRequest(type=type,
-                                                                       prefix=prefix))
+                                                                         prefix=prefix,
+                                                                         caseId=caseId))
 
     def exportProperty(self, caseId, timeStep, property, eclipseKeyword=property, undefinedValue=0.0, exportFile=property):
         """ Export an Eclipse property
