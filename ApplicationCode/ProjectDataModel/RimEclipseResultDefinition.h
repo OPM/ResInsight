@@ -164,7 +164,10 @@ protected:
     // User interface only fields, to support "filtering"-like behaviour etc.
 
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultTypeUiField;
+    
+    // TODO: Remove Ui field, as behavior is similar to time difference fields
     caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModelUiField;
+
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
     caf::PdmField< caf::AppEnum< FlowTracerSelectionType > >        m_flowTracerSelectionMode;

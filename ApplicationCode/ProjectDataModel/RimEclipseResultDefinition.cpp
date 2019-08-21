@@ -279,6 +279,13 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         loadDataAndUpdate();
     }
 
+    if (&m_porosityModelUiField == changedField)
+    {
+        m_porosityModel         = m_porosityModelUiField;
+        m_resultVariableUiField = resultVariable();
+        loadDataAndUpdate();
+    }
+
     if (&m_differenceCase == changedField)
     {
         m_timeLapseBaseTimestep = RigEclipseResultAddress::noTimeLapseValue();
