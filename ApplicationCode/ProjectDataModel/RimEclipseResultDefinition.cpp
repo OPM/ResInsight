@@ -769,7 +769,8 @@ void RimEclipseResultDefinition::setFromEclipseResultAddress(const RigEclipseRes
     const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        canonizedAddress = gridCellResults->resultInfo(address)->eclipseResultAddress();    
+        auto rinfo = gridCellResults->resultInfo(address);
+        if (rinfo) canonizedAddress = rinfo->eclipseResultAddress();
     }
 
     m_resultType            = canonizedAddress.m_resultCatType;
