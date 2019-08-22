@@ -214,6 +214,22 @@ std::vector<double> RimGridTimeHistoryCurve::yValues() const
         }
     }
 
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
+    bool isNormalized = plot->isNormalizationEnabled();
+    if (isNormalized)
+    {
+        auto minMaxPair = std::minmax_element(values.begin(), values.end());
+        double min = *minMaxPair.first;
+        double max = *minMaxPair.second;
+        double range = max - min;
+
+        for (double & v: values)
+        {
+            v = (v - min)/range;
+        }
+    }
+
     return values;
 }
 

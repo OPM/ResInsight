@@ -54,6 +54,8 @@
 #include "RimOilField.h"
 #include "RimEclipseCaseCollection.h"
 #include "RigEclipseResultAddress.h"
+#include "RigEclipseCaseData.h"
+#include "RigCaseCellResultsData.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -591,32 +593,100 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine(const QString
 
             RimSummaryPlotCollection* sumPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
 
-            for (const QString& gridAddressFilter : gridResultAddressFilters)
+            if ( isSinglePlot )
             {
-                std::vector<RigGridCellResultAddress> cellResAddrs = createGridCellAddressesFromFilter(gridAddressFilter);
-                for (RigGridCellResultAddress cellResAddr : cellResAddrs )
+                std::vector<RimGridTimeHistoryCurve*> createdCurves;
+                int curveColorIndex = 0;
+                for ( const QString& gridAddressFilter : gridResultAddressFilters )
+                {
+                    std::vector<RigGridCellResultAddress> cellResAddrs = createGridCellAddressesFromFilter(gridAddressFilter);
+                    for ( RigGridCellResultAddress cellResAddr : cellResAddrs )
+                    {
+                        for ( RimEclipseCase* eclCase: gridCasesToPlotFrom )
+                        {
+                            if (!(eclCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL) && 
+                                  eclCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->resultInfo(cellResAddr.eclipseResultAddress)) )                            
+                            {
+                                RiaLogging::warning("Could not find a restart result property with name: \"" + cellResAddr.eclipseResultAddress.m_resultName + "\"");   
+                                continue;
+                            }
+
+                            RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
+                            newCurve->setFromEclipseCellAndResult(eclCase,
+                                                                  cellResAddr.gridIndex,
+                                                                  cellResAddr.i,
+                                                                  cellResAddr.j,
+                                                                  cellResAddr.k,
+                                                                  cellResAddr.eclipseResultAddress);
+                            newCurve->setLineThickness(2);
+                            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(curveColorIndex);
+                            newCurve->setColor(curveColor);
+                            if (!isEnsembleMode) ++curveColorIndex; 
+
+                            createdCurves.push_back(newCurve);
+                        }
+                        if (isEnsembleMode) ++curveColorIndex; 
+                    }
+                }
+
+                if ( createdCurves.size() )
                 {
                     RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
-                    for ( RimEclipseCase* eclCase: gridCasesToPlotFrom )
+                    for ( auto curve: createdCurves )
                     {
-                        RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
-                        newCurve->setFromEclipseCellAndResult(eclCase, 
-                                                              cellResAddr.gridIndex, 
-                                                              cellResAddr.i, 
-                                                              cellResAddr.j, 
-                                                              cellResAddr.k, 
-                                                              cellResAddr.eclipseResultAddress);
-                        newCurve->setLineThickness(2);
-                        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(newPlot->curveCount());
-                        newCurve->setColor(curveColor);
+                        newPlot->addGridTimeHistoryCurve(curve);
+                    }
 
-                        newPlot->addGridTimeHistoryCurve(newCurve);
+                    newPlot->showLegend(!hideLegend);
+                    newPlot->setNormalizationEnabled(isNormalizedY);
+                    newPlot->loadDataAndUpdate();
+                }
+            }
+            else // Multiplot
+            {
+                int curveColorIndex = 0;
 
-                        newPlot->showLegend(!hideLegend);
-                        newPlot->setNormalizationEnabled(isNormalizedY);
+                for ( const QString& gridAddressFilter : gridResultAddressFilters )
+                {
+                    std::vector<RigGridCellResultAddress> cellResAddrs = createGridCellAddressesFromFilter(gridAddressFilter);
+                    for ( RigGridCellResultAddress cellResAddr : cellResAddrs )
+                    {
+                        std::vector<RimGridTimeHistoryCurve*> createdCurves;
+                        for ( RimEclipseCase* eclCase: gridCasesToPlotFrom )
+                        {
+                            if (!(eclCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL) && 
+                                  eclCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->resultInfo(cellResAddr.eclipseResultAddress)) )
+                            {
+                                RiaLogging::warning("Could not find a restart result property with name: \"" + cellResAddr.eclipseResultAddress.m_resultName + "\"");   
+                                continue;
+                            }
+                            RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
+                            newCurve->setFromEclipseCellAndResult(eclCase,
+                                                                  cellResAddr.gridIndex,
+                                                                  cellResAddr.i,
+                                                                  cellResAddr.j,
+                                                                  cellResAddr.k,
+                                                                  cellResAddr.eclipseResultAddress);
+                            newCurve->setLineThickness(2);
+                            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(curveColorIndex);
+                            newCurve->setColor(curveColor);
+                            if (!isEnsembleMode) ++curveColorIndex; 
+                            createdCurves.push_back(newCurve);
+                        }
+                        
+                        if (isEnsembleMode) ++curveColorIndex; 
 
-                        newPlot->applyDefaultCurveAppearances();
-                        newPlot->loadDataAndUpdate();
+                        if ( createdCurves.size() )
+                        {
+                            RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+                            for (auto newCurve : createdCurves)
+                            {
+                                newPlot->addGridTimeHistoryCurve(newCurve);
+                            }
+                            newPlot->showLegend(!hideLegend);
+                            newPlot->setNormalizationEnabled(isNormalizedY);
+                            newPlot->loadDataAndUpdate();
+                        }
                     }
                 }
             }
