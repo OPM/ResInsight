@@ -6,10 +6,12 @@ import logging
 import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
+import App_pb2
+import App_pb2_grpc
+from Definitions_pb2 import Empty
 
 import RiaVersionInfo
 
-from .App import App
 from .Commands import Commands
 from .Project import Project
 
@@ -19,7 +21,6 @@ class Instance:
     Attributes:
         launched (bool): Tells us whether the application was launched as a new process.
             If the application was launched we may need to close it when exiting the script.
-        app (App): Application information object. Set when creating an instance.
         commands (Commands): Command executor. Set when creating an instance.
         project (Project): Current project in ResInsight.
             Set when creating an instance and updated when opening/closing projects.
@@ -99,8 +100,8 @@ class Instance:
 
     def __checkVersion(self):
         try:
-            majorVersionOk = self.app.majorVersion() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
-            minorVersionOk = self.app.minorVersion() == int(RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
+            majorVersionOk = self.majorVersion() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
+            minorVersionOk = self.minorVersion() == int(RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
             return True, majorVersionOk and minorVersionOk
         except grpc.RpcError as e:
             return False, False
@@ -118,7 +119,7 @@ class Instance:
         self.launched = launched
 
         # Main version check package
-        self.app     = App(self.channel)
+        self.app     = self.app = App_pb2_grpc.AppStub(self.channel)
 
         connectionOk = False
         versionOk = False
@@ -147,3 +148,35 @@ class Instance:
     
         path = os.getcwd()
         self.commands.setStartDir(path=path)
+
+    def __versionMessage(self):
+        return self.app.GetVersion(Empty())
+
+    def majorVersion(self):
+        """Get an integer with the major version number"""
+        return self.__versionMessage().major_version
+
+    def minorVersion(self):
+        """Get an integer with the minor version number"""
+        return self.__versionMessage().minor_version
+
+    def patchVersion(self):
+        """Get an integer with the patch version number"""
+        return self.__versionMessage().patch_version
+
+    def versionString(self):
+        """Get a full version string, i.e. 2019.04.01"""
+        return str(self.majorVersion()) + "." + str(self.minorVersion()) + "." + str(self.patchVersion())
+
+    def exit(self):
+        """Tell ResInsight instance to quit"""
+        print("Telling ResInsight to Exit")
+        return self.app.Exit(Empty())
+
+    def isConsole(self):
+        """Returns true if the connected ResInsight instance is a console app"""
+        return self.app.GetRuntimeInfo(Empty()).app_type == App_pb2.ApplicationTypeEnum.Value('CONSOLE_APPLICATION')
+
+    def isGui(self):
+        """Returns true if the connected ResInsight instance is a GUI app"""
+        return self.app.GetRuntimeInfo(Empty()).app_type == App_pb2.ApplicationTypeEnum.Value('GUI_APPLICATION')

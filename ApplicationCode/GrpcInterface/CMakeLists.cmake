@@ -162,7 +162,6 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 	    list(APPEND GRPC_PYTHON_SOURCES
 			"rips/generated/RiaVersionInfo.py"
 			"rips/__init__.py"
-			"rips/App.py"
 			"rips/Case.py"
 			"rips/Commands.py"
 			"rips/Grid.py"
