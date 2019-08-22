@@ -35,9 +35,9 @@ for case in cases:
     print(case.name, case.id, 'Number of timesteps: ' + str(len(timeSteps)))
     print('Number of timesteps for snapshoting: ' + str(len(tss_snapshot)))
         
-    view = case.view(id = 0)
+    view = case.views()[0]
     for property in property_list:
         view.applyCellResult(resultType='DYNAMIC_NATIVE', resultVariable=property)
         for ts_snapshot in tss_snapshot:
             resInsight.commands.setTimeStep(caseId = case.id, timeStep = ts_snapshot)        
-            resInsight.commands.exportSnapshots('VIEWS')  # ‘ALL’, ‘VIEWS’ or ‘PLOTS’ default is 'ALL'
+            resInsight.commands.exportSnapshots(type='VIEWS', caseId=case.id)  # ‘ALL’, ‘VIEWS’ or ‘PLOTS’ default is 'ALL'

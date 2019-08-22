@@ -68,9 +68,9 @@ void RicSnapshotAllViewsToFileFeature::saveAllViews()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Export all snapshots of a given case (or caseId == -1 for all cases)
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(const QString& snapshotFolderName, const QString& prefix)
+void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(const QString& snapshotFolderName, const QString& prefix /*= ""*/, int caseId /*= -1*/)
 {
     RimProject* project = RiaApplication::instance()->project();
 
@@ -93,6 +93,9 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(const 
     {
         RimCase* cas = projectCases[i];
         if (!cas) continue;
+
+        bool matchingCaseId = caseId == -1 || caseId == cas->caseId();
+        if (!matchingCaseId) continue;
 
         std::vector<Rim3dView*> views = cas->views();
 

@@ -51,6 +51,7 @@ RicfExportSnapshots::RicfExportSnapshots()
 {
     RICF_InitField(&m_type, "type", RicfExportSnapshots::SnapshotsTypeEnum(), "Type", "", "", "");
     RICF_InitField(&m_prefix, "prefix", QString(), "Prefix", "", "", "");
+    RICF_InitField(&m_caseId, "caseId", -1, "Case Id", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +78,7 @@ RicfCommandResponse RicfExportSnapshots::execute()
     }
     if (m_type == RicfExportSnapshots::VIEWS || m_type == RicfExportSnapshots::ALL)
     {
-        RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(absolutePathToSnapshotDir, m_prefix);
+        RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(absolutePathToSnapshotDir, m_prefix, m_caseId());
     }
     if (m_type == RicfExportSnapshots::PLOTS || m_type == RicfExportSnapshots::ALL)
     {
