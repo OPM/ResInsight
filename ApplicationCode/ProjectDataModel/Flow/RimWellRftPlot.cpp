@@ -404,6 +404,8 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
 
 	defineCurveColorsAndSymbols(allCurveDefs);
 
+	std::set<RimSummaryCaseCollection*> ensemblesWithSummaryCurves;
+
     // Add new curves
     for (const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs)
     {
@@ -428,10 +430,15 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
             plotTrack->addCurve(curve);
             auto rftCase = curveDefToAdd.address().summaryCase();
             curve->setSummaryCase(rftCase);
+            curve->setEnsemble(curveDefToAdd.address().ensemble());
             RifEclipseRftAddress address(simWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE);
             curve->setRftAddress(address);
             curve->setZOrder(1);
             applyCurveAppearance(curve);
+
+			bool isFirstSummaryCurveInEnsemble = ensemblesWithSummaryCurves.count(curveDefToAdd.address().ensemble()) == 0u;
+            curve->showLegend(isFirstSummaryCurveInEnsemble);
+            ensemblesWithSummaryCurves.insert(curveDefToAdd.address().ensemble());
         }
         else if (m_showStatisticsCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::ENSEMBLE_RFT)
         {

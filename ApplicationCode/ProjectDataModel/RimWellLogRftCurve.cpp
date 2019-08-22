@@ -308,13 +308,13 @@ QString RimWellLogRftCurve::createCurveAutoName()
     {
         name.push_back(m_eclipseResultCase->caseUserDescription());
     }
+    else if (m_ensemble) // Summary RFT curves have both ensemble and summary set. Prioritize ensemble for name.
+    {
+        name.push_back(m_ensemble->name());
+    }
     else if (m_summaryCase)
     {
         name.push_back(m_summaryCase->caseName());
-    }
-    else if (m_ensemble)
-    {
-        name.push_back(m_ensemble->name());
     }
     if (wellLogChannelName() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(RifEclipseRftAddress::NONE))
     {
@@ -592,7 +592,7 @@ RifReaderRftInterface* RimWellLogRftCurve::rftReader() const
     {
         return m_eclipseResultCase()->rftReader();
     }
-    else if (m_summaryCase())
+    else if (m_summaryCase()) // Summary RFT curves have both summary and ensemble set. Prioritize summary for reader.
     {
         return m_summaryCase()->rftReader();
     }
