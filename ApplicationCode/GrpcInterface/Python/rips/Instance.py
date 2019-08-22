@@ -64,7 +64,7 @@ class Instance:
 
         print('Port ' + str(port))
         print('Trying to launch', resInsightExecutable)
-        parameters = ["ResInsight", "--grpcserver", str(port)]
+        parameters = ["ResInsight", "--server", str(port)]
         if console:
             print("Launching as console app")
             parameters.append("--console")
