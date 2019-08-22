@@ -38,4 +38,4 @@ def pytest_configure(config):
 
 def pytest_unconfigure(config):
     if not config.getoption('--existing'):
-        _rips_instance.app.exit()
+        _rips_instance.exit()
