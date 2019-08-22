@@ -154,6 +154,11 @@ endforeach(proto_file)
 
 if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 	if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+		CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
+		                ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py)
+		CONFIGURE_FILE( ${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
+                        ${GRPC_PYTHON_SOURCE_PATH}/setup.py)
+
 	    list(APPEND GRPC_PYTHON_SOURCES
 		    ${GRPC_PYTHON_GENERATED_SOURCES}
 			"rips/generated/RiaVersionInfo.py"
@@ -217,13 +222,6 @@ endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 
 list ( APPEND GRPC_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list ( APPEND GRPC_CPP_SOURCES ${SOURCE_GROUP_SOURCE_FILES})
-
-CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
-                ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py
-)
-CONFIGURE_FILE( ${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
-                ${GRPC_PYTHON_SOURCE_PATH}/setup.py
-)
 
 source_group( "GrpcInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.cmake )
 source_group( "GrpcInterface\\GrpcProtos" FILES ${GRPC_PROTO_FILES_FULL_PATH} )
