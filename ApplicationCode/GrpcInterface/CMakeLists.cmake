@@ -160,7 +160,6 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
                         ${GRPC_PYTHON_SOURCE_PATH}/setup.py)
 
 	    list(APPEND GRPC_PYTHON_SOURCES
-		    ${GRPC_PYTHON_GENERATED_SOURCES}
 			"rips/generated/RiaVersionInfo.py"
 			"rips/__init__.py"
 			"rips/App.py"
@@ -204,10 +203,16 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 			"README.md"
 			"LICENSE"
 		)
+
 		foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
-			list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
 			# Copy into build folder so the python code is present for debugging
 			configure_file("${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}" "${CMAKE_BINARY_DIR}/Python/${PYTHON_SCRIPT}" COPYONLY)
+		endforeach()
+
+		list(APPEND GRPC_PYTHON_SOURCES ${GRPC_PYTHON_GENERATED_SOURCES})
+
+		foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
+			list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")		
 		endforeach()
 
 		if (MSVC)
