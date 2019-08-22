@@ -881,8 +881,8 @@ void RimGridCrossPlot::updateAxisFromQwt(RiaDefines::PlotAxis axisType)
         axisRange      = yAxisRange;
     }
 
-    axisProperties->visibleRangeMin = axisRange.minValue();
-    axisProperties->visibleRangeMax = axisRange.maxValue();
+    axisProperties->visibleRangeMin = std::min(axisRange.minValue(), axisRange.maxValue());
+    axisProperties->visibleRangeMax = std::max(axisRange.minValue(), axisRange.maxValue());
 
     axisProperties->updateConnectedEditors();
 }
