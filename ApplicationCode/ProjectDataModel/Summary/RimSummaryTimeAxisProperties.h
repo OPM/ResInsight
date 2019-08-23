@@ -50,9 +50,13 @@ public:
         SECONDS, 
         MINUTES, 
         HOURS, 
-        DAYS, 
+        DAYS,
+		MONTHS,
         YEARS
     };
+
+	typedef caf::AppEnum<RiaQDateTimeTools::DateFormatComponents> DateFormatEnum;
+	typedef caf::AppEnum<RiaQDateTimeTools::TimeFormatComponents> TimeFormatEnum;
 
 public:
     RimSummaryTimeAxisProperties();
@@ -70,6 +74,9 @@ public:
     void                  setTimeMode(TimeModeType val);
     double                fromTimeTToDisplayUnitScale();
     double                fromDaysToDisplayUnitScale();
+
+	RiaQDateTimeTools::DateFormatComponents dateComponents(RiaQDateTimeTools::DateFormatComponents fallback = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED) const;
+	RiaQDateTimeTools::TimeFormatComponents timeComponents(RiaQDateTimeTools::TimeFormatComponents fallback = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED) const;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
@@ -125,6 +132,9 @@ private:
     caf::PdmField<int>                                 m_titleFontSize;
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
     caf::PdmField<int>                                 m_valuesFontSize;
+	caf::PdmField<bool>                                m_automaticDateComponents;
+	caf::PdmField<DateFormatEnum>                      m_dateComponents;
+	caf::PdmField<TimeFormatEnum>                      m_timeComponents;
     caf::PdmField<QString>                             m_dateFormat;
     caf::PdmField<QString>                             m_timeFormat;
 

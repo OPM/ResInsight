@@ -102,9 +102,11 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimViewWindow* viewWindow, QWidget* parent 
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::useDateBasedTimeAxis(const QString& dateFormat,
-                                             const QString& timeFormat)
+                                             const QString& timeFormat,
+	                                         RiaQDateTimeTools::DateFormatComponents dateComponents,
+                                             RiaQDateTimeTools::TimeFormatComponents timeComponents)
 {
-    RiuQwtPlotTools::enableDateBasedBottomXAxis(this, dateFormat, timeFormat);
+    RiuQwtPlotTools::enableDateBasedBottomXAxis(this, dateFormat, timeFormat, dateComponents, timeComponents);
 }
 
 //--------------------------------------------------------------------------------------------------
