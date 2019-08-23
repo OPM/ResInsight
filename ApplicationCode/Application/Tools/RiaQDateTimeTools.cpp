@@ -22,6 +22,7 @@
 #include <QLocale>
 #include <QString>
 
+#include "cafAppEnum.h"
 #include <cvfAssert.h>
 
 #include <ctime>
@@ -46,6 +47,30 @@ const QString RiaQDateTimeTools::TIMESPAN_QUARTER_NAME = "Quarter";
 const QString RiaQDateTimeTools::TIMESPAN_HALFYEAR_NAME = "Half Year";
 const QString RiaQDateTimeTools::TIMESPAN_YEAR_NAME = "Year";
 const QString RiaQDateTimeTools::TIMESPAN_DECADE_NAME = "Decade";
+
+
+namespace caf
+{
+template<>
+void caf::AppEnum<RiaQDateTimeTools::DateFormatComponents>::setUp()
+{
+	addItem(RiaQDateTimeTools::DATE_FORMAT_NONE, "NO_DATE", "No Date");
+	addItem(RiaQDateTimeTools::DATE_FORMAT_YEAR, "YEAR", "Year Only");
+	addItem(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH, "YEAR_MONTH", "Year and Month");
+	addItem(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY, "YEAR_MONTH_DAY", "Year, Month and Day");
+	setDefault(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
+}
+
+template<>
+void caf::AppEnum<RiaQDateTimeTools::TimeFormatComponents>::setUp()
+{
+    addItem(RiaQDateTimeTools::TIME_FORMAT_NONE, "NO_TIME", "No Time of Day");
+    addItem(RiaQDateTimeTools::TIME_FORMAT_HOUR, "HOUR", "Hour Only");
+    addItem(RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE, "HOUR_MINUTE", "Hour and Minute");
+    addItem(RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND, "HOUR_MINUTE_SECONDS", "Hour, Minutes and Seconds");
+	setDefault(RiaQDateTimeTools::TIME_FORMAT_NONE);
+}
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
