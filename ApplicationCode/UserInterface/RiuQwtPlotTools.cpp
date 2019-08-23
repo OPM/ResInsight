@@ -150,9 +150,9 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval(QwtDate::IntervalType interva
 {
 	if (dateComponents != RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED && timeComponents != RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED)
 	{
-		return RiaQDateTimeTools::dateFormatString(dateFormat, dateComponents) + "\n" +
-			   RiaQDateTimeTools::timeFormatString(timeFormat, timeComponents);
-	}
+        return RiaQDateTimeTools::timeFormatString(timeFormat, timeComponents) + "\n" +
+               RiaQDateTimeTools::dateFormatString(dateFormat, dateComponents);
+    }
 	else
 	{
 		switch (interval)
