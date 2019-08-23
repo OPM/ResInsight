@@ -1,40 +1,26 @@
 Instance Module
-================
+===============
 
 .. autoclass:: rips.Instance
     :members:
 
 Example
---------
+-------
 
-.. literalinclude:: ../../rips/examples/InstanceExample.py
+.. literalinclude:: ../../rips/PythonExamples/InstanceExample.py
 	:language: python
 	:lines: 5-
 	:emphasize-lines: 3
 	
-App Module
-===========
-	
-.. autoclass:: rips.App
-    :members:
-	
-Example
---------
-
-.. literalinclude:: ../../rips/examples/AppInfo.py
-	:language: python
-	:lines: 5-
-	:emphasize-lines: 5
-	
 Case Module
-============
+===========
 .. autoclass:: rips.Case
     :members:
 
 Example
 -------
 	
-.. literalinclude:: ../../rips/examples/AllCases.py
+.. literalinclude:: ../../rips/PythonExamples/AllCases.py
 	:language: python
 	:lines: 5-
 	:emphasize-lines: 5
@@ -47,8 +33,8 @@ Commands Module
     :undoc-members:
 	
 Example
---------
-.. literalinclude:: ../../rips/examples/CommandExample.py
+-------
+.. literalinclude:: ../../rips/PythonExamples/CommandExample.py
 	:language: python
 	:lines: 5-
 	
@@ -72,7 +58,7 @@ Example
 		print(dimensions.k)
 
 GridCaseGroup Module
-===========
+====================
 
 .. autoclass:: rips.GridCaseGroup
     :members:
@@ -91,18 +77,18 @@ Properties Module
     :members:
 
 View Module
-=================
+===========
 
 .. autoclass:: rips.View
     :members:
 
-    Synchronous Example
---------------------
+Synchronous Example
+-------------------
 Read two properties, multiply them together and push the results back to ResInsight in a naïve way, by reading PORO into a list, then reading PERMX into a list, then multiplying them both in a resulting list and finally transferring back the list.
 
 This is slow and inefficient, but works.
 
-.. literalinclude:: ../../rips/examples/InputPropTestSync.py
+.. literalinclude:: ../../rips/PythonExamples/InputPropTestSync.py
 	:language: python
 	:lines: 5-
 	
@@ -112,7 +98,7 @@ Read two properties at the same time chunk by chunk, multiply each chunk togethe
 
 This is far more efficient.
 	
-.. literalinclude:: ../../rips/examples/InputPropTestAsync.py
+.. literalinclude:: ../../rips/PythonExamples/InputPropTestAsync.py
 	:language: python
 	:lines: 5-
 	
