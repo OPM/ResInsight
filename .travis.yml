@@ -16,6 +16,7 @@ addons:
       - qt5-default
       - libqt5opengl5-dev 
       - qtbase5-dev 
+      - qtscript5-dev
       
 #install:
  # - sudo apt-get -qq --yes install qt5-default
