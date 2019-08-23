@@ -1,10 +1,11 @@
 import grpc
 import os
 import sys
-from .Grid import Grid
-from .Properties import Properties
-from .PdmObject import PdmObject
-from .View import View
+from rips.Commands import Commands
+from rips.Grid import Grid
+from rips.Properties import Properties
+from rips.PdmObject import PdmObject
+from rips.View import View
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 
@@ -155,4 +156,9 @@ class Case (PdmObject):
             if viewObject.id == id:
                 return viewObject
         return None
+
+    def createView(self):
+        """Create a new view in the current case"""
+        viewId =  Commands(self.channel).createView(self.id)
+        return self.view(viewId)
 
