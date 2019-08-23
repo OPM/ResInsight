@@ -29,5 +29,9 @@ script:
      - cd build
      
      - cmake -DRESINSIGHT_ENABLE_COTIRE=true .. 
+     
+     # Build the default target
      #- make -j8
-     - make ResInsight_unity
+     
+     # Build the target produced by Cotire
+     - make -j8 ResInsight_unity
