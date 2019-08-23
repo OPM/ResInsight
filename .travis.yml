@@ -11,7 +11,8 @@ addons:
     packages:
       - cmake
       - cmake-data
-
+      - qtbase5-dev
+      
 #install:
  # - sudo apt-get -qq --yes install qt5-default
   
