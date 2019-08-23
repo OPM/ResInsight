@@ -33,7 +33,7 @@ class Instance:
             return s.connect_ex(('localhost', port)) == 0
     
     @staticmethod
-    def launch(resInsightExecutable = '', console = False):
+    def launch(resInsightExecutable = '', console = False, launchPort = -1, commandLineParameters=[]):
         """ Launch a new Instance of ResInsight. This requires the environment variable
         RESINSIGHT_EXECUTABLE to be set or the parameter resInsightExecutable to be provided.
         The RESINSIGHT_GRPC_PORT environment variable can be set to an alternative port number.
@@ -43,6 +43,9 @@ class Instance:
                 will take precedence over what is provided in the RESINSIGHT_EXECUTABLE
                 environment variable.
             console (bool): If True, launch as console application, without GUI.
+            launchPort(int): If -1 will use the default port of 50051 or look for RESINSIGHT_GRPC_PORT
+                             if anything else, ResInsight will try to launch with this port
+            commandLineParameters(list): Additional command line parameters as string entries in the list.
         Returns:
             Instance: an instance object if it worked. None if not.
         """
@@ -51,6 +54,8 @@ class Instance:
         portEnv = os.environ.get('RESINSIGHT_GRPC_PORT')
         if portEnv:
             port = int(portEnv)
+        if launchPort is not -1:
+            port = launchPort
         
         if not resInsightExecutable:
             resInsightExecutable = os.environ.get('RESINSIGHT_EXECUTABLE')
@@ -64,10 +69,19 @@ class Instance:
 
         print('Port ' + str(port))
         print('Trying to launch', resInsightExecutable)
-        parameters = ["ResInsight", "--server", str(port)]
+
+        if isinstance(commandLineParameters, str):
+            commandLineParameters = [str]
+
+        parameters = ["ResInsight", "--server", str(port)] + commandLineParameters
         if console:
             print("Launching as console app")
             parameters.append("--console")
+
+        # Stringify all parameters
+        for i in range(0, len(parameters)):
+            parameters[i] = str(parameters[i])
+
         pid = os.spawnv(os.P_NOWAIT, resInsightExecutable, parameters)
         if pid:
             instance = Instance(port=port, launched=True)
