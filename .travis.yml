@@ -18,9 +18,6 @@ addons:
       - qtbase5-dev 
       - qtscript5-dev
       
-#install:
- # - sudo apt-get -qq --yes install qt5-default
-  
 before_script:
     - git clone https://github.com/OPM/ResInsight.git
 
@@ -30,5 +27,7 @@ script:
     ############################################################################
      - mkdir -p build
      - cd build
-     - cmake .. 
-     - make -j8
+     
+     - cmake -DRESINSIGHT_ENABLE_COTIRE=true .. 
+     #- make -j8
+     - make ResInsight_unity
