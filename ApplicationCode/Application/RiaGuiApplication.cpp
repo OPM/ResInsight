@@ -1292,8 +1292,18 @@ void RiaGuiApplication::onFileSuccessfullyLoaded(const QString& fileName, RiaDef
     if (fileType & RiaDefines::ANY_ECLIPSE_FILE)
     {
         getOrCreateAndShowMainPlotWindow();
+
+        if (fileType != RiaDefines::ECLIPSE_SUMMARY_FILE)
+        {
+            if (mainWindow())
+            {
+                mainWindow()->raise();
+            }
+        }
+        auto plotWindow = getOrCreateMainPlotWindow();
+        plotWindow->show();
     }
-    
+
     if (!RiaGuiApplication::hasValidProjectFileExtension(fileName))
     {
         caf::PdmUiModelChangeDetector::instance()->setModelChanged();
