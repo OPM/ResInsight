@@ -1,0 +1,17 @@
+language: cpp
+
+compiler:
+  - gcc
+
+addons:
+  apt:
+    sources:
+    packages:
+      - g++-4.8
+      - cmake
+      - cmake-data
+
+before_script:
+    - export CXX="g++-4.8" 
+    - cd ..
+    - git clone https://github.com/OPM/ResInsight.git
