@@ -1,3 +1,5 @@
+dist: bionic
+
 language: cpp
 
 compiler:
@@ -10,8 +12,8 @@ addons:
       - cmake
       - cmake-data
 
-install:
-  - sudo apt-get -qq --yes install qt5-default
+#install:
+ # - sudo apt-get -qq --yes install qt5-default
   
 before_script:
     - git clone https://github.com/OPM/ResInsight.git
