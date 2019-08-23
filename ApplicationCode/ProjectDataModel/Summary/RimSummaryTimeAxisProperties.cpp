@@ -476,7 +476,11 @@ double RimSummaryTimeAxisProperties::fromDaysToDisplayUnitScale()
 //--------------------------------------------------------------------------------------------------
 RiaQDateTimeTools::DateFormatComponents RimSummaryTimeAxisProperties::dateComponents(RiaQDateTimeTools::DateFormatComponents fallback) const
 {
-	return m_automaticDateComponents() ? fallback : m_dateComponents();
+    if (m_automaticDateComponents()) return fallback;
+    
+    RiaQDateTimeTools::DateFormatComponents components = m_dateComponents();
+
+    return components;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -484,7 +488,11 @@ RiaQDateTimeTools::DateFormatComponents RimSummaryTimeAxisProperties::dateCompon
 //--------------------------------------------------------------------------------------------------
 RiaQDateTimeTools::TimeFormatComponents RimSummaryTimeAxisProperties::timeComponents(RiaQDateTimeTools::TimeFormatComponents fallback) const
 {
-	return m_automaticDateComponents() ? fallback : m_timeComponents();
+    if (m_automaticDateComponents()) return fallback;
+	
+    RiaQDateTimeTools::TimeFormatComponents components = m_timeComponents();
+
+    return components;
 }
 
 //--------------------------------------------------------------------------------------------------
