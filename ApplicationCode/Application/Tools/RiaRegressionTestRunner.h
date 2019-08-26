@@ -60,7 +60,7 @@ private:
                                const QDir&          testDir);
 
     static void    removeDirectoryWithContent(QDir& dirToDelete);
-    static void    resizeMaximizedPlotWindows();
+    static void    resizePlotWindows();
     static QSize   regressionDefaultImageSize();
     static QString diff2htmlHeaderText(const QString& testRootPath);
     QFileInfoList  subDirectoriesForTestExecution(const QDir& directory);
