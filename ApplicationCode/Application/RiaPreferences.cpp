@@ -32,6 +32,7 @@
 #include "cafPdmUiFilePathEditor.h"
 
 #include <QDate>
+#include <QDir>
 #include <QLocale>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
@@ -74,7 +75,10 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitFieldNoDefault(&scriptDirectories,        "scriptDirectory", "Shared Script Folder(s)", "", "", "");
     scriptDirectories.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
-    QString defaultTextEditor;
+	// TODO: This only currently works for installed ResInsight.
+	scriptDirectories = QCoreApplication::applicationDirPath() + "/Python/rips/PythonExamples";
+
+	QString defaultTextEditor;
 #ifdef WIN32
     defaultTextEditor = QString("notepad.exe");
 #else
