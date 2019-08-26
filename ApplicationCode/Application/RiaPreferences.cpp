@@ -298,7 +298,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
             group->add(&summaryEnsembleImportMode);
         }
     }
-    else if (uiConfigName == RiaPreferences::tabNameEclipseSummary())
+    else if (uiConfigName == RiaPreferences::tabNamePlotting())
     {
         uiOrdering.add(&defaultSummaryCurvesTextFilter);
         uiOrdering.add(&defaultSummaryHistoryCurveStyle);
@@ -426,9 +426,9 @@ QString RiaPreferences::tabNameEclipse()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameEclipseSummary() 
+QString RiaPreferences::tabNamePlotting() 
 {
-    return "Summary";
+    return "Plotting";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -464,7 +464,7 @@ QStringList RiaPreferences::tabNames()
 
     names << tabNameGeneral();
     names << tabNameEclipse();
-    names << tabNameEclipseSummary();
+    names << tabNamePlotting();
     names << tabNameScripting();
     names << tabNameExport();
 
