@@ -64,7 +64,7 @@ RicfCommandResponse RicfCloneView::execute()
                 Riu3DMainWindowTools::setExpanded(view);
             }
 
-            if (newViewId)
+            if (newViewId >= 0)
             {
                 RicfCommandResponse response;
                 response.setResult(new RicfCreateViewResult(newViewId));
