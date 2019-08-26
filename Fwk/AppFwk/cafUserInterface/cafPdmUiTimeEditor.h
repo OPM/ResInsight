@@ -3,8 +3,8 @@
 //   Custom Visualization Core library
 //   Copyright (C) 2019- Ceetron Solutions AS
 //
-//   This library may be used under the terms of either the GNU General Public License or
-//   the GNU Lesser General Public License as follows:
+//   This library may be used under the terms of either the GNU General Public
+//   License or the GNU Lesser General Public License as follows:
 //
 //   GNU General Public License Usage
 //   This library is free software: you can redistribute it and/or modify
@@ -12,12 +12,12 @@
 //   the Free Software Foundation, either version 3 of the License, or
 //   (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   This library is distributed in the hope that it will be useful, but WITHOUT
+//   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //   FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
-//   for more details.
+//   See the GNU General Public License at
+//   <<http://www.gnu.org/licenses/gpl.html>> for more details.
 //
 //   GNU Lesser General Public License Usage
 //   This library is free software; you can redistribute it and/or modify
@@ -25,70 +25,63 @@
 //   the Free Software Foundation; either version 2.1 of the License, or
 //   (at your option) any later version.
 //
-//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
-//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   This library is distributed in the hope that it will be useful, but WITHOUT
+//   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //   FITNESS FOR A PARTICULAR PURPOSE.
 //
-//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
-//   for more details.
+//   See the GNU Lesser General Public License at
+//   <<http://www.gnu.org/licenses/lgpl-2.1.html>> for more details.
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cafPdmUiFieldEditorHandle.h"
-
-#include <QTimeEdit>
 #include <QLabel>
 #include <QPointer>
 #include <QString>
+#include <QTimeEdit>
 #include <QWidget>
 
-namespace caf
-{
+#include "cafPdmUiFieldEditorHandle.h"
 
-	//==================================================================================================
-	/// 
-	//==================================================================================================
-	class PdmUiTimeEditorAttribute : public PdmUiEditorAttribute
-	{
-	public:
-		QString timeFormat;
+namespace caf {
 
-	public:
-		PdmUiTimeEditorAttribute()
-		{
-		}
-	};
+//==================================================================================================
+///
+//==================================================================================================
+class PdmUiTimeEditorAttribute : public PdmUiEditorAttribute {
+ public:
+  QString timeFormat;
 
-	//--------------------------------------------------------------------------------------------------
-	/// 
-	//--------------------------------------------------------------------------------------------------
-	class PdmUiTimeEditor : public PdmUiFieldEditorHandle
-	{
-		Q_OBJECT
-			CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+ public:
+  PdmUiTimeEditorAttribute() {}
+};
 
-	public:
-		PdmUiTimeEditor() {}
-		~PdmUiTimeEditor() override {}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class PdmUiTimeEditor : public PdmUiFieldEditorHandle {
+  Q_OBJECT
+  CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
-	protected:
-		QWidget*    createEditorWidget(QWidget * parent) override;
-		QWidget*    createLabelWidget(QWidget * parent) override;
-		void        configureAndUpdateUi(const QString& uiConfigName) override;
+ public:
+  PdmUiTimeEditor() {}
+  ~PdmUiTimeEditor() override {}
 
-	protected slots:
-		void                slotEditingFinished();
-        void                slotTimeChanged(const QTime& time);
+ protected:
+  QWidget* createEditorWidget(QWidget* parent) override;
+  QWidget* createLabelWidget(QWidget* parent) override;
+  void configureAndUpdateUi(const QString& uiConfigName) override;
 
-	private:
-		QPointer<QTimeEdit>      m_timeEdit;
-		QPointer<QShortenedLabel>         m_label;
+ protected slots:
+  void slotEditingFinished();
+  void slotTimeChanged(const QTime& time);
 
-		PdmUiTimeEditorAttribute m_attributes;
-	};
+ private:
+  QPointer<QTimeEdit> m_timeEdit;
+  QPointer<QShortenedLabel> m_label;
 
+  PdmUiTimeEditorAttribute m_attributes;
+};
 
-} // end namespace caf
+}  // end namespace caf
