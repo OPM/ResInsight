@@ -202,12 +202,7 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 			"README.md"
 			"LICENSE"
 		)
-
-		foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
-			# Copy into build folder so the python code is present for debugging
-			configure_file("${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}" "${CMAKE_BINARY_DIR}/Python/${PYTHON_SCRIPT}" COPYONLY)
-		endforeach()
-
+		
 		list(APPEND GRPC_PYTHON_SOURCES ${GRPC_PYTHON_GENERATED_SOURCES})
 
 		foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})

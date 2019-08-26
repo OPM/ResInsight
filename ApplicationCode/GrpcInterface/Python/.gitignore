@@ -5,3 +5,6 @@ dist
 build
 rips.egg-info
 setup.py
+grpc
+grpcio*
+six*
