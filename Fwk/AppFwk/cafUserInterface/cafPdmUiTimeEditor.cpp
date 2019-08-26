@@ -47,7 +47,6 @@
 #include "cafQShortenedLabel.h"
 
 #include <QApplication>
-#include <QDate>
 #include <QGridLayout>
 #include <QIntValidator>
 #include <QLabel>
@@ -87,7 +86,7 @@ namespace caf
 			m_timeEdit->setDisplayFormat(m_attributes.timeFormat);
 		}
 
-		m_timeEdit->setDate(uiField()->uiValue().toDate());
+		m_timeEdit->setTime(uiField()->uiValue().toTime());
 	}
 
 
@@ -98,9 +97,10 @@ namespace caf
 	{
 		m_timeEdit = new QTimeEdit(parent);
 		connect(m_timeEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
+        connect(m_timeEdit, SIGNAL(timeChanged(QTime)), this, SLOT(slotTimeChanged(QTime)));
 		return m_timeEdit;
 	}
-
+    
 	//--------------------------------------------------------------------------------------------------
 	/// 
 	//--------------------------------------------------------------------------------------------------
@@ -115,7 +115,15 @@ namespace caf
 	//--------------------------------------------------------------------------------------------------
 	void PdmUiTimeEditor::slotEditingFinished()
 	{
-		this->setValueToField(m_timeEdit->date());
+		this->setValueToField(m_timeEdit->time());
 	}
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    void PdmUiTimeEditor::slotTimeChanged(const QTime& time)
+    {
+        this->setValueToField(m_timeEdit->time());
+    }
 
 } // end namespace caf

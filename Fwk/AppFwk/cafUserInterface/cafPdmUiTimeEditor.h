@@ -81,6 +81,7 @@ namespace caf
 
 	protected slots:
 		void                slotEditingFinished();
+        void                slotTimeChanged(const QTime& time);
 
 	private:
 		QPointer<QTimeEdit>      m_timeEdit;

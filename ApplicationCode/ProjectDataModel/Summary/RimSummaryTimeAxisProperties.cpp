@@ -301,8 +301,7 @@ bool RimSummaryTimeAxisProperties::isActive() const
 //--------------------------------------------------------------------------------------------------
 QDateTime RimSummaryTimeAxisProperties::visibleDateTimeMin() const
 {
-    QDateTime fullMin(m_visibleDateRangeMin(), m_visibleTimeRangeMin());
-    return fullMin;
+    return RiaQDateTimeTools::createUtcDateTime(m_visibleDateRangeMin(), m_visibleTimeRangeMin());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -310,8 +309,7 @@ QDateTime RimSummaryTimeAxisProperties::visibleDateTimeMin() const
 //--------------------------------------------------------------------------------------------------
 QDateTime RimSummaryTimeAxisProperties::visibleDateTimeMax() const
 {
-    QDateTime fullMax(m_visibleDateRangeMax(), m_visibleTimeRangeMax());
-    return fullMax;
+    return RiaQDateTimeTools::createUtcDateTime(m_visibleDateRangeMax(), m_visibleTimeRangeMax());
 }
 
 //--------------------------------------------------------------------------------------------------
