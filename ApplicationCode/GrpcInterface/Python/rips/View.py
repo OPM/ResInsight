@@ -1,4 +1,4 @@
-import rips.Case
+import rips.Case # Circular import of Case, which already imports View. Use full name.
 from rips.Commands import Commands
 from rips.PdmObject import PdmObject
 
