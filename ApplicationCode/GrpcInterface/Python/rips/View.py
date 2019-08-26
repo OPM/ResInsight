@@ -1,4 +1,6 @@
-from .PdmObject import PdmObject
+import rips.Case # Circular import of Case, which already imports View. Use full name.
+from rips.Commands import Commands
+from rips.PdmObject import PdmObject
 
 class View (PdmObject):
     """ResInsight view class
@@ -82,3 +84,17 @@ class View (PdmObject):
             cellResult.setValue("SelectedInjectorTracers", injectors)
             cellResult.setValue("SelectedProducerTracers", producers)
         cellResult.update()
+
+    def case(self):
+        """Get the case the view belongs to"""
+        pdmCase = self.ancestor("EclipseCase")
+        if pdmCase is None:
+            pdmCase = self.ancestor("ResInsightGeoMechCase")
+        if pdmCase is None:
+            return None
+        return rips.Case(self.channel, pdmCase.getValue("CaseId"))
+
+    def clone(self):
+        """Clone the current view"""
+        viewId =  Commands(self.channel).cloneView(self.id)
+        return self.case().view(viewId)

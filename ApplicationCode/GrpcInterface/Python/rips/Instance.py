@@ -12,8 +12,8 @@ from Definitions_pb2 import Empty
 
 import RiaVersionInfo
 
-from .Commands import Commands
-from .Project import Project
+from rips.Commands import Commands
+from rips.Project import Project
 
 class Instance:
     """The ResInsight Instance class. Use to launch or find existing ResInsight instances

@@ -256,6 +256,16 @@ message ExportFlowInfoRequest
 	double aquiferCellThreshold = 7;
 }
 
+message CreateViewRequest
+{
+	int32 caseId = 1;
+}
+
+message CloneViewRequest
+{
+	int32 viewId = 1;
+}
+
 /* CommandParams handles both command name and parameters in one.
  * The message type and content is used as parameters and
  * the name of the variable is used to find the command name. */
@@ -296,8 +306,8 @@ message CommandParams
 		CreateGridCaseGroupRequest   createGridCaseGroup              = 27;
 		CreateStatisticsCaseRequest  createStatisticsCase             = 28;
 		ExportFlowInfoRequest        exportFlowCharacteristics        = 29;
-		
-
+		CreateViewRequest            createView                       = 30;
+		CloneViewRequest             cloneView                        = 31;
 	}
 }
 
@@ -312,6 +322,11 @@ message CreateStatisticsCaseResult
 	int32 caseId = 1;
 }
 
+message CreateViewResult
+{
+	int32 viewId = 1;
+}
+
 /* Command reply handles the return values for the generic command
  * The name of the variable is used to map to the cafPdmObject classKeyword */
 message CommandReply
@@ -322,6 +337,7 @@ message CommandReply
 		CaseRequest                            loadCaseResult = 2;
 		GridCaseGroupResult         createGridCaseGroupResult = 3;
 		CreateStatisticsCaseResult createStatisticsCaseResult = 4;
+		CreateViewResult                     createViewResult = 5;
 	}
 }
 

@@ -682,7 +682,7 @@ void RimGeoMechView::convertCameraPositionFromOldProjectFiles()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase* RimGeoMechView::geoMechCase()
+RimGeoMechCase* RimGeoMechView::geoMechCase() const
 {
     return m_geomechCase;
 }

@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 from Definitions_pb2 import Empty
 import Commands_pb2 as Cmd
 import Commands_pb2_grpc as CmdRpc
-from .Case import Case
+import rips.Case
 
 class Commands:
     """Command executor which can run ResInsight Command File commands nearly verbatim
@@ -65,7 +65,7 @@ class Commands:
         
         """
         commandReply = self.__execute(loadCase=Cmd.FilePathRequest(path=path))
-        return Case(self.channel, commandReply.loadCaseResult.id)
+        return rips.Case(self.channel, commandReply.loadCaseResult.id)
 
     def replaceCase(self, newGridFile, caseId=0):
         """Replace the given case with a new case loaded from file
@@ -276,3 +276,9 @@ class Commands:
                                                                                 fileName=fileName,
                                                                                 minimumCommunication = minimumCommunication,
                                                                                 aquiferCellThreshold = aquiferCellThreshold))
+
+    def createView(self, caseId):
+        return self.__execute(createView=Cmd.CreateViewRequest(caseId=caseId)).createViewResult.viewId
+
+    def cloneView(self, viewId):
+        return self.__execute(cloneView=Cmd.CloneViewRequest(viewId=viewId)).createViewResult.viewId

@@ -141,9 +141,6 @@ Rim3dView::Rim3dView(void)
 
     m_measurementPartManager = new RivMeasurementPartMgr(this);
     this->setAs3DViewMdiWindow();
-
-    RimProject* proj = RiaApplication::instance()->project();
-    proj->assignViewIdToView(this);
 }
 
 //--------------------------------------------------------------------------------------------------
