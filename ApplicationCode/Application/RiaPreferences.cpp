@@ -268,8 +268,6 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         viewsGroup->add(&showHud);
         
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup("Other");
-        otherGroup->add(&m_dateFormat);
-        otherGroup->add(&m_timeFormat);
         otherGroup->add(&ssihubAddress);
         otherGroup->add(&showLasCurveWithoutTvdWarning);
         otherGroup->add(&holoLensDisableCertificateVerification);
@@ -304,6 +302,8 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     {
         uiOrdering.add(&defaultSummaryCurvesTextFilter);
         uiOrdering.add(&defaultSummaryHistoryCurveStyle);
+        uiOrdering.add(&m_dateFormat);
+        uiOrdering.add(&m_timeFormat);
     }
     else if (uiConfigName == RiaPreferences::tabNameScripting())
     {
