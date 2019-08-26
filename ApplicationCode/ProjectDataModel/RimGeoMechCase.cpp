@@ -198,8 +198,8 @@ RimGeoMechView* RimGeoMechCase::createCopyAndAddView(const RimGeoMechView* sourc
         sourceView->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
     CVF_ASSERT(rimGeoMechView);
 
-	RiaApplication::instance()->project()->assignViewIdToView(rimGeoMechView);
-	rimGeoMechView->setGeoMechCase(this);
+    RiaApplication::instance()->project()->assignViewIdToView(rimGeoMechView);
+    rimGeoMechView->setGeoMechCase(this);
 
     caf::PdmDocument::updateUiIconStateRecursively(rimGeoMechView);
 
@@ -209,8 +209,7 @@ RimGeoMechView* RimGeoMechCase::createCopyAndAddView(const RimGeoMechView* sourc
     rimGeoMechView->resolveReferencesRecursively();
     rimGeoMechView->initAfterReadRecursively();
 
-	return rimGeoMechView;
-
+    return rimGeoMechView;
 }
 
 //--------------------------------------------------------------------------------------------------
