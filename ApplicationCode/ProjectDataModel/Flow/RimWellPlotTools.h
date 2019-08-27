@@ -100,7 +100,7 @@ public:
                                                                                       const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults,
                                                                                       QList<caf::PdmOptionItemInfo>& options);
 
-    static std::set < RiaRftPltCurveDefinition >    curveDefsFromTimesteps(const QString& simWellName, 
+    static std::set < RiaRftPltCurveDefinition >    curveDefsFromTimesteps(const QString& wellPathNameOrSimWellName,
                                                                            const std::vector<QDateTime>& selectedTimeStepVector, 
                                                                            bool firstReportTimeStepIsValid, 
                                                                            const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded,

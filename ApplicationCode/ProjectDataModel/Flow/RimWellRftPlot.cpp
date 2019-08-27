@@ -241,7 +241,7 @@ void RimWellRftPlot::applyInitialSelections()
         sourcesToSelect.push_back(RifDataSourceForRftPlt(RifDataSourceForRftPlt::GRID, gridCase));
     }
 
-    for (RimSummaryCaseCollection* const ensemble : RimWellPlotTools::rftEnsemblesForWell(simWellName))
+    for (RimSummaryCaseCollection* const ensemble : RimWellPlotTools::rftEnsemblesForWell(m_wellPathNameOrSimWellName))
     {
         sourcesToSelect.push_back(RifDataSourceForRftPlt(RifDataSourceForRftPlt::ENSEMBLE_RFT, ensemble));
     }
@@ -266,7 +266,7 @@ void RimWellRftPlot::applyInitialSelections()
         std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
 
         auto relevantTimeSteps =
-            RimWellPlotTools::calculateRelevantTimeStepsFromCases(associatedSimWellName(), m_selectedSources, channelTypesToUse);
+            RimWellPlotTools::calculateRelevantTimeStepsFromCases(m_wellPathNameOrSimWellName, m_selectedSources, channelTypesToUse);
 
         std::vector<QDateTime> timeStepVector;
         for (const auto& item : relevantTimeSteps)
@@ -378,7 +378,7 @@ std::set<RiaRftPltCurveDefinition> RimWellRftPlot::selectedCurveDefs() const
     std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
 
     return RimWellPlotTools::curveDefsFromTimesteps(
-        associatedSimWellName(), m_selectedTimeSteps.v(), true, selectedSourcesExpanded(), channelTypesToUse);
+        m_wellPathNameOrSimWellName, m_selectedTimeSteps.v(), true, selectedSourcesExpanded(), channelTypesToUse);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -438,7 +438,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
 
 			auto observedFmuRftData = curveDefToAdd.address().observedFmuRftData();
             curve->setObservedFmuRftData(observedFmuRftData);
-            RifEclipseRftAddress address(simWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE);
+            RifEclipseRftAddress address(m_wellPathNameOrSimWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE);
             curve->setRftAddress(address);
             curve->setZOrder(RiuQwtPlotCurve::Z_SINGLE_CURVE_OBSERVED);
             applyCurveAppearance(curve);
@@ -450,7 +450,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
             auto rftCase = curveDefToAdd.address().summaryCase();
             curve->setSummaryCase(rftCase);
             curve->setEnsemble(curveDefToAdd.address().ensemble());
-            RifEclipseRftAddress address(simWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE);
+            RifEclipseRftAddress address(m_wellPathNameOrSimWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE);
             curve->setRftAddress(address);
             curve->setZOrder(1);
             applyCurveAppearance(curve);
@@ -463,7 +463,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
         {
             RimSummaryCaseCollection*      ensemble = curveDefToAdd.address().ensemble();
             std::set<RifEclipseRftAddress> rftAddresses =
-                ensemble->rftStatisticsReader()->eclipseRftAddresses(simWellName, curveDefToAdd.timeStep());
+                ensemble->rftStatisticsReader()->eclipseRftAddresses(m_wellPathNameOrSimWellName, curveDefToAdd.timeStep());
             for (auto rftAddress : rftAddresses)
             {
                 if (rftAddress.wellLogChannel() != RifEclipseRftAddress::TVD)
@@ -691,7 +691,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
             }
         }
 
-        const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsemblesForWell(simWellName);
+        const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsemblesForWell(m_wellPathNameOrSimWellName);
         if (!rftEnsembles.empty())
         {
             options.push_back(caf::PdmOptionItemInfo::createHeader(
@@ -731,8 +731,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
             item.setLevel(1);
             options.push_back(item);
         }
-
-		const std::vector<RimObservedFmuRftData*> observedFmuRftCases = RimWellPlotTools::observedFmuRftDataForWell(simWellName);            
+		const std::vector<RimObservedFmuRftData*> observedFmuRftCases = RimWellPlotTools::observedFmuRftDataForWell(m_wellPathNameOrSimWellName);            
 		if (!observedFmuRftCases.empty())
 		{
             options.push_back(caf::PdmOptionItemInfo::createHeader(
@@ -753,7 +752,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
         std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
 
         RimWellPlotTools::calculateValueOptionsForTimeSteps(
-            associatedSimWellName(), selectedSourcesExpanded(), channelTypesToUse, options);
+            m_wellPathNameOrSimWellName, selectedSourcesExpanded(), channelTypesToUse, options);
     }
     else if (fieldNeedingOptions == &m_branchIndex)
     {
@@ -898,14 +897,14 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 
     if (proj != nullptr)
     {
-        const std::vector<QString>                                 simWellNames = proj->simulationWellNames();
-        std::set<QString>                                          simWellsAssociatedWithWellPath;
-        std::set<std::pair<QString /*uitext*/, QString /*value*/>> wellNames;
+        const std::vector<QString>                          simWellNames = proj->simulationWellNames();
+        std::set<QString>                                   simWellsAssociatedWithWellPath;
+        std::map<QString /*value*/, QStringList /*uitext*/> wellNames;
 
         // Observed wells
         for (RimWellPath* const wellPath : proj->allWellPaths())
         {
-            wellNames.insert(std::make_pair(wellPath->name() + "  (Well Path)", wellPath->name()));
+            wellNames[wellPath->name()].push_back("Well Path");
 
             if (!wellPath->associatedSimulationWellName().isEmpty())
             {
@@ -918,25 +917,23 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
         {
             if (simWellsAssociatedWithWellPath.count(simWellName) == 0)
             {
-                wellNames.insert(std::make_pair(simWellName, simWellName));
+                wellNames[simWellName].push_back("Sim.Well");
             }
         }
-
-        // Ensemble RFT wells
         const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsembles();
-        if (!rftEnsembles.empty())
+		// Ensemble RFT wells		
         {
             for (RimSummaryCaseCollection* summaryCaseColl : rftEnsembles)
             {
                 std::set<QString> wellsWithRftData = summaryCaseColl->wellsWithRftData();
                 for (QString wellName : wellsWithRftData)
                 {
-                    wellNames.insert(std::make_pair(wellName, wellName));
+                    wellNames[wellName].push_back("Ensemble");
                 }
             }
         }
 
-		// Observer FMU RFT wells
+		// Observed FMU RFT wells
         const std::vector<RimObservedFmuRftData*> allRftFmuData = RimWellPlotTools::observedFmuRftData();
 		if (!allRftFmuData.empty())
 		{
@@ -944,14 +941,21 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 			{
 				for (QString wellName : rftFmuData->wells())
 				{
-                    wellNames.insert(std::make_pair(wellName, wellName));
+                    wellNames[wellName].push_back("Observed");
 				}
 			}
 		}
 
         for (const auto& wellName : wellNames)
         {
-            options.push_back(caf::PdmOptionItemInfo(wellName.first, wellName.second));
+            const QStringList& tags = wellName.second;
+            QString uiText = wellName.first;
+            if (!tags.empty())
+            {
+                uiText += QString(" (%1)").arg(wellName.second.join(", "));
+            }
+
+            options.push_back(caf::PdmOptionItemInfo(uiText, wellName.first));
         }
     }
 }
