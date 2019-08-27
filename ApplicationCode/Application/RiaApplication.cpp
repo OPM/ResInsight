@@ -1380,7 +1380,7 @@ bool RiaApplication::initializeGrpcServer(const cvf::ProgramOptions& progOpt)
 
     int  defaultPortNumber = m_preferences->defaultGrpcPortNumber();
     bool fixedPort = false;
-    if (cvf::Option o = progOpt.option("grpcserver"))
+    if (cvf::Option o = progOpt.option("server"))
     {
         if (o.valueCount() == 1)
         {

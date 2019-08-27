@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiTimeEditor.h"
 
 #include "cafFactory.h"
@@ -43,11 +42,10 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
-#include "cafSelectionManager.h"
 #include "cafQShortenedLabel.h"
+#include "cafSelectionManager.h"
 
 #include <QApplication>
-#include <QDate>
 #include <QGridLayout>
 #include <QIntValidator>
 #include <QLabel>
@@ -58,64 +56,69 @@
 #include <QStatusBar>
 #include <QString>
 
-
 namespace caf
 {
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiTimeEditor);
 
-	CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiTimeEditor);
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTimeEditor::configureAndUpdateUi(const QString& uiConfigName)
+{
+    CAF_ASSERT(!m_timeEdit.isNull());
 
+    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-	//--------------------------------------------------------------------------------------------------
-	/// 
-	//--------------------------------------------------------------------------------------------------
-	void PdmUiTimeEditor::configureAndUpdateUi(const QString& uiConfigName)
-	{
-		CAF_ASSERT(!m_timeEdit.isNull());
+    m_timeEdit->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
 
-		PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
+    if (uiObject)
+    {
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
+    }
 
-		m_timeEdit->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    if (!m_attributes.timeFormat.isEmpty())
+    {
+        m_timeEdit->setDisplayFormat(m_attributes.timeFormat);
+    }
 
-		caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-		if (uiObject)
-		{
-			uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
-		}
+    m_timeEdit->setTime(uiField()->uiValue().toTime());
+}
 
-		if (!m_attributes.timeFormat.isEmpty())
-		{
-			m_timeEdit->setDisplayFormat(m_attributes.timeFormat);
-		}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiTimeEditor::createEditorWidget(QWidget* parent)
+{
+    m_timeEdit = new QTimeEdit(parent);
+    connect(m_timeEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
+    connect(m_timeEdit, SIGNAL(timeChanged(QTime)), this, SLOT(slotTimeChanged(QTime)));
+    return m_timeEdit;
+}
 
-		m_timeEdit->setDate(uiField()->uiValue().toDate());
-	}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiTimeEditor::createLabelWidget(QWidget* parent)
+{
+    m_label = new QShortenedLabel(parent);
+    return m_label;
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTimeEditor::slotEditingFinished()
+{
+    this->setValueToField(m_timeEdit->time());
+}
 
-	//--------------------------------------------------------------------------------------------------
-	/// 
-	//--------------------------------------------------------------------------------------------------
-	QWidget* PdmUiTimeEditor::createEditorWidget(QWidget* parent)
-	{
-		m_timeEdit = new QTimeEdit(parent);
-		connect(m_timeEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
-		return m_timeEdit;
-	}
-
-	//--------------------------------------------------------------------------------------------------
-	/// 
-	//--------------------------------------------------------------------------------------------------
-	QWidget* PdmUiTimeEditor::createLabelWidget(QWidget* parent)
-	{
-		m_label = new QShortenedLabel(parent);
-		return m_label;
-	}
-
-	//--------------------------------------------------------------------------------------------------
-	/// 
-	//--------------------------------------------------------------------------------------------------
-	void PdmUiTimeEditor::slotEditingFinished()
-	{
-		this->setValueToField(m_timeEdit->date());
-	}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTimeEditor::slotTimeChanged(const QTime& time)
+{
+    this->setValueToField(m_timeEdit->time());
+}
 
 } // end namespace caf

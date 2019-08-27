@@ -68,8 +68,8 @@ bool RiaArgumentParser::parseArguments(cvf::ProgramOptions* progOpt)
                             "If <filename> has extension .SMSPEC, import the summary file (does not open the corresponding grid file)",
                             cvf::ProgramOptions::MULTI_VALUE);
     progOpt->registerOption("size", "<width> <height>", "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt->registerOption("console", "", "Run as a console application without Graphics");
-    progOpt->registerOption("grpcserver", "[<portnumber>]", "Run as a GRPC server. Default port is 50051", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt->registerOption("console", "", "Launch as a console application without graphics");
+    progOpt->registerOption("server", "[<portnumber>]", "Launch as a GRPC server. Default port is 50051", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt->registerOption("startdir", "<folder>", "Set startup directory.\n", cvf::ProgramOptions::SINGLE_VALUE);
 
     progOpt->registerOption("summaryplot", 

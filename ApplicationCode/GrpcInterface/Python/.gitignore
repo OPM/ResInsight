@@ -5,3 +5,14 @@ dist
 build
 rips.egg-info
 setup.py
+grpc
+grpcio*
+six*
+easy_install*
+bin*
+grpc_tools
+pkg_resources
+google
+protobuf*
+setuptools*
+extern*

@@ -41,7 +41,12 @@ class RiuSummaryQwtPlot : public RiuQwtPlot
 public:
     RiuSummaryQwtPlot(RimViewWindow* ownerViewWindow, QWidget* parent = nullptr);
 
-    void useDateBasedTimeAxis(const QString& dateFormat, const QString& timeFormat);
+    void
+        useDateBasedTimeAxis(const QString&                          dateFormat,
+                             const QString&                          timeFormat,
+                             RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
+                             RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED);
+
     void useTimeBasedTimeAxis();
 
     void addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet* curveSetToShowLegendFor);

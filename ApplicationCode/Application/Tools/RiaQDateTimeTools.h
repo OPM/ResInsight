@@ -66,6 +66,7 @@ class RiaQDateTimeTools
 public:
     enum DateFormatComponents
     {
+		DATE_FORMAT_UNSPECIFIED = -2,
         DATE_FORMAT_NONE = -1,
         DATE_FORMAT_YEAR = 0,
         DATE_FORMAT_YEAR_MONTH,
@@ -75,6 +76,7 @@ public:
 
     enum TimeFormatComponents
     {
+		TIME_FORMAT_UNSPECIFIED = -2,
         TIME_FORMAT_NONE = -1,
         TIME_FORMAT_HOUR,
         TIME_FORMAT_HOUR_MINUTE,

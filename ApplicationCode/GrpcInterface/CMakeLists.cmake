@@ -154,17 +154,14 @@ endforeach(proto_file)
 
 if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 	if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
-		foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
-			list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
-			# Copy into build folder so the python code is present for debugging
-			configure_file("${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}" "${CMAKE_BINARY_DIR}/Python/${PYTHON_SCRIPT}")
-		endforeach()
+		CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
+		                ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py)
+		CONFIGURE_FILE( ${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
+                        ${GRPC_PYTHON_SOURCE_PATH}/setup.py)
 
 	    list(APPEND GRPC_PYTHON_SOURCES
-		    ${GRPC_PYTHON_GENERATED_SOURCES}
 			"rips/generated/RiaVersionInfo.py"
 			"rips/__init__.py"
-			"rips/App.py"
 			"rips/Case.py"
 			"rips/Commands.py"
 			"rips/Grid.py"
@@ -205,6 +202,12 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 			"README.md"
 			"LICENSE"
 		)
+		
+		list(APPEND GRPC_PYTHON_SOURCES ${GRPC_PYTHON_GENERATED_SOURCES})
+
+		foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
+			list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")		
+		endforeach()
 
 		if (MSVC)
 			source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
@@ -218,13 +221,6 @@ endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 
 list ( APPEND GRPC_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list ( APPEND GRPC_CPP_SOURCES ${SOURCE_GROUP_SOURCE_FILES})
-
-CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
-                ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py
-)
-CONFIGURE_FILE( ${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
-                ${GRPC_PYTHON_SOURCE_PATH}/setup.py
-)
 
 source_group( "GrpcInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.cmake )
 source_group( "GrpcInterface\\GrpcProtos" FILES ${GRPC_PROTO_FILES_FULL_PATH} )

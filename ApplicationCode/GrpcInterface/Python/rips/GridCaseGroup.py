@@ -1,8 +1,8 @@
 import grpc
 import os
 import sys
-from .PdmObject import PdmObject
-from .View import View
+from rips.PdmObject import PdmObject
+from rips.View import View
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 

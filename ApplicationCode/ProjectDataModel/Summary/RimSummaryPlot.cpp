@@ -945,10 +945,13 @@ void RimSummaryPlot::updateTimeAxis()
 
     if (m_timeAxisProperties->timeMode() == RimSummaryTimeAxisProperties::DATE)
     {
+		RiaQDateTimeTools::DateFormatComponents dateComponents = m_timeAxisProperties->dateComponents();
+		RiaQDateTimeTools::TimeFormatComponents timeComponents = m_timeAxisProperties->timeComponents();
+
         QString dateFormat = m_timeAxisProperties->dateFormat();        
         QString timeFormat = m_timeAxisProperties->timeFormat();
 
-        m_qwtPlot->useDateBasedTimeAxis(dateFormat, timeFormat);
+        m_qwtPlot->useDateBasedTimeAxis(dateFormat, timeFormat, dateComponents, timeComponents);
     }
     else 
     {

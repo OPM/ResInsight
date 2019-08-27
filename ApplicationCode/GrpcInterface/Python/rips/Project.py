@@ -2,11 +2,11 @@ import grpc
 import os
 import sys
 
-from .Case import Case
-from .Commands import Commands
-from .GridCaseGroup import GridCaseGroup
-from .PdmObject import PdmObject
-from .View import View
+from rips.Case import Case
+from rips.Commands import Commands
+from rips.GridCaseGroup import GridCaseGroup
+from rips.PdmObject import PdmObject
+from rips.View import View
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
 

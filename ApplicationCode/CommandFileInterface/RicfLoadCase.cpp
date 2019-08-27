@@ -70,7 +70,6 @@ RicfCommandResponse RicfLoadCase::execute()
         return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
     CAF_ASSERT(fileCaseIdMap.size() == 1u);
-    RicfLoadCaseResult result;
     RicfCommandResponse response;
     response.setResult(new RicfLoadCaseResult(fileCaseIdMap.begin()->second));
     return response;

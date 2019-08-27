@@ -181,11 +181,35 @@ void RimGeoMechCase::reloadDataAndUpdate()
 RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 {
     RimGeoMechView* gmv = new RimGeoMechView();
-    
+	RiaApplication::instance()->project()->assignViewIdToView(gmv);
+
     gmv->setGeoMechCase(this);
 
     geoMechViews.push_back(gmv);
     return gmv;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGeoMechView* RimGeoMechCase::createCopyAndAddView(const RimGeoMechView* sourceView)
+{
+    RimGeoMechView* rimGeoMechView = dynamic_cast<RimGeoMechView*>(
+        sourceView->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    CVF_ASSERT(rimGeoMechView);
+
+    RiaApplication::instance()->project()->assignViewIdToView(rimGeoMechView);
+    rimGeoMechView->setGeoMechCase(this);
+
+    caf::PdmDocument::updateUiIconStateRecursively(rimGeoMechView);
+
+    geoMechViews.push_back(rimGeoMechView);
+
+    // Resolve references after reservoir view has been inserted into Rim structures
+    rimGeoMechView->resolveReferencesRecursively();
+    rimGeoMechView->initAfterReadRecursively();
+
+    return rimGeoMechView;
 }
 
 //--------------------------------------------------------------------------------------------------

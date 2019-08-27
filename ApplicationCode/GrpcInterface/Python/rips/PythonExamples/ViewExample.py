@@ -1,6 +1,7 @@
 #############################################################
 # This example will alter the views of all cases
 # By setting the background color and toggle the grid box
+# Also clones the first view
 #############################################################
 import rips
 # Connect to ResInsight instance
@@ -19,3 +20,8 @@ if resInsight is not None:
             view.setBackgroundColor("#3388AA")            
             # Update the view in ResInsight
             view.update()
+        # Clone the first view
+        newView = views[0].clone()
+        view.setShowGridBox(False)
+        newView.setBackgroundColor("#FFAA33")
+        newView.update()

@@ -32,6 +32,7 @@
 #include "cafPdmUiFilePathEditor.h"
 
 #include <QDate>
+#include <QDir>
 #include <QLocale>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
@@ -74,7 +75,10 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitFieldNoDefault(&scriptDirectories,        "scriptDirectory", "Shared Script Folder(s)", "", "", "");
     scriptDirectories.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
-    QString defaultTextEditor;
+	// TODO: This only currently works for installed ResInsight.
+	scriptDirectories = QCoreApplication::applicationDirPath() + "/Python/rips/PythonExamples";
+
+	QString defaultTextEditor;
 #ifdef WIN32
     defaultTextEditor = QString("notepad.exe");
 #else
@@ -268,8 +272,6 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         viewsGroup->add(&showHud);
         
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup("Other");
-        otherGroup->add(&m_dateFormat);
-        otherGroup->add(&m_timeFormat);
         otherGroup->add(&ssihubAddress);
         otherGroup->add(&showLasCurveWithoutTvdWarning);
         otherGroup->add(&holoLensDisableCertificateVerification);
@@ -300,10 +302,12 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
             group->add(&summaryEnsembleImportMode);
         }
     }
-    else if (uiConfigName == RiaPreferences::tabNameEclipseSummary())
+    else if (uiConfigName == RiaPreferences::tabNamePlotting())
     {
         uiOrdering.add(&defaultSummaryCurvesTextFilter);
         uiOrdering.add(&defaultSummaryHistoryCurveStyle);
+        uiOrdering.add(&m_dateFormat);
+        uiOrdering.add(&m_timeFormat);
     }
     else if (uiConfigName == RiaPreferences::tabNameScripting())
     {
@@ -426,9 +430,9 @@ QString RiaPreferences::tabNameEclipse()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameEclipseSummary() 
+QString RiaPreferences::tabNamePlotting() 
 {
-    return "Summary";
+    return "Plotting";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -464,7 +468,7 @@ QStringList RiaPreferences::tabNames()
 
     names << tabNameGeneral();
     names << tabNameEclipse();
-    names << tabNameEclipseSummary();
+    names << tabNamePlotting();
     names << tabNameScripting();
     names << tabNameExport();
 

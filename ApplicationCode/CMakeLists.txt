@@ -713,10 +713,10 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 				add_custom_command(
 					TARGET ResInsight
 					POST_BUILD
-					COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install --target=${CMAKE_BINARY_DIR}/Python grpcio
+					COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
 				)
 			endif()
-			install(DIRECTORY ${CMAKE_BINARY_DIR}/Python/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
+			install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
 		endif()
 	endif()
 

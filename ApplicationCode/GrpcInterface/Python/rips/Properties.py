@@ -62,18 +62,16 @@ class Properties:
         """Get a list of available properties
         
         Arguments:
-            propertyType (str): string corresponding to propertyType enum.
-                
-                Can be one of the following:
-	            
-                'DYNAMIC_NATIVE'
-	            'STATIC_NATIVE'
-	            'SOURSIMRL'
-	            'GENERATED'
-	            'INPUT_PROPERTY'
-	            'FORMATION_NAMES'
-	            'FLOW_DIAGNOSTICS'
-	            'INJECTION_FLOODING'
+            propertyType (str): string corresponding to propertyType enum. Can be one of the following:
+                - DYNAMIC_NATIVE
+                - STATIC_NATIVE
+                - SOURSIMRL
+                - GENERATED
+                - INPUT_PROPERTY
+                - FORMATION_NAMES
+                - FLOW_DIAGNOSTICS
+                - INJECTION_FLOODING
+
             porosityModel(str): 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
         """
 

@@ -6,12 +6,14 @@ import logging
 import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
+import App_pb2
+import App_pb2_grpc
+from Definitions_pb2 import Empty
 
 import RiaVersionInfo
 
-from .App import App
-from .Commands import Commands
-from .Project import Project
+from rips.Commands import Commands
+from rips.Project import Project
 
 class Instance:
     """The ResInsight Instance class. Use to launch or find existing ResInsight instances
@@ -19,7 +21,6 @@ class Instance:
     Attributes:
         launched (bool): Tells us whether the application was launched as a new process.
             If the application was launched we may need to close it when exiting the script.
-        app (App): Application information object. Set when creating an instance.
         commands (Commands): Command executor. Set when creating an instance.
         project (Project): Current project in ResInsight.
             Set when creating an instance and updated when opening/closing projects.
@@ -32,7 +33,7 @@ class Instance:
             return s.connect_ex(('localhost', port)) == 0
     
     @staticmethod
-    def launch(resInsightExecutable = '', console = False):
+    def launch(resInsightExecutable = '', console = False, launchPort = -1, commandLineParameters=[]):
         """ Launch a new Instance of ResInsight. This requires the environment variable
         RESINSIGHT_EXECUTABLE to be set or the parameter resInsightExecutable to be provided.
         The RESINSIGHT_GRPC_PORT environment variable can be set to an alternative port number.
@@ -42,6 +43,9 @@ class Instance:
                 will take precedence over what is provided in the RESINSIGHT_EXECUTABLE
                 environment variable.
             console (bool): If True, launch as console application, without GUI.
+            launchPort(int): If -1 will use the default port of 50051 or look for RESINSIGHT_GRPC_PORT
+                             if anything else, ResInsight will try to launch with this port
+            commandLineParameters(list): Additional command line parameters as string entries in the list.
         Returns:
             Instance: an instance object if it worked. None if not.
         """
@@ -50,6 +54,8 @@ class Instance:
         portEnv = os.environ.get('RESINSIGHT_GRPC_PORT')
         if portEnv:
             port = int(portEnv)
+        if launchPort is not -1:
+            port = launchPort
         
         if not resInsightExecutable:
             resInsightExecutable = os.environ.get('RESINSIGHT_EXECUTABLE')
@@ -63,10 +69,19 @@ class Instance:
 
         print('Port ' + str(port))
         print('Trying to launch', resInsightExecutable)
-        parameters = ["ResInsight", "--grpcserver", str(port)]
+
+        if isinstance(commandLineParameters, str):
+            commandLineParameters = [str]
+
+        parameters = ["ResInsight", "--server", str(port)] + commandLineParameters
         if console:
             print("Launching as console app")
             parameters.append("--console")
+
+        # Stringify all parameters
+        for i in range(0, len(parameters)):
+            parameters[i] = str(parameters[i])
+
         pid = os.spawnv(os.P_NOWAIT, resInsightExecutable, parameters)
         if pid:
             instance = Instance(port=port, launched=True)
@@ -99,8 +114,8 @@ class Instance:
 
     def __checkVersion(self):
         try:
-            majorVersionOk = self.app.majorVersion() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
-            minorVersionOk = self.app.minorVersion() == int(RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
+            majorVersionOk = self.majorVersion() == int(RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
+            minorVersionOk = self.minorVersion() == int(RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
             return True, majorVersionOk and minorVersionOk
         except grpc.RpcError as e:
             return False, False
@@ -118,7 +133,7 @@ class Instance:
         self.launched = launched
 
         # Main version check package
-        self.app     = App(self.channel)
+        self.app     = self.app = App_pb2_grpc.AppStub(self.channel)
 
         connectionOk = False
         versionOk = False
@@ -147,3 +162,35 @@ class Instance:
     
         path = os.getcwd()
         self.commands.setStartDir(path=path)
+
+    def __versionMessage(self):
+        return self.app.GetVersion(Empty())
+
+    def majorVersion(self):
+        """Get an integer with the major version number"""
+        return self.__versionMessage().major_version
+
+    def minorVersion(self):
+        """Get an integer with the minor version number"""
+        return self.__versionMessage().minor_version
+
+    def patchVersion(self):
+        """Get an integer with the patch version number"""
+        return self.__versionMessage().patch_version
+
+    def versionString(self):
+        """Get a full version string, i.e. 2019.04.01"""
+        return str(self.majorVersion()) + "." + str(self.minorVersion()) + "." + str(self.patchVersion())
+
+    def exit(self):
+        """Tell ResInsight instance to quit"""
+        print("Telling ResInsight to Exit")
+        return self.app.Exit(Empty())
+
+    def isConsole(self):
+        """Returns true if the connected ResInsight instance is a console app"""
+        return self.app.GetRuntimeInfo(Empty()).app_type == App_pb2.ApplicationTypeEnum.Value('CONSOLE_APPLICATION')
+
+    def isGui(self):
+        """Returns true if the connected ResInsight instance is a GUI app"""
+        return self.app.GetRuntimeInfo(Empty()).app_type == App_pb2.ApplicationTypeEnum.Value('GUI_APPLICATION')

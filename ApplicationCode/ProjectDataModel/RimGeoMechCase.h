@@ -67,6 +67,7 @@ public:
     void                                    reloadDataAndUpdate();
 
     RimGeoMechView*                         createAndAddReservoirView();
+	RimGeoMechView*                         createCopyAndAddView(const RimGeoMechView* sourceView);
 
     void                            updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) override;
 
