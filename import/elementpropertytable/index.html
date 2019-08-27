@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Element Property Table :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/import/elementpropertytable/">
     <nav id="sidebar" class="">
 
 
@@ -993,7 +993,7 @@
   
     
     <li data-nav-id="/import/" title="Import" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1074,7 +1074,7 @@
  
   
     
-      <li data-nav-id="/import/elementpropertytable/" title="Element Property Table" class="dd-item ">
+      <li data-nav-id="/import/elementpropertytable/" title="Element Property Table" class="dd-item active">
         <a href="/import/elementpropertytable/">
         Element Property Table
         
@@ -1558,86 +1558,138 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/import/'>Import</a> > Element Property Table
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#file-format">File Format</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Element Property Table
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p>Element property tables in ABQUS input file format can be imported into ResInsight and displayed as Element Results. This can be used to display material properties, or any scalar value on each element.</p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<p>To view the data as a <strong>Color Result</strong> select the <strong>Result Position</strong>: <strong><em>Element</em></strong> ( See <a href="/3d-main-window/cellresults/#geomechanical-results">Geomechanical Results</a> )</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>A couple of property names are recognized and treated specially:</p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<ul>
+<li>MODULUS &ndash; Scaled by 1.0e-9 and shown as &ldquo;Yong&rsquo;s Modulus&rdquo; in the user interface</li>
+<li>RATIO &ndash; Shown as &ldquo;Poisson&rsquo;s Ratio&rdquo; in the user interface</li>
+</ul>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<h3 id="file-format">File Format</h3>
+
+<p>A couple of examples on the file format are shown below.</p>
+
+<p>ResInsight searches for the first line containing <code>*Distribution Table</code>, then splits the following line by <code>,</code>. These entries describes the expected property values to be found in the file.</p>
+
+<p>ResInsight then searches for the data block by ignoring lines</p>
+
+<ul>
+<li>starting with <code>*</code> and <code>,</code></li>
+<li>does not have the expected column count when splitting the line by <code>,</code></li>
+</ul>
+
+<p>When the datablock is found, the part of the line before <code>.</code> is stripped away, and first column is expected to be element ID</p>
+
+<pre><code>** ELASTIC SETTING FOR EACH ELEMENT
+*Distribution Table, name=RSV_Res-1_Elastic_Table
+MODULUS, RATIO
+*Distribution, name=RSV_Res-1_ELASTICS, location=ELEMENT, Table=RSV_Res-1_Elastic_Table
+** Description: Element-by-Element Elastic properties
+,     2.
+Res-1.210, 11198814808.2538, 0.19041
+Res-1.209, 11207002032.1436, 0.19063
+Res-1.208, 11222989223.0933, 0.19104
+Res-1.207, 11202549454.349, 0.19051
+</code></pre>
+
+<pre><code>** DENSITY SETTING FOR EACH ELEMENT
+*Distribution Table, name=RSV_Res-1_Density_Table
+Density
+*Distribution, name=RSV_Res-1_DENSITIES, location=ELEMENT, Table=RSV_Res-1_Density_Table
+** Description: Element-by-Element Densities
+,     1.
+Res-1.210, 2500
+Res-1.209, 2500
+Res-1.208, 2500
+Res-1.207, 2500
+</code></pre>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2408,6 +2460,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2420,6 +2473,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2469,6 +2525,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2484,6 +2541,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2872,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/import/soursimrlresults/" title="SourSimRL Results"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/import/observeddata/" title="Observed Time History Data" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

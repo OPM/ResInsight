@@ -1,5 +1,0 @@
-highlighter: rouge
-relative_permalinks: false
-permalink: /news/:year/:month/:day/:title/
-repository: https://github.com/OPM/ResInsight
-markdown: kramdown

@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Summary Plot Editor :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/plot-window/summaryploteditor/">
     <nav id="sidebar" class="">
 
 
@@ -568,7 +568,7 @@
   
     
     <li data-nav-id="/plot-window/" title="Plot Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -630,7 +630,7 @@
  
   
     
-      <li data-nav-id="/plot-window/summaryploteditor/" title="Summary Plot Editor" class="dd-item ">
+      <li data-nav-id="/plot-window/summaryploteditor/" title="Summary Plot Editor" class="dd-item active">
         <a href="/plot-window/summaryploteditor/">
         Summary Plot Editor
         
@@ -1558,86 +1558,240 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/plot-window/'>Plot Main Window</a> > Summary Plot Editor
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#selection-fields">Selection Fields</a>
+<ul>
+<li><a href="#sources">Sources</a></li>
+<li><a href="#summary-types-and-item-selection-fields">Summary Types and Item Selection Fields</a></li>
+<li><a href="#summaries">Summaries</a></li>
+</ul></li>
+<li><a href="#preview-plot">Preview Plot</a>
+<ul>
+<li><a href="#plot-and-curve-name-configuration">Plot and Curve Name Configuration</a></li>
+<li><a href="#curve-appearance-assignment">Curve Appearance Assignment</a></li>
+<li><a href="#curves">Curves</a></li>
+<li><a href="#target-plot">Target Plot</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Summary Plot Editor
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/images/plot-window/SummaryPlotEditor.png" alt="" /></p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<p>The plot editor is a separate ResInsight dialog window where the user can select which vectors to display in a summary plot. It is also possible to edit an existing plot in this editor.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>The upper part of the editor contains editors for selecting which vectors/summaries to display in the plot. The number of fields vary from 3 to 6 depending on the <strong>Summary Type</strong> currently highlighted.</p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<div class="notices note" ><p>In this context <b>highlighted</b> means the marked item with a different background color, while <b>selected</b> means an item or items that have a ticked check box.</p>
+</div>
+
+
+<h2 id="selection-fields">Selection Fields</h2>
+
+<p>This section describes the different selection fields in the selection part of the plot editor. A complete/valid vector selection consists of a selected source, a selected summary category, a selected item in each dynamic field (if any) and a selected vector among the Summaries.</p>
+
+<h3 id="sources">Sources</h3>
+
+<p>This field contains all imported cases and ensembles. Select the case(s) and/or ensemble(s) to display in the plot.</p>
+
+<h3 id="summary-types-and-item-selection-fields">Summary Types and Item Selection Fields</h3>
+
+<p>In the mid-section of the dialog, the Summary Type and the corresponding Items can be selected.</p>
+
+<ul>
+<li><strong>Field</strong> &ndash; Select Field related vectors only</li>
+<li><strong>Aquifer</strong> &ndash; Select Aquifer category vectors only</li>
+<li><strong>Network</strong> &ndash; Select Network category vectors only<br /></li>
+<li><strong>Misc</strong> &ndash; Select vectors in the Misc category only</li>
+<li><strong>Region</strong> &ndash; Select Region related vectors only<br />
+
+<ul>
+<li><strong>Region number</strong> &ndash; Select the Region number</li>
+</ul></li>
+<li><strong>Region-Region</strong> &ndash; Select Region to Region related vectors only<br />
+
+<ul>
+<li><strong>Region numbers</strong> &ndash; Select the Region to Region numbers</li>
+</ul></li>
+<li><strong>Group</strong> - Select Group related vectors only
+
+<ul>
+<li><strong>Group name</strong> &ndash;  Select Group name</li>
+</ul></li>
+<li><strong>Well</strong> &ndash; Select Well related vectors only
+
+<ul>
+<li><strong>Well name</strong> &ndash;  Select Well name</li>
+</ul></li>
+<li><strong>Completion</strong>   &ndash; Select Completion related vectors only
+
+<ul>
+<li><strong>Well name</strong> &ndash;  Select Well name</li>
+<li><strong>I, J, K</strong> &ndash; Select the I, J, K values of the completion</li>
+</ul></li>
+<li><strong>Lgr-Completion</strong> &ndash; Select Completion in LGR related vectors only
+
+<ul>
+<li><strong>Well name</strong> &ndash;  Select Well name</li>
+<li><strong>Lgr name</strong> &ndash; Select Lgr name</li>
+<li><strong>I, J, K</strong> &ndash; Select the I, J, K values of the completion in the Lgr.</li>
+</ul></li>
+<li><strong>Lgr-Well</strong> &ndash; Select Well in LGR related vectors only
+
+<ul>
+<li><strong>Well name</strong> &ndash; Select Well name</li>
+<li><strong>Lgr name</strong> &ndash; Select Lgr name</li>
+</ul></li>
+<li><strong>Segment</strong> &ndash; Select Segment related vectors only
+
+<ul>
+<li><strong>Well name</strong> &ndash; Select Well name</li>
+<li><strong>Segment number</strong> &ndash; Select the segment number</li>
+</ul></li>
+<li><strong>Block</strong> &ndash; Select I, J, K &ndash; Block related vectors only
+
+<ul>
+<li><strong>I, J, K</strong> &ndash; Select the I, J, K values of the Block.</li>
+</ul></li>
+<li><strong>Lgr-Block</strong> &ndash; Select I, J, K - Block in LGR related vectors only
+
+<ul>
+<li><strong>Lgr name</strong> &ndash; Select Lgr name</li>
+<li><strong>I, J, K</strong> &ndash; Select the I, J, K values of the Block in the Lgr.</li>
+</ul></li>
+<li><strong>Calculated</strong> &ndash; Select calculated vectors created by the <a href="/plot-window/curvecalculator/">curve calculator</a>.</li>
+<li><strong>Imported</strong> &ndash; Select observed data vectors <a href="/import/observeddata/">imported from file</a> (e.g. CSV, RSM files)</li>
+</ul>
+
+<h3 id="summaries">Summaries</h3>
+
+<p>This field contains the summaries/vectors for the highlighted summary category.</p>
+
+<h2 id="preview-plot">Preview Plot</h2>
+
+<p>When a complete/valid vector exists, one or more curves will appear in the preview plot. Each curve will also have a corresponding item in the curves field in the lower left corner. Visibility for the curves may be controlled by the checkboxes. Each curve is automatically assigned a name and appearance. However the user may modify these settings in the <em>Curve Name Configuration</em> and <em>Curve Appearance Assignment</em> fields.</p>
+
+<h3 id="plot-and-curve-name-configuration">Plot and Curve Name Configuration</h3>
+
+<p><img src="/images/plot-window/CurveNameConfig.png" alt="" /></p>
+
+<p>The checkboxes in this field control which information elements to include in the curve name. Toggling some of the checkboxes will have no effect on some curves depending on which information elements are relevant for each curve.</p>
+
+<h3 id="curve-appearance-assignment">Curve Appearance Assignment</h3>
+
+<p>Curves created are assigned individual visual properties like colors and symbols in a systematic manner to make the plots easy to read. Different aspects of the vectors are assigned to different curve appearances. E.g. using symbols to distinguish cases, while using colors to distinguish quantity.</p>
+
+<p>These assignments can be controlled using the options in the <strong>Curve Appearance Assignment</strong> group.</p>
+
+<p><img src="/images/plot-window/CurveAppearanceAssignment.png" alt="" /></p>
+
+<p>When set to <strong>Auto</strong>, ResInsight assigns visual properties based on the present vector categories and the number of different values in each category.</p>
+
+<p>When disabling the <strong>Auto</strong> option, you can select which of the visual curve properties to use for which summary category. The summary category that currently can be used is Case, Vector, Well, Group and Region. The visual properties supported types are Color, Symbols, Line Style, Gradient and Line Thickness.</p>
+
+<p>The <strong>Apply</strong> button must be clicked to apply the new settings to all curves.</p>
+
+<p>The curve appearance settings apply to single summary curves only and do not affect ensemble curve sets. Curve sets receive their appearance automatically from a set of color ranges.</p>
+
+
+<div class="notices note" ><p>Assignment of curve appearance are incremental, and can end up as sub optimal if adding curves in several steps.
+Press the <b>Apply</b> button to apply consistent appearance settings according to the current curve selection.</p>
+</div>
+
+
+<h3 id="curves">Curves</h3>
+
+<p><img src="/images/plot-window/SummaryPreviewCurves.png" alt="" /></p>
+
+<p>The curves field displays all summary curves and ensemble curve sets matching the settings in the selection fields. Those are separated in two groups, <strong>Summary Curves</strong> and <strong>Ensemble Curve Sets</strong>. The check box at each item controls which items are displayed in the preview plot.</p>
+
+<p>If the user make a selection that will result in a huge number of ensemble curves, ResInsight will display a drawing performance warning, and the newly created curve set(s) are toggled off by default.</p>
+
+<h3 id="target-plot">Target Plot</h3>
+
+<p><img src="/images/plot-window/TargetPlot_new.png" alt="" />
+<img src="/images/plot-window/TargetPlot_1.png" alt="" /></p>
+
+<p>In the bottom of the dialog window <strong>Target Plot</strong> may be specified. The target plot is the summary plot that will receive the selected curves when the <strong>OK</strong> or <strong>Apply</strong> button is clicked.</p>
+
+<p>By default the target plot is set to <strong>(new plot)</strong> or to the plot selected for editing when invoking the command.</p>
+
+<p>Setting the target plot to a different plot will add the selected curves to that plot when pressing the the <strong>OK</strong> or <strong>Apply</strong> button.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2072,6 +2226,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2084,6 +2239,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2117,6 +2275,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2132,6 +2291,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2974,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/plot-window/summarysourcestepping/" title="Summary Plot Source Stepping"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/plot-window/summarycrossplots/" title="Summary Cross Plot" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

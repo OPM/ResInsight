@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Completions LGR :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/wells-and-completions/completionslgr/">
     <nav id="sidebar" class="">
 
 
@@ -847,7 +847,7 @@
   
     
     <li data-nav-id="/wells-and-completions/" title="Wells and Completions" class="dd-item 
-        
+        parent
         
         
         ">
@@ -966,7 +966,7 @@
  
   
     
-      <li data-nav-id="/wells-and-completions/completionslgr/" title="Completions LGR" class="dd-item ">
+      <li data-nav-id="/wells-and-completions/completionslgr/" title="Completions LGR" class="dd-item active">
         <a href="/wells-and-completions/completionslgr/">
         Completions LGR
         
@@ -1558,86 +1558,123 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/wells-and-completions/'>Wells and Completions</a> > Completions LGR
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#create-temporary-lgrs">Create Temporary LGRs</a>
+<ul>
+<li><a href="#delete-temporary-lgrs">Delete temporary LGRs</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Completions LGR
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/images/3d-main-window/TemporaryLGR_CompletionType_12_combined.png" alt="" /></p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<p>ResInsight supports creating and exporting LGRs (Local Grid Refinement) in main grid cells intersected by completions.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<h2 id="create-temporary-lgrs">Create Temporary LGRs</h2>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p>To create temporary LGR(s), first select one or more well paths in the project tree, right click and select &lsquo;Create Temporary LGR&rsquo;. This command brings up the following dialog.</p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p><img src="/images/3d-main-window/TemporaryLgrDialog.png" alt="" /></p>
+
+<p>The dialog contains several input fields</p>
+
+<ul>
+<li><strong>Source Case</strong> &ndash; The source case/grid</li>
+<li><strong>Time Step</strong> &ndash; The time step to use</li>
+<li><strong>Fractures, Fishbones, Perforations</strong> &ndash; Check boxes to control which completion types to create LGRs for</li>
+<li><strong>Split Type</strong> &ndash; Three options controlling how the LGRs will be created
+
+<ul>
+<li><strong>LGR Per Cell</strong> &ndash; One LGR is created for each main grid cell intersected by completions of the selected type</li>
+<li><strong>LGR Per Completion</strong> &ndash; One LGR is created for each completion of the selected types. Each LGR span all main grid cells that are located within an IJK bounding box containing all intersected cells.</li>
+<li><strong>LGR Per Well</strong> &ndash; One LGR is created for each of the selected well paths. The LGR spans all main grid cells that are located within an IJK bounding box containing all intersected cells for all selected completions on that well path.</li>
+</ul></li>
+<li><strong>Cell Count I,J,K</strong> &ndash; The size of the LGR, in each main grid cell, in the I, J and K direction</li>
+</ul>
+
+<p>After pressing the OK button, LGR(s) are created and will be visible in the grid view.
+Temporary LGRs are stored in memory, and are thus not saved to file. After restarting ResInsight those LGRs have to be recreated.</p>
+
+<p>Individual visibility of generated LGRs can be controlled from the <a href="/3d-main-window/3dviews/#grids">Grids</a> section in a view.</p>
+
+<h3 id="delete-temporary-lgrs">Delete temporary LGRs</h3>
+
+<p>It is possible to explicitly delete all temporary LGRs. Right click on the <strong>View -&gt; Grids -&gt; Temporary LGRs</strong> project tree node and select <strong>Delete Temporary LGRs</strong>. This command deletes all temporary LGRs.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2296,6 +2333,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2308,6 +2346,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2389,6 +2430,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2407,6 +2449,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2857,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/wells-and-completions/completions/" title="Completions"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/import/" title="Import" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>RFT Plot :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/plot-window/rftplot/">
     <nav id="sidebar" class="">
 
 
@@ -568,7 +568,7 @@
   
     
     <li data-nav-id="/plot-window/" title="Plot Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -744,7 +744,7 @@
  
   
     
-      <li data-nav-id="/plot-window/rftplot/" title="RFT Plot" class="dd-item ">
+      <li data-nav-id="/plot-window/rftplot/" title="RFT Plot" class="dd-item active">
         <a href="/plot-window/rftplot/">
         RFT Plot
         
@@ -1558,86 +1558,222 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/plot-window/'>Plot Main Window</a> > RFT Plot
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#create-new-rft-plot">Create New RFT Plot</a></li>
+<li><a href="#import-observed-rft-data">Import Observed RFT Data</a></li>
+<li><a href="#property-editor">Property Editor</a>
+<ul>
+<li><a href="#well-name">Well Name</a></li>
+<li><a href="#sources">Sources</a></li>
+<li><a href="#time-steps">Time Steps</a></li>
+<li><a href="#zonation-formation-names">Zonation/Formation Names</a></li>
+<li><a href="#legend-and-axis">Legend and Axis</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              RFT Plot
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/images/plot-window/RftPlot.png" alt="" /></p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<p>An RFT (<em>Repeated Formation Tester</em>) plot is a special well plot for comparing observed formation pressure and simulated formation pressure. The curves are plotted as pressure against true vertical depth (TVD) or measured depth (MD). Simulated pressure data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed pressure data are loaded from well log files (*.las).</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<h2 id="create-new-rft-plot">Create New RFT Plot</h2>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p>There are several ways to create new RFT Plots.</p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p><strong>From the Project Tree in the Plot Main Window</strong></p>
+
+<ul>
+<li>Select context command <strong>New RFT Plot</strong> for <em>Well Path</em> node or <em>RFT Plots</em> node.</li>
+</ul>
+
+<p><strong>From the Project Tree in the 3D Main Window</strong></p>
+
+<ul>
+<li>Select context command <strong>New RFT plot</strong> for a simulation well.</li>
+</ul>
+
+<p><strong>From a 3D view</strong></p>
+
+<ul>
+<li>Right-click a simulation well select <strong>Well Plots -&gt; New RFT Plot</strong>.</li>
+</ul>
+
+<h2 id="import-observed-rft-data">Import Observed RFT Data</h2>
+
+<p>To be able to plot observed pressure data for a well in an RFT plot, at least one well log file from that well (e.g. *.las) has to be imported to ResInsight. This file must contain a pressure column, which must have the name <em>PRESSURE</em> or _PRES<em>FORM</em>. If the well log file itself does not contain a TVD column (named <em>TVDMSL</em>), a well path file (See <a href="/wells-and-completions/wellpaths/">Well Trajectories</a>) for the same well must also be imported to ResInsight.</p>
+
+<p>If no TVD data for a well is found when the user tries to plot a curve, ResInsight will present a warning dialog to the user.</p>
+
+<p><img src="/images/plot-window/NoTvdWarningDialog.png" alt="" /></p>
+
+<h2 id="property-editor">Property Editor</h2>
+
+<p>The property editor lets the user select which curves to display in the RFT plot.</p>
+
+<p><img src="/images/plot-window/RftPlotPropertyEditor.png" alt="" /></p>
+
+<h3 id="well-name">Well Name</h3>
+
+<p>Select the well to display in the plot. Wells postfixed by <em>&rsquo;(Well Path)&rsquo;</em> have an associated well trajectory loaded.</p>
+
+<h3 id="sources">Sources</h3>
+
+<p>After a well has been selected in the Well Name field, the relevant sources for that well will appear in the sources field. The sources are placed in one of three different groups:</p>
+
+<ul>
+<li><strong>RFT File Cases</strong> &ndash; Simulation cases may have associated formation pressure data in <em>*.rft</em> file(s). If the simulation case contains such files, those are imported together with the simulation case (See the keyword <code>WRFTPLT</code> in the Eclipse manual for information).</li>
+<li><strong>Grid Cases</strong> &ndash; The PRESSURE property in the 3D grid.</li>
+<li><strong>Observed Cases</strong> &ndash; Observed data imported from well log files.</li>
+</ul>
+
+<p>When the user selects one or more sources, a selection of their time steps appears in the <strong>Time Steps</strong> field.</p>
+
+<h3 id="time-steps">Time Steps</h3>
+
+<p>The <strong>Time Steps</strong> field contains the relevant time steps according to the source selection. Time steps are deemed to be relevant by the following rules:</p>
+
+<ol>
+<li>If a single source or sources of the same type are selected, all available time steps in those sources are shown.</li>
+<li>If sources from two or tree types are selected, the time steps are filtered:
+
+<ul>
+<li>The time steps matching the observed case(s) time steps.</li>
+<li>If no time steps from a case match the observed time step, the two adjacent ones are shown.</li>
+<li>The first time step from any grid case(s) (as initial pressure reference).
+If the Observed data isn&rsquo;t selected, the RFT data serves as filter reference.</li>
+</ul></li>
+</ol>
+
+<p>Each time step is postfixed by an indication of which source type(s) the time step is belonging to. This indication is displayed as one or more letters within square brackets. Examples: <strong>[ O ]</strong>, <strong>[ R G ]</strong>.</p>
+
+<ul>
+<li><strong>O</strong> &ndash; Time step has observed data</li>
+<li><strong>R</strong> &ndash; Time step has RFT data</li>
+<li><strong>G</strong> &ndash; Time step has Grid data</li>
+</ul>
+
+<p>More than one letter for one single time step, means that the time steps comes from multiple case types.</p>
+
+<h3 id="zonation-formation-names">Zonation/Formation Names</h3>
+
+<p>This property editor lets the user control the visibility of formations lines. This is what it looks like in the RFT plot context.</p>
+
+<p><img src="/images/plot-window/RftPltFormationNames.png" alt="" /></p>
+
+<p>Please see the <a href="/3d-main-window/formations/">full documentation</a> on the formations property editor for details about formations.</p>
+
+
+<div class="notices note" ><p>When the formation names property editor is used in the context of RFT plots, the fields <b>Trajectory</b> and <b>Simulation Well</b> are hidden because those values are given by the RFT plot definition.</p>
+</div>
+
+
+<h3 id="legend-and-axis">Legend and Axis</h3>
+
+<p><img src="/images/plot-window/RftLegendAndAxis.png" alt="" /></p>
+
+<p>This property editor lets the user control visual properties for the legend and axis.</p>
+
+<ul>
+<li>Title and Legends
+
+<ul>
+<li><strong>Show Title</strong> &ndash; Toggle on/off title in plot</li>
+<li><strong>Show Legends</strong> &ndash; Toggle on/off legend in plot</li>
+<li><strong>Legend Orientation</strong> &ndash; Vertical or horizontal</li>
+</ul></li>
+<li>X Axis Settings
+
+<ul>
+<li><strong>Logarithmic Scale</strong> &ndash; Toggle between linear and logarithmic</li>
+<li><strong>Min</strong> &ndash; Set X axis minimum value</li>
+<li><strong>Max</strong> &ndash; Set X axis maximum value</li>
+<li><strong>Show Grid Lines</strong> &ndash; Enable grid lines in background in plot</li>
+</ul></li>
+<li>Depth Axis
+
+<ul>
+<li><strong>Type</strong> &ndash; Toggle between True Vertical Depth (MSL) or Measured Depth (MD)</li>
+<li><strong>Unit</strong> &ndash;</li>
+<li><strong>Min</strong> &ndash; Set depth axis minimum value</li>
+<li><strong>Max</strong> &ndash; Set depth axis maximum value</li>
+<li><strong>Show Grid Lines</strong> &ndash; Enable grid lines in background in plot</li>
+</ul></li>
+</ul>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2072,6 +2208,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2084,6 +2221,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2213,6 +2353,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2228,6 +2369,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2956,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/plot-window/wellborestabilityplots/" title="Well Bore Stability Plots"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/plot-window/pltplot/" title="PLT Plot" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

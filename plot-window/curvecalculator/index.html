@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Curve Calculator :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/plot-window/curvecalculator/">
     <nav id="sidebar" class="">
 
 
@@ -568,7 +568,7 @@
   
     
     <li data-nav-id="/plot-window/" title="Plot Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -687,7 +687,7 @@
  
   
     
-      <li data-nav-id="/plot-window/curvecalculator/" title="Curve Calculator" class="dd-item ">
+      <li data-nav-id="/plot-window/curvecalculator/" title="Curve Calculator" class="dd-item active">
         <a href="/plot-window/curvecalculator/">
         Curve Calculator
         
@@ -1558,86 +1558,402 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/plot-window/'>Plot Main Window</a> > Curve Calculator
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#calculation-settings">Calculation Settings</a>
+<ul>
+<li><a href="#operators-and-functions">Operators and Functions</a>
+<ul>
+<li><a href="#assignment-operators">Assignment Operators</a></li>
+<li><a href="#basic-operators">Basic Operators</a></li>
+<li><a href="#scalar-functions">Scalar Functions</a></li>
+<li><a href="#trigonometry-functions">Trigonometry Functions</a></li>
+<li><a href="#vector-functions">Vector Functions</a></li>
+</ul></li>
+<li><a href="#unit">Unit</a></li>
+</ul></li>
+<li><a href="#summary-address-selection">Summary Address Selection</a></li>
+<li><a href="#generating-curves">Generating Curves</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Curve Calculator
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/images/plot-window/SummaryCurveCalculator.png" alt="" /></p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<p>The summary curve calculator is a tool to do relative simple vector calculations on a set of curves. The created curves can be stored for later use in the project.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>The calculator can be run by pressing the calculator icon <img src="https://resinsight.org/images/plot-window/calculator.png" style="display:inline; vertical-align:middle; margin:0">
+ in the menu bar, or by right-clicking on either a summary case or the summary plot collection.</p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<h2 id="calculation-settings">Calculation Settings</h2>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p>To make a new calculated curve, click on <strong>New Calculation</strong>. This will add a new calculation to <strong>Calculated Summaries</strong>. Before choosing which curves to do calculations on, a calculation expression must be made. The default expression <em>Calculation_1 := x + y</em> will do a vector addition on the curves which <em>x</em> and <em>y</em> are placeholders for, and assign it to the calculation <em>Calculation_1</em>. How to assign curves to assign to <em>x</em> and <em>y</em> will be covered in section <a href="#summary-address-selection">Summary Address Selection</a>.</p>
+
+<h3 id="operators-and-functions">Operators and Functions</h3>
+
+<p>Possible operations and functions are found by right-clicking in the expression window. The following tables show all the options available.</p>
+
+<h4 id="assignment-operators">Assignment Operators</h4>
+
+<table>
+<thead>
+<tr>
+<th>OPERATOR</th>
+<th>DEFINITION</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>:=</td>
+<td>Assign</td>
+</tr>
+</tbody>
+</table>
+
+<h4 id="basic-operators">Basic Operators</h4>
+
+<table>
+<thead>
+<tr>
+<th>OPERATOR</th>
+<th>DEFINITION</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>+</td>
+<td>Addition</td>
+</tr>
+
+<tr>
+<td>-</td>
+<td>Subtraction</td>
+</tr>
+
+<tr>
+<td>*</td>
+<td>Multiplication</td>
+</tr>
+
+<tr>
+<td>/</td>
+<td>Division</td>
+</tr>
+
+<tr>
+<td>%</td>
+<td>Modulus</td>
+</tr>
+
+<tr>
+<td>^</td>
+<td>Power</td>
+</tr>
+</tbody>
+</table>
+
+<h4 id="scalar-functions">Scalar Functions</h4>
+
+<table>
+<thead>
+<tr>
+<th>FUNCTION</th>
+<th>DEFINITION</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>avg</td>
+<td>Average</td>
+</tr>
+
+<tr>
+<td>max</td>
+<td>Maximum</td>
+</tr>
+
+<tr>
+<td>min</td>
+<td>Minimum</td>
+</tr>
+
+<tr>
+<td>sum</td>
+<td>Sum</td>
+</tr>
+</tbody>
+</table>
+
+<h4 id="trigonometry-functions">Trigonometry Functions</h4>
+
+<table>
+<thead>
+<tr>
+<th>FUNCTION</th>
+<th>DEFINITION</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>acos</td>
+<td>Arc cosine (in radians)</td>
+</tr>
+
+<tr>
+<td>acosh</td>
+<td>Inverse hyperbolic cosine (in radians)</td>
+</tr>
+
+<tr>
+<td>asin</td>
+<td>Arc sine (in radians)</td>
+</tr>
+
+<tr>
+<td>asinh</td>
+<td>Inverse hyperbolic sine (in radians)</td>
+</tr>
+
+<tr>
+<td>atan</td>
+<td>Arc tangent (in radians)</td>
+</tr>
+
+<tr>
+<td>atanh</td>
+<td>Inverse hyperbolic tangent (in radians)</td>
+</tr>
+
+<tr>
+<td>cos</td>
+<td>Cosine</td>
+</tr>
+
+<tr>
+<td>cosh</td>
+<td>Hyperbolic cosine</td>
+</tr>
+
+<tr>
+<td>cot</td>
+<td>Cotangent</td>
+</tr>
+
+<tr>
+<td>csc</td>
+<td>Cosecant</td>
+</tr>
+
+<tr>
+<td>deg2rad</td>
+<td>Convert x from degrees to radians</td>
+</tr>
+
+<tr>
+<td>deg2grad</td>
+<td>Convert x from degrees to radians</td>
+</tr>
+
+<tr>
+<td>rad2deg</td>
+<td>Convert x from radians to degrees</td>
+</tr>
+
+<tr>
+<td>grad2deg</td>
+<td>Convert x from radians to degrees</td>
+</tr>
+
+<tr>
+<td>sec</td>
+<td>Secant</td>
+</tr>
+
+<tr>
+<td>sin</td>
+<td>Sine</td>
+</tr>
+
+<tr>
+<td>sinc</td>
+<td>Sine cardinal</td>
+</tr>
+
+<tr>
+<td>sinh</td>
+<td>Hyperbolic sine</td>
+</tr>
+
+<tr>
+<td>tan</td>
+<td>Tangent</td>
+</tr>
+
+<tr>
+<td>tanh</td>
+<td>Hyperbolic tangent</td>
+</tr>
+</tbody>
+</table>
+
+<h4 id="vector-functions">Vector Functions</h4>
+
+<table>
+<thead>
+<tr>
+<th>FUNCTION</th>
+<th>DEFINITION</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>abs</td>
+<td>Absolute value</td>
+</tr>
+
+<tr>
+<td>ceil</td>
+<td>Rounding up</td>
+</tr>
+
+<tr>
+<td>floor</td>
+<td>Rounding down</td>
+</tr>
+
+<tr>
+<td>frac</td>
+<td>Fractional portion of input</td>
+</tr>
+
+<tr>
+<td>log</td>
+<td>Natural logarithm</td>
+</tr>
+
+<tr>
+<td>log10</td>
+<td>Base 10 logarithm</td>
+</tr>
+
+<tr>
+<td>pow</td>
+<td>Power</td>
+</tr>
+
+<tr>
+<td>round</td>
+<td>Round x to the nearest integer</td>
+</tr>
+
+<tr>
+<td>sgn</td>
+<td>Sign of x, -1 where x &lt; 0, +1 where x &gt; 0, else zero</td>
+</tr>
+
+<tr>
+<td>sqrt</td>
+<td>Square root</td>
+</tr>
+
+<tr>
+<td>trunc</td>
+<td>Integer portion of input</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="unit">Unit</h3>
+
+<p>It is possible to add a unit to the calculated curve, in the field <strong>Unit</strong> beneath the expression field. This will be used as the label on the y-axis when the curve is used in a plot.</p>
+
+<h2 id="summary-address-selection">Summary Address Selection</h2>
+
+<p>An expression consists of placeholders (variables) for curves (summary address). By clicking <strong>Parse Expression</strong>, the variables will appear in the table below the settings. To assign a summary address to a variable, click <strong>Edit</strong>. This action will open a <strong>Summary Address Selection</strong> dialog. Use the dialog to select a summary address and press <strong>OK</strong>. Repeat the procedure for all the variables.</p>
+
+<h2 id="generating-curves">Generating Curves</h2>
+
+<p>After assigning summary addresses to all variables, click <strong>Calculate</strong> to evaluate the expression. The curve is saved and can be accessed in the Plot Editor selecting the Summary Type: <strong>Calculated</strong>.</p>
+
+<p>The curves can also be found in an existing curve&rsquo;s <strong>Property Editor</strong>. Choose the case <strong>Calculated</strong>, and the curves will appear in <strong>Vector Selection</strong>.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2072,6 +2388,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2084,6 +2401,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2165,6 +2485,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2180,6 +2501,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +3136,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/plot-window/ensembleplotting/" title="Ensemble Plotting"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/plot-window/welllogsandplots/" title="Well Log Plots" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>3D Views :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/3d-main-window/3dviews/">
     <nav id="sidebar" class="">
 
 
@@ -248,7 +248,7 @@
   
     
     <li data-nav-id="/3d-main-window/" title="3D Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -275,7 +275,7 @@
  
   
     
-      <li data-nav-id="/3d-main-window/3dviews/" title="3D Views" class="dd-item ">
+      <li data-nav-id="/3d-main-window/3dviews/" title="3D Views" class="dd-item active">
         <a href="/3d-main-window/3dviews/">
         3D Views
         
@@ -1558,86 +1558,232 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/3d-main-window/'>3D Main Window</a> > 3D Views
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#common-view-features">Common view features</a>
+<ul>
+<li><a href="#view-properties">View properties</a></li>
+<li><a href="#cell-result-hahahugoshortcode-s3-hbhb">Cell Result HAHAHUGOSHORTCODE-s3-HBHB</a></li>
+<li><a href="#range-filters-hahahugoshortcode-s6-hbhb-and-property-filters-hahahugoshortcode-s7-hbhb">Range Filters HAHAHUGOSHORTCODE-s6-HBHB and Property Filters HAHAHUGOSHORTCODE-s7-HBHB</a></li>
+<li><a href="#info-box">Info Box</a>
+<ul>
+<li><a href="#statistics-options">Statistics Options</a></li>
+</ul></li>
+<li><a href="#grids-hahahugoshortcode-s13-hbhb">Grids HAHAHUGOSHORTCODE-s13-HBHB</a></li>
+<li><a href="#intersections-hahahugoshortcode-s16-hbhb">Intersections HAHAHUGOSHORTCODE-s16-HBHB</a></li>
+<li><a href="#activate-items-by-clicking">Activate items by clicking</a></li>
+</ul></li>
+<li><a href="#eclipse-features">Eclipse features</a>
+<ul>
+<li><a href="#cell-edge-results-hahahugoshortcode-s18-hbhb">Cell Edge Results HAHAHUGOSHORTCODE-s18-HBHB</a></li>
+<li><a href="#separate-fault-result">Separate Fault Result</a></li>
+<li><a href="#simulation-wells">Simulation Wells</a></li>
+<li><a href="#well-connection-factors">Well Connection Factors</a></li>
+<li><a href="#fractures">Fractures</a></li>
+<li><a href="#faults">Faults</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              3D Views
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/images/3d-main-window/3DViewOverview.png" alt="" /></p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<p>3D Views are the windows displaying the Grid Models. The visualization is controlled by the <strong>Project Tree</strong> item representing the <strong>View</strong> and their sub items.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p><img src="/images/3d-main-window/ViewTree.png" alt="" /></p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p>Each item has a set of properties that can be edited in the <strong>Property Editor</strong>.</p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p>Several views can be added to the same case by right-clicking the case or a view and select <strong>New View</strong>. You can also <strong>Copy</strong> and then <strong>Paste</strong> a view into a Case. All the settings are then copied to the new view.</p>
+
+<p>Views of Eclipse models and Geomechanical models has a lot in common, but Eclipse views has some features that applies to Eclipse simulations only.</p>
+
+<h2 id="common-view-features">Common view features</h2>
+
+<h3 id="view-properties">View properties</h3>
+
+<p>Grid appearance can be controlled from the <strong>Property Editor</strong> when a view is selected. This includes background color and z scaling. In addition, cell visibility controls of inactive and invalid cells.</p>
+
+<p><img src="/images/3d-main-window/ViewProperties.png" alt="" /></p>
+
+<p>Visibility of the grid box with labels displaying the coordinates for the reservoir can also be controlled using <strong>Show Grid Box</strong>.</p>
+
+<h3 id="cell-result-hahahugoshortcode-s3-hbhb">Cell Result <img src="https://resinsight.org/images/3d-main-window/CellResult.png" style="display:inline; vertical-align:middle; margin:0">
+</h3>
+
+<p>The <strong>Cell Result</strong> item defines which Eclipse or Geomechanical property the 3D View uses for the main cell color. The property can be chosen in the property panel of the <strong>Cell Result</strong> item. The mapping between cell values and color is defined by the <strong>Legend Definition</strong><img src="https://resinsight.org/images/3d-main-window/Legend.png" style="display:inline; vertical-align:middle; margin:0">
+ along with some appearance settings on the Legend itself. (Number format etc.)</p>
+
+<p>Please refer to <a href="/3d-main-window/resultcolorlegend/">Result Color Legend</a> for details.</p>
+
+<h3 id="range-filters-hahahugoshortcode-s6-hbhb-and-property-filters-hahahugoshortcode-s7-hbhb">Range Filters <img src="https://resinsight.org/images/3d-main-window/CellFilter_Range.png" style="display:inline; vertical-align:middle; margin:0">
+ and Property Filters <img src="https://resinsight.org/images/3d-main-window/CellFilter_Values.png" style="display:inline; vertical-align:middle; margin:0">
+</h3>
+
+<p>In order to see different sets of cells, and cells inside the reservoir, Views use cell filters. Please refer to <a href="/3d-main-window/filters/">Cell Filters</a> to read more about them.</p>
+
+<h3 id="info-box">Info Box</h3>
+
+<p>The <strong>Info Box</strong> controls the visibility of the animation progress, the Case description box, and the results histogram displayed in the top right corner of the view.</p>
+
+<p>The <strong>Animation Progress</strong> shows which time step you are viewing.</p>
+
+<p><img src="/images/3d-main-window/AnimationProgress.png" alt="" /></p>
+
+<p>The <strong>Info Text</strong> shows general info about the case, the selected results, and some statistics. <strong>Mobile Volume Weighted Mean</strong> is the mean of the current <strong>Cell Property</strong> weighted by the <strong>Mobile pore volume</strong>. Mobile pore volume is defined in every cell as: MULTPV <em>*</em> PORV(1-SWCR). If MULTPV data is not present, it is ignored in the equation. The same applies to SWCR data.</p>
+
+<p><img src="/images/3d-main-window/infoBox.png" alt="" /></p>
+
+<p>The <strong>Histogram</strong> shows a histogram of the complete time series of the currently loaded <strong>Cell Result</strong> together with:</p>
+
+<ul>
+<li>The mean value ( a blue line )</li>
+<li>P10 and P90 ( red lines )</li>
+</ul>
+
+<p><img src="/images/3d-main-window/HistogramExample.png" alt="" /></p>
+
+<h4 id="statistics-options">Statistics Options</h4>
+
+<ul>
+<li><strong>Statistics Time Range</strong> &ndash; controls whether all time steps or only the current time step are included when statistics is computed. Flow Diagnostic results can only use the current time step option.<br /></li>
+<li><strong>Statistics Cell Range</strong> &ndash; controls if visible cells or all active cells is included when statistics is computed.</li>
+</ul>
+
+
+<div class="notices note" ><p>The <b>Info Box</b> settings can be activated by clicking on the Info Text in the 3D view.</p>
+</div>
+
+
+<h3 id="grids-hahahugoshortcode-s13-hbhb">Grids <img src="https://resinsight.org/images/3d-main-window/draw_style_meshlines_24x24.png" style="display:inline; vertical-align:middle; margin:0">
+</h3>
+
+<p><img src="/images/3d-main-window/ViewTreeGrids.png" alt="" /></p>
+
+<p>The <strong>Grids</strong> node contains child nodes for <strong>Main Grid</strong>, <strong>LGRs</strong> and <strong>Temporary LGRs</strong> where each grid&rsquo;s visibilty can be controlled. The <strong>LGRs</strong> node contains all LGRs loaded from file, while <strong>Temporary LGRs</strong> contains all temporary LGRs (see <a href="/wells-and-completions/completionslgr/">Completions LGR</a>).
+Toggling <strong>Grids</strong> off will hide all grids cell geometry. This option is used to display geometry for faults and intersections. This feature is also available as a toolbutton called <em>Hide grid cells</em>.</p>
+
+<h3 id="intersections-hahahugoshortcode-s16-hbhb">Intersections <img src="https://resinsight.org/images/3d-main-window/CrossSections16x16.png" style="display:inline; vertical-align:middle; margin:0">
+</h3>
+
+<p>Intersections are used to cut the geometry and show result values mapped onto this geometry.
+Please refer to <a href="/3d-main-window/intersections/">Intersections</a> for details.</p>
+
+<h3 id="activate-items-by-clicking">Activate items by clicking</h3>
+
+<p>Selected overlay items in the 3D view can activate a corresponding item in the <strong>Property Editor</strong>. This is implemented for Info box and result color legends. Please note that this feature is activated by clicking inside the texture/colored part of the legend.</p>
+
+<h2 id="eclipse-features">Eclipse features</h2>
+
+<h3 id="cell-edge-results-hahahugoshortcode-s18-hbhb">Cell Edge Results <img src="https://resinsight.org/images/3d-main-window/EdgeResult_1.png" style="display:inline; vertical-align:middle; margin:0">
+</h3>
+
+<p><img src="/images/3d-main-window/CellEdgeExample.png" alt="" /></p>
+
+<p>The <strong>Cell Edge Result</strong> visualization mode is one of ResInsight&rsquo;s special features. Its main use is to show the MULT(X, Y, Z) properties at the same time. This will show the MULT property values <em>different from 1.0</em> along the correct edges of the cells. In effect this highlights the faults and makes it easy to verify all the MULT values in one go.</p>
+
+<p>ResInsight supports all properties ending with X, Y, Z and X-, Y-, Z-. However, it is only the MULT property that ignores values of 1.0.</p>
+
+<p>When selecting a result variable for cell edge, a second legend shows up in the 3D view showing the variation in values for this second property. Color legend management is available when selecting the <strong>Legend Definition</strong> item belonging to the <strong>Cell Edge Result</strong> item.</p>
+
+<p>Select <strong>Custom Edge Result</strong> to specify one cell result to be mapped onto all cell edges. This way two cell results can easily be compared and visualized in the same view. The <strong>Custom Edge Result</strong> can either be a static or dynamic result.</p>
+
+<h3 id="separate-fault-result">Separate Fault Result</h3>
+
+<p>Default result mapping on faults is using the result specified in <strong>Cell Result</strong>. If a different result mapping is wanted, enable the checkbox and select the result from the result selection dialog in the <strong>Property Editor</strong>. A second legend for the fault result is added to the view.</p>
+
+<h3 id="simulation-wells">Simulation Wells</h3>
+
+<p>This item controls the visualization of the Eclipse simulation wells.
+Please refer to <a href="/wells-and-completions/simulationwells/">Simulation Wells</a> to read more.</p>
+
+<h3 id="well-connection-factors">Well Connection Factors</h3>
+
+<p>This item controls the visualization of well connection factors.
+See <a href="/wells-and-completions/completions/#visualization-and-inspection-of-well-connection-factors">Visualization and Inspection of Well Connection Factors</a> for details.</p>
+
+<h3 id="fractures">Fractures</h3>
+
+<p>This item controls the visualization of fractures.
+See <a href="/wells-and-completions/completions/#fractures">Fractures</a> for details.</p>
+
+<h3 id="faults">Faults</h3>
+
+<p>Visualization of the faults in the model is controlled by this item.
+Please refer to <a href="/3d-main-window/faults/">Faults</a> to read more.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -1811,6 +1957,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -1829,6 +1976,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -1844,6 +1992,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2963,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/3d-main-window/" title="3D Main Window"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/3d-main-window/cellresults/" title="Cell Results" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

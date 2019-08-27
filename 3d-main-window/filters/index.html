@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Cell Filters :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/3d-main-window/filters/">
     <nav id="sidebar" class="">
 
 
@@ -248,7 +248,7 @@
   
     
     <li data-nav-id="/3d-main-window/" title="3D Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -389,7 +389,7 @@
  
   
     
-      <li data-nav-id="/3d-main-window/filters/" title="Cell Filters" class="dd-item ">
+      <li data-nav-id="/3d-main-window/filters/" title="Cell Filters" class="dd-item active">
         <a href="/3d-main-window/filters/">
         Cell Filters
         
@@ -1558,86 +1558,183 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/3d-main-window/'>3D Main Window</a> > Cell Filters
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#common-properties-for-range-and-property-filters">Common Properties for Range and Property Filters</a></li>
+<li><a href="#range-filters">Range filters</a></li>
+<li><a href="#property-filters">Property Filters</a>
+<ul>
+<li><a href="#property-value-range">Property Value Range</a>
+<ul>
+<li><a href="#range-behavior-for-flow-diagnostic-results">Range Behavior for Flow Diagnostic Results</a></li>
+</ul></li>
+<li><a href="#category-selection">Category Selection</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Cell Filters
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/images/3d-main-window/FiltersOverview.png" alt="" /></p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<p>Cell Filters are used to control visibility of the cells in the 3D view. Two types of filters exists:</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<ul>
+<li><strong>Range Filter</strong> &ndash; Extracts an IJK subset of the model.</li>
+<li><strong>Property Filter</strong> &ndash; Extracts cells with a property value matching a value range.</li>
+</ul>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<div class="notices note" ><p>The visibilities of cells connection to wells, and fences based on these cells can be controlled from <b> <a href="/wells-and-completions/simulationwells/">Simulation Wells</a> </b>.<br>
+<small><i>(Not applicable for Geomechanical cases)</i></small></p>
+</div>
+
+
+<h2 id="common-properties-for-range-and-property-filters">Common Properties for Range and Property Filters</h2>
+
+<p>Both filter types can be turned on or off using the toggle in the <strong>Project Tree</strong> and controlled from their corresponding <strong>Property Editor</strong>.</p>
+
+<p><img src="/images/3d-main-window/FiltersInTreeView.png" alt="" /></p>
+
+<p>Range Filters and Property filters can either be set to <strong>Include</strong> cells or to <strong>Exclude</strong> them.</p>
+
+<p>The <strong>Exclude</strong> setting is used to explicitly remove cells from the visualization, regardless of what other filters say.
+The <strong>Include</strong> setting behaves differently for Range filters and Property Filters but marks the cells as visible.
+The icon in front of the filters show a + or - sign to indicate the setting <img src="https://resinsight.org/images/3d-main-window/FilterIncEx.png" style="display:inline; vertical-align:middle; margin:0">
+</p>
+
+<h2 id="range-filters">Range filters</h2>
+
+<p>Range filters enables the user to define a set of visible regions in the 3D view based on IJK boxes.
+Each <em>Include</em> range filter will <em>add more cells</em> to the visualization. The view will show the union of all the <em>Include</em> range filters.</p>
+
+<p>A new range filter can be added by activating the right-click menu for the <strong>Range Filters</strong> collection in the <strong>Project Tree</strong>.</p>
+
+
+<div class="notices note" ><p>An I,J or K-slice range filter can be added directly from a Cell in the <b>3D View</b> by right-clicking the cell and using the right-click menu.</p>
+</div>
+
+
+<p>Below is a snapshot of the <strong>Property Editor</strong> of the <strong>Range Filter</strong> :</p>
+
+<p><img src="/images/3d-main-window/RangeFilterProperties.png" alt="" /></p>
+
+<ul>
+<li><strong>Filter Type</strong> &ndash; The filter can either make the specified range visible ( <em>Include</em> ), or remove the range from the View ( <em>Exclude</em> ).</li>
+<li><strong>Grid</strong> &ndash;  This option selects which of the grids the range is addressing.</li>
+<li><strong>Apply to Subgrids</strong> &ndash; This option tells ResInsight to use the visibility of the cells in the current grid to control the visibility of the cells in sub-LGR&rsquo;s. If this option is turned off, Sub LGR-cells is not included in this particular Range Filter.<br /></li>
+</ul>
+
+<p>The <strong>Start</strong> and <strong>Width</strong> labels in front of the sliders features a number in parenthesis denoting maximum available value.<br>
+The <strong>Start</strong> labels shows the index of the start of the active cells.<br>
+The <strong>Width</strong> labels shows the number of active cells from the start of the active cells.</p>
+
+<h2 id="property-filters">Property Filters</h2>
+
+<p><strong>Property Filters</strong> applies to the results of the <strong>Range Filters</strong> and limits the visible cells to the ones approved by the filter. For a cell to be visible it must be accepted by all the property filters.</p>
+
+<p>A new property filter can be made by activating the right-click menu on <strong>Property Filters</strong> or by right-clicking inside a 3D view. The new property filter is based on the currently viewed cell result by default.</p>
+
+<p>The name of the property filter is automatically set to <em>&ldquo;propertyname (min .. max)&rdquo;</em> as you edit the property filter.</p>
+
+
+<div class="notices note" ><p>The context command <b>Apply As Cell Result</b> on a property filter, sets the Cell Color Result to the same values as the selected property filter.</p>
+</div>
+
+
+<p>Below is a snapshot of the <strong>Property Editor</strong> of the <strong>Property Filter</strong>.</p>
+
+<p><img src="/images/3d-main-window/PropertyFilterProperties.png" alt="" /></p>
+
+<h3 id="property-value-range">Property Value Range</h3>
+
+<p>The filter is based on a property value range (Min - Max). Cells in the range are either shown or hidden depending on the <strong>Filter Type</strong> (<em>Include</em>/<em>Exclude</em>). Exclude-filters removes the selected cells from the <strong>View</strong> even if some other filter includes them.</p>
+
+<h4 id="range-behavior-for-flow-diagnostic-results">Range Behavior for Flow Diagnostic Results</h4>
+
+<p>Normally the available range in the sliders is the max and min of all the values in all the time steps. For Flow Diagnostics results, however, the available range is based on the current time step.</p>
+
+<p>We still need to keep the range somewhat fixed while moving from time step to time step, so in order to do so ResInsight tries to keep the intentions of your range settings, as the available range changes. If either the max or min value is set to the limit, ResInsight will keep that setting at the limit even when the limit changes. If you set a specific value for the max or the min, that setting will keep its value, even if it happens to end up outside the available range at a time step.</p>
+
+<h3 id="category-selection">Category Selection</h3>
+
+<p>If the property is representing integer values, well tracer names or <a href="/3d-main-window/formations"> formation names </a>, the property filter displays a list of available categories used to filter cells. The separate values can then be toggled on or off using the list in the Property Editor.</p>
+
+<p><img src="/images/3d-main-window/PropertyFilterWithCategories.png" alt="" /></p>
+
+<p>If it is more convenient to filter the values using a value range, toggle the <strong>Category Selection</strong> option off.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -1811,6 +1908,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -1821,6 +1919,25 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
                     
                         
             
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
             
         
                     
@@ -1909,21 +2026,6 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
                     
                 
                 
@@ -1940,6 +2042,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2917,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/3d-main-window/resultinspection/" title="Result Inspection"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/3d-main-window/intersections/" title="Intersections" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

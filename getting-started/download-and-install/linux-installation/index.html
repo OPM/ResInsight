@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Linux Installation :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/getting-started/download-and-install/linux-installation/">
     <nav id="sidebar" class="">
 
 
@@ -70,7 +70,7 @@
   
     
     <li data-nav-id="/getting-started/" title="Getting Started" class="dd-item 
-        
+        parent
         
         
         ">
@@ -116,7 +116,7 @@
   
     
     <li data-nav-id="/getting-started/download-and-install/" title="Download and Install" class="dd-item 
-        
+        parent
         
         
         ">
@@ -140,7 +140,7 @@
  
   
     
-      <li data-nav-id="/getting-started/download-and-install/linux-installation/" title="Linux Installation" class="dd-item ">
+      <li data-nav-id="/getting-started/download-and-install/linux-installation/" title="Linux Installation" class="dd-item active">
         <a href="/getting-started/download-and-install/linux-installation/">
         Linux Installation
         
@@ -1558,86 +1558,193 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/getting-started/'>Getting Started</a> > <a href='/getting-started/download-and-install/'>Download and Install</a> > Linux Installation
+          
+         
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#install-resinsight">Install ResInsight</a>
+<ul>
+<li><a href="#from-binary-packages-on-linux">From Binary Packages on Linux</a>
+<ul>
+<li><a href="#red-hat-enterprise-linux-6-or-7">Red Hat Enterprise Linux 6 or 7</a></li>
+<li><a href="#ubuntu-linux-16-04-64bit">Ubuntu Linux 16.04-64bit</a></li>
+</ul></li>
+<li><a href="#from-downloaded-tarball">From downloaded tarball</a>
+<ul>
+<li><a href="#display-menu-icons-in-gnome-optional">Display Menu Icons in GNOME (Optional)</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#setup-octave-interface-optional">Setup Octave Interface (optional)</a></li>
+<li><a href="#workaround-for-crash-using-virtual-box">Workaround for crash using Virtual Box</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Linux Installation
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<h2 id="install-resinsight">Install ResInsight</h2>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<h3 id="from-binary-packages-on-linux">From Binary Packages on Linux</h3>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<div class="notices info" ><p>Please not that the distribution by the OPM Project will updated some time after the release of a new version on GitHub.</p>
+</div>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+
+<h4 id="red-hat-enterprise-linux-6-or-7">Red Hat Enterprise Linux 6 or 7</h4>
+
+<p>Login as root and do:</p>
+
+<pre><code>yum-config-manager --add-repo https://opm-project.org/package/opm.repo
+yum install resinsight
+yum install resinsight-octave
+</code></pre>
+
+<p>Then you are good, and can start ResInsight by typing: ResInsight</p>
+
+<h4 id="ubuntu-linux-16-04-64bit">Ubuntu Linux 16.04-64bit</h4>
+
+<p>On the command line do:</p>
+
+<pre><code>sudo apt-get update
+sudo apt-get install software-properties-common
+sudo apt-add-repository ppa:opm/ppa
+sudo apt-get update
+sudo apt-get install resinsight
+sudo apt-get install octave-resinsight
+</code></pre>
+
+<p>Start ResInsight by typing : <code>ResInsight</code></p>
+
+
+<div class="notices info" ><p>For further installation details, see the ResInsight distribution on <a href="http://opm-project.org/?page_id=36">Opm Project Downloading and Installing</a>.</p>
+</div>
+
+
+
+<div class="notices info" ><p>The binary distributions does not support ABAQUS odb files. For building ResInsight with ABAQUS support, see
+<a href="/getting-started/download-and-install/buildinstructions/">Build Instructions</a>.</p>
+</div>
+
+
+<h3 id="from-downloaded-tarball">From downloaded tarball</h3>
+
+<ol>
+<li>Download TAR.GZ binary distribution from <a href="https://github.com/OPM/ResInsight/releases" title="release section on GitHub">https://github.com/OPM/ResInsight/releases</a></li>
+<li>Extract content from TAR file</li>
+<li>Start ./ResInsight</li>
+</ol>
+
+<h4 id="display-menu-icons-in-gnome-optional">Display Menu Icons in GNOME (Optional)</h4>
+
+<p>By default, icons are not visible in menus in the GNOME desktop environment. ResInsight has icons for many menu items, and icons can be set visible by issuing the following commands (Tested on RHEL6) :</p>
+
+<pre><code>gconftool-2 --type boolean --set /desktop/gnome/interface/buttons_have_icons true
+gconftool-2 --type boolean --set /desktop/gnome/interface/menus_have_icons true
+</code></pre>
+
+<p>This fix was taken from reply number 11 in this <a href="https://bbs.archlinux.org/viewtopic.php?id=117414">thread</a></p>
+
+<h2 id="setup-octave-interface-optional">Setup Octave Interface (optional)</h2>
+
+<ol>
+<li>Install Octave directly from the package manager in Linux. See the documentation for your particular distribution.</li>
+<li>Launch ResInsight, open <strong>Edit-&gt;Preferences</strong></li>
+<li>Enter the path to the Octave command line interpreter executable <code>octave-cli</code> (for older version of octave use <code>octave</code>)</li>
+</ol>
+
+
+<div class="notices info" ><p>The precompiled octave interface distributed in the tarball is only tested for RedHat 6. <br>
+It is <b>not</b> expected to work for other configurations.
+(ResInsight 1.3.2-dev and earlier, was also tested on RedHat 5)<br>
+<br>
+If you need the octave interface to work on a different OS, you need to build ResInsight yourself.<br>
+See <a href="/getting-started/download-and-install/buildinstructions/">Build Instructions</a></p>
+</div>
+
+
+<h2 id="workaround-for-crash-using-virtual-box">Workaround for crash using Virtual Box</h2>
+
+<p>Uncheck <strong>Settings-&gt;Display-&gt;Enable 3D Acceleration</strong>. Disabling this option will cause OpenGL operations to be executed in software, so the the performance of graphics operations in ResInsight will be slower, but will not crash.</p>
+
+<p>Here is a pointer addressing the issue with Virtual Box, this is not testes by us:</p>
+
+<p><a href="https://superuser.com/questions/541537/how-to-solve-issues-with-shader-model-in-virtualbox">https://superuser.com/questions/541537/how-to-solve-issues-with-shader-model-in-virtualbox</a></p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -1669,8 +1776,6 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
-                        
-                        
                     
                 
                 
@@ -1686,6 +1791,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1703,6 +1811,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -1715,6 +1824,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
                     
                 
                 
@@ -1731,6 +1841,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2925,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/getting-started/download-and-install/" title="Download and Install"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/getting-started/download-and-install/windows-installation/" title="Windows Installation" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
