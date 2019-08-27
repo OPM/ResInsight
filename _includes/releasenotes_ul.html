@@ -1,0 +1,18 @@
+{% assign items = include.items %}
+
+{% for item in items %}
+  {% assign item_url = item | prepend:"/releasenotes/" | append:"/" %}
+
+  {% if item_url == page.url %}
+    {% assign c = "current" %}
+  {% else %}
+    {% assign c = "" %}
+  {% endif %}
+
+  {% for p in site.pages %}
+    {% if p.url == item_url %}
+      <li class="{{ c }}"><a href="{{ site.baseurl }}{{ p.url }}">{{ p.title }}</a></li>
+    {% endif %}
+  {% endfor %}
+
+{% endfor %}
