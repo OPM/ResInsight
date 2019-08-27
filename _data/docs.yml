@@ -1,0 +1,87 @@
+- title: Introduction
+  docs:
+  - home
+  releasenotes:
+  - releasenotes_2019_04
+  - releasenotes_2018_11
+   
+- title: Getting Started
+  docs:
+  - installation
+  - installationlinux
+  - gettingstarted
+  - gridimportexport
+  - modelnavigation
+  
+- title: 3D Main Window
+  docs:
+  - reservoirviews
+  - cellresults
+  - resultcolorlegend
+  - resultinspection
+  - gridstatisticsdialog
+  - linkedviews
+  - simulationwells
+  - faults
+  - tensors
+  - intersections
+  - filters
+  - wellpaths
+  - createwellpaths
+  - 3dwelllogcurves
+  - completions
+  - completionslgr
+  - contourmaps
+  - formations
+  - casegroupsandstatistics 
+  - annotations
+  - measurement
+  - preferences
+  - memorymanagement
+  - keyboard
+  
+- title: Plot Window
+  docs:
+  - summaryplots
+  - summaryplotsourcestepping
+  - summaryploteditor
+  - summarycrossplots
+  - ensembleplotting
+  - curvecalculator
+  - welllogsandplots
+  - wellborestabilityplots
+  - rftplot
+  - pltplot
+  - flowdiagnosticsplots
+  - gridcrossplots
+  - saturationpressureplots
+     
+- title: Import 
+  docs:
+  - odbsupport
+  - elementpropertytableimport
+  - observeddata 
+  - pasteexceltimedata
+  
+- title: Export 
+  docs:
+  - snapshots
+  - exporteclipseproperties
+  - exportfluxnummultnum
+  - completionexport
+  - exportwellpaths
+  - exportsectormodel
+  
+- title: Scripting
+  docs:
+  - octaveinterface
+  - commandlineinterface
+  - commandfile
+
+- title: Appendix
+  docs:
+  - derivedresults
+  - octaveinterfacereference
+  - buildinstructions
+  - regressiontestsystem
+ 
