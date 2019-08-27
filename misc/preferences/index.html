@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/ResInsight-UserDocumentation/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Preferences :: ResInsight</title>
 
     
     <link href="/ResInsight-UserDocumentation/css/nucleus.css?1566894805" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/ResInsight-UserDocumentation/">
+  <body class="" data-url="/ResInsight-UserDocumentation/misc/preferences/">
     <nav id="sidebar" class="">
 
 
@@ -1412,7 +1412,7 @@
   
     
     <li data-nav-id="/ResInsight-UserDocumentation/misc/" title="Miscellaneous" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1436,7 +1436,7 @@
  
   
     
-      <li data-nav-id="/ResInsight-UserDocumentation/misc/preferences/" title="Preferences" class="dd-item ">
+      <li data-nav-id="/ResInsight-UserDocumentation/misc/preferences/" title="Preferences" class="dd-item active">
         <a href="/ResInsight-UserDocumentation/misc/preferences/">
         Preferences
         
@@ -1558,86 +1558,226 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/ResInsight-UserDocumentation/'>ResInsight</a> > <a href='/ResInsight-UserDocumentation/misc/'>Miscellaneous</a> > Preferences
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#general-tab">General - tab</a>
+<ul>
+<li><a href="#default-colors">Default Colors</a></li>
+<li><a href="#default-font-sizes">Default Font Sizes</a></li>
+<li><a href="#3d-views">3D Views</a></li>
+<li><a href="#other">Other</a></li>
+</ul></li>
+<li><a href="#eclipse-tab">Eclipse - tab</a>
+<ul>
+<li><a href="#behavior-when-loading-data">Behavior When Loading Data</a></li>
+<li><a href="#origin-files">Origin Files</a></li>
+</ul></li>
+<li><a href="#summary-tab">Summary - tab</a></li>
+<li><a href="#scripting-tab">Scripting - tab</a>
+<ul>
+<li><a href="#octave">Octave</a></li>
+<li><a href="#python">Python</a></li>
+<li><a href="#script-files">Script Files</a></li>
+</ul></li>
+<li><a href="#export-tab">Export - tab</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Preferences
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p>In this section the different settings that controls the default behavior of ResInsight is described. These settings can be controlled using the <strong>Preference</strong> dialog available from the <strong>Edit -&gt; Preferences</strong> menu.</p>
 
-<p><img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="" /></p>
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/Preferences.png" alt="" /></p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>When changing the preferences, any default color, font or Z-scale Factor that has not been changed by the user in the various views, will be applied immediately. If the user has changed font sizes in specific plots or annotations from the default value, ResInsight will ask if the user wants the new defaults applied to all existing views and plots even where custom settings have been set.</p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/ResInsight-UserDocumentation/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/ResInsight-UserDocumentation/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/ResInsight-UserDocumentation/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/Preferences_ApplyToAll.png" alt="" /></p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/ResInsight-UserDocumentation/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p>The preferences are not stored in the project files, but rather in a platform specific way for each user.</p>
+
+<h2 id="general-tab">General - tab</h2>
+
+<h3 id="default-colors">Default Colors</h3>
+
+<p>This group contains the colors that will be applied to the 3D views.</p>
+
+<ul>
+<li><strong>Viewer Background</strong></li>
+<li><strong>Mesh Color</strong></li>
+<li><strong>Mesh Color Along Faults</strong></li>
+<li><strong>Well Label Color</strong></li>
+</ul>
+
+<h3 id="default-font-sizes">Default Font Sizes</h3>
+
+<p>This group contains the different fonts which are used through ResInsight.</p>
+
+<ul>
+<li><strong>Viewer Font Size</strong> &ndash; The fonts used for axes labels, legends and info boxes in the 3d View.</li>
+<li><strong>Annotation Font Size</strong> &ndash; The font used as default for Text Annotations.</li>
+<li><strong>Well Label Font Size</strong> &ndash; The font used for all Well Path labels.</li>
+<li><strong>Plot Font Size</strong> - The font used for legends, axes labels, values in Plots. This affects the docked plots in the main 3D window as well (Result Plot, Relative Permeability etc), although because of the reduces space available in these plots, the font size applied will be one less than the <strong>Plot Font Size</strong>.</li>
+</ul>
+
+<h3 id="3d-views">3D Views</h3>
+
+<p>This group of options controls visual settings that will be used when creating new views.</p>
+
+<ul>
+<li><strong>Show Grid Lines</strong> &ndash; Controls whether to show the grid lines by default for all cells or just along faults.</li>
+<li><strong>Navigation mode</strong> &ndash; Defines how to use the mouse to interact with with the 3D model. Please refer to <a href="/ResInsight-UserDocumentation/getting-started/modelnavigation/">Model Navigation</a> for details.</li>
+<li><strong>Default Z Scale Factor</strong> &ndash; Default depth scale for grid models.</li>
+<li><strong>Show Box around Legends</strong> &ndash; Create a semi-transparent box containing each legend in the 3D Views.</li>
+<li><strong>Use shaders</strong> &ndash; This option controls the use of OpenGL shaders. Should be left <strong>On</strong>. Available only for testing purposes.</li>
+<li><strong>Show 3D Information</strong> &ndash; Displays graphical resource usage as text in the 3D view.</li>
+</ul>
+
+<h3 id="other">Other</h3>
+
+<ul>
+<li><strong>Date Format</strong> &ndash; Defines the date format to be used in time legend plotting</li>
+<li><strong>Time Format</strong> &ndash; Defines the time format to be used in time legend plotting</li>
+<li><strong>SSIHUB Address</strong> &ndash; Optional URL to Equinor internal web service used to import well paths</li>
+<li><strong>Show LAS Curve Without TVD Warning</strong> - Turn off the warning displayed when showing LAS curves in TVD mode</li>
+</ul>
+
+<h2 id="eclipse-tab">Eclipse - tab</h2>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/EclipsePreferences.png" alt="" /></p>
+
+<h3 id="behavior-when-loading-data">Behavior When Loading Data</h3>
+
+<ul>
+<li><strong>Compute DEPTH Related Properties</strong> &ndash; If not present, compute DEPTH, DX, DY, DZ, TOP, BOTTOM when loading new cases.</li>
+<li><strong>Load and Show SOIL</strong> &ndash; Control if SOIL is loaded and applied to grid.</li>
+<li><strong>Import Faults/NNCs/Advanced MSW Data</strong> &ndash; Disable import of data for a case to reduce case import time.</li>
+<li><strong>Include File Absolute Path Prefix</strong> &ndash; Prefix used on Windows if include files use absolute UNIX paths.</li>
+<li><strong>Use Result Index File</strong> &ndash; If enabled ResInsight will try to save a result index file when opening a new case. The file is stored in the same directory as the <em><code>*.EGRID</code></em> file with filename <em><code>&lt;casename&gt;.RESINSIGHT_IDX</code></em> If it exists, ResInsight will use this when loading the case, resulting in a significant speedup.</li>
+<li><strong>Skip Import of Simulation Well Data</strong> &ndash; Disable import of simulation well data for a case to reduce case import time (opposite toggling than the other import commands).</li>
+</ul>
+
+<h3 id="origin-files">Origin Files</h3>
+
+<p>Please refer to <a href="/ResInsight-UserDocumentation/plot-window/summaryplots/#origin-files">Summary Origin</a> for details related to handling of <strong>Origin Files</strong>.</p>
+
+<h2 id="summary-tab">Summary - tab</h2>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/Preferences_Summary.png" alt="" /></p>
+
+<ul>
+<li><strong>Default Summary Curves</strong> &ndash; Defines the curves for import when creating a new summary plot, ie <code>FOPT WOPT*</code></li>
+<li><strong>Default Curve Style for History Vectors</strong></li>
+</ul>
+
+<h2 id="scripting-tab">Scripting - tab</h2>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/Preferences_Scripting.png" alt="" /></p>
+
+<h3 id="octave">Octave</h3>
+
+<ul>
+<li><strong>Octave Executable Location</strong> &ndash; Defines the binary file location for Octave. Usually without path on Linux, and including path on Windows.</li>
+<li><strong>Show text header when executing scripts</strong> &ndash; Enables the default output that octave outputs when started.</li>
+</ul>
+
+<p>Please refer to <a href="/ResInsight-UserDocumentation/scripting/octaveinterface/">Octave Interface</a> for more details.</p>
+
+<h3 id="python">Python</h3>
+
+<ul>
+<li><strong>Enable Python Script Server</strong></li>
+<li><strong>Default Python Script Server Port</strong> &ndash; Defines the port used for communication with Python scripts</li>
+<li><strong>Python Executable Location</strong></li>
+</ul>
+
+<p>Please refer to <a href="/ResInsight-UserDocumentation/scripting/pythonrips/">Python API</a> for more details.</p>
+
+<h3 id="script-files">Script Files</h3>
+
+<ul>
+<li><strong>Shared Script Folder(s)</strong> &ndash; Defines the search paths for octave scripts</li>
+<li><strong>Script Editor</strong> &ndash; The text editor to invoke when editing scripts</li>
+</ul>
+
+<h2 id="export-tab">Export - tab</h2>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/Preferences_Export.png" alt="" /></p>
+
+<ul>
+<li><strong>CSV Text Export Field Separator</strong></li>
+</ul>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2728,6 +2868,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2740,6 +2881,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
                     
                 
                 
@@ -2756,6 +2898,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2957,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/ResInsight-UserDocumentation/misc/" title="Miscellaneous"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/ResInsight-UserDocumentation/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/ResInsight-UserDocumentation/misc/memorymanagement/" title="Memory Management" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

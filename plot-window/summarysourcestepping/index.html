@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/ResInsight-UserDocumentation/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Summary Plot Source Stepping :: ResInsight</title>
 
     
     <link href="/ResInsight-UserDocumentation/css/nucleus.css?1566894805" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/ResInsight-UserDocumentation/">
+  <body class="" data-url="/ResInsight-UserDocumentation/plot-window/summarysourcestepping/">
     <nav id="sidebar" class="">
 
 
@@ -568,7 +568,7 @@
   
     
     <li data-nav-id="/ResInsight-UserDocumentation/plot-window/" title="Plot Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -611,7 +611,7 @@
  
   
     
-      <li data-nav-id="/ResInsight-UserDocumentation/plot-window/summarysourcestepping/" title="Summary Plot Source Stepping" class="dd-item ">
+      <li data-nav-id="/ResInsight-UserDocumentation/plot-window/summarysourcestepping/" title="Summary Plot Source Stepping" class="dd-item active">
         <a href="/ResInsight-UserDocumentation/plot-window/summarysourcestepping/">
         Summary Plot Source Stepping
         
@@ -1558,86 +1558,135 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/ResInsight-UserDocumentation/'>ResInsight</a> > <a href='/ResInsight-UserDocumentation/plot-window/'>Plot Main Window</a> > Summary Plot Source Stepping
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#summary-plot-source-stepping">Summary Plot Source Stepping</a>
+<ul>
+<li><a href="#tag-selected-curve-item-for-source-stepping">Tag selected curve item for source stepping</a></li>
+<li><a href="#handling-of-summary-curves-and-history-summary-curves">Handling of summary curves and history summary curves</a></li>
+<li><a href="#applying-data-source-change">Applying data source change</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Summary Plot Source Stepping
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/ResInsight-UserDocumentation/images/plot-window/SummarySourceSteppingBanner.png" alt="" /></p>
 
-<p><img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="" /></p>
+<h2 id="summary-plot-source-stepping">Summary Plot Source Stepping</h2>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>Summary Source Stepping is a function which lets the user step through multiple vectors in one click. This function is available from both the toolbar and the <strong>Summary Curves</strong> property editor under a <strong>Summary Plot</strong> item in the <strong>Main Plot Window Project Tree</strong>.</p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/ResInsight-UserDocumentation/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/ResInsight-UserDocumentation/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/ResInsight-UserDocumentation/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p>This functionality applies both to single summary curves and ensemble curve sets.</p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/ResInsight-UserDocumentation/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p>The toolbar version may look like this</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/plot-window/SummarySourceSteppingToolbar.png" alt="" /></p>
+
+<p>and the property editor version may looks like this</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/plot-window/SummarySourceSteppingPropertyEditor.png" alt="" /></p>
+
+<p>In some cases some of the stepping components are hidden, depending on the set of summary curves currently visible. When ResInsight decides which stepping component to display, all visible curves in the current plot are taken into account. If, for instance, all curves display data from the same well, the well stepping component is displayed. This policy applies to the following source dimensions:</p>
+
+<ul>
+<li>Cases</li>
+<li>Wells</li>
+<li>Well groups</li>
+<li>Regions</li>
+<li>Completions</li>
+<li>Segments</li>
+<li>Block</li>
+<li>Summary Vectors</li>
+</ul>
+
+<h3 id="tag-selected-curve-item-for-source-stepping">Tag selected curve item for source stepping</h3>
+
+<p>If the plot contains a mix of different curves, ResInsight might end up with too few stepping components available. Then, by selecting a summary curve or ensemble curve set, and activation of the right-click menu item <strong>Set as Source Stepping Curve</strong>, will use the selected curve as basis for data source stepping. All source stepping components for the selected curve is dispayed. When a curve or ensemble is marked for source stepping, an source stepping icon is displayed next to the curve.</p>
+
+<p>Select <strong>Clear Source Stepping Curve</strong> to leave this mode.</p>
+
+<p>This functionality applies both to single summary curves and ensemble curve sets.</p>
+
+<h3 id="handling-of-summary-curves-and-history-summary-curves">Handling of summary curves and history summary curves</h3>
+
+<p>If a plot displays both a summary curve and the corresponding history summary curve, the source stepping can be applied to both curves at the same time. If you have a mix of several curves, it might be required to mark one of the curves using <strong>Set as Source Stepping Curve</strong>.</p>
+
+<h3 id="applying-data-source-change">Applying data source change</h3>
+
+<p>When one of the <strong>next buttons</strong> are clicked, all curves are changed to display data for the next item for the clicked source dimension. Example: The user clicks the <strong>next well button</strong>. Then the well source for all curves in the current plot are changed to display data for the next well.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2072,6 +2121,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2084,6 +2134,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2101,6 +2154,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2116,6 +2170,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2869,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/ResInsight-UserDocumentation/plot-window/summaryplots/" title="Summary Plots"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/ResInsight-UserDocumentation/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/ResInsight-UserDocumentation/plot-window/summaryploteditor/" title="Summary Plot Editor" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
