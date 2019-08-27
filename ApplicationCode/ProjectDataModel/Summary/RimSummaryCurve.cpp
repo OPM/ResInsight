@@ -21,6 +21,7 @@
 #include "RiaDefines.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
+#include "RiaStatisticsTools.h"
 #include "RiaTimeHistoryCurveMerger.h"
 
 #include "RifReaderEclipseSummary.h"
@@ -781,17 +782,24 @@ QString RimSummaryCurve::curveExportDescription(const RifEclipseSummaryAddress& 
     auto curveSet = coll ? coll->findRimCurveSetFromQwtCurve(m_qwtPlotCurve) : nullptr;
     auto group = curveSet ? curveSet->summaryCaseCollection() : nullptr;
 
+    auto addressUiText = addr.uiText();
+    if (addr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
+    {
+        addressUiText = RiaStatisticsTools::replacePercentileByPValueText(QString::fromStdString(addressUiText)).toStdString();
+
+    }
+
     if (group && group->isEnsemble())
     {
         return QString("%1.%2.%3")
-            .arg(QString::fromStdString(addr.uiText()))
+            .arg(QString::fromStdString(addressUiText))
             .arg(m_yValuesSummaryCase->caseName())
             .arg(group->name());
     }
     else
     {
         return QString("%1.%2")
-            .arg(QString::fromStdString(addr.uiText()))
+            .arg(QString::fromStdString(addressUiText))
             .arg(m_yValuesSummaryCase->caseName());
     }
 }
