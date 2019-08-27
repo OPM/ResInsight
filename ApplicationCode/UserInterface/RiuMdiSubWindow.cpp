@@ -18,7 +18,7 @@
 
 #include "RiuMdiSubWindow.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "Rim3dView.h"
 #include "RimSummaryPlot.h"
@@ -41,6 +41,7 @@ RiuMdiSubWindow::RiuMdiSubWindow(QWidget* parent /*= 0*/, Qt::WindowFlags flags 
     , m_normalWindowGeometry(QRect())
     , m_blockTilingChanges(false)
 {
+    setWindowIcon(QIcon(":/Window16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +60,7 @@ RimMdiWindowGeometry RiuMdiSubWindow::windowGeometry() const
     RimMdiWindowGeometry geo;
 
     int mainWinID = 0;
-    if (window() == RiaApplication::instance()->mainPlotWindow())
+    if (window() == RiaGuiApplication::instance()->mainPlotWindow())
     {
         mainWinID = 1;
     }
@@ -132,13 +133,13 @@ void RiuMdiSubWindow::resizeEvent(QResizeEvent* resizeEvent)
 
     if (!m_blockTilingChanges)
     {
-        if (window() == RiaApplication::instance()->mainWindow())
+        if (window() == RiaGuiApplication::instance()->mainWindow())
         {
-            RiaApplication::instance()->mainWindow()->storeSubWindowTiling(false);
+            RiaGuiApplication::instance()->mainWindow()->storeSubWindowTiling(false);
         }
-        else if (window() == RiaApplication::instance()->mainPlotWindow())
+        else if (window() == RiaGuiApplication::instance()->mainPlotWindow())
         {
-            RiaApplication::instance()->mainPlotWindow()->storeSubWindowTiling(false);
+            RiaGuiApplication::instance()->mainPlotWindow()->storeSubWindowTiling(false);
         }
     }
 
@@ -157,13 +158,13 @@ void RiuMdiSubWindow::moveEvent(QMoveEvent* moveEvent)
     
     if (!m_blockTilingChanges)
     {
-        if (window() == RiaApplication::instance()->mainWindow())
+        if (window() == RiaGuiApplication::instance()->mainWindow())
         {
-            RiaApplication::instance()->mainWindow()->storeSubWindowTiling(false);
+            RiaGuiApplication::instance()->mainWindow()->storeSubWindowTiling(false);
         }
-        else if (window() == RiaApplication::instance()->mainPlotWindow())
+        else if (window() == RiaGuiApplication::instance()->mainPlotWindow())
         {
-            RiaApplication::instance()->mainPlotWindow()->storeSubWindowTiling(false);
+            RiaGuiApplication::instance()->mainPlotWindow()->storeSubWindowTiling(false);
         }
     }
 

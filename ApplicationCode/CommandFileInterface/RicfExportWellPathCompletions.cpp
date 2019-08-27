@@ -65,7 +65,7 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfExportWellPathCompletions::execute()
+RicfCommandResponse RicfExportWellPathCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -101,8 +101,9 @@ void RicfExportWellPathCompletions::execute()
         auto eclipseCase = TOOLS::caseFromId(m_caseId());
         if (!eclipseCase)
         {
-            RiaLogging::error(QString("exportWellPathCompletions: Could not find case with ID %1").arg(m_caseId()));
-            return;
+            QString error = QString("exportWellPathCompletions: Could not find case with ID %1").arg(m_caseId());
+            RiaLogging::error(error);
+            return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
         }
         exportSettings->caseToApply = eclipseCase;
     }
@@ -113,6 +114,8 @@ void RicfExportWellPathCompletions::execute()
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("completions");
     }
     exportSettings->folder = exportFolder;
+
+    RicfCommandResponse response;
 
     std::vector<RimWellPath*> wellPaths;
     if (m_wellPathNames().empty())
@@ -136,7 +139,9 @@ void RicfExportWellPathCompletions::execute()
             }
             else
             {
-                RiaLogging::warning(QString("exportWellPathCompletions: Could not find well path with name %1").arg(wellPathName));
+                QString warning = QString("exportWellPathCompletions: Could not find well path with name %1").arg(wellPathName);
+                RiaLogging::warning(warning);
+                response.updateStatus(RicfCommandResponse::COMMAND_WARNING, warning);
             }
         }
     }
@@ -144,4 +149,6 @@ void RicfExportWellPathCompletions::execute()
     std::vector<RimSimWellInView*> simWells;
 
     RicWellPathExportCompletionDataFeatureImpl::exportCompletions(wellPaths, simWells, *exportSettings);
+
+    return response;
 }

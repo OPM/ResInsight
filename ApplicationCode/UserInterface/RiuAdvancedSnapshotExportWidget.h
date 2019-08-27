@@ -38,6 +38,8 @@ public:
 
     void addSnapshotItemFromActiveView();
     void addEmptySnapshotItems(size_t itemCount);
+    void setExportFolder(const QString& folder);
+    QString exportFolder() const;
 
 private slots:
     void customMenuRequested(QPoint pos);

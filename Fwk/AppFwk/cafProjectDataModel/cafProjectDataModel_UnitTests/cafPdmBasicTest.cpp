@@ -580,7 +580,7 @@ TEST(BaseTest, ReadWrite)
 
         // Write file
         QFile xmlFile("PdmTestFil2.xml");
-        xmlFile.open(QIODevice::WriteOnly);
+        xmlFile.open(QIODevice::WriteOnly | QIODevice::Text);
         xmlDoc.writeFile(&xmlFile);
         xmlFile.close();
     }
@@ -590,8 +590,8 @@ TEST(BaseTest, ReadWrite)
         
         QFile f1("PdmTestFil.xml");
         QFile f2("PdmTestFil2.xml");
-        f1.open(QIODevice::ReadOnly);
-        f2.open(QIODevice::ReadOnly);
+        f1.open(QIODevice::ReadOnly | QIODevice::Text);
+        f2.open(QIODevice::ReadOnly | QIODevice::Text);
         QByteArray ba1 = f1.readAll();
         QByteArray ba2 = f2.readAll();
         bool equal = ba1 == ba2;
@@ -672,7 +672,7 @@ TEST(BaseTest, ReadWrite)
         // Write the edited document
 
         QFile f3("PdmTestFilWithError.xml");
-        f3.open(QIODevice::WriteOnly);
+        f3.open(QIODevice::WriteOnly | QIODevice::Text);
         f3.write(ba1);
         f3.close();
 

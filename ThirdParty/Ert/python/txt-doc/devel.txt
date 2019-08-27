@@ -1,0 +1,429 @@
+Developer documentation
+-----------------------
+
+  1 Summary
+  2 About ctypes
+    2.1 Loading the shared library
+    2.2 Type mappings
+      2.2.1 Fundamental types
+      2.2.2 User defined types and classes
+  3 The C code
+  4 Common structure of the wrapping
+    4.1 Loading the shared library
+    4.2 Prototyping
+    4.3 Python classes
+  5 Garbage collection and 'data_owner'
+  6 Installation in Equinor
+
+
+
+1 Summary
+
+The ert Python classes are based on wrapping (some) of the C libraries
+which constitute the ERT application. The wrapping is based on the
+python ctypes module which does the wrapping dynamically. The python
+classes are quite thin, most of the actual code is in C, however a
+user of the ert Python should NOT need to know that there is some C
+code deep down.
+
+
+2 About ctypes
+
+ctypes is a standard Python module for dynamic wrapping of C code. The
+C code should compiled into a shared library. The ctypes library works
+by loading the shared library with dlopen(). In addition there is a
+quite good system for transparently mapping between Python types and C
+types. More extensive documentation of ctypes is available at:
+http://www.python.org/org/library/ctypes.html
+
+2.1 Loading the shared library 
+
+In the ert Python wrapping loading the shared library is handled by
+the ert.util.clib function load(). When the shared library has been
+loaded, all the symbols of the shared library are available as
+attributes of the ctypes load handle. At the lowest level the loading
+of shared libraries is through the ctypes.CDLL() call like:
+
+    lib_handle = ctypes.CDLL( "libname" )
+
+however in the ert py library this is wrapped by the function load()
+in the ert.util.clib module:
+ 
+    import ert.util.clib as clib   
+    lib_handle = clib.load("name1" , "name2" , "name3")
+
+The clib.load() function will only load one library, but it can take
+several names to that library and will try loading until one of them
+succeeds. This is quite useful because several of the standard
+libraries are identified with different names on the different RedHat
+releases, for instance zlib is loaded like this:
+
+    zlib_handle = clib.load("libz", "libz.so.1")
+
+When the library has been loaded, all functions of the shared library
+will be available as python function attributes of the library
+handle. I.e. if loading the standard library like:
+
+    clib_handle = clib.load( "libc" )
+    
+The attribute clib_handle.getenv will be a pointer to a Python
+function object which wraps the standard library getenv()
+function. Before this is really usable we have to "tell" the function
+object which input arguments and return to expect, this is done with
+the restype attribute and the argtypes attribute of the function
+object, more details of the prototype process can be found in section
+4.2
+
+
+2.2 Type mappings 
+
+The ctypes library automagically handles conversion between common
+C-types and Python types, so for the example above we would be able to
+write:
+
+    PATH = clib_handle.getenv( "PATH" )
+
+And the conversion between Python strings and NULL based char* in C is
+handled transparently. In the ert wrapping setting the type of return
+values and input values is handled by the function prototype() in
+ert.cwrap.cwrap.
+
+The type mappings necessary to get prototype() function to work is
+maintained in the CWrapper class in ert.cwrap.cwrap.py. During
+initialization of the ert Python code there are many calls
+associating the name of a C type you whish to use in the prototype
+process (as a string) and the corresponding Python type:
+   
+   CWrapper.registerType( "int"    , ctypes.c_int )
+   CWrapper.registerType( "double" , ctypes.c_double ) 
+   CWrapper.registerType( "char*"  , ctypes.c_char_p )                          
+   CWrapper.registerType( "int*"   , ctypes.POINTER( ctypes.c_int ))
+   
+
+
+
+2.2.1 Fundamental types
+
+All the fundamental C types are known to the ctypes library, and
+transparently converted <-> the correct Python type. 
+
+  C type                    ctypes             Python type 
+  --------------------------------------------------------
+  int                       c_int              int
+  float                     c_float            float
+  double                    c_double           double      
+  .....
+  char * (NULL terminated)  c_char_p           string
+  --------------------------------------------------------   
+
+All these types can be created by calling them with an optional
+initializer of the correct type and value:
+
+  cint = ctypes.c_int( 42 )
+
+With the function ctypes.POINTER() you can create pointers to the
+fundamental types - but this is approaching dangerous territory!
+
+
+2.2.2 User defined types and classes
+
+Let us say you have a C function which expects a pointer to an
+abstract data type as input:
+
+   void abstract_method( abstract_type * at );
+
+And that you have implemented the Python class AT which wraps a
+pointer to a at instance in a "c_ptr" attribute. If the AT class
+contains a method:
+
+  def from_param( self ):
+      return ctypes.c_void_p( self.c_ptr )
+
+The AT class can then be used as a Python type in the argtypes
+attributes. To make it available in the prototyping as well you must
+register the type:
+
+   CWrapper.registerType( "at" , AT )
+
+Observe that the AT class should NOT be used as restype, i.e. for the
+return value:
+
+    /-- Warning: ----------------------------------------------\
+    | The mapping of types generally works quite well, however |
+    | observe that the return type of C functions which return |
+    | an instance pointer is NOT the current class, but        |
+    | c_void_p, that is because this return value is           | 
+    | internalized in the c_ptr attribute of the object.       |
+    \----------------------------------------------------------/
+
+
+3 The C code
+
+The C libraries are to a large extent developed with abstract types
+like:
+
+  typedef struct {
+     .....
+     .....
+  } abs_type;
+
+and "methods" like:
+
+  abs_type * abs_type_alloc( ) { }
+  void       abs_type_free( abs_type * at ) {}
+  int        abs_type_get_an_int( const abs_type * at) {}
+  void       abs_type_set_an_int( abs_type * at , int value) {}
+
+it has therefore been relatively easy to map this onto Python classes
+and give a pythonic feel to the whole thing. As a ground rule each C
+file implements one struct; this struct is wrapped in a Python module
+with the same name and a Python class with CamelCaps naming:
+
+    C                                  Python
+    ecl_kw.c implements ecl_kw_type    ecl_kw.py implements EclKW
+
+
+
+
+4 Common structure of the wrapping
+
+The wrapping of the libraries (currently only libecl is anything close
+to complete) follow roughly the same structure:
+
+  1. Load the shared library
+
+  2. For each C "class" you wish to wrap {
+
+       2.1. Prototype the C functions you wish to use by creating Python
+            function objects with correct restype and argtypes
+            attributes for the functions you are interested in, using
+            the CWrapper.prototype() function.
+
+       2.2. Create the Python class - based on the prototype functions
+            from 2.1 above.
+
+     }     
+     
+The following excerpt from ecl_kw.y illustrates this:
+
+    ------------------------------------------------------------
+    # Load the shared library
+    import libecl                                    <---  Step 1
+
+    Class EclKW:                                     <-------------�
+          # Pure Python code to implement the EclKW class,         |
+          # based on the functions prototyped below.               |   Step 3
+          ....                                       <-------------� 
+    
+    # Create a wrapper instance which wraps the libecl library. <--------�
+    cwrapper = CWrapper( libecl.lib )                                    |
+                                                                         | 
+    # Register the type mapping "ecl_kw" <-> EclKW                       | Step 2
+    cwrapper.registerType( "ecl_kw" , EclKW )                            |
+                                                                         |
+    # Prototype the functions needed to implement the Python class       |
+    cfunc.alloc_new = cwrapper.prototype("long ecl_kw_alloc( char* , int , int )")
+    cfunc.free      = cwrapper.prototype("void ecl_kw_free( ecl_kw )")   |                 
+    ....                                                        <--------� 
+    ------------------------------------------------------------
+
+These three steps are described in more detail in 4.1 - 4.3 below.
+
+
+4.1 Loading the shared library
+
+For loading the shared library 'libecl.so' there is a module
+'libecl.py' which calls the actual loading function, load() in
+ert.cwrap.clib.py. Subsequently the library instance will be a 'lib'
+attribute of the the libecl module, so that subsequent functions which
+need access to the function objects pointing to C functions, like
+e.g. the prototype function in the CWrapper class, will use this
+attribute.
+
+If you take a detailed look at some of the "import libxxx" statements
+they might seem superfluous, in the sense that the active scope does
+not reference the imported library, however in many cases the "import
+libxxxx" statements are for side-effects only.
+
+
+4.2 Prototyping
+
+As mentioned in section 2.1 we must "tell" the function pointers the
+type of the return value and the input arguments. This is done by
+setting the restype and argtypes attributes. For the getenv() function
+which takes one (char *) input and returns a (char *) pointer this
+would be:
+
+    clib_handle.getenv.restype  =   ctypes.c_char_p
+    clib_handle.getenv.argtypes = [ ctypes.c_char_p ] 
+    
+In the ert python code this is achieved with the helper class CWrapper
+implemented in the module ert.cwrap.cwrap:
+
+    from ert.cwrap.cwrap import CWrapper
+
+    lib = clib.load( "libc" ) 
+    wrapper = CWRapper( lib )
+    getenv = wrapper.prototype("char*  getenv( char* )")
+
+The prototype() method of the CWrapper class is essentially one
+massive regular expression which parses the "char* getenv( char* )"
+string and assigns the correct restype and argtypes attributes.
+
+
+All the calls to the prototype() method are typically assembled in the
+bottom of the file implementing a class defintion. E.g. the bottom of
+the ecl_kw.py file looks like this:
+
+  # 1: Load the shared library  
+  cwrapper = CWrapper( libecl.lib )
+
+  # 2: Register type mapping ecl_kw <--> EclKW
+  cwrapper.registerType( "ecl_kw" , EclKW )
+
+  # 3: Prototype the C functions we will use from Python
+  cfunc = CWrapperNameSpace("ecl_kw")
+  cfunc.get_size       = cwrapper.prototype("int ecl_kw_get_size( ecl_kw )")
+  cfunc.get_type       = cwrapper.prototype("int ecl_kw_get_type( ecl_kw )")
+  cfunc.iget_char_ptr  = cwrapper.prototype("char* ecl_kw_iget_char_ptr( ecl_kw , int )")
+  cfunc.iset_char_ptr  = cwrapper.prototype("void ecl_kw_iset_char_ptr( ecl_kw , int , char*)")
+  cfunc.iget_bool      = cwrapper.prototype("bool ecl_kw_iget_bool( ecl_kw , int)")
+  cfunc.iset_bool      = cwrapper.prototype("bool ecl_kw_iset_bool( ecl_kw , int, bool)")
+  cfunc.alloc_new      = cwrapper.prototype("c_void_p ecl_kw_alloc( char* , int , int )")
+  ....
+  ....
+
+This makes the function cfunc.get_size, cfunc.get_type,
+cfunc.iget_char_ptr, ... available as first class Python functions,
+and the Python classes can be implemented based on these
+functions. Observe that the return value from "ecl_kw_alloc()" is
+c_void_p' and not ecl_kw - that is because this return value is
+internalized in the c_ptr of the object (this is not particularly
+elegant, and could probably be improved upon..??).
+
+The prototyped functions is quite low-level, and they should __NOT__
+be used outside the file scope where they are defined.
+
+
+4.3 Python classes
+
+All the main Python classes wrap a C based structure, and contain
+roughly the same structure:
+
+  * The underlying C structure is 'held' with the attribute c_ptr,
+    c_ptr is just a c_void_p instance which holds the pointer value of
+    the underlying C structure. The name c_ptr is just convention, and
+    could be anything. The type of c_ptr is 'c_void_p'.
+
+    Mapping between a class instance and the C pointer held by this
+    instance is handled with the 'from_param' function:
+
+       def from_param( self ):
+           return self.c_ptr
+
+    The name 'from_param' is goverened by ctypes; the from_param
+    method is called automatically by the ctypes runtime.
+
+  * The __init__() function, or alternatively a classmethod
+    constructor calls the C based constructor, like
+    e.g. ecl_grid_alloc() and internalize the return value in the
+    attribute 'c_ptr'; alternatively the c_ptr might come as a shared
+    reference from another function.
+
+  * The __del__ function is called when the Python object is garbage
+    collected, then the corresponding C free function should be
+    called, e.g. ecl_grid_free().
+  
+
+
+
+
+5 Garbage collection and 'data_owner'
+
+The Python language has garbage collection, and as a user of the ert
+python code you should just assume that the garbage collection works
+for the ert py types. However, if you want to wrap new types (or maybe
+fix a bug ...) you should understand how the the ert py classes
+interact with garbage collection.
+
+When the Python interpreter decides that an object will be collected,
+the __del__() method of that object is called, and any non-standard
+cleanup code can be called here. In the case of ert py, this is where
+the C based destructor can be called. The important point is that it
+differs from case to case whether the C based constructor should
+indeed be called.
+
+The EclKW class illustrates this quite well. Broadly speaking you can
+instantiate an EclKW instance in two ways:
+
+  * Through the EclwKW.new() function 
+  * As a reference to an existing ecl_kw through an EclFile instance.
+
+In the first case the c_ptr of the EclKW instance will point to fresh
+storage dedicated to this EclKW, and when the EclKW instance goes out
+of scope the memory should be freed with a call to the C function
+ecl_kw_free(). 
+
+   EclKW (Python)       ecl_kw (C) 
+      c_ptr               
+       |                ---------
+       \--------------->| PORO  |
+                        | REAL  |
+                        | 10000 |
+                        |-------|
+                        | 0.15  |
+                        | 0.19  |
+                        | ...   |   
+                        ---------
+
+
+In the second case an EclFile instance has been created, and this
+object points to ecl_file C struct which is essentially a container
+containing many ecl_kw instances. We can then query the EclFile
+instance to get reference to the various ecl_kw keywords, i.e. for a
+small restart file:
+
+                        
+EclFile (Python)      ecl_file (C)             EclKW (Python)  
+   c_ptr                                          c_ptr
+    |                 ------------                  |
+    \---------------->| PRESSURE |                  |   
+                      | SGAS <---+------------------/
+                      | SWAT     |
+                      | ....     |
+                      ------------
+
+The situaton above (which is quite typical) could for instance come
+about from:
+
+   restart_file = ecl.EclFile( "ECLIPSE.X0057" )
+   sgas_kw      = restart_file.iget_named_kw( "SGAS" , 0 )
+
+Now, when the sgas_kw object goes out of scope it is important that
+the SGAS ecl_kw in the ecl_file file container is _NOT_ deleted, that
+keyword is owned by the ecl_file container and the whole thing will
+crash and burn if the ecl_kw is destroyed bypassing the container. The
+sgas keyword will be destroyed when the restart_file object goes out
+scope at a later stage.
+
+To facilitate this difference in behaviour when an EclKW goes out
+scope the object contains a field 'data_owner', and the __del__()
+method looks like this:
+
+  def __del__( self ):
+     if self.data_owner:
+         cfunc.free( self )
+
+I.e. the C based free() function is only called if the object is the
+owner of the underlying C structure.  This technique is implemented in
+many of the objects. In the current code the data_owner field is set
+alongside with the c_ptr field, and not modified during the lifetime
+of the object (i.e. the implementation does not support 'hostile
+takeover' or 'orphaning' of objects).
+
+
+
+6 Installation in Equinor
+
+In Equinor the ert Python libraries are installed in the /project/res
+hierarchy.

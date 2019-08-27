@@ -80,14 +80,30 @@ void PdmUiFieldEditorHandle::setUiField(PdmUiFieldHandle * field)
 
     if (m_editorWidget)
     {
-        if (field && field->isCustomContextMenuEnabled())
-        {
-            m_editorWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-        }
-        else
-        {
-            m_editorWidget->setContextMenuPolicy(Qt::DefaultContextMenu);
-        }
+        // Required to be called here to be able to handle different context menu
+        // policy when switching between objects of same type. In this case, the
+        // PdmUiFieldEditorHandle::createWidgets() will not be run, as the field
+        // widgets are cached by the property editor
+
+        updateContextMenuPolicy();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldEditorHandle::updateContextMenuPolicy()
+{
+    if (m_editorWidget.isNull()) return;
+
+    PdmUiFieldHandle* field = uiField();
+    if (field && field->isCustomContextMenuEnabled())
+    {
+        m_editorWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    }
+    else
+    {
+        m_editorWidget->setContextMenuPolicy(Qt::DefaultContextMenu);
     }
 }
 
@@ -110,6 +126,8 @@ void PdmUiFieldEditorHandle::createWidgets(QWidget * parent)
 
     if (m_editorWidget)
     {
+        updateContextMenuPolicy();
+
         connect(m_editorWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuRequested(QPoint)));
     }
     if (m_labelWidget)

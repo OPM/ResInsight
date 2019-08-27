@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2018  Statoil ASA, Norway.
+   Copyright (C) 2018  Equinor ASA, Norway.
 
    The file 'ecl_util_filenames.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -33,14 +33,21 @@ void test_filename_report_nr() {
 }
 
 void test_filename_case() {
-  test_assert_NULL( ecl_util_alloc_filename(NULL, "mixedBase", ECL_EGRID_FILE, false, -1));
-  test_assert_string_equal( ecl_util_alloc_filename(NULL, "UPPER", ECL_EGRID_FILE, false, -1), "UPPER.EGRID");
-  test_assert_string_equal( ecl_util_alloc_filename(NULL , "lower", ECL_EGRID_FILE, false, -1), "lower.egrid");
+  char * f1 = ecl_util_alloc_filename(NULL, "mixedBase", ECL_EGRID_FILE, false, -1);
+  char * f2 = ecl_util_alloc_filename(NULL, "UPPER", ECL_EGRID_FILE, false, -1);
+  char * f3 = ecl_util_alloc_filename(NULL , "lower", ECL_EGRID_FILE, false, -1);
+
+  test_assert_NULL( f1 );
+  test_assert_string_equal( f2 , "UPPER.EGRID");
+  test_assert_string_equal( f3 , "lower.egrid");
+
+  free(f2);
+  free(f3);
 }
 
 
 void test_file_list() {
-  test_work_area_type * work_area = test_work_area_alloc("RESTART_FILES");
+  ecl::util::TestArea ta("file_list");
   stringlist_type * s = stringlist_alloc_new();
 
   for (int i = 0; i < 10; i += 2) {
@@ -109,7 +116,6 @@ void test_file_list() {
   test_assert_int_equal(stringlist_get_size(s), 10);
 
   stringlist_free(s);
-  test_work_area_free(work_area);
 }
 
 

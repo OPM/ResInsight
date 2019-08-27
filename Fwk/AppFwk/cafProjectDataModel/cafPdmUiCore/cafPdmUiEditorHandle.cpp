@@ -88,6 +88,19 @@ void PdmUiEditorHandle::updateUi()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+PdmUiEditorHandle* PdmUiEditorHandle::topMostContainingEditor()
+{
+    if (m_containingEditor)
+    {
+        return m_containingEditor->topMostContainingEditor();
+    }
+
+    return this;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmUiEditorHandle::bindToPdmItem(PdmUiItem* item)
 {
     if (m_pdmItem) m_pdmItem->removeFieldEditor(this);

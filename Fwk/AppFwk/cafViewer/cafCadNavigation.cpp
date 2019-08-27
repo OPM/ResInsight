@@ -93,6 +93,8 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 }
 
                 m_trackball->startNavigation(cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY);
+                m_roationSensitivityCalculator.init(me);
+
                 m_isNavigating = true;
                 m_hasMovedMouseDuringNavigation = false;
                 isEventHandled = true;
@@ -137,6 +139,9 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
 
                 if (m_isNavigating)
                 {
+                    double sensitivity = m_roationSensitivityCalculator.calculateSensitivity(me);
+
+                    m_trackball->setRotationSensitivity(sensitivity);
                     bool needRedraw = m_trackball->updateNavigation(translatedMousePosX, translatedMousePosY);
                     if(needRedraw)
                     {

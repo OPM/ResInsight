@@ -19,7 +19,7 @@
 
 #include "RicWellLogPlotTrackFeatureImpl.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
@@ -94,7 +94,7 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dst
 {
     CVF_ASSERT(dstWellLogPlot);
 
-    RiuPlotMainWindow* plotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+    RiuPlotMainWindow* plotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
 
     std::set<RimWellLogPlot*> srcPlots;
 

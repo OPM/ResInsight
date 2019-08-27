@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2013 Andreas Lauser
-   Copyright (C) 2013 Statoil ASA, Norway.
+   Copyright (C) 2013 Equinor ASA, Norway.
 
    The file 'ecl_alloc_grid_dxv_dyv_dzv.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -55,6 +55,7 @@ void test_grid() {
           }
       }
   }
+  ecl_grid_free( ecl_grid );
 }
 
 int main(int argc , char ** argv) {

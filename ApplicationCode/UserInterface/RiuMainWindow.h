@@ -99,17 +99,12 @@ public:
 
     RiuProcessMonitor* processMonitor();
 
-    void            hideAllDockWindows();
-
-
     void            selectedCases(std::vector<RimCase*>& cases);
 
     void            setDefaultWindowSize();
 
     void            refreshDrawStyleActions();
     
-    void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
-
     void            tileSubWindows() override;
     void            storeSubWindowTiling(bool tiled) override;
     void            clearWindowTiling() override;
@@ -140,8 +135,6 @@ private:
     void            createDockPanels();
 
     void            restoreTreeViewState();
-
-    void            showDockPanel(const QString& dockPanelName);
 
     void            updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectToUpdate);
 

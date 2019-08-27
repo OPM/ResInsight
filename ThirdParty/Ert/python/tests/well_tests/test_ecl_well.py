@@ -2,11 +2,11 @@ import datetime
 from ecl import EclFileFlagEnum
 from ecl.eclfile import EclFile
 from ecl.grid import EclGrid
-from tests import EclTest, statoil_test
+from tests import EclTest, equinor_test
 from ecl.util.util.ctime import CTime
 from ecl.well import WellInfo, WellConnection, WellTypeEnum, WellConnectionDirectionEnum, WellSegment
 
-@statoil_test()
+@equinor_test()
 class EclWellTest(EclTest):
     ALL_WELLS = ['E5H', 'G1H', 'M41', 'J41', 'D10H', 'P41', 'L41', 'M42', 'S41', 'S13H', 'Q12HT2', 'O41', 'L11H', 'Q21H',
                  'E6CH', 'D4Y1H', 'D4Y2H', 'I13Y1H', 'Q21AY1H', 'F5AH', 'O14Y4HT2', 'K24Y1H', 'K24Y3H', 'S21H', 'N11H',
@@ -39,8 +39,8 @@ class EclWellTest(EclTest):
     def getWellInfoWithNoWellSegments(self):
         """ @rtype: WellInfo """
         if EclWellTest.__well_info_with_no_well_segments is None:
-            grid_path = self.createTestPath("Statoil/ECLIPSE/Troll/MSW/T07-4A-W2012-16-F3.EGRID")
-            rst_path_1 = self.createTestPath("Statoil/ECLIPSE/Troll/MSW/T07-4A-W2012-16-F3.X0135")
+            grid_path = self.createTestPath("Equinor/ECLIPSE/Troll/MSW/T07-4A-W2012-16-F3.EGRID")
+            rst_path_1 = self.createTestPath("Equinor/ECLIPSE/Troll/MSW/T07-4A-W2012-16-F3.X0135")
 
             grid = EclGrid(grid_path)
 
@@ -54,8 +54,8 @@ class EclWellTest(EclTest):
     def getWellInfo(self):
         """ @rtype: WellInfo """
         if EclWellTest.__well_info is None:
-            grid_path = self.createTestPath("Statoil/ECLIPSE/Troll/MSW/T07-4A-W2012-16-F3.EGRID")
-            rst_path_1 = self.createTestPath("Statoil/ECLIPSE/Troll/MSW/T07-4A-W2012-16-F3.X0135")
+            grid_path = self.createTestPath("Equinor/ECLIPSE/Troll/MSW/T07-4A-W2012-16-F3.EGRID")
+            rst_path_1 = self.createTestPath("Equinor/ECLIPSE/Troll/MSW/T07-4A-W2012-16-F3.X0135")
 
             grid = EclGrid(grid_path)
 
@@ -68,7 +68,7 @@ class EclWellTest(EclTest):
 
 
     def test_no_such_well(self):
-        grid_path = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID")
+        grid_path = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.EGRID")
         rst_path1 = self.createTestPath("nosuch/path/ECLIPSE.X001")
         rst_path2 = self.createTestPath("nosuch/path/ECLIPSE.X002")
         grid = EclGrid(grid_path)
@@ -78,11 +78,11 @@ class EclWellTest(EclTest):
             _ = WellInfo(grid, [rst_path1, rst_path2])
 
     def test_construction(self):
-        grid_path = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID")
-        rst_path_1 = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.X0011")
-        rst_path_2 = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.X0022")
-        rst_path_3 = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.X0035")
-        rst_path_4 = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.X0061")
+        grid_path = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.EGRID")
+        rst_path_1 = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.X0011")
+        rst_path_2 = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.X0022")
+        rst_path_3 = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.X0035")
+        rst_path_4 = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.X0061")
 
         grid = EclGrid(grid_path)
 
@@ -449,7 +449,7 @@ class EclWellTest(EclTest):
 
 
     def test_load_broken_direction(self):
-        grid_path = self.createTestPath("Statoil/ECLIPSE/icon-invalid-value/R6_HM2016B_FFP_BASE.EGRID")
-        rst_path  = self.createTestPath("Statoil/ECLIPSE/icon-invalid-value/R6_HM2016B_FFP_BASE.UNRST")
+        grid_path = self.createTestPath("Equinor/ECLIPSE/icon-invalid-value/R6_HM2016B_FFP_BASE.EGRID")
+        rst_path  = self.createTestPath("Equinor/ECLIPSE/icon-invalid-value/R6_HM2016B_FFP_BASE.UNRST")
         grid = EclGrid(grid_path)
         well_info = WellInfo(grid, rst_path)

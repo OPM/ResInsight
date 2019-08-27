@@ -92,6 +92,11 @@ void RimFlowPlotCollection::loadDataAndUpdate()
         p->loadDataAndUpdate();
         plotProgress.incrementProgress();
     }
+
+    if (m_flowCharacteristicsPlot)
+    {
+        m_flowCharacteristicsPlot->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

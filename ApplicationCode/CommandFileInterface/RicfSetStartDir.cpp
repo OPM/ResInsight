@@ -19,6 +19,9 @@
 #include "RicfSetStartDir.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
+
+#include <QDir>
 
 CAF_PDM_SOURCE_INIT(RicfSetStartDir, "setStartDir");
 
@@ -33,7 +36,22 @@ RicfSetStartDir::RicfSetStartDir()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfSetStartDir::execute()
+RicfCommandResponse RicfSetStartDir::execute()
 {
+    QDir directory(m_path);
+    if (!directory.exists())
+    {
+        QString error = QString("Path does not exist: %1").arg(m_path);
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+    }
+    if (!directory.isReadable())
+    {
+        QString error = QString("Path does not exist: %1").arg(m_path);
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+    }
+
     RiaApplication::instance()->setStartDir(m_path);
+    return RicfCommandResponse();
 }

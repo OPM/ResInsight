@@ -18,7 +18,7 @@
 
 #include "Riv3dWellLogPlanePartMgr.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurveCollection.h"
@@ -258,7 +258,7 @@ void Riv3dWellLogPlanePartMgr::appendDrawSurfaceToModel(cvf::ModelBasicList*    
         if (normals.notNull())
         {
             normals->setSingleColor(borderColor);
-            if (RiaApplication::instance()->useShaders())
+            if (RiaGuiApplication::instance()->useShaders())
             {
                 normals->setUniformNames("u_transformationMatrix", "u_color");
             }

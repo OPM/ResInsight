@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'well_ts.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -70,7 +70,8 @@ int main(int argc , char ** argv) {
       well_info_load_rstfile( well_info , stringlist_iget(file_list , i), true);
     well_info_free( well_info );
   }
-
+  ecl_grid_free( grid );
+  free( grid_file );
 
   exit(0);
 }

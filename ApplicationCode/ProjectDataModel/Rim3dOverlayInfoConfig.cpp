@@ -48,6 +48,7 @@
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
@@ -116,7 +117,6 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
 
     m_isVisCellStatUpToDate = false;
 
-    m_gridStatisticsDialog = std::unique_ptr<RicGridStatisticsDialog>(new RicGridStatisticsDialog(nullptr));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,11 +231,24 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicGridStatisticsDialog* Rim3dOverlayInfoConfig::getOrCreateGridStatisticsDialog()
+{
+    if (!m_gridStatisticsDialog)
+    {
+        m_gridStatisticsDialog.reset(new RicGridStatisticsDialog(nullptr));
+    }
+    CVF_ASSERT(m_gridStatisticsDialog);
+    return m_gridStatisticsDialog.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QImage Rim3dOverlayInfoConfig::statisticsDialogScreenShotImage()
 {
-    if (m_gridStatisticsDialog->isVisible())
+    if (getOrCreateGridStatisticsDialog()->isVisible())
     {
-        return m_gridStatisticsDialog->screenShotImage();
+        return getOrCreateGridStatisticsDialog()->screenShotImage();
     }
     return QImage();
 }
@@ -862,16 +875,17 @@ void Rim3dOverlayInfoConfig::showStatisticsInfoDialog(bool raise)
 {
     if (m_viewDef)
     {
+        RicGridStatisticsDialog* dialog = getOrCreateGridStatisticsDialog();
         // Show dialog before setting data due to text edit auto height setting
-        m_gridStatisticsDialog->resize(600, 800);
-        m_gridStatisticsDialog->show();
+        dialog->resize(600, 800);
+        dialog->show();
 
-        m_gridStatisticsDialog->setLabel("Grid statistics");
-        m_gridStatisticsDialog->updateFromRimView(m_viewDef);
+        dialog->setLabel("Grid statistics");
+        dialog->updateFromRimView(m_viewDef);
 
         if (raise)
         {
-            m_gridStatisticsDialog->raise();
+            dialog->raise();
         }
     }
 }
@@ -913,13 +927,19 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     RimEclipseView* reservoirView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     if (reservoirView)
     {
+        const RimEclipseStatisticsCase* eclipseStat = dynamic_cast<const RimEclipseStatisticsCase*>(reservoirView->eclipseCase());    
+        if (eclipseStat)
+        {
+            m_showVolumeWeightedMean = false;
+        }
         updateEclipse3DInfo(reservoirView);
 
         // Update statistics dialog
-        m_gridStatisticsDialog->updateFromRimView(reservoirView);
+        getOrCreateGridStatisticsDialog()->updateFromRimView(reservoirView);
     }
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+    
     if (geoMechView)
     {
         m_showVolumeWeightedMean = false;
@@ -927,7 +947,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         updateGeoMech3DInfo(geoMechView);
 
         // Update statistics dialog
-        m_gridStatisticsDialog->updateFromRimView(geoMechView);
+        getOrCreateGridStatisticsDialog()->updateFromRimView(geoMechView);
     }
 
     update3DInfoIn2dViews();
@@ -951,11 +971,18 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     RimEclipseView*           eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     RimEclipseContourMapView* contourMap  = dynamic_cast<RimEclipseContourMapView*>(eclipseView);
     RimGeoMechView*           geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+    
+    bool isEclipseStatsCase = false;
+    if (eclipseView)
+    {
+        isEclipseStatsCase = dynamic_cast<RimEclipseStatisticsCase*>(eclipseView->eclipseCase()) != nullptr;
+    }
+
 
     visGroup->add(&m_showAnimProgress);
     visGroup->add(&m_showCaseInfo);
     visGroup->add(&m_showResultInfo);
-    if (!geoMechView && !contourMap)
+    if (!geoMechView && !contourMap && !isEclipseStatsCase)
     {
         visGroup->add(&m_showVolumeWeightedMean);
     }

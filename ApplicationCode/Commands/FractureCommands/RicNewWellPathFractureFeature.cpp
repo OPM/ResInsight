@@ -96,15 +96,15 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
         fracture->setFractureTemplate(fracDef);
     }
 
-    wellPath->updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem(fracture);
-
     RimProject* project = nullptr;
     fractureCollection->firstAncestorOrThisOfType(project);
     if (project)
     {
         project->reloadCompletionTypeResultsInAllViews();
+        project->updateAllRequiredEditors();
     }
+
+    Riu3DMainWindowTools::selectAsCurrentItem(fracture);
 }
 
 //--------------------------------------------------------------------------------------------------

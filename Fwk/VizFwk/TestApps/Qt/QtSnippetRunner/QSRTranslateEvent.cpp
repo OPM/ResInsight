@@ -38,7 +38,7 @@
 #include "QSRStdInclude.h"
 #include "QSRTranslateEvent.h"
 
-
+#include <QMouseEvent>
 
 //--------------------------------------------------------------------------------------------------
 /// 

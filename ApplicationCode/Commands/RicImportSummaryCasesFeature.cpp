@@ -20,11 +20,11 @@
 
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
-#include "RicFileHierarchyDialog.h"
+#include "RicRecursiveFileSearchDialog.h"
 
 #include "RifSummaryCaseRestartSelector.h"
 
@@ -44,6 +44,7 @@
 
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include "cafProgressInfo.h"
 #include "cafSelectionManagerTools.h"
@@ -73,7 +74,7 @@ bool RicImportSummaryCasesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication* app           = RiaApplication::instance();
+    RiaGuiApplication* app        = RiaGuiApplication::instance();
     QString         pathCacheName = "INPUT_FILES";
     QStringList     fileNames     = runRecursiveSummaryCaseFileSearchDialog("Import Summary Cases", pathCacheName);
 
@@ -83,13 +84,13 @@ void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
     addSummaryCases(cases);
     if (!cases.empty())
     {
-        createNewPlot(cases.front());
+        RicSummaryPlotFeatureImpl::createDefaultSummaryPlot(cases.front());
     }
 
     addCasesToGroupIfRelevant(cases);
 
     for (const auto& rimCase : cases)
-        RiaApplication::instance()->addToRecentFiles(rimCase->summaryHeaderFilename());
+        app->addToRecentFiles(rimCase->summaryHeaderFilename());
 
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
     if (mainPlotWindow && !cases.empty())
@@ -123,7 +124,7 @@ void RicImportSummaryCasesFeature::setupActionLook(QAction* actionToSetup)
 bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStringList&            fileNames,
                                                                      std::vector<RimSummaryCase*>* newCases)
 {
-    RiaApplication* app = RiaApplication::instance();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
 
     std::vector<RimSummaryCase*>  temp;
     std::vector<RimSummaryCase*>* cases = newCases ? newCases : &temp;
@@ -132,7 +133,7 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStri
         addSummaryCases(*cases);
         if (!cases->empty())
         {
-            createNewPlot(cases->back());
+            RicSummaryPlotFeatureImpl::createDefaultSummaryPlot(cases->back());
         }
 
         RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
@@ -235,24 +236,13 @@ void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(const std::vector<R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportSummaryCasesFeature::createNewPlot(RimSummaryCase* summaryCase)
-{
-    RiaApplication* app  = RiaApplication::instance();
-    RimProject*     proj = app->project();
-
-    RicNewSummaryCurveFeature::createNewPlot(proj->mainPlotCollection->summaryPlotCollection(), summaryCase);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QStringList RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog(const QString& dialogTitle,
                                                                                   const QString& pathCacheName)
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory(pathCacheName);
 
-    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::runRecursiveSearchDialog(
+    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog(
         nullptr, dialogTitle, defaultDir, m_pathFilter, m_fileNameFilter, QStringList(".SMSPEC"));
 
     // Remember filters

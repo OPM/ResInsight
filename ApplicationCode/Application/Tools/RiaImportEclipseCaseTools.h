@@ -18,8 +18,12 @@
 
 #pragma once
 
+#include <map>
+
 class QString;
 class QStringList;
+
+class RimIdenticalGridCaseGroup;
 
 //==================================================================================================
 /// 
@@ -27,16 +31,18 @@ class QStringList;
 class RiaImportEclipseCaseTools
 {
 public:
-    static bool openEclipseCasesFromFile(const QStringList& fileNames, QStringList* openedFiles = nullptr, bool noDialog = false);
+    typedef std::map<QString, int> FileCaseIdMap;
+
+    static bool openEclipseCasesFromFile(const QStringList& fileNames, FileCaseIdMap* openedFilesOut = nullptr, bool noDialog = false);
     static bool openEclipseCaseShowTimeStepFilter(const QString& fileName);
     
     static bool openEclipseInputCaseFromFileNames(const QStringList& fileNames, QString* fileContainingGrid = nullptr);
     static bool openMockModel(const QString& name);
     
-    static bool addEclipseCases(const QStringList& fileNames);
+    static bool addEclipseCases(const QStringList& fileNames, RimIdenticalGridCaseGroup** resultingCaseGroup = nullptr);
 
 private:
-    static bool openEclipseCaseFromFile(const QString& fileName);
-    static bool openEclipseCaseShowTimeStepFilterImpl(const QString& fileName, bool showTimeStepFilter);
+    static int  openEclipseCaseFromFile(const QString& fileName);
+    static int  openEclipseCaseShowTimeStepFilterImpl(const QString& fileName, bool showTimeStepFilter);
 };
 

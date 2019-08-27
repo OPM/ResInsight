@@ -47,7 +47,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::fieldEditorForField(caf::PdmUiFieldHandle* field, const QString& uiConfigName)
+caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::createFieldEditorForField(caf::PdmUiFieldHandle* field, const QString& uiConfigName)
 {
     caf::PdmUiFieldEditorHandle* fieldEditor = nullptr;
 

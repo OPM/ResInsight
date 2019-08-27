@@ -38,19 +38,21 @@ RicfReplaceSourceCases::RicfReplaceSourceCases()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfReplaceSourceCases::execute()
+RicfCommandResponse RicfReplaceSourceCases::execute()
 {
     if (m_gridListFile().isNull())
     {
-        RiaLogging::error("replaceSourceCases: Required parameter gridListFile.");
-        return;
+        QString error("replaceSourceCases: Required parameter gridListFile.");
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
 
     QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
     if (lastProjectPath.isNull())
     {
-        RiaLogging::error("replaceSourceCases: 'openProject' must be called before 'replaceSourceCases' to specify project file to replace cases in.");
-        return;
+        QString error("replaceSourceCases: 'openProject' must be called before 'replaceSourceCases' to specify project file to replace cases in.");
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
 
     cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
@@ -65,5 +67,11 @@ void RicfReplaceSourceCases::execute()
         projectModifier->setReplaceSourceCasesById(m_caseGroupId(), listFileNames);
     }
 
-    RiaApplication::instance()->loadProject(lastProjectPath, RiaApplication::PLA_CALCULATE_STATISTICS, projectModifier.p());
+    if (!RiaApplication::instance()->loadProject(lastProjectPath, RiaApplication::PLA_CALCULATE_STATISTICS, projectModifier.p()))
+    {
+        QString error("Could not reload project");
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+    }
+    return RicfCommandResponse();
 }

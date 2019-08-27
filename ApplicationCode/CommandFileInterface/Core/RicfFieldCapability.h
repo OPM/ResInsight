@@ -22,6 +22,8 @@
 #include "RicfMessages.h"
 
 #include "cafAppEnum.h"
+#include "cvfBase.h"
+#include "cvfColor3.h"
 
 #include <QTextStream>
 #include <QString>
@@ -30,7 +32,7 @@
 template <typename DataType>
 struct RicfFieldReader
 {
-    static void    readFieldData(DataType & fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer)
+    static void    readFieldData(DataType & fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer, bool stringsAreQuoted = true)
     {
         inputStream >> fieldValue;
         if (inputStream.status() == QTextStream::ReadCorruptData)
@@ -47,7 +49,7 @@ struct RicfFieldReader
 template <typename DataType>
 struct RicfFieldWriter
 {
-    static void    writeFieldData(const DataType & fieldValue, QTextStream&  outputStream)
+    static void    writeFieldData(const DataType & fieldValue, QTextStream&  outputStream, bool quoteStrings = true)
     {
         outputStream << fieldValue; 
     }
@@ -56,32 +58,43 @@ struct RicfFieldWriter
 template <>
 struct RicfFieldReader<QString>
 {
-    static void    readFieldData(QString & fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer);
+    static void    readFieldData(QString & fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer, bool stringsAreQuoted = true);
 };
 
 template <>
 struct RicfFieldWriter<QString>
 {
-    static void    writeFieldData(const QString & fieldValue, QTextStream&  outputStream);
+    static void    writeFieldData(const QString & fieldValue, QTextStream&  outputStream, bool quoteStrings = true);
 };
 
 template <>
 struct RicfFieldReader<bool>
 {
-    static void    readFieldData(bool& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer);
+    static void    readFieldData(bool& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer, bool stringsAreQuoted = true);
 };
 
 template <>
 struct RicfFieldWriter<bool>
 {
-    static void    writeFieldData(const bool& fieldValue, QTextStream&  outputStream);
+    static void    writeFieldData(const bool& fieldValue, QTextStream&  outputStream, bool quoteStrings = true);
 };
 
+template<>
+struct RicfFieldReader<cvf::Color3f>
+{
+    static void readFieldData(cvf::Color3f& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer, bool stringsAreQuoted = true);
+};
+
+template<>
+struct RicfFieldWriter<cvf::Color3f>
+{
+    static void writeFieldData(const cvf::Color3f& fieldValue, QTextStream& outputStream, bool quoteStrings = true);
+};
 
 template <typename T>
 struct RicfFieldReader< caf::AppEnum<T> >
 {
-    static void readFieldData(caf::AppEnum<T>& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer)
+    static void readFieldData(caf::AppEnum<T>& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer, bool stringsAreQuoted = true)
     {
         errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
         QString accumulatedFieldValue;
@@ -114,7 +127,7 @@ struct RicfFieldReader< caf::AppEnum<T> >
 template <typename T>
 struct RicfFieldWriter< caf::AppEnum<T> >
 {
-    static void writeFieldData(const caf::AppEnum<T>& fieldValue, QTextStream&  outputStream)
+    static void writeFieldData(const caf::AppEnum<T>& fieldValue, QTextStream&  outputStream, bool quoteStrings = true)
     {
         outputStream << fieldValue;
     }
@@ -123,7 +136,7 @@ struct RicfFieldWriter< caf::AppEnum<T> >
 template <typename T>
 struct RicfFieldReader< std::vector<T> >
 {
-    static void readFieldData(std::vector<T>& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer)
+    static void readFieldData(std::vector<T>& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer, bool stringsAreQuoted = true)
     {
         errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
         QChar chr = errorMessageContainer->readCharWithLineNumberCount(inputStream);
@@ -144,7 +157,7 @@ struct RicfFieldReader< std::vector<T> >
                 }
 
                 T value;
-                RicfFieldReader<T>::readFieldData(value, inputStream, errorMessageContainer);
+                RicfFieldReader<T>::readFieldData(value, inputStream, errorMessageContainer, true);
                 fieldValue.push_back(value);
             }
         }
@@ -159,7 +172,7 @@ struct RicfFieldReader< std::vector<T> >
 template <typename T>
 struct RicfFieldWriter< std::vector<T> >
 {
-    static void writeFieldData(const std::vector<T>& fieldValue, QTextStream&  outputStream)
+    static void writeFieldData(const std::vector<T>& fieldValue, QTextStream&  outputStream, bool quoteStrings = true)
     {
         outputStream << "[";
         for (size_t i = 0; i < fieldValue.size(); ++i)
@@ -189,18 +202,20 @@ public:
 
     // Xml Serializing
 public:
-    void        readFieldData (QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, RicfMessages* errorMessageContainer) override
+    void        readFieldData (QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, RicfMessages* errorMessageContainer, bool stringsAreQuoted = true) override
     {
-        //m_field->xmlCapability()->assertValid(); 
-        typename FieldType::FieldDataType value; 
-        RicfFieldReader<typename FieldType::FieldDataType>::readFieldData(value, inputStream, errorMessageContainer);  
-        m_field->setValue(value); 
+        typename FieldType::FieldDataType value;
+        RicfFieldReader<typename FieldType::FieldDataType>::readFieldData(value, inputStream, errorMessageContainer, stringsAreQuoted);
+
+        if (this->isIOWriteable())
+        {
+            m_field->setValue(value);
+        }
     }
 
-    void        writeFieldData(QTextStream& outputStream) const override
-    { 
-        //m_field->xmlCapability()->assertValid(); 
-        RicfFieldWriter<typename FieldType::FieldDataType>::writeFieldData(m_field->value(), outputStream); 
+    void        writeFieldData(QTextStream& outputStream, bool quoteStrings = true) const override
+    {
+        RicfFieldWriter<typename FieldType::FieldDataType>::writeFieldData(m_field->value(), outputStream, quoteStrings);
     }
 
 private:

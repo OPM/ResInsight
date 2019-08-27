@@ -37,15 +37,31 @@ CAF_PDM_SOURCE_INIT(RicfComputeCaseGroupStatistics, "computeCaseGroupStatistics"
 //--------------------------------------------------------------------------------------------------
 RicfComputeCaseGroupStatistics::RicfComputeCaseGroupStatistics()
 {
+    RICF_InitField(&m_groupId, "caseGroupId", -1, "Case Group ID", "", "", "");
     RICF_InitField(&m_caseIds, "caseIds", std::vector<int>(), "Case IDs",  "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfComputeCaseGroupStatistics::execute()
+RicfCommandResponse RicfComputeCaseGroupStatistics::execute()
 {
-    for (int caseId : m_caseIds())
+    RicfCommandResponse response;
+
+    std::vector<int> caseIds = m_caseIds.v();
+
+    if (m_groupId() >= 0)
+    {
+        for (RimIdenticalGridCaseGroup* group : RiaApplication::instance()->project()->activeOilField()->analysisModels()->caseGroups)
+        {
+            for (RimEclipseCase* c : group->statisticsCaseCollection->reservoirs)
+            {
+                caseIds.push_back(c->caseId());
+            }
+        }
+    }
+
+    for (int caseId : caseIds)
     {
         bool foundCase = false;
         for (RimIdenticalGridCaseGroup* group : RiaApplication::instance()->project()->activeOilField()->analysisModels()->caseGroups)
@@ -61,7 +77,9 @@ void RicfComputeCaseGroupStatistics::execute()
                     }
                     else
                     {
-                        RiaLogging::warning(QString("computeCaseGroupStatistics: Found case with ID %1, but it is not a statistics case, cannot compute statistics.").arg(caseId));
+                        QString warning = QString("computeCaseGroupStatistics: Found case with ID %1, but it is not a statistics case, cannot compute statistics.").arg(caseId);
+                        RiaLogging::warning(warning);
+                        response.updateStatus(RicfCommandResponse::COMMAND_WARNING, warning);
                     }
                     foundCase = true;
                     break;
@@ -73,7 +91,11 @@ void RicfComputeCaseGroupStatistics::execute()
 
         if (!foundCase)
         {
-            RiaLogging::warning(QString("computeCaseGroupStatistics: Could not find statistics case with ID %1.").arg(caseId));
+            QString warning = QString("computeCaseGroupStatistics: Could not find statistics case with ID %1.").arg(caseId);
+
+            RiaLogging::warning(warning);
+            response.updateStatus(RicfCommandResponse::COMMAND_WARNING, warning);
         }
     }
+    return response;
 }

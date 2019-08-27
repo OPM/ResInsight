@@ -41,6 +41,7 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDateEditor.h"
+#include "cafPdmUiTimeEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiLineEditor.h"
@@ -57,6 +58,7 @@ CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiCheckBoxEditor, bool);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, QString);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiDateEditor, QDate);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiDateEditor, QDateTime);
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiTimeEditor, QTime);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, int);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, double);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, float);

@@ -245,18 +245,17 @@ std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSetsForSou
         {
             // Add corresponding history/summary curve with or without H
 
-            const std::string historyIdentifier = "H";
 
             std::string quantity = m_curveSetForSourceStepping->summaryAddress().quantityName();
 
             std::string candidateName;
-            if (RiaStdStringTools::endsWith(quantity, historyIdentifier))
+            if (m_curveSetForSourceStepping->summaryAddress().isHistoryQuantity())
             {
                 candidateName = quantity.substr(0, quantity.size() - 1);
             }
             else
             {
-                candidateName = quantity + historyIdentifier;
+                candidateName = quantity + "H";
             }
 
             for (const auto& c : curveSets())

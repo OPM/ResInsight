@@ -40,6 +40,10 @@ RifReaderEclipseRft::RifReaderEclipseRft(const QString& fileName):
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseRft::~RifReaderEclipseRft()
 {
+    if (m_ecl_rft_file)
+    {
+        ecl_rft_file_free(m_ecl_rft_file);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +117,7 @@ void RifReaderEclipseRft::open()
             m_rftAddressToLibeclNodeIdx[addressGrat] = i;
         }
     }
-
+    
     return;
 }
 

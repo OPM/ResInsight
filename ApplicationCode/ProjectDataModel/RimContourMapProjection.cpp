@@ -113,9 +113,11 @@ void RimContourMapProjection::generateResultsIfNecessary(int timeStep)
     updateGridInformation();
     progress.setProgress(10);
 
-    if (gridMappingNeedsUpdating() || mapCellVisibilityNeedsUpdating())
+    if (gridMappingNeedsUpdating() || mapCellVisibilityNeedsUpdating() || resultVariableChanged())
     {
         clearResults();
+        clearTimeStepRange();
+
         m_projected3dGridIndices = generateGridMapping();
         progress.setProgress(20);
         m_mapCellVisibility      = getMapCellVisibility();
@@ -124,12 +126,6 @@ void RimContourMapProjection::generateResultsIfNecessary(int timeStep)
     else
     {
         progress.setProgress(30);
-    }
-
-    if (resultVariableChanged())
-    {
-        clearResults();
-        clearTimeStepRange();
     }
 
     if (resultsNeedsUpdating(timeStep))

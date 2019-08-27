@@ -51,11 +51,24 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedMean-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Intersect-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifPerforationIntervalReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveAnalyzer-Test.cpp
 )
+
+if (RESINSIGHT_ENABLE_GRPC)
+	list(APPEND GPRC_UNIT_TEST_SOURCE_FILES
+		${CMAKE_CURRENT_LIST_DIR}/RiaGrpcInterface-Test.cpp
+	)
+	list(APPEND SOURCE_GROUP_SOURCE_FILES
+		${GRPC_UNIT_TEST_SOURCE_FILES}
+	)
+endif(RESINSIGHT_ENABLE_GRPC)
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(LibGuiQt)
 
-
 # We're getting too much trouble from Qt using strict
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_BASE_CXX_FLAGS}")
 
@@ -10,10 +9,16 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Wno-long-long")
 endif()
 
+find_package(OpenGL)
+
+# Qt
+option(CEE_USE_QT5 "Use Qt 5 instead of Qt 4" true)
+
 if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS Core Gui OpenGL Widgets REQUIRED)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
 else()
-	find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED)
+    find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGl REQUIRED)
     include(${QT_USE_FILE})
 endif(CEE_USE_QT5)
 
@@ -43,19 +48,6 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
-
-if ( NOT CMAKE_AUTOMOC )
-	if (CEE_USE_QT5)
-		qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-	
-	else()
-		qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-	endif()
-endif()
-
-if (CEE_USE_QT5)
-    set(QT_LIBRARIES Qt5::Core Qt5::OpenGL Qt5::Widgets)
-endif()
 
 target_link_libraries ( ${PROJECT_NAME}
     LibCore

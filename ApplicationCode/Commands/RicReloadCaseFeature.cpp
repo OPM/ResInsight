@@ -19,7 +19,7 @@
 
 #include "RicReloadCaseFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RimEclipseCase.h"
 #include "RimReloadCaseTools.h"
@@ -60,7 +60,7 @@ void RicReloadCaseFeature::onActionTriggered(bool isChecked)
     std::vector<RimEclipseCase*> selectedEclipseCases;
     caf::SelectionManager::instance()->objectsByType(&selectedEclipseCases);
 
-    RiaApplication::clearAllSelections();
+    RiaGuiApplication::clearAllSelections();
 
     for (RimEclipseCase* selectedCase : selectedEclipseCases)
     {

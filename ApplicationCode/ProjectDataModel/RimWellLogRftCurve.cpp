@@ -403,7 +403,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
             std::set<QString> wellNames = reader->wellNames();
             for (const QString& name : wellNames)
             {
-                options.push_back(caf::PdmOptionItemInfo(name, name, false, QIcon(":/Well.png")));
+                options.push_back(caf::PdmOptionItemInfo(name, name, false, caf::QIconProvider(":/Well.png")));
             }
         }
     }

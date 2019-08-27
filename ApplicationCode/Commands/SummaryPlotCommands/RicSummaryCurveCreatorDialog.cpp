@@ -18,7 +18,7 @@
 
 #include "RicSummaryCurveCreatorDialog.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorSplitterUi.h"
@@ -81,7 +81,7 @@ void RicSummaryCurveCreatorDialog::updateFromDefaultCases(const std::vector<caf:
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreatorDialog::slotDialogFinished()
 {
-    RiuPlotMainWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     if (plotwindow)
     {
         plotwindow->cleanUpTemporaryWidgets();

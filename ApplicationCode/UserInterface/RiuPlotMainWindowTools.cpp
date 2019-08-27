@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuPlotMainWindowTools.h"
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiuPlotMainWindow.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -25,7 +25,10 @@
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindowTools::showPlotMainWindow()
 {
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    if (RiaGuiApplication::isRunning())
+    {
+        RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -33,9 +36,12 @@ void RiuPlotMainWindowTools::showPlotMainWindow()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindowTools::setActiveViewer(QWidget* subWindow)
 {
-    RiuPlotMainWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+    if (RiaGuiApplication::isRunning())
+    {
+        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
 
-    if (mpw) mpw->setActiveViewer(subWindow);
+        if (mpw) mpw->setActiveViewer(subWindow);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,9 +49,12 @@ void RiuPlotMainWindowTools::setActiveViewer(QWidget* subWindow)
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindowTools::setExpanded(const caf::PdmUiItem* uiItem, bool expanded /*= true*/)
 {
-    RiuPlotMainWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+    if (RiaGuiApplication::isRunning())
+    {
+        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
 
-    if (mpw) mpw->setExpanded(uiItem, expanded);
+        if (mpw) mpw->setExpanded(uiItem, expanded);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,9 +62,12 @@ void RiuPlotMainWindowTools::setExpanded(const caf::PdmUiItem* uiItem, bool expa
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindowTools::selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange /*= true*/)
 {
-    RiuPlotMainWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+    if (RiaGuiApplication::isRunning())
+    {
+        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
 
-    if (mpw) mpw->selectAsCurrentItem(object, allowActiveViewChange);
+        if (mpw) mpw->selectAsCurrentItem(object, allowActiveViewChange);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,12 +75,15 @@ void RiuPlotMainWindowTools::selectAsCurrentItem(const caf::PdmObject* object, b
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindowTools::refreshToolbars()
 {
-    RiuPlotMainWindow* mpw = RiaApplication::instance()->mainPlotWindow();
-
-    if (mpw)
+    if (RiaGuiApplication::isRunning())
     {
-        mpw->updateSummaryPlotToolBar();        
-        mpw->updateWellLogPlotToolBar();
+        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
+
+        if (mpw)
+        {
+            mpw->updateSummaryPlotToolBar();
+            mpw->updateWellLogPlotToolBar();
+        }
     }
 }
 

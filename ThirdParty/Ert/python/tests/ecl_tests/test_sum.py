@@ -1,4 +1,4 @@
-#  Copyright (C) 2011  Statoil ASA, Norway.
+#  Copyright (C) 2011  Equinor ASA, Norway.
 #
 #  The file 'sum_test.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -22,8 +22,19 @@ import csv
 import shutil
 import cwrap
 import stat
+import pandas
+
+def assert_frame_equal(a,b):
+    if not a.equals(b):
+        raise AssertionError("Expected dataframes to be equal")
+
+try:
+    from pandas.testing import assert_frame_equal
+except ImportError:
+    pass
+
 from contextlib import contextmanager
-from unittest import skipIf, skipUnless, skipIf
+from unittest import skipIf, skipUnless
 
 from ecl import EclUnitTypeEnum
 from ecl import EclDataType
@@ -78,6 +89,21 @@ def create_case(case = "CSV", restart_case = None, restart_step = -1, data_start
                         restart_case = restart_case,
                         restart_step = restart_step)
 
+def create_case2(case = "CSV", restart_case = None, restart_step = -1, data_start = None):
+    length = 100
+    return createEclSum(case , [("WOPT", "OPX" , 0, "SM3") , ("FOPR" , None , 0, "SM3/DAY"), ("BPR" , None , 10, "SM3"), ("RPR", None, 3, "BARS"), ("COPR", "OPX", 421, "BARS")],
+                        sim_length_days = length,
+                        num_report_step = 10,
+                        num_mini_step = 10,
+                        data_start = data_start,
+                        func_table = {"FOPT" : fopt,
+                                      "FOPR" : fopr ,
+                                      "FGPT" : fgpt },
+                        restart_case = restart_case,
+                        restart_step = restart_step)
+
+
+
 class SumTest(EclTest):
 
 
@@ -101,19 +127,26 @@ class SumTest(EclTest):
 
 
     def test_identify_var_type(self):
-        self.assertEnumIsFullyDefined( EclSumVarType , "ecl_smspec_var_type" , "lib/include/ert/ecl/smspec_node.hpp")
+        self.assertEnumIsFullyDefined( EclSumVarType , "ecl_smspec_var_type" , "lib/include/ert/ecl/smspec_node.h")
         self.assertEqual( EclSum.varType( "WWCT:OP_X") , EclSumVarType.ECL_SMSPEC_WELL_VAR )
         self.assertEqual( EclSum.varType( "RPR") , EclSumVarType.ECL_SMSPEC_REGION_VAR )
         self.assertEqual( EclSum.varType( "WNEWTON") , EclSumVarType.ECL_SMSPEC_MISC_VAR )
         self.assertEqual( EclSum.varType( "AARQ:4") , EclSumVarType.ECL_SMSPEC_AQUIFER_VAR )
 
+        self.assertEqual( EclSum.varType("RXFT"),  EclSumVarType.ECL_SMSPEC_REGION_2_REGION_VAR)
+        self.assertEqual( EclSum.varType("RxxFT"), EclSumVarType.ECL_SMSPEC_REGION_2_REGION_VAR)
+        self.assertEqual( EclSum.varType("RXFR"),  EclSumVarType.ECL_SMSPEC_REGION_2_REGION_VAR)
+        self.assertEqual( EclSum.varType("RxxFR"), EclSumVarType.ECL_SMSPEC_REGION_2_REGION_VAR)
+        self.assertEqual( EclSum.varType("RORFR"), EclSumVarType.ECL_SMSPEC_REGION_VAR)
+
         case = createEclSum("CSV" , [("FOPT", None , 0, "SM3") ,
                                      ("FOPR" , None , 0, "SM3/DAY"),
                                      ("AARQ" , None , 10, "???"),
-                                    ("RGPT" , None  ,1, "SM3")])
+                                     ("RGPT" , None  ,1, "SM3")])
 
         node1 = case.smspec_node( "FOPT" )
         self.assertEqual( node1.varType( ) , EclSumVarType.ECL_SMSPEC_FIELD_VAR )
+        self.assertIsNone(node1.wgname)
 
         node2 = case.smspec_node( "AARQ:10" )
         self.assertEqual( node2.varType( ) , EclSumVarType.ECL_SMSPEC_AQUIFER_VAR )
@@ -549,6 +582,24 @@ class SumTest(EclTest):
         self.assertEqual(len(case), rows)
 
 
+    def test_csv_load(self):
+        case = create_case2()
+        frame = case.pandas_frame()
+        ecl_sum = EclSum.from_pandas("PANDAS", frame, dims=[20,10,5])
+
+        for key in frame.columns:
+            self.assertTrue(key in ecl_sum)
+
+        df = ecl_sum.pandas_frame()
+        assert_frame_equal(frame, df)
+
+        ecl_sum_less = EclSum.from_pandas("PANDAS", frame, dims=[20,10,5], headers=['BPR:10', 'RPR:3,1,1', 'COPR:OPX:1,2,3'])
+        del frame['WOPT:OPX']
+        del frame['FOPR']
+        df_less = ecl_sum_less.pandas_frame()
+        assert_frame_equal(frame, df_less)
+
+
     def test_total_and_rate(self):
         self.assertTrue( EclSum.is_total("FOPT"))
         self.assertTrue( EclSum.is_total("WWPT:OP_3"))
@@ -568,8 +619,6 @@ class SumTest(EclTest):
         for time_index,value in enumerate(fopr):
             self.assertEqual(fopr[time_index], value)
 
-
-
     def test_write_not_implemented(self):
         path = os.path.join(self.TESTDATA_ROOT, "local/ECLIPSE/cp_simple3/SIMPLE_SUMMARY3")
         case = EclSum( path, lazy_load=True )
@@ -578,10 +627,55 @@ class SumTest(EclTest):
             case.fwrite( )
 
 
-
     def test_directory_conflict(self):
         with TestAreaContext("dir_conflict"):
             case = create_case("UNITS")
             case.fwrite()
             os.mkdir("UNITS")
             case2 = EclSum("./UNITS")
+
+
+    def test_resample_extrapolate(self):
+        """
+        Test resampling of summary with extrapolate option of lower and upper boundaries enabled
+        """
+        from ecl.util.util import TimeVector, CTime
+
+        time_points = TimeVector()
+
+        path = os.path.join(self.TESTDATA_ROOT, "local/ECLIPSE/cp_simple3/SIMPLE_SUMMARY3")
+        ecl_sum = EclSum( path, lazy_load=True )
+
+        start_time = ecl_sum.get_data_start_time() - datetime.timedelta(seconds=86400)
+        end_time = ecl_sum.get_end_time() + datetime.timedelta(seconds=86400)
+        delta = end_time - start_time
+
+        N = 25
+        time_points.initRange( CTime(start_time),
+                               CTime(end_time),
+                               CTime(int(delta.total_seconds()/(N - 1))))
+        time_points.append(CTime(end_time))
+        resampled = ecl_sum.resample( "OUTPUT_CASE", time_points, lower_extrapolation=True, upper_extrapolation=True )
+
+        for key in ecl_sum.keys():
+            self.assertIn( key, resampled )
+
+        self.assertEqual(ecl_sum.get_data_start_time() -  datetime.timedelta(seconds=86400), resampled.get_data_start_time())
+
+        key_not_rate = "FOPT"
+        for time_index,t in enumerate(time_points):
+            if t < ecl_sum.get_data_start_time():
+                self.assertFloatEqual(resampled.iget( key_not_rate, time_index), ecl_sum._get_first_value(key_not_rate))
+            elif t >  ecl_sum.get_end_time():
+                self.assertFloatEqual(resampled.iget( key_not_rate, time_index), ecl_sum.get_last_value( key_not_rate))
+            else:
+                self.assertFloatEqual(resampled.iget( key_not_rate, time_index), ecl_sum.get_interp_direct( key_not_rate, t))
+
+        key_rate = "FOPR"
+        for time_index,t in enumerate(time_points):
+            if t < ecl_sum.get_data_start_time():
+                self.assertFloatEqual(resampled.iget( key_rate, time_index), 0)
+            elif t >  ecl_sum.get_end_time():
+                self.assertFloatEqual(resampled.iget( key_rate, time_index), 0)
+            else:
+                self.assertFloatEqual(resampled.iget( key_rate, time_index), ecl_sum.get_interp_direct( key_rate, t))

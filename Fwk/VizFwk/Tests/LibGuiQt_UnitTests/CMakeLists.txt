@@ -4,17 +4,15 @@ project(LibGuiQt_UnitTests)
 
 # Compile flags should already be setup by caller
 
-
 find_package(OpenGL)
 
+# Qt
 if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS Core Gui OpenGL Widgets REQUIRED)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
 else()
-	find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED)
+    find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGl REQUIRED)
     include(${QT_USE_FILE})
-	if (QT4_FOUND)
-		message(STATUS "Found Qt4")
-	endif(QT4_FOUND)
 endif(CEE_USE_QT5)
 
 include_directories(${LibCore_SOURCE_DIR})
@@ -33,11 +31,6 @@ cvfqtUtils-Test.cpp
 ../../ThirdParty/gtest/gtest-all.cpp
 LibGuiQt_UnitTests.cpp
 )
-
-if (CEE_USE_QT5)
-    set(QT_LIBRARIES Qt5::Core Qt5::OpenGL Qt5::Widgets)
-endif(CEE_USE_QT5)
-
 
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 

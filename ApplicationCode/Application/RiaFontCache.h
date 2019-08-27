@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cafFixedAtlasFont.h"
 #include "cvfBase.h"
 #include "cvfObject.h"
 
@@ -25,7 +26,6 @@
 
 namespace caf
 {
-class FixedAtlasFont;
 template<typename T> class AppEnum;
 }
 
@@ -45,7 +45,8 @@ public:
         FONT_SIZE_14,
         FONT_SIZE_16,
         FONT_SIZE_24,
-        FONT_SIZE_32
+        FONT_SIZE_32,
+        MAX_FONT_SIZE = FONT_SIZE_32
     };
 
     typedef caf::AppEnum<FontSize> FontSizeType;

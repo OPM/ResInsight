@@ -45,7 +45,7 @@ class RicfExportVisibleCells : public RicfCommandObject
 public:
     RicfExportVisibleCells();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     void buildExportSettings(const QString& exportFolder, RicSaveEclipseInputVisibleCellsUi* exportSettings);

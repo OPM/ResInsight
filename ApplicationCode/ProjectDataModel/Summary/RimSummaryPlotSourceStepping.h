@@ -18,6 +18,7 @@
 
 #pragma once
 
+
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RifEclipseSummaryAddress.h"
 
@@ -114,7 +115,11 @@ private:
     caf::PdmField<int>                m_region;
     caf::PdmField<QString>            m_quantity;
     caf::PdmField<QString>            m_placeholderForLabel;
-    
+
+    caf::PdmField<QString>            m_cellBlock;
+    caf::PdmField<QString>            m_segment;
+    caf::PdmField<QString>            m_completion;
+
     caf::PdmField<bool>               m_includeEnsembleCasesForCaseStepping;
 
     SourceSteppingType                m_sourceSteppingType;

@@ -52,7 +52,7 @@
 #include <QtGui/QMainWindow>
 #endif
 
-
+class QAction;
 class QSRSnippetWidget;
 class QSRRunPanel;
 class QSRPropertiesPanel;

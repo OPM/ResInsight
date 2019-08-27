@@ -31,13 +31,13 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
 setup(
-    name='statoil_libecl',
+    name='equinor_libecl',
     version='0.1.1',
     author_email='chandan.nath@gmail.com',
     description='libecl',
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/statoil/libecl",
+    url="https://github.com/equinor/libecl",
     license="GNU General Public License, Version 3, 29 June 2007",
     packages=find_packages(where='python', exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     package_dir={'': 'python'},

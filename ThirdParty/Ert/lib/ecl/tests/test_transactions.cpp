@@ -1,6 +1,6 @@
 
 /*
-   Copyright (C) 2017  Statoil ASA, Norway.
+   Copyright (C) 2017  Equinor ASA, Norway.
 
    The file 'test_transactions.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -38,7 +38,7 @@
 
 void test_transaction() {
 
-  test_work_area_type * work_area = test_work_area_alloc("ecl_file_index_testing");
+  ecl::util::TestArea ta("index_testing");
   {
      const char * file_name = "data_file";
      fortio_type * fortio = fortio_open_writer(file_name, false, ECL_ENDIAN_FLIP);
@@ -99,9 +99,10 @@ void test_transaction() {
      test_assert_false( ecl_file_kw_get_kw_ptr(file_kw2) );
 
      ecl_file_close(file);
-
+     ecl_kw_free(kw1);
+     ecl_kw_free(kw2);
+     ecl_kw_free(kw3);
    }
-   test_work_area_free( work_area );
 }
 
 

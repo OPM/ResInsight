@@ -64,7 +64,7 @@ public:
     ~RimGeoMechView(void) override;
 
     void                                                setGeoMechCase(RimGeoMechCase* gmCase);
-    RimGeoMechCase*                                     geoMechCase();
+    RimGeoMechCase*                                     geoMechCase() const;
     RimCase*                                    ownerCase() const override;
 
     caf::PdmChildField<RimGeoMechCellColors*>           cellResult;

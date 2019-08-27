@@ -43,6 +43,17 @@
 
 #include "cvfqtUtils.h"
 
+#include <QAction>
+#include <QDockWidget>
+#include <QFrame>
+#include <QKeyEvent>
+#include <QInputDialog>
+#include <QLayout>
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QMouseEvent>
+
 using cvfu::TestSnippet;
 using cvfu::SnippetInfo;
 using cvfu::SnippetRegistry;

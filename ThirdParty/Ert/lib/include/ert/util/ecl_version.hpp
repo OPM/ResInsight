@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2016  Statoil ASA, Norway.
+   Copyright (C) 2016  Equinor ASA, Norway.
 
    The file 'ecl_version.h' is part of ERT - Ensemble based Reservoir Tool.
 

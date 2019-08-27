@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaWellNameComparer.h"
@@ -144,9 +145,13 @@ void RimWellPathCollection::loadDataAndUpdate()
                 QString errorMessage;
                 if ( !fWPath->readWellPathFile(&errorMessage, m_wellPathImporter) )
                 {
-                    QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
-                                         "File open error",
-                                         errorMessage);
+                    if (RiaGuiApplication::isRunning())
+                    {
+                        QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                            "File open error",
+                            errorMessage);
+                    }
+                    RiaLogging::warning(errorMessage);
                 }
             }
 
@@ -165,9 +170,13 @@ void RimWellPathCollection::loadDataAndUpdate()
                             displayMessage += errorMessage;
                         }
 
-                        QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
-                                             "File open error",
-                                             displayMessage);
+                        RiaLogging::warning(errorMessage);
+                        if (RiaGuiApplication::isRunning())
+                        {
+                            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                                "File open error",
+                                displayMessage);
+                        }
                     }
                 }
             }
@@ -373,7 +382,10 @@ void RimWellPathCollection::addWellPathFormations(const QStringList& filePaths)
 
     if (fileReadSuccess)
     {
-        QMessageBox::information(Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage);
+        if (RiaGuiApplication::isRunning())
+        {
+            QMessageBox::information(Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage);
+        }
         RiaLogging::info(outputMessage);
     }
 
@@ -511,9 +523,13 @@ void RimWellPathCollection::readWellPathFormationFiles()
         QString errorMessage;
         if (!wellPaths[wpIdx]->readWellPathFormationsFile(&errorMessage, m_wellPathFormationsImporter))
         {
-            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
-                                 "File open error",
-                                 errorMessage);
+            if (RiaGuiApplication::isRunning())
+            {
+                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                    "File open error",
+                    errorMessage);
+            }
+            RiaLogging::warning(errorMessage);
         }
 
         progress.setProgressDescription(QString("Reading formation file %1").arg(wpIdx));
@@ -533,9 +549,13 @@ void RimWellPathCollection::reloadAllWellPathFormations()
         QString errorMessage;
         if (!wellPaths[wpIdx]->reloadWellPathFormationsFile(&errorMessage, m_wellPathFormationsImporter))
         {
-            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
-                                 "File open error",
-                                 errorMessage);
+            if (RiaGuiApplication::isRunning())
+            {
+                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                    "File open error",
+                    errorMessage);
+            }
+            RiaLogging::warning(errorMessage);
         }
 
         progress.setProgressDescription(QString("Reloading formation file %1").arg(wpIdx));

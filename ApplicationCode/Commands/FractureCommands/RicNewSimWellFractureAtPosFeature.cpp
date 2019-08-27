@@ -109,7 +109,6 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     fracture->setFractureTemplate(fracDef);
 
     simWell->updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem(fracture);
 
     activeView->scheduleCreateDisplayModelAndRedraw();
 
@@ -117,10 +116,10 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     simWell->firstAncestorOrThisOfType(eclipseCase);
     if (eclipseCase)
     {
-        RimProject* project;
-        eclipseCase->firstAncestorOrThisOfTypeAsserted(project);
-        project->reloadCompletionTypeResultsForEclipseCase(eclipseCase);
+        proj->reloadCompletionTypeResultsForEclipseCase(eclipseCase);
+        proj->updateConnectedEditors();
     }
+    Riu3DMainWindowTools::selectAsCurrentItem(fracture);
 }
 
 //--------------------------------------------------------------------------------------------------

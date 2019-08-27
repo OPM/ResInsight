@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017 Statoil ASA
+//  Copyright (C) 2017-2019 Statoil ASA
+//  Copyright (C) 2019-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,6 +23,15 @@
 
 #include "cafPdmField.h"
 
+class RicfLoadCaseResult : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+public:
+    RicfLoadCaseResult(int caseId = -1);
+public:
+    caf::PdmField<int> caseId;
+};
+
 //==================================================================================================
 //
 //
@@ -34,7 +44,7 @@ class RicfLoadCase : public RicfCommandObject
 public:
     RicfLoadCase();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     caf::PdmField<QString> m_path;

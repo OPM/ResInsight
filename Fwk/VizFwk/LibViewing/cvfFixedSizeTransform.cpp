@@ -86,7 +86,7 @@ void FixedSizeTransform::updateWorldTransform(const cvf::Camera* camera)
             }
             else
             {
-                scaleFactor = camera->frontPlanePixelHeight();
+                scaleFactor = fixedPixelSizeModelUnits()*camera->frontPlanePixelHeight();
             }
 
             Mat4d scaleMatrix = Mat4d::fromScaling(Vec3d(scaleFactor, scaleFactor, scaleFactor));

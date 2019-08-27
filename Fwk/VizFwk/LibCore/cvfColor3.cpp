@@ -362,7 +362,8 @@ Color3ub::Color3ub(ColorIdent colorIdent)
         case YELLOW_GREEN:  set(154, 205,  50);  break;
         case CEETRON:       set( 81, 134, 148);  break;
 
-        default:            CVF_FAIL_MSG("Unknown ColorIdent");
+        default:            set(0, 0, 0);
+                            CVF_FAIL_MSG("Unknown ColorIdent");
     }
 }
 

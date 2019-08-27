@@ -3,12 +3,13 @@ cmake_minimum_required (VERSION 2.8.12)
 project (cafProjectDataModel)
 
 # Qt
-if (CAF_USE_QT5)
-	find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 else()
-	find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
+    find_package(Qt4 COMPONENTS REQUIRED QtCore QtGui)
     include(${QT_USE_FILE})
-endif(CAF_USE_QT5)
+endif(CEE_USE_QT5)
 
 set( PROJECT_FILES
 	cafFactory.h
@@ -17,6 +18,7 @@ set( PROJECT_FILES
 	cafPdmDocument.h
 	cafPdmObjectGroup.cpp
 	cafPdmObjectGroup.h
+	cafPdmObject.cpp
 	cafPdmObject.h
 	cafPdmField.h
 )
@@ -24,10 +26,6 @@ set( PROJECT_FILES
 add_library( ${PROJECT_NAME}
 	${PROJECT_FILES}
 )
-
-if (CAF_USE_QT5)
-    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-endif(CAF_USE_QT5)
 
 target_link_libraries ( ${PROJECT_NAME}
     cafPdmUiCore

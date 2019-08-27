@@ -20,6 +20,8 @@
 #include "RimCase.h"
 
 #include "RiaApplication.h"
+#include "RicfCommandObject.h"
+
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimOilField.h"
@@ -42,10 +44,11 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimCase, "RimCase");
 //--------------------------------------------------------------------------------------------------
 RimCase::RimCase() : m_isInActiveDestruction(false)
 {
-    CAF_PDM_InitField(&caseUserDescription, "CaseUserDescription",  QString(), "Case Name", "", "" ,"");
+    RICF_InitField(&caseUserDescription, "CaseUserDescription",  QString(), "Case Name", "", "" ,"");
 
-    CAF_PDM_InitField(&caseId, "CaseId", -1, "Case ID", "", "" ,"");
+    RICF_InitField(&caseId, "CaseId", -1, "Case ID", "", "" ,"");
     caseId.uiCapability()->setUiReadOnly(true);
+    caseId.capability<RicfFieldHandle>()->setIOWriteable(false);
 
     CAF_PDM_InitFieldNoDefault(&activeFormationNames, "DefaultFormationNames", "Formation Names File", "", "", "");
 
@@ -153,7 +156,7 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions(const caf::PdmField
         {
             for(RimFormationNames* fnames : proj->activeOilField()->formationNamesCollection()->formationNamesList())
             {
-                options.push_back(caf::PdmOptionItemInfo(fnames->fileNameWoPath(), fnames, false, fnames->uiCapability()->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo(fnames->fileNameWoPath(), fnames, false, fnames->uiCapability()->uiIconProvider()));
             }
         }
 

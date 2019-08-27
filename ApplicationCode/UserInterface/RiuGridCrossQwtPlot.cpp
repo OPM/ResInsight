@@ -398,7 +398,6 @@ void RiuGridCrossQwtPlot::selectSample(QwtPlotCurve* curve, int sampleNumber)
         curveLabel.setBorderRadius(2.0);
         m_selectedPointMarker->setLabel(curveLabel);
     }
-    replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -407,7 +406,6 @@ void RiuGridCrossQwtPlot::selectSample(QwtPlotCurve* curve, int sampleNumber)
 void RiuGridCrossQwtPlot::clearSampleSelection()
 {
     m_selectedPointMarker->detach();
-    replot();
 }
 
 //--------------------------------------------------------------------------------------------------

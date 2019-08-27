@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway.
+   Copyright (C) 2014  Equinor ASA, Norway.
 
    The file 'enkf_util_copy_file.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -36,7 +36,7 @@ void test_copy_file( const char * executable ) {
 
   mode0 = stat_buf.st_mode;
   {
-    test_work_area_type * test_area = test_work_area_alloc( "executable-copy" );
+    ecl::util::TestArea ta("copy_file");
 
     util_copy_file( executable , "test.x");
     test_assert_true( util_file_exists( "test.x" ));
@@ -44,7 +44,6 @@ void test_copy_file( const char * executable ) {
     mode1 = stat_buf.st_mode;
 
     test_assert_true( mode0 == mode1 );
-    test_work_area_free( test_area );
   }
 }
 

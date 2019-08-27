@@ -5,6 +5,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicToggleItemsOnFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicToggleItemsOffFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicToggleItemsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicToggleItemsOnOthersOffFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicCollapseSiblingsFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -13,6 +14,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicToggleItemsOnFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicToggleItemsOffFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicToggleItemsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicToggleItemsOnOthersOffFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicCollapseSiblingsFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

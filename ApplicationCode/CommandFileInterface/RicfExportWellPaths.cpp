@@ -52,7 +52,7 @@ RicfExportWellPaths::RicfExportWellPaths()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfExportWellPaths::execute()
+RicfCommandResponse RicfExportWellPaths::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -64,27 +64,34 @@ void RicfExportWellPaths::execute()
         wellPaths = TOOLS::wellPathsFromNames(TOOLS::toQStringList(m_wellPathNames), &wellsNotFound);
         if (!wellsNotFound.empty())
         {
-            RiaLogging::error(QString("exportWellPaths: These well paths were not found: ") + wellsNotFound.join(", "));
+            QString error(QString("exportWellPaths: These well paths were not found: ") + wellsNotFound.join(", "));
+            RiaLogging::error(error);
+            return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
         }
     }
 
-    if (!wellPaths.empty())
+    if (wellPaths.empty())
     {
-        QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::WELLPATHS);
-        if (exportFolder.isNull())
-        {
-            exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("wellpaths");
-        }
+        QString error("No well paths found");
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+    }
 
-        caf::CmdFeatureManager*                 commandManager = caf::CmdFeatureManager::instance();
-        auto feature = dynamic_cast<RicExportSelectedWellPathsFeature*>(commandManager->getCommandFeature("RicExportSelectedWellPathsFeature"));
+    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::WELLPATHS);
+    if (exportFolder.isNull())
+    {
+        exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("wellpaths");
+    }
 
-        for (const auto wellPath : wellPaths)
+    caf::CmdFeatureManager*                 commandManager = caf::CmdFeatureManager::instance();
+    auto feature = dynamic_cast<RicExportSelectedWellPathsFeature*>(commandManager->getCommandFeature("RicExportSelectedWellPathsFeature"));
+
+    for (const auto wellPath : wellPaths)
+    {
+        if (wellPath)
         {
-            if (wellPath)
-            {
-                feature->exportWellPath(wellPath, m_mdStepSize, exportFolder, false);
-            }
+            feature->exportWellPath(wellPath, m_mdStepSize, exportFolder, false);
         }
     }
+    return RicfCommandResponse();
 }

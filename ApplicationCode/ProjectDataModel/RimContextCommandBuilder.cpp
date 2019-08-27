@@ -182,6 +182,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewViewFeature";
             menuBuilder << "RicNewContourMapViewFeature";
             menuBuilder << "RicCreateGridCrossPlotFeature";
+            menuBuilder << "RicCreateSaturationPressurePlotsFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "RicExportEclipseInputGridFeature";
@@ -427,13 +428,19 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicEditScriptFeature";
             menuBuilder << "Separator";
-            menuBuilder << "RicNewScriptFeature";
+            menuBuilder << "RicNewOctaveScriptFeature";
+#ifdef ENABLE_GRPC
+            menuBuilder << "RicNewPythonScriptFeature";
+#endif
             menuBuilder << "Separator";
             menuBuilder << "RicExecuteScriptFeature";
         }
         else if (dynamic_cast<RimScriptCollection*>(uiItem))
         {
-            menuBuilder << "RicNewScriptFeature";
+            menuBuilder << "RicNewOctaveScriptFeature";
+#ifdef ENABLE_GRPC
+            menuBuilder << "RicNewPythonScriptFeature";
+#endif
             menuBuilder << "Separator";
             menuBuilder << "RicAddScriptPathFeature";
             menuBuilder << "RicRefreshScriptsFeature";
@@ -471,6 +478,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicShowSummaryCurveCalculatorFeature";
         }
@@ -536,6 +544,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicEditSummaryPlotFeature";
             menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "RicDuplicateSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCurveFeature";
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
@@ -615,6 +624,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewDerivedEnsembleFeature";
             menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicConvertGroupToEnsembleFeature";
@@ -630,6 +640,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
 
@@ -814,6 +825,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         
         menuBuilder << "RicNewDerivedEnsembleFeature";
         menuBuilder << "RicNewSummaryPlotFeature";
+        menuBuilder << "RicNewDefaultSummaryPlotFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
         menuBuilder.addSeparator();
@@ -919,6 +931,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
         }
         menuBuilder << "RicToggleItemsOnOthersOffFeature";
+
+        if (RicToggleItemsFeatureImpl::isToggleCommandsAvailable())
+        {
+            menuBuilder << "RicCollapseSiblingsFeature";
+        }
     }
 
     if ( caf::CmdFeatureManager::instance()->getCommandFeature("RicDeleteItemFeature")->canFeatureBeExecuted() )

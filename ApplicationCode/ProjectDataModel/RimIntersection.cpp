@@ -316,7 +316,7 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::
         {
             caf::PdmChildArrayField<RimSimWellInView*>& simWells = coll->wells;
 
-            QIcon simWellIcon(":/Well.png");
+            caf::QIconProvider simWellIcon(":/Well.png");
             for (RimSimWellInView* eclWell : simWells)
             {
                 options.push_back(caf::PdmOptionItemInfo(eclWell->name(), eclWell, false, simWellIcon));

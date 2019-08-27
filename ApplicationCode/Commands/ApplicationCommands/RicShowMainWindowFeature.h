@@ -28,6 +28,9 @@ class RicShowMainWindowFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static void showMainWindow();
+
 protected:
     // Overrides
     bool isCommandEnabled() override;

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012 Statoil ASA, Norway.
+   Copyright (C) 2012 Equinor ASA, Norway.
 
    The file 'ecl_init_file.c' is part of ERT - Ensemble based Reservoir Tool.
 

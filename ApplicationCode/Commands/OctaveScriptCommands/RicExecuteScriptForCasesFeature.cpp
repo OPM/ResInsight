@@ -80,7 +80,7 @@ void RicExecuteScriptForCasesFeature::onActionTriggered(bool isChecked)
 
         if (caseIdsInSelection.size() > 0)
         {
-            RiaApplication::instance()->launchProcessForMultipleCases(octavePath, arguments, caseIdsInSelection);
+            RiaApplication::instance()->launchProcessForMultipleCases(octavePath, arguments, caseIdsInSelection, app->octaveProcessEnvironment());
         }
     }
 }

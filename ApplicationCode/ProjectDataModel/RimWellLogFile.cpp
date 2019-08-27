@@ -19,6 +19,9 @@
 
 #include "RimWellLogFile.h"
 
+#include "RiaGuiApplication.h"
+#include "RiaLogging.h"
+
 #include "RiaDateStringParser.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaQDateTimeTools.h"
@@ -123,9 +126,13 @@ RimWellLogFile* RimWellLogFile::readWellLogFile(const QString& logFilePath)
                 displayMessage += errorMessage;
             }
 
-            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
-                                 "File open error",
-                                 displayMessage);
+            if (RiaGuiApplication::isRunning())
+            {
+                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                    "File open error",
+                    displayMessage);
+            }
+            RiaLogging::warning(errorMessage);
 
             delete wellLogFile;
             wellLogFile = nullptr;

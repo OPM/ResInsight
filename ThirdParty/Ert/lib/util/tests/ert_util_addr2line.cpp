@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway.
+   Copyright (C) 2012  Equinor ASA, Norway.
 
    The file 'ert_util_addr2line.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -28,7 +28,6 @@
 
 void test_lookup(bool valid_address, bool change_cwd) {
   const char * file = __FILE__;
-  const char * func = __func__;
   int    line;
   const int max_bt = 50;
   void *bt_addr[max_bt];
@@ -45,7 +44,6 @@ void test_lookup(bool valid_address, bool change_cwd) {
     util_chdir("/tmp");
     if (valid_address) {
       test_assert_false( util_addr2line_lookup( bt_addr[0] , &func_name , &file_name , &line_nr));
-      test_assert_string_equal( func_name , func );
       test_assert_string_equal( file_name , NULL );
       test_assert_int_equal( 0 , line_nr);
     } else {
@@ -59,7 +57,6 @@ void test_lookup(bool valid_address, bool change_cwd) {
   } else {
     if (valid_address) {
       test_assert_true( util_addr2line_lookup( bt_addr[0] , &func_name , &file_name , &line_nr));
-      test_assert_string_equal( func_name , func );
       test_assert_string_equal( file_name , file );
       test_assert_int_equal( line , line_nr );
     } else {
@@ -90,6 +87,7 @@ int main( int argc , char ** argv) {
     util_chdir(path);
     dot_name = util_alloc_sprintf("./%s" , name);
     util_spawn_blocking(dot_name, 0, NULL, NULL, NULL);
+    free(dot_name);
     exit(0);
   } else {
     printf("Testing internal lookup ....\n");

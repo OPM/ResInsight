@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2016  Statoil ASA, Norway.
+   Copyright (C) 2016  Equinor ASA, Norway.
 
    The file 'ecl_file_view.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -19,9 +19,7 @@
 
 #include <vector>
 #include <string>
-
-#include <ert/util/vector.hpp>
-#include <ert/util/hash.hpp>
+#include <map>
 
 #include <ert/ecl/fortio.h>
 #include <ert/ecl/ecl_kw.hpp>
@@ -33,13 +31,13 @@
 
 
 struct ecl_file_view_struct {
-  vector_type       * kw_list;      /* This is a vector of ecl_file_kw instances corresponding to the content of the file. */
-  hash_type         * kw_index;     /* A hash table with integer vectors of indices - see comment below. */
+  std::vector<ecl_file_kw_type *>   kw_list;
+  std::map<std::string,std::vector<int>> kw_index;
   std::vector<std::string> distinct_kw;  /* A list of the keywords occuring in the file - each string occurs ONLY ONCE. */
   fortio_type       * fortio;       /* The same fortio instance pointer as in the ecl_file styructure. */
   bool                owner;        /* Is this map the owner of the ecl_file_kw instances; only true for the global_map. */
   inv_map_type      * inv_map;      /* Shared reference owned by the ecl_file structure. */
-  vector_type       * child_list;
+  std::vector<ecl_file_view_type *> child_list;
   int               * flags;
 };
 
@@ -75,9 +73,6 @@ const char * ecl_file_view_get_src_file( const ecl_file_view_type * file_view ) 
 ecl_file_view_type * ecl_file_view_alloc( fortio_type * fortio , int * flags , inv_map_type * inv_map , bool owner ) {
   ecl_file_view_type * ecl_file_view  = new ecl_file_view_type();
 
-  ecl_file_view->kw_list              = vector_alloc_new();
-  ecl_file_view->kw_index             = hash_alloc();
-  ecl_file_view->child_list           = vector_alloc_new();
   ecl_file_view->owner                = owner;
   ecl_file_view->fortio               = fortio;
   ecl_file_view->inv_map              = inv_map;
@@ -87,9 +82,8 @@ ecl_file_view_type * ecl_file_view_alloc( fortio_type * fortio , int * flags , i
 }
 
 int ecl_file_view_get_global_index( const ecl_file_view_type * ecl_file_view , const char * kw , int ith) {
-  const int_vector_type * index_vector = (const int_vector_type*)hash_get(ecl_file_view->kw_index , kw);
-  int global_index = int_vector_iget( index_vector , ith);
-  return global_index;
+  const auto& index_vector = ecl_file_view->kw_index.at(kw);
+  return index_vector[ith];
 }
 
 
@@ -105,34 +99,28 @@ int ecl_file_view_get_global_index( const ecl_file_view_type * ecl_file_view , c
 
 void ecl_file_view_make_index( ecl_file_view_type * ecl_file_view ) {
   ecl_file_view->distinct_kw.clear();
-  hash_clear( ecl_file_view->kw_index );
+  ecl_file_view->kw_index.clear();
   {
-    int i;
-    for (i=0; i < vector_get_size( ecl_file_view->kw_list ); i++) {
-      const ecl_file_kw_type * file_kw = (const ecl_file_kw_type*)vector_iget_const( ecl_file_view->kw_list , i);
-      const char             * header  = ecl_file_kw_get_header( file_kw );
-      if ( !hash_has_key( ecl_file_view->kw_index , header )) {
-        int_vector_type * index_vector = int_vector_alloc( 0 , -1 );
-        hash_insert_hash_owned_ref( ecl_file_view->kw_index , header , index_vector , int_vector_free__);
+    int global_index = 0;
+    for (const auto& file_kw : ecl_file_view->kw_list) {
+      const std::string&  header  = ecl_file_kw_get_header( file_kw );
+      if (ecl_file_view->kw_index.find(header) == ecl_file_view->kw_index.end())
         ecl_file_view->distinct_kw.push_back(header);
-      }
 
-      {
-        int_vector_type * index_vector = (int_vector_type*)hash_get( ecl_file_view->kw_index , header);
-        int_vector_append( index_vector , i);
-      }
+      auto& index_vector = ecl_file_view->kw_index[header];
+      index_vector.push_back(global_index);
+      global_index++;
     }
   }
 }
 
 bool ecl_file_view_has_kw( const ecl_file_view_type * ecl_file_view, const char * kw) {
-  return hash_has_key( ecl_file_view->kw_index , kw );
+  return (ecl_file_view->kw_index.find(kw) != ecl_file_view->kw_index.end());
 }
 
 
 ecl_file_kw_type * ecl_file_view_iget_file_kw( const ecl_file_view_type * ecl_file_view , int global_index) {
-  ecl_file_kw_type * file_kw = (ecl_file_kw_type*)vector_iget( ecl_file_view->kw_list , global_index);
-  return file_kw;
+  return ecl_file_view->kw_list[global_index];
 }
 
 ecl_file_kw_type * ecl_file_view_iget_named_file_kw( const ecl_file_view_type * ecl_file_view , const char * kw, int ith) {
@@ -188,12 +176,12 @@ void ecl_file_view_index_fload_kw(const ecl_file_view_type * ecl_file_view, cons
 int ecl_file_view_find_kw_value( const ecl_file_view_type * ecl_file_view , const char * kw , const void * value) {
   int global_index = -1;
   if ( ecl_file_view_has_kw( ecl_file_view , kw)) {
-    const int_vector_type * index_list = (const int_vector_type*)hash_get( ecl_file_view->kw_index , kw );
-    int index = 0;
-    while (index < int_vector_size( index_list )) {
-      const ecl_kw_type * ecl_kw = ecl_file_view_iget_kw( ecl_file_view , int_vector_iget( index_list , index ));
+    const auto& index_list = ecl_file_view->kw_index.at(kw);
+    size_t index = 0;
+    while (index < index_list.size()) {
+      const ecl_kw_type * ecl_kw = ecl_file_view_iget_kw( ecl_file_view , index_list[index]);
       if (ecl_kw_data_equal( ecl_kw , value )) {
-        global_index = int_vector_iget( index_list , index );
+        global_index = index_list[index];
         break;
       }
       index++;
@@ -212,7 +200,7 @@ int ecl_file_view_get_num_distinct_kw( const ecl_file_view_type * ecl_file_view 
 }
 
 int ecl_file_view_get_size( const ecl_file_view_type * ecl_file_view ) {
-  return vector_get_size( ecl_file_view->kw_list );
+  return ecl_file_view->kw_list.size();
 }
 
 
@@ -249,9 +237,9 @@ int ecl_file_view_iget_named_size( const ecl_file_view_type * ecl_file_view , co
 
 
 void ecl_file_view_replace_kw( ecl_file_view_type * ecl_file_view , ecl_kw_type * old_kw , ecl_kw_type * new_kw , bool insert_copy) {
-  int index = 0;
-  while (index < vector_get_size( ecl_file_view->kw_list )) {
-    ecl_file_kw_type * ikw = (ecl_file_kw_type*)vector_iget( ecl_file_view->kw_list , index );
+  size_t  index = 0;
+  while (index < ecl_file_view->kw_list.size() ) {
+    auto * ikw = ecl_file_view->kw_list[index];
     if (ecl_file_kw_ptr_eq( ikw , old_kw)) {
       /*
          Found it; observe that the vector_iset() function will
@@ -276,11 +264,8 @@ bool ecl_file_view_load_all( ecl_file_view_type * ecl_file_view ) {
   bool loadOK = false;
 
   if (fortio_assert_stream_open( ecl_file_view->fortio )) {
-    int index;
-    for (index = 0; index < vector_get_size( ecl_file_view->kw_list); index++) {
-      ecl_file_kw_type * ikw = (ecl_file_kw_type*)vector_iget( ecl_file_view->kw_list , index );
-      ecl_file_kw_get_kw( ikw , ecl_file_view->fortio , ecl_file_view->inv_map);
-    }
+    for (ecl_file_kw_type * file_kw : ecl_file_view->kw_list)
+      ecl_file_kw_get_kw( file_kw, ecl_file_view->fortio , ecl_file_view->inv_map);
     loadOK = true;
   }
 
@@ -296,16 +281,18 @@ bool ecl_file_view_load_all( ecl_file_view_type * ecl_file_view ) {
 
 
 void ecl_file_view_add_kw( ecl_file_view_type * ecl_file_view , ecl_file_kw_type * file_kw) {
-  if (ecl_file_view->owner)
-    vector_append_owned_ref( ecl_file_view->kw_list , file_kw , ecl_file_kw_free__ );
-  else
-    vector_append_ref( ecl_file_view->kw_list , file_kw);
+  ecl_file_view->kw_list.push_back( file_kw );
 }
 
 void ecl_file_view_free( ecl_file_view_type * ecl_file_view ) {
-  vector_free( ecl_file_view->child_list );
-  hash_free( ecl_file_view->kw_index );
-  vector_free( ecl_file_view->kw_list );
+
+  for (auto& child_ptr : ecl_file_view->child_list)
+    ecl_file_view_free(child_ptr);
+
+  if (ecl_file_view->owner) {
+    for (auto& kw_ptr : ecl_file_view->kw_list)
+      ecl_file_kw_free( kw_ptr );
+  }
 
   delete ecl_file_view;
 }
@@ -317,16 +304,15 @@ void ecl_file_view_free__( void * arg ) {
 
 
 int ecl_file_view_get_num_named_kw(const ecl_file_view_type * ecl_file_view , const char * kw) {
-  if (hash_has_key(ecl_file_view->kw_index , kw)) {
-    const int_vector_type * index_vector = (const int_vector_type*)hash_get(ecl_file_view->kw_index , kw);
-    return int_vector_size( index_vector );
+  if (ecl_file_view_has_kw(ecl_file_view, kw)) {
+    const auto& index_vector = ecl_file_view->kw_index.at(kw);
+    return index_vector.size();
   } else
     return 0;
 }
 
 void ecl_file_view_fwrite( const ecl_file_view_type * ecl_file_view , fortio_type * target , int offset) {
-  int index;
-  for (index = offset; index < vector_get_size( ecl_file_view->kw_list ); index++) {
+  for (size_t index = offset; index < ecl_file_view->kw_list.size(); index++) {
     ecl_kw_type * ecl_kw = ecl_file_view_iget_kw( ecl_file_view , index );
     ecl_kw_fwrite( ecl_kw , target );
   }
@@ -336,18 +322,17 @@ void ecl_file_view_fwrite( const ecl_file_view_type * ecl_file_view , fortio_typ
 
 
 int ecl_file_view_iget_occurence( const ecl_file_view_type * ecl_file_view , int global_index) {
-  const ecl_file_kw_type * file_kw = (const ecl_file_kw_type*)vector_iget_const( ecl_file_view->kw_list , global_index);
+  const ecl_file_kw_type * file_kw = ecl_file_view->kw_list[global_index];
   const char * header              = ecl_file_kw_get_header( file_kw );
-  const int_vector_type * index_vector = (const int_vector_type*)hash_get( ecl_file_view->kw_index , header );
-  const int * index_data = int_vector_get_const_ptr( index_vector );
+  const auto& index_vector         = ecl_file_view->kw_index.at(header);
 
   int occurence = -1;
   {
     /* Manual reverse lookup. */
-    int i;
-    for (i=0; i < int_vector_size( index_vector ); i++)
-      if (index_data[i] == global_index)
+    for (size_t i=0; i < index_vector.size(); i++) {
+      if (index_vector[i] == global_index)
         occurence = i;
+    }
   }
   if (occurence < 0)
     util_abort("%s: internal error ... \n" , __func__);
@@ -356,9 +341,7 @@ int ecl_file_view_iget_occurence( const ecl_file_view_type * ecl_file_view , int
 }
 
 void ecl_file_view_fprintf_kw_list(const ecl_file_view_type * ecl_file_view , FILE * stream) {
-  int i;
-  for (i=0; i < vector_get_size( ecl_file_view->kw_list ); i++) {
-    const ecl_file_kw_type * file_kw = (const ecl_file_kw_type*)vector_iget_const( ecl_file_view->kw_list , i );
+  for (auto& file_kw : ecl_file_view->kw_list) {
     char * type_name = ecl_type_alloc_name(ecl_file_kw_get_data_type(file_kw));
     fprintf(stream , "%-8s %7d:%s\n",
             ecl_file_kw_get_header( file_kw ) ,
@@ -375,21 +358,21 @@ ecl_file_view_type * ecl_file_view_alloc_blockview2(const ecl_file_view_type * e
 
 
   ecl_file_view_type * block_map = ecl_file_view_alloc( ecl_file_view->fortio , ecl_file_view->flags , ecl_file_view->inv_map , false);
-  int kw_index = 0;
+  size_t kw_index = 0;
   if (start_kw)
     kw_index = ecl_file_view_get_global_index( ecl_file_view , start_kw , occurence );
 
   {
-    ecl_file_kw_type * file_kw = (ecl_file_kw_type*)vector_iget( ecl_file_view->kw_list , kw_index );
+    ecl_file_kw_type * file_kw = ecl_file_view->kw_list[kw_index];
     while (true) {
       ecl_file_view_add_kw( block_map , file_kw );
 
       kw_index++;
-      if (kw_index == vector_get_size( ecl_file_view->kw_list ))
+      if (kw_index == ecl_file_view->kw_list.size())
         break;
       else {
         if (end_kw) {
-          file_kw = (ecl_file_kw_type*)vector_iget(ecl_file_view->kw_list , kw_index);
+          file_kw = ecl_file_view->kw_list[kw_index];
           if (strcmp( end_kw , ecl_file_kw_get_header( file_kw )) == 0)
             break;
         }
@@ -408,21 +391,21 @@ ecl_file_view_type * ecl_file_view_alloc_blockview(const ecl_file_view_type * ec
 }
 
 
-ecl_file_view_type * ecl_file_view_add_blockview(const ecl_file_view_type * file_view , const char * header, int occurence) {
+ecl_file_view_type * ecl_file_view_add_blockview(ecl_file_view_type * file_view , const char * header, int occurence) {
   ecl_file_view_type * child  = ecl_file_view_alloc_blockview2(file_view, header, header, occurence);
 
   if (child)
-    vector_append_owned_ref( file_view->child_list , child , ecl_file_view_free__ );
+    file_view->child_list.push_back(child);
 
   return child;
 }
 
 
-ecl_file_view_type * ecl_file_view_add_blockview2(const ecl_file_view_type * ecl_file_view , const char * start_kw, const char * end_kw, int occurence) {
+ecl_file_view_type * ecl_file_view_add_blockview2(ecl_file_view_type * ecl_file_view , const char * start_kw, const char * end_kw, int occurence) {
   ecl_file_view_type * child  = ecl_file_view_alloc_blockview2(ecl_file_view, start_kw , end_kw , occurence);
 
   if (child)
-    vector_append_owned_ref( ecl_file_view->child_list , child , ecl_file_view_free__ );
+    ecl_file_view->child_list.push_back(child);
 
   return child;
 }
@@ -593,10 +576,10 @@ double ecl_file_view_iget_restart_sim_days(const ecl_file_view_type * ecl_file_v
 int ecl_file_view_find_sim_time(const ecl_file_view_type * ecl_file_view , time_t sim_time) {
   int seqnum_index = -1;
   if ( ecl_file_view_has_kw( ecl_file_view , INTEHEAD_KW)) {
-    const int_vector_type * intehead_index_list = (const int_vector_type *)hash_get( ecl_file_view->kw_index , INTEHEAD_KW );
-    int index = 0;
-    while (index < int_vector_size( intehead_index_list )) {
-      const ecl_kw_type * intehead_kw = ecl_file_view_iget_kw( ecl_file_view , int_vector_iget( intehead_index_list , index ));
+    const auto& intehead_index_list = ecl_file_view->kw_index.at(INTEHEAD_KW);
+    size_t index = 0;
+    while (index < intehead_index_list.size()) {
+      const ecl_kw_type * intehead_kw = ecl_file_view_iget_kw( ecl_file_view , intehead_index_list[index] );
       if (ecl_rsthead_date( intehead_kw ) == sim_time) {
         seqnum_index = index;
         break;
@@ -832,6 +815,8 @@ void ecl_file_view_end_transaction( ecl_file_view_type * file_view, ecl_file_tra
     ecl_file_kw_type * file_kw = ecl_file_view_iget_file_kw(file_view, i);
     ecl_file_kw_end_transaction(file_kw, ref_count[i]);
   }
+  free(transaction->ref_count);
+  free(transaction);
 }
 
 

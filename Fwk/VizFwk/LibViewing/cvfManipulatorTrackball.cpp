@@ -164,6 +164,14 @@ void ManipulatorTrackball::endNavigation()
 
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void ManipulatorTrackball::setRotationSensitivity(double scaleFactor)
+{
+    m_rotateSensitivity = scaleFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Pan the camera up/down and left/right
 /// 
 /// \return  Returns true if input caused changes to the camera an false if no changes occurred

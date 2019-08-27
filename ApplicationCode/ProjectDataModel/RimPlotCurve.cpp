@@ -18,6 +18,7 @@
 
 #include "RimPlotCurve.h"
 
+#include "RiaGuiApplication.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimNameConfig.h"
@@ -494,12 +495,13 @@ void RimPlotCurve::updateUiIconFromPlotSymbol()
 {
     if (m_pointSymbol() != RiuQwtSymbol::NoSymbol)
     {
+        CVF_ASSERT(RiaGuiApplication::isRunning());
         QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
 
         QSizeF iconSize(24, 24);
         QwtGraphic graphic = m_qwtPlotCurve->legendIcon(0, iconSize);
         QPixmap pixmap = graphic.toPixmap();
-        setUiIcon(QIcon(pixmap));
+        setUiIcon(caf::QIconProvider(pixmap));
     }
 }
 

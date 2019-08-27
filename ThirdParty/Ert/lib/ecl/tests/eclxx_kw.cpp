@@ -1,5 +1,5 @@
 /*
-  Copyright 2015 Statoil ASA.
+  Copyright 2015 Equinor ASA.
 
   This file is part of the Open Porous Media project (OPM).
 
@@ -170,7 +170,7 @@ void test_read_write() {
     std::vector<std::string> s_data = {"S1", "S2", "S3"};
 
     {
-        test_work_area_type * work_area = test_work_area_alloc("READ_WRITE");
+        ecl::util::TestArea ta("kw-read-write");
         {
           ERT::FortIO f("test_file", std::ios_base::out);
           ERT::write_kw(f, "DOUBLE", d_data);
@@ -208,7 +208,6 @@ void test_read_write() {
           }
 
           ecl_file_close(f);
-          test_work_area_free(work_area);
         }
     }
 }

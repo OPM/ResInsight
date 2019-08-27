@@ -185,7 +185,8 @@ namespace Opm
 
     ECLFluxCalc::ECLFluxCalc(const ECLGraph&        graph,
                              const ECLInitFileData& init,
-                             const double           grav)
+                             const double           grav,
+                             const bool             /* useEPS */)
         : graph_(graph)
         , satfunc_(graph, init)
         , rmap_(pvtnumVector(graph, init))

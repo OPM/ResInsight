@@ -19,10 +19,12 @@ public:
         RICF_InitField(&m_boolArgument,   "BoolArgument", false, "BoolArgument", "", "", "");
     }
 
-    void execute() override { std::cout << "TestCommand1::execute(" << "\"" << m_textArgument().toStdString() << "\", " 
-                                                                                    << m_doubleArgument() << ", " 
-                                                                                    << m_intArgument << ", "
-                                                                                    << m_boolArgument << ");" << std::endl; }
+    RicfCommandResponse execute() override {
+        std::cout << "TestCommand1::execute("
+                  << "\"" << m_textArgument().toStdString() << "\", " << m_doubleArgument() << ", " << m_intArgument << ", "
+                  << m_boolArgument << ");" << std::endl;
+        return RicfCommandResponse();
+    }
 
     caf::PdmField<QString> m_textArgument;
     caf::PdmField<double>  m_doubleArgument;
@@ -45,9 +47,13 @@ public:
         RICF_InitField(&m_boolArgument,   "ba",        false,"BoolArgument", "", "", "");
     }
 
-    void execute() override { std::cout << "TC2::execute(" << "\"" << m_textArgument().toStdString() << "\", " 
+    RicfCommandResponse execute() override
+    {
+        std::cout << "TC2::execute(" << "\"" << m_textArgument().toStdString() << "\", "
         << m_doubleArgument() << ", " 
-        << m_intArgument() << ", " << m_boolArgument() << ");" << std::endl; }
+        << m_intArgument() << ", " << m_boolArgument() << ");" << std::endl;
+        return RicfCommandResponse();
+    }
 
     caf::PdmField<QString> m_textArgument;
     caf::PdmField<double>  m_doubleArgument;

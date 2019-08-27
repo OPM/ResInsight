@@ -1,4 +1,4 @@
-#  Copyright (C) 2018  Statoil ASA, Norway.
+#  Copyright (C) 2018  Equinor ASA, Norway.
 #
 #  This file is part of ERT - Ensemble based Reservoir Tool.
 #

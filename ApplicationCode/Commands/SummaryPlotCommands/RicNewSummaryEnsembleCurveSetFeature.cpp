@@ -18,7 +18,7 @@
 
 #include "RicNewSummaryEnsembleCurveSetFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
 
 #include "RiaSummaryTools.h"
@@ -77,8 +77,8 @@ RimEnsembleCurveSet* RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSet(Ri
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetAndUpdate(RimSummaryCaseCollection* ensemble)
 {
-    RiaApplication* app  = RiaApplication::instance();
-    RimProject*     proj = app->project();
+    RiaGuiApplication* app  = RiaGuiApplication::instance();
+    RimProject*        proj = app->project();
 
     RimSummaryPlotCollection* summaryPlotCollection = proj->mainPlotCollection->summaryPlotCollection();
     RimSummaryPlot*           plot                  = summaryPlotCollection->createSummaryPlotWithAutoTitle();
@@ -100,7 +100,17 @@ void RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetAndUpdate(RimSum
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryEnsembleCurveSetFeature::isCommandEnabled()
 {
-    return (selectedSummaryPlot());
+    bool summaryPlotSelected = selectedSummaryPlot();
+    if (summaryPlotSelected)
+    {
+        RimProject* project = RiaApplication::instance()->project();
+        CVF_ASSERT(project);
+		if (!project->summaryGroups().empty())
+		{
+            return true;
+		}
+	}
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,6 +124,7 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered(bool isChecked)
     RimSummaryPlot* plot = selectedSummaryPlot();
     if (plot)
     {
+        CVF_ASSERT(!project->summaryGroups().empty());
         auto ensemble = project->summaryGroups().back();
 
         RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetAndUpdate(ensemble);

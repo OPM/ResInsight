@@ -1,4 +1,4 @@
-#  Copyright (C) 2018  Statoil ASA, Norway.
+#  Copyright (C) 2018  Equinor ASA, Norway.
 #
 #  This file is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -59,6 +59,7 @@ class SummaryResampleTest(EclTest):
     def test_run_default(self):
         with TestAreaContext(""):
             self.case.fwrite()
+
 
             # Too few arguments
             with self.assertRaises(CallError):

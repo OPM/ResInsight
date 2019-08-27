@@ -20,11 +20,15 @@
 #include "cafPdmObject.h"
 #include "RicfObjectCapability.h"
 #include "RicfFieldCapability.h"
+#include "RicfCommandResponse.h"
 
 #define RICF_InitField(field, keyword, default, uiName, iconResourceName, toolTip, whatsThis) \
 CAF_PDM_InitField(field, keyword, default, uiName, iconResourceName, toolTip, whatsThis); \
 AddRicfCapabilityToField(field)
 
+#define RICF_InitFieldNoDefault(field, keyword, uiName, iconResourceName, toolTip, whatsThis) \
+CAF_PDM_InitFieldNoDefault(field, keyword, uiName, iconResourceName, toolTip, whatsThis); \
+AddRicfCapabilityToField(field)
 
 //==================================================================================================
 //
@@ -37,7 +41,7 @@ public:
     RicfCommandObject();
     ~RicfCommandObject() override;
 
-    virtual void execute() = 0;
+    virtual RicfCommandResponse execute() = 0;
 };
 
 

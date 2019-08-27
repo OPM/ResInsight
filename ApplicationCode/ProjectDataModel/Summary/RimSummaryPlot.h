@@ -23,6 +23,7 @@
 
 #include "RiaDefines.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaSummaryCurveDefinition.h"
 
 #include "RifEclipseSummaryAddress.h"
 
@@ -107,6 +108,7 @@ public:
     QString                                         asciiDataForPlotExport(DateTimePeriod resamplingPeriod = DateTimePeriod::NONE) const;
 
     std::vector<RimSummaryCurve*>                   summaryAndEnsembleCurves() const;
+    std::set<RiaSummaryCurveDefinition>             summaryAndEnsembleCurveDefinitions() const;
     std::vector<RimSummaryCurve*>                   summaryCurves() const;
     void                                            deleteAllSummaryCurves();
     RimSummaryCurveCollection*                      summaryCurveCollection() const;
@@ -132,6 +134,7 @@ public:
     bool                                            containsResamplableCurves() const;
 
     size_t                                          singleColorCurveCount() const;
+    void                                            applyDefaultCurveAppearances();
 
 
     bool hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const override;

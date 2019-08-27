@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'well_segment.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -18,8 +18,10 @@
 
 #include <stdbool.h>
 
+#include <map>
+#include <string>
+
 #include <ert/util/util.h>
-#include <ert/util/hash.hpp>
 
 #include <ert/ecl/ecl_kw.hpp>
 #include <ert/ecl/ecl_rsthead.hpp>
@@ -39,7 +41,8 @@ struct well_segment_struct {
   int                 branch_id;
   int                 outlet_segment_id;  // This is in the global index space given by the ISEG keyword.
   well_segment_type * outlet_segment;
-  hash_type         * connections;        // hash_type<grid_name , well_conn_collection>;
+  std::map<std::string, 
+           well_conn_collection_type*> connections; // hash_type<grid_name , well_conn_collection>;
 
   double              depth;              // The depth of the segment node; furthest away from the wellhead.
   double              length;
@@ -53,7 +56,7 @@ static UTIL_SAFE_CAST_FUNCTION( well_segment , WELL_SEGMENT_TYPE_ID )
 
 
 well_segment_type * well_segment_alloc(int segment_id , int outlet_segment_id , int branch_id , const double * rseg_data) {
-  well_segment_type * segment = (well_segment_type*)util_malloc( sizeof * segment );
+  well_segment_type * segment = new well_segment_type();
   UTIL_TYPE_ID_INIT( segment , WELL_SEGMENT_TYPE_ID );
 
   segment->link_count = 0;
@@ -61,7 +64,6 @@ well_segment_type * well_segment_alloc(int segment_id , int outlet_segment_id , 
   segment->outlet_segment_id = outlet_segment_id;
   segment->branch_id = branch_id;
   segment->outlet_segment = NULL;
-  segment->connections = hash_alloc();
 
   segment->depth = 0.0;
   segment->length = 0.0;
@@ -116,8 +118,10 @@ well_segment_type * well_segment_alloc_from_kw( const ecl_kw_type * iseg_kw , co
 
 
 void well_segment_free(well_segment_type * segment ) {
-  hash_free( segment->connections );
-  free( segment );
+  for (auto& pair : segment->connections)
+    well_conn_collection_free(pair.second);
+
+  delete segment;
 }
 
 void well_segment_free__(void * arg) {
@@ -196,7 +200,10 @@ void well_segment_link_strict( well_segment_type * segment , well_segment_type *
 
 
 bool well_segment_has_grid_connections( const well_segment_type * segment , const char * grid_name) {
-  return hash_has_key( segment->connections , grid_name );
+  const auto it = segment->connections.find(grid_name);
+  if (it == segment->connections.end())
+    return false;
+  return true;
 }
 
 
@@ -208,13 +215,11 @@ bool well_segment_has_global_grid_connections( const well_segment_type * segment
 bool well_segment_add_connection( well_segment_type * segment , const char * grid_name , well_conn_type * conn) {
   int conn_segment_id = well_conn_get_segment_id( conn );
   if (conn_segment_id == segment->segment_id) {
-    if (!well_segment_has_grid_connections( segment , grid_name ))
-      hash_insert_hash_owned_ref( segment->connections , grid_name , well_conn_collection_alloc() , well_conn_collection_free__ );
 
-    {
-      well_conn_collection_type * connections = (well_conn_collection_type*)hash_get( segment->connections , grid_name );
-      well_conn_collection_add_ref( connections , conn );
-    }
+    if (!well_segment_has_grid_connections(segment, grid_name))
+      segment->connections[grid_name] = well_conn_collection_alloc();
+
+    well_conn_collection_add_ref( segment->connections[grid_name] , conn );
     return true;
   } else
     return false;
@@ -223,7 +228,7 @@ bool well_segment_add_connection( well_segment_type * segment , const char * gri
 
 const well_conn_collection_type * well_segment_get_connections(const well_segment_type * segment , const char * grid_name ) {
   if (well_segment_has_grid_connections( segment , grid_name))
-    return (const well_conn_collection_type*)hash_get( segment->connections , grid_name);
+    return segment->connections.at(grid_name);
   else
     return NULL;
 }

@@ -118,6 +118,8 @@ const std::vector<double>* RigFlowDiagResults::findOrCalculateResult(const RigFl
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::calculateNativeResultsIfNotPreviouslyAttempted(size_t timeStepIndex, RigFlowDiagResultAddress::PhaseSelection phaseSelection)
 {
+    if (timeStepIndex >= m_hasAtemptedNativeResults.size()) return;
+
     auto it = m_hasAtemptedNativeResults[timeStepIndex].find(phaseSelection);
     if ( it == m_hasAtemptedNativeResults[timeStepIndex].end() || !it->second )
     {
@@ -701,10 +703,13 @@ double RigFlowDiagResults::maxAbsPairFlux(int timeStepIndex)
     calculateNativeResultsIfNotPreviouslyAttempted(timeStepIndex, RigFlowDiagResultAddress::PHASE_ALL);
     double maxFlux = 0.0;
 
-    for (const auto& commPair : m_injProdPairFluxCommunicationTimesteps[timeStepIndex][RigFlowDiagResultAddress::PHASE_ALL])
+    if ((size_t) timeStepIndex < m_injProdPairFluxCommunicationTimesteps.size())
     {
-        if (fabs(commPair.second.first)  > maxFlux ) maxFlux = fabs(commPair.second.first);
-        if (fabs(commPair.second.second) > maxFlux ) maxFlux = fabs(commPair.second.second);
+        for (const auto& commPair : m_injProdPairFluxCommunicationTimesteps[timeStepIndex][RigFlowDiagResultAddress::PHASE_ALL])
+        {
+            if (fabs(commPair.second.first)  > maxFlux ) maxFlux = fabs(commPair.second.first);
+            if (fabs(commPair.second.second) > maxFlux ) maxFlux = fabs(commPair.second.second);
+        }
     }
 
     return maxFlux;

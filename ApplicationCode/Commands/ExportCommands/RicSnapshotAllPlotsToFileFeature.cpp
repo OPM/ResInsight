@@ -18,7 +18,7 @@
 
 #include "RicSnapshotAllPlotsToFileFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
 #include "RimMainPlotCollection.h"
@@ -48,7 +48,7 @@ CAF_CMD_SOURCE_INIT(RicSnapshotAllPlotsToFileFeature, "RicSnapshotAllPlotsToFile
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 {
-    RiaApplication* app = RiaApplication::instance();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
 
     RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
     if (!mainPlotWindow) return;
@@ -119,9 +119,9 @@ bool RicSnapshotAllPlotsToFileFeature::isCommandEnabled()
 void RicSnapshotAllPlotsToFileFeature::onActionTriggered(bool isChecked)
 {
     QWidget* currentActiveWidget = nullptr;
-    if (RiaApplication::activeViewWindow())
+    if (RiaGuiApplication::activeViewWindow())
     {
-        currentActiveWidget = RiaApplication::activeViewWindow()->viewWidget();
+        currentActiveWidget = RiaGuiApplication::activeViewWindow()->viewWidget();
     }
 
     RicSnapshotAllPlotsToFileFeature::saveAllPlots();

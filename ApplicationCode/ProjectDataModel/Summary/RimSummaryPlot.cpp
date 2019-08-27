@@ -63,6 +63,8 @@
 #include <set>
 #include <limits>
 #include <QDebug>
+#include "RiaSummaryCurveDefinition.h"
+#include "RiaColorTables.h"
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
 
@@ -345,6 +347,20 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::summaryAndEnsembleCurves() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::set<RiaSummaryCurveDefinition> RimSummaryPlot::summaryAndEnsembleCurveDefinitions() const
+{
+    std::set<RiaSummaryCurveDefinition> allCurveDefs;
+
+    for (const auto& curve : this->summaryAndEnsembleCurves())
+    {
+        allCurveDefs.insert(RiaSummaryCurveDefinition(curve->summaryCaseY(), curve->summaryAddressY()));
+    }
+    return allCurveDefs;        
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimSummaryPlot::summaryCurves() const
 {
     return m_summaryCurveCollection->curves();
@@ -537,6 +553,31 @@ size_t RimSummaryPlot::singleColorCurveCount() const
     colorIndex += curveCount();
 
     return colorIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::applyDefaultCurveAppearances()
+{
+    std::set<RiaSummaryCurveDefinition> allCurveDefs = this->summaryAndEnsembleCurveDefinitions();
+
+    RimSummaryCurveAppearanceCalculator curveLookCalc(allCurveDefs);
+
+    // Summary curves
+    for (auto& curve : this->summaryCurves())
+    {
+        curve->resetAppearance();
+        curveLookCalc.setupCurveLook(curve);
+    }
+
+    // Ensemble curve sets
+    int colorIndex = 0;
+    for (auto& curveSet : this->ensembleCurveSetCollection()->curveSets())
+    {
+        if (curveSet->colorMode() != RimEnsembleCurveSet::SINGLE_COLOR) continue;
+        curveSet->setColor(RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(colorIndex++));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -885,7 +926,13 @@ void RimSummaryPlot::updateTimeAxis()
 
     if (m_timeAxisProperties->timeMode() == RimSummaryTimeAxisProperties::DATE)
     {
-        m_qwtPlot->useDateBasedTimeAxis();
+		RiaQDateTimeTools::DateFormatComponents dateComponents = m_timeAxisProperties->dateComponents();
+		RiaQDateTimeTools::TimeFormatComponents timeComponents = m_timeAxisProperties->timeComponents();
+
+        QString dateFormat = m_timeAxisProperties->dateFormat();        
+        QString timeFormat = m_timeAxisProperties->timeFormat();
+
+        m_qwtPlot->useDateBasedTimeAxis(dateFormat, timeFormat, dateComponents, timeComponents);
     }
     else 
     {

@@ -35,7 +35,8 @@ RicfSetMainWindowSize::RicfSetMainWindowSize()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfSetMainWindowSize::execute()
+RicfCommandResponse RicfSetMainWindowSize::execute()
 {
     RiuMainWindow::instance()->resize(m_width, m_height);
+    return RicfCommandResponse();
 }

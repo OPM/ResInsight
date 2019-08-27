@@ -20,6 +20,7 @@
 #include "RimGeoMechView.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 
@@ -142,9 +143,13 @@ void RimGeoMechView::onLoadDataAndUpdate()
             {
                 QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName() : QString::fromStdString(errorMessage);
 
-                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), 
-                                     "File open error", 
-                                     displayMessage);
+                if (RiaGuiApplication::isRunning())
+                {
+                    QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                        "File open error",
+                        displayMessage);
+                }
+                RiaLogging::error(displayMessage);
             }
 
             m_geomechCase = nullptr;
@@ -677,7 +682,7 @@ void RimGeoMechView::convertCameraPositionFromOldProjectFiles()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase* RimGeoMechView::geoMechCase()
+RimGeoMechCase* RimGeoMechView::geoMechCase() const
 {
     return m_geomechCase;
 }
@@ -764,7 +769,7 @@ void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
             viewLinker->scheduleGeometryRegenForDepViews(geometryType);
         }
     }
-    m_currentReservoirCellVisibility = nullptr;
+    clearReservoirCellVisibilities();
 }
 
 //--------------------------------------------------------------------------------------------------

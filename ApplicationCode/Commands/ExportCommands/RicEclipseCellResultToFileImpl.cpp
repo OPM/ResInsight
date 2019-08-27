@@ -39,7 +39,8 @@ bool RicEclipseCellResultToFileImpl::writePropertyToTextFile(const QString&     
                                                              size_t              timeStep,
                                                              const QString&      resultName,
                                                              const QString&      eclipseKeyword,
-                                                             const double        undefinedValue)
+                                                             const double        undefinedValue,
+                                                             QString*            errorMsg)
 {
     CVF_TIGHT_ASSERT(eclipseCase);
     if (!eclipseCase) return false;
@@ -52,7 +53,7 @@ bool RicEclipseCellResultToFileImpl::writePropertyToTextFile(const QString&     
     }
 
     return writeResultToTextFile(
-        fileName, eclipseCase, resultAccessor.p(), eclipseKeyword, undefinedValue, "writePropertyToTextFile");
+        fileName, eclipseCase, resultAccessor.p(), eclipseKeyword, undefinedValue, "writePropertyToTextFile", errorMsg);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +65,8 @@ bool RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile(const QString& 
                                                                  RimEclipseResultDefinition* resultDefinition,
                                                                  const QString&              eclipseKeyword,
                                                                  const double                undefinedValue,
-                                                                 const QString&              logPrefix)
+                                                                 const QString&              logPrefix,
+                                                                 QString*                    errorMsg)
 {
     CVF_TIGHT_ASSERT(eclipseCase);
 
@@ -75,7 +77,7 @@ bool RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile(const QString& 
         return false;
     }
 
-    return writeResultToTextFile(fileName, eclipseCase, resultAccessor.p(), eclipseKeyword, undefinedValue, logPrefix);
+    return writeResultToTextFile(fileName, eclipseCase, resultAccessor.p(), eclipseKeyword, undefinedValue, logPrefix, errorMsg);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,18 +88,21 @@ bool RicEclipseCellResultToFileImpl::writeResultToTextFile(const QString&      f
                                                            RigResultAccessor*  resultAccessor,
                                                            const QString&      eclipseKeyword,
                                                            const double        undefinedValue,
-                                                           const QString&      logPrefix)
+                                                           const QString&      logPrefix,
+                                                           QString*            errorMsg)
 {
+    CAF_ASSERT(errorMsg != nullptr);
+
     if (!resultAccessor)
     {
-        RiaLogging::error(logPrefix + QString(" : : Could not access result data for '%1'").arg(fileName));
+        *errorMsg = QString(logPrefix + QString(" : : Could not access result data for '%1'").arg(fileName));
         return false;
     }
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        RiaLogging::error(logPrefix + QString(" : Could not open file '%1'. Do the folder exist?").arg(fileName));
+        *errorMsg = QString(logPrefix + QString(" : Could not open file '%1'. Do the folder exist?").arg(fileName));
         return false;
     }
 

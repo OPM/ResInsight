@@ -7,10 +7,12 @@ if(MSVC)
     message(STATUS "MSVC: Enabled increased number of sections in object files") 
  endif() 
 
+ 
 if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS Core REQUIRED)
+	find_package(Qt5 COMPONENTS REQUIRED Core)
+	set(QT_LIBRARIES Qt5::Core)
 else()
-	find_package(Qt4 COMPONENTS QtCore REQUIRED)
+    find_package(Qt4 COMPONENTS QtCore REQUIRED)
     include(${QT_USE_FILE})
 endif(RESINSIGHT_BUILD_WITH_QT5)
 
@@ -35,8 +37,6 @@ if(MSVC)
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if (RESINSIGHT_BUILD_WITH_QT5)
-	target_link_libraries(${PROJECT_NAME} Qt5::Core)
-endif(RESINSIGHT_BUILD_WITH_QT5)
+target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES})
 
 source_group("" FILES ${PROJECT_FILES})

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'vector_template.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -47,29 +47,29 @@
 
    ------------------------------------
 
-    ·-----·-----·
+    ï¿½-----ï¿½-----ï¿½
 1.  | 77  | 77  |                                                                                     size = 0, alloc_size = 2
-    ·-----·-----·
+    ï¿½-----ï¿½-----ï¿½
 
-    ·-----·-----·
+    ï¿½-----ï¿½-----ï¿½
 2.  |  1  | 77  |                                                                                     size = 1, alloc_size = 2
-    ·-----·-----·
+    ï¿½-----ï¿½-----ï¿½
 
-    ·-----·-----·
+    ï¿½-----ï¿½-----ï¿½
 3.  |  1  |  0  |                                                                                     size = 2, alloc_size = 2
-    ·-----·-----·
+    ï¿½-----ï¿½-----ï¿½
 
-    ·-----·-----·-----·-----·
+    ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½
 4.  |  1  |  0  |  12 | 77  |                                                                         size = 3, alloc_size = 4
-    ·-----·-----·-----·-----·
+    ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½
 
-    ·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·
+    ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½
 5.  |  1  |  0  |  12 |  77 |  77 | 77  |  78 | 77  | 77  |  77 | 77  | 77  | 77  | 77  | 77  | 77  | size = 7, alloc_size = 12, default = 77
-    ·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·
+    ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½
 
-    ·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·
+    ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½
 6.  |  1  |  0  |  12 |  77 |  77 | 77  |  78 | 99  | 99  |  99 | 99  | 99  | 99  | 99  | 99  | 99  | size = 7, alloc_size = 12, default = 99
-    ·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·-----·
+    ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½-----ï¿½
 
        0     1      2    3     4     5     6     7     8     9    10    11    12    13    14   15
 
@@ -137,14 +137,14 @@ UTIL_SAFE_CAST_FUNCTION(@TYPE@_vector , TYPE_VECTOR_ID);
 UTIL_IS_INSTANCE_FUNCTION(@TYPE@_vector , TYPE_VECTOR_ID);
 
 
-static void @TYPE@_vector_realloc_data__(@TYPE@_vector_type * vector , int new_alloc_size) {
+static void @TYPE@_vector_realloc_data__(@TYPE@_vector_type * vector , int new_alloc_size, @TYPE@ default_value) {
   if (new_alloc_size != vector->alloc_size) {
     if (vector->data_owner) {
       if (new_alloc_size > 0) {
         int i;
         vector->data = (@TYPE@*)util_realloc(vector->data , new_alloc_size * sizeof * vector->data );
         for (i=vector->alloc_size;  i < new_alloc_size; i++)
-          vector->data[i] = vector->default_value;
+          vector->data[i] = default_value;
       } else {
         if (vector->alloc_size > 0) {
           free(vector->data);
@@ -163,7 +163,7 @@ static void @TYPE@_vector_memmove(@TYPE@_vector_type * vector , int offset , int
     util_abort("%s: offset:%d  left_shift:%d - invalid \n",__func__ , offset , -shift);
 
   if ((shift + vector->size > vector->alloc_size))
-    @TYPE@_vector_realloc_data__( vector , util_int_min( 2*vector->alloc_size , shift + vector->size ));
+    @TYPE@_vector_realloc_data__( vector , util_int_min( 2*vector->alloc_size , shift + vector->size ), vector->default_value);
 
   {
     size_t move_size   = (vector->size - offset) * sizeof(@TYPE@);
@@ -230,7 +230,7 @@ static @TYPE@_vector_type * @TYPE@_vector_alloc__(int init_size , @TYPE@ default
 
   @TYPE@_vector_set_read_only( vector , false );
   if (init_size > 0)
-    @TYPE@_vector_iset( vector , init_size - 1 , default_value );  /* Filling up the init size elements with the default value */
+    @TYPE@_vector_resize( vector , init_size , default_value );  /* Filling up the init size elements with the default value */
 
   return vector;
 }
@@ -253,11 +253,18 @@ static @TYPE@_vector_type * @TYPE@_vector_alloc__(int init_size , @TYPE@ default
    new_size > current_size: The vector will grow by adding default elements at the end.
 */
 
-void @TYPE@_vector_resize( @TYPE@_vector_type * vector , int new_size ) {
-  if (new_size <= vector->size)
-    vector->size = new_size;
-  else
-    @TYPE@_vector_iset( vector , new_size - 1 , vector->default_value);
+void @TYPE@_vector_resize( @TYPE@_vector_type * vector , int new_size, @TYPE@ default_value ) {
+  if (new_size > vector->size) {
+    if (new_size > vector->alloc_size) {
+      for (int i = vector->size; i < vector->alloc_size; i++)
+        vector->data[i] = default_value;
+      @TYPE@_vector_realloc_data__( vector, 2 * new_size, default_value);
+    }
+    else
+      for (int i = vector->size; i < new_size; i++)
+        vector->data[i] = default_value;
+  }
+  vector->size = new_size;
 }
 
 
@@ -341,7 +348,8 @@ void @TYPE@_vector_memcpy_data_block( @TYPE@_vector_type * target , const @TYPE@
 
 void @TYPE@_vector_memcpy_from_data( @TYPE@_vector_type * target , const @TYPE@ * src , int src_size ) {
   @TYPE@_vector_reset( target );
-  @TYPE@_vector_iset( target , src_size - 1 , 0 );
+  //@TYPE@_vector_iset( target , src_size - 1 , 0 );
+  @TYPE@_vector_resize( target, src_size, 0);
   memcpy( target->data , src , src_size * sizeof * target->data );
 }
 
@@ -397,7 +405,7 @@ void @TYPE@_vector_memcpy( @TYPE@_vector_type * target, const @TYPE@_vector_type
 
 @TYPE@_vector_type * @TYPE@_vector_alloc_copy( const @TYPE@_vector_type * src) {
   @TYPE@_vector_type * copy = @TYPE@_vector_alloc( src->size , src->default_value );
-  @TYPE@_vector_realloc_data__( copy , src->alloc_size );
+  @TYPE@_vector_realloc_data__( copy , src->alloc_size, src->default_value );
   copy->size = src->size;
   memcpy(copy->data , src->data , src->alloc_size * sizeof * src->data );
   return copy;
@@ -616,7 +624,7 @@ void @TYPE@_vector_iset(@TYPE@_vector_type * vector , int index , @TYPE@ value) 
       util_abort("%s: Sorry - can NOT set negative indices. called with index:%d \n",__func__ , index);
     {
       if (vector->alloc_size <= index)
-        @TYPE@_vector_realloc_data__(vector , 2 * (index + 1));  /* Must have ( + 1) here to ensure we are not doing 2*0 */
+        @TYPE@_vector_realloc_data__(vector , 2 * (index + 1), vector->default_value);  /* Must have ( + 1) here to ensure we are not doing 2*0 */
       vector->data[index] = value;
       if (index >= vector->size) {
         int i;
@@ -729,7 +737,10 @@ void @TYPE@_vector_insert( @TYPE@_vector_type * vector , int index , @TYPE@ valu
 
 
 void @TYPE@_vector_append(@TYPE@_vector_type * vector , @TYPE@ value) {
-  @TYPE@_vector_iset(vector , vector->size , value);
+  //@TYPE@_vector_iset(vector , vector->size , value);
+  int size = vector->size;
+  @TYPE@_vector_resize(vector, size+1, 0);
+  vector->data[size] = value;
 }
 
 
@@ -746,7 +757,7 @@ void @TYPE@_vector_free_container(@TYPE@_vector_type * vector) {
 
 void @TYPE@_vector_free_data(@TYPE@_vector_type * vector) {
   @TYPE@_vector_reset(vector);
-  @TYPE@_vector_realloc_data__(vector , 0);
+  @TYPE@_vector_realloc_data__(vector , 0, vector->default_value);
 }
 
 
@@ -848,7 +859,7 @@ void @TYPE@_vector_set_many(@TYPE@_vector_type * vector , int index , const @TYP
   {
     int min_size = index + length;
     if (min_size > vector->alloc_size)
-      @TYPE@_vector_realloc_data__(vector , 2 * min_size);
+      @TYPE@_vector_realloc_data__(vector , 2 * min_size, vector->default_value);
     memcpy( &vector->data[index] , data , length * sizeof * data);
     if (min_size > vector->size)
       vector->size = min_size;
@@ -931,7 +942,7 @@ void @TYPE@_vector_append_vector(@TYPE@_vector_type * vector , const @TYPE@_vect
 */
 
 void @TYPE@_vector_shrink(@TYPE@_vector_type * vector) {
-  @TYPE@_vector_realloc_data__(vector , vector->size);
+  @TYPE@_vector_realloc_data__(vector , vector->size, vector->default_value);
 }
 
 
@@ -1420,7 +1431,7 @@ void @TYPE@_vector_fprintf(const @TYPE@_vector_type * vector , FILE * stream , c
   vector_resize based on the input size.
 */
 void @TYPE@_vector_fread_data( @TYPE@_vector_type * vector , int size, FILE * stream) {
-  @TYPE@_vector_realloc_data__( vector , size );
+  @TYPE@_vector_realloc_data__( vector , size, vector->default_value );
   util_fread( vector->data , sizeof * vector->data , size , stream , __func__);
   vector->size = size;
 }

@@ -16,30 +16,96 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaApplication.h"
+#include "RiaArgumentParser.h"
+#include "RiaConsoleApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+
+#include "cvfProgramOptions.h"
+#include "cvfqtUtils.h"
+
+#ifndef WIN32
+#include <unistd.h>
+#include <sys/types.h>
+#endif
+
+RiaApplication* createApplication(int &argc, char *argv[])
+{
+    for (int i = 1; i < argc; ++i)
+    {
+        if (!qstrcmp(argv[i], "--console") || !qstrcmp(argv[i], "--unittest"))
+        {
+            return new RiaConsoleApplication(argc, argv);
+        }
+    }
+    return new RiaGuiApplication(argc, argv);
+}
 
 int main(int argc, char *argv[])
 {
+#ifndef WIN32
+    // From Qt 5.3 and onwards Qt has a mechanism for checking this automatically
+    // But it only checks user id not group id, so better to do it ourselves.
+    if (getuid() != geteuid() || getgid() != getegid())
+    {
+        std::cerr << "FATAL: The application binary appears to be running setuid or setgid, this is a security hole." << std::endl;
+        return 1;
+    }
+#endif
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
 
-    RiaApplication app(argc, argv);
+    std::unique_ptr<RiaApplication> app (createApplication(argc, argv));
 
+    cvf::ProgramOptions progOpt;
+    bool                result = RiaArgumentParser::parseArguments(&progOpt);
+
+    const cvf::String usageText = progOpt.usageText(110, 30);
+    app->initialize();
+    app->setCommandLineHelpText( cvfqt::Utils::toQString(usageText) );
+
+    if (!result)
+    {
+        std::vector<cvf::String> unknownOptions = progOpt.unknownOptions();
+        QString unknownOptionsText;
+        for (cvf::String option : unknownOptions)
+        {
+            unknownOptionsText += QString("\tUnknown option: %1\n").arg(cvfqt::Utils::toQString(option));
+        }
+
+        app->showFormattedTextInMessageBoxOrConsole("ERROR: Unknown command line options detected ! \n"
+                                                    + unknownOptionsText
+                                                    + "\n\n"
+                                                    + "The current command line options in ResInsight are:\n"
+                                                    + app->commandLineParameterHelp());
+
+        if (dynamic_cast<RiaGuiApplication*>(app.get()) == nullptr)
+        {
+            return 1;
+        }
+    }
+  
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
     setlocale(LC_NUMERIC,"C");
 
-    int unitTestResult = app.parseArgumentsAndRunUnitTestsIfRequested();
-    if (unitTestResult > -1)
+    RiaApplication::ApplicationStatus status = app->handleArguments(&progOpt);
+    if (status == RiaApplication::EXIT_COMPLETED)
     {
-        return unitTestResult;
+        return 0;
     }
-     
-    if (app.parseArguments())
+    else if (status == RiaApplication::EXIT_WITH_ERROR)
+    {
+        return 2;
+    }
+    else if (status == RiaApplication::KEEP_GOING)
     {
         int exitCode = 0;
         try
         {
-            exitCode = app.exec();
+            if (app->initializeGrpcServer(progOpt))
+            {
+                app->launchGrpcServer();
+            }
+            exitCode = QCoreApplication::instance()->exec();
         }
         catch (std::exception& exep )
         {
@@ -55,6 +121,7 @@ int main(int argc, char *argv[])
         return exitCode;
     }
 
-    return 0;
+    CVF_ASSERT(false && "Unknown ApplicationStatus");
+    return -1;
 }
 

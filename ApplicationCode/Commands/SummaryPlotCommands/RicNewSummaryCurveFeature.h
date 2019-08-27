@@ -35,9 +35,6 @@ class RicNewSummaryCurveFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static RimSummaryCurve* addCurveToPlot(RimSummaryPlot* plot, RimSummaryCase* summaryCase);
-    static void ensureAtLeastOnePlot(RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase);
-    static void createNewPlot(RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase);
 
 protected:
     // Overrides

@@ -39,7 +39,8 @@ public:
                                         size_t              timeStep,
                                         const QString&      resultName,
                                         const QString&      eclipseKeyword,
-                                        const double        undefinedValue);
+                                        const double        undefinedValue,
+                                        QString*            errorMsg);
 
     static bool writeBinaryResultToTextFile(const QString&              fileName,
                                             RigEclipseCaseData*         eclipseCase,
@@ -47,14 +48,16 @@ public:
                                             RimEclipseResultDefinition* resultDefinition,
                                             const QString&              eclipseKeyword,
                                             const double                undefinedValue,
-                                            const QString&              logPrefix);
+                                            const QString&              logPrefix,
+                                            QString*                    errorMsg);
 
     static bool writeResultToTextFile(const QString&      fileName,
                                       RigEclipseCaseData* eclipseCase,
                                       RigResultAccessor*  resultAccessor,
                                       const QString&      eclipseKeyword,
                                       const double        undefinedValue,
-                                      const QString&      logPrefix);
+                                      const QString&      logPrefix,
+                                      QString*            errorMsg);
 
     static void writeDataToTextFile(QFile* file, const QString& eclipseKeyword, const std::vector<double>& resultData);
 };

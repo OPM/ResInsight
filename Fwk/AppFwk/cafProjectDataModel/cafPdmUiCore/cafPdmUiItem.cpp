@@ -41,17 +41,79 @@
 
 namespace caf
 {
+
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmOptionItemInfo::PdmOptionItemInfo(const QString&  anOptionUiText,
-                                     const QVariant& aValue,
-                                     bool            isReadOnly /* = false */,
-                                     QIcon           anIcon /* = QIcon()*/)
+PdmUiItemInfo::PdmUiItemInfo(const QString& uiName,
+                             QIconProvider  iconProvider /*= QIconProvider() */,
+                             QString        toolTip /*= ""*/,
+                             QString        whatsThis /*= ""*/,
+                             QString        extraDebugText /*= ""*/)
+    : m_uiName(uiName)
+    , m_iconProvider(iconProvider)
+    , m_toolTip(toolTip)
+    , m_whatsThis(whatsThis)
+    , m_extraDebugText(extraDebugText)
+    , m_editorTypeName("")
+    , m_isHidden(false)
+    , m_isTreeChildrenHidden(false)
+    , m_isReadOnly(false)
+    , m_labelAlignment(LEFT)
+    , m_isCustomContextMenuEnabled(false)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiItemInfo::PdmUiItemInfo(const QString& uiName,
+                             QString        iconResourceLocation /*= ""*/,
+                             QString        toolTip /*= ""*/,
+                             QString        whatsThis /*= ""*/,
+                             QString        extraDebugText /*= ""*/)
+    : m_uiName(uiName)
+    , m_iconProvider(iconResourceLocation)
+    , m_toolTip(toolTip)
+    , m_whatsThis(whatsThis)
+    , m_extraDebugText(extraDebugText)
+    , m_editorTypeName("")
+    , m_isHidden(false)
+    , m_isTreeChildrenHidden(false)
+    , m_isReadOnly(false)
+    , m_labelAlignment(LEFT)
+    , m_isCustomContextMenuEnabled(false)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QIcon PdmUiItemInfo::icon() const
+{
+    return m_iconProvider.icon();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QIconProvider& PdmUiItemInfo::iconProvider() const
+{
+    return m_iconProvider;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmOptionItemInfo::PdmOptionItemInfo(const QString&         anOptionUiText,
+                                     const QVariant&        aValue,
+                                     bool                   isReadOnly /* = false */,
+                                     const QIconProvider&   anIcon /* = QIconProvider()*/)
     : m_optionUiText(anOptionUiText)
     , m_value(aValue)
     , m_isReadOnly(isReadOnly)
-    , m_icon(anIcon)
+    , m_iconProvider(anIcon)
     , m_level(0)
 {
 }
@@ -62,10 +124,10 @@ PdmOptionItemInfo::PdmOptionItemInfo(const QString&  anOptionUiText,
 PdmOptionItemInfo::PdmOptionItemInfo(const QString&        anOptionUiText,
                                      caf::PdmObjectHandle* obj,
                                      bool                  isReadOnly /*= false*/,
-                                     QIcon                 anIcon /*= QIcon()*/)
+                                     const QIconProvider&  anIcon /*= QIconProvider()*/)
     : m_optionUiText(anOptionUiText)
     , m_isReadOnly(isReadOnly)
-    , m_icon(anIcon)
+    , m_iconProvider(anIcon)
     , m_level(0)
 {
     m_value = QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(obj));
@@ -75,7 +137,7 @@ PdmOptionItemInfo::PdmOptionItemInfo(const QString&        anOptionUiText,
 ///
 //--------------------------------------------------------------------------------------------------
 PdmOptionItemInfo
-    PdmOptionItemInfo::createHeader(const QString& anOptionUiText, bool isReadOnly /*= false*/, QIcon anIcon /*= QIcon()*/)
+    PdmOptionItemInfo::createHeader(const QString& anOptionUiText, bool isReadOnly /*= false*/, const QIconProvider& anIcon /*= QIconProvider()*/)
 {
     PdmOptionItemInfo header(anOptionUiText, QVariant(), isReadOnly, anIcon);
 
@@ -127,7 +189,7 @@ bool PdmOptionItemInfo::isHeading() const
 //--------------------------------------------------------------------------------------------------
 const QIcon PdmOptionItemInfo::icon() const
 {
-    return m_icon;
+    return m_iconProvider.icon();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,23 +250,38 @@ void PdmUiItem::setUiName(const QString& uiName, const QString& uiConfigName /*=
 //--------------------------------------------------------------------------------------------------
 const QIcon PdmUiItem::uiIcon(const QString& uiConfigName) const
 {
-    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
-    const PdmUiItemInfo* defInfo = defaultInfo();
-    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
-
-    if (conInfo && !(conInfo->m_icon.isNull())) return conInfo->m_icon;
-    if (defInfo && !(defInfo->m_icon.isNull())) return defInfo->m_icon;
-    if (sttInfo && !(sttInfo->m_icon.isNull())) return sttInfo->m_icon;
-
-    return QIcon();
+    return uiIconProvider(uiConfigName).icon();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiItem::setUiIcon(const QIcon& uiIcon, const QString& uiConfigName /*= ""*/)
+const QIconProvider PdmUiItem::uiIconProvider(const QString& uiConfigName) const
 {
-    m_configItemInfos[uiConfigName].m_icon = uiIcon;
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo && !(conInfo->iconProvider().isNull())) return conInfo->iconProvider();
+    if (defInfo && !(defInfo->iconProvider().isNull())) return defInfo->iconProvider();
+    if (sttInfo && !(sttInfo->iconProvider().isNull())) return sttInfo->iconProvider();
+
+    return QIconProvider();
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiItem::setUiIcon(const QIconProvider& uiIconProvider, const QString& uiConfigName /*= ""*/)
+{
+    m_configItemInfos[uiConfigName].m_iconProvider = uiIconProvider;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiItem::setUiIconFromResourceString(const QString& uiIconResourceName, const QString& uiConfigName /*= ""*/)
+{
+    setUiIcon(caf::QIconProvider(uiIconResourceName), uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -537,6 +614,7 @@ void PdmUiItem::updateConnectedEditors() const
     for (it = m_editors.begin(); it != m_editors.end(); ++it)
     {
         (*it)->updateUi();
+
     }
 }
 
@@ -575,32 +653,9 @@ PdmUiItem::PdmUiItem()
 //--------------------------------------------------------------------------------------------------
 void PdmUiItem::updateUiIconFromState(bool isActive, const QString& uiConfigName)
 {
-    static const QString iconStorageConfigNamePostfix = "_Internally_StoredNormalIcon";
-    const PdmUiItemInfo* conInfo                      = configInfo(uiConfigName + iconStorageConfigNamePostfix);
-    QIcon                normalIcon;
-
-    if (conInfo)
-    {
-        normalIcon = conInfo->m_icon;
-    }
-    else
-    {
-        normalIcon = this->uiIcon(uiConfigName);
-    }
-
-    this->setUiIcon(normalIcon, uiConfigName + iconStorageConfigNamePostfix);
-
-    if (isActive)
-    {
-        this->setUiIcon(normalIcon, uiConfigName);
-        m_configItemInfos.erase(uiConfigName + iconStorageConfigNamePostfix);
-    }
-    else
-    {
-        QIcon disabledIcon(normalIcon.pixmap(16, 16, QIcon::Disabled));
-        this->setUiIcon(disabledIcon, uiConfigName);
-        this->setUiIcon(normalIcon, uiConfigName + iconStorageConfigNamePostfix);
-    }
+    QIconProvider normalIconProvider = this->uiIconProvider(uiConfigName);
+    normalIconProvider.setActive(isActive);
+    this->setUiIcon(normalIconProvider, uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -615,6 +670,14 @@ std::vector<PdmUiEditorHandle*> PdmUiItem::connectedEditors() const
     }
 
     return editors;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiItem::hasEditor(PdmUiEditorHandle* editor) const
+{
+    return m_editors.count(editor) > 0;
 }
 
 //--------------------------------------------------------------------------------------------------

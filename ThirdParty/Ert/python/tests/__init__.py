@@ -23,12 +23,12 @@ def source_root():
 
 
 # Decorator which is used to mark either an entire test class or individual
-# test methods as requiring Statoil testdata. If Statoil testdata has not been
+# test methods as requiring Equinor testdata. If Equinor testdata has not been
 # configured as part of the build process these tests will be skipped.
 #
-# Ideally the statoil_test() implementation should just be a suitable wrapper of: 
+# Ideally the equinor_test() implementation should just be a suitable wrapper of: 
 #
-#       skipUnless(EclTest.STATOIL_DATA, "Missing Statoil testdata")
+#       skipUnless(EclTest.EQUINOR_DATA, "Missing Equinor testdata")
 #
 # but that has been surprisingly difficult to achieve. The current
 # implemenation is based on the skip() function from the unittest/case.py
@@ -42,32 +42,32 @@ def source_root():
 #     class, that is not required when decorating method:
 #
 #
-#     @statoil_test()
-#     class StatoilTest(EclTest):
+#     @equinor_test()
+#     class EquinorTest(EclTest):
 #     # This test class will be skipped entirely if we do not have access to
-#     # Statoil testdata.
+#     # Equinor testdata.
 #
 #
 #     class XTest(EclTest):
 #
-#         @statoil_test
+#         @equinor_test
 #         def test_method(self):
 
-def statoil_test():
+def equinor_test():
     """
-    Will mark a test method or an entire test class as dependent on Statoil testdata.
+    Will mark a test method or an entire test class as dependent on Equinor testdata.
     """
     def decorator(test_item):
         if not isinstance(test_item, type):
-            if not EclTest.STATOIL_DATA:
+            if not EclTest.EQUINOR_DATA:
                 @functools.wraps(test_item)
                 def skip_wrapper(*args, **kwargs):
-                    raise SkipTest("Missing Statoil testdata")
+                    raise SkipTest("Missing Equinor testdata")
                 test_item = skip_wrapper
 
-        if not EclTest.STATOIL_DATA:
+        if not EclTest.EQUINOR_DATA:
             test_item.__unittest_skip__ = True
-            test_item.__unittest_skip_why__ = "Missing Statoil testdata"
+            test_item.__unittest_skip_why__ = "Missing Equinor testdata"
         return test_item
     return decorator
 
@@ -77,6 +77,6 @@ def statoil_test():
 class EclTest(ExtendedTestCase):
     SOURCE_ROOT = source_root()
     TESTDATA_ROOT = os.path.join(SOURCE_ROOT, "test-data")
-    STATOIL_DATA = os.path.islink(os.path.join(TESTDATA_ROOT, "Statoil")) 
+    EQUINOR_DATA = os.path.islink(os.path.join(TESTDATA_ROOT, "Equinor")) 
 
 

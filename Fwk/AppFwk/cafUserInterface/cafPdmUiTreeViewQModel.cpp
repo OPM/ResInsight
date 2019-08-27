@@ -69,7 +69,7 @@ PdmUiTreeViewQModel::PdmUiTreeViewQModel(PdmUiTreeViewEditor* treeViewEditor)
 void PdmUiTreeViewQModel::setPdmItemRoot(PdmUiItem* rootItem)
 {
     // Check if we are already watching this root
-    if (m_treeOrderingRoot && m_treeOrderingRoot->activeItem() == rootItem)
+    if (rootItem && m_treeOrderingRoot && m_treeOrderingRoot->activeItem() == rootItem)
     {
         this->updateSubTree(rootItem);
         return;

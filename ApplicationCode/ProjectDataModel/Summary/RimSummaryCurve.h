@@ -79,7 +79,7 @@ public:
     void                                    applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings);
 
     QString                                 curveExportDescription(const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress()) const override;
-    void                                    forceUpdateCurveAppearanceFromCaseType();
+    void                                    setCurveAppearanceFromCaseType();
 
     void                                    markCachedDataForPurge();
     

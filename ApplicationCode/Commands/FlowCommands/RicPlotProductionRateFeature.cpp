@@ -18,7 +18,7 @@
 
 #include "RicPlotProductionRateFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
 #include "RifEclipseSummaryAddress.h"
@@ -184,7 +184,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
 
     if (summaryPlotToSelect)
     {
-        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
         if (mainPlotWindow)
         {
             mainPlotWindow->selectAsCurrentItem(summaryPlotToSelect);

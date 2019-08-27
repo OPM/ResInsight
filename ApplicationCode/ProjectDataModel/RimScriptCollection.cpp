@@ -37,7 +37,7 @@ RimScriptCollection::RimScriptCollection()
 {
     CAF_PDM_InitObject("ScriptLocation", ":/Folder.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&directory, "ScriptDirectory", "Dir", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&directory, "ScriptDirectory", "Folder", "", "", "");
     CAF_PDM_InitFieldNoDefault(&calcScripts, "CalcScripts", "", "", "", "");
     calcScripts.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&subDirectories, "SubDirectories", "", "", "", "");
@@ -81,8 +81,8 @@ void RimScriptCollection::readContentFromDisc()
 
     // Build a list of all scripts in the specified directory
     {
-        QString     filter   = "*.m";
-        QStringList fileList = caf::Utils::getFilesInDirectory(directory, filter, true);
+        QStringList nameFilters; nameFilters << "*.m" << "*.py";
+        QStringList fileList = caf::Utils::getFilesInDirectory(directory, nameFilters, true);
 
         int i;
         for (i = 0; i < fileList.size(); i++)
@@ -113,13 +113,15 @@ void RimScriptCollection::readContentFromDisc()
         while (it.hasNext())
         {
             QFileInfo fi = it.next();
+            if (fi.baseName() != "__pycache__")
+            {
+                RimScriptCollection* scriptLocation = new RimScriptCollection;
+                scriptLocation->directory = fi.absoluteFilePath();
+                scriptLocation->setUiName(fi.baseName());
+                scriptLocation->readContentFromDisc();
 
-            RimScriptCollection* scriptLocation = new RimScriptCollection;
-            scriptLocation->directory           = fi.absoluteFilePath();
-            scriptLocation->setUiName(fi.baseName());
-            scriptLocation->readContentFromDisc();
-
-            subDirectories.push_back(scriptLocation);
+                subDirectories.push_back(scriptLocation);
+            }
         }
     }
 }

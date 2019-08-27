@@ -44,6 +44,36 @@ namespace cvf {
     class Ray;
 }
 
+class QMouseEvent;
+
+namespace caf
+{
+class RotationSensitivityCalculator
+{
+public:
+    RotationSensitivityCalculator()
+        : m_lastPosX(0)
+        , m_lastPosY(0)
+        , m_lastMouseVelocityLenght(200)
+        , m_isEnabled(false)
+    {}
+    
+    void enable(bool enable) { m_isEnabled = enable; }
+    void init(QMouseEvent* eventAtRotationStart);
+
+    double calculateSensitivity(QMouseEvent* eventWhenRotating);
+
+private:
+    bool                                m_isEnabled;
+    int                                 m_lastPosX;  /// Previous mouse position
+    int                                 m_lastPosY;
+    unsigned long                       m_lastTime; 
+    double                              m_lastMouseVelocityLenght;
+};
+
+} // End namespace caf
+
+
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
@@ -62,6 +92,7 @@ public:
     ~TrackBallBasedNavigation() override;
     void enableEventEating(bool enable) { m_consumeEvents = enable; }
     void enableRotation(bool enable)    { m_isRotationEnabled = enable; }
+    void enableAdaptiveRotationSensitivity(bool enable) { m_roationSensitivityCalculator.enable(enable); }
 
 protected:
     // General navigation policy overrides
@@ -78,6 +109,7 @@ protected:
     cvf::ref<cvf::ManipulatorTrackball> m_trackball;
     bool                                m_isRotCenterInitialized; 
     cvf::Vec3d                          m_pointOfInterest;
+    RotationSensitivityCalculator       m_roationSensitivityCalculator;
 
     bool                                m_isNavigating;
     bool                                m_hasMovedMouseDuringNavigation;

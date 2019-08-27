@@ -580,6 +580,7 @@ void RimGridCrossPlotDataSet::createCurves(const RigEclipseCrossPlotResult& resu
             legendConfig()->scalarMapper()->majorTickValues(&tickValues);
         }
 
+        // NB : Make sure iteration of curve and groups are syncronized with createCurves()
         for (auto it = m_groupedResults.rbegin(); it != m_groupedResults.rend(); ++it)
         {
             RimGridCrossPlotCurve* curve = new RimGridCrossPlotCurve();
@@ -619,9 +620,10 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingCurves(const RigEclipseCros
     }
     else
     {
+        // NB : Make sure iteration of curve and groups are syncronized with fillCurveDataInExistingCurves()
         auto curveIt = m_crossPlotCurves.begin();
-        auto groupIt = m_groupedResults.begin();
-        for (; curveIt != m_crossPlotCurves.end() && groupIt != m_groupedResults.end(); ++curveIt, ++groupIt)
+        auto groupIt = m_groupedResults.rbegin();
+        for (; curveIt != m_crossPlotCurves.end() && groupIt != m_groupedResults.rend(); ++curveIt, ++groupIt)
         {
             RimGridCrossPlotCurve* curve = *curveIt;
             curve->setSamples(groupIt->second.xValues, groupIt->second.yValues);
@@ -927,7 +929,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotDataSet::calculateValueOptions(con
             for (RimEclipseView* view : eclipseCase->reservoirViews.childObjects())
             {
                 CVF_ASSERT(view && "Really always should have a valid view pointer in ReservoirViews");
-                options.push_back(caf::PdmOptionItemInfo(view->name(), view, false, view->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo(view->name(), view, false, view->uiIconProvider()));
             }
         }
     }
@@ -979,7 +981,7 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                         const std::vector<QString>& categoryNames = formationNames->formationNames();
                         if (!categoryNames.empty())
                         {
-                            legendConfig()->setNamedCategories(categoryNames);
+                            legendConfig()->setNamedCategoriesInverse(categoryNames);
                             legendConfig()->setAutomaticRanges(0, categoryNames.size() - 1, 0, categoryNames.size() - 1);
                         }
                     }

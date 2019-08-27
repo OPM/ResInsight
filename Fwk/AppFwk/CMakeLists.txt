@@ -8,13 +8,18 @@ if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   message("Add flag to disable warings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
 endif()
 
-find_package(Qt5Core CONFIG QUIET)
-if (Qt5Core_FOUND)
-    find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Widgets)
+# Qt
+if (NOT DEFINED(CEE_USE_QT5))
+	option(CEE_USE_QT5 "Use Qt5" OFF)
+endif(NOT DEFINED(CEE_USE_QT5))
+
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Widgets)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
 else()
     find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
     include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
+endif(CEE_USE_QT5)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CMAKE_CXX_FLAGS "-std=c++0x")

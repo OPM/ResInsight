@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'ecl_rft_node.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -23,10 +23,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include <vector>
+#include <algorithm>
+#include <string>
+
 #include <ert/util/util.h>
-#include <ert/util/hash.hpp>
-#include <ert/util/vector.hpp>
-#include <ert/util/int_vector.hpp>
 
 #include <ert/ecl/ecl_kw.hpp>
 #include <ert/ecl/ecl_kw_magic.hpp>
@@ -57,16 +58,14 @@
 #define ECL_RFT_NODE_ID 887195
 struct ecl_rft_node_struct {
   UTIL_TYPE_ID_DECLARATION;
-  char       * well_name;              /* Name of the well. */
+  std::string  well_name;
 
   ecl_rft_enum data_type;              /* What type of data: RFT|PLT|SEGMENT */
   time_t       recording_date;         /* When was the RFT recorded - date.*/
   double       days;                   /* When was the RFT recorded - days after simulaton start. */
   bool         MSW;
 
-  bool              sort_perm_in_sync            ;
-  int_vector_type * sort_perm;
-  vector_type *cells;
+  std::vector<ecl_rft_cell_type *> cells;
 };
 
 
@@ -106,15 +105,13 @@ static ecl_rft_enum translate_from_sting_to_ecl_rft_enum(const char * data_type_
 
 ecl_rft_node_type * ecl_rft_node_alloc_new(const char * well_name, const char * data_type_string, const time_t recording_date, const double days){
     ecl_rft_enum data_type = translate_from_sting_to_ecl_rft_enum(data_type_string);
-    ecl_rft_node_type * rft_node = (ecl_rft_node_type*)util_malloc(sizeof * rft_node );
+    ecl_rft_node_type * rft_node = new ecl_rft_node_type();
+
     UTIL_TYPE_ID_INIT( rft_node , ECL_RFT_NODE_ID );
-    rft_node->well_name = util_alloc_string_copy(well_name);
-    rft_node->cells = vector_alloc_new();
+    rft_node->well_name = std::string(well_name);
     rft_node->recording_date = recording_date;
     rft_node->days = days;
     rft_node->data_type = data_type;
-    rft_node->sort_perm = NULL;
-    rft_node->sort_perm_in_sync = false;
 
     return rft_node;
 }
@@ -130,13 +127,10 @@ static ecl_rft_node_type * ecl_rft_node_alloc_empty(const char * data_type_strin
   }
 
   {
-    ecl_rft_node_type * rft_node = (ecl_rft_node_type*)util_malloc(sizeof * rft_node );
-    UTIL_TYPE_ID_INIT( rft_node , ECL_RFT_NODE_ID );
+    ecl_rft_node_type * rft_node = new ecl_rft_node_type();
 
-    rft_node->cells = vector_alloc_new();
+    UTIL_TYPE_ID_INIT( rft_node , ECL_RFT_NODE_ID );
     rft_node->data_type = data_type;
-    rft_node->sort_perm = NULL;
-    rft_node->sort_perm_in_sync = false;
 
     return rft_node;
   }
@@ -148,8 +142,11 @@ UTIL_IS_INSTANCE_FUNCTION( ecl_rft_node , ECL_RFT_NODE_ID );
 
 
 void ecl_rft_node_append_cell( ecl_rft_node_type * rft_node , ecl_rft_cell_type * cell) {
-  vector_append_owned_ref( rft_node->cells , cell , ecl_rft_cell_free__ );
-  rft_node->sort_perm_in_sync = false;
+  if (rft_node->MSW) {
+    auto pos_iter = std::upper_bound(rft_node->cells.begin(), rft_node->cells.end(), cell, ecl_rft_cell_lt);
+    rft_node->cells.insert(pos_iter, cell);
+  } else
+    rft_node->cells.push_back( cell );
 }
 
 
@@ -273,8 +270,11 @@ ecl_rft_node_type * ecl_rft_node_alloc(const ecl_file_view_type * rft_view) {
 
   if (rft_node != NULL) {
     ecl_kw_type * date_kw = ecl_file_view_iget_named_kw( rft_view , DATE_KW    , 0);
-    rft_node->well_name = (char*)util_alloc_strip_copy( (const char*)ecl_kw_iget_ptr(welletc , WELLETC_NAME_INDEX));
-
+    {
+      char * tmp = util_alloc_strip_copy( (const char*) ecl_kw_iget_ptr(welletc, WELLETC_NAME_INDEX));
+      rft_node->well_name = std::string( tmp );
+      free(tmp);
+    }
     /* Time information. */
     {
       int * time = ecl_kw_get_int_ptr( date_kw );
@@ -293,18 +293,15 @@ ecl_rft_node_type * ecl_rft_node_alloc(const ecl_file_view_type * rft_view) {
 
 
 const char * ecl_rft_node_get_well_name(const ecl_rft_node_type * rft_node) {
-  return rft_node->well_name;
+  return rft_node->well_name.c_str();
 }
 
 
 void ecl_rft_node_free(ecl_rft_node_type * rft_node) {
+  for (auto cell_ptr : rft_node->cells)
+    ecl_rft_cell_free( cell_ptr );
 
-  free(rft_node->well_name);
-  vector_free( rft_node->cells );
-  if (rft_node->sort_perm)
-    int_vector_free( rft_node->sort_perm );
-
-  free(rft_node);
+  delete rft_node;
 }
 
 void ecl_rft_node_free__(void * void_node) {
@@ -316,7 +313,7 @@ void ecl_rft_node_free__(void * void_node) {
 
 
 
-int          ecl_rft_node_get_size(const ecl_rft_node_type * rft_node) { return vector_get_size( rft_node->cells ); }
+int          ecl_rft_node_get_size(const ecl_rft_node_type * rft_node) { return rft_node->cells.size(); }
 time_t       ecl_rft_node_get_date(const ecl_rft_node_type * rft_node) { return rft_node->recording_date; }
 ecl_rft_enum ecl_rft_node_get_type(const ecl_rft_node_type * rft_node) { return rft_node->data_type; }
 
@@ -325,32 +322,13 @@ ecl_rft_enum ecl_rft_node_get_type(const ecl_rft_node_type * rft_node) { return 
 /* various functions to access properties at the cell level      */
 
 const ecl_rft_cell_type * ecl_rft_node_iget_cell( const ecl_rft_node_type * rft_node , int index) {
-  return (const ecl_rft_cell_type*)vector_iget_const( rft_node->cells , index );
+  return rft_node->cells[index];
 }
 
 
-static void ecl_rft_node_create_sort_perm( ecl_rft_node_type * rft_node ) {
-  if (rft_node->sort_perm)
-    int_vector_free( rft_node->sort_perm );
-
-  rft_node->sort_perm = vector_alloc_sort_perm( rft_node->cells , ecl_rft_cell_cmp__ );
-  rft_node->sort_perm_in_sync = true;
-}
-
-void ecl_rft_node_inplace_sort_cells( ecl_rft_node_type * rft_node ) {
-  vector_sort( rft_node->cells , ecl_rft_cell_cmp__ );
-  rft_node->sort_perm_in_sync = false;  // The permutation is no longer sorted; however the vector itself is sorted ....
-}
 
 const ecl_rft_cell_type * ecl_rft_node_iget_cell_sorted( ecl_rft_node_type * rft_node , int index) {
-  if (ecl_rft_node_is_RFT( rft_node ))
-    return ecl_rft_node_iget_cell( rft_node , index );
-  else {
-    if (!rft_node->sort_perm_in_sync)
-      ecl_rft_node_create_sort_perm( rft_node );
-
-    return (const ecl_rft_cell_type*)vector_iget_const( rft_node->cells , int_vector_iget( rft_node->sort_perm , index ));
-  }
+  return rft_node->cells[index];
 }
 
 
@@ -396,14 +374,14 @@ static void assert_type_and_index( const ecl_rft_node_type * rft_node , ecl_rft_
   if (rft_node->data_type != target_type)
     util_abort("%s: wrong type \n",__func__);
 
-  if ((index < 0) || (index >= vector_get_size( rft_node->cells )))
+  if ((index < 0) || (index >= static_cast<int>(rft_node->cells.size())))
     util_abort("%s: invalid index:%d \n",__func__ , index);
 }
 
 double ecl_rft_node_iget_sgas( const ecl_rft_node_type * rft_node , int index) {
   assert_type_and_index( rft_node , RFT , index );
   {
-    const ecl_rft_cell_type * cell = (const ecl_rft_cell_type*)vector_iget_const( rft_node->cells , index );
+    const ecl_rft_cell_type * cell = ecl_rft_node_iget_cell(rft_node, index);
     return ecl_rft_cell_get_sgas( cell );
   }
 }
@@ -412,7 +390,7 @@ double ecl_rft_node_iget_sgas( const ecl_rft_node_type * rft_node , int index) {
 double ecl_rft_node_iget_swat( const ecl_rft_node_type * rft_node , int index) {
   assert_type_and_index( rft_node , RFT , index );
   {
-    const ecl_rft_cell_type * cell = (const ecl_rft_cell_type*)vector_iget_const( rft_node->cells , index );
+    const ecl_rft_cell_type * cell = rft_node->cells[index];
     return ecl_rft_cell_get_swat( cell );
   }
 }
@@ -424,7 +402,7 @@ double ecl_rft_node_get_days(const ecl_rft_node_type * rft_node ){
 double ecl_rft_node_iget_soil( const ecl_rft_node_type * rft_node , int index) {
   assert_type_and_index( rft_node , RFT , index );
   {
-    const ecl_rft_cell_type * cell = (const ecl_rft_cell_type*)vector_iget_const( rft_node->cells , index );
+    const ecl_rft_cell_type * cell = rft_node->cells[index];
     return ecl_rft_cell_get_soil( cell );
   }
 }
@@ -435,7 +413,7 @@ double ecl_rft_node_iget_soil( const ecl_rft_node_type * rft_node , int index) {
 double ecl_rft_node_iget_orat( const ecl_rft_node_type * rft_node , int index) {
   assert_type_and_index( rft_node , PLT , index );
   {
-    const ecl_rft_cell_type * cell = (const ecl_rft_cell_type*)vector_iget_const( rft_node->cells , index );
+    const ecl_rft_cell_type * cell = rft_node->cells[index];
     return ecl_rft_cell_get_orat( cell );
   }
 }
@@ -444,7 +422,7 @@ double ecl_rft_node_iget_orat( const ecl_rft_node_type * rft_node , int index) {
 double ecl_rft_node_iget_wrat( const ecl_rft_node_type * rft_node , int index) {
   assert_type_and_index( rft_node , PLT , index );
   {
-    const ecl_rft_cell_type * cell = (const ecl_rft_cell_type*)vector_iget_const( rft_node->cells , index);
+    const ecl_rft_cell_type * cell = rft_node->cells[index];
     return ecl_rft_cell_get_wrat( cell );
   }
 }
@@ -453,7 +431,7 @@ double ecl_rft_node_iget_wrat( const ecl_rft_node_type * rft_node , int index) {
 double ecl_rft_node_iget_grat( const ecl_rft_node_type * rft_node , int index) {
   assert_type_and_index( rft_node , PLT , index );
   {
-    const ecl_rft_cell_type * cell = (const ecl_rft_cell_type*)vector_iget_const( rft_node->cells , index);
+    const ecl_rft_cell_type * cell = rft_node->cells[index];
     return ecl_rft_cell_get_grat( cell );
   }
 }
@@ -591,10 +569,9 @@ void ecl_rft_node_fwrite(const ecl_rft_node_type * rft_node, fortio_type * forti
     ecl_kw_type * pressure = ecl_kw_alloc(PRESSURE_KW, size_cells, ECL_FLOAT);
     ecl_kw_type * swat = ecl_kw_alloc(SWAT_KW, size_cells, ECL_FLOAT);
     ecl_kw_type * sgas = ecl_kw_alloc(SGAS_KW, size_cells, ECL_FLOAT);
-    int i;
 
-    for(i =0;i<size_cells;i++){
-      const ecl_rft_cell_type * cell = (const ecl_rft_cell_type*)vector_iget_const( rft_node->cells , i);
+    for(int i =0;i<size_cells;i++){
+      const ecl_rft_cell_type * cell = rft_node->cells[i];
       ecl_kw_iset_int(conipos, i, ecl_rft_cell_get_i(cell)+1);
       ecl_kw_iset_int(conjpos, i, ecl_rft_cell_get_j(cell)+1);
       ecl_kw_iset_int(conkpos, i, ecl_rft_cell_get_k(cell)+1);
@@ -636,4 +613,6 @@ int ecl_rft_node_cmp( const ecl_rft_node_type * n1 , const ecl_rft_node_type * n
 
 }
 
-
+bool ecl_rft_node_lt(const ecl_rft_node_type * n1, const ecl_rft_node_type * n2) {
+  return (ecl_rft_node_cmp(n1, n2) < 0);
+}

@@ -24,6 +24,8 @@
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 
+#include "RicfCommandObject.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -82,13 +84,13 @@ RimEclipseResultDefinition::RimEclipseResultDefinition(caf::PdmUiItemInfo::Label
 {
     CAF_PDM_InitObject("Result Definition", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_resultType, "ResultType", "Type", "", "", "");
+    RICF_InitFieldNoDefault(&m_resultType, "ResultType", "Type", "", "", "");
     m_resultType.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_porosityModel, "PorosityModelType", "Porosity", "", "", "");
+    RICF_InitFieldNoDefault(&m_porosityModel, "PorosityModelType", "Porosity", "", "", "");
     m_porosityModel.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_resultVariable, "ResultVariable", RiaDefines::undefinedResultName(), "Variable", "", "", "");
+    RICF_InitField(&m_resultVariable, "ResultVariable", RiaDefines::undefinedResultName(), "Variable", "", "", "");
     m_resultVariable.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_flowSolution, "FlowDiagSolution", "Solution", "", "", "");
@@ -109,17 +111,17 @@ RimEclipseResultDefinition::RimEclipseResultDefinition(caf::PdmUiItemInfo::Label
     CAF_PDM_InitFieldNoDefault(&m_selectedTracers_OBSOLETE, "SelectedTracers", "Tracers", "", "", "");
     m_selectedTracers_OBSOLETE.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedInjectorTracers, "SelectedInjectorTracers", "Injector Tracers", "", "", "");
+    RICF_InitFieldNoDefault(&m_selectedInjectorTracers, "SelectedInjectorTracers", "Injector Tracers", "", "", "");
     m_selectedInjectorTracers.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedProducerTracers, "SelectedProducerTracers", "Producer Tracers", "", "", "");
+    RICF_InitFieldNoDefault(&m_selectedProducerTracers, "SelectedProducerTracers", "Producer Tracers", "", "", "");
     m_selectedProducerTracers.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedSouringTracers, "SelectedSouringTracers", "Tracers", "", "", "");
+    RICF_InitFieldNoDefault(&m_selectedSouringTracers, "SelectedSouringTracers", "Tracers", "", "", "");
     m_selectedSouringTracers.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_phaseSelection, "PhaseSelection", "Phases", "", "", "");
+    RICF_InitFieldNoDefault(&m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "");
+    RICF_InitFieldNoDefault(&m_phaseSelection, "PhaseSelection", "Phases", "", "", "");
     m_phaseSelection.uiCapability()->setUiLabelPosition(m_labelPosition);
     // Ui only fields
 
@@ -274,6 +276,13 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         {
             m_selectedSouringTracers = m_selectedSouringTracersUiField();
         }
+        loadDataAndUpdate();
+    }
+
+    if (&m_porosityModelUiField == changedField)
+    {
+        m_porosityModel         = m_porosityModelUiField;
+        m_resultVariableUiField = resultVariable();
         loadDataAndUpdate();
     }
 
@@ -684,7 +693,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
                             QString("%1 (#%2)").arg(otherCase->caseUserDescription()).arg(otherCase->caseId()),
                             otherCase,
                             false,
-                            otherCase->uiIcon()));
+                            otherCase->uiIconProvider()));
                     }
                 }
             }
@@ -1208,8 +1217,12 @@ void RimEclipseResultDefinition::setSelectedSouringTracers(const std::vector<QSt
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::updateUiFieldsFromActiveResult()
 {
-    m_resultTypeUiField     = m_resultType;
-    m_resultVariableUiField = resultVariable();
+    m_resultTypeUiField              = m_resultType;
+    m_resultVariableUiField          = resultVariable();
+    m_selectedInjectorTracersUiField = m_selectedInjectorTracers;
+    m_selectedProducerTracersUiField = m_selectedProducerTracers;
+    m_selectedSouringTracersUiField  = m_selectedSouringTracers;
+    m_porosityModelUiField           = m_porosityModel;
 }
 
 //--------------------------------------------------------------------------------------------------

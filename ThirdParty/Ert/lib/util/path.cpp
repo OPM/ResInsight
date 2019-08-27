@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012  Statoil ASA, Norway.
+  Copyright (C) 2012  Equinor ASA, Norway.
 
   The file 'path_stack.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -15,6 +15,7 @@
   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
   for more details.
 */
+#include <stdlib.h>
 
 #include <string>
 
@@ -55,10 +56,16 @@ namespace ecl {
 
         {
           const char * c_str = fname.c_str();
+          const char * return_raw;
           if (end_pos == std::string::npos || end_pos < offset)
-            return util_alloc_string_copy( &c_str[offset] );
+            return_raw = util_alloc_string_copy( &c_str[offset] );
+          else
+            return_raw = util_alloc_substring_copy(c_str, offset, end_pos - offset);
+          std::string return_value = return_raw;
+          free( (void*)return_raw );
+          return return_value;
 
-          return util_alloc_substring_copy(c_str, offset, end_pos - offset);
+
         }
       }
 
@@ -71,7 +78,11 @@ namespace ecl {
 
         if (last_slash == std::string::npos || end_pos > last_slash) {
           const char * c_str = fname.c_str();
-          return util_alloc_substring_copy( c_str, end_pos + 1, fname.size() - end_pos - 1);
+
+          const char * return_raw = util_alloc_substring_copy( c_str, end_pos + 1, fname.size() - end_pos - 1);
+          std::string return_value = return_raw;
+          free( (void*)return_raw );
+          return return_value;
         }
 
         return "";

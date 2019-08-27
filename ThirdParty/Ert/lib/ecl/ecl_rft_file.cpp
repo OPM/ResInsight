@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'ecl_rft_file.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -25,10 +25,12 @@
 #include <fnmatch.h>
 #endif
 
+#include <vector>
+#include <algorithm>
+#include <map>
+#include <string>
+
 #include <ert/util/util.h>
-#include <ert/util/hash.hpp>
-#include <ert/util/vector.hpp>
-#include <ert/util/int_vector.hpp>
 
 #include <ert/ecl/ecl_rft_file.hpp>
 #include <ert/ecl/ecl_rft_node.hpp>
@@ -55,19 +57,19 @@
 
 struct ecl_rft_file_struct {
   UTIL_TYPE_ID_DECLARATION;
-  char        * filename;
-  vector_type * data;          /* This vector just contains all the rft nodes in one long vector. */
-  hash_type   * well_index;    /* This indexes well names into the data vector - very similar to the scheme used in ecl_file. */
+  std::string filename;
+  std::vector<ecl_rft_node_type *> data;              /* This vector just contains all the rft nodes in one long vector. */
+  std::map<std::string, std::vector<int>> well_index;
 };
 
 
 
 static ecl_rft_file_type * ecl_rft_file_alloc_empty(const char * filename) {
-  ecl_rft_file_type * rft_vector = (ecl_rft_file_type*)util_malloc(sizeof * rft_vector );
+  ecl_rft_file_type * rft_vector = new ecl_rft_file_type();
+
   UTIL_TYPE_ID_INIT( rft_vector , ECL_RFT_FILE_ID );
-  rft_vector->data       = vector_alloc_new();
-  rft_vector->filename   = util_alloc_string_copy(filename);
-  rft_vector->well_index = hash_alloc();
+  rft_vector->filename = std::string(filename);
+
   return rft_vector;
 }
 
@@ -82,8 +84,8 @@ UTIL_SAFE_CAST_FUNCTION( ecl_rft_file , ECL_RFT_FILE_ID );
 UTIL_IS_INSTANCE_FUNCTION( ecl_rft_file , ECL_RFT_FILE_ID );
 
 
-static void ecl_rft_file_add_node(ecl_rft_file_type * rft_vector , const ecl_rft_node_type * rft_node) {
-  vector_append_owned_ref( rft_vector->data , rft_node , ecl_rft_node_free__);
+static void ecl_rft_file_add_node(ecl_rft_file_type * rft_vector , ecl_rft_node_type * rft_node) {
+  rft_vector->data.push_back(rft_node);
 }
 
 
@@ -100,15 +102,12 @@ ecl_rft_file_type * ecl_rft_file_alloc(const char * filename) {
 
     if (rft_view) {
       ecl_rft_node_type * rft_node = ecl_rft_node_alloc( rft_view );
-      if (rft_node != NULL) {
+      if (rft_node) {
         const char * well_name = ecl_rft_node_get_well_name( rft_node );
         ecl_rft_file_add_node(rft_vector , rft_node);
-        if (!hash_has_key( rft_vector->well_index , well_name))
-          hash_insert_hash_owned_ref( rft_vector->well_index , well_name , int_vector_alloc( 0 , 0 ) , int_vector_free__);
-        {
-          int_vector_type * index_list = (int_vector_type*)hash_get( rft_vector->well_index , well_name );
-          int_vector_append(index_list , global_index);
-        }
+
+        auto& index_vector = rft_vector->well_index[well_name];
+        index_vector.push_back(global_index);
         global_index++;
       }
     } else
@@ -194,10 +193,10 @@ bool ecl_rft_file_case_has_rft( const char * case_input ) {
 
 
 void ecl_rft_file_free(ecl_rft_file_type * rft_vector) {
-  vector_free(rft_vector->data);
-  hash_free( rft_vector->well_index );
-  free(rft_vector->filename);
-  free(rft_vector);
+  for (auto node_ptr : rft_vector->data)
+    ecl_rft_node_free( node_ptr );
+
+  delete rft_vector;
 }
 
 
@@ -223,12 +222,11 @@ void ecl_rft_file_free__(void * arg) {
 
 int ecl_rft_file_get_size__( const ecl_rft_file_type * rft_file, const char * well_pattern , time_t recording_time) {
   if ((well_pattern == NULL) && (recording_time < 0))
-    return vector_get_size( rft_file->data );
+    return rft_file->data.size();
   else {
     int match_count = 0;
-    int i;
-    for ( i=0; i < vector_get_size( rft_file->data ); i++) {
-      const ecl_rft_node_type * rft = (const ecl_rft_node_type*)vector_iget_const( rft_file->data , i);
+    for (size_t i=0; i < rft_file->data.size(); i++) {
+      const ecl_rft_node_type * rft = rft_file->data[i];
 
       if (well_pattern) {
         if (util_fnmatch( well_pattern , ecl_rft_node_get_well_name( rft )) != 0)
@@ -260,7 +258,7 @@ int ecl_rft_file_get_size( const ecl_rft_file_type * rft_file) {
 
 
 const char * ecl_rft_file_get_filename( const ecl_rft_file_type * rft_file ) {
-  return rft_file->filename;
+  return rft_file->filename.c_str();
 }
 
 
@@ -274,7 +272,7 @@ const char * ecl_rft_file_get_filename( const ecl_rft_file_type * rft_file ) {
 */
 
 ecl_rft_node_type * ecl_rft_file_iget_node( const ecl_rft_file_type * rft_file , int index) {
-  return (ecl_rft_node_type*)vector_iget( rft_file->data , index );
+  return rft_file->data[index];
 }
 
 
@@ -306,30 +304,32 @@ ecl_rft_node_type * ecl_rft_file_iget_node( const ecl_rft_file_type * rft_file ,
 
 
 ecl_rft_node_type * ecl_rft_file_iget_well_rft( const ecl_rft_file_type * rft_file , const char * well, int index) {
-  const int_vector_type * index_vector = (const int_vector_type*)hash_get(rft_file->well_index , well);
-  return ecl_rft_file_iget_node( rft_file , int_vector_iget(index_vector , index));
+  const auto& index_vector = rft_file->well_index.at(well);
+  return ecl_rft_file_iget_node( rft_file , index_vector[index]);
 }
 
 
 static int ecl_rft_file_get_node_index_time_rft( const ecl_rft_file_type * rft_file , const char * well , time_t recording_time) {
+  const auto& pair_iter = rft_file->well_index.find(well);
+  if (pair_iter == rft_file->well_index.end())
+    return -1;
+
   int global_index = -1;
-  if (hash_has_key( rft_file->well_index , well)) {
-    const int_vector_type * index_vector = (const int_vector_type*)hash_get(rft_file->well_index , well);
-    int well_index = 0;
-    while (true) {
-      if (well_index == int_vector_size( index_vector ))
+  size_t well_index = 0;
+  const auto& index_vector = pair_iter->second;
+  while (true) {
+    if (well_index == index_vector.size())
+      break;
+
+    {
+      const ecl_rft_node_type * node = ecl_rft_file_iget_node( rft_file , index_vector[well_index]);
+      if (ecl_rft_node_get_date( node ) == recording_time) {
+        global_index = index_vector[well_index];
         break;
-
-      {
-        const ecl_rft_node_type * node = ecl_rft_file_iget_node( rft_file , int_vector_iget( index_vector , well_index ));
-        if (ecl_rft_node_get_date( node ) == recording_time) {
-          global_index = int_vector_iget( index_vector , well_index );
-          break;
-        }
       }
-
-      well_index++;
     }
+
+    well_index++;
   }
   return global_index;
 }
@@ -355,7 +355,7 @@ ecl_rft_node_type * ecl_rft_file_get_well_time_rft( const ecl_rft_file_type * rf
 
 
 bool ecl_rft_file_has_well( const ecl_rft_file_type * rft_file , const char * well) {
-  return hash_has_key(rft_file->well_index , well);
+  return (rft_file->well_index.find(well) != rft_file->well_index.end());
 }
 
 
@@ -364,8 +364,11 @@ bool ecl_rft_file_has_well( const ecl_rft_file_type * rft_file , const char * we
 */
 
 int ecl_rft_file_get_well_occurences( const ecl_rft_file_type * rft_file , const char * well) {
-  const int_vector_type * index_vector = (const int_vector_type*)hash_get(rft_file->well_index , well);
-  return int_vector_size( index_vector );
+  const auto& pair_iter = rft_file->well_index.find(well);
+  if (pair_iter == rft_file->well_index.end())
+    return 0;
+  else
+    return pair_iter->second.size();
 }
 
 
@@ -373,13 +376,18 @@ int ecl_rft_file_get_well_occurences( const ecl_rft_file_type * rft_file , const
    Returns the number of distinct wells in RFT file.
 */
 int ecl_rft_file_get_num_wells( const ecl_rft_file_type * rft_file ) {
-  return hash_get_size( rft_file->well_index );
+  return rft_file->well_index.size();
 }
 
 
 
 stringlist_type * ecl_rft_file_alloc_well_list(const ecl_rft_file_type * rft_file ) {
-  return hash_alloc_stringlist( rft_file->well_index );
+  stringlist_type * well_list = stringlist_alloc_new();
+
+  for (const auto& pair : rft_file->well_index)
+    stringlist_append_copy(well_list, pair.first.c_str());
+
+  return well_list;
 }
 
 
@@ -396,7 +404,8 @@ void ecl_rft_file_update(const char * rft_file_name, ecl_rft_node_type ** nodes,
         if (storage_index == -1) {
           ecl_rft_file_add_node(rft_file, new_node);
         } else {
-          vector_iset_owned_ref(rft_file->data, storage_index, new_node,ecl_rft_node_free__);
+          ecl_rft_node_free(rft_file->data[storage_index]);
+          rft_file->data[storage_index] = new_node;
         }
       }
     }else{
@@ -410,7 +419,6 @@ void ecl_rft_file_update(const char * rft_file_name, ecl_rft_node_type ** nodes,
     {
       bool fmt_file = false;
       fortio_type * fortio = fortio_open_writer( rft_file_name , fmt_file , ECL_ENDIAN_FLIP );
-      int node_index;
 
       /**
          The sorting here works directly on the internal node storage
@@ -421,9 +429,9 @@ void ecl_rft_file_update(const char * rft_file_name, ecl_rft_node_type ** nodes,
          avoided for the rest of this function.
       */
 
-      vector_sort(rft_file->data,(vector_cmp_ftype *) ecl_rft_node_cmp);
-      for(node_index=0; node_index < vector_get_size( rft_file->data ); node_index++) {
-        const ecl_rft_node_type *new_node = (const ecl_rft_node_type*)vector_iget_const(rft_file->data, node_index);
+      std::sort(rft_file->data.begin(), rft_file->data.end(), ecl_rft_node_lt);
+      for(size_t node_index=0; node_index < rft_file->data.size(); node_index++) {
+        const ecl_rft_node_type *new_node = rft_file->data[node_index];
         ecl_rft_node_fwrite(new_node, fortio, unit_set);
       }
 

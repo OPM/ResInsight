@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2015  Statoil ASA, Norway.
+   Copyright (C) 2015  Equinor ASA, Norway.
 
    The file 'ecl_kw_init.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -45,7 +45,7 @@ void test_truncated(const char * filename , offset_type truncate_size) {
 
 
 void test_fread_alloc() {
-  test_work_area_type * work_area = test_work_area_alloc("ecl_kw_fread" );
+  ecl::util::TestArea ta("fread_alloc");
   {
     ecl_kw_type * kw1 = ecl_kw_alloc( "INT" , 100 , ECL_INT );
     int i;
@@ -74,11 +74,10 @@ void test_fread_alloc() {
     }
     ecl_kw_free( kw1 );
   }
-  test_work_area_free( work_area );
 }
 
 void test_kw_io_charlength() {
-  test_work_area_type * work_area = test_work_area_alloc("ecl_kw_io_charlength");
+  ecl::util::TestArea ta("io_charlength");
   {
     const char * KW0 = "QWERTYUI";
     const char * KW1 = "ABCDEFGHIJTTTTTTTTTTTTTTTTTTTTTTABCDEFGHIJKLMNOP";
@@ -115,13 +114,13 @@ void test_kw_io_charlength() {
        test_assert_double_equal(ecl_kw_iget_as_double(ecl_kw_in, 0), 0.0);
        test_assert_double_equal(ecl_kw_iget_as_double(ecl_kw_in, 4), 6.0);
 
+       ecl_kw_free(ecl_kw_in);
        fclose(file);
     }
 
     ecl_kw_free( ecl_kw_out0 );
     ecl_kw_free( ecl_kw_out1 );
   }
-  test_work_area_free( work_area );
 }
 
 

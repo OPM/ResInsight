@@ -18,12 +18,13 @@
 
 #include "RimSummaryCurve.h"
 
-#include "RiaApplication.h"
 #include "RiaDefines.h"
+#include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
+#include "RiaStatisticsTools.h"
+#include "RiaTimeHistoryCurveMerger.h"
 
 #include "RifReaderEclipseSummary.h"
-
-#include "RiaTimeHistoryCurveMerger.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSet.h"
@@ -584,9 +585,12 @@ void RimSummaryCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderin
     RimPlotCurve::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
 
     // Reset dynamic icon
-    this->setUiIcon(QIcon());
+    this->setUiIcon(caf::QIconProvider());
     // Get static one
-    QIcon icon = this->uiIcon();
+    caf::QIconProvider iconProvider = this->uiIconProvider();
+    if (iconProvider.isNull()) return;
+
+    QIcon icon = iconProvider.icon();
 
     RimSummaryCurveCollection* coll = nullptr;
     this->firstAncestorOrThisOfType(coll);
@@ -596,11 +600,9 @@ void RimSummaryCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderin
         QPainter painter(&combined);
         QPixmap updownpixmap(":/StepUpDownCorner16x16.png");
         painter.drawPixmap(0,0,updownpixmap);
-
-        icon = QIcon(combined);
+        iconProvider.setPixmap(combined);
+        setUiIcon(iconProvider);
     }
-
-    this->setUiIcon(icon);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -780,17 +782,24 @@ QString RimSummaryCurve::curveExportDescription(const RifEclipseSummaryAddress& 
     auto curveSet = coll ? coll->findRimCurveSetFromQwtCurve(m_qwtPlotCurve) : nullptr;
     auto group = curveSet ? curveSet->summaryCaseCollection() : nullptr;
 
+    auto addressUiText = addr.uiText();
+    if (addr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
+    {
+        addressUiText = RiaStatisticsTools::replacePercentileByPValueText(QString::fromStdString(addressUiText)).toStdString();
+
+    }
+
     if (group && group->isEnsemble())
     {
         return QString("%1.%2.%3")
-            .arg(QString::fromStdString(addr.uiText()))
+            .arg(QString::fromStdString(addressUiText))
             .arg(m_yValuesSummaryCase->caseName())
             .arg(group->name());
     }
     else
     {
         return QString("%1.%2")
-            .arg(QString::fromStdString(addr.uiText()))
+            .arg(QString::fromStdString(addressUiText))
             .arg(m_yValuesSummaryCase->caseName());
     }
 }
@@ -798,24 +807,40 @@ QString RimSummaryCurve::curveExportDescription(const RifEclipseSummaryAddress& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::forceUpdateCurveAppearanceFromCaseType()
+void RimSummaryCurve::setCurveAppearanceFromCaseType()
 {
     if (m_yValuesSummaryCase)
     {
         if (m_yValuesSummaryCase->isObservedData())
         {
             setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
+            setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
 
-            if (symbol() == RiuQwtSymbol::SYMBOL_NONE)
-            {
-                setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
-            }
+            return;
         }
-        else
+    }
+
+    if (m_yValuesCurveVariable && m_yValuesCurveVariable->address().isHistoryQuantity())
+    {
+        RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
+        if (prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SYMBOLS)
         {
-            setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
-            setSymbol(RiuQwtSymbol::SYMBOL_NONE);
+            setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
+            setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
         }
+        else if (prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SYMBOLS_AND_LINES)
+        {
+            setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
+            setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
+        }
+        else if (prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::LINES)
+        {
+            setSymbol(RiuQwtSymbol::SYMBOL_NONE);
+            setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
+        }
+
+        return;
     }
 }
 
@@ -872,7 +897,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         plot->updatePlotTitle();
         plot->updateConnectedEditors();
 
-        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
 
         if (m_showCurve() == true)
@@ -1030,7 +1055,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         plot->updatePlotTitle();
         plot->updateConnectedEditors();
 
-        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 

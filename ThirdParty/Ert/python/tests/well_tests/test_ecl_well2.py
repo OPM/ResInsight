@@ -4,19 +4,19 @@ import os.path
 from ecl import EclFileFlagEnum
 from ecl.eclfile import EclFile
 from ecl.grid import EclGrid
-from tests import EclTest, statoil_test
+from tests import EclTest, equinor_test
 from ecl.util.util.ctime import CTime
 from ecl.well import WellInfo, WellConnection, WellTypeEnum, WellConnectionDirectionEnum, WellSegment
 
 
-@statoil_test()
+@equinor_test()
 class EclWellTest2(EclTest):
     grid = None
 
 
     def getGrid(self):
         if EclWellTest2.grid is None:
-            EclWellTest2.grid = EclGrid( self.createTestPath("Statoil/ECLIPSE/Troll/Ref2014/T07-4A-W2014-06.EGRID"))
+            EclWellTest2.grid = EclGrid( self.createTestPath("Equinor/ECLIPSE/Troll/Ref2014/T07-4A-W2014-06.EGRID"))
 
         return EclWellTest2.grid
 
@@ -25,7 +25,7 @@ class EclWellTest2(EclTest):
         segment_length = [2660 , 20 , 121 , 1347.916 , 20.585 , 56.249 , 115.503 , 106.978 , 47.124 , 279.529,
                           128.534 , 165.33 , 59.97 , 936.719 ]
 
-        well_info = WellInfo( self.getGrid() , self.createTestPath( os.path.join("Statoil/ECLIPSE/Troll/Ref2014" , rst_file )))
+        well_info = WellInfo( self.getGrid() , self.createTestPath( os.path.join("Equinor/ECLIPSE/Troll/Ref2014" , rst_file )))
         well_time_line = well_info["F4BYH"]
         for well_state in well_time_line:
             self.assertTrue( well_state.isMultiSegmentWell() )

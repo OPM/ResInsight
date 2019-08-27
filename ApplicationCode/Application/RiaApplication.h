@@ -3,34 +3,38 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
-/////////////////////////////////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include <QApplication>
-#include <QProcess>
-#include <QMutex>
+#include "RiaDefines.h"
+#ifdef ENABLE_GRPC
+#include "RiaGrpcServer.h"
+#endif
 
-#include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 #include "cvfBase.h"
-#include "cvfObject.h"
 #include "cvfFont.h"
+#include "cvfObject.h"
 
-#include "RiaFontCache.h"
+#include <QApplication>
+#include <QMutex>
+#include <QProcess>
+#include <QProcessEnvironment>
+#include <QString>
 
 #include <iostream>
 #include <memory>
@@ -66,210 +70,177 @@ class RiaArgumentParser;
 
 namespace caf
 {
-    class UiProcess;
+class UiProcess;
+}
+
+namespace cvf
+{
+class ProgramOptions;
 }
 
 //==================================================================================================
-//
-// 
-//
+/// Base class for all ResInsight applications. I.e. console and GUI
+///
 //==================================================================================================
-class RiaApplication : public QApplication
+class RiaApplication
 {
-    Q_OBJECT
-
 public:
-    enum RINavigationPolicy
-    {
-        NAVIGATION_POLICY_CEETRON,
-        NAVIGATION_POLICY_CAD,
-        NAVIGATION_POLICY_GEOQUEST,
-        NAVIGATION_POLICY_RMS
-    };
-
     enum ProjectLoadAction
     {
-        PLA_NONE = 0,
+        PLA_NONE                 = 0,
         PLA_CALCULATE_STATISTICS = 1
     };
 
-    typedef RiaFontCache::FontSize FontSize;
-
+    enum ApplicationStatus
+    {
+        KEEP_GOING = 0,
+        EXIT_COMPLETED,
+        EXIT_WITH_ERROR
+    };
+    
 public:
-    RiaApplication(int& argc, char** argv);
-    ~RiaApplication() override;
+    static RiaApplication*    instance();
+    RiaApplication();
+    virtual ~RiaApplication();
+
+    static const char* getVersionStringApp(bool includeCrtInfo);
+    static bool        enableDevelopmentFeatures();
     
-    static RiaApplication* instance();
+    void             setActiveReservoirView(Rim3dView*);
+    Rim3dView*       activeReservoirView();
+    const Rim3dView* activeReservoirView() const;
+    RimGridView*     activeGridView();
 
-    int                 parseArgumentsAndRunUnitTestsIfRequested();
-    bool                parseArguments();
+    RimProject* project();
 
-    void                setActiveReservoirView(Rim3dView*);
-    Rim3dView*          activeReservoirView();
-    const Rim3dView*    activeReservoirView() const;
-    RimGridView*        activeGridView();
+    void createMockModel();
+    void createResultsMockModel();
+    void createLargeResultsMockModel();
+    void createMockModelCustomized();
+    void createInputMockModel();
 
-    RimViewWindow*      activePlotWindow() const;
+    bool openFile(const QString& fileName);
 
-    RimProject*         project(); 
+    bool        isProjectSavedToDisc() const;
+    QString     currentProjectPath() const;
+    QString     createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
+    bool        loadProject(const QString& projectFileName);
+    bool        loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier);
+    bool        saveProjectAs(const QString& fileName, QString* errorMessage);
+    static bool hasValidProjectFileExtension(const QString& fileName);
+    void        closeProject();
 
-    void                createMockModel();
-    void                createResultsMockModel();
-    void                createLargeResultsMockModel();
-    void                createMockModelCustomized();
-    void                createInputMockModel();
+    QString lastUsedDialogDirectory(const QString& dialogName);
+    QString lastUsedDialogDirectoryWithFallbackToProjectFolder(const QString& dialogName);
+    QString lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory);
+    void    setLastUsedDialogDirectory(const QString& dialogName, const QString& directory);
 
-    QString             lastUsedDialogDirectory(const QString& dialogName);
-    QString             lastUsedDialogDirectoryWithFallbackToProjectFolder(const QString& dialogName);
-    QString             lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory);
-    void                setLastUsedDialogDirectory(const QString& dialogName, const QString& directory);
+    bool openOdbCaseFromFile(const QString& fileName, bool applyTimeStepFilter = false);
 
-    bool                openFile(const QString& fileName);
+    void addWellPathsToModel(QList<QString> wellPathFilePaths);
+    void addWellPathFormationsToModel(QList<QString> wellPathFilePaths);
+    void addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
-    bool                openOdbCaseFromFile(const QString& fileName, bool applyTimeStepFilter = false);
+    QString scriptDirectories() const;
+    QString scriptEditorPath() const;
 
-    QString             currentProjectPath() const;
-    QString             createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
-    bool                loadProject(const QString& projectFileName);
-    bool                loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier);
-    bool                saveProject();
-    bool                saveProjectAs(const QString& fileName);
-    bool                saveProjectPromptForFileName();
-    static bool         hasValidProjectFileExtension(const QString& fileName);
-    
-    bool                askUserToSaveModifiedProject();
-    void                closeProject();
-    
-    void                addWellPathsToModel(QList<QString> wellPathFilePaths);
-    void                addWellPathFormationsToModel(QList<QString> wellPathFilePaths);
-    void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
+    QString     octavePath() const;
+    QStringList octaveArguments() const;
+    QProcessEnvironment octaveProcessEnvironment() const;
 
-    void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
+    QString             pythonPath() const;
+    QProcessEnvironment pythonProcessEnvironment() const;
 
-    void                processNonGuiEvents();
+    bool launchProcess(const QString& program, const QStringList& arguments, const QProcessEnvironment& processEnvironment);
+    bool launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds, const QProcessEnvironment& processEnvironment);
+    void terminateProcess();
+    void waitForProcess() const;
 
-    static const char*  getVersionStringApp(bool includeCrtInfo);
+    RiaPreferences* preferences();
+    void            applyPreferences(const RiaPreferences* oldPreferences = nullptr);
 
-    bool                useShaders() const;
+    QString commandLineParameterHelp();
+    void setCommandLineHelpText(const QString& commandLineHelpText);
 
-    bool                showPerformanceInfo() const;
+    void     setCacheDataObject(const QString& key, const QVariant& dataObject);
+    QVariant cacheDataObject(const QString& key) const;
 
-    RINavigationPolicy  navigationPolicy() const;
-    QString             scriptDirectories() const;
-    QString             scriptEditorPath() const;
-    
-    QString             octavePath() const;
-    QStringList         octaveArguments() const;
+    void executeCommandFile(const QString& commandFile);
+    void addCommandObject(RimCommandObject* commandObject);
+    void executeCommandObjects();
+    void waitUntilCommandObjectsHasBeenProcessed();
 
-    bool                launchProcess(const QString& program, const QStringList& arguments);
-    bool                launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds);
-    void                terminateProcess();
-    void                waitForProcess() const;
-    
-    RiaPreferences*     preferences();
-    void                applyPreferences(const RiaPreferences* oldPreferences = nullptr);
+    int launchUnitTests();
 
-    cvf::Font*          defaultSceneFont();
-    cvf::Font*          defaultAnnotationFont();
-    cvf::Font*          defaultWellLabelFont();
-
-    QString             commandLineParameterHelp() const;
-    void                showFormattedTextInMessageBox(const QString& text);
-
-    void                setCacheDataObject(const QString& key, const QVariant& dataObject);
-    QVariant            cacheDataObject(const QString& key) const;
-
-    void                addCommandObject(RimCommandObject* commandObject);
-    void                executeCommandObjects();
-
-    int                 launchUnitTests();
-    int                 launchUnitTestsWithConsole();
-
-    RiuMainWindow*      getOrCreateAndShowMainWindow();
-    RiuMainWindow*      mainWindow();
-
-    RiuPlotMainWindow*  getOrCreateMainPlotWindow();
-    RiuPlotMainWindow*  getOrCreateAndShowMainPlotWindow();
-    RiuPlotMainWindow*  mainPlotWindow();
-    RiuMainWindowBase*  mainWindowByID(int mainWindowID);
-
-    static RimViewWindow* activeViewWindow();
-
-    bool                isMain3dWindowVisible() const;
-    bool                isMainPlotWindowVisible() const;
-
-    void                closeMainWindowIfOpenButHidden();
-    void                closeMainPlotWindowIfOpenButHidden();
-
-    void                  addToRecentFiles(const QString& fileName);
-    std::vector<QAction*> recentFileActions() const;
-
-    void                setStartDir(const QString& startDir);
+    const QString startDir() const;
+    void setStartDir(const QString& startDir);
 
     static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
-    void                waitUntilCommandObjectsHasBeenProcessed();
-    void                saveMainWinGeoAndDockToolBarLayout();
-    void                savePlotWinGeoAndDockToolBarLayout();
+    cvf::Font* defaultSceneFont();
+    cvf::Font* defaultAnnotationFont();
+    cvf::Font* defaultWellLabelFont();
 
-    static bool         enableDevelopmentFeatures();
-    static void         clearAllSelections();
+    bool initializeGrpcServer(const cvf::ProgramOptions& progOpt);
 
-private:
-    void                onProjectOpenedOrClosed();
-    void                setWindowCaptionFromAppState();
+    // Public implementation specific overrides
+    virtual void initialize();
+    virtual ApplicationStatus handleArguments(cvf::ProgramOptions* progOpt) = 0;
+    virtual int  launchUnitTestsWithConsole();
+    virtual void addToRecentFiles(const QString& fileName) {}
+    virtual void showFormattedTextInMessageBoxOrConsole(const QString& errMsg) = 0;
 
-    void                createMainWindow();
-    void                deleteMainWindow();
+    virtual void launchGrpcServer() = 0;
 
-    void                createMainPlotWindow();
-    void                deleteMainPlotWindow();
-    
-    void                loadAndUpdatePlotData();
-    
-    void                storeTreeViewState();
+#ifdef ENABLE_GRPC
+    virtual RiaGrpcServer* grpcServer() const = 0;
+#endif
+protected:
+    // Protected implementation specific overrides
+    virtual void invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) = 0;
+    virtual void onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) {}
+    virtual void onProjectBeingOpened() {}
+    virtual void onProjectOpened() = 0;
+    virtual void onProjectOpeningError(const QString& errMsg) = 0;
+    virtual void onProjectBeingClosed() {}
+    virtual void onProjectClosed() = 0;
+    virtual void startMonitoringWorkProgress(caf::UiProcess* uiProcess) {}
+    virtual void stopMonitoringWorkProgress() {}
 
-    friend RiaArgumentParser;
-    void                setHelpText(const QString& helpText);
+protected:
+    cvf::ref<cvf::Font> m_defaultSceneFont;
+    cvf::ref<cvf::Font> m_defaultAnnotationFont;
+    cvf::ref<cvf::Font> m_defaultWellLabelFont;
 
-    bool                notify(QObject *, QEvent *) override;
+    caf::PdmPointer<Rim3dView>  m_activeReservoirView;
+    caf::PdmPointer<RimProject> m_project;
 
-private slots:
-    void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    RiaSocketServer* m_socketServer;
+    caf::UiProcess*  m_workerProcess;
 
-private:
-    caf::PdmPointer<Rim3dView>          m_activeReservoirView;
-    caf::PdmPointer<RimProject>         m_project;
-
-    RiaSocketServer*                    m_socketServer;
-
-    caf::UiProcess*                     m_workerProcess;
+#ifdef ENABLE_GRPC
+    std::unique_ptr<RiaGrpcServer> m_grpcServer;
+#endif
 
     // Execute for all settings
-    std::list<int>                      m_currentCaseIds;
-    QString                             m_currentProgram;
-    QStringList                         m_currentArguments;
+    std::list<int> m_currentCaseIds;
+    QString        m_currentProgram;
+    QStringList    m_currentArguments;
+    RiaPreferences* m_preferences;
 
-    RiaPreferences*                     m_preferences;
+    std::map<QString, QString> m_fileDialogDefaultDirectories;
+    QString                    m_startupDefaultDirectory;
+    QString                    m_commandLineHelpText;
+    QMap<QString, QVariant> m_sessionCache; // Session cache used to store username/passwords per session
 
-    std::map<QString, QString>          m_fileDialogDefaultDirectories;
-    QString                             m_startupDefaultDirectory;
+    std::list<RimCommandObject*> m_commandQueue;
+    QMutex                       m_commandQueueLock;
 
-    cvf::ref<cvf::Font>                 m_defaultSceneFont;
-    cvf::ref<cvf::Font>                 m_defaultAnnotationFont;
-    cvf::ref<cvf::Font>                 m_defaultWellLabelFont;
+    bool m_runningWorkerProcess;
 
-    QMap<QString, QVariant>             m_sessionCache;     // Session cache used to store username/passwords per session
-
-    std::list<RimCommandObject*>        m_commandQueue;
-    QMutex                              m_commandQueueLock;
-
-    QString                             m_helpText;
-
-    bool                                m_runningWorkerProcess;
-
-    RiuMainWindow*                      m_mainWindow;
-    RiuPlotMainWindow*                  m_mainPlotWindow;
-    
-    std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
+private:
+    static RiaApplication* s_riaApplication;
 };
+
+
+

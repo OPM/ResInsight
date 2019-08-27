@@ -18,12 +18,13 @@
 
 #include "RicEditPreferencesFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
 #include "RiuPropertyViewTabWidget.h"
 
 #include "cafPdmSettings.h"
+#include "cafPdmUiModelChangeDetector.h"
 
 #include <QAction>
 
@@ -44,7 +45,7 @@ void RicEditPreferencesFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    RiaApplication* app = RiaApplication::instance();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
 
     QStringList tabNames = app->preferences()->tabNames();
 
@@ -55,13 +56,22 @@ void RicEditPreferencesFeature::onActionTriggered(bool isChecked)
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application
-        caf::PdmSettings::writeFieldsToApplicationStore(app->preferences());
         app->applyPreferences(oldPreferences.get());
+        app->applyGuiPreferences(oldPreferences.get());
+        app->updateGrpcServer();
     }
     else
     {
         // Read back currently stored values using QSettings
         caf::PdmSettings::readFieldsFromApplicationStore(app->preferences());
+        app->preferences()->initAfterReadRecursively();
+    }
+
+    if (!app->isProjectSavedToDisc())
+    {
+        // Always reset change detector when modifying preferences, as these changes are irrelevant
+        // when the project we work on is not saved to disc
+        caf::PdmUiModelChangeDetector::instance()->reset();
     }
 }
 

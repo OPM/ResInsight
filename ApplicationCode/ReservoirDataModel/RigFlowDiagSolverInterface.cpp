@@ -21,6 +21,7 @@
 #include "RiaLogging.h"
 
 #include "RifEclipseOutputFileTools.h"
+#include "RifReaderEclipseOutput.h"
 #include "RifReaderInterface.h"
 
 #include "RigActiveCellInfo.h"
@@ -121,11 +122,11 @@ void RigFlowDiagTimeStepResult::addResult(const RigFlowDiagResultAddress& resAdd
 class RigOpmFlowDiagStaticData : public cvf::Object
 {
 public:
-    RigOpmFlowDiagStaticData(const std::string& grid, const std::string& init, RiaEclipseUnitTools::UnitSystem caseUnitSystem)
+    RigOpmFlowDiagStaticData(const ecl_grid_type* mainGrid, const std::string& init, RiaEclipseUnitTools::UnitSystem caseUnitSystem)
     {
         Opm::ECLInitFileData initData(init);
 
-        m_eclGraph.reset(new Opm::ECLGraph(Opm::ECLGraph::load(grid, initData)));
+        m_eclGraph.reset(new Opm::ECLGraph(Opm::ECLGraph::load(mainGrid, initData)));
 
         m_hasUnifiedRestartFile = false;
         m_poreVolume = m_eclGraph->poreVolume();
@@ -518,8 +519,22 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
                 return false;
             }
 
-            RiaEclipseUnitTools::UnitSystem caseUnitSystem = eclipseCaseData->unitsType();
-            m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(), initFileName, caseUnitSystem);
+            //ecl_grid_type* mainGrid = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->readerInterface();
+            auto fileReader = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->readerInterface();
+            auto eclOutput = dynamic_cast<const RifReaderEclipseOutput*>(fileReader);
+            if (eclOutput)
+            {
+                ecl_grid_type* mainGrid = eclOutput->loadAllGrids();
+                if (!mainGrid)
+                {
+                    return false;
+                }
+
+                RiaEclipseUnitTools::UnitSystem caseUnitSystem = eclipseCaseData->unitsType();
+                m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(mainGrid, initFileName, caseUnitSystem);
+
+                ecl_grid_free(mainGrid);
+            }
         }
     }
 
@@ -623,9 +638,9 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInte
                                                                      poreVolume,
                                                                      max_pv_fraction);
 
-        result.m_flowCapStorageCapCurve = flowCapStorCapCurve;
+        result.m_storageCapFlowCapCurve = flowCapStorCapCurve;
         result.m_lorenzCoefficient = lorenzCoefficient(flowCapStorCapCurve);
-        result.m_sweepEfficiencyCurve = sweepEfficiency(flowCapStorCapCurve);
+        result.m_dimensionlessTimeSweepEfficiencyCurve = sweepEfficiency(flowCapStorCapCurve);
     }
     catch (const std::exception& e)
     {

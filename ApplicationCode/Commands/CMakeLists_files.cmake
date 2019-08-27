@@ -71,7 +71,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicFlyToObjectFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicShowGridStatisticsFeature.h
 
-${CMAKE_CURRENT_LIST_DIR}/RicFileHierarchyDialog.h
+${CMAKE_CURRENT_LIST_DIR}/RicRecursiveFileSearchDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.h
@@ -148,7 +148,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicFlyToObjectFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicShowGridStatisticsFeature.cpp
 
-${CMAKE_CURRENT_LIST_DIR}/RicFileHierarchyDialog.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicRecursiveFileSearchDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.cpp
@@ -169,7 +169,7 @@ ${SOURCE_GROUP_SOURCE_FILES}
 
 list(APPEND QT_MOC_HEADERS
 ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.h
-${CMAKE_CURRENT_LIST_DIR}/RicFileHierarchyDialog.h
+${CMAKE_CURRENT_LIST_DIR}/RicRecursiveFileSearchDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
 )

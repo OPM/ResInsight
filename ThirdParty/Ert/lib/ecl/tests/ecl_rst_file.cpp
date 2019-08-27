@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2016  Statoil ASA, Norway.
+   Copyright (C) 2016  Equinor ASA, Norway.
 
    The file 'ecl_rst_file.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -65,7 +65,7 @@ void test_file( const char * src_file , const char * target_file , int report_st
 
 
 void test_Xfile() {
-  test_work_area_type * work_area = test_work_area_alloc("rst-file");
+  ecl::util::TestArea ta("xfile");
   {
     fortio_type * f = fortio_open_writer( "TEST.X0010" , false , ECL_ENDIAN_FLIP);
 
@@ -80,13 +80,12 @@ void test_Xfile() {
     fortio_fclose( f );
   }
   test_file( "TEST.X0010" , "FILE.X0010" , 10 , 0 );
-  test_work_area_free( work_area );
 }
 
 
 
 void test_UNRST0() {
-  test_work_area_type * work_area = test_work_area_alloc("rst-file");
+  ecl::util::TestArea ta("rst-file");
   offset_type pos10;
   offset_type pos20;
   offset_type pos_end;
@@ -118,12 +117,11 @@ void test_UNRST0() {
   test_file( "TEST.UNRST" , "FILE.UNRST" , 15 , pos20 );
   test_file( "TEST.UNRST" , "FILE.UNRST" , 20 , pos20 );
   test_file( "TEST.UNRST" , "FILE.UNRST" , 25 , pos_end );
-  test_work_area_free( work_area );
 }
 
 
 void test_UNRST1() {
-  test_work_area_type * work_area = test_work_area_alloc("rst-file");
+  ecl::util::TestArea ta("rst-file");
   offset_type pos5;
   offset_type pos10;
   offset_type pos20;
@@ -158,7 +156,6 @@ void test_UNRST1() {
   test_file( "TEST.UNRST" , "FILE.UNRST" , 15 , pos20 );
   test_file( "TEST.UNRST" , "FILE.UNRST" , 20 , pos20 );
   test_file( "TEST.UNRST" , "FILE.UNRST" , 25 , pos_end );
-  test_work_area_free( work_area );
 }
 
 

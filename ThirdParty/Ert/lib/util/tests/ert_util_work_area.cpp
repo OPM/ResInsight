@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway.
+   Copyright (C) 2012  Equinor ASA, Norway.
 
    The file 'ert_util_PATH_test.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -22,6 +22,7 @@
 #include <sys/types.h>
 #include <pwd.h>
 
+#include <ert/util/util.hpp>
 #include <ert/util/test_util.hpp>
 #include <ert/util/test_work_area.hpp>
 
@@ -48,10 +49,9 @@ void test_get_original_cwd() {
 
 void create_test_area(const char * test_name , bool store) {
   char * pre_cwd = util_alloc_cwd();
-  test_work_area_type * work_area = test_work_area_alloc( test_name );
+  test_work_area_type * work_area = test_work_area_alloc__( test_name, store );
   char * work_path = util_alloc_string_copy( test_work_area_get_cwd( work_area ));
 
-  test_work_area_set_store( work_area , store );
   test_assert_true( util_is_directory( work_path ));
   test_work_area_free( work_area );
   test_assert_bool_equal( store , util_entry_exists( work_path ));
@@ -158,31 +158,14 @@ void test_copy_parent_content( const char * path ) {
 }
 
 
-void test_with_prefix() {
-  test_work_area_type * work_area = test_work_area_alloc( "with-prefix" );
-
-  util_make_path( "PREFIX" );
-  {
-    test_work_area_type * sub_area = test_work_area_alloc_relative("PREFIX" , "sub-work" );
-    test_assert_true( test_work_area_is_instance( sub_area ));
-    test_work_area_free( sub_area );
-    test_assert_true( util_entry_exists("PREFIX/sub-work"));
-  }
-  {
-    test_work_area_type * sub_area = test_work_area_alloc_relative("DoesNotExist" , "sub-work" );
-    test_assert_NULL( sub_area );
-  }
-  test_work_area_free( work_area );
-}
-
 
 void test_update_store() {
   {
-    test_work_area_type * work_area = test_work_area_alloc( "update-store1" );
+    test_work_area_type * work_area = test_work_area_alloc__( "update-store1" , true);
     char * work_cwd = util_alloc_string_copy( test_work_area_get_cwd( work_area ));
-    test_work_area_set_store( work_area , true );
     test_work_area_free( work_area );
     test_assert_true( util_entry_exists( work_cwd ));
+    free(work_cwd);
   }
 
   {
@@ -190,22 +173,23 @@ void test_update_store() {
     char * work_cwd = util_alloc_string_copy( test_work_area_get_cwd( work_area ));
     test_work_area_free( work_area );
     test_assert_false( util_entry_exists( work_cwd ));
+    free(work_cwd);
   }
 
   {
-    test_work_area_type * work_area = test_work_area_alloc( "update-store3" );
+    test_work_area_type * work_area = test_work_area_alloc__( "update-store3" , false);
     char * work_cwd = util_alloc_string_copy( test_work_area_get_cwd( work_area ));
-    test_work_area_set_store( work_area , false );
     test_work_area_free( work_area );
     test_assert_false( util_entry_exists( work_cwd ));
+    free(work_cwd);
   }
 
   {
-    test_work_area_type * work_area = test_work_area_alloc( "update-store4" );
+    test_work_area_type * work_area = test_work_area_alloc__( "update-store4" , true);
     char * work_cwd = util_alloc_string_copy( test_work_area_get_cwd( work_area ));
-    test_work_area_set_store( work_area , true);
     test_work_area_free( work_area );
     test_assert_true( util_entry_exists( work_cwd ));
+    free(work_cwd);
   }
 }
 
@@ -215,10 +199,12 @@ int main(int argc , char ** argv) {
   const char * abs_path_file = argv[2];
   const char * rel_directory = argv[3];
 
-  create_test_area("STORE-TEST" , true );
-  create_test_area("DEL-TEST" , false);
+  create_test_area("STORE-TEST", true );
+  create_test_area("DEL-TEST", false);
+
   test_install_file_exists( rel_path_file );
   test_install_file_exists( abs_path_file );
+
   test_copy_directory( rel_directory );
   test_input();
   test_get_cwd();
@@ -233,8 +219,6 @@ int main(int argc , char ** argv) {
   test_copy_parent_content( rel_path_file );
   test_copy_parent_content( abs_path_file );
 
-  test_with_prefix();
   test_update_store();
-
   exit(0);
 }

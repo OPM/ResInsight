@@ -200,9 +200,8 @@ void RimPlotAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     if (numberFormat() != NUMBER_FORMAT_AUTO)
     {
         scaleGroup.add(&numberOfDecimals);
-        scaleGroup.add(&scaleFactor);
     }
-
+    scaleGroup.add(&scaleFactor);
     scaleGroup.add(&visibleRangeMin);
     scaleGroup.add(&visibleRangeMax);
     scaleGroup.add(&m_valuesFontSize);
@@ -218,8 +217,8 @@ void RimPlotAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axis ax
     m_name = name;
     m_axis = axis;
 
-    if (axis == QwtPlot::yRight) this->setUiIcon(QIcon(":/RightAxis16x16.png"));
-    if (axis == QwtPlot::xBottom) this->setUiIcon(QIcon(":/BottomAxis16x16.png"));
+    if (axis == QwtPlot::yRight) this->setUiIconFromResourceString(":/RightAxis16x16.png");
+    if (axis == QwtPlot::xBottom) this->setUiIconFromResourceString(":/BottomAxis16x16.png");
 }
 
 //--------------------------------------------------------------------------------------------------

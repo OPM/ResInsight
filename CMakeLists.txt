@@ -24,7 +24,7 @@ elseif(MSVC)
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -std=c++0x")
+    set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -std=c++11")
     set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
 endif() 
@@ -137,15 +137,13 @@ else()
     endif()
 
     list(APPEND THIRD_PARTY_LIBRARIES
-        ecl 
+        ecl
     )
 
-    if (MSVC)
-      set_property(TARGET  
-          ecl
-	      PROPERTY FOLDER "Thirdparty/ERT"
-      )
-    endif()
+    set_property(TARGET  
+      catch2
+	  PROPERTY FOLDER "Thirdparty"
+    )
     
     # Restore original state
     set(BUILD_SHARED_LIBS ${ORIGINAL_BUILD_SHARED_LIBS})
@@ -253,27 +251,14 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 # Qt
 ################################################################################
-option(RESINSIGHT_BUILD_WITH_QT5 "Use Qt5 folder" OFF)
-if (RESINSIGHT_BUILD_WITH_QT5)
-	message(STATUS "Attempting to build with Qt5")
-	find_package(Qt5 COMPONENTS Core QUIET)
-else()
-	message(STATUS "Attempting to build with Qt4")
-endif(RESINSIGHT_BUILD_WITH_QT5)
+option(RESINSIGHT_BUILD_WITH_QT5 "Use Qt5" ON)
+mark_as_advanced(FORCE RESINSIGHT_BUILD_WITH_QT5)
 
-if (Qt5Core_FOUND)
-    message(STATUS "Found Qt5")
-	find_package (Qt5 CONFIG REQUIRED Core Widgets OpenGL Network Script ScriptTools)
+if (RESINSIGHT_BUILD_WITH_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Network Script ScriptTools Widgets)
 else()
-    if (RESINSIGHT_BUILD_WITH_QT5)
-		message(WARNING "Could not find Qt5. Trying with Qt4")
-	endif(RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
-    if (QT_VERSION_MINOR LESS 6)
-    	message(FATAL_ERROR "Qt 4.6 is required, please specify qmake for variable QT_QMAKE_EXECUTABLE")
-	endif()
-    include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools REQUIRED)
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 # Open GL
 find_package( OpenGL )
@@ -332,6 +317,13 @@ set_property(TARGET
 	PROPERTY FOLDER "Thirdparty"
 )
 
+
+################################################################################
+# App and Viz Framework Qt5 setting, propagate settings in RESINSIGHT_BUILD_WITH_QT5
+################################################################################
+set(CEE_USE_QT5 ${RESINSIGHT_BUILD_WITH_QT5} CACHE BOOL "Flag used to enable Qt5 in AppFwk and VizFwk" FORCE)
+
+
 ################################################################################
 # Vizualization Framework
 ################################################################################
@@ -357,10 +349,6 @@ if (CMAKE_COMPILER_IS_GNUCC)
  
 endif()
 
-if (RESINSIGHT_BUILD_WITH_QT5)
-  set(CEE_USE_QT5 ON)
-endif(RESINSIGHT_BUILD_WITH_QT5)
-
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibCore)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGeometry)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibRender)
@@ -384,10 +372,6 @@ set_property(TARGET
 ################################################################################
 # Application Framework
 ################################################################################
-
-if (RESINSIGHT_BUILD_WITH_QT5)
-  set(CAF_USE_QT5 ON)
-endif(RESINSIGHT_BUILD_WITH_QT5)
 
 add_subdirectory(Fwk/AppFwk/cafAnimControl)
 add_subdirectory(Fwk/AppFwk/cafViewer)
@@ -430,6 +414,8 @@ set_property(TARGET
 )
 
 option (RESINSIGHT_INCLUDE_APPFWK_TESTS "Enable AppFwk Tests" OFF)
+mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPFWK_TESTS)
+
 if (RESINSIGHT_INCLUDE_APPFWK_TESTS)
     # Unit Tests
     add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
@@ -470,7 +456,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
         set(ERT_SHARED_LIB_FILES
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.3
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.4
         )
       
       install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )

@@ -396,12 +396,8 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors(PdmChildArrayFieldHandle
 
     const std::vector<PdmUiItem*>& uiItems = configForFirstObject.uiItems();
 
-    // Set all fieldViews to be unvisited
-    std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
-    for (it = m_fieldEditors.begin(); it != m_fieldEditors.end(); ++it)
-    {
-        it->second->setUiField(nullptr);
-    }
+ 
+    std::set<QString> usedFieldKeywords;
 
     m_modelColumnIndexToFieldIndex.clear();
 
@@ -416,14 +412,15 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors(PdmChildArrayFieldHandle
             PdmUiFieldEditorHandle* fieldEditor = nullptr;
 
             // Find or create FieldEditor
-            it = m_fieldEditors.find(field->fieldHandle()->keyword());
+            auto it = m_fieldEditors.find(field->fieldHandle()->keyword());
 
             if (it == m_fieldEditors.end())
             {
-                fieldEditor = PdmUiFieldEditorHelper::fieldEditorForField(field, configName);
+                fieldEditor = PdmUiFieldEditorHelper::createFieldEditorForField(field, configName);
 
                 if (fieldEditor)
                 {
+                    fieldEditor->setUiField(field);
                     m_fieldEditors[field->fieldHandle()->keyword()] = fieldEditor;
                 }
             }
@@ -434,7 +431,7 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors(PdmChildArrayFieldHandle
 
             if (fieldEditor)
             {
-                fieldEditor->setUiField(field); 
+                usedFieldKeywords.insert(field->fieldHandle()->keyword());
 
                 //TODO: Create/update is not required at this point, as UI is recreated in getEditorWidgetAndTransferOwnership()
                 // Can be moved, but a move will require changes in PdmUiFieldEditorHandle
@@ -447,13 +444,12 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors(PdmChildArrayFieldHandle
         }
     }
 
-
     // Remove all fieldViews not mentioned by the configuration from the layout
 
     std::vector< QString > fvhToRemoveFromMap;
-    for (it = m_fieldEditors.begin(); it != m_fieldEditors.end(); ++it)
+    for (auto it = m_fieldEditors.begin(); it != m_fieldEditors.end(); ++it)
     {
-        if (it->second->uiField() == nullptr)
+        if (usedFieldKeywords.count(it->first) == 0)
         {
             PdmUiFieldEditorHandle* fvh = it->second;
             delete fvh;

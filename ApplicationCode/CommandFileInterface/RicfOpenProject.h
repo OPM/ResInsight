@@ -34,7 +34,7 @@ class RicfOpenProject : public RicfCommandObject
 public:
     RicfOpenProject();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     caf::PdmField<QString> m_path;

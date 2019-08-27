@@ -33,6 +33,7 @@ class RicfExportSnapshots : public RicfCommandObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    // Values are exposed in gRPC .proto. Do not change without also changing .proto
     enum SnapshotsType
     {
         VIEWS,
@@ -44,9 +45,10 @@ public:
 public:
     RicfExportSnapshots();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     caf::PdmField<SnapshotsTypeEnum> m_type;
     caf::PdmField<QString>           m_prefix;
+    caf::PdmField<int>               m_caseId;
 };

@@ -1,19 +1,11 @@
 cmake_minimum_required (VERSION 2.8.12)
 
+project (cafUserInterface)
+
 if (MSVC)
     # Define this one to tell windows.h to not define min() and max() as macros
     add_definitions(-DNOMINMAX)
 endif (MSVC)
-
-project (cafUserInterface)
-
-# Qt
-if (CAF_USE_QT5)
-	find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
-else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
-    include(${QT_USE_FILE})
-endif(CAF_USE_QT5)
 
 # These headers need to go through Qt's MOC compiler
 set (MOC_HEADER_FILES    
@@ -23,6 +15,7 @@ set (MOC_HEADER_FILES
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.h
     cafPdmUiDateEditor.h
+	cafPdmUiTimeEditor.h
     cafPdmUiDefaultObjectEditor.h
     cafPdmUiDoubleSliderEditor.h
     cafPdmUiFilePathEditor.h
@@ -54,14 +47,15 @@ set (MOC_HEADER_FILES
     cafPdmUiPickableLineEditor.h
 )
 
-if ( NOT CMAKE_AUTOMOC )
-	if (CAF_USE_QT5)
-		qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-	else()
-		qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-	endif(CAF_USE_QT5)
-endif()
-
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )	
+else()
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
+    include(${QT_USE_FILE})
+	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+endif(CEE_USE_QT5)
 
 set( PROJECT_FILES
     
@@ -78,6 +72,8 @@ set( PROJECT_FILES
     cafPdmUiComboBoxEditor.h
     cafPdmUiDateEditor.cpp
     cafPdmUiDateEditor.h
+	cafPdmUiTimeEditor.cpp
+    cafPdmUiTimeEditor.h   
     cafPdmUiDoubleSliderEditor.cpp
     cafPdmUiDoubleSliderEditor.h
     cafPdmUiDragDropInterface.h
@@ -162,6 +158,8 @@ set( PROJECT_FILES
     cafPdmUiPickableLineEditor.cpp
 	cafStyleSheetTools.h
 	cafStyleSheetTools.cpp
+    cafPdmUiTabbedPropertyViewDialog.h
+    cafPdmUiTabbedPropertyViewDialog.cpp
 )
 
 add_library( ${PROJECT_NAME}
@@ -179,10 +177,6 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
-
-if (CAF_USE_QT5)
-	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-endif(CAF_USE_QT5)
 
 target_link_libraries ( ${PROJECT_NAME}
     cafProjectDataModel

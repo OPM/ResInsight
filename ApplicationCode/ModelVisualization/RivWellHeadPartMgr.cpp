@@ -22,7 +22,7 @@
 
 #include "RivWellHeadPartMgr.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCell.h"
@@ -297,7 +297,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
 
     if (well->showWellLabel() && !well->name().isEmpty())
     {
-        cvf::Font* font = RiaApplication::instance()->defaultWellLabelFont();
+        cvf::Font* font = RiaGuiApplication::instance()->defaultWellLabelFont();
 
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
         drawableText->setFont(font);

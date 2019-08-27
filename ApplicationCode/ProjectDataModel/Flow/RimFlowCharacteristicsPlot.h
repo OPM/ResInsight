@@ -67,11 +67,18 @@ public:
     void                                    deleteViewWidget() override; 
     void                                            viewGeometryUpdated();
 
+    QString                                 curveDataAsText() const;
+
     enum TimeSelectionType 
     {
         ALL_AVAILABLE,
         SELECTED,
     };
+ 
+    void                                    setTimeSteps(const std::vector<int>& timeSteps);
+    void                                    setInjectorsAndProducers(const std::vector<QString>& injectors, const std::vector<QString>& producers);
+    void                                    setMinimumCommunication(double minimumCommunication);
+    void                                    setAquiferCellThreshold(double aquiferCellThreshold);
 
 protected:
     // RimViewWindow overrides
@@ -107,6 +114,7 @@ private:
     caf::PdmField<int>                              m_maxTof;
 
     std::vector<int>                                m_currentlyPlottedTimeSteps;
+    std::map<int, RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame> m_timeStepToFlowResultMap;
 
     QPointer<RiuFlowCharacteristicsPlot>            m_flowCharPlotWidget;
 };

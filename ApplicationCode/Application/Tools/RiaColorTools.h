@@ -43,6 +43,8 @@ public:
     static QColor       toQColor(cvf::Color4f color);
     static cvf::Color3f fromQColorTo3f(QColor);
 
+    static QColor       blendQColors(const QColor& color1, const QColor& color2, int weight1 = 1, int weight2 = 1);
+
 private:
     static float relativeLuminance(cvf::Color3f backgroundColor);
     static float calculateNonLinearColorValue(float colorFraction);

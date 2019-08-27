@@ -70,7 +70,7 @@ QString RimSummaryCurveAutoName::curveNameY(const RifEclipseSummaryAddress& summ
 
     if (m_vectorName)
     {
-        bool skipSubString = nameHelper && nameHelper->isQuantityInTitle();
+        bool skipSubString = nameHelper && nameHelper->isPlotDisplayingSingleQuantity();
         if (!skipSubString)
         {
             text += summaryAddress.quantityName();
@@ -132,7 +132,7 @@ QString RimSummaryCurveAutoName::curveNameX(const RifEclipseSummaryAddress& summ
 
     if (m_vectorName)
     {
-        bool skipSubString = nameHelper && nameHelper->isQuantityInTitle();
+        bool skipSubString = nameHelper && nameHelper->isPlotDisplayingSingleQuantity();
         if (!skipSubString)
         {
             text += summaryAddress.quantityName();
@@ -217,8 +217,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string&                 
 {
     switch (summaryAddress.category())
     {
-        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
-        {
+        case RifEclipseSummaryAddress::SUMMARY_AQUIFER: {
             if (m_aquiferNumber)
             {
                 if (!text.empty()) text += ":";
@@ -226,8 +225,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string&                 
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_REGION:
-        {
+        case RifEclipseSummaryAddress::SUMMARY_REGION: {
             if (m_regionNumber)
             {
                 bool skipSubString = nameHelper && nameHelper->isRegionInTitle();
@@ -239,8 +237,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string&                 
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
-        {
+        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION: {
             if (m_regionNumber)
             {
                 if (!text.empty()) text += ":";
@@ -249,8 +246,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string&                 
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
-        {
+        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP: {
             if (m_wellGroupName)
             {
                 bool skipSubString = nameHelper && nameHelper->isWellGroupNameInTitle();
@@ -262,72 +258,85 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string&                 
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL:
-        {
+        case RifEclipseSummaryAddress::SUMMARY_WELL: {
             appendWellName(text, summaryAddress, nameHelper);
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
-        {
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION: {
             appendWellName(text, summaryAddress, nameHelper);
 
             if (m_completion)
             {
-                if (!text.empty()) text += ":";
-                text += std::to_string(summaryAddress.cellI()) + ", " + std::to_string(summaryAddress.cellJ()) + ", " +
-                        std::to_string(summaryAddress.cellK());
+                bool skipSubString = nameHelper && nameHelper->isCompletionInTitle();
+                if (!skipSubString)
+                {
+                    if (!text.empty()) text += ":";
+                    text += std::to_string(summaryAddress.cellI()) + ", " + std::to_string(summaryAddress.cellJ()) + ", " +
+                            std::to_string(summaryAddress.cellK());
+                }
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
-        {
+        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR: {
             appendLgrName(text, summaryAddress);
             appendWellName(text, summaryAddress, nameHelper);
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
-        {
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR: {
             appendLgrName(text, summaryAddress);
             appendWellName(text, summaryAddress, nameHelper);
 
             if (m_completion)
             {
-                if (!text.empty()) text += ":";
-                text += std::to_string(summaryAddress.cellI()) + ", " + std::to_string(summaryAddress.cellJ()) + ", " +
-                        std::to_string(summaryAddress.cellK());
+                bool skipSubString = nameHelper && nameHelper->isCompletionInTitle();
+                if (!skipSubString)
+                {
+                    if (!text.empty()) text += ":";
+                    text += std::to_string(summaryAddress.cellI()) + ", " + std::to_string(summaryAddress.cellJ()) + ", " +
+                            std::to_string(summaryAddress.cellK());
+                }
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
-        {
+        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT: {
             appendWellName(text, summaryAddress, nameHelper);
 
             if (m_wellSegmentNumber)
             {
-                if (!text.empty()) text += ":";
-                text += std::to_string(summaryAddress.wellSegmentNumber());
+                bool skipSubString = nameHelper && nameHelper->isSegmentInTitle();
+                if (!skipSubString)
+                {
+                    if (!text.empty()) text += ":";
+                    text += std::to_string(summaryAddress.wellSegmentNumber());
+                }
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
-        {
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK: {
             if (m_completion)
             {
-                if (!text.empty()) text += ":";
-                text += std::to_string(summaryAddress.cellI()) + ", " + std::to_string(summaryAddress.cellJ()) + ", " +
-                        std::to_string(summaryAddress.cellK());
+                bool skipSubString = nameHelper && nameHelper->isBlockInTitle();
+                if (!skipSubString)
+                {
+                    if (!text.empty()) text += ":";
+                    text += std::to_string(summaryAddress.cellI()) + ", " + std::to_string(summaryAddress.cellJ()) + ", " +
+                            std::to_string(summaryAddress.cellK());
+                }
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
-        {
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR: {
             appendLgrName(text, summaryAddress);
 
             if (m_completion)
             {
-                if (!text.empty()) text += ":";
-                text += std::to_string(summaryAddress.cellI()) + ", " + std::to_string(summaryAddress.cellJ()) + ", " +
-                        std::to_string(summaryAddress.cellK());
+                bool skipSubString = nameHelper && nameHelper->isBlockInTitle();
+                if (!skipSubString)
+                {
+                    if (!text.empty()) text += ":";
+                    text += std::to_string(summaryAddress.cellI()) + ", " + std::to_string(summaryAddress.cellJ()) + ", " +
+                            std::to_string(summaryAddress.cellK());
+                }
             }
         }
         break;

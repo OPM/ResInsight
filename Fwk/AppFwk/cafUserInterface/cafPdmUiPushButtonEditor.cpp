@@ -103,9 +103,12 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
         }
     }
     
-    QSize defaultSize  = m_pushButton->sizeHint();
-    m_pushButton->setMinimumWidth(10*std::round(0.1*(defaultSize.width() + 10)));
-    m_buttonLayout->setAlignment(m_pushButton, Qt::AlignRight);
+    if ( uiField()->uiLabelPosition(uiConfigName) != PdmUiItemInfo::HIDDEN )
+    {
+        QSize defaultSize  = m_pushButton->sizeHint();
+        m_pushButton->setMinimumWidth(10*std::round(0.1*(defaultSize.width() + 10)));
+        m_buttonLayout->setAlignment(m_pushButton, Qt::AlignRight);
+    }
 
     if (variantFieldValue.type() == QVariant::Bool)
     {

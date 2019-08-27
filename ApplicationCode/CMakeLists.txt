@@ -5,16 +5,19 @@ project (ApplicationCode)
 # Open GL
 find_package( OpenGL )
 
+option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
+option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE "Bundle the gRPC python modules into the install folder" OFF)
+
 if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS Core QUIET)
+    find_package(Qt5 COMPONENTS Core QUIET)
 endif(RESINSIGHT_BUILD_WITH_QT5)
 
 if (Qt5Core_FOUND)
-	find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Network Script Widgets)
+    find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Network Script Widgets)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Script Qt5::Widgets)
 else()
     set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript)
-	find_package(Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED} REQUIRED)
+    find_package(Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED} REQUIRED)
     include(${QT_USE_FILE})
 endif(Qt5Core_FOUND)
 
@@ -44,6 +47,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/Measurement
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
@@ -57,14 +61,13 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Annotations
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
-	${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
     
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/Completions
-    ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechVisualization
@@ -97,6 +100,12 @@ list( APPEND CPP_SOURCES
      ${UNIT_TEST_FILES}
 )
 
+if (RESINSIGHT_ENABLE_GRPC)
+    list( APPEND REFERENCED_CMAKE_FILES
+        GrpcInterface/CMakeLists.cmake
+    )
+endif(RESINSIGHT_ENABLE_GRPC)
+
 list( APPEND REFERENCED_CMAKE_FILES
     Application/CMakeLists_files.cmake
     Application/Tools/CMakeLists_files.cmake 
@@ -108,8 +117,8 @@ list( APPEND REFERENCED_CMAKE_FILES
     FileInterface/CMakeLists_files.cmake
     
     ProjectDataModel/CMakeLists_files.cmake
-	ProjectDataModel/GridCrossPlots/CMakeLists_files.cmake
-	ProjectDataModel/GridCrossPlots/CellFilters/CMakeLists_files.cmake
+    ProjectDataModel/GridCrossPlots/CMakeLists_files.cmake
+    ProjectDataModel/GridCrossPlots/CellFilters/CMakeLists_files.cmake
     ProjectDataModel/Summary/CMakeLists_files.cmake
     ProjectDataModel/Flow/CMakeLists_files.cmake
     ProjectDataModel/Annotations/CMakeLists_files.cmake
@@ -135,7 +144,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
     Commands/ExportCommands/CMakeLists_files.cmake
     Commands/FlowCommands/CMakeLists_files.cmake
-	Commands/GridCrossPlotCommands/CMakeLists_files.cmake
+    Commands/GridCrossPlotCommands/CMakeLists_files.cmake
     Commands/HoloLensCommands/CMakeLists_files.cmake
     Commands/IntersectionBoxCommands/CMakeLists_files.cmake
     Commands/IntersectionViewCommands/CMakeLists_files.cmake
@@ -143,6 +152,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
     Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
     Commands/SummaryPlotCommands/CMakeLists_files.cmake
+    Commands/SsiHubImportCommands/CMakeLists_files.cmake
     Commands/ToggleCommands/CMakeLists_files.cmake
     Commands/ViewLink/CMakeLists_files.cmake
     Commands/WellLogCommands/CMakeLists_files.cmake
@@ -154,6 +164,7 @@ list( APPEND REFERENCED_CMAKE_FILES
 )
 
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
+mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
 if (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
     add_definitions(-DUSE_UNIT_TESTS)
 
@@ -181,11 +192,9 @@ list( APPEND CPP_SOURCES
 # Sub-directory projects
 #############################################################################
 
-add_subdirectory(WellPathImportSsihub)
 add_subdirectory(ResultStatisticsCache)
 
 set( RI_LIBRARIES
-    WellPathImportSsihub
     ResultStatisticsCache
 )
 
@@ -230,7 +239,6 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     add_definitions(-DENABLE_SOURING)
 endif()
 
-
 #############################################################################
 # Qt specifics: Moc, ui, resources
 #############################################################################
@@ -244,13 +252,13 @@ set ( QT_MOC_HEADERS
     SocketInterface/RiaSocketServer.h
 )
 
-if (Qt5Core_FOUND)
-	qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
+if (RESINSIGHT_BUILD_WITH_QT5)
+    qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
     qt5_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
 else()
-	qt4_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
+    qt4_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
     qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
-endif()
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 
 # NOTE! Resources in subfolders must append to QRC_FILES using the following statement
@@ -266,17 +274,15 @@ set( QRC_FILES
 )
 
 # Runs RCC on specified files
-if ( NOT CMAKE_AUTOMOC)
-	if (Qt5Core_FOUND)
-		qt5_add_resources( QRC_FILES_CPP
-			${QRC_FILES}
-		)
-	else()
-		qt4_add_resources( QRC_FILES_CPP
-			${QRC_FILES}
-		)
-	endif(Qt5Core_FOUND)
-endif(NOT CMAKE_AUTOMOC)
+if (RESINSIGHT_BUILD_WITH_QT5)
+    qt5_add_resources( QRC_FILES_CPP
+        ${QRC_FILES}
+    )
+else()
+    qt4_add_resources( QRC_FILES_CPP
+        ${QRC_FILES}
+    )
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 # Adding resource (RC) files for Windows
 if ( MSVC )
@@ -306,8 +312,14 @@ source_group( "UnitTests"           FILES ${UNIT_TEST_FILES} )
 
 if (MSVC)
     set( EXE_FILES WIN32)
+    if (RESINSIGHT_ENABLE_GRPC)
+        # GRPC generates a lot of harmless warnings on MSVC
+        set_source_files_properties(${GRPC_CPP_SOURCES} ${GRPC_UNIT_TEST_SOURCE_FILES} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125")
+    endif(RESINSIGHT_ENABLE_GRPC)
 elseif (APPLE)
     set( EXE_FILES MACOSX_BUNDLE)
+else()
+	set_source_files_properties(${GRPC_CPP_SOURCES} ${GRPC_UNIT_TESTS_SOURCE_FILES} PROPERTIES COMPILE_FLAGS "-Wno-overloaded-virtual")
 endif()
 set( EXE_FILES
     ${EXE_FILES}
@@ -319,11 +331,26 @@ set( EXE_FILES
     ${HEADER_FILES}
     ${REFERENCED_CMAKE_FILES}
     ../ResInsightVersion.cmake
-    ../.clang-format
-    ../.clang-tidy
+    .clang-format
+    .clang-tidy
+    Adm/RiaVersionInfo.h.cmake
 )
 
-add_executable( ResInsight ${EXE_FILES} )
+if (RESINSIGHT_ENABLE_GRPC)
+    list(APPEND EXE_FILES
+         ${GRPC_CPP_SOURCES}
+         ${GRPC_HEADER_FILES}
+         ${GRPC_PYTHON_SOURCES_FULL_PATH}
+		 ${GRPC_PROTO_FILES_FULL_PATH}
+         Adm/RiaVersionInfo.py.cmake
+    )
+    if (DEFINED GRPC_LIBRARY_DIRS)
+        message(STATUS "Using GRPC Library Dir: ${GRPC_LIBRARY_DIRS}")
+        link_directories(${GRPC_LIBRARY_DIRS})
+    endif(DEFINED GRPC_LIBRARY_DIRS)
+endif(RESINSIGHT_ENABLE_GRPC)
+
+add_executable( ResInsight ${EXE_FILES})
 
 if (MSVC) 
     # The following warnings are supposed to be used in ResInsight, but temporarily disabled to avoid too much noise
@@ -334,9 +361,9 @@ if (MSVC)
     
     set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127 /wd4245")
     if (CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
-    	# The following warning is generated over 800 times from a qwt header only using VS2015
-	    # Disabling temporarily
-    	# warning C4505 'function' : unreferenced local function has been removed 
+        # The following warning is generated over 800 times from a qwt header only using VS2015
+        # Disabling temporarily
+        # warning C4505 'function' : unreferenced local function has been removed 
         set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/wd4505")
     endif()
 
@@ -375,6 +402,16 @@ set( LINK_LIBRARIES
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
 )
+
+if (RESINSIGHT_ENABLE_GRPC)
+	if (UNIX)
+		foreach(GRPC_LIBRARY ${GRPC_LIBRARIES})
+			list(APPEND LINK_LIBRARIES "${GRPC_LIBRARY_DIRS}/lib${GRPC_LIBRARY}.a")
+		endforeach()
+	else()		
+		list(APPEND LINK_LIBRARIES ${GRPC_LIBRARIES})
+	endif()
+endif()
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -449,19 +486,29 @@ endif()
 if (MSVC)
 
     # Qt DLLs
-	if (Qt5Core_FOUND)
+    if (RESINSIGHT_BUILD_WITH_QT5)	
         message(STATUS "Creating post build step for copying Qt DLLs")
+		
 		foreach (qtlib ${QT_LIBRARIES})
 			add_custom_command(TARGET ResInsight POST_BUILD
 				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:ResInsight>
-    		)
+			)
 		endforeach(qtlib)
-	else()
- 		set (QTLIBLIST QtCore4 QtCored4 QtGui4 QtGuid4 QtOpenGl4 QtOpenGld4 QtNetwork4 QtNetworkd4 QtScript4 QtScriptd4 QtScriptTools4 QtScriptToolsd4)
-	    foreach (qtlib ${QTLIBLIST})
-        	list(APPEND RI_DLL_FILENAMES ${QT_BINARY_DIR}/${qtlib}.dll)
-    	endforeach( qtlib )
-	endif()
+			
+		if (_unityTargetName)
+			foreach (qtlib ${QT_LIBRARIES})
+				add_custom_command(TARGET ${_unityTargetName} POST_BUILD
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${_unityTargetName}>
+				)
+			endforeach(qtlib)
+		endif(_unityTargetName)
+
+    else()
+        set (QTLIBLIST QtCore QtGui QtGui QtOpenGl QtNetwork QtScript QtScriptTools)
+        foreach (qtlib ${QTLIBLIST})		  
+            list(APPEND RI_DLL_FILENAMES ${QT_BINARY_DIR}/$<IF:$<CONFIG:Debug>,${qtlib}d4.dll,${qtlib}4.dll>)
+        endforeach( qtlib )
+    endif(RESINSIGHT_BUILD_WITH_QT5)
     # Odb Dlls
     if (RESINSIGHT_USE_ODB_API)
         # Find all the dlls
@@ -502,6 +549,20 @@ foreach (FILE_TO_COPY ${RI_DLL_FILENAMES})
     endif()
 endforeach()
 
+# Make sure we perform the Python code generation by having a target which ResInsight depends on
+if (RESINSIGHT_ENABLE_GRPC)	
+    set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
+    if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+		if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+			add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
+			add_dependencies(ResInsight GeneratedPythonSources)
+		else()
+			message(STATUS "Error installing python code: RESINSIGHT_GRPC_PYTHON_EXECUTABLE set but ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} not found")
+		endif(EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+	else()
+		message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install GRPC Python code.")
+	endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)	
+endif(RESINSIGHT_ENABLE_GRPC)
 
 #############################################################################
 # Install 
@@ -514,7 +575,6 @@ set (RESINSIGHT_LICENSE_FILES
 
 # bundle libraries together with private installation
 if (RESINSIGHT_PRIVATE_INSTALL)
-
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       # tell binary to first attempt to load libraries from its own directory
       set(RESINSIGHT_INSTALL_RPATH "\$ORIGIN")
@@ -535,6 +595,23 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
       set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "${RESINSIGHT_INSTALL_RPATH}")
       
+      # bundle Qt5 libraries
+      option (RESINSIGHT_QT5_BUNDLE_LIBRARIES "Bundle Qt5 libraries" OFF)
+      mark_as_advanced(FORCE RESINSIGHT_QT5_BUNDLE_LIBRARIES) 
+      if (RESINSIGHT_QT5_BUNDLE_LIBRARIES)
+        message( STATUS "Bundling of Qt5 libraries is enabled" )
+        
+        foreach (qtlib ${QT_LIBRARIES})
+          get_target_property(FILE_NAME_FULL_PATH ${qtlib} LOCATION)
+          message (STATUS "${qtlib} location on disk - ${FILE_NAME_FULL_PATH}")
+          get_filename_component(FILE_NAME_WE ${FILE_NAME_FULL_PATH} NAME_WE)
+          set(FILE_NAME_FOR_INSTALL "${FILE_NAME_WE}.so.5")
+          message (STATUS "${qtlib} filename for install - ${FILE_NAME_FOR_INSTALL}")
+          
+          install(FILES ${FILE_NAME_FULL_PATH} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} RENAME ${FILE_NAME_FOR_INSTALL} )
+        endforeach()
+      endif(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
+
     endif()
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -543,7 +620,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
         set (RESINSIGHT_FILES ${RI_DLL_FILENAMES})
 
-        if(Qt5_FOUND AND WIN32 AND TARGET Qt5::qmake AND NOT TARGET Qt5::windeployqt)
+        if(RESINSIGHT_BUILD_WITH_QT5 AND WIN32 AND TARGET Qt5::qmake AND NOT TARGET Qt5::windeployqt)
           get_target_property(_qt5_qmake_location Qt5::qmake IMPORTED_LOCATION)
 
           execute_process(
@@ -576,12 +653,12 @@ if (RESINSIGHT_PRIVATE_INSTALL)
             COMMAND set PATH=%PATH%$<SEMICOLON>${qt5_install_prefix}/bin
             COMMAND
             Qt5::windeployqt
-			--no-compiler-runtime
-			--no-system-d3d-compiler
-			--no-quick-import
-			--no-translations
+            --no-compiler-runtime
+            --no-system-d3d-compiler
+            --no-quick-import
+            --no-translations
             --verbose 0
-			--dir "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
+            --dir "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
             "$<TARGET_FILE_DIR:ResInsight>/$<TARGET_FILE_NAME:ResInsight>"
           )
 
@@ -593,6 +670,31 @@ if (RESINSIGHT_PRIVATE_INSTALL)
           )
         endif()
 
+        # install GRPC-related DLLs
+        if (RESINSIGHT_ENABLE_GRPC)
+            set (GRPC_DLL_NAMES libprotobuf cares zlib1)
+            foreach (dllname ${GRPC_DLL_NAMES})		  
+              list(APPEND RESINSIGHT_FILES "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/${dllname}.dll")
+            endforeach(dllname ${GRPC_DLL_NAMES})
+	    endif()
+
+        # OpenSSL
+        option(RESINSIGHT_BUNDLE_OPENSSL "Bundle the OpenSSL binary DLLs" OFF)
+        mark_as_advanced(FORCE RESINSIGHT_BUNDLE_OPENSSL)
+
+        if (RESINSIGHT_BUNDLE_OPENSSL)
+          find_package(OpenSSL)
+          if (OPENSSL_FOUND)
+            message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
+            SET(OPENSSL_BIN_DIR ${OPENSSL_INCLUDE_DIR})
+            string(REPLACE "include" "bin" OPENSSL_BIN_DIR ${OPENSSL_BIN_DIR})
+            message("OpenSSL binary dir: ${OPENSSL_BIN_DIR}")
+  
+            install(FILES ${OPENSSL_BIN_DIR}/libeay32.dll DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+            install(FILES ${OPENSSL_BIN_DIR}/ssleay32.dll DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+          endif(OPENSSL_FOUND)
+        endif(RESINSIGHT_BUNDLE_OPENSSL)
+
         # CRT
         set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
         set(CMAKE_INSTALL_OPENMP_LIBRARIES ON)
@@ -600,6 +702,23 @@ if (RESINSIGHT_PRIVATE_INSTALL)
         install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
 
     endif()
+
+    # install gRPC Python files
+    if (RESINSIGHT_ENABLE_GRPC)
+		message(STATUS "GRPC enabled")
+		if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+			message(STATUS "Python found")
+			if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)	
+				message(STATUS "Bundling Python GRPC modules")
+				add_custom_command(
+					TARGET ResInsight
+					POST_BUILD
+					COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install --target=${GRPC_PYTHON_SOURCE_PATH} grpcio
+				)
+			endif()
+			install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
+		endif()
+	endif()
 
     set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
         
@@ -678,6 +797,10 @@ endif()
 
 if(RESINSIGHT_FOUND_HDF5)
     set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_souring")
+endif()
+
+if(RESINSIGHT_BUNDLE_OPENSSL AND OPENSSL_FOUND)
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_openssl")
 endif()
 
 # Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6

@@ -97,10 +97,12 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
     {
         size_t timeStep = m_cellColors->reservoirView()->currentTimeStep();
 
-        bool isOk = RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile(exportSettings.fileName, m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData(), timeStep, m_cellColors, exportSettings.eclipseKeyword, exportSettings.undefinedValue, "saveEclipseResultAsInputPropertyExec");
+        QString errMsg;
+        bool isOk = RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile(exportSettings.fileName, m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData(), timeStep, m_cellColors, exportSettings.eclipseKeyword, exportSettings.undefinedValue, "saveEclipseResultAsInputPropertyExec", &errMsg);
         if (!isOk)
         {
-            RiaLogging::error("Failed to exported current result to " + exportSettings.fileName);
+            QString fullError = QString("Failed to exported current result to %1. Error was: %2").arg(exportSettings.fileName).arg(errMsg);
+            RiaLogging::error(fullError);
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'ecl_nnc_export.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -74,8 +74,10 @@ int count_kw_data( const ecl_file_type * file , ecl_grid_type * grid , const cha
 
 void test_count(const char * name) {
   char * grid_file_name = ecl_util_alloc_filename(NULL , name , ECL_EGRID_FILE , false  , -1);
+  char * init_file_name = ecl_util_alloc_filename(NULL , name , ECL_INIT_FILE , false  , -1);
   ecl_grid_type * grid = ecl_grid_alloc( grid_file_name );
   ecl_file_type * grid_file = ecl_file_open( grid_file_name , 0 );
+  ecl_file_type * init_file = ecl_file_open( init_file_name , 0);
 
   int num_nnc = 0;
 
@@ -83,7 +85,7 @@ void test_count(const char * name) {
   num_nnc += count_kw_data( grid_file , grid , "NNCG" , NULL);
   num_nnc += count_kw_data( grid_file , grid , "NNA1" , NULL);
 
-  test_assert_int_equal( num_nnc , ecl_nnc_export_get_size( grid ));
+  test_assert_int_equal(num_nnc, ecl_nnc_export_get_size(grid, init_file));
 
   free(grid_file_name);
   ecl_grid_free( grid );
@@ -97,7 +99,7 @@ void test_nnc_export_missing_TRANX(const char * name ) {
   if (util_entry_exists(init_file_name)) {
     ecl_grid_type * grid = ecl_grid_alloc( grid_file_name );
     ecl_file_type * init_file = ecl_file_open( init_file_name , 0);
-    ecl_nnc_type  * nnc_data1 = (ecl_nnc_type *) util_calloc( ecl_nnc_export_get_size( grid ) , sizeof * nnc_data1 );
+    ecl_nnc_type * nnc_data1 = (ecl_nnc_type *) util_calloc(ecl_nnc_export_get_size(grid, init_file), sizeof *nnc_data1);
     int count = ecl_nnc_export(grid, init_file, nnc_data1);
     int i;
     test_assert_int_equal( count , 0 );
@@ -113,8 +115,8 @@ void test_export(const char * name, bool have_tran_data) {
     ecl_grid_type * grid = ecl_grid_alloc( grid_file_name );
     ecl_file_type * grid_file = ecl_file_open( grid_file_name , 0 );
     ecl_file_type * init_file = ecl_file_open( init_file_name , 0);
-    ecl_nnc_type  * nnc_data1 = (ecl_nnc_type *) util_calloc( ecl_nnc_export_get_size( grid ) , sizeof * nnc_data1 );
-    ecl_nnc_type  * nnc_data2 = (ecl_nnc_type *) util_calloc( ecl_nnc_export_get_size( grid ) , sizeof * nnc_data2 );
+    ecl_nnc_type * nnc_data1 = (ecl_nnc_type *) util_calloc(ecl_nnc_export_get_size(grid, init_file), sizeof *nnc_data1);
+    ecl_nnc_type * nnc_data2 = (ecl_nnc_type *) util_calloc(ecl_nnc_export_get_size(grid, init_file), sizeof *nnc_data2);
 
 
     {
@@ -214,23 +216,23 @@ void test_export(const char * name, bool have_tran_data) {
         }
       }
 
-      test_assert_int_equal( nnc_offset , ecl_nnc_export_get_size( grid ));
+      test_assert_int_equal(nnc_offset, ecl_nnc_export_get_size(grid, init_file ));
       ecl_nnc_sort( nnc_data1 , nnc_offset );
     }
 
     {
       int export_size = ecl_nnc_export( grid , init_file , nnc_data2 );
-      test_assert_int_equal( export_size , ecl_nnc_export_get_size( grid ));
+      test_assert_int_equal(export_size , ecl_nnc_export_get_size(grid, init_file));
     }
 
     {
       int i;
-      int size = ecl_nnc_export_get_size( grid );
+      int size = ecl_nnc_export_get_size(grid, init_file);
       for (i=0; i < size; i++)
         test_assert_int_equal( 0 , ecl_nnc_sort_cmp( &nnc_data1[i] , &nnc_data2[i]));
     }
 
-    for (int i =0; i < ecl_nnc_export_get_size( grid ); i++)
+    for (int i = 0; i < ecl_nnc_export_get_size(grid, init_file); i++)
       test_assert_true( ecl_nnc_equal( &nnc_data1[i] , &nnc_data2[i] ));
 
     {
@@ -238,7 +240,7 @@ void test_export(const char * name, bool have_tran_data) {
       ecl_file_view_type * view_file = ecl_file_get_global_view( init_file );
       ecl_nnc_data_type * nnc_geo_data = ecl_nnc_data_alloc_tran(grid, nnc_geo, view_file);
 
-      test_assert_int_equal( ecl_nnc_export_get_size( grid ), ecl_nnc_geometry_size( nnc_geo ));
+      test_assert_int_equal(ecl_nnc_export_get_size(grid, init_file), ecl_nnc_geometry_size(nnc_geo));
       for (int i=0; i < ecl_nnc_geometry_size( nnc_geo ); i++) {
         const ecl_nnc_pair_type *nnc_pair = ecl_nnc_geometry_iget( nnc_geo , i );
         ecl_nnc_type * nnc1 = &nnc_data1[i];

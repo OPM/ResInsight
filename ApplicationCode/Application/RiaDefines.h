@@ -170,6 +170,15 @@ namespace RiaDefines
     ImportFileType obtainFileTypeFromFileName(const QString& fileName);
     QString        defaultDirectoryLabel(ImportFileType fileTypes);
 
+    enum CaseType
+    {
+        ECLIPSE_RESULT_CASE = 1,
+        ECLIPSE_INPUT_CASE  = 2,
+        ECLIPSE_STAT_CASE   = 3,
+        ECLIPSE_SOURCE_CASE = 4,
+        GEOMECH_ODB_CASE    = 5
+    };
+
     enum FontSettingType
     {
         SCENE_FONT,

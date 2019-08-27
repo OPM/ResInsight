@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'ecl_rft_cell.h' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -76,7 +76,7 @@ UTIL_IS_INSTANCE_HEADER( ecl_rft_cell );
 
   int                 ecl_rft_cell_cmp__( const void * arg1 , const void * arg2);
   int                 ecl_rft_cell_cmp( const ecl_rft_cell_type * cell1 , const ecl_rft_cell_type * cell2);
-
+  bool                ecl_rft_cell_lt( const ecl_rft_cell_type * cell1 , const ecl_rft_cell_type * cell2);
 #ifdef __cplusplus
 }
 #endif

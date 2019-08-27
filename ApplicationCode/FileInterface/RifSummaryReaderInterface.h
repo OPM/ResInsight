@@ -38,7 +38,10 @@ class RifSummaryReaderInterface : public cvf::Object
 {
 public:
     bool                                            hasAddress(const RifEclipseSummaryAddress& resultAddress) const;
+    
     const std::set<RifEclipseSummaryAddress>&       allResultAddresses() const;
+    const std::set<RifEclipseSummaryAddress>&       allErrorAddresses() const;
+
     RifEclipseSummaryAddress                        errorAddress(const RifEclipseSummaryAddress& resultAddress) const;
 
     virtual const std::vector<time_t>&              timeSteps(const RifEclipseSummaryAddress& resultAddress) const = 0;

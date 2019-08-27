@@ -1,4 +1,4 @@
-#  Copyright (C) 2015  Statoil ASA, Norway.
+#  Copyright (C) 2015  Equinor ASA, Norway.
 #
 #  The file 'ecl_init_file.py' is part of ERT - Ensemble based Reservoir Tool.
 #

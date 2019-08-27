@@ -19,7 +19,7 @@
 
 #include "RimTernaryLegendConfig.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
 

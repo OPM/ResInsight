@@ -40,7 +40,7 @@ public:
     int     caseId() const;
     QString filePath() const;
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     caf::PdmField<QString> m_newGridFile;
@@ -51,7 +51,7 @@ private:
 // RicfMultipleReplaceCase represents multiple caseId-gridFileName pairs
 //
 // NB!  This object has no support for parsing a text command. This object is created by aggregating
-//      multiple RicfSingleCaseReplace objects
+//      multiple RicfSingleCaseReplace objects, or through gRPC interface.
 //
 //==================================================================================================
 class RicfMultiCaseReplace : public RicfCommandObject
@@ -63,7 +63,7 @@ public:
 
     void setCaseReplacePairs(const std::map<int, QString>& caseIdToGridFileNameMap);
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     std::map<int, QString> m_caseIdToGridFileNameMap;

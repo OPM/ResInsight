@@ -56,7 +56,11 @@ public:
     RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer);
     void                loadWinGeoAndDockToolBarLayout();
     void                saveWinGeoAndDockToolBarLayout();
+    void                storeDefaultDockWidgetVisibilitiesIfRequired();
+    void                restoreDockWidgetVisibilities();
     void                showWindow();
+
+    void                hideAllDockWidgets();
 
     caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
     void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);

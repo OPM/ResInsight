@@ -26,6 +26,8 @@
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "RicfCommandObject.h"
+
 #include "RifEclipseOutputFileTools.h"
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderEclipseRft.h"
@@ -70,8 +72,9 @@ RimEclipseResultCase::RimEclipseResultCase()
 {
     CAF_PDM_InitObject("Eclipse Case", ":/Case48x48.png", "", "");
 
-    CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case File Name", "", "" ,"");
+    RICF_InitField(&caseFileName, "CaseFileName",  QString(), "Case File Name", "", "" ,"");
     caseFileName.uiCapability()->setUiReadOnly(true);
+    caseFileName.capability<RicfFieldHandle>()->setIOWriteable(false);
 
     CAF_PDM_InitFieldNoDefault(&m_unitSystem, "UnitSystem", "Unit System", "", "", "");
     m_unitSystem.registerGetMethod(RiaApplication::instance()->project(), &RimProject::commonUnitSystemForAllCases);

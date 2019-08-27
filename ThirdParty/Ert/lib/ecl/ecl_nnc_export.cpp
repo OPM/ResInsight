@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'ecl_nnc_export.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -17,7 +17,7 @@
 */
 #include <stdlib.h>
 
-#include <ert/util/int_vector.hpp>
+#include <vector>
 
 #include <ert/ecl/ecl_file.hpp>
 #include <ert/ecl/ecl_grid.hpp>
@@ -26,11 +26,47 @@
 #include <ert/ecl/ecl_kw_magic.hpp>
 
 
-int ecl_nnc_export_get_size( const ecl_grid_type * grid ) {
-  return ecl_grid_get_num_nnc( grid );
+
+/**
+ * Return true if the NNC information is stored in the Intersect format, false otherwise.
+ * In the Intersect format, the NNC information stored in the grid is unrealiable.
+ * The correct NNC data is stored in the init file instead
+ */
+bool ecl_nnc_intersect_format(const ecl_grid_type * grid, const ecl_file_type * init_file) {
+   if(   !ecl_file_has_kw(init_file, NNC1_KW) ||
+         !ecl_file_has_kw(init_file, NNC2_KW) ||
+         !ecl_file_has_kw(init_file, TRANNNC_KW))
+      return false;
+   // In the specific case we are treating, there should be just 1 occurrence of the kw
+   const auto nnc1_num = ecl_kw_get_size(ecl_file_iget_named_kw(init_file, NNC1_KW, 0));
+   const auto nnc2_num = ecl_kw_get_size(ecl_file_iget_named_kw(init_file, NNC2_KW, 0));
+   const auto tran_num = ecl_kw_get_size(ecl_file_iget_named_kw(init_file, TRANNNC_KW, 0));
+   return nnc1_num == tran_num && nnc2_num == tran_num;
 }
 
 
+int ecl_nnc_export_get_size( const ecl_grid_type * grid , const ecl_file_type * init_file ) {
+   return ecl_nnc_intersect_format(grid, init_file) ?
+         ecl_kw_get_size(ecl_file_iget_named_kw(init_file, TRANNNC_KW, 0)) : // Intersect format
+         ecl_grid_get_num_nnc( grid ); // Eclipse format
+}
+
+static int ecl_nnc_export_intersect__(const ecl_file_type * init_file , ecl_nnc_type * nnc_data, int * nnc_offset) {
+   const auto nnc1_kw = ecl_file_iget_named_kw(init_file, NNC1_KW, 0);
+   const auto nnc2_kw = ecl_file_iget_named_kw(init_file, NNC2_KW, 0);
+   const auto tran_kw = ecl_file_iget_named_kw(init_file, TRANNNC_KW, 0);
+
+   auto nnc_index = *nnc_offset;
+   for(int i = 0; i < ecl_kw_get_size(tran_kw); ++i) {
+      auto const nnc1 = ecl_kw_iget_int(nnc1_kw, i);
+      auto const nnc2 = ecl_kw_iget_int(nnc2_kw, i);
+      auto const tran = ecl_kw_iget_as_double(tran_kw, i);
+      nnc_data[nnc_index] = ecl_nnc_type{0, nnc1, 0, nnc2, i, tran};
+      ++nnc_index;
+   }
+   *nnc_offset = nnc_index;
+   return ecl_kw_get_size(tran_kw); // Assume all valid
+}
 
 
 static int  ecl_nnc_export__( const ecl_grid_type * grid , int lgr_index1 , const ecl_file_type * init_file , ecl_nnc_type * nnc_data, int * nnc_offset) {
@@ -50,8 +86,8 @@ static int  ecl_nnc_export__( const ecl_grid_type * grid , int lgr_index1 , cons
       int lgr_index2;
       for (lgr_index2=0; lgr_index2 < nnc_info_get_size( nnc_info ); lgr_index2++) {
         const nnc_vector_type * nnc_vector = nnc_info_iget_vector( nnc_info , lgr_index2 );
-        const int_vector_type * grid2_index_list = nnc_vector_get_grid_index_list( nnc_vector );
-        const int_vector_type * nnc_index_list = nnc_vector_get_nnc_index_list( nnc_vector );
+        const std::vector<int>& grid2_index_list = nnc_vector_get_grid_index_list( nnc_vector );
+        const std::vector<int>& nnc_index_list = nnc_vector_get_nnc_index_list( nnc_vector );
         int lgr_nr2 = nnc_vector_get_lgr_nr( nnc_vector );
         const ecl_kw_type * tran_kw = ecl_nnc_export_get_tranx_kw(global_grid  , init_file , lgr_nr1 , lgr_nr2 );
 
@@ -63,8 +99,8 @@ static int  ecl_nnc_export__( const ecl_grid_type * grid , int lgr_index1 , cons
         nnc.global_index1 = global_index1;
 
         for (index2 = 0; index2 < nnc_vector_get_size( nnc_vector ); index2++) {
-          nnc.global_index2 = int_vector_iget( grid2_index_list , index2 );
-          nnc.input_index = int_vector_iget( nnc_index_list, index2 );
+          nnc.global_index2 = grid2_index_list[index2];
+          nnc.input_index = nnc_index_list[index2];
           if(tran_kw) {
             nnc.trans = ecl_kw_iget_as_double(tran_kw, nnc.input_index);
             valid_trans++;
@@ -86,15 +122,21 @@ static int  ecl_nnc_export__( const ecl_grid_type * grid , int lgr_index1 , cons
 int  ecl_nnc_export( const ecl_grid_type * grid , const ecl_file_type * init_file , ecl_nnc_type * nnc_data) {
   int nnc_index = 0;
   int total_valid_trans = 0;
-  total_valid_trans = ecl_nnc_export__( grid , 0 , init_file , nnc_data , &nnc_index );
-  {
-    int lgr_index;
-    for (lgr_index = 0; lgr_index < ecl_grid_get_num_lgr(grid); lgr_index++) {
-      ecl_grid_type * igrid = ecl_grid_iget_lgr( grid , lgr_index );
-      total_valid_trans += ecl_nnc_export__( igrid , lgr_index , init_file , nnc_data , &nnc_index );
-    }
+  if(ecl_nnc_intersect_format(grid, init_file)) {
+     // Intersect format
+     total_valid_trans = ecl_nnc_export_intersect__(init_file, nnc_data, &nnc_index);
   }
-  nnc_index = ecl_nnc_export_get_size( grid );
+  else {
+    // Eclipse format
+    total_valid_trans = ecl_nnc_export__( grid , 0 , init_file , nnc_data , &nnc_index );
+    {
+      for (int lgr_index = 0; lgr_index < ecl_grid_get_num_lgr(grid); lgr_index++) {
+        ecl_grid_type * igrid = ecl_grid_iget_lgr( grid , lgr_index );
+        total_valid_trans += ecl_nnc_export__( igrid , lgr_index , init_file , nnc_data , &nnc_index );
+      }
+    }
+    nnc_index = ecl_grid_get_num_nnc( grid );
+  }
   ecl_nnc_sort( nnc_data , nnc_index );
   return total_valid_trans;
 }

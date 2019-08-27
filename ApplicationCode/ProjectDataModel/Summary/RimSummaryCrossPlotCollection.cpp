@@ -76,7 +76,7 @@ void RimSummaryCrossPlotCollection::summaryPlotItemInfos(QList<caf::PdmOptionIte
 {
     for (RimSummaryPlot* plot : m_summaryCrossPlots())
     {
-        QIcon icon = plot->uiCapability()->uiIcon();
+        caf::QIconProvider icon = plot->uiCapability()->uiIconProvider();
         QString displayName = plot->description();
 
         optionInfos->push_back(caf::PdmOptionItemInfo(displayName, plot, false, icon));

@@ -22,6 +22,7 @@
 #include <QLocale>
 #include <QString>
 
+#include "cafAppEnum.h"
 #include <cvfAssert.h>
 
 #include <ctime>
@@ -46,6 +47,30 @@ const QString RiaQDateTimeTools::TIMESPAN_QUARTER_NAME = "Quarter";
 const QString RiaQDateTimeTools::TIMESPAN_HALFYEAR_NAME = "Half Year";
 const QString RiaQDateTimeTools::TIMESPAN_YEAR_NAME = "Year";
 const QString RiaQDateTimeTools::TIMESPAN_DECADE_NAME = "Decade";
+
+
+namespace caf
+{
+template<>
+void caf::AppEnum<RiaQDateTimeTools::DateFormatComponents>::setUp()
+{
+	addItem(RiaQDateTimeTools::DATE_FORMAT_NONE, "NO_DATE", "No Date");
+	addItem(RiaQDateTimeTools::DATE_FORMAT_YEAR, "YEAR", "Year Only");
+	addItem(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH, "YEAR_MONTH", "Year and Month");
+	addItem(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY, "YEAR_MONTH_DAY", "Year, Month and Day");
+	setDefault(RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY);
+}
+
+template<>
+void caf::AppEnum<RiaQDateTimeTools::TimeFormatComponents>::setUp()
+{
+    addItem(RiaQDateTimeTools::TIME_FORMAT_NONE, "NO_TIME", "No Time of Day");
+    addItem(RiaQDateTimeTools::TIME_FORMAT_HOUR, "HOUR", "Hour Only");
+    addItem(RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE, "HOUR_MINUTE", "Hour and Minute");
+    addItem(RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND, "HOUR_MINUTE_SECONDS", "Hour, Minutes and Seconds");
+	setDefault(RiaQDateTimeTools::TIME_FORMAT_NONE);
+}
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -392,4 +417,82 @@ QString RiaQDateTimeTools::createTimeFormatStringFromDates(const std::vector<QDa
 QString RiaQDateTimeTools::dateFormatString()
 {
     return "dd.MMM yyyy";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RiaQDateTimeTools::supportedDateFormats()
+{
+    std::vector<QString> dateFormats;
+
+    // See enum DateFormatComponents in header
+    // The semi-colon separated components are:
+    // DATE_FORMAT_YEAR, ..YEAR_MONTH, ..YEAR_MONTH_DAY
+    dateFormats.push_back("yyyy;yyyy-MM;yyyy-MM-dd");
+    dateFormats.push_back("yyyy;MMM yyyy;dd. MMM yyyy");
+    dateFormats.push_back("yyyy;MMM yyyy;MMM dd. yyyy");
+    dateFormats.push_back("yyyy;MM/yyyy;dd/MM/yyyy");
+    dateFormats.push_back("yyyy;M/yyyy;d/M/yyyy");
+    dateFormats.push_back("yyyy;M/yyyy;M/d/yyyy");
+    dateFormats.push_back("yy;M/yy;d/M/yy");
+    dateFormats.push_back("yy;M/yy;M/d/yy");
+    dateFormats.push_back("yyyy;MM-yyyy;dd-MM-yyyy");
+    dateFormats.push_back("yyyy;MM.yyyy;dd.MM.yyyy");
+    dateFormats.push_back("yyyy;MM-yyyy;MM-dd-yyyy");
+    dateFormats.push_back("yyyy;MM.yyyy;MM.dd.yyyy");
+    dateFormats.push_back("yy;MM-yy;dd-MM-yy");
+    dateFormats.push_back("yy;MM-yy;MM-dd-yy");
+
+    return dateFormats;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RiaQDateTimeTools::supportedTimeFormats()
+{
+    std::vector<QString> timeFormats;
+
+    // See enum TimeFormatComponents in header
+    // The semi-colon separated components are:
+    // TIME_FORMAT_HOUR, ..HOUR_MINUTE, ..HOUR_MINUTE_SECOND and ..HOUR_MINUTE_MILLISECOND
+    timeFormats.push_back("HH;HH:mm;HH:mm:ss;HH:mm:ss.zzz");
+    timeFormats.push_back("H;H:mm;H:mm:ss;H:mm:ss.zzz");
+    timeFormats.push_back("hh AP;hh:mm AP;hh:mm:ss AP;hh:mm:ss.zzz AP");
+    timeFormats.push_back("h AP;h:mm AP;h:mm:ss AP;h:mm:ss.zzz AP");
+
+    return timeFormats;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaQDateTimeTools::dateFormatString(const QString& fullDateFormat, DateFormatComponents dateComponents)
+{
+    if (dateComponents == DATE_FORMAT_NONE) return "";
+
+    QStringList allVariants = fullDateFormat.split(";");
+    if (static_cast<int>(dateComponents) < allVariants.size())
+    {
+        return allVariants[dateComponents];
+    }
+    CVF_ASSERT(false && "Date format string is malformed");
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaQDateTimeTools::timeFormatString(const QString& fullTimeFormat, TimeFormatComponents timeComponents)
+{
+    if (timeComponents == TIME_FORMAT_NONE) return "";
+
+    QStringList allVariants = fullTimeFormat.split(";");
+    if (static_cast<int>(timeComponents) < allVariants.size())
+    {
+        return allVariants[timeComponents];
+    }
+    CVF_ASSERT(false && "Time format string is malformed");
+    return "";
 }

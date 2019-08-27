@@ -18,6 +18,11 @@
 
 #include "RimFlowCharacteristicsPlot.h"
 
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
+#include "RifCsvDataTableFormatter.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
@@ -136,6 +141,8 @@ void RimFlowCharacteristicsPlot::setFromFlowSolution(RimFlowDiagSolution* flowSo
 
     m_flowDiagSolution = flowSolution;
     m_showWindow       = true;
+    m_timeStepToFlowResultMap.clear();
+    m_currentlyPlottedTimeSteps.clear();
 
     onLoadDataAndUpdate();
 }
@@ -171,6 +178,57 @@ void RimFlowCharacteristicsPlot::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::setTimeSteps(const std::vector<int>& timeSteps)
+{
+    m_selectedTimeSteps = timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::setInjectorsAndProducers(const std::vector<QString>& injectors,
+                                                          const std::vector<QString>& producers)
+{
+    std::vector<QString> allTracers;
+
+    allTracers = producers;
+    allTracers.insert(allTracers.end(), injectors.begin(), injectors.end());
+
+    if (producers.empty() && !injectors.empty())
+    {
+        m_cellFilter = RigFlowDiagResults::CELLS_FLOODED;
+    }
+    else if (!producers.empty() && injectors.empty())
+    {
+        m_cellFilter = RigFlowDiagResults::CELLS_DRAINED;
+    }
+    else if (!producers.empty() && !injectors.empty())
+    {
+        m_cellFilter = RigFlowDiagResults::CELLS_COMMUNICATION;
+    }
+
+    m_selectedTracerNames = allTracers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::setMinimumCommunication(double minimumCommunication)
+{
+    m_minCommunication = minimumCommunication;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::setAquiferCellThreshold(double aquiferCellThreshold)
+{
+    m_maxPvFraction = aquiferCellThreshold;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                                 bool*                      useOptionsOnly)
 {
@@ -188,7 +246,7 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
             {
                 if (c->defaultFlowDiagSolution())
                 {
-                    options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+                    options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIconProvider()));
                 }
             }
         }
@@ -199,7 +257,7 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
         {
             for (RimEclipseView* view : m_case()->reservoirViews())
             {
-                options.push_back(caf::PdmOptionItemInfo(view->name(), view, false, view->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo(view->name(), view, false, view->uiIconProvider()));
             }
         }
     }
@@ -212,7 +270,7 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
             options.push_back(caf::PdmOptionItemInfo("None", nullptr));
             for (RimFlowDiagSolution* flowSol : flowSols)
             {
-                options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIconProvider()));
             }
         }
     }
@@ -555,19 +613,22 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 
     if (m_flowDiagSolution && m_flowCharPlotWidget)
     {
-        RigFlowDiagResults* flowResult          = m_flowDiagSolution->flowDiagResults();
-        std::vector<int>    calculatedTimesteps = flowResult->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
+        RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
 
-        if (m_timeStepSelectionType == SELECTED)
         {
-            for (int tsIdx : m_selectedTimeSteps())
-            {
-                m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux(tsIdx);
-            }
-            calculatedTimesteps = m_selectedTimeSteps();
-        }
+            std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
 
-        m_currentlyPlottedTimeSteps = calculatedTimesteps;
+            if (m_timeStepSelectionType == SELECTED)
+            {
+                for (int tsIdx : m_selectedTimeSteps())
+                {
+                    m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux(tsIdx);
+                }
+                calculatedTimesteps = m_selectedTimeSteps();
+            }
+
+            m_currentlyPlottedTimeSteps = calculatedTimesteps;
+        }
 
         std::vector<QDateTime> timeStepDates   = m_case->timeStepDates();
         QStringList            timeStepStrings = m_case->timeStepStrings();
@@ -586,7 +647,7 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 
         std::map<int, RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame> timeStepToFlowResultMap;
 
-        for (int timeStepIdx : calculatedTimesteps)
+        for (int timeStepIdx : m_currentlyPlottedTimeSteps)
         {
             if (m_cellFilter() == RigFlowDiagResults::CELLS_VISIBLE)
             {
@@ -622,18 +683,20 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
             lorenzVals[timeStepIdx] = timeStepToFlowResultMap[timeStepIdx].m_lorenzCoefficient;
         }
 
+        m_timeStepToFlowResultMap = timeStepToFlowResultMap;
+
         m_flowCharPlotWidget->setLorenzCurve(timeStepStrings, timeStepDates, lorenzVals);
 
-        for (int timeStepIdx : calculatedTimesteps)
+        for (int timeStepIdx : m_currentlyPlottedTimeSteps)
         {
             const auto& flowCharResults = timeStepToFlowResultMap[timeStepIdx];
 
             m_flowCharPlotWidget->addFlowCapStorageCapCurve(timeStepDates[timeStepIdx],
-                                                            flowCharResults.m_flowCapStorageCapCurve.first,
-                                                            flowCharResults.m_flowCapStorageCapCurve.second);
+                                                            flowCharResults.m_storageCapFlowCapCurve.first,
+                                                            flowCharResults.m_storageCapFlowCapCurve.second);
             m_flowCharPlotWidget->addSweepEfficiencyCurve(timeStepDates[timeStepIdx],
-                                                          flowCharResults.m_sweepEfficiencyCurve.first,
-                                                          flowCharResults.m_sweepEfficiencyCurve.second);
+                                                          flowCharResults.m_dimensionlessTimeSweepEfficiencyCurve.first,
+                                                          flowCharResults.m_dimensionlessTimeSweepEfficiencyCurve.second);
         }
 
         m_flowCharPlotWidget->showLegend(m_showLegend());
@@ -650,6 +713,121 @@ void RimFlowCharacteristicsPlot::viewGeometryUpdated()
         // Only need to reload data if cell filtering is based on visible cells in view.
         onLoadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double interpolate(std::vector<double>& xData, std::vector<double>& yData, double x, bool extrapolate)
+{
+    size_t itemCount = xData.size();
+
+    size_t index = 0;
+    if (x >= xData[itemCount - 2])
+    {
+        index = itemCount - 2;
+    }
+    else
+    {
+        while (x > xData[index + 1])
+            index++;
+    }
+    double xLeft  = xData[index];
+    double yLeft  = yData[index];
+    double xRight = xData[index + 1];
+    double yRight = yData[index + 1];
+
+    if (!extrapolate)
+    {
+        if (x < xLeft) yRight = yLeft;
+        if (x > xRight) yLeft = yRight;
+    }
+
+    double dydx = (yRight - yLeft) / (xRight - xLeft);
+
+    return yLeft + dydx * (x - xLeft);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFlowCharacteristicsPlot::curveDataAsText() const
+{
+    QString fieldSeparator = RiaApplication::instance()->preferences()->csvTextExportFieldSeparator;
+    QString tableText;
+
+    QTextStream              stream(&tableText);
+    RifCsvDataTableFormatter formatter(stream, fieldSeparator);
+
+    std::vector<RifEclipseOutputTableColumn> header = {
+        RifEclipseOutputTableColumn("Date"),
+        RifEclipseOutputTableColumn("StorageCapacity"),
+        RifEclipseOutputTableColumn("FlowCapacity"),
+        RifEclipseOutputTableColumn("SweepEfficiency"),
+        RifEclipseOutputTableColumn("DimensionlessTime"),
+        RifEclipseOutputTableColumn("LorentzCoefficient"),
+    };
+
+    formatter.header(header);
+
+    std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
+
+    std::vector<double> storageCapacitySamplingValues = {0.08, 0.1, 0.2, 0.3, 0.4};
+    size_t              sampleCount                   = storageCapacitySamplingValues.size();
+
+    for (const auto& timeIndex : m_currentlyPlottedTimeSteps)
+    {
+        QString dateString = timeStepDates[timeIndex].toString("yyyy-MM-dd");
+
+        auto a = m_timeStepToFlowResultMap.find(timeIndex);
+        if (a != m_timeStepToFlowResultMap.end())
+        {
+            auto storageCapacityValues = a->second.m_storageCapFlowCapCurve.first;
+            auto flowCapacityValues    = a->second.m_storageCapFlowCapCurve.second;
+
+            bool                extrapolate = false;
+            std::vector<double> flowCapacitySamplingValues;
+            for (const auto storageCapacity : storageCapacitySamplingValues)
+            {
+                {
+                    double flowCapacity = interpolate(storageCapacityValues, flowCapacityValues, storageCapacity, extrapolate);
+                    flowCapacitySamplingValues.push_back(flowCapacity);
+                }
+            }
+
+            auto dimensionLessTimeValues = a->second.m_dimensionlessTimeSweepEfficiencyCurve.first;
+            auto sweepEffValues          = a->second.m_dimensionlessTimeSweepEfficiencyCurve.second;
+
+            std::vector<double> dimensionLessTimeSamplingValues;
+            std::vector<double> sweepEffSamplingValues;
+            double              range = dimensionLessTimeValues.back() - dimensionLessTimeValues[0];
+            double              step  = range / sampleCount;
+            for (size_t i = 0; i < sampleCount; i++)
+            {
+                double dimensionLessTimeValue = i * step;
+                dimensionLessTimeSamplingValues.push_back(dimensionLessTimeValue);
+                double sweepEffValue = interpolate(dimensionLessTimeValues, sweepEffValues, dimensionLessTimeValue, extrapolate);
+                sweepEffSamplingValues.push_back(sweepEffValue);
+            }
+
+            auto lorentz = a->second.m_lorenzCoefficient;
+
+            for (size_t i = 0; i < sampleCount; i++)
+            {
+                formatter.add(dateString);
+                formatter.add(storageCapacitySamplingValues[i]);
+                formatter.add(flowCapacitySamplingValues[i]);
+                formatter.add(sweepEffSamplingValues[i]);
+                formatter.add(dimensionLessTimeSamplingValues[i]);
+                formatter.add(lorentz);
+                formatter.rowCompleted();
+            }
+        }
+    }
+
+    formatter.tableCompleted();
+
+    return tableText;
 }
 
 //--------------------------------------------------------------------------------------------------

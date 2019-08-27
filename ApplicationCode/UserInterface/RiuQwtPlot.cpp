@@ -18,6 +18,8 @@
 
 #include "RiuQwtPlot.h"
 
+#include "RiaColorTools.h"
+
 #include "RimProject.h"
 
 #include "RiuPlotMainWindowTools.h" 
@@ -82,6 +84,7 @@ RiuQwtPlot::RiuQwtPlot(RimViewWindow* viewWindow, QWidget* parent) : QwtPlot(par
 
     RiuQwtPlotTools::setCommonPlotBehaviour(this);
     RiuQwtPlotTools::setDefaultAxes(this);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,7 +127,7 @@ QSize RiuQwtPlot::minimumSizeHint() const
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlot::selectSample(QwtPlotCurve* curve, int sampleNumber)
-{
+{ 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,6 +135,15 @@ void RiuQwtPlot::selectSample(QwtPlotCurve* curve, int sampleNumber)
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlot::clearSampleSelection()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlot::hideEvent(QHideEvent* event)
+{
+    resetCurveHighlighting();
+    QwtPlot::hideEvent(event);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,7 +174,22 @@ bool RiuQwtPlot::eventFilter(QObject* watched, QEvent* event)
         {
             if(mouseEvent->button() == Qt::LeftButton && mouseEvent->type() == QMouseEvent::MouseButtonRelease)
             {
-                selectClosestCurve(mouseEvent->pos());
+                bool anyZoomingActive = false;
+
+                if (m_zoomerLeft && m_zoomerLeft->isActiveAndValid())
+                {
+                    anyZoomingActive = true;
+                }
+
+                if (m_zoomerRight && m_zoomerRight->isActiveAndValid())
+                {
+                    anyZoomingActive = true;
+                }
+
+                if (!anyZoomingActive)
+                {
+                    selectClosestCurve(mouseEvent->pos());
+                }
             }
         }
     }
@@ -195,6 +222,7 @@ void RiuQwtPlot::selectClosestCurve(const QPoint& pos)
         }
     }
 
+    resetCurveHighlighting();
     if (closestCurve && distMin < 20)
     {
         CVF_ASSERT(closestCurvePoint >= 0);
@@ -209,18 +237,104 @@ void RiuQwtPlot::selectClosestCurve(const QPoint& pos)
             {
                 RiuPlotMainWindowTools::showPlotMainWindow();
                 RiuPlotMainWindowTools::selectAsCurrentItem(selectedPlotObject);
+                highlightCurve(closestCurve);
             }        
         }
     }
-
+    
     if (closestCurve && distMin < 10)
     {
-        selectSample(closestCurve, closestCurvePoint);
+        selectSample(closestCurve, closestCurvePoint);        
     }
     else
     {
         clearSampleSelection();
     }
+
+    replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlot::highlightCurve(const QwtPlotCurve* closestCurve)
+{
+    // NB! Create a copy of the item list before the loop to avoid invalidated iterators when iterating the list
+    // plotCurve->setZ() causes the ordering of items in the list to change
+    auto plotItemList = this->itemList();
+    for (QwtPlotItem* plotItem : plotItemList)
+    {
+        QwtPlotCurve* plotCurve = dynamic_cast<QwtPlotCurve*>(plotItem);
+        if (plotCurve)
+        {
+            QPen   existingPen = plotCurve->pen();
+            QColor bgColor     = this->canvasBackground().color();
+
+            QColor curveColor = existingPen.color();
+            QColor symbolColor;
+            QColor symbolLineColor;
+
+            QwtSymbol* symbol = const_cast<QwtSymbol*>(plotCurve->symbol());
+            if (symbol)
+            {
+                symbolColor     = symbol->brush().color();
+                symbolLineColor = symbol->pen().color();
+            }
+
+            double zValue = plotCurve->z();
+            if (plotCurve == closestCurve)
+            {
+                plotCurve->setZ(zValue + 100.0);
+            }
+            else
+            {
+                QColor blendedColor           = RiaColorTools::blendQColors(bgColor, curveColor, 3, 1);
+                QColor blendedSymbolColor     = RiaColorTools::blendQColors(bgColor, symbolColor, 3, 1);
+                QColor blendedSymbolLineColor = RiaColorTools::blendQColors(bgColor, symbolLineColor, 3, 1);
+
+                plotCurve->setPen(blendedColor, existingPen.width(), existingPen.style());
+                if (symbol)
+                {
+                    symbol->setColor(blendedSymbolColor);
+                    symbol->setPen(blendedSymbolLineColor, symbol->pen().width(), symbol->pen().style());
+                }
+            }
+            CurveColors curveColors = {curveColor, symbolColor, symbolLineColor};
+            m_originalCurveColors.insert(std::make_pair(plotCurve, curveColors));
+            m_originalZValues.insert(std::make_pair(plotCurve, zValue));
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlot::resetCurveHighlighting()
+{
+    // NB! Create a copy of the item list before the loop to avoid invalidated iterators when iterating the list
+    // plotCurve->setZ() causes the ordering of items in the list to change
+    auto plotItemList = this->itemList();
+    for (QwtPlotItem* plotItem : plotItemList)
+    {
+        QwtPlotCurve* plotCurve = dynamic_cast<QwtPlotCurve*>(plotItem);
+        if (plotCurve && m_originalCurveColors.count(plotCurve))
+        {
+            const QPen& existingPen = plotCurve->pen();
+            auto        colors      = m_originalCurveColors[plotCurve];
+            double      zValue      = m_originalZValues[plotCurve];
+            
+            plotCurve->setPen(colors.lineColor, existingPen.width(), existingPen.style());
+            plotCurve->setZ(zValue);
+            QwtSymbol* symbol = const_cast<QwtSymbol*>(plotCurve->symbol());
+            if (symbol)
+            {
+                symbol->setColor(colors.symbolColor);
+                symbol->setPen(colors.symbolLineColor, symbol->pen().width(), symbol->pen().style());
+            }
+        }
+    }
+    m_originalCurveColors.clear();
+    m_originalZValues.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

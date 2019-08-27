@@ -18,7 +18,11 @@
 
 #include "RiuFlowCharacteristicsPlot.h"
 
+#include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaFeatureCommandContext.h"
+#include "RiaFontCache.h"
+#include "RiaPreferences.h"
 
 #include "RimFlowCharacteristicsPlot.h"
 
@@ -30,6 +34,8 @@
 
 #include "cvfBase.h"
 #include "cvfColor3.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
 
 #include "qwt_date.h"
 #include "qwt_legend.h"
@@ -76,7 +82,11 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
     RiuQwtPlotTools::setCommonPlotBehaviour(m_lorenzPlot);
     new RiuQwtPlotWheelZoomer(m_lorenzPlot);
     addWindowZoom(m_lorenzPlot);
-    RiuQwtPlotTools::enableDateBasedBottomXAxis(m_lorenzPlot);
+
+	QString dateFormat = RiaApplication::instance()->preferences()->dateFormat();
+    QString timeFormat = RiaApplication::instance()->preferences()->timeFormat();
+
+    RiuQwtPlotTools::enableDateBasedBottomXAxis(m_lorenzPlot, dateFormat, timeFormat);
     m_lorenzPlot->setTitle("Lorenz Coefficient");
 
     RiuQwtPlotTools::setCommonPlotBehaviour(m_sweepEffPlot);
@@ -84,10 +94,46 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
     addWindowZoom(m_sweepEffPlot);
     m_sweepEffPlot->setTitle("Sweep Efficiency");
 
+    int legendFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
+
+    {
+        QwtText axisTitle = m_sweepEffPlot->axisTitle(QwtPlot::xBottom);
+        auto    font      = axisTitle.font();
+        font.setPointSize(legendFontSize);
+        axisTitle.setFont(font);
+        axisTitle.setText("Dimensionless Time");
+        m_sweepEffPlot->setAxisTitle(QwtPlot::xBottom, axisTitle);
+    }
+    {
+        QwtText axisTitle = m_sweepEffPlot->axisTitle(QwtPlot::yLeft);
+        auto    font      = axisTitle.font();
+        font.setPointSize(legendFontSize);
+        axisTitle.setFont(font);
+        axisTitle.setText("Sweep Efficiency");
+        m_sweepEffPlot->setAxisTitle(QwtPlot::yLeft, axisTitle);
+    }
+
     RiuQwtPlotTools::setCommonPlotBehaviour(m_flowCapVsStorageCapPlot);
     new RiuQwtPlotWheelZoomer(m_flowCapVsStorageCapPlot);
     addWindowZoom(m_flowCapVsStorageCapPlot);
     m_flowCapVsStorageCapPlot->setTitle("Flow Capacity vs Storage Capacity");
+
+    {
+        QwtText axisTitle = m_flowCapVsStorageCapPlot->axisTitle(QwtPlot::xBottom);
+        auto    font      = axisTitle.font();
+        font.setPointSize(legendFontSize);
+        axisTitle.setFont(font);
+        axisTitle.setText("Storage Capacity [C]");
+        m_flowCapVsStorageCapPlot->setAxisTitle(QwtPlot::xBottom, axisTitle);
+    }
+    {
+        QwtText axisTitle = m_flowCapVsStorageCapPlot->axisTitle(QwtPlot::yLeft);
+        auto    font      = axisTitle.font();
+        font.setPointSize(legendFontSize);
+        axisTitle.setFont(font);
+        axisTitle.setText("Flow Capacity [F]");
+        m_flowCapVsStorageCapPlot->setAxisTitle(QwtPlot::yLeft, axisTitle);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,20 +159,23 @@ RiuFlowCharacteristicsPlot::~RiuFlowCharacteristicsPlot()
 //--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::setLorenzCurve(const QStringList& dateTimeStrings, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
 {
-    initializeColors(dateTimes);
-
     m_lorenzPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
 
-    for (size_t tsIdx = 0; tsIdx < dateTimes.size(); ++tsIdx)
+    if (!dateTimes.empty())
     {
-        if (timeHistoryValues[tsIdx] == HUGE_VAL) continue;
+        initializeColors(dateTimes);
 
-        QDateTime dateTime = dateTimes[tsIdx];
-        double timeHistoryValue = timeHistoryValues[tsIdx];
+        for (size_t tsIdx = 0; tsIdx < dateTimes.size(); ++tsIdx)
+        {
+            if (timeHistoryValues[tsIdx] == HUGE_VAL) continue;
 
-        QString curveName = dateTimeStrings[static_cast<int>(tsIdx)];
+            QDateTime dateTime = dateTimes[tsIdx];
+            double timeHistoryValue = timeHistoryValues[tsIdx];
 
-        RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(m_lorenzPlot, curveName, m_dateToColorMap[dateTime], dateTime, timeHistoryValue);
+            QString curveName = dateTimeStrings[static_cast<int>(tsIdx)];
+
+            RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(m_lorenzPlot, curveName, m_dateToColorMap[dateTime], dateTime, timeHistoryValue);
+        }
     }
 
     m_lorenzPlot->replot();
@@ -274,7 +323,33 @@ QSize RiuFlowCharacteristicsPlot::minimumSizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RiuFlowCharacteristicsPlot::contextMenuEvent(QContextMenuEvent* event)
+{
+    if (m_plotDefinition)
+    {
+        QString curveDataAsText = m_plotDefinition->curveDataAsText();
+
+        QString dialogTitle = "Flow Characteristics";
+
+        RiaFeatureCommandContextTextHelper helper(dialogTitle, curveDataAsText);
+
+        caf::CmdFeatureMenuBuilder menuBuilder;
+        menuBuilder << "RicShowPlotDataFeature";
+
+        QMenu menu;
+        menuBuilder.appendToMenu(&menu);
+
+        if (menu.actions().size() > 0)
+        {
+            menu.exec(event->globalPos());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuFlowCharacteristicsPlot::sizeHint() const
 {

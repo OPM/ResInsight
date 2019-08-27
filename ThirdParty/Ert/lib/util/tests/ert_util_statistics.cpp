@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway.
+   Copyright (C) 2013  Equinor ASA, Norway.
 
    The file 'ert_util_statistics.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -32,6 +32,8 @@ void test_mean_std() {
 
   test_assert_double_equal( statistics_mean( d ) , 0.50 );
   test_assert_double_equal( statistics_std( d )  , 0.50 );
+
+  double_vector_free( d );
 }
 
 

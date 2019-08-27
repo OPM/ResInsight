@@ -19,6 +19,7 @@
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
+#include "RiaEclipseFileNameTools.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 
@@ -40,7 +41,8 @@ CAF_CMD_SOURCE_INIT(RicImportGeneralDataFeature, "RicImportGeneralDataFeature");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openEclipseFilesFromFileNames(const QStringList& fileNames)
+RicImportGeneralDataFeature::OpenCaseResults
+    RicImportGeneralDataFeature::openEclipseFilesFromFileNames(const QStringList& fileNames)
 {
     CVF_ASSERT(!fileNames.empty());
 
@@ -66,25 +68,62 @@ bool RicImportGeneralDataFeature::openEclipseFilesFromFileNames(const QStringLis
         }
     }
 
-    bool allSucceeded = true;
+    OpenCaseResults results;
     if (!eclipseCaseFiles.empty())
     {
-        allSucceeded = allSucceeded && openEclipseCaseFromFileNames(eclipseCaseFiles);
+        if (!openEclipseCaseFromFileNames(eclipseCaseFiles))
+        {
+            return OpenCaseResults();
+        }
+        results.eclipseCaseFiles = eclipseCaseFiles;
         RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ECLIPSE_EGRID_FILE), defaultDir);
     }
     if (!eclipseInputFiles.empty())
     {
-        allSucceeded = allSucceeded && openInputEclipseCaseFromFileNames(eclipseInputFiles);
+        if (!openInputEclipseCaseFromFileNames(eclipseInputFiles))
+        {
+            return OpenCaseResults();
+        }
+        results.eclipseInputFiles = eclipseInputFiles;
         RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ECLIPSE_INPUT_FILE), defaultDir);
     }
     if (!eclipseSummaryFiles.empty())
     {
-        allSucceeded = allSucceeded && openSummaryCaseFromFileNames(eclipseSummaryFiles);
+        if (!openSummaryCaseFromFileNames(eclipseSummaryFiles))
+        {
+            return OpenCaseResults();
+        }
+        results.eclipseSummaryFiles = eclipseSummaryFiles;
         RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ECLIPSE_SUMMARY_FILE), defaultDir);
     }
-    return allSucceeded;
+    return results;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RicImportGeneralDataFeature::fileNamesFromCaseNames(const QStringList& caseNames)
+{
+    QStringList fileNames;
+    {
+        for (const auto& caseName : caseNames)
+        {
+            if (caseName.lastIndexOf(".") != -1)
+            {
+                QFileInfo fi(caseName);
+                fileNames.push_back(fi.absoluteFilePath());
+            }
+            else
+            {
+                RiaEclipseFileNameTools nameTool(caseName);
+                QString                 filenameWithExtension = nameTool.findRelatedGridFile();
+                fileNames.push_back(filenameWithExtension);
+            }
+        }
+    }
+
+    return fileNames;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -115,7 +154,7 @@ void RicImportGeneralDataFeature::setupActionLook(QAction* actionToSetup)
 ///
 //--------------------------------------------------------------------------------------------------
 void RicImportGeneralDataFeature::openFileDialog(ImportFileType fileTypes)
-{    
+{
     QString eclipseGridFilePattern("*.GRID");
     QString eclipseEGridFilePattern("*.EGRID");
     QString eclipseInputFilePattern("*.GRDECL");
@@ -125,10 +164,10 @@ void RicImportGeneralDataFeature::openFileDialog(ImportFileType fileTypes)
     if (fileTypes == ANY_ECLIPSE_FILE)
     {
         filePatternTexts += QString("Eclipse Files (%1 %2 %3 %4)")
-            .arg(eclipseGridFilePattern)
-            .arg(eclipseEGridFilePattern)
-            .arg(eclipseInputFilePattern)
-            .arg(eclipseSummaryFilePattern);
+                                .arg(eclipseGridFilePattern)
+                                .arg(eclipseEGridFilePattern)
+                                .arg(eclipseInputFilePattern)
+                                .arg(eclipseSummaryFilePattern);
     }
     if (fileTypes & ECLIPSE_GRID_FILE)
     {
@@ -148,7 +187,7 @@ void RicImportGeneralDataFeature::openFileDialog(ImportFileType fileTypes)
     }
 
     QString fullPattern = filePatternTexts.join(";;");
-  
+
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectory(defaultDirectoryLabel(fileTypes));
 
     QStringList fileNames =
@@ -160,7 +199,7 @@ void RicImportGeneralDataFeature::openFileDialog(ImportFileType fileTypes)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory(defaultDirectoryLabel(ANY_ECLIPSE_FILE), fileNames.front());
     }
-   
+
     if (!openEclipseFilesFromFileNames(fileNames))
     {
         RiaLogging::error(QString("Failed to open file names: %1").arg(fileNames.join(", ")));
@@ -172,12 +211,12 @@ void RicImportGeneralDataFeature::openFileDialog(ImportFileType fileTypes)
 //--------------------------------------------------------------------------------------------------
 bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames(const QStringList& fileNames)
 {
-    QStringList newCaseFiles;
+    RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
     if (RiaImportEclipseCaseTools::openEclipseCasesFromFile(fileNames, &newCaseFiles))
     {
-        for (const auto newCaseFile : newCaseFiles)
+        for (const auto newCaseFileAndId : newCaseFiles)
         {
-            RiaApplication::instance()->addToRecentFiles(newCaseFile);
+            RiaApplication::instance()->addToRecentFiles(newCaseFileAndId.first);
         }
         return true;
     }

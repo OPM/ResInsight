@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2018  Statoil ASA, Norway.
+   Copyright (C) 2018  Equinor ASA, Norway.
 
    The file 'ert_util_mkdir_p.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -24,7 +24,7 @@
 
 
 int main(int argc , char ** argv) {
-  test_work_area_type * work_area = test_work_area_alloc("Test_area");
+  ecl::util::TestArea ta("mkdir");
 
   // Regular use
   test_assert_true( util_mkdir_p("some/path/with/many/levels"));
@@ -45,6 +45,5 @@ int main(int argc , char ** argv) {
   chmod("read_only", 0555);
   test_assert_false(util_mkdir_p("read_only/no/not/this"));
 
-  test_work_area_free(work_area);
   exit(0);
 }

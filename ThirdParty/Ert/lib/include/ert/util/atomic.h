@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'atomic.h' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -30,124 +30,124 @@
 
 
 /**
- * Atomic type.
- */
+ï¿½* Atomic type.
+ï¿½*/
 
 typedef struct {
   volatile int counter;
 } atomic_t;
 
-#define ATOMIC_INIT(i)  { (i) }
+#define ATOMIC_INIT(i) ï¿½{ (i) }
 
 /**
- * Read atomic variable
- * @param v pointer of type atomic_t
- *
- * Atomically reads the value of @v.
- */
+ï¿½* Read atomic variable
+ï¿½* @param v pointer of type atomic_t
+ï¿½*
+ï¿½* Atomically reads the value of @v.
+ï¿½*/
 #define atomic_read(v) ((v)->counter)
 
 /**
- * Set atomic variable
- * @param v pointer of type atomic_t
- * @param i required value
- */
+ï¿½* Set atomic variable
+ï¿½* @param v pointer of type atomic_t
+ï¿½* @param i required value
+ï¿½*/
 #define atomic_set(v,i) (((v)->counter) = (i))
 
 /**
- * Add to the atomic variable
- * @param i integer value to add
- * @param v pointer of type atomic_t
- */
+ï¿½* Add to the atomic variable
+ï¿½* @param i integer value to add
+ï¿½* @param v pointer of type atomic_t
+ï¿½*/
 static inline void atomic_add( int i, atomic_t *v )
 {
   (void)__sync_add_and_fetch(&v->counter, i);
 }
 
 /**
- * Subtract the atomic variable
- * @param i integer value to subtract
- * @param v pointer of type atomic_t
- *
- * Atomically subtracts @i from @v.
- */
+ï¿½* Subtract the atomic variable
+ï¿½* @param i integer value to subtract
+ï¿½* @param v pointer of type atomic_t
+ï¿½*
+ï¿½* Atomically subtracts @i from @v.
+ï¿½*/
 static inline void atomic_sub( int i, atomic_t *v )
 {
   (void)__sync_sub_and_fetch(&v->counter, i);
 }
 
 /**
- * Subtract value from variable and test result
- * @param i integer value to subtract
- * @param v pointer of type atomic_t
- *
- * Atomically subtracts @i from @v and returns
- * true if the result is zero, or false for all
- * other cases.
- */
+ï¿½* Subtract value from variable and test result
+ï¿½* @param i integer value to subtract
+ï¿½* @param v pointer of type atomic_t
+ï¿½*
+ï¿½* Atomically subtracts @i from @v and returns
+ï¿½* true if the result is zero, or false for all
+ï¿½* other cases.
+ï¿½*/
 static inline int atomic_sub_and_test( int i, atomic_t *v )
 {
   return !(__sync_sub_and_fetch(&v->counter, i));
 }
 
 /**
- * Increment atomic variable
- * @param v pointer of type atomic_t
- *
- * Atomically increments @v by 1.
- */
+ï¿½* Increment atomic variable
+ï¿½* @param v pointer of type atomic_t
+ï¿½*
+ï¿½* Atomically increments @v by 1.
+ï¿½*/
 static inline void atomic_inc( atomic_t *v )
 {
   (void)__sync_fetch_and_add(&v->counter, 1);
 }
 
 /**
- * @brief decrement atomic variable
- * @param v: pointer of type atomic_t
- *
- * Atomically decrements @v by 1.  Note that the guaranteed
- * useful range of an atomic_t is only 24 bits.
- */
+ï¿½* @brief decrement atomic variable
+ï¿½* @param v: pointer of type atomic_t
+ï¿½*
+ï¿½* Atomically decrements @v by 1. ï¿½Note that the guaranteed
+ï¿½* useful range of an atomic_t is only 24 bits.
+ï¿½*/
 static inline void atomic_dec( atomic_t *v )
 {
   (void)__sync_fetch_and_sub(&v->counter, 1);
 }
 
 /**
- * @brief Decrement and test
- * @param v pointer of type atomic_t
- *
- * Atomically decrements @v by 1 and
- * returns true if the result is 0, or false for all other
- * cases.
- */
+ï¿½* @brief Decrement and test
+ï¿½* @param v pointer of type atomic_t
+ï¿½*
+ï¿½* Atomically decrements @v by 1 and
+ï¿½* returns true if the result is 0, or false for all other
+ï¿½* cases.
+ï¿½*/
 static inline int atomic_dec_and_test( atomic_t *v )
 {
   return !(__sync_sub_and_fetch(&v->counter, 1));
 }
 
 /**
- * @brief Increment and test
- * @param v pointer of type atomic_t
- *
- * Atomically increments @v by 1
- * and returns true if the result is zero, or false for all
- * other cases.
- */
+ï¿½* @brief Increment and test
+ï¿½* @param v pointer of type atomic_t
+ï¿½*
+ï¿½* Atomically increments @v by 1
+ï¿½* and returns true if the result is zero, or false for all
+ï¿½* other cases.
+ï¿½*/
 static inline int atomic_inc_and_test( atomic_t *v )
 {
   return !(__sync_add_and_fetch(&v->counter, 1));
 }
 
 /**
- * @brief add and test if negative
- * @param v pointer of type atomic_t
- * @param i integer value to add
- *
- * Atomically adds @i to @v and returns true
- * if the result is negative, or false when
- * result is greater than or equal to zero.
- */
+ï¿½* @brief add and test if negative
+ï¿½* @param v pointer of type atomic_t
+ï¿½* @param i integer value to add
+ï¿½*
+ï¿½* Atomically adds @i to @v and returns true
+ï¿½* if the result is negative, or false when
+ï¿½* result is greater than or equal to zero.
+ï¿½*/
 static inline int atomic_add_negative( int i, atomic_t *v )
 {
   return (__sync_add_and_fetch(&v->counter, i) < 0);
@@ -168,14 +168,14 @@ static inline int atomic_add_negative( int i, atomic_t *v )
 //
 ////As a second example, consider a compare and swap operation, frequently used in lock-free algorithms. Once again, it's trivially:
 ///**
-// * @brief compare and swap
-// * @param v pointer of type atomic_t
-// *
-// * If the current value of @b v is @b oldval,
-// * then write @b newval into @b v. Returns #TRUE if
-// * the comparison is successful and @b newval was
-// * written.
-// */
+//ï¿½* @brief compare and swap
+//ï¿½* @param v pointer of type atomic_t
+//ï¿½*
+//ï¿½* If the current value of @b v is @b oldval,
+//ï¿½* then write @b newval into @b v. Returns #TRUE if
+//ï¿½* the comparison is successful and @b newval was
+//ï¿½* written.
+//ï¿½*/
 //static inline int atomic_cas( atomic_t *v, int oldval, int newval )
 //{
 //  return __sync_bool_compare_and_swap(&v->counter, oldval, newval);

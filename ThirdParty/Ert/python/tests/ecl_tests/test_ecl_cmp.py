@@ -1,4 +1,4 @@
-#  Copyright (C) 2015  Statoil ASA, Norway.
+#  Copyright (C) 2015  Equinor ASA, Norway.
 #
 #  The file 'test_ecl_cmp.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -17,13 +17,13 @@
 from ecl.util.test import TestAreaContext
 from ecl.util.test.ecl_mock import createEclSum
 from ecl.summary import EclCmp
-from tests import EclTest, statoil_test
+from tests import EclTest, equinor_test
 
-@statoil_test()
+@equinor_test()
 class EclCmpTest(EclTest):
     def setUp(self):
-        self.root1 = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE")
-        self.root2 = self.createTestPath("Statoil/ECLIPSE/Oseberg/F8MLT/F8MLT-F4")
+        self.root1 = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE")
+        self.root2 = self.createTestPath("Equinor/ECLIPSE/Oseberg/F8MLT/F8MLT-F4")
 
 
     def test_not_existing(self):

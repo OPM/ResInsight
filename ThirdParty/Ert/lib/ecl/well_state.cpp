@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'well_state.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -30,6 +30,10 @@
 #include <ert/util/hash.hpp>
 #include <ert/util/int_vector.hpp>
 #include <ert/util/type_macros.hpp>
+
+#include <string>
+#include <vector>
+#include <map>
 
 #include <ert/ecl/ecl_rsthead.hpp>
 #include <ert/ecl/ecl_file.hpp>
@@ -105,7 +109,7 @@ links are as follows:
   Segment1: C2
   Segment2: C3
   Segment3: C4, C5
-  Segment4: C6
+  Segment4: C6state_free(
   Segment5: C7
 
 Each segment has an outlet segment, which will link the segments
@@ -164,7 +168,7 @@ coupledte implementation these objects are modelled as such:
 
 struct well_state_struct {
   UTIL_TYPE_ID_DECLARATION;
-  char           * name;
+  std::string      name;
   time_t           valid_from_time;
   int              valid_from_report;
   int              global_well_nr;
@@ -176,15 +180,15 @@ struct well_state_struct {
   double           water_rate;
   double           volume_rate;
   ert_ecl_unit_enum unit_system;
-
-  hash_type      * connections;                                                       // hash<grid_name,well_conn_collection>
+     
+  std::map<std::string, well_conn_collection_type*> connections;              // hash<grid_name,well_conn_collection>
   well_segment_collection_type * segments;
   well_branch_collection_type * branches;
 
   /*****************************************************************/
-
-  vector_type    * index_wellhead;   // An well_conn_type instance representing the wellhead - indexed by grid_nr.
-  hash_type      * name_wellhead;    // An well_conn_type instance representing the wellhead - indexed by lgr_name.
+  
+  std::vector<well_conn_type*> index_wellhead; // An well_conn_type instance representing the wellhead - indexed by grid_nr.   
+  std::map<std::string, well_conn_type*> name_wellhead; // An well_conn_type instance representing the wellhead - indexed by lgr_name.
 };
 
 
@@ -193,18 +197,15 @@ UTIL_IS_INSTANCE_FUNCTION( well_state , WELL_STATE_TYPE_ID)
 
 
 well_state_type * well_state_alloc(const char * well_name , int global_well_nr , bool open, well_type_enum type , int report_nr, time_t valid_from) {
-  well_state_type * well_state = (well_state_type*)util_malloc( sizeof * well_state );
+  well_state_type * well_state = new well_state_type();
   UTIL_TYPE_ID_INIT( well_state , WELL_STATE_TYPE_ID );
-  well_state->index_wellhead = vector_alloc_new();
-  well_state->name_wellhead  = hash_alloc();
 
-  well_state->name = util_alloc_string_copy( well_name );
+  well_state->name = well_name;
   well_state->valid_from_time = valid_from;
   well_state->valid_from_report = report_nr;
   well_state->open = open;
   well_state->type = type;
   well_state->global_well_nr = global_well_nr;
-  well_state->connections = hash_alloc();
   well_state->segments = well_segment_collection_alloc();
   well_state->branches = well_branch_collection_alloc();
   well_state->is_MSW_well = false;
@@ -291,8 +292,10 @@ void well_state_add_wellhead( well_state_type * well_state , const ecl_rsthead_t
   well_conn_type * wellhead = well_conn_alloc_wellhead( iwel_kw , header , well_nr );
 
   if (wellhead != NULL) {
-    vector_safe_iset_owned_ref( well_state->index_wellhead , grid_nr , wellhead , well_conn_free__ );
-    hash_insert_ref( well_state->name_wellhead , grid_name , wellhead );
+    if (grid_nr >= static_cast<int>(well_state->index_wellhead.size()))
+      well_state->index_wellhead.resize(grid_nr+1, NULL);
+    well_state->index_wellhead[grid_nr] = wellhead;
+    well_state->name_wellhead[grid_name] = wellhead;
   }
 
 }
@@ -342,7 +345,7 @@ static int well_state_get_lgr_well_nr( const well_state_type * well_state , cons
       {
         char * lgr_well_name = (char*)util_alloc_strip_copy( (const char*)ecl_kw_iget_ptr( zwel_kw , well_nr * header->nzwelz) );
 
-        if ( strcmp( well_state->name , lgr_well_name) == 0)
+        if ( well_state->name == lgr_well_name)
           found = true;
         else
           well_nr++;
@@ -406,27 +409,29 @@ static void well_state_add_connections__( well_state_type * well_state ,
                                           int well_nr ) {
 
   ecl_rsthead_type  * header   = ecl_rsthead_alloc( rst_view , -1);
-  const ecl_kw_type * icon_kw  = ecl_file_view_iget_named_kw( rst_view , ICON_KW   , 0);
   const ecl_kw_type * iwel_kw  = ecl_file_view_iget_named_kw( rst_view , IWEL_KW   , 0);
 
 
   well_state_add_wellhead( well_state , header , iwel_kw , well_nr , grid_name , grid_nr );
 
-  if (!well_state_has_grid_connections( well_state , grid_name ))
-    hash_insert_hash_owned_ref( well_state->connections , grid_name, well_conn_collection_alloc( ) , well_conn_collection_free__ );
+  if (ecl_file_view_has_kw(rst_view, ICON_KW)) {
+    const ecl_kw_type * icon_kw  = ecl_file_view_iget_named_kw( rst_view , ICON_KW   , 0);
+    if (!well_state_has_grid_connections( well_state , grid_name ))
+      well_state->connections[grid_name] = well_conn_collection_alloc();
 
-  {
-    ecl_kw_type * scon_kw = NULL;
-    if (ecl_file_view_has_kw( rst_view , SCON_KW))
-      scon_kw = ecl_file_view_iget_named_kw( rst_view , SCON_KW , 0);
+    {
+      ecl_kw_type * scon_kw = NULL;
+      if (ecl_file_view_has_kw( rst_view , SCON_KW))
+        scon_kw = ecl_file_view_iget_named_kw( rst_view , SCON_KW , 0);
 
-    ecl_kw_type * xcon_kw = NULL;
-    if (ecl_file_view_has_kw( rst_view , XCON_KW)) {
-      xcon_kw = ecl_file_view_iget_named_kw(rst_view, XCON_KW, 0);
+      ecl_kw_type * xcon_kw = NULL;
+      if (ecl_file_view_has_kw( rst_view , XCON_KW)) {
+        xcon_kw = ecl_file_view_iget_named_kw(rst_view, XCON_KW, 0);
+      }
+
+      well_conn_collection_type * wellcc = well_state->connections[grid_name];
+      well_conn_collection_load_from_kw( wellcc , iwel_kw , icon_kw , scon_kw, xcon_kw , well_nr , header );
     }
-
-    well_conn_collection_type * wellcc = (well_conn_collection_type*)hash_get( well_state->connections , grid_name );
-    well_conn_collection_load_from_kw( wellcc , iwel_kw , icon_kw , scon_kw, xcon_kw , well_nr , header );
   }
   ecl_rsthead_free( header );
 }
@@ -447,10 +452,19 @@ static void well_state_add_LGR_connections(well_state_type * well_state,
   int num_lgr = ecl_grid_get_num_lgr( grid );
   for (int lgr_index = 0; lgr_index < num_lgr; lgr_index++) {
     ecl_file_view_type * lgr_view = ecl_file_view_add_blockview(file_view , LGR_KW , lgr_index);
-    const char * grid_name = ecl_grid_iget_lgr_name( grid , lgr_index );
-    int well_nr = well_state_get_lgr_well_nr( well_state , lgr_view );
-    if (well_nr >= 0)
-      well_state_add_connections__( well_state , lgr_view , grid_name , lgr_index + 1, well_nr );
+    /*
+      Even though the grid has LGR information the restart file is not required
+      to have corresponding LGR information. This has for a long time been
+      unchecked, and there might be bugs lurking based on the incorrect
+      assumption that if the grid has LGR information then the corresponding LGR
+      information can also be found in the restart file.
+    */
+    if (lgr_view) {
+      const char * grid_name = ecl_grid_iget_lgr_name( grid , lgr_index );
+      int well_nr = well_state_get_lgr_well_nr( well_state , lgr_view );
+      if (well_nr >= 0)
+        well_state_add_connections__( well_state , lgr_view , grid_name , lgr_index + 1, well_nr );
+    }
   }
 }
 
@@ -515,13 +529,12 @@ bool well_state_add_MSW2( well_state_type * well_state ,
 
 
       if (segment_count > 0) {
-        hash_iter_type * grid_iter = hash_iter_alloc( well_state->connections );
-        while (!hash_iter_is_complete( grid_iter )) {
-          const char * grid_name = hash_iter_get_next_key( grid_iter );
-          const well_conn_collection_type * connections = (const well_conn_collection_type*)hash_get( well_state->connections , grid_name );
-          well_segment_collection_add_connections( well_state->segments , grid_name , connections );
+
+        auto it = well_state->connections.begin();
+        while (it != well_state->connections.end()) {
+          well_segment_collection_add_connections( well_state->segments , it->first.c_str() , it->second );
+          it++;
         }
-        hash_iter_free( grid_iter );
 
         well_segment_collection_link( well_state->segments );
         well_segment_collection_add_branches( well_state->segments , well_state->branches );
@@ -607,14 +620,19 @@ well_state_type * well_state_alloc_from_file2( ecl_file_view_type * file_view , 
 
 
 void well_state_free( well_state_type * well ) {
-  hash_free( well->name_wellhead );
-  vector_free( well->index_wellhead );
-  hash_free( well->connections );
+
+  for (size_t i = 0; i < well->index_wellhead.size(); i++) {
+    if (well->index_wellhead[i])
+       well_conn_free(well->index_wellhead[i]);
+  }
+
+  for (auto& pair : well->connections)
+    well_conn_collection_free(pair.second);
+
   well_segment_collection_free( well->segments );
   well_branch_collection_free( well->branches );
 
-  free( well->name );
-  free( well );
+  delete well;
 }
 
 /*****************************************************************/
@@ -631,22 +649,30 @@ time_t well_state_get_sim_time( const well_state_type * well_state ) {
    Will return NULL if no wellhead in this grid.
 */
 const well_conn_type * well_state_iget_wellhead( const well_state_type * well_state , int grid_nr) {
-  return (const well_conn_type*)vector_safe_iget_const( well_state->index_wellhead , grid_nr );
+  if (grid_nr < static_cast<int>(well_state->index_wellhead.size()))
+    return well_state->index_wellhead[grid_nr];
+  else
+    return NULL;
+}
+
+
+bool well_state_has_named_well_conn( const well_state_type * well_state , const char * grid_name ) {
+  const auto it = well_state->name_wellhead.find( grid_name );
+  if (it ==  well_state->name_wellhead.end())
+    return false;
+  return true;
 }
 
 
 const well_conn_type * well_state_get_wellhead( const well_state_type * well_state , const char * grid_name) {
-  if (hash_has_key( well_state->name_wellhead , grid_name))
-    return (const well_conn_type*)hash_get( well_state->name_wellhead , grid_name );
-  else
-    return NULL;
+  const auto it = well_state->name_wellhead.find( grid_name );
+  if (it !=  well_state->name_wellhead.end())
+    return it->second;
+  return NULL;
 }
 
 const well_conn_type * well_state_get_global_wellhead( const well_state_type * well_state ) {
-  if (hash_has_key( well_state->name_wellhead , ECL_GRID_GLOBAL_GRID))
-    return (const well_conn_type*)hash_get( well_state->name_wellhead , ECL_GRID_GLOBAL_GRID );
-  else
-    return NULL;
+  return well_state_get_wellhead( well_state, ECL_GRID_GLOBAL_GRID );
 }
 
 
@@ -664,15 +690,15 @@ int well_state_get_well_nr( const well_state_type * well_state ) {
 
 
 const char * well_state_get_name( const well_state_type * well_state ) {
-  return well_state->name;
+  return well_state->name.c_str();
 }
 
 
 /*****************************************************************/
 
 const well_conn_collection_type * well_state_get_grid_connections( const well_state_type * well_state , const char * grid_name) {
-  if (hash_has_key( well_state->connections , grid_name))
-    return (const well_conn_collection_type*)hash_get( well_state->connections , grid_name);
+  if (well_state_has_grid_connections(well_state, grid_name)  )
+    return well_state->connections.at(grid_name);
   else
     return NULL;
 }
@@ -684,10 +710,11 @@ const well_conn_collection_type * well_state_get_global_connections( const well_
 
 
 bool well_state_has_grid_connections( const well_state_type * well_state , const char * grid_name) {
-  if (hash_has_key( well_state->connections , grid_name))
-    return true;
-  else
+
+  const auto it = well_state->connections.find(grid_name);
+  if (it == well_state->connections.end())
     return false;
+  return true;
 }
 
 

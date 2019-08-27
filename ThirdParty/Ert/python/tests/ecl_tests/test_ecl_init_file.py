@@ -1,4 +1,4 @@
-#  Copyright (C) 2015  Statoil ASA, Norway.
+#  Copyright (C) 2015  Equinor ASA, Norway.
 #
 #  The file 'test_ecl_init_file.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -15,18 +15,18 @@
 #  for more details.
 
 
-from tests import EclTest, statoil_test
+from tests import EclTest, equinor_test
 from ecl import EclFileFlagEnum
 from ecl.eclfile import Ecl3DKW, EclKW, EclInitFile, EclFile, FortIO
 from ecl.grid import EclGrid
 
-@statoil_test()
+@equinor_test()
 class InitFileTest(EclTest):
 
 
     def setUp(self):
-        self.grid_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID")
-        self.init_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.INIT")
+        self.grid_file = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.EGRID")
+        self.init_file = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.INIT")
 
 
     def test_wrong_type(self):

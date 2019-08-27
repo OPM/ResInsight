@@ -49,11 +49,14 @@ public:
 
     QString plotTitle() const;
 
-    bool isQuantityInTitle() const;
+    bool isPlotDisplayingSingleQuantity() const;
     bool isWellNameInTitle() const;
     bool isWellGroupNameInTitle() const;
     bool isRegionInTitle() const;
     bool isCaseInTitle() const;
+    bool isBlockInTitle() const;
+    bool isSegmentInTitle() const;
+    bool isCompletionInTitle() const;
 
 private:
     void clearTitleSubStrings();
@@ -73,6 +76,9 @@ private:
     std::string m_titleWellName;
     std::string m_titleWellGroupName;
     std::string m_titleRegion;
+    std::string m_titleBlock;
+    std::string m_titleSegment;
+    std::string m_titleCompletion;
 
     QString m_titleCaseName;
 };

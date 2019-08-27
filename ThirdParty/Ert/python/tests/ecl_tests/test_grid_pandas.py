@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#  Copyright (C) 2018  Statoil ASA, Norway.
+#  Copyright (C) 2018  Equinor ASA, Norway.
 #
 #  The file 'test_grid.pandas' is part of ERT - Ensemble based Reservoir Tool.
 #

@@ -33,7 +33,10 @@ QWidget* Riu3DMainWindowTools::mainWindowWidget()
 //--------------------------------------------------------------------------------------------------
 void Riu3DMainWindowTools::setActiveViewer(QWidget* subWindow)
 {
-    RiuMainWindow::instance()->setActiveViewer(subWindow);
+    if (RiuMainWindow::instance())
+    {
+        RiuMainWindow::instance()->setActiveViewer(subWindow);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,7 +44,10 @@ void Riu3DMainWindowTools::setActiveViewer(QWidget* subWindow)
 //--------------------------------------------------------------------------------------------------
 void Riu3DMainWindowTools::setExpanded(const caf::PdmUiItem* uiItem, bool expanded /*= true*/)
 {
-    RiuMainWindow::instance()->setExpanded(uiItem, expanded);
+    if (RiuMainWindow::instance())
+    {
+        RiuMainWindow::instance()->setExpanded(uiItem, expanded);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +55,10 @@ void Riu3DMainWindowTools::setExpanded(const caf::PdmUiItem* uiItem, bool expand
 //--------------------------------------------------------------------------------------------------
 void Riu3DMainWindowTools::selectAsCurrentItem(const caf::PdmObject* object, bool allowActiveViewChange /*= true*/)
 {
-    RiuMainWindow::instance()->selectAsCurrentItem(object, allowActiveViewChange);
+    if (RiuMainWindow::instance())
+    {
+        RiuMainWindow::instance()->selectAsCurrentItem(object, allowActiveViewChange);
+    }
 }
 
 

@@ -4,6 +4,7 @@
 #include "cafPdmFieldHandle.h"
 #include "cafPdmUiModelChangeDetector.h"
 #include "cafPdmUiObjectHandle.h"
+#include "cafPdmUiEditorHandle.h"
 
 namespace caf
 {
@@ -61,12 +62,31 @@ void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const Q
         PdmObjectHandle* ownerObjectHandle = fieldHandle->ownerObject();
 
         {
+            bool noOwnerObject = true;
+
+            // Object editors
+
             PdmUiObjectHandle* uiObjHandle = uiObj(ownerObjectHandle);
             if (uiObjHandle)
             {
                 uiObjHandle->fieldChangedByUi(fieldHandle, oldFieldValue, newFieldValue);
                 uiObjHandle->updateConnectedEditors();
 
+                noOwnerObject = false;
+            }
+
+            // Field editors
+
+            for (const auto& editorForThisField : m_editors)
+            {
+                PdmUiEditorHandle* editorContainingThisField = editorForThisField->topMostContainingEditor();
+
+                bool editorContainingThisFieldIsNotUpdated = !uiObjHandle->hasEditor(editorContainingThisField);
+
+                if (noOwnerObject || editorContainingThisFieldIsNotUpdated)
+                {
+                    editorContainingThisField->updateUi();
+                }
             }
         }
 
@@ -80,9 +100,6 @@ void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const Q
                 // If updateConnectedEditors() is required, this has to be called in childFieldChangedByUi()
             }
         }
-
-        // Update field editors
-        this->updateConnectedEditors();
 
         PdmUiModelChangeDetector::instance()->setModelChanged();
     }

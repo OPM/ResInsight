@@ -23,7 +23,7 @@
 #include <vector>
 
 class QTextStream;
-
+class QString;
 
 #define ENSEMBLE_STAT_P10_QUANTITY_NAME     "P10"
 #define ENSEMBLE_STAT_P50_QUANTITY_NAME     "P50"
@@ -150,6 +150,7 @@ public:
 
     SummaryVarCategory  category() const            { return m_variableCategory; }
     const std::string&  quantityName() const        { return m_quantityName; }
+    bool                isHistoryQuantity() const;
 
     int                 regionNumber() const        { return m_regionNumber; }
     int                 regionNumber2() const       { return m_regionNumber2; }
@@ -162,6 +163,7 @@ public:
     int                 cellJ() const               { return m_cellJ; }
     int                 cellK() const               { return m_cellK; }
     int                 aquiferNumber() const       { return m_aquiferNumber; }
+    std::string         blockAsString() const;
 
     const std::string   ensembleStatisticsQuantityName() const;
 
@@ -169,6 +171,7 @@ public:
 
     std::string     uiText() const;
     std::string     uiText(RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput) const;
+    bool            isUiTextMatchingFilterText(const QString& filterString) const;
 
     bool            isValid() const;
     void            setQuantityName(const std::string& quantity)        { m_quantityName = quantity; }
@@ -176,6 +179,8 @@ public:
     void            setWellGroupName(const std::string& wellGroupName)  { m_wellGroupName = wellGroupName; }
     void            setRegion(int region)                               { m_regionNumber = (int16_t)region; }
     void            setAquiferNumber(int aquiferNumber)                 { m_aquiferNumber = (int16_t)aquiferNumber; }
+    void            setCellIjk(const std::string& uiText);
+    void            setWellSegmentNumber(int segment)                   { m_wellSegmentNumber = (int16_t)segment; }
 
     void            setAsErrorResult()                                  { m_isErrorResult = true; }
     bool            isErrorResult() const                               { return m_isErrorResult; }
@@ -184,7 +189,6 @@ public:
 private:
     bool                                            isValidEclipseCategory() const;
     static std::string                              baseQuantityName(const std::string& quantityName);
-    std::string                                     formatUiTextIJK() const;
     static std::tuple<int32_t, int32_t, int32_t>    ijkTupleFromUiText(const std::string &s);
     std::string                                     formatUiTextRegionToRegion() const;
     std::pair<int16_t, int16_t>                     regionToRegionPairFromUiText(const std::string &s);

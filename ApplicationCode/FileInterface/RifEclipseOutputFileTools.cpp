@@ -123,7 +123,7 @@ void getDayMonthYear(const ecl_kw_type* intehead_kw, int* day, int* month, int* 
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart)
+void RifEclipseOutputFileTools::timeSteps(const ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart)
 {
     if (!ecl_file) return;
 
@@ -183,7 +183,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values)
+bool RifEclipseOutputFileTools::keywordData(const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values)
 {
     bool result = false;
 
@@ -210,7 +210,7 @@ bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QStri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values)
+bool RifEclipseOutputFileTools::keywordData(const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values)
 {
     bool result = false;
 
@@ -365,7 +365,7 @@ void RifEclipseOutputFileTools::readGridDimensions(const QString& gridFileName, 
 ///  3  : LAB
 ///  -1 : No INTEHEAD keyword found
 //--------------------------------------------------------------------------------------------------
-int RifEclipseOutputFileTools::readUnitsType(ecl_file_type* ecl_file)
+int RifEclipseOutputFileTools::readUnitsType(const ecl_file_type* ecl_file)
 {
     int unitsType = -1;
 
@@ -427,7 +427,7 @@ QString RifEclipseOutputFileTools::createIndexFileName(const QString& resultFile
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::set<RiaDefines::PhaseType> RifEclipseOutputFileTools::findAvailablePhases(ecl_file_type* ecl_file)
+std::set<RiaDefines::PhaseType> RifEclipseOutputFileTools::findAvailablePhases(const ecl_file_type* ecl_file)
 {
     std::set<RiaDefines::PhaseType> phaseTypes;
 
@@ -462,7 +462,7 @@ std::set<RiaDefines::PhaseType> RifEclipseOutputFileTools::findAvailablePhases(e
 /// 
 //--------------------------------------------------------------------------------------------------
 void RifEclipseOutputFileTools::transferNncFluxData(const ecl_grid_type* grid,
-                                                    ecl_file_view_type* summaryView,
+                                                    const ecl_file_view_type* summaryView,
                                                     std::vector<double>* waterFlux, 
                                                     std::vector<double>* oilFlux, 
                                                     std::vector<double>* gasFlux)
@@ -501,7 +501,7 @@ void RifEclipseOutputFileTools::transferNncFluxData(const ecl_grid_type* grid,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::isExportedFromIntersect(ecl_file_type* ecl_file)
+bool RifEclipseOutputFileTools::isExportedFromIntersect(const ecl_file_type* ecl_file)
 {
     // This code is taken from ecl_file_get_ecl_version() in ecl_file.cpp
 
@@ -515,33 +515,6 @@ bool RifEclipseOutputFileTools::isExportedFromIntersect(ecl_file_type* ecl_file)
     }
 
     return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-ecl_kw_type* RifEclipseOutputFileTools::createActnumFromPorv(ecl_file_type* ecl_file)
-{
-    std::string porv_kw("PORV");
-
-    if (ecl_file_has_kw(ecl_file, porv_kw.data()))
-    {
-        ecl_file_view_type* fileView = ecl_file_get_global_view(ecl_file);
-
-        int keywordCount = ecl_file_get_num_named_kw(ecl_file, porv_kw.data());
-        for (int index = 0; index < keywordCount; index++)
-        {
-            ecl_kw_type* fileKeyword = ecl_file_view_iget_named_kw(fileView, porv_kw.data(), index);
-            if (fileKeyword)
-            {
-                float porvLimit = 0.0f;
-
-                return ecl_kw_alloc_actnum(fileKeyword, porvLimit);
-            }
-        }
-    }
-
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

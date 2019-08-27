@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'ecl_file_kw.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -91,7 +91,7 @@ static void inv_map_assert_sort( inv_map_type * map ) {
     size_t_vector_permute( map->file_kw_ptr , perm );
     map->sorted = true;
 
-    free( perm );
+    perm_vector_free( perm );
   }
 }
 

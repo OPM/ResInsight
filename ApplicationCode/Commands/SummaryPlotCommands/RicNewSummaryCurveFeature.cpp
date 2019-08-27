@@ -18,7 +18,7 @@
 
 #include "RicNewSummaryCurveFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
 
 #include "RiaSummaryTools.h"
@@ -38,71 +38,10 @@
 
 #include <QAction>
 #include "RiuPlotMainWindowTools.h"
+#include "RicSummaryPlotFeatureImpl.h"
 
 CAF_CMD_SOURCE_INIT(RicNewSummaryCurveFeature, "RicNewSummaryCurveFeature");
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RicNewSummaryCurveFeature::addCurveToPlot(RimSummaryPlot* plot, RimSummaryCase* summaryCase)
-{
-    if (plot)
-    {
-        RimSummaryCurve* newCurve = new RimSummaryCurve();
-
-        // Use same counting as RicNewSummaryEnsembleCurveSetFeature::onActionTriggered
-        cvf::Color3f curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(plot->singleColorCurveCount());
-        newCurve->setColor(curveColor);
-
-        plot->addCurveAndUpdate(newCurve);
-
-        if (summaryCase)
-        {
-            newCurve->setSummaryCaseY(summaryCase);
-        }
-
-        newCurve->setSummaryAddressYAndApplyInterpolation(RifEclipseSummaryAddress::fieldAddress("FOPT"));
-
-        newCurve->loadDataAndUpdate(true);
-
-        return newCurve;
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicNewSummaryCurveFeature::ensureAtLeastOnePlot(RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase)
-{
-    if (summaryPlotCollection && summaryCase)
-    {
-        if (summaryPlotCollection->summaryPlots.empty())
-        {
-            createNewPlot(summaryPlotCollection, summaryCase);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicNewSummaryCurveFeature::createNewPlot(RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase)
-{
-    if (summaryPlotCollection && summaryCase)
-    {
-        auto plot = summaryPlotCollection->createSummaryPlotWithAutoTitle();
-
-        auto curve = RicNewSummaryCurveFeature::addCurveToPlot(plot, summaryCase);
-        plot->loadDataAndUpdate();
-
-        summaryPlotCollection->updateConnectedEditors();
-
-        RiuPlotMainWindowTools::setExpanded(curve);
-        RiuPlotMainWindowTools::selectAsCurrentItem(curve);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -117,7 +56,8 @@ bool RicNewSummaryCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+    RimProject* project = app->project();
     CVF_ASSERT(project);
 
     RimSummaryPlot* plot = selectedSummaryPlot();
@@ -129,13 +69,15 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
             defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase(0);
         }
 
-        RimSummaryCurve* newCurve = addCurveToPlot(plot, defaultCase);
+        RimSummaryCurve* newCurve = RicSummaryPlotFeatureImpl::addDefaultCurveToPlot(plot, defaultCase);
 
+        plot->applyDefaultCurveAppearances();
+        plot->loadDataAndUpdate();
         plot->updateConnectedEditors();
 
-        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
+        app->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
 
-        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 }

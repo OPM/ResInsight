@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway.
+   Copyright (C) 2014  Equinor ASA, Norway.
 
    The file 'ecl_grid_DEPTHZ.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -44,15 +44,15 @@ void test_create() {
   int ny = 100;
   int nz = 10;
 
-  double * DXV = (double *) util_malloc( nx * sizeof * DXV );
-  double * DYV = (double *) util_malloc( ny * sizeof * DYV );
+  double * DXV = (double *) util_malloc( (nx + 1) * sizeof * DXV );
+  double * DYV = (double *) util_malloc( (ny + 1) * sizeof * DYV );
   double * DZV = (double *) util_malloc( nz * sizeof * DZV );
   double * DEPTHZ = (double *) util_malloc( (nx + 1) * (ny + 1) * sizeof * DEPTHZ);
 
-  for (int i=0; i < nx; i++)
+  for (int i=0; i <= nx; i++)
     DXV[i] = 1.0 / nx;
 
-  for (int j=0; j < ny; j++)
+  for (int j=0; j <= ny; j++)
     DYV[j] = 1.0 / ny;
 
   for (int k=0; k < nz; k++)

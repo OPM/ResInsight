@@ -59,8 +59,6 @@ private:
 
     bool                                       m_showDialog;
     bool                                       m_ensembleOrGroupMode;
-    RicSummaryCaseRestartDialog::ImportOptions m_defaultSummaryImportMode;
-    RicSummaryCaseRestartDialog::ImportOptions m_defaultGridImportMode;
 
     std::vector<RifSummaryCaseFileResultInfo> m_summaryFileInfos;
     QStringList                               m_gridFiles;

@@ -39,7 +39,7 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QDateEdit>
+#include <QDateTimeEdit>
 #include <QLabel>
 #include <QPointer>
 #include <QString>
@@ -83,7 +83,7 @@ protected slots:
     void                slotEditingFinished();
 
 private:
-    QPointer<QDateEdit>      m_dateEdit;
+    QPointer<QDateTimeEdit>           m_dateEdit;
     QPointer<QShortenedLabel>         m_label;
 
     PdmUiDateEditorAttribute m_attributes;

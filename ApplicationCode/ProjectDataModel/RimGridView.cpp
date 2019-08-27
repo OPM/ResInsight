@@ -295,7 +295,7 @@ bool RimGridView::hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType
     bool hasCustomFonts = Rim3dView::hasCustomFontSizes(fontSettingType, defaultFontSize);
     if (fontSettingType == RiaDefines::ANNOTATION_FONT)
     {
-        auto annotations = annotationCollection();
+        auto                   annotations         = annotationCollection();
         if (annotations)
         {
             RiaFontCache::FontSize defaultFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(defaultFontSize);
@@ -316,7 +316,7 @@ bool RimGridView::applyFontSize(RiaDefines::FontSettingType fontSettingType,
     bool anyChange = Rim3dView::applyFontSize(fontSettingType, oldFontSize, fontSize, forceChange);
     if (fontSettingType == RiaDefines::ANNOTATION_FONT)
     {
-        auto annotations = annotationCollection();
+        auto                   annotations = annotationCollection();
         if (annotations)
         {
             RiaFontCache::FontSize oldFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize(oldFontSize);
@@ -325,8 +325,7 @@ bool RimGridView::applyFontSize(RiaDefines::FontSettingType fontSettingType,
 
             if (applyFontSizes)
             {
-                anyChange =
-                    annotations->applyFontSizeToAllTextAnnotations(oldFontSizeEnum, newFontSizeEnum, forceChange) || anyChange;
+                anyChange = annotations->applyFontSizeToAllTextAnnotations(oldFontSizeEnum, newFontSizeEnum, forceChange) || anyChange;
             }
         }
     }
@@ -426,6 +425,14 @@ void RimGridView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 RimGridCollection* RimGridView::gridCollection() const
 {
     return m_gridCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::clearReservoirCellVisibilities() 
+{
+    m_currentReservoirCellVisibility = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -96,7 +96,7 @@ void RimCommandExecuteScript::redo()
         arguments.append("--eval");
         arguments << this->scriptText();
 
-        RiaApplication::instance()->launchProcess(octavePath, arguments);
+        RiaApplication::instance()->launchProcess(octavePath, arguments, app->octaveProcessEnvironment());
     }
 }
 

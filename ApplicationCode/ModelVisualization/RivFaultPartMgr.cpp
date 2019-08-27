@@ -19,7 +19,7 @@
 
 #include "RivFaultPartMgr.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
 #include "RigCaseCellResultsData.h"
@@ -482,7 +482,9 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
     // Fault label
     if (!m_rimFault->name().isEmpty())
     {
-        cvf::Font* font = RiaApplication::instance()->defaultWellLabelFont();
+        RiaGuiApplication* app = RiaGuiApplication::instance();
+
+        cvf::Font* font = app->defaultWellLabelFont();
 
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
         drawableText->setFont(font);
@@ -491,7 +493,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         drawableText->setDrawBackground(false);
         drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
 
-        cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
+        cvf::Color3f defWellLabelColor = app->preferences()->defaultWellLabelColor();
         {
             {
                 RimFaultInViewCollection* parentObject;

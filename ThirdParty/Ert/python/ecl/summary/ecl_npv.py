@@ -1,4 +1,4 @@
-#  Copyright (C) 2013  Statoil ASA, Norway.
+#  Copyright (C) 2013  Equinor ASA, Norway.
 #
 #  The file 'ecl_npv.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -136,7 +136,7 @@ class NPVPriceVector(object):
 
 
 class EclNPV(object):
-    sumKeyRE = re.compile("[[]([\w:,]+)[]]")
+    sumKeyRE = re.compile("[\[]([\w:,]+)[\]]")
 
 
     def __init__(self, baseCase):

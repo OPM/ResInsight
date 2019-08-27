@@ -62,7 +62,6 @@ RimEclipseContourMapView::RimEclipseContourMapView()
     CAF_PDM_InitField(&m_showAxisLines,   "ShowAxisLines", true, "Show Axis Lines", "", "", "");
     CAF_PDM_InitField(&m_showScaleLegend, "ShowScaleLegend", true, "Show Scale Legend", "", "", "");
 
-    m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
     setFaultVisParameters();
 
     setDefaultCustomName();
@@ -164,7 +163,6 @@ void RimEclipseContourMapView::updateCurrentTimeStepAndRedraw()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapView::initAfterRead()
 {
-    m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
     disablePerspectiveProjectionField();
     setShowGridBox(false);
     meshMode.setValue(RiaDefines::NO_MESH);

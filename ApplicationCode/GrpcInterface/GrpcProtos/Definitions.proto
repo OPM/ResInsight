@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package rips;
+
+message Empty
+{
+}
+
+message ClientToServerStreamReply
+{
+	int64 accepted_value_count = 1;
+}

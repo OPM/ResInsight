@@ -25,7 +25,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "cvfAssert.h"
 
@@ -40,7 +40,7 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot(bool showAfterCr
     CVF_ASSERT(wellLogPlotColl);
 
     // Make sure the summary plot window is created
-    RiaApplication::instance()->getOrCreateMainPlotWindow();
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
 
     RimWellLogPlot* plot = new RimWellLogPlot();
     plot->setAsPlotMdiWindow();
@@ -58,7 +58,7 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot(bool showAfterCr
 
     if (showAfterCreation)
     {
-        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+        RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
     }
 
     return plot;

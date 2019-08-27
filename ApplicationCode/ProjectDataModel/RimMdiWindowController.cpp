@@ -18,7 +18,7 @@
 
 #include "RimMdiWindowController.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
 #include "RiuMainWindowBase.h"
@@ -122,7 +122,11 @@ QWidget* RimMdiWindowController::viewWidget()
 //--------------------------------------------------------------------------------------------------
 RiuMainWindowBase* RimMdiWindowController::getMainWindow()
 {
-    return RiaApplication::instance()->mainWindowByID(m_mainWindowID);
+    if (RiaGuiApplication::isRunning())
+    {
+        return RiaGuiApplication::instance()->mainWindowByID(m_mainWindowID);
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

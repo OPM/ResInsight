@@ -20,7 +20,7 @@
 
 #include "RimProject.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaFilePathTools.h"
@@ -76,7 +76,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimWellPathImport.h"
+#include "SsiHubImportCommands/RimWellPathImport.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
@@ -89,6 +89,7 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfBoundingBox.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QMenu>
 
@@ -108,11 +109,15 @@ RimProject::RimProject(void)
     CAF_PDM_InitField(&nextValidCaseGroupId, "NextValidCaseGroupId", 0, "Next Valid Case Group ID", "", "" ,"");
     nextValidCaseGroupId.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitField(&nextValidViewId, "NextValidViewId", 0, "Next Valid View ID", "", "", "");
+    nextValidViewId.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&oilFields, "OilFields", "Oil Fields",  "", "", "");
     oilFields.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png", "", "");
     scriptCollection.uiCapability()->setUiHidden(true);
+    scriptCollection.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&wellPathImport, "WellPathImport", "WellPathImport", "", "", "");
     wellPathImport = new RimWellPathImport();
@@ -173,14 +178,12 @@ RimProject::RimProject(void)
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.uiCapability()->setUiHidden(true);
     scriptCollection->uiCapability()->setUiName("Scripts");
-    scriptCollection->uiCapability()->setUiIcon(QIcon(":/octave.png"));
+    scriptCollection->uiCapability()->setUiIconFromResourceString(":/octave.png");
 
     mainPlotCollection = new RimMainPlotCollection();
 
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back(new RimOilField);
-
-    initScriptDirectories();
 
     this->setUiHidden(true);
 }
@@ -229,6 +232,7 @@ void RimProject::close()
 
     nextValidCaseId = 0;
     nextValidCaseGroupId = 0;
+    nextValidViewId = 0;
     mainWindowCurrentModelIndexPath = "";
     mainWindowTreeViewState = "";
     plotWindowCurrentModelIndexPath = "";
@@ -238,88 +242,8 @@ void RimProject::close()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::initScriptDirectories()
-{
-    //
-    // TODO : Must store content of scripts in project file and notify user if stored content is different from disk on execute and edit
-    // 
-    RiaApplication* app = RiaApplication::instance();
-    QString scriptDirectories = app->scriptDirectories();
-
-    this->setScriptDirectories(scriptDirectories);
-
-    // Find largest used caseId read from file and make sure all cases have a valid caseId
-    {
-        int largestId = -1;
-
-        std::vector<RimCase*> cases;
-        allCases(cases);
-    
-        for (size_t i = 0; i < cases.size(); i++)
-        {
-            if (cases[i]->caseId > largestId)
-            {
-                largestId = cases[i]->caseId;
-            }
-        }
-
-        if (largestId > this->nextValidCaseId)
-        {
-            this->nextValidCaseId = largestId + 1;
-        }
-
-        // Assign case Id to cases with an invalid case Id
-        for (size_t i = 0; i < cases.size(); i++)
-        {
-            if (cases[i]->caseId < 0)
-            {
-                assignCaseIdToCase(cases[i]);
-            }
-        }
-    }
-
-    // Find largest used groupId read from file and make sure all groups have a valid groupId
-    RimEclipseCaseCollection* analysisModels = activeOilField() ? activeOilField()->analysisModels() : nullptr;
-    if (analysisModels)
-    {
-        int largestGroupId = -1;
-        
-        for (size_t i = 0; i < analysisModels->caseGroups().size(); i++)
-        {
-            RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups()[i];
-
-            if (cg->groupId > largestGroupId)
-            {
-                largestGroupId = cg->groupId;
-            }
-        }
-
-        if (largestGroupId > this->nextValidCaseGroupId)
-        {
-            this->nextValidCaseGroupId = largestGroupId + 1;
-        }
-
-        // Assign group Id to groups with an invalid Id
-        for (size_t i = 0; i < analysisModels->caseGroups().size(); i++)
-        {
-            RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups()[i];
-
-            if (cg->groupId < 0)
-            {
-                assignIdToCaseGroup(cg);
-            }
-        }
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimProject::initAfterRead()
 {
-    initScriptDirectories();
-
     // Create an empty oil field in case the project did not contain one
     if (oilFields.size() < 1)
     {
@@ -384,16 +308,12 @@ void RimProject::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimProject::setupBeforeSave()
 {
-    m_show3DWindow = RiuMainWindow::instance()->isVisible();
+    RiaGuiApplication* guiApp = RiaGuiApplication::instance();
 
-    if (RiaApplication::instance()->mainPlotWindow() &&
-        RiaApplication::instance()->mainPlotWindow()->isVisible())
+    if (guiApp)
     {
-        m_showPlotWindow = true;
-    }
-    else
-    {
-        m_showPlotWindow = false;
+        m_show3DWindow = guiApp->mainWindow()->isVisible();
+        m_showPlotWindow = guiApp->mainPlotWindow() && guiApp->mainPlotWindow()->isVisible();
     }
 
     m_projectFileVersionString = STRPRODUCTVER;
@@ -540,6 +460,18 @@ void RimProject::assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup)
         caseGroup->groupId = nextValidCaseGroupId;
 
         nextValidCaseGroupId = nextValidCaseGroupId + 1;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignViewIdToView(Rim3dView* view)
+{
+    if (view)
+    {
+        view->setId(nextValidViewId);
+        nextValidViewId = nextValidViewId + 1;
     }
 }
 

@@ -56,12 +56,23 @@ void RicExecuteScriptFeature::onActionTriggered(bool isChecked)
     RimCalcScript* calcScript = selection[0];
 
     RiaApplication* app = RiaApplication::instance();
-    QString octavePath = app->octavePath();
-    if (!octavePath.isEmpty())
+    if (calcScript->scriptType() == RimCalcScript::OCTAVE)
     {
-        QStringList arguments = RimCalcScript::createCommandLineArguments(calcScript->absoluteFileName());
-
-        RiaApplication::instance()->launchProcess(octavePath, arguments);
+        QString octavePath = app->octavePath();
+        if (!octavePath.isEmpty())
+        {
+            QStringList arguments = RimCalcScript::createCommandLineArguments(calcScript->absoluteFileName());
+            RiaApplication::instance()->launchProcess(octavePath, arguments, app->octaveProcessEnvironment());
+        }
+    }
+    else if (calcScript->scriptType() == RimCalcScript::PYTHON)
+    {
+        QString pythonPath = app->pythonPath();
+        if (!pythonPath.isEmpty())
+        {
+            QStringList arguments = RimCalcScript::createCommandLineArguments(calcScript->absoluteFileName());
+            RiaApplication::instance()->launchProcess(pythonPath, arguments, app->pythonProcessEnvironment());
+        }
     }
 }
 

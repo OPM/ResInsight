@@ -110,6 +110,7 @@ private:
 
 private:
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>  m_fieldViews; 
+    std::set<PdmFieldHandle*>                           m_usedFields; ///< used temporarily to store the new(complete) set of used fields
     std::map<QString, QPointer<QMinimizePanel> >        m_groupBoxes;
     std::map<QString, QPointer<QMinimizePanel> >        m_newGroupBoxes; ///< used temporarily to store the new(complete) set of group boxes
     std::map<QString, std::map<QString, bool> >         m_objectKeywordGroupUiNameExpandedState; 

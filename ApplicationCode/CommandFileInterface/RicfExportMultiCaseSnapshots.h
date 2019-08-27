@@ -34,7 +34,7 @@ class RicfExportMultiCaseSnapshots : public RicfCommandObject
 public:
     RicfExportMultiCaseSnapshots();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     caf::PdmField<QString> m_gridListFile;

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'ecl_sum.h' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -58,8 +58,8 @@ typedef struct ecl_sum_vector_struct ecl_sum_vector_type;
 typedef struct ecl_sum_struct       ecl_sum_type;
 
   void           ecl_sum_fmt_init_summary_x( const ecl_sum_type * ecl_sum , ecl_sum_fmt_type * fmt );
-  double         ecl_sum_get_from_sim_time( const ecl_sum_type * ecl_sum , time_t sim_time , const smspec_node_type * node);
-  double         ecl_sum_get_from_sim_days( const ecl_sum_type * ecl_sum , double sim_days , const smspec_node_type * node);
+  double         ecl_sum_get_from_sim_time( const ecl_sum_type * ecl_sum , time_t sim_time , const ecl::smspec_node * node);
+  double         ecl_sum_get_from_sim_days( const ecl_sum_type * ecl_sum , double sim_days , const ecl::smspec_node * node);
   double         ecl_sum_time2days( const ecl_sum_type * ecl_sum , time_t sim_time);
 
   void           ecl_sum_set_unified( ecl_sum_type * ecl_sum , bool unified );
@@ -93,7 +93,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   ecl_sum_type   * ecl_sum_fread_alloc_case(const char *  , const char * key_join_string);
   ecl_sum_type   * ecl_sum_fread_alloc_case__(const char * input_file , const char * key_join_string , bool include_restart);
   ecl_sum_type   * ecl_sum_fread_alloc_case2__(const char *  , const char * key_join_string , bool include_restart, bool lazy_load, int file_options);
-  ecl_sum_type   * ecl_sum_alloc_resample(const ecl_sum_type * ecl_sum, const char * ecl_case, const time_t_vector_type * times);
+  ecl_sum_type   * ecl_sum_alloc_resample(const ecl_sum_type * ecl_sum, const char * ecl_case, const time_t_vector_type * times, bool lower_extrapolation, bool upper_extrapolation);
   bool             ecl_sum_case_exists( const char * input_file );
 
   /* Accessor functions : */
@@ -130,7 +130,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
 
   double            ecl_sum_get_general_var(const ecl_sum_type * ecl_sum , int time_index , const char * lookup_kw);
   int               ecl_sum_get_general_var_params_index(const ecl_sum_type * ecl_sum , const char * lookup_kw);
-  const smspec_node_type * ecl_sum_get_general_var_node(const ecl_sum_type * ecl_sum , const char * lookup_kw);
+  const ecl::smspec_node * ecl_sum_get_general_var_node(const ecl_sum_type * ecl_sum , const char * lookup_kw);
   bool              ecl_sum_has_general_var(const ecl_sum_type * ecl_sum , const char * lookup_kw);
   bool              ecl_sum_has_key(const ecl_sum_type * ecl_sum , const char * lookup_kw);
   double            ecl_sum_get_general_var_from_sim_days( const ecl_sum_type * ecl_sum , double sim_days , const char * var);
@@ -190,7 +190,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   stringlist_type     * ecl_sum_alloc_well_var_list( const ecl_sum_type * ecl_sum );
   stringlist_type     * ecl_sum_alloc_matching_general_var_list(const ecl_sum_type * ecl_sum , const char * pattern);
   void                  ecl_sum_select_matching_general_var_list( const ecl_sum_type * ecl_sum , const char * pattern , stringlist_type * keys);
-  const ecl_smspec_type * ecl_sum_get_smspec( const ecl_sum_type * ecl_sum );
+  ecl_smspec_type     * ecl_sum_get_smspec( const ecl_sum_type * ecl_sum );
   ecl_smspec_var_type   ecl_sum_identify_var_type(const char * var);
   ecl_smspec_var_type   ecl_sum_get_var_type( const ecl_sum_type * ecl_sum , const char * gen_key);
   bool                  ecl_sum_var_is_rate( const ecl_sum_type * ecl_sum , const char * gen_key);
@@ -230,8 +230,8 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   void                  ecl_sum_fwrite( const ecl_sum_type * ecl_sum );
   bool                  ecl_sum_can_write( const ecl_sum_type * ecl_sum );
   void                  ecl_sum_fwrite_smspec( const ecl_sum_type * ecl_sum );
-  smspec_node_type    * ecl_sum_add_smspec_node(ecl_sum_type * ecl_sum, const smspec_node_type * node);
-  smspec_node_type    * ecl_sum_add_var(ecl_sum_type * ecl_sum ,
+  const ecl::smspec_node    * ecl_sum_add_smspec_node(ecl_sum_type * ecl_sum, const ecl::smspec_node * node);
+  const ecl::smspec_node    * ecl_sum_add_var(ecl_sum_type * ecl_sum ,
                                         const char * keyword ,
                                         const char * wgname ,
                                         int num ,
@@ -256,10 +256,10 @@ typedef struct ecl_sum_struct       ecl_sum_type;
 
   double               ecl_sum_iget_last_value(const ecl_sum_type * ecl_sum, int param_index);
   double               ecl_sum_get_last_value_gen_key(const ecl_sum_type * ecl_sum, const char * gen_key);
-  double               ecl_sum_get_last_value_node(const ecl_sum_type * ecl_sum, const smspec_node_type *node);
+  double               ecl_sum_get_last_value_node(const ecl_sum_type * ecl_sum, const ecl::smspec_node *node);
   double               ecl_sum_iget_first_value(const ecl_sum_type * ecl_sum, int param_index);
   double               ecl_sum_get_first_value_gen_key(const ecl_sum_type * ecl_sum, const char * gen_key);
-  double               ecl_sum_get_first_value_node(const ecl_sum_type * ecl_sum, const smspec_node_type *node);
+  double               ecl_sum_get_first_value_node(const ecl_sum_type * ecl_sum, const ecl::smspec_node *node);
 
   void                 ecl_sum_init_datetime64_vector(const ecl_sum_type * ecl_sum, int64_t * data, int multiplier);
   void                 ecl_sum_init_double_vector_interp(const ecl_sum_type * ecl_sum, const char * gen_key, const time_t_vector_type * time_points, double * data);

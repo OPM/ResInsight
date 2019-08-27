@@ -3,7 +3,7 @@
 -- individual contents of the database are licensed under the Database Contents
 -- License: http://opendatacommons.org/licenses/dbcl/1.0/
 
--- Copyright (C) 2016 Statoil
+-- Copyright (C) 2016 Equinor
 
 -- NOTE: This deck is currently not supported by the OPM
 -- simulator flow due to lack of support for LGR.

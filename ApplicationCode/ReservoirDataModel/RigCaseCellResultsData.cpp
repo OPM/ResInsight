@@ -2642,6 +2642,14 @@ void RigCaseCellResultsData::setReaderInterface(RifReaderInterface* readerInterf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RifReaderInterface* RigCaseCellResultsData::readerInterface() const
+{
+    return m_readerInterface.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::setHdf5Filename(const QString& hdf5SourSimFilename)
 {
     RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<RifReaderEclipseOutput*>(m_readerInterface.p());
@@ -2808,7 +2816,9 @@ void RigCaseCellResultsData::assignValuesToTemporaryLgrs(const QString&       re
 //--------------------------------------------------------------------------------------------------
 RigStatisticsDataCache* RigCaseCellResultsData::statistics(const RigEclipseResultAddress& resVarAddr)
 {
-    return m_statisticsDataCache[findScalarResultIndexFromAddress(resVarAddr)].p();
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
+    CAF_ASSERT(scalarResultIndex < m_statisticsDataCache.size());
+    return m_statisticsDataCache[scalarResultIndex].p();
 }
 
 

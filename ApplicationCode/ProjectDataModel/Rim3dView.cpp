@@ -19,10 +19,12 @@
 
 #include "Rim3dView.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 #include "RiaViewRedrawScheduler.h"
+
+#include "RicfCommandObject.h"
 
 #include "Rim3dWellLogCurve.h"
 #include "RimAnnotationInViewCollection.h"
@@ -101,7 +103,7 @@ Rim3dView::Rim3dView(void)
     CAF_PDM_InitField(&scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "");
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
-    CAF_PDM_InitField(&m_backgroundColor, "ViewBackgroundColor", defBackgColor, "Background", "", "", "");
+    RICF_InitField(&m_backgroundColor, "ViewBackgroundColor", defBackgColor, "Background", "", "", "");
 
     CAF_PDM_InitField(&maximumFrameRate, "MaximumFrameRate", 10, "Maximum Frame Rate", "", "", "");
     maximumFrameRate.uiCapability()->setUiHidden(true);
@@ -115,11 +117,15 @@ Rim3dView::Rim3dView(void)
     CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid Lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid Surface",  "", "", "");
 
-    CAF_PDM_InitField(&m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "");
-
+    RICF_InitField(&m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "");
+    
     CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Results Lighting", "", "Disable light model for scalar result colors", "");
 
     CAF_PDM_InitField(&m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "");
+   
+    RICF_InitField(&m_viewId, "ViewId", -1, "View ID", "", "", "");
+    m_viewId.uiCapability()->setUiReadOnly(true);
+    m_viewId.capability<RicfFieldHandle>()->setIOWriteable(false);
 
     m_crossSectionVizModel = new cvf::ModelBasicList;
     m_crossSectionVizModel->setName("CrossSectionModel");
@@ -176,12 +182,28 @@ QString Rim3dView::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int Rim3dView::id() const
+{
+    return m_viewId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::setId(int id)
+{
+    m_viewId = id;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QWidget* Rim3dView::createViewWidget(QWidget* mainWindowParent)
 {
     QGLFormat glFormat;
-    glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
+    glFormat.setDirectRendering(RiaGuiApplication::instance()->useShaders());
 
     m_viewer = new RiuViewer(glFormat, mainWindowParent);
     m_viewer->setOwnerReservoirView(this);
@@ -207,7 +229,7 @@ void Rim3dView::updateViewWidgetAfterCreation()
     this->resetLegendsInViewer();
 
     m_viewer->updateNavigationPolicy();
-    m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
+    m_viewer->enablePerfInfoHud(RiaGuiApplication::instance()->showPerformanceInfo());
 
     m_viewer->mainCamera()->setViewMatrix(m_cameraPosition);
     m_viewer->setPointOfInterest(m_cameraPointOfInterest());
@@ -278,9 +300,10 @@ void Rim3dView::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_viewId);
+
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroupWithKeyword("Viewer", "ViewGroup");
-    
-    //viewGroup->add(m_nameConfig->nameField());
+
     viewGroup->add(&m_backgroundColor);
     viewGroup->add(&m_showZScaleLabel);
     viewGroup->add(&m_showGridBox);
@@ -409,7 +432,10 @@ void Rim3dView::createDisplayModelAndRedraw()
         }
     }
 
-    RiuMainWindow::instance()->refreshAnimationActions();
+    if (RiuMainWindow::instance())
+    {
+        RiuMainWindow::instance()->refreshAnimationActions();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

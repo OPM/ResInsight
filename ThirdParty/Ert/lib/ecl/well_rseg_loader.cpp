@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'well_info.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -79,6 +79,7 @@ double * well_rseg_loader_load_values(const well_rseg_loader_type * loader, int 
     int_vector_type * index_map = loader->absolute_index_map;
 
     int index = 0;
+    int_vector_resize( index_map, int_vector_size(loader->relative_index_map), 0 );
     for(index = 0; index < int_vector_size(loader->relative_index_map); index++) {
         int relative_index = int_vector_iget(loader->relative_index_map, index);
         int_vector_iset(index_map, index, relative_index + rseg_offset);

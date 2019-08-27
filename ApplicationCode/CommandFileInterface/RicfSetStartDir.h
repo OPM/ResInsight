@@ -34,7 +34,7 @@ class RicfSetStartDir : public RicfCommandObject
 public:
     RicfSetStartDir();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     caf::PdmField<QString> m_path;

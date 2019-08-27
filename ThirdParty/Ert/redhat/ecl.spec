@@ -2,7 +2,7 @@
 # spec file for package ecl
 #
 
-%define tag final
+%define tag rc1
 
 Name:           ecl
 Version:        2018.10
@@ -11,7 +11,7 @@ Summary:        ECL library
 License:        GPL-3+
 Group:          Development/Libraries/C and C++
 Url:            http://ert.nr.no
-Source0:        https://github.com/Statoil/libecl/archive/release/%{version}/%{tag}.tar.gz#/%{name}-%{version}.tar.gz
+Source0:        https://github.com/Equinor/libecl/archive/release/%{version}/%{tag}.tar.gz#/%{name}-%{version}.tar.gz
 BuildRequires:  lapack-devel zlib-devel iputils
 BuildRequires:  devtoolset-6-toolchain
 %{?!el6:BuildRequires: python-devel numpy python-pandas python-cwrap}

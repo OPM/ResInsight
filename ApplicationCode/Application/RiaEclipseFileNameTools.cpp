@@ -42,7 +42,9 @@ void caf::AppEnum<RiaEclipseFileNameTools::EclipseFileType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RiaEclipseFileNameTools::RiaEclipseFileNameTools(const QString& inputFilePath)
 {
-    m_baseName = findBaseName(inputFilePath);
+    QFileInfo fi(inputFilePath);
+
+    m_baseName = fi.absolutePath() + "/" + fi.baseName();
 }
 
 //--------------------------------------------------------------------------------------------------

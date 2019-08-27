@@ -141,7 +141,103 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("New Summary Plot");
+    actionToSetup->setText("Open Summary Plot Editor");
     actionToSetup->setIcon(QIcon(":/SummaryPlotLight16x16.png"));
 }
 
+//==================================================================================================
+/// 
+//==================================================================================================
+
+#include "RiuPlotMainWindowTools.h"
+#include "RicNewSummaryCurveFeature.h"
+#include "RimMainPlotCollection.h"
+#include "RicSummaryPlotFeatureImpl.h"
+
+CAF_CMD_SOURCE_INIT(RicNewDefaultSummaryPlotFeature, "RicNewDefaultSummaryPlotFeature");
+
+
+std::pair<RimSummaryPlotCollection*, std::vector<RimSummaryCase*>> extractSumPlotCollectionOrSelectedSumCasesFromSelection()
+{
+    std::vector<RimSummaryCase*> selectedSumCases;
+    RimSummaryPlotCollection* sumPlotColl = nullptr;
+
+    std::vector<caf::PdmUiItem*> selectedItems;
+    caf::SelectionManager::instance()->selectedItems(selectedItems);
+
+    if ( selectedItems.size() )
+    {
+        caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(selectedItems[0]);
+        sumPlotColl = RiaSummaryTools::parentSummaryPlotCollection(selObj);
+    }
+
+    if (!sumPlotColl)
+    {
+        caf::SelectionManager::instance()->objectsByTypeStrict(&selectedSumCases);
+    }
+
+    return std::make_pair(sumPlotColl, selectedSumCases);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
+{
+    auto sumPlotSumCasesPair = extractSumPlotCollectionOrSelectedSumCasesFromSelection();
+
+    return sumPlotSumCasesPair.first || sumPlotSumCasesPair.second.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicNewDefaultSummaryPlotFeature::onActionTriggered(bool isChecked)
+{
+    auto sumPlotSumCasesPair = extractSumPlotCollectionOrSelectedSumCasesFromSelection();
+
+    std::vector<RimSummaryCase*> summaryCasesToUse;
+
+    if (sumPlotSumCasesPair.first)
+    {
+        auto sumCaseVector = RiaApplication::instance()->project()->allSummaryCases();
+
+        if (sumCaseVector.size())
+        {
+            summaryCasesToUse.push_back(sumCaseVector[0]);
+        }
+    }
+    else if (sumPlotSumCasesPair.second.size())
+    {
+        summaryCasesToUse = sumPlotSumCasesPair.second;
+    }
+
+    if ( summaryCasesToUse.size() )
+    {
+        RimSummaryPlotCollection* sumPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+        RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+
+        for (RimSummaryCase* sumCase : summaryCasesToUse)
+        {
+            RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot(newPlot, sumCase);
+        }
+
+        newPlot->applyDefaultCurveAppearances();
+        newPlot->loadDataAndUpdate();
+
+        sumPlotColl->updateConnectedEditors();
+
+        RiuPlotMainWindowTools::setExpanded(newPlot);
+        RiuPlotMainWindowTools::selectAsCurrentItem(newPlot);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicNewDefaultSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setText("New Summary Plot");
+    actionToSetup->setIcon(QIcon(":/SummaryPlotLight16x16.png"));
+
+}

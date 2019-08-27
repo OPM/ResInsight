@@ -34,7 +34,7 @@ class RicfRunOctaveScript : public RicfCommandObject
 public:
     RicfRunOctaveScript();
 
-    void execute() override;
+    RicfCommandResponse execute() override;
 
 private:
     caf::PdmField<QString>            m_path;

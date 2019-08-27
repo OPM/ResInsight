@@ -60,7 +60,7 @@ public:
 
     static const size_t*    eclipseCellIndexMapping();
 
-    virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase);
+    bool                    openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase);
 
     bool                    staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values) override;
     bool                    dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values) override;
@@ -82,6 +82,13 @@ public:
                                             RigEclipseCaseData* eclipseCase);
 
     std::set<RiaDefines::PhaseType> availablePhases() const override;
+
+    // Load main, it is up to the consumer to release the memory using
+    //
+    // ecl_grid_type* myGrid = loadMainGrid();
+    // free(myGrid);
+    //
+    ecl_grid_type* loadAllGrids() const;
 
 private:
     bool                    readActiveCellInfo();
@@ -107,8 +114,6 @@ private:
     std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
 
     static bool             isEclipseAndSoursimTimeStepsEqual(const QDateTime& eclipseDateTime, const QDateTime& sourSimDateTime);
-
-    ecl_grid_type*          loadMainGrid() const;
 
 private:
     QString                                 m_fileName;                 // Name of file used to start accessing Eclipse output files

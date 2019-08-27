@@ -51,7 +51,7 @@ RimAnnotationCollectionBase::RimAnnotationCollectionBase()
     m_textAnnotations.uiCapability()->setUiHidden(true);
     m_textAnnotations = new RimAnnotationGroupCollection();
     m_textAnnotations->uiCapability()->setUiName(RimAnnotationGroupCollection::TEXT_ANNOTATION_UI_NAME);
-    m_textAnnotations->uiCapability()->setUiIcon(QIcon(":/TextAnnotation16x16.png"));
+    m_textAnnotations->uiCapability()->setUiIconFromResourceString(":/TextAnnotation16x16.png");
 }
 
 

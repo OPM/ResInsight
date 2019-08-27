@@ -19,12 +19,12 @@
 
 #include "RicTileWindowsFeature.h"
 
+#include "RiaGuiApplication.h"
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
 #include <QAction>
 #include <QApplication>
-#include "RiaApplication.h"
 
 CAF_CMD_SOURCE_INIT(RicTileWindowsFeature, "RicTileWindowsFeature");
 
@@ -80,9 +80,9 @@ void RicTileWindowsFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicTileWindowsFeature::isCommandChecked()
 {
-    if (RiaApplication::instance()->mainWindow())
+    if (RiaGuiApplication::instance()->mainWindow())
     {
-        return RiaApplication::instance()->mainWindow()->subWindowsAreTiled();
+        return RiaGuiApplication::instance()->mainWindow()->subWindowsAreTiled();
     }
     return false;
 }
@@ -94,7 +94,7 @@ CAF_CMD_SOURCE_INIT(RicTilePlotWindowsFeature, "RicTilePlotWindowsFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicTilePlotWindowsFeature::isCommandEnabled()
 {
-    RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if (mainPlotWindow)
     {
         return mainPlotWindow->isAnyMdiSubWindowVisible();
@@ -108,7 +108,7 @@ bool RicTilePlotWindowsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicTilePlotWindowsFeature::onActionTriggered(bool isChecked)
 {
-    RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if (mainPlotWindow)
     {
         if (!mainPlotWindow->subWindowsAreTiled())
@@ -137,9 +137,9 @@ void RicTilePlotWindowsFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicTilePlotWindowsFeature::isCommandChecked()
 {
-    if (RiaApplication::instance()->mainPlotWindow())
+    if (RiaGuiApplication::instance()->mainPlotWindow())
     {
-        return RiaApplication::instance()->mainPlotWindow()->subWindowsAreTiled();
+        return RiaGuiApplication::instance()->mainPlotWindow()->subWindowsAreTiled();
     }
     return false;
 }

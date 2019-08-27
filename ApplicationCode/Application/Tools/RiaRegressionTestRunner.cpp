@@ -18,8 +18,8 @@
 
 #include "RiaRegressionTestRunner.h"
 
-#include "RiaApplication.h"
 #include "RiaGitDiff.h"
+#include "RiaGuiApplication.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
 #include "RiaLogging.h"
@@ -199,7 +199,7 @@ void RiaRegressionTestRunner::runRegressionTest()
 
                 regressionTestConfigureProject();
 
-                resizeMaximizedPlotWindows();
+                resizePlotWindows();
 
                 QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
                 RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(fullPathGeneratedFolder);
@@ -499,12 +499,12 @@ void RiaRegressionTestRunner::regressionTestConfigureProject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaRegressionTestRunner::resizeMaximizedPlotWindows()
+void RiaRegressionTestRunner::resizePlotWindows()
 {
     RimProject* proj = RiaApplication::instance()->project();
     if (!proj) return;
 
-    RiuPlotMainWindow* plotMainWindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* plotMainWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if (!plotMainWindow) return;
 
     std::vector<RimViewWindow*> viewWindows;
@@ -515,20 +515,16 @@ void RiaRegressionTestRunner::resizeMaximizedPlotWindows()
     {
         if (viewWindow->isMdiWindow())
         {
-            RimMdiWindowGeometry wndGeo = viewWindow->mdiWindowGeometry();
-            if (wndGeo.isMaximized)
+            QWidget* viewWidget = viewWindow->viewWidget();
+
+            if (viewWidget)
             {
-                QWidget* viewWidget = viewWindow->viewWidget();
-
-                if (viewWidget)
+                QMdiSubWindow* mdiWindow = plotMainWindow->findMdiSubWindow(viewWidget);
+                if (mdiWindow)
                 {
-                    QMdiSubWindow* mdiWindow = plotMainWindow->findMdiSubWindow(viewWidget);
-                    if (mdiWindow)
-                    {
-                        mdiWindow->showNormal();
+                    mdiWindow->showNormal();
 
-                        viewWidget->resize(RiaRegressionTestRunner::regressionDefaultImageSize());
-                    }
+                    viewWidget->resize(RiaRegressionTestRunner::regressionDefaultImageSize());
                 }
             }
         }
@@ -603,7 +599,7 @@ QFileInfoList RiaRegressionTestRunner::subDirectoriesForTestExecution(const QDir
         for (const auto& s : m_testFilter)
         {
             QString trimmed = s.trimmed();
-            if (anyMatchFound || baseName.contains(trimmed, Qt::CaseInsensitive))
+            if ((m_appendAllTestsAfterLastItemInFilter && anyMatchFound) || baseName.contains(trimmed, Qt::CaseInsensitive))
             {
                 foldersMatchingTestFilter.push_back(fi);
                 anyMatchFound = true;
@@ -641,7 +637,7 @@ void RiaRegressionTestRunner::executeRegressionTests(const QString& regressionTe
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if (mainWnd)
     {
-        mainWnd->hideAllDockWindows();
+        mainWnd->hideAllDockWidgets();
         mainWnd->statusBar()->close();
 
         mainWnd->setDefaultWindowSize();

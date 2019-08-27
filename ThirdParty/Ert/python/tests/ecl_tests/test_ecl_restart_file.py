@@ -1,4 +1,4 @@
-#  Copyright (C) 2015  Statoil ASA, Norway.
+#  Copyright (C) 2015  Equinor ASA, Norway.
 #
 #  The file 'test_ecl_init_file.py' is part of ERT - Ensemble based Reservoir Tool.
 #
@@ -15,19 +15,19 @@
 #  for more details.
 import datetime
 
-from tests import EclTest, statoil_test
+from tests import EclTest, equinor_test
 from ecl import EclFileFlagEnum
 from ecl.eclfile import Ecl3DKW , EclKW, EclRestartFile , EclFile, FortIO
 from ecl.grid import EclGrid
 
-@statoil_test()
+@equinor_test()
 class RestartFileTest(EclTest):
     def setUp(self):
-        self.grid_file =   self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID")
-        self.unrst_file   = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.UNRST")
-        self.xrst_file0   = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.X0000")
-        self.xrst_file10  = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.X0010")
-        self.xrst_file20  = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.X0020")
+        self.grid_file =   self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.EGRID")
+        self.unrst_file   = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.UNRST")
+        self.xrst_file0   = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.X0000")
+        self.xrst_file10  = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.X0010")
+        self.xrst_file20  = self.createTestPath("Equinor/ECLIPSE/Gurbat/ECLIPSE.X0020")
 
 
     def test_load(self):

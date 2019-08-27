@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'ecl_sum_data.h' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -75,8 +75,8 @@ typedef struct ecl_sum_data_struct ecl_sum_data_type ;
   int                      ecl_sum_data_get_last_report_step( const ecl_sum_data_type * data );
   int                      ecl_sum_data_get_first_report_step( const ecl_sum_data_type * data );
 
-  double                   ecl_sum_data_get_from_sim_time( const ecl_sum_data_type * data , time_t sim_time , const smspec_node_type * smspec_node);
-  double                   ecl_sum_data_get_from_sim_days( const ecl_sum_data_type * data , double sim_days , const smspec_node_type * smspec_node);
+  double                   ecl_sum_data_get_from_sim_time( const ecl_sum_data_type * data , time_t sim_time , const ecl::smspec_node& smspec_node);
+  double                   ecl_sum_data_get_from_sim_days( const ecl_sum_data_type * data , double sim_days , const ecl::smspec_node& smspec_node);
 
   int                      ecl_sum_data_get_length( const ecl_sum_data_type * data );
   int                      ecl_sum_data_iget_report_step(const ecl_sum_data_type * data , int internal_index);
@@ -92,14 +92,14 @@ typedef struct ecl_sum_data_struct ecl_sum_data_type ;
   void                     ecl_sum_data_init_datetime64_vector(const ecl_sum_data_type * data, int64_t * output_data, int multiplier);
 
   void                     ecl_sum_data_init_double_frame(const ecl_sum_data_type * data, const ecl_sum_vector_type * keywords, double *output_data);
-  double_vector_type     * ecl_sum_data_alloc_seconds_solution( const ecl_sum_data_type * data , const smspec_node_type * node , double value, bool rates_clamp_lower);
+  double_vector_type     * ecl_sum_data_alloc_seconds_solution( const ecl_sum_data_type * data , const ecl::smspec_node& node , double value, bool rates_clamp_lower);
   void                     ecl_sum_data_init_double_frame_interp(const ecl_sum_data_type * data,
                                                                  const ecl_sum_vector_type * keywords,
                                                                  const time_t_vector_type * time_points,
                                                                  double * output_data);
 
   void ecl_sum_data_init_double_vector_interp(const ecl_sum_data_type * data,
-                                              const smspec_node_type * smspec_node,
+                                              const ecl::smspec_node& smspec_node,
                                               const time_t_vector_type * time_points,
                                               double * output_data);
 

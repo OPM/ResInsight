@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'ecl_sum_data.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -458,16 +458,24 @@ bool ecl_sum_data_check_sim_days( const ecl_sum_data_type * data , double sim_da
      sequence has no holes.
 */
 
+static void fprintf_date_utc(time_t t , FILE * stream) {
+  int mday,year,month;
+
+  util_set_datetime_values_utc(t , NULL , NULL , NULL , &mday , &month , &year);
+  fprintf(stream , "%02d/%02d/%4d", mday,month,year);
+}
+
+
 
 static int ecl_sum_data_get_index_from_sim_time( const ecl_sum_data_type * data , time_t sim_time) {
   if (!ecl_sum_data_check_sim_time(data, sim_time)) {
     time_t start_time = ecl_sum_data_get_data_start(data);
     time_t end_time = ecl_sum_data_get_sim_end(data);
 
-    fprintf(stderr , "Simulation start: "); util_fprintf_date_utc( ecl_smspec_get_start_time( data->smspec ) , stderr );
-    fprintf(stderr , "Data start......: "); util_fprintf_date_utc( start_time , stderr );
-    fprintf(stderr , "Simulation end .: "); util_fprintf_date_utc( end_time , stderr );
-    fprintf(stderr , "Requested date .: "); util_fprintf_date_utc( sim_time , stderr );
+    fprintf(stderr , "Simulation start: "); fprintf_date_utc( ecl_smspec_get_start_time( data->smspec ) , stderr );
+    fprintf(stderr , "Data start......: "); fprintf_date_utc( start_time , stderr );
+    fprintf(stderr , "Simulation end .: "); fprintf_date_utc( end_time , stderr );
+    fprintf(stderr , "Requested date .: "); fprintf_date_utc( sim_time , stderr );
     util_abort("%s: invalid time_t instance:%d  interval:  [%d,%d]\n",__func__, sim_time , start_time, end_time);
   }
 
@@ -569,9 +577,9 @@ void ecl_sum_data_init_interp_from_sim_days( const ecl_sum_data_type * data , do
 }
 
 
-double_vector_type * ecl_sum_data_alloc_seconds_solution(const ecl_sum_data_type * data, const smspec_node_type * node, double cmp_value, bool rates_clamp_lower) {
+double_vector_type * ecl_sum_data_alloc_seconds_solution(const ecl_sum_data_type * data, const ecl::smspec_node& node, double cmp_value, bool rates_clamp_lower) {
   double_vector_type * solution = double_vector_alloc(0, 0);
-  const int param_index = smspec_node_get_params_index(node);
+  const int param_index = smspec_node_get_params_index(&node);
   const int size = ecl_sum_data_get_length(data);
 
   if (size <= 1)
@@ -593,7 +601,7 @@ double_vector_type * ecl_sum_data_alloc_seconds_solution(const ecl_sum_data_type
     double prev_time = ecl_sum_data_iget_sim_seconds(data, prev_index);
     double time      = ecl_sum_data_iget_sim_seconds(data, index);
 
-    if (smspec_node_is_rate(node)) {
+    if (smspec_node_is_rate(&node)) {
       double_vector_append(solution, rates_clamp_lower ? prev_time + 1 : time);
     } else {
       double slope = (value - prev_value) / (time - prev_time);
@@ -811,8 +819,8 @@ double ecl_sum_data_iget( const ecl_sum_data_type * data , int time_index , int 
   if (params_map[params_index] >= 0)
     return file_data->iget( time_index - index_node.offset, params_map[params_index] );
   else {
-    const smspec_node_type * smspec_node = ecl_smspec_iget_node(data->smspec, params_index);
-    return smspec_node_get_default(smspec_node);
+    const ecl::smspec_node& smspec_node = ecl_smspec_iget_node_w_params_index(data->smspec, params_index);
+    return smspec_node.get_default();
   }
 }
 
@@ -905,9 +913,9 @@ void ecl_sum_data_get_interp_vector( const ecl_sum_data_type * data , time_t sim
   }
 }
 
-double ecl_sum_data_get_from_sim_time( const ecl_sum_data_type * data , time_t sim_time , const smspec_node_type * smspec_node) {
-  int params_index = smspec_node_get_params_index( smspec_node );
-  if (smspec_node_is_rate( smspec_node )) {
+double ecl_sum_data_get_from_sim_time( const ecl_sum_data_type * data , time_t sim_time , const ecl::smspec_node& smspec_node) {
+  int params_index = smspec_node_get_params_index( &smspec_node );
+  if (smspec_node_is_rate( &smspec_node )) {
     /*
       In general the mapping from sim_time to index is based on half
       open intervals, which are closed in the upper end:
@@ -986,7 +994,7 @@ double ecl_sum_data_time2days( const ecl_sum_data_type * data , time_t sim_time)
   return util_difftime_days( start_time , sim_time );
 }
 
-double ecl_sum_data_get_from_sim_days( const ecl_sum_data_type * data , double sim_days , const smspec_node_type * smspec_node) {
+double ecl_sum_data_get_from_sim_days( const ecl_sum_data_type * data , double sim_days , const ecl::smspec_node& smspec_node) {
   time_t sim_time = ecl_smspec_get_start_time( data->smspec );
   util_inplace_forward_days_utc( &sim_time , sim_days );
   return ecl_sum_data_get_from_sim_time( data , sim_time , smspec_node );
@@ -1076,22 +1084,18 @@ static void ecl_sum_data_init_double_vector__(const ecl_sum_data_type * data, in
     const auto& params_map = index_node.params_map;
     int params_index = params_map[main_params_index];
 
-
     if (report_only) {
-      const smspec_node_type * smspec_node = ecl_smspec_iget_node(data->smspec, main_params_index);
-      double default_value = smspec_node_get_default(smspec_node);
+      const ecl::smspec_node& smspec_node = ecl_smspec_iget_node_w_params_index(data->smspec, main_params_index);
+      double default_value = smspec_node.get_default();
       offset += data_file->get_data_report(params_index, index_node.length, &output_data[offset], default_value);
     } else {
 
       if (params_index >= 0)
         data_file->get_data(params_index, index_node.length, &output_data[offset]);
       else {
-        const smspec_node_type * smspec_node = ecl_smspec_iget_node(data->smspec, main_params_index);
-        if (smspec_node)
-        {
-          for (int i=0; i < index_node.length; i++)
-            output_data[offset + i] = smspec_node_get_default(smspec_node);
-        }
+        const ecl::smspec_node& smspec_node = ecl_smspec_iget_node_w_params_index(data->smspec, main_params_index);
+        for (int i=0; i < index_node.length; i++)
+          output_data[offset + i] = smspec_node.get_default();
       }
       offset += index_node.length;
     }
@@ -1118,6 +1122,9 @@ double_vector_type * ecl_sum_data_alloc_data_vector( const ecl_sum_data_type * d
   else
     output_data.resize( ecl_sum_data_get_length(data) );
 
+  if (params_index >= ecl_smspec_get_params_size(data->smspec))
+    throw std::out_of_range("Out of range");
+
   ecl_sum_data_init_double_vector__(data, params_index, output_data.data(), report_only);
   double_vector_type * data_vector = double_vector_alloc(output_data.size(), 0);
   {
@@ -1129,11 +1136,11 @@ double_vector_type * ecl_sum_data_alloc_data_vector( const ecl_sum_data_type * d
 
 
 void ecl_sum_data_init_double_vector_interp(const ecl_sum_data_type * data,
-                                            const smspec_node_type * smspec_node,
+                                            const ecl::smspec_node& smspec_node,
                                             const time_t_vector_type * time_points,
                                             double * output_data) {
-  bool is_rate = smspec_node_is_rate(smspec_node);
-  int params_index = smspec_node_get_params_index(smspec_node);
+  bool is_rate = smspec_node_is_rate(&smspec_node);
+  int params_index = smspec_node_get_params_index(&smspec_node);
   time_t start_time = ecl_sum_data_get_data_start(data);
   time_t end_time   = ecl_sum_data_get_sim_end(data);
   double start_value = 0;

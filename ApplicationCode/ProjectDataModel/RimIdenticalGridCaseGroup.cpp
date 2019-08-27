@@ -20,6 +20,12 @@
 
 #include "RimIdenticalGridCaseGroup.h"
 
+#include "RiaGuiApplication.h"
+#include "RiaLogging.h"
+
+#include "RicfCommandObject.h"
+
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -52,10 +58,12 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 {
     CAF_PDM_InitObject("Grid Case Group", ":/GridCaseGroup16x16.png", "", "");
 
-    CAF_PDM_InitField(&name,    "UserDescription",  QString("Grid Case Group"), "Name", "", "", "");
+    RICF_InitField(&name,    "UserDescription",  QString("Grid Case Group"), "Name", "", "", "");
 
-    CAF_PDM_InitField(&groupId, "GroupId", -1, "Case Group ID", "", "" ,"");
+    RICF_InitField(&groupId, "GroupId", -1, "Case Group ID", "", "" ,"");
     groupId.uiCapability()->setUiReadOnly(true);
+    groupId.capability<RicfFieldHandle>()->setIOWriteable(false);
+
 
     CAF_PDM_InitFieldNoDefault(&statisticsCaseCollection, "StatisticsCaseCollection", "statisticsCaseCollection ChildArrayField", "", "", "");
     statisticsCaseCollection.uiCapability()->setUiHidden(true);
@@ -64,11 +72,11 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
  
     caseCollection = new RimCaseCollection;
     caseCollection->uiCapability()->setUiName("Source Cases");
-    caseCollection->uiCapability()->setUiIcon(QIcon(":/Cases16x16.png"));
+    caseCollection->uiCapability()->setUiIconFromResourceString(":/Cases16x16.png");
 
     statisticsCaseCollection = new RimCaseCollection;
     statisticsCaseCollection->uiCapability()->setUiName("Derived Statistics");
-    statisticsCaseCollection->uiCapability()->setUiIcon(QIcon(":/Histograms16x16.png"));
+    statisticsCaseCollection->uiCapability()->setUiIconFromResourceString(":/Histograms16x16.png");
 
 
     m_mainGrid = nullptr;
@@ -173,11 +181,15 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RimEclipseCase* mainCase = caseCollection()->reservoirs[0];
     if (!mainCase->openReserviorCase())
     {
-        QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
-                             "Error when opening project file",
-                             "Could not open the Eclipse Grid file: \n"+ mainCase->gridFileName() + "\n"+ 
-                             "Current working directory is: \n" +
-                             QDir::currentPath());
+        QString errorMessage = QString("Could not open the Eclipse Grid file: \n") + mainCase->gridFileName() + "\n" +
+                               "Current working directory is: \n" + QDir::currentPath();
+
+        if (RiaGuiApplication::isRunning())
+        {
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                "Error when opening project file", errorMessage);
+        }
+        RiaLogging::error(errorMessage);
         return;
     }
 

@@ -55,8 +55,8 @@ ScalarMapperRangeBased::ScalarMapperRangeBased()
     m_rangeMax(cvf::UNDEFINED_DOUBLE),
     m_decadeLevelCount(1),
     m_levelCount(8),
-    m_textureSize(2048), // Large enough, I guess and a power of two
-    m_adjustLevels(true)
+    m_adjustLevels(true),
+    m_textureSize(2048)  // Large enough, I guess and a power of two
 {
     m_interpolatedUserGradientColors.resize(m_textureSize);
     m_interpolatedUserGradientColors.setAll(Color3ub::WHITE);
@@ -220,7 +220,7 @@ void ScalarMapperRangeBased::majorTickValues( std::vector<double>* domainValues)
         domainValues->push_back(domainValue(0));
         if (m_levelCount > 1)
         {
-            double stepSizeNorm = 1.0/m_levelCount;
+            double stepSizeNorm = 1.0/static_cast<double>(m_levelCount);
             size_t i;
 
             if (m_adjustLevels) // adjust levels
@@ -254,7 +254,7 @@ void ScalarMapperRangeBased::majorTickValues( std::vector<double>* domainValues)
                 double prevDomValue =  domainValue(0);
                 for (i = 1; i < m_levelCount; ++i)
                 {
-                    double newLevel = domainValue(stepSizeNorm*i);
+                    double newLevel = domainValue(stepSizeNorm*static_cast<double>(i));
 
                     if (newLevel != prevDomValue)  domainValues->push_back(newLevel);
                     

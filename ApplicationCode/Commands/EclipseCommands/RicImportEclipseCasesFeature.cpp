@@ -23,7 +23,7 @@
 
 #include "RiaApplication.h"
 
-#include "RicFileHierarchyDialog.h"
+#include "RicRecursiveFileSearchDialog.h"
 
 #include "RimEclipseCaseCollection.h"
 
@@ -52,7 +52,7 @@ void RicImportEclipseCasesFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
 
-    RicFileHierarchyDialogResult result = RicFileHierarchyDialog::runRecursiveSearchDialog(nullptr,
+    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog(nullptr,
                                                                                            "Import Eclipse Cases",
                                                                                            defaultDir,
                                                                                            m_pathFilter,
@@ -68,12 +68,12 @@ void RicImportEclipseCasesFeature::onActionTriggered(bool isChecked)
     // Remember the path to next time
     app->setLastUsedDialogDirectory("BINARY_GRID", QFileInfo(result.rootDir).absoluteFilePath());
 
-    QStringList newCaseFiles;
+    RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
     RiaImportEclipseCaseTools::openEclipseCasesFromFile(result.files, &newCaseFiles);
 
-    for (const auto newCaseFile : newCaseFiles)
+    for (const auto newCaseFileAndId : newCaseFiles)
     {
-        RiaApplication::instance()->addToRecentFiles(newCaseFile);
+        RiaApplication::instance()->addToRecentFiles(newCaseFileAndId.first);
     }
 }
 

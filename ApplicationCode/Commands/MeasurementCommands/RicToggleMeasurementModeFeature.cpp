@@ -18,7 +18,7 @@
 
 #include "RicToggleMeasurementModeFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "Rim3dView.h"
 #include "RimMeasurement.h"
@@ -110,7 +110,10 @@ bool RicToggleMeasurementModeFeature::isCommandChecked()
 //--------------------------------------------------------------------------------------------------
 RimMeasurement* RicToggleMeasurementModeFeature::measurement() const
 {
-    return RiaApplication::instance()->project()->measurement();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+    CAF_ASSERT(app && app->project());
+
+    return app->project()->measurement();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,7 +121,9 @@ RimMeasurement* RicToggleMeasurementModeFeature::measurement() const
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RicToggleMeasurementModeFeature::activeView() const
 {
-    auto view = RiaApplication::instance()->activeReservoirView();
+    RiaApplication* app = RiaApplication::instance();
+    CAF_ASSERT(app);
+    auto view = app->activeReservoirView();
     return view;
 }
 

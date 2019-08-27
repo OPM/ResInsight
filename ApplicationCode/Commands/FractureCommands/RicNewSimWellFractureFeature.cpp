@@ -98,16 +98,15 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     fracture->updateFracturePositionFromLocation();
 
     eclipseWell->updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem(fracture);
 
     RimEclipseCase* eclipseCase = nullptr;
     objHandle->firstAncestorOrThisOfType(eclipseCase);
     if (eclipseCase)
     {
-        RimProject* project;
-        objHandle->firstAncestorOrThisOfTypeAsserted(project);
-        project->reloadCompletionTypeResultsForEclipseCase(eclipseCase);
+        proj->reloadCompletionTypeResultsForEclipseCase(eclipseCase);
+        proj->updateConnectedEditors();
     }
+    Riu3DMainWindowTools::selectAsCurrentItem(fracture);
 }
 
 //--------------------------------------------------------------------------------------------------

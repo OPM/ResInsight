@@ -30,6 +30,7 @@
 #include <QAction>
 #include <QDesktopServices>
 #include <QErrorMessage>
+#include <QSslSocket>
 #include <QUrl>
 
 CAF_CMD_SOURCE_INIT(RicHelpAboutFeature, "RicHelpAboutFeature");
@@ -90,6 +91,50 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
     dlg.addVersionEntry(" ", caf::Viewer::isShadersSupported() ? "   Hardware OpenGL" : "   Software OpenGL");
     dlg.addVersionEntry(" ", QString("   Octave ") + QString(RESINSIGHT_OCTAVE_VERSION));
 
+    bool isAbleToUseSsl = false;
+    bool isSslSupported = false;
+#ifndef QT_NO_OPENSSL
+    isAbleToUseSsl = true;
+    isSslSupported = QSslSocket::supportsSsl();
+#endif
+
+    {
+        QString txt;
+
+        if (isAbleToUseSsl)
+        {
+            txt = "   Use of SSL is available";
+            if (isSslSupported)
+            {
+                txt += " and supported";
+            }
+            else
+            {
+                txt += ", but not supported";
+            }
+        }
+        else
+        {
+            txt = "   SSL is not available";
+        }
+
+        dlg.addVersionEntry(" ", txt);
+    }
+
+#ifdef ENABLE_GRPC
+    RiaGrpcServer* grpcServer = RiaApplication::instance()->grpcServer();
+    if (grpcServer && grpcServer->isRunning())
+    {
+        dlg.addVersionEntry(" ", QString("   Python Script Server available and running at port %1").arg(grpcServer->portNumber()));
+    }
+    else
+    {
+        dlg.addVersionEntry(" ", QString("   Python Script Server available but currently disabled in preferences"));
+    }
+#else
+    dlg.addVersionEntry(" ", "   gRPC disabled");
+#endif
+
     if (RiaApplication::enableDevelopmentFeatures())
     {
         QString vendor("Unknown");
@@ -147,7 +192,7 @@ void RicHelpCommandLineFeature::onActionTriggered(bool isChecked)
 
     RiaApplication* app  = RiaApplication::instance();
     QString         text = app->commandLineParameterHelp();
-    app->showFormattedTextInMessageBox(text);
+    app->showFormattedTextInMessageBoxOrConsole(text);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -130,9 +130,9 @@ void RiuWellLogTrack::setDepthTitle(const QString& title)
 void RiuWellLogTrack::setXTitle(const QString& title)
 {
     QwtText axisTitleX = axisTitle(QwtPlot::xTop);
-    axisTitleX.setText(title);
     if (title != axisTitleX.text())
     {
+        axisTitleX.setText(title);
         setAxisTitle(QwtPlot::xTop, axisTitleX);
     }
 }

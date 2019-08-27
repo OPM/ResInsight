@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'ecl_grid.h' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -18,9 +18,7 @@
 
 #ifndef ERT_ECL_GRID_H
 #define ERT_ECL_GRID_H
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 #include <stdbool.h>
 
 #include <ert/util/double_vector.hpp>
@@ -31,6 +29,10 @@ extern "C" {
 #include <ert/ecl/ecl_kw.hpp>
 #include <ert/ecl/grid_dims.hpp>
 #include <ert/ecl/nnc_info.hpp>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define ECL_GRID_COORD_SIZE(nx,ny)    (((nx) + 1) * ((ny) + 1) * 6)
 #define ECL_GRID_ZCORN_SIZE(nx,ny,nz) (((nx) * (ny) * (nz) * 8))

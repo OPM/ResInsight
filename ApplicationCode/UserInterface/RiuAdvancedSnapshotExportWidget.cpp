@@ -93,10 +93,7 @@ RiuAdvancedSnapshotExportWidget::RiuAdvancedSnapshotExportWidget(QWidget* parent
 
         layout->addWidget(new QLabel("Export folder"));
 
-        // Save images in snapshot catalog relative to project directory
-        QString snapshotFolderName = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("snapshots");
-
-        m_exportFolderLineEdit = new QLineEdit(snapshotFolderName);
+        m_exportFolderLineEdit = new QLineEdit;
 
         QToolButton* button = new QToolButton;
         button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred));
@@ -185,6 +182,22 @@ void RiuAdvancedSnapshotExportWidget::addEmptySnapshotItems(size_t itemCount)
     }
 
     m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuAdvancedSnapshotExportWidget::setExportFolder(const QString& folder)
+{
+    m_exportFolderLineEdit->setText(folder);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuAdvancedSnapshotExportWidget::exportFolder() const 
+{
+    return m_exportFolderLineEdit->text();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -3,12 +3,15 @@ cmake_minimum_required (VERSION 2.8.12)
 project (cafPdmCvf)
 
 # Qt
-if (CAF_USE_QT5)
-	find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 else()
-	find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
     include(${QT_USE_FILE})
-endif(CAF_USE_QT5)
+	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+endif(CEE_USE_QT5)
 
 add_definitions(-DCVF_USING_CMAKE)
 
@@ -33,17 +36,22 @@ add_library( ${PROJECT_NAME}
     cafPdmXmlMat4d.cpp
     cafPdmXmlMat4d.h
     cafPdmFieldCvfMat4d.h
+
+	cafPdmMat3d/cafPdmCoreMat3d.h
+    cafPdmMat3d/cafPdmUiCoreMat3d.h
+    cafPdmMat3d/cafPdmXmlMat3d.cpp
+    cafPdmMat3d/cafPdmXmlMat3d.h
+    cafPdmMat3d/cafPdmFieldCvfMat3d.h
+
+	${MOC_HEADER_FILES}
+	${MOC_SOURCE_FILES}
 )
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/cafPdmMat3d
 )
-
-if (CAF_USE_QT5)
-    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-endif(CAF_USE_QT5)
-
 
 target_link_libraries ( ${PROJECT_NAME}
     cafUserInterface

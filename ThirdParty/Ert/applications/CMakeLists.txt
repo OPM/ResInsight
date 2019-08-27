@@ -1,10 +1,10 @@
 project(libecl-applications)
 
 if (BUILD_APPLICATIONS)
-    add_executable(sum_write   ecl/sum_write.c)
+    add_executable(sum_write   ecl/sum_write.cpp)
     add_executable(make_grid   ecl/make_grid.c)
     add_executable(grdecl_grid ecl/grdecl_grid.c)
-    add_executable(summary     ecl/view_summary.c)
+    add_executable(summary     ecl/view_summary.cpp)
     target_link_libraries(sum_write     ecl)
     target_link_libraries(make_grid     ecl)
     target_link_libraries(grdecl_grid   ecl)
@@ -13,16 +13,16 @@ if (BUILD_APPLICATIONS)
 
     list(APPEND apps make_grid grdecl_grid summary)
 
-    foreach (app ecl_pack
-                 ecl_unpack
-                 kw_extract
-                 grid_info
-                 grid_dump
-                 grid_dump_ascii
-                 select_test
-                 load_test
+    foreach (app ecl_pack.c
+                 ecl_unpack.c
+                 kw_extract.cpp
+                 grid_info.c
+                 grid_dump.c
+                 grid_dump_ascii.c
+                 select_test.c
+                 load_test.c
             )
-        add_executable(${app} ecl/${app}.c)
+        add_executable(${app} ecl/${app})
         target_link_libraries(${app} ecl)
         list(APPEND apps ${app})
         if (ERT_LINUX)
@@ -71,7 +71,7 @@ if (BUILD_APPLICATIONS)
 endif()
 
 if (BUILD_ECL_SUMMARY)
-   add_executable(ecl_summary ecl/view_summary.c)
+   add_executable(ecl_summary ecl/view_summary.cpp)
    target_link_libraries(ecl_summary ecl)
    list(APPEND apps ecl_summary)
 

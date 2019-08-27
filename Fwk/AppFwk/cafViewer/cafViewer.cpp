@@ -34,12 +34,12 @@
 //
 //##################################################################################################
 
-
 #include "cafViewer.h"
 
 #include "cafCadNavigation.h"
 #include "cafFrameAnimationControl.h"
 #include "cafNavigationPolicy.h"
+#include "cafPointOfInterestVisualizer.h"
 
 #include "cvfCamera.h"
 #include "cvfDebugTimer.h"
@@ -112,7 +112,11 @@ cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
 /// 
 //--------------------------------------------------------------------------------------------------
 caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
+    #if QT_VERSION >= 0x050000
+    :   caf::OpenGLWidget(contextGroup(), format, nullptr, sharedWidget()),
+    #else
     :   caf::OpenGLWidget(contextGroup(), format, new QWidget(parent), sharedWidget()),
+    #endif
     m_navigationPolicy(nullptr),
     m_navigationPolicyEnabled(true),
     m_defaultPerspectiveNearPlaneDistance(0.05),
@@ -122,10 +126,15 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     m_releaseOGLResourcesEachFrame(false),
     m_isOverlayPaintingEnabled(true),
     m_offscreenViewportWidth(0),
-    m_offscreenViewportHeight(0)
+    m_offscreenViewportHeight(0),
+    m_parallelProjectionLightDirection(0, 0, -1) // Light directly from behind
 {
+    #if QT_VERSION >= 0x050000
+    m_layoutWidget = new QWidget(parent);
+    #else
     m_layoutWidget = parentWidget();
-
+    #endif
+    
     QHBoxLayout* layout = new QHBoxLayout(m_layoutWidget);
 
     layout->addWidget(this);
@@ -165,6 +174,7 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
 
     sm_viewers.push_back(this);
 }
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -419,6 +429,22 @@ void caf::Viewer::optimizeClippingPlanes()
 //--------------------------------------------------------------------------------------------------
 bool caf::Viewer::event(QEvent* e)
 {
+    #if QT_VERSION >= 0x050000
+    // The most reliable way we have found of detecting when an OpenGL context is about to be destroyed is
+    // hooking into the QEvent::PlatformSurface event and checking for the SurfaceAboutToBeDestroyed event type.
+    // From the Qt doc: 
+    //   The underlying native surface will be destroyed immediately after this event.
+    //   The SurfaceAboutToBeDestroyed event type is useful as a means of stopping rendering to a platform window before it is destroyed.
+    if ( e->type() == QEvent::PlatformSurface )
+    {
+        QPlatformSurfaceEvent* platformSurfaceEvent = static_cast<QPlatformSurfaceEvent*>(e);
+        if ( platformSurfaceEvent->surfaceEventType() == QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed )
+        {
+            cvfShutdownOpenGLContext();
+        }
+    }
+    #endif
+
     if (e && m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
     {
         switch (e->type())
@@ -618,9 +644,20 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
 
     optimizeClippingPlanes();
 
+    if ( m_poiVisualizationManager.notNull() )
+    {
+        m_poiVisualizationManager->update(m_navigationPolicy->pointOfInterest());
+        m_mainRendering->scene()->addModel(m_poiVisualizationManager->model());
+    }
+
     // Do normal drawing
     m_renderingSequence->render(myOglContext.p());
     CVF_CHECK_OGL(cvfOpenGLContext());
+
+    if (  m_poiVisualizationManager.notNull() )
+    {
+        m_mainRendering->scene()->removeModel(m_poiVisualizationManager->model());
+    }
 
     if (isShadersSupported())
     {
@@ -833,6 +870,9 @@ bool caf::Viewer::isShadersSupported()
 //--------------------------------------------------------------------------------------------------
 QImage caf::Viewer::snapshotImage()
 {
+    // Qt5 : Call paintEvent() manually to make sure invisible widgets are rendered properly
+    // If this call is skipped, we get an assert in cvf::FramebufferObject::bind()
+    paintEvent(nullptr);
 
     QImage image;
     if (m_offscreenFbo.notNull() && m_offscreenViewportWidth > 0 && m_offscreenViewportHeight > 0)
@@ -1146,10 +1186,10 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
         m_mainCamera->setProjectionAsOrtho(1.0, m_mainCamera->nearPlane(), m_mainCamera->farPlane());
         this->updateParallelProjectionHeightFromMoveZoom(pointOfInterest);
 
-        // Set the light position behind us, far away from the scene
+        // Set a fake directional light by putting the point far away from the scene
         float sceneDepth = m_mainCamera->farPlane() -  m_mainCamera->nearPlane();
-        this->m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0,0, 2 * sceneDepth));
-        m_globalUniformSet->setHeadLightPosition(cvf::Vec3f(0,0, 2 * sceneDepth));
+        this->m_renderingSequence->setDefaultFFLightPositional(-m_parallelProjectionLightDirection* 10*sceneDepth);
+        m_globalUniformSet->setHeadLightPosition(-m_parallelProjectionLightDirection* 10*sceneDepth);
 
         this->update();
     }
@@ -1159,7 +1199,7 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
         // so we do not need to update the camera position based on orthoHeight and fieldOfView. 
         // We assume the camera is in a sensible position.
 
-        // Set dummy near and far plane. These wll be updated by the optimize clipping planes
+        // Set dummy near and far plane. These will be updated by the optimize clipping planes
         m_mainCamera->setProjectionAsPerspective(m_cameraFieldOfViewYDeg, 0.1, 1.0);
 
         this->m_renderingSequence->setDefaultFFLightPositional(cvf::Vec3f(0.5, 5.0, 7.0));
@@ -1167,6 +1207,28 @@ void caf::Viewer::enableParallelProjection(bool enableOrtho)
 
         this->update();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Direction in camera coordinates default is (0, 0, -1) directly from behind
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::setParallelProjectionHeadLightDirection(const cvf::Vec3f& direction)
+{
+    m_parallelProjectionLightDirection = direction;
+
+    float sceneDepth = m_mainCamera->farPlane() -  m_mainCamera->nearPlane();
+    this->m_renderingSequence->setDefaultFFLightPositional(-m_parallelProjectionLightDirection* 10*sceneDepth);
+    m_globalUniformSet->setHeadLightPosition(-m_parallelProjectionLightDirection* 10*sceneDepth);
+
+    this->update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::setPointOfInterestVisualizer(PointOfInterestVisualizer* poiVisualizer)
+{
+    m_poiVisualizationManager = poiVisualizer;
 }
 
 //--------------------------------------------------------------------------------------------------

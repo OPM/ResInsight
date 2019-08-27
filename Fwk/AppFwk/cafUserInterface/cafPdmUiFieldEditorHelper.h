@@ -50,7 +50,7 @@ namespace caf
 class PdmUiFieldEditorHelper
 {
 public:
-    static PdmUiFieldEditorHandle* fieldEditorForField(PdmUiFieldHandle* fieldHandle, const QString& uiConfigName);
+    static PdmUiFieldEditorHandle* createFieldEditorForField(PdmUiFieldHandle* fieldHandle, const QString& uiConfigName);
 };
 
 

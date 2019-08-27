@@ -1,13 +1,5 @@
 cmake_minimum_required (VERSION 2.8.12)
 
-# Qt
-if (CAF_USE_QT5)
-	find_package(Qt5 COMPONENTS Core Gui OpenGL Widgets REQUIRED)
-else()
-	find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
-    include(${QT_USE_FILE})
-endif(CAF_USE_QT5)
-
 project (cafCommand)
 
 
@@ -17,12 +9,16 @@ set (MOC_HEADER_FILES
 	cafCmdFeatureManager.h
 )
 
-if (CAF_USE_QT5)
+# Qt
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 else()
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
+    include(${QT_USE_FILE})
 	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif(CAF_USE_QT5)
+endif(CEE_USE_QT5)
 
 set( PROJECT_FILES
 

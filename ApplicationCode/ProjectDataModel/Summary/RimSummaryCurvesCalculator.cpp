@@ -43,59 +43,50 @@
 // G    use E or f format, whichever is the most concise
 
 //--------------------------------------------------------------------------------------------------
-class DecimalScaleDraw : public QwtScaleDraw
+class SummaryScaleDraw : public QwtScaleDraw
 {
 public:
-    DecimalScaleDraw(double scaleFactor, int numberOfDecimals)
+    SummaryScaleDraw(double                                  scaleFactor,
+                     int                                     numberOfDecimals,
+                     RimPlotAxisProperties::NumberFormatType numberFormat = RimPlotAxisProperties::NUMBER_FORMAT_AUTO)
     {
         m_scaleFactor      = scaleFactor;
         m_numberOfDecimals = numberOfDecimals;
+        m_numberFormat     = numberFormat;
     }
 
     QwtText label(double value) const override
     {
         if (qFuzzyCompare(scaledValue(value) + 1.0, 1.0)) value = 0.0;
 
-        return QString::number(scaledValue(value), 'f', m_numberOfDecimals);
+        return QString::number(scaledValue(value), numberFormat(), m_numberOfDecimals);
     }
 
 private:
+    char numberFormat() const
+    {
+        switch (m_numberFormat)
+        {
+        case RimPlotAxisProperties::NUMBER_FORMAT_AUTO:
+            return 'g';
+        case RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL:
+            return 'f';
+        case RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC:
+            return 'e';
+        default:
+            return 'g';
+        }
+    }
+
     double scaledValue(double value) const
     {
         return value / m_scaleFactor;
     }
 
-    double m_scaleFactor;
-    int    m_numberOfDecimals;
-};
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class ScientificScaleDraw : public QwtScaleDraw
-{
-public:
-    ScientificScaleDraw(double scaleFactor, int numberOfDecimals)
-    {
-        m_scaleFactor      = scaleFactor;
-        m_numberOfDecimals = numberOfDecimals;
-    }
-
-    QwtText label(double value) const override
-    {
-        if (qFuzzyCompare(scaledValue(value) + 1.0, 1.0)) value = 0.0;
-
-        return QString::number(scaledValue(value), 'e', m_numberOfDecimals);
-    }
-
 private:
-    double scaledValue(double value) const
-    {
-        return value / m_scaleFactor;
-    }
-
-    double m_scaleFactor;
-    int    m_numberOfDecimals;
+    double                                  m_scaleFactor;
+    int                                     m_numberOfDecimals;
+    RimPlotAxisProperties::NumberFormatType m_numberFormat;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -153,21 +144,18 @@ void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot*
     }
 
     {
-        if (m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_AUTO)
+        if (m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_AUTO &&
+            m_axisProperties->scaleFactor() == 1.0)
         {
+            // Default to Qwt's own scale draw to avoid changing too much for default values
             qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(), new QwtScaleDraw);
         }
-        else if (m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL)
+        else
         {
-            qwtPlot->setAxisScaleDraw(
-                m_axisProperties->qwtPlotAxisType(),
-                new DecimalScaleDraw(m_axisProperties->scaleFactor(), m_axisProperties->numberOfDecimals()));
-        }
-        else if (m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC)
-        {
-            qwtPlot->setAxisScaleDraw(
-                m_axisProperties->qwtPlotAxisType(),
-                new ScientificScaleDraw(m_axisProperties->scaleFactor(), m_axisProperties->numberOfDecimals()));
+            qwtPlot->setAxisScaleDraw(m_axisProperties->qwtPlotAxisType(),
+                                      new SummaryScaleDraw(m_axisProperties->scaleFactor(),
+                                                           m_axisProperties->numberOfDecimals(),
+                                                           m_axisProperties->numberFormat()));
         }
     }
 
@@ -263,13 +251,10 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
     QString assembledYAxisText;
     QString scaleFactorText = "";
 
-    if (m_axisProperties->numberFormat() != RimPlotAxisProperties::NUMBER_FORMAT_AUTO)
+    if (m_axisProperties->scaleFactor() != 1.0)
     {
-        if (m_axisProperties->scaleFactor() != 1.0)
-        {
-            int exponent    = std::log10(m_axisProperties->scaleFactor());
-            scaleFactorText = QString(" x 10<sup>%1</sup> ").arg(QString::number(exponent));
-        }
+        int exponent    = std::log10(m_axisProperties->scaleFactor());
+        scaleFactorText = QString(" x 10<sup>%1</sup> ").arg(QString::number(exponent));
     }
 
     for (auto unitIt : unitToQuantityNameMap)

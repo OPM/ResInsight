@@ -37,7 +37,6 @@ class RngTest(EclTest):
 
         with TestAreaContext("rng_state") as t:
             rng.saveState( "rng.txt" )
-            t.sync()
             val1 = rng.getInt()
             val2 = rng.getInt()
             rng.loadState( "rng.txt" )

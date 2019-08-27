@@ -22,6 +22,7 @@
 
 #include <set>
 #include <string>
+#include <tuple>
 #include <vector>
 
 class RimSummaryCurveCollection;
@@ -44,18 +45,23 @@ public:
     std::set<std::string> quantities() const;
     std::set<std::string> quantityNamesWithHistory() const;
     std::set<std::string> quantityNamesNoHistory() const;
-    
+
     std::string quantityNameForTitle() const;
 
     std::set<std::string> wellNames() const;
     std::set<std::string> wellGroupNames() const;
     std::set<int>         regionNumbers() const;
 
+    std::set<std::string> wellCompletions(const std::string& wellName) const;
+    std::set<int>         wellSegmentNumbers(const std::string& wellName) const;
+    std::set<std::string> blocks() const;
+
     std::set<RifEclipseSummaryAddress::SummaryVarCategory> categories() const;
 
-    std::vector<QString> identifierTexts(RifEclipseSummaryAddress::SummaryVarCategory category) const;
+    std::vector<QString> identifierTexts(RifEclipseSummaryAddress::SummaryVarCategory category,
+                                         const std::string&                           secondaryIdentifier) const;
 
-    static std::vector<RifEclipseSummaryAddress> addressesForCategory(const std::set<RifEclipseSummaryAddress>& addresses,
+    static std::vector<RifEclipseSummaryAddress> addressesForCategory(const std::set<RifEclipseSummaryAddress>&    addresses,
                                                                       RifEclipseSummaryAddress::SummaryVarCategory category);
 
     static std::string correspondingHistorySummaryCurveName(const std::string& curveName);
@@ -67,13 +73,16 @@ private:
     void analyzeSingleAddress(const RifEclipseSummaryAddress& address);
 
 private:
-    std::set<std::string> m_quantities;
+    std::set<std::string>         m_quantities;
     mutable std::set<std::string> m_quantitiesWithMatchingHistory;
     mutable std::set<std::string> m_quantitiesNoMatchingHistory;
-    
-    std::set<std::string> m_wellNames;
-    std::set<std::string> m_wellGroupNames;
-    std::set<int>         m_regionNumbers;
+
+    std::set<std::string>                         m_wellNames;
+    std::set<std::string>                         m_wellGroupNames;
+    std::set<int>                                 m_regionNumbers;
+    std::set<std::pair<std::string, std::string>> m_wellCompletions;
+    std::set<std::pair<std::string, int>>         m_wellSegmentNumbers;
+    std::set<std::string>                         m_blocks;
 
     std::set<RifEclipseSummaryAddress::SummaryVarCategory> m_categories;
 };

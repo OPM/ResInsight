@@ -59,7 +59,7 @@ RicfExportLgrForCompletions::RicfExportLgrForCompletions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfExportLgrForCompletions::execute()
+RicfCommandResponse RicfExportLgrForCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -71,38 +71,49 @@ void RicfExportLgrForCompletions::execute()
         wellPaths = TOOLS::wellPathsFromNames(TOOLS::toQStringList(m_wellPathNames), &wellsNotFound);
         if (!wellsNotFound.empty())
         {
-            RiaLogging::error(QString("exportLgrForCompletions: These well paths were not found: ") + wellsNotFound.join(", "));
+            QString error(QString("exportLgrForCompletions: These well paths were not found: ") + wellsNotFound.join(", "));
+            RiaLogging::error(error);
+            return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
         }
     }
 
-    if (!wellPaths.empty())
+    if (wellPaths.empty())
     {
-        QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::LGRS);
-        if (exportFolder.isNull())
-        {
-            exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("LGR");
-        }
-
-        caf::CmdFeatureManager*                 commandManager = caf::CmdFeatureManager::instance();
-        auto feature = dynamic_cast<RicExportLgrFeature*>(commandManager->getCommandFeature("RicExportLgrFeature"));
-
-        RimEclipseCase* eclipseCase = TOOLS::caseFromId(m_caseId());
-        if (!eclipseCase)
-        {
-            RiaLogging::error(QString("exportLgrForCompletions: Could not find case with ID %1").arg(m_caseId()));
-            return;
-        }
-
-        caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);
-        QStringList wellsIntersectingOtherLgrs;
-
-        feature->exportLgrsForWellPaths(exportFolder, wellPaths, eclipseCase, m_timeStep, lgrCellCounts, m_splitType(),
-            {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES}, &wellsIntersectingOtherLgrs);
-
-        if (!wellsIntersectingOtherLgrs.empty())
-        {
-            auto wellsList = wellsIntersectingOtherLgrs.join(", ");
-            RiaLogging::error("exportLgrForCompletions: No export for some wells due to existing intersecting LGR(s).Affected wells : " + wellsList);
-        }
+        QString error("exportLgrForCompletions: Could not find any well paths");
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
+
+    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::LGRS);
+    if (exportFolder.isNull())
+    {
+        exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("LGR");
+    }
+
+    caf::CmdFeatureManager*                 commandManager = caf::CmdFeatureManager::instance();
+    auto feature = dynamic_cast<RicExportLgrFeature*>(commandManager->getCommandFeature("RicExportLgrFeature"));
+
+    RimEclipseCase* eclipseCase = TOOLS::caseFromId(m_caseId());
+    if (!eclipseCase)
+    {
+        QString error(QString("exportLgrForCompletions: Could not find case with ID %1").arg(m_caseId()));
+        RiaLogging::error(error);
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
+    }
+
+    caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);
+    QStringList wellsIntersectingOtherLgrs;
+
+    feature->exportLgrsForWellPaths(exportFolder, wellPaths, eclipseCase, m_timeStep, lgrCellCounts, m_splitType(),
+        {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES}, &wellsIntersectingOtherLgrs);
+
+    RicfCommandResponse response;
+    if (!wellsIntersectingOtherLgrs.empty())
+    {
+        auto wellsList = wellsIntersectingOtherLgrs.join(", ");
+        QString warning("exportLgrForCompletions: No export for some wells due to existing intersecting LGR(s).Affected wells : " + wellsList);
+        RiaLogging::warning(warning);
+        response.updateStatus(RicfCommandResponse::COMMAND_WARNING, warning);
+    }
+    return response;
 }

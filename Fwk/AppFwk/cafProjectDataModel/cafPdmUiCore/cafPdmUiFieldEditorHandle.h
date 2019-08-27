@@ -114,6 +114,9 @@ protected: // Virtual interface to override
     virtual QMargins    calculateLabelContentMargins() const;
     virtual bool        isMultiRowEditor() const;
 
+private:
+    void                updateContextMenuPolicy();
+
 private slots:
     void                customMenuRequested(QPoint pos);
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway.
+   Copyright (C) 2011  Equinor ASA, Norway.
 
    The file 'buffer.c' is part of ERT - Ensemble based Reservoir Tool.
 
@@ -563,12 +563,36 @@ void buffer_replace_string( buffer_type * buffer , size_t offset , size_t old_si
    touching internal state.
 */
 
+namespace {
+
+  /*
+    This homemade strstr() implementation is used here because we can not
+    guarantee that the buffer->data is '\0' terminated and then normal strstr()
+    gives undefined behaviour - problem found with address sanitizer.
+  */
+
+  const char * memcmp_strstr(const char * buffer, size_t buffer_size, const char * expr) {
+    size_t N = strlen(expr);
+    const char * pos = buffer;
+    while (true) {
+      if (buffer_size < N)
+        return NULL;
+
+      if (memcmp(pos, expr, N) == 0)
+        return pos;
+
+      pos++;
+      buffer_size--;
+    }
+  }
+}
+
 
 bool buffer_strstr( buffer_type * buffer , const char * expr ) {
   bool match = false;
 
   if (strlen(expr) > 0) {
-    char * match_ptr = strstr( &buffer->data[buffer->pos] , expr );
+    const char * match_ptr = memcmp_strstr( &buffer->data[buffer->pos], buffer->content_size - buffer->pos, expr );
     if (match_ptr) {
       buffer->pos += match_ptr - &buffer->data[buffer->pos];
       match = true;
