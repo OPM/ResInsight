@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Annotations :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/3d-main-window/annotations/">
     <nav id="sidebar" class="">
 
 
@@ -248,7 +248,7 @@
   
     
     <li data-nav-id="/3d-main-window/" title="3D Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -541,7 +541,7 @@
  
   
     
-      <li data-nav-id="/3d-main-window/annotations/" title="Annotations" class="dd-item ">
+      <li data-nav-id="/3d-main-window/annotations/" title="Annotations" class="dd-item active">
         <a href="/3d-main-window/annotations/">
         Annotations
         
@@ -1558,86 +1558,179 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/3d-main-window/'>3D Main Window</a> > Annotations
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#global-scope-vs-local-scope-annotations">Global scope vs local scope annotations</a></li>
+<li><a href="#text-annotations">Text Annotations</a></li>
+<li><a href="#reach-circle-annotations">Reach Circle Annotations</a></li>
+<li><a href="#user-defined-polyline-annotations">User Defined Polyline Annotations</a></li>
+<li><a href="#polyline-imported-from-file">Polyline Imported From File</a></li>
+<li><a href="#annotations-visibility">Annotations visibility</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Annotations
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p>ResInsight supports displaying a few types of annotations in 3D views and Contour Map view.</p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<ul>
+<li>Text annotations</li>
+<li>Reach circle annotations</li>
+<li>Polyline annotations
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<ul>
+<li>User defined polylines</li>
+<li>Polylines imported from file</li>
+</ul></li>
+</ul>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p><img src="/images/3d-main-window/Annotations.png" alt="" /></p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<h2 id="global-scope-vs-local-scope-annotations">Global scope vs local scope annotations</h2>
+
+<p>Global annotations may be displayed in all views and are located in the <strong>Annotations</strong> project tree node right below <strong>Grid Models</strong> (Global annotations sub tree). Local annotations are associated with a specific view and are located in the <strong>Annotations</strong> project tree node below the view node (Local annotations sub tree). All annotation types except text annotations are global only. Text annotation may be either global or local.</p>
+
+<p>All global annotations also have a representation in the local <strong>Annotation</strong> tree node in order to toggle visibilty per view. Those annotations are located in tree nodes starting with <strong>Global</strong>.</p>
+
+<p><img src="/images/3d-main-window/LocalAnnotationsTree.png" alt="" /><br/>
+Local annotations sub tree</p>
+
+<p><img src="/images/3d-main-window/GlobalAnnotationsTree.png" alt="" /><br/>
+Global annotations sub tree</p>
+
+<h2 id="text-annotations">Text Annotations</h2>
+
+<p>There are two ways of creating a new text annotation.</p>
+
+<ul>
+<li>Right click <strong>Annotations</strong> or <strong>Text Annotations</strong> tree node in either the global annotatyion sub tree or the local annotations sub tree. The scope of the annotation depends on which node was clicked. When text annotations are created this way, all text annotation fields must be entered manunally in the property editor.</li>
+<li>Right click on an object in the view and select <strong>Create Text Annotation</strong>. ResInsight will then create a text annotation at the clicked point. In this case, only th text must be entered manually in the property editor. When creating a text annotation this way, it will become a local annotation by default.</li>
+</ul>
+
+<p><img src="/images/3d-main-window/TextAnnotationPropertyEditor.png" alt="" /></p>
+
+<ul>
+<li><strong>Anchor Point</strong> - The interesting point in the view</li>
+<li><strong>Label Point</strong> - The point where the text label is placed</li>
+<li><strong>Text</strong> - The text to display. Multiline supprted. The first line will be the name of the annotation in the project tree</li>
+<li><strong>Text appearance</strong> - Set font size, font color, background color and anchor line color</li>
+</ul>
+
+<p>When a text annotation tree node is selected, target markers in each end of the anchor line are displayed. The targets can be clicked and dragged. Clicking the blue part lets the user drag the target vertically (along Z axis). Clicking the magenta part lets the user drag the target in the XY plane.</p>
+
+<h2 id="reach-circle-annotations">Reach Circle Annotations</h2>
+
+<p>To create a reach circle annotation, right click <strong>Annotations</strong> or <strong>Reach Circle Annotations</strong> tree node in the global annotations sub tree. Then enter values in the property editor.</p>
+
+<p><img src="/images/3d-main-window/CircleAnnotationPropertyEditor.png" alt="" /></p>
+
+<ul>
+<li><strong>Name</strong> - Name of the circle annotation</li>
+<li><strong>Center Point</strong> - Center point of the circle. Format &lsquo;x-pos y-pos depth&rsquo;</li>
+<li><strong>Radius</strong> - Circle radius</li>
+<li><strong>Line Appearance</strong> - Set circle color and line thickness</li>
+</ul>
+
+<h2 id="user-defined-polyline-annotations">User Defined Polyline Annotations</h2>
+
+<p>To create a user defined polyline annotation, right click <strong>Annotations</strong> or <strong>User Defined Polyline Annotations</strong> tree node in the global annotations sub tree. The property editor for the newly created annotation is displayed and is in picking points mode. The user may now click on objects in the view to create polyline points. When finished, click <strong>Stop Picking Points</strong> in the property editor.</p>
+
+<p><img src="/images/3d-main-window/UserDefinedPolylineAnnotationPropertyEditor.png" alt="" /></p>
+
+<ul>
+<li><strong>Targets</strong> - Polyline points. Can be edited in the table or interactively in the view</li>
+<li><strong>Start Picking Points / Stop Picking Points</strong> - Button to start / stop picking mode</li>
+<li><strong>Line Appearance</strong> - Set line color and thickness</li>
+</ul>
+
+<p>When a user defined polyline annotation tree node is selected, the polyline target markers become visible. Those can be dragged around as decribed above.</p>
+
+<h2 id="polyline-imported-from-file">Polyline Imported From File</h2>
+
+<p>To import a polyline annotation from file, right click <strong>Annotations</strong> or <strong>Polylines From File</strong> tree node in the global annotations sub tree. Then select the file to import and click OK. Imported polyline annotations are not editable.</p>
+
+<p><img src="/images/3d-main-window/PolylineFromFileAnnotationPropertyEditor.png" alt="" /></p>
+
+<ul>
+<li><strong>File</strong> - Name of the imported file</li>
+<li><strong>Line Appearance</strong> - Set line color and line thickness</li>
+</ul>
+
+<h2 id="annotations-visibility">Annotations visibility</h2>
+
+<p>Local annotations visibility is controlled by the check boxes in the local annotations sub tree only. Global annotations visibility, on the other hand, is controlled by the check boxes in both the global and local annotations sub trees. So in order to display a global annotation in a specific view, both the annotation tree note itself and its representation in the local sub tree must have visibilty enabled.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -1811,6 +1904,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -1821,6 +1915,25 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
                     
                         
             
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
             
         
                     
@@ -2037,21 +2150,6 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
                     
                 
                 
@@ -2071,6 +2169,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2913,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/3d-main-window/measurement/" title="Measurement"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/plot-window/" title="Plot Main Window" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

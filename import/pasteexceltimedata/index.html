@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Paste Excel Time History Data :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/import/pasteexceltimedata/">
     <nav id="sidebar" class="">
 
 
@@ -993,7 +993,7 @@
   
     
     <li data-nav-id="/import/" title="Import" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1112,7 +1112,7 @@
  
   
     
-      <li data-nav-id="/import/pasteexceltimedata/" title="Paste Excel Time History Data" class="dd-item ">
+      <li data-nav-id="/import/pasteexceltimedata/" title="Paste Excel Time History Data" class="dd-item active">
         <a href="/import/pasteexceltimedata/">
         Paste Excel Time History Data
         
@@ -1558,86 +1558,100 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/import/'>Import</a> > Paste Excel Time History Data
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#paste-options-dialog">Paste Options Dialog</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Paste Excel Time History Data
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p>When text have been copied to the operating system&rsquo;s clipboard, it will be possible to paste that text into a summary plot. Right click on a summary plot in the <strong>Plot Main Window Project Tree</strong> and select <strong>Paste Excel Data to Summary Plot</strong>. Then a paste options dialog will appear.</p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<h2 id="paste-options-dialog">Paste Options Dialog</h2>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p><img src="/images/import/PasteExcelData.png" alt="" /></p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p>Most of the fields in this dialog are the same as in the <a href="/import/observeddata/#csv-txt-import-options-dialog">CSV/txt import options dialog</a>. Please see that section for documentation on those fields. The fields specific to the paste options dialog are as follows:</p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<ul>
+<li><strong>Curve Prefix</strong> &ndash; Curve name prefix for all curves created from the pasted data.</li>
+<li><strong>Line Style</strong> &ndash; Line style to use for the curves created from the pasted data.</li>
+<li><strong>Symbol</strong> &ndash; Line symbol to use for each data point on the curves created from the pasted data.</li>
+<li><strong>Symbol Skip Distance</strong> &ndash; Minimum distance between two adjacent symbols on the curves. If two data points on a curve is closer than the specified distance, a symbol is not drawn for one of the data points. Default value is 0, which will draw a symbol at all data points on the curves regardless of the distance between data points.</li>
+</ul>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2408,6 +2422,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2420,6 +2435,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2501,6 +2519,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2519,6 +2538,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2834,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/import/observeddata/" title="Observed Time History Data"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/export/" title="Export" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

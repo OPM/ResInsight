@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Getting Started on ResInsight</title>
+    <link>https://resinsight.org/getting-started/</link>
+    <description>Recent content in Getting Started on ResInsight</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="https://resinsight.org/getting-started/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Overview</title>
+      <link>https://resinsight.org/getting-started/overview/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/overview/</guid>
+      <description>User Interface ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots.
+3D Main Window Plot Main Window Switching Between the Two Main Windows The two main windows has a toolbar button each, that directly opens and raises the other window. Each of the windows can also be closed freely, but if both are closed, ResInsight exits.
+Docking Windows Each of the main windows has a central area and several docking windows surrounding it.</description>
+    </item>
+    
+    <item>
+      <title>What&#39;s New in 2019.04</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2019_04/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_04/</guid>
+      <description>ResInsight 2019.04 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.04 contains a larger number of new and exciting features, some of which are listed below.
+Grid Cross Plots ResInsight supports the creation of cross plots of two results against each other, with each cell in the grid representing one data point in the plot.</description>
+    </item>
+    
+    <item>
+      <title>What&#39;s New in 2019.08</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2019_08/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_08/</guid>
+      <description>ResInsight 2019.08 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.08 opens up a range of new and efficient workflows by adding Python script support in ResInsight.
+Python scripting Basic example on how to update views from Python
+import rips # Connect to ResInsight instance resInsight = rips.Instance.find() # Check if connection worked if resInsight is not None: # Get a list of all cases cases = resInsight.</description>
+    </item>
+    
+    <item>
+      <title>What&#39;s New in 2018.11</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</guid>
+      <description>ResInsight 2018.11 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2018.11 contains a larger number of new and exciting features, some of which are listed below.
+Local Grid Refinement (LGR) Local Grid Refinement (LGR) can be created based on Eclipse simulations. The refined grids can also be visualised in 3D.
+See Completions LGR
+Well Path Creation ResInsight lets the user create new/custom well paths by clicking in the 3D view.</description>
+    </item>
+    
+    <item>
+      <title>Model Navigation</title>
+      <link>https://resinsight.org/getting-started/modelnavigation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/modelnavigation/</guid>
+      <description>ResInsight comes with four navigation modes. The active mode can be selected in the Preferences dialog.
+Note that changing the navigation mode applies to the currently active view only, and views created after the change.
+These abbreviations are used in the tables below:
+   Abbreviation Meaning     LMB Press the left mouse button   MMB Press the middle mouse button or scroll wheel button   RMB Press the right mouse button    The following applies to all navigation modes:</description>
+    </item>
+    
+    <item>
+      <title>Release Notification Subscription</title>
+      <link>https://resinsight.org/getting-started/other/releasenotification/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/other/releasenotification/</guid>
+      <description>LinkedIn Feel free to join ResInsight on LinkedIn
+Newsletter By subscribing to the Release Notification you will get notified when new releases are available. Please use the button below to send a request for subscription mail.
+Subscribe</description>
+    </item>
+    
+    <item>
+      <title>Testimonials</title>
+      <link>https://resinsight.org/getting-started/other/testimonials/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/other/testimonials/</guid>
+      <description>“I have been using ResInsight now for some time and have stopped using the commercial software as ResInsight is much more responsive and easier to use. It really is an excellent piece of software.”
+David Baxendale
+Senior Petroleum Engineering Advisor, RPS Energy
+&amp;ldquo;ResInsight is an excellent tool to visualize simulation results and offers good-looking and illustrative graphs for presentations. I found the integration with Octave especially powerful in my research.&amp;rdquo;</description>
+    </item>
+    
+  </channel>
+</rss>

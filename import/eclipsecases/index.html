@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Eclipse Cases :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/import/eclipsecases/">
     <nav id="sidebar" class="">
 
 
@@ -993,7 +993,7 @@
   
     
     <li data-nav-id="/import/" title="Import" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1017,7 +1017,7 @@
  
   
     
-      <li data-nav-id="/import/eclipsecases/" title="Eclipse Cases" class="dd-item ">
+      <li data-nav-id="/import/eclipsecases/" title="Eclipse Cases" class="dd-item active">
         <a href="/import/eclipsecases/">
         Eclipse Cases
         
@@ -1558,86 +1558,168 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/import/'>Import</a> > Eclipse Cases
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#eclipse-results">Eclipse Results</a>
+<ul>
+<li><a href="#result-index-file">Result Index File</a></li>
+</ul></li>
+<li><a href="#time-step-filtered-eclipse-result">Time Step Filtered Eclipse Result</a></li>
+<li><a href="#eclipse-ascii-input-data">Eclipse ASCII Input Data</a></li>
+<li><a href="#handling-missing-or-wrong-mapaxes">Handling Missing or Wrong MAPAXES</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Eclipse Cases
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p>ResInsight supports the following type of Eclipse input data:</p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<ul>
+<li><em><code>*.GRID</code></em> and <em><code>*.EGRID</code></em> files along with their <em><code>*.INIT</code></em> and restart files <em><code>*.XNNN</code></em> and <em><code>*.UNRST</code></em>.</li>
+<li>Grid and Property data from  <em><code>*.GRDECL</code></em> files.</li>
+</ul>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<div class="notices note" ><p>Release 2018.11 supports import of simulations from Intersect. To be able to import into ResInsight, the Intersect simulation must be exported into Eclipse file format.</p>
+</div>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+
+<h3 id="eclipse-results">Eclipse Results</h3>
+
+<p>ResInsight offers several ways to import Eclipse (grid) files. Use one of the following commands in the <strong>File-&gt;Import-&gt;Eclipse Cases</strong> menu:</p>
+
+<ul>
+<li><strong>Import Eclipse Case</strong>: Brings up the standard file selection dialog. Select <em><code>*.EGRID</code></em> or <em><code>*.GRID</code></em> Eclipse files for import. Multiple selections are allowed.</li>
+<li><strong>Import Eclipse Cases Recursively</strong>: Brings up the recursive file selection dialog. This dialog is described in detail on the <a href="/plot-window/summaryplots/#recursive-summary-file-import">Summary Plots page</a>.</li>
+<li><strong>Import Eclipse Case (Time Step Filtered)</strong>: See <a href="#time-step-filtered-eclipse-result">description</a></li>
+<li><strong>Import Input Eclipse Case</strong>: See <a href="#eclipse-ascii-input-data">description</a></li>
+<li><strong>Create Grid Case Group from Files</strong> and <strong>Create Grid Case Group from Files Recursively</strong>: These commands import a number of Eclipse files and places the cases in a <a href="/3d-main-window/casegroupsandstatistics/#creating-grid-case-groups">grid case group</a>. The only difference between the two commands, is the dialog used to select files. The recursive version is using the <a href="/plot-window/summaryplots/#recursive-summary-file-import">recursive file selection dialog</a> and is considered the new way of selecting files.</li>
+</ul>
+
+<p>The <strong>Reload Case</strong> command can be used to reload a previously imported case, to make sure it is up to date. This is useful if the grid or result files changes while a ResInsight session is active.</p>
+
+
+<div class="notices note" ><p>You can select several grid files in one go by multiple selection of files (Ctrl + left mouse button, Shift + left mouse button).</p>
+</div>
+
+
+<h4 id="result-index-file">Result Index File</h4>
+
+<p>If enabled, ResInsight will generate an index file when reading the eclipse result files for the first time. This file will significantly reduce the time used to open the case next time. The file is named <em><code>&lt;casename&gt;.RESINSIGHT_IDX</code></em>
+See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavior When Loading Data</a></p>
+
+<h3 id="time-step-filtered-eclipse-result">Time Step Filtered Eclipse Result</h3>
+
+<p>Some Eclipse files have an enormous amount of time steps. If only a selection of the time steps really are needed for the session, the time steps can be filtered before loading. This can possibly speed up the import a great deal. Filtering can be done in the following way.</p>
+
+<p>Select <strong>File-&gt;Import-&gt;Eclipse Cases-&gt; <img src="https://resinsight.org/images/getting-started/Case24x24.png" style="display:inline; vertical-align:middle; margin:0">
+ Import Eclipse Case (Time Step Filtered)</strong> and select an <em><code>*.EGRID</code></em> or <em><code>*.GRID</code></em> Eclipse file for import. A dialog will appear.</p>
+
+<p><img src="/images/getting-started/timeStepFilter.png" alt="" /></p>
+
+<p>Filtering can be done by adjusting the following parameters:
+* First and last time step
+* Step filter type and with step interval size</p>
+
+<p>First and last time step to include in the import can be chosen in their respective drop down list. All time steps found in the file are included in both lists.</p>
+
+<p><strong>Filter Type</strong> is set to <em>All</em> by default. This means that all time steps between the first and last chosen time step will be imported. The alternative to <em>All</em> is to skip time steps in a number of <em>Days</em>, <em>Weeks</em>, <em>Months</em>, <em>Quarters</em> or <em>Years</em>. The skipping interval is set in the text field below. After editing the <strong>Interval</strong> field, press <em>tab</em> to update the <strong>Filtered Time Steps</strong> preview, or click anywhere in the dialog. Click <em>Ok</em> to import when the filter is ready.</p>
+
+<p>Filtering can also be done after import, in a case&rsquo;s <strong>Property Window</strong>.</p>
+
+<p><img src="/images/getting-started/timeStepFilterPropEditor.png" alt="" /></p>
+
+<p>After clicking <em>Reload Case</em>, the time steps in the toolbar will be updated.</p>
+
+<h3 id="eclipse-ascii-input-data">Eclipse ASCII Input Data</h3>
+
+<ol>
+<li>Select <strong>File-&gt;Import-&gt;Eclipse Cases-&gt; <img src="https://resinsight.org/images/getting-started/EclipseInput24x24.png" style="display:inline; vertical-align:middle; margin:0">
+ Import Input Eclipse Case</strong> and select a <em><code>*.GRDECL</code></em> file.</li>
+<li>The case is imported, and a view of the case is created</li>
+<li>Right-click the <strong>Input Properties</strong> in the generated <strong>Input Case</strong> and use the right-click menu to import additional Eclipse Property data files.</li>
+</ol>
+
+<h3 id="handling-missing-or-wrong-mapaxes">Handling Missing or Wrong MAPAXES</h3>
+
+<p>The X and Y grid data can be negated in order to make the Grid model appear correctly in ResInsight. This functionality is accessible in the <strong>Property Editor</strong> for all Eclipse Case types as the toggle buttons <strong>Flip X Axis</strong> and <strong>Flip Y Axis</strong> as shown in the example below.</p>
+
+<p><img src="/images/getting-started/CaseProperties.png" alt="" /></p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2408,6 +2490,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2420,6 +2503,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
                     
                 
                 
@@ -2436,6 +2520,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2899,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/import/" title="Import"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/import/geomechanicaldata/" title="Geomechanical Data" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

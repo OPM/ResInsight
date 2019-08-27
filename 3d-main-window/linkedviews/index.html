@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Linked Views :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/3d-main-window/linkedviews/">
     <nav id="sidebar" class="">
 
 
@@ -248,7 +248,7 @@
   
     
     <li data-nav-id="/3d-main-window/" title="3D Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -503,7 +503,7 @@
  
   
     
-      <li data-nav-id="/3d-main-window/linkedviews/" title="Linked Views" class="dd-item ">
+      <li data-nav-id="/3d-main-window/linkedviews/" title="Linked Views" class="dd-item active">
         <a href="/3d-main-window/linkedviews/">
         Linked Views
         
@@ -1558,86 +1558,162 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/3d-main-window/'>3D Main Window</a> > Linked Views
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#establish-linked-views">Establish Linked Views</a></li>
+<li><a href="#linked-view-options">Linked View Options</a>
+<ul>
+<li>
+<ul>
+<li><a href="#link-options">Link Options</a></li>
+<li><a href="#link-cell-filters">Link Cell Filters</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#toggle-linking-from-the-project-tree">Toggle Linking from the <strong>Project Tree</strong></a></li>
+<li><a href="#project-tree-right-click-menu">Project Tree right-click menu</a></li>
+<li><a href="#3d-view-right-click-menu">3D View right-click menu</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Linked Views
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/images/3d-main-window/LinkedViewsOverview.png" alt="" /></p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<p>One or more views can be linked together to allow some settings like camera position and range filters, propagate from one view to another.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<h2 id="establish-linked-views">Establish Linked Views</h2>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p>To establish a link between views, select <img src="https://resinsight.org/images/3d-main-window/chain.png" style="display:inline; vertical-align:middle; margin:0">
+<strong>Link Visible Views</strong> from the View toolbar. This will open a dialog where the Master View is selected. When pressing Ok in this dialog, the <strong>Linked Views</strong> items are displayed in the top of the <strong>Project Tree</strong>.</p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p><img src="/images/3d-main-window/LinkedViewsInProjectTree.png" alt="" /></p>
+
+<p>It is also possible to link specific views by selecting them and choosing <strong>Link Selected Views</strong> from the right-click menu. The following image shows the linking of a regular view with a <strong>Contour Map</strong>. Note that contour maps can never be the Master View.</p>
+
+<p><img src="/images/3d-main-window/LinkedContourMap.png" alt="" /></p>
+
+<h2 id="linked-view-options">Linked View Options</h2>
+
+<p>When selecting a linked view in the project tree, the different options are available in the <strong>Property Editor</strong>.</p>
+
+<p><img src="/images/3d-main-window/LinkedViewsProperties.png" alt="" /></p>
+
+<h4 id="link-options">Link Options</h4>
+
+<ul>
+<li><strong>Camera</strong> &ndash; Navigation in any of the views where this option is active will be applied to the other linked views with this option set. This option is not available for Contour Maps.</li>
+<li><strong>Show Cursor</strong> &ndash; Shows the position of the mouse cursor in the other views as a cross-hair. This option is not available for Contour Maps.</li>
+<li><strong>Time Step</strong> &ndash; Change of time step in any of the views where this option is active will be applied to the other linked views with this option set.</li>
+<li><strong>Cell Color Result</strong> &ndash; Change of cell result in the master view will be applied to all dependent views where this option is active. <strong>Cell Color Result</strong> is only supported between views of the <em>same type</em>.</li>
+<li><strong>Legend Definition</strong> &ndash; Links the legend between views already linking the <strong>Cell Results Color</strong>.</li>
+</ul>
+
+<h4 id="link-cell-filters">Link Cell Filters</h4>
+
+<ul>
+<li><strong>Range Filters</strong> &ndash; Range filters in master view will be applied to all dependent views where this option is active. Normally this is done by a direct copy, but if the master and dependent view is of different types (Eclipse and Geomechanical views) and the Eclipse case is within the bounds of the Geomechanical case, ResInsight tries to map the range filters to the corresponding cells in the other case.</li>
+<li><strong>Property Filters</strong> &ndash; Property filters in master view will be applied to all dependent views where this option is active. This option is only enabled between views of the <em>same case</em>.</li>
+</ul>
+
+<h2 id="toggle-linking-from-the-project-tree">Toggle Linking from the <strong>Project Tree</strong></h2>
+
+<p>A linked view can temporarily be disabled by unchecking the linked view. To disable all linked views temporarily, uncheck the top level item <strong>Linked Views</strong>.</p>
+
+<h2 id="project-tree-right-click-menu">Project Tree right-click menu</h2>
+
+<p>Right-clicking one of the linked view entries in the <strong>Project Tree</strong> displays the following menu entries:</p>
+
+<ul>
+<li><strong>Open All Linked Views</strong> &ndash; Open all the views which is part of the linked view group.</li>
+<li><strong>Delete All Linked Views</strong> &ndash; Delete the linked views group, and thereby unlink all the views.</li>
+<li><strong>Delete</strong> &ndash; Remove an individual view from the group of linked views.</li>
+</ul>
+
+<h2 id="3d-view-right-click-menu">3D View right-click menu</h2>
+
+<p>To activate the menu items for a linked view, right-click inside the 3D view anywhere outside the model.
+Depending on whether the view is a dependent-, or an unlinked view, some of the following commands are available:</p>
+
+<ul>
+<li><strong>Show Link Options</strong> &ndash; Activate the linked view item in the project tree, and show its properties.</li>
+<li><strong>Set As Master View</strong> &ndash; Use the view as Master View. This option is not available for Contour Maps.</li>
+<li><strong>Link View</strong> &ndash; Add the view to list of linked views.</li>
+<li><strong>Unlink View</strong> &ndash; Delete the view from list of linked views.</li>
+</ul>
+
+<p>Master views have no available linking commands.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -1811,6 +1887,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -1821,6 +1898,25 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
                     
                         
             
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
             
         
                     
@@ -2005,21 +2101,6 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
                     
                 
                 
@@ -2036,6 +2117,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2896,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/3d-main-window/casegroupsandstatistics/" title="Grid Case Groups and Statistics"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/3d-main-window/measurement/" title="Measurement" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

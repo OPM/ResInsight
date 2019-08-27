@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Create Well Paths :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/wells-and-completions/createnewwellpaths/">
     <nav id="sidebar" class="">
 
 
@@ -847,7 +847,7 @@
   
     
     <li data-nav-id="/wells-and-completions/" title="Wells and Completions" class="dd-item 
-        
+        parent
         
         
         ">
@@ -909,7 +909,7 @@
  
   
     
-      <li data-nav-id="/wells-and-completions/createnewwellpaths/" title="Create Well Paths" class="dd-item ">
+      <li data-nav-id="/wells-and-completions/createnewwellpaths/" title="Create Well Paths" class="dd-item active">
         <a href="/wells-and-completions/createnewwellpaths/">
         Create Well Paths
         
@@ -1558,86 +1558,142 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/wells-and-completions/'>Wells and Completions</a> > Create Well Paths
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#well-plan">Well Plan</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Create Well Paths
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/images/3d-main-window/WellPathCreation.png" alt="" /></p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<p>ResInsight lets the user create new/custom well paths by clicking in the 3D view. A self created well path will behave the same way as an ordinary imported well path.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>To create a well path:</p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<ol>
+<li>Right click <strong>Wells</strong> in the project tree</li>
+<li>Select <strong>Create Well Path</strong> in the right-click menu. A new well node and a well targets node are created.</li>
+<li>Click in the 3D view on locations where the well path will pass (targets). Note. A 3D object must be hit when clicking. Clicking in thin air will not work.</li>
+<li>When finished placing targets, click on &ldquo;Stop Picking Targets&rdquo; in the property editor</li>
+</ol>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p><img src="/images/3d-main-window/WellTargetsTree.png" alt="" /></p>
+
+<p><img src="/images/3d-main-window/WellTargetsPropertyEditor.png" alt="" /></p>
+
+<p>Well targets property editor fields</p>
+
+<ul>
+<li><strong>UTM Reference Point</strong> - Reference point. Defaults to the first target point clicked</li>
+<li><strong>MDRKB at First Target</strong> - Define MD (referenced to Rotary Kelly Bushing) at first target point. Applies to well path export only.</li>
+<li><strong>Well Targets:</strong> List of targets. Will have pink background when in picking state.
+
+<ul>
+<li><strong>Point</strong> - Target position relative to reference point</li>
+<li><strong>DL in</strong> - Dog leg inwards. Unit: Degrees/30m</li>
+<li><strong>DL out</strong> - Dog leg outwards. Unit: Degrees/30m</li>
+<li><strong>Dir</strong> - Check box for overriding well path auto calculated directions</li>
+<li><strong>Azi (deg)</strong> - Azimuth. Y axis is 0 degrees</li>
+<li><strong>Inc (deg)</strong> - Inclination. Z axis is 0 degrees</li>
+</ul></li>
+</ul>
+
+<p>A self created well path may be edited by either editing coordinates in the property editor or clicking and dragging targets in the 3D view.</p>
+
+<p><img src="/images/3d-main-window/WellTargets.png" alt="" /></p>
+
+<p>Clicking and dragging the blue part of a target, it can be moved along the Z axis only. Clicking and dragging the magenta part of a target, it can be moved freely around.</p>
+
+<h3 id="well-plan">Well Plan</h3>
+
+<p>A well plan can be displayed by selecting <strong>Show Well Plan</strong> from the right-click menu of a generated well path.</p>
+
+<pre><code>-- MDRKB          CL            Inc          Azi            TVDMSL         NS                EW               Dogleg      Build        Turn          
+0.00000        0.00000       91.23218     67.46458       2560.64104     7320830.60875     456093.37763     0.00000     0.00000      0.00000       
+109.69761      109.69761     91.23218     67.46458       2558.28210     7320872.64113     456194.67560     0.00000     0.00000      0.00000       
+383.74602      274.04841     90.01335     94.84447       2555.24550     7320914.37090     456462.87518     3.00000     -0.13343     2.99727       
+518.95310      135.20708     88.73259     106.92696      2556.73062     7320888.88803     456595.39303     2.69569     -0.28418     2.68089       
+597.83872      78.88561      88.73259     106.92696      2558.47547     7320865.92593     456670.84259     0.00000     0.00000      0.00000       
+730.04479      132.20607     90.46303     138.71821      2559.42803     7320795.18191     456780.51358     7.22424     0.39267      7.21402       
+1087.97847     357.93368     92.23380     -164.19586     2550.23230     7320460.45997     456856.25443     4.78528     0.14842      -25.38856     
+</code></pre>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2296,6 +2352,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2308,6 +2365,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2341,6 +2401,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2356,6 +2417,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2876,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/wells-and-completions/wellpaths/" title="Well Paths"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/wells-and-completions/3dwelllogcurves/" title="3D Well Log Plots" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

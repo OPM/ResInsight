@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Flow Diagnostics Plots :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/plot-window/flowdiagnosticsplots/">
     <nav id="sidebar" class="">
 
 
@@ -568,7 +568,7 @@
   
     
     <li data-nav-id="/plot-window/" title="Plot Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -782,7 +782,7 @@
  
   
     
-      <li data-nav-id="/plot-window/flowdiagnosticsplots/" title="Flow Diagnostics Plots" class="dd-item ">
+      <li data-nav-id="/plot-window/flowdiagnosticsplots/" title="Flow Diagnostics Plots" class="dd-item active">
         <a href="/plot-window/flowdiagnosticsplots/">
         Flow Diagnostics Plots
         
@@ -1558,86 +1558,256 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/plot-window/'>Plot Main Window</a> > Flow Diagnostics Plots
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#well-allocation-plots">Well Allocation Plots</a>
+<ul>
+<li><a href="#branches">Branches</a></li>
+<li><a href="#creating-well-allocation-plots">Creating Well Allocation Plots</a></li>
+<li><a href="#options">Options</a></li>
+<li><a href="#depth-settings">Depth Settings</a></li>
+<li><a href="#accessing-the-plot-data">Accessing the Plot Data</a></li>
+</ul></li>
+<li><a href="#flow-characteristics-plot">Flow Characteristics Plot</a>
+<ul>
+<li><a href="#settings">Settings</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Flow Diagnostics Plots
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/images/plot-window/FlowDiagnosticsPlotsOverview.png" alt="" /></p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<p>Flow Diagnostics Plots can be used to view well allocation, well inflow rates, cumulative saturation along time of flight and flow characteristics.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>They are managed from the folder <strong>Flow Diagnostics Plots</strong> located in <strong>Plot Project Tree</strong> in the <strong>Plot Main Window</strong>.</p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p><img src="/images/plot-window/FlowDiagnosticsPlotsProjectTree.png" alt="" /></p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p>This folder contains a default <strong>Flow Characteristics Plot</strong> and <strong>Well Allocation Plot</strong>. In addition, two folders with stored  well allocation and flow characteristics plots will show up if there are any of those in the model.</p>
+
+<p>Please refer to <a href="/3d-main-window/cellresults/#flow-diagnostic-results">Cell Results-&gt; Flow Diagnostic Results</a> for a description of the results and references to more information about the methodology.</p>
+
+<h2 id="well-allocation-plots">Well Allocation Plots</h2>
+
+<p>Well allocation plots show the flow along a specified well, along with either phase distribution or the amount of support from/to other wells. The total phase or allocation is shown in the legend and as a pie chart, while the well flow is shown in a depth value vs flow graph.</p>
+
+<p>In addition a <strong>Cumulative Saturation by Time of Flight</strong> plot may be shown. This little plot illustrates how the total saturation changes as you go from the well-connection-cells along increasing time of flight adding the cells as you go.</p>
+
+<h3 id="branches">Branches</h3>
+
+<p>Each branch of the well will be assigned a separate <strong>Track</strong>. For normal wells this is based on the branch detection algorithm used for Well Pipe visualization, and will correspond to the pipe visualization with <strong>Branch Detection</strong> <em>On</em> ( See <a href="/wells-and-completions/simulationwells/#well-pipe-geometry">Well Pipe Geometry</a> ).
+Multi Segment Wells will be displayed according to their branch information, but tiny branches consisting of only one connection are lumped into the main branch to make the visualization more understandable ( See  <a href="/wells-and-completions/simulationwells/#dummy-branches">Dummy branches</a> ).</p>
+
+<h3 id="creating-well-allocation-plots">Creating Well Allocation Plots</h3>
+
+<p>To plot the Well allocation for a well, right-click the well in the <strong>Project Tree</strong> or in the <strong>3D View</strong> and invoke the command <strong>Plot Well Allocation</strong>.</p>
+
+<p><img src="/images/plot-window/SimulationWellContextMenu.png" alt="" /></p>
+
+<p>The command updates the default <strong>Well Allocation Plot</strong> with new values based on the selection and the settings in the active view. This plot can then be copied to the <strong>Stored Plots</strong> folder by the context command <strong>Add Stored Well Allocation Plot</strong>.</p>
+
+<h3 id="options">Options</h3>
+
+<p>The <strong>Legend</strong>, <strong>Total Allocation</strong> pie chart, <strong>Cumulative Saturation</strong>, and the <strong>Well Flow/Allocation</strong> can be turned on or off from the toggles in the <strong>Project Tree</strong>. The other options are controlled from the property panel of a Well Allocation Plot:</p>
+
+<p><img src="/images/plot-window/WellAllocationProperties.png" alt="" /></p>
+
+<ul>
+<li><strong>Name</strong> &ndash; Auto generated name used as plot title</li>
+<li><strong>Show Plot Title</strong> &ndash; Toggles whether to show the title in the plot</li>
+<li><strong>Plot Data</strong> &ndash; Options controlling when and what the plot is based on
+
+<ul>
+<li><strong>Case</strong> &ndash; The case to plot data from</li>
+<li><strong>Time Step</strong> &ndash; The selected time step</li>
+<li><strong>Well</strong> &ndash; The simulation well to plot</li>
+</ul></li>
+<li><strong>Options</strong>
+
+<ul>
+<li><strong>Plot Type</strong>
+
+<ul>
+<li><strong>Allocation</strong> &ndash; Plots <em>Reservoir well flow rates</em> along with how this well supports/are
+supported by other wells ( This option is only available for cases with Flux results available )</li>
+<li><strong>Well Flow</strong> &ndash; Plots <em>Surface Well Flow Rates</em> together with phase split between Oil, Gas, and Water</li>
+</ul></li>
+<li><strong>Flow Type</strong>
+
+<ul>
+<li><strong>Accumulated</strong> &ndash; Plots an approximation of the accumulated flow along the well</li>
+<li><strong>Inflow Rates</strong> &ndash; Plots the rate of flow from the connection into the well</li>
+</ul></li>
+<li><strong>Group Small Contributions</strong> &ndash; Groups small well contributions into a group called <strong>Other</strong></li>
+<li><strong>Threshold</strong> &ndash; Threshold used by the <strong>Group Small Contributions</strong> option
+<br /></li>
+</ul></li>
+</ul>
+
+<h3 id="depth-settings">Depth Settings</h3>
+
+<p>The depth value in the plot can be controlled by selecting the <strong>Accumulated Flow</strong>/<strong>Inflow Rates</strong> item in the <strong>Project Tree</strong>. This item represents the Well-Log-like part of the Well Allocation Plot and its properties are shown below:</p>
+
+<p><img src="/images/plot-window/WellAllocationWellLogProperties.png" alt="" /></p>
+
+<ul>
+<li><strong>Name</strong> &ndash; The plot name, updated automatically based on the <strong>Flow Type</strong> and well.</li>
+<li><strong>Depth Type</strong>
+
+<ul>
+<li><strong>Pseudo Length</strong>  &ndash; Use the length along the visualized simulation well pipe as depth.
+In this mode the curves are extended somewhat above zero depth keeping the curve
+values constant. This is done to make it easier to see the final values of the curves relative to each other.<br />
+The depth are calculated with <strong>Branch detection</strong> <em>On</em> and using the <strong>Interpolated</strong> well pipe geometry.<br />
+( See <a href="/wells-and-completions/simulationwells/#well-pipe-geometry">Well Pipe Geometry</a> )</li>
+<li><strong>TVD</strong> &ndash; Use True Vertical Depth on the depth-axis. This will produce distorted plots for horizontal or near horizontal wells.</li>
+<li><strong>Connection Number</strong> &ndash; Use the number of connections counted from the top on the depth-axis.</li>
+</ul></li>
+<li><strong>Visible Depth Range</strong> &ndash; These options control the depth zoom.
+
+<ul>
+<li><strong>Auto Scale</strong> &ndash; Toggles autoscale on/off. The plot is autoscaled when significant changes to its settings are made.</li>
+<li><strong>Min</strong>, <strong>Max</strong> &ndash; Sets the visible depth range. These are updated when zooming using the mouse wheel etc.
+<br /></li>
+</ul></li>
+</ul>
+
+<h3 id="accessing-the-plot-data">Accessing the Plot Data</h3>
+
+<p>The command context command <strong>Show Plot Data</strong> will show a window containing the plot data in ascii format. The content of this window is easy to copy and paste into Excel or other tools for further processing.</p>
+
+<p>It is also possible to save the ascii data to a file directly by using the context command <strong>Export Plot Data to Text File</strong> on the <strong>Accumulated Flow</strong>/<strong>Inflow Rates</strong> item in the <strong>Project Tree</strong>.</p>
+
+<p>The total accumulation data can also be viewed in ascci format by the command <strong>Show Total Allocation Data</strong>.</p>
+
+<h2 id="flow-characteristics-plot">Flow Characteristics Plot</h2>
+
+<p><img src="/images/plot-window/FlowCharacteristicsPlot.png" alt="" /></p>
+
+<p>This window displays three different graphs describing the overall behavior of the reservoir for each time step from a flow diagnostics point of view.</p>
+
+<ul>
+<li><strong>Lorenz Coefficient</strong> &ndash; This plot displays the Lorenz coefficient for the complete reservoir for each selected time step. The time step color is used as a reference for the time step in the other graphs.</li>
+<li><strong>Flow Capacity vs Storage Capacity</strong> &ndash; This plot displays one curve for each time step of the F-phi curve for the reservoir.</li>
+<li><strong>Sweep Efficiency</strong> &ndash; This plot displays one Sweep Efficiency curve for each selected time step.</li>
+</ul>
+
+<h3 id="settings">Settings</h3>
+
+<p><img src="/images/plot-window/FlowCharacteristicsPropertyPanel.png" alt="" /></p>
+
+<ul>
+<li><strong>Case</strong> &ndash; Selects the source case for the plot.</li>
+<li><strong>Time Steps</strong> &ndash; These options selects the time steps to be used in the plot.
+
+<ul>
+<li><strong>All With Calculated FlowDiagnostics</strong> &ndash; Plot data from all the time steps already solved by the Flow Diagnostics Solver, but nothing more. The solver will be run implicitly when the user requests any Flow Diagnostics results on a particular time step using  <a href="/3d-main-window/cellresults/">Cell Results</a>, Well Allocation Plots, or <a href="/plot-window/welllogsandplots/#well-log-extraction-curves">Well Log Extraction Curves</a>.<br /></li>
+<li><strong>Selected</strong> &ndash; Use the selected time steps only. Activating this options displays a listbox with all the available time steps in the 3D case. Time steps already solved by the Flow Diagnostics Solver are marked with an asterix <em><code>*</code></em>. Select the interesting time steps and press apply to invoke the solver for unsolved time steps, and to show them in the plot.</li>
+</ul></li>
+<li><strong>Region</strong> &ndash; These group of options controls the cell region of interest for the plot.
+
+<ul>
+<li><strong>Cell Filter</strong> &ndash; Selects the type of cell filtering to apply. Sub-options are displayed depending on the selection.</li>
+<li><strong>All Active Cells</strong> &ndash; Use all the active cells in the model (default)</li>
+<li><strong>Visible Cells</strong> &ndash; Use the visible cells in a particular predefined view as cell region. This option will respect all the filter settings in the view, and use the correct cell set for each time step.
+
+<ul>
+<li><strong>View</strong> &ndash; The view to use as cell filter</li>
+</ul></li>
+<li><strong>Injector Producer Communication</strong> &ndash; The region of communication between selected producers and injectors. See  <a href="/3d-main-window/cellresults/#Flow-Diagnostic-Results">Flow Diagnostic Results</a>
+
+<ul>
+<li><strong>Tracer Filter</strong> &ndash; Wild card based filter-text to filter the list of tracers</li>
+<li><strong>list</strong> &ndash; Producer and injector tracers to select</li>
+<li><strong>Show Region</strong> &ndash; Button to create (or edit) a 3D View showing the selected region of cells.</li>
+<li><strong>Min communication</strong> &ndash; A threshold for the cells communication value. Cells with communication below this threshold is omitted from the region.</li>
+</ul></li>
+<li><strong>Flooded by Injector</strong>/<strong>Drained by Producer</strong> &ndash; The region with a Time Of Flight from the selected tracers below the selected threshold.</li>
+<li><strong>Tracer Filter</strong>/<em>list</em>/<strong>Show Region</strong> &ndash; See above.</li>
+<li><strong>Max Time of Flight [days]</strong> &ndash; Only cells with a Time of Flight value less then this value are used.</li>
+</ul></li>
+<li><strong>Options</strong>
+
+<ul>
+<li><strong>Legend</strong> &ndash; Toggles the legend on/off</li>
+<li><strong>Aquifer Cell Threshold</strong> &ndash; This threshold can be used to exclude unwanted effects of aquifers. Cells are excluded if their pore volume are larger than threshold <em><code>*</code></em> total pore volume.
+<br /></li>
+</ul></li>
+</ul>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2072,6 +2242,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2084,6 +2255,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2245,6 +2419,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2260,6 +2435,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2990,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/plot-window/pltplot/" title="PLT Plot"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/plot-window/gridcrossplots/" title="Grid Cross Plots" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Result Color Legend :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/3d-main-window/resultcolorlegend/">
     <nav id="sidebar" class="">
 
 
@@ -248,7 +248,7 @@
   
     
     <li data-nav-id="/3d-main-window/" title="3D Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -313,7 +313,7 @@
  
   
     
-      <li data-nav-id="/3d-main-window/resultcolorlegend/" title="Result Color Legend" class="dd-item ">
+      <li data-nav-id="/3d-main-window/resultcolorlegend/" title="Result Color Legend" class="dd-item active">
         <a href="/3d-main-window/resultcolorlegend/">
         Result Color Legend
         
@@ -1558,86 +1558,110 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/3d-main-window/'>3D Main Window</a> > Result Color Legend
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Result Color Legend
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
 
- 
+<p>The color mapping of the displayed cell result is controlled by the <strong>Color Legend</strong> located below a result node in the <strong>Project Tree</strong>. The legend can be shown or hidden by checking or unchecking the box in front of the Legend Definition.</p>
+
+<p><img src="/images/3d-main-window/legend_configuration.PNG" alt="Legend Configuration" /></p>
+
+<ul>
+<li><strong>Number of levels</strong> &ndash; Defines the number of tick marks displayed next to the color legend</li>
+<li><strong>Significant digits</strong> &ndash; Defines the number of significant digits in the number formatting</li>
+<li><strong>Number format</strong> &ndash; Defines how the numbers are formatted</li>
+<li><strong>Colors</strong> &ndash; Defines the color palette</li>
+<li><strong>Mapping</strong> &ndash; This option defines how the values are mapped onto the color distribution
+
+<ul>
+<li><strong>Discrete Linear</strong> &ndash; Legend divided into linear levels defined by <strong>Number of levels</strong></li>
+<li><strong>Continuous Linear</strong> &ndash; Continuous linear legend with tick mark count defined by <strong>Number of levels</strong></li>
+<li><strong>Continuous Logarithmic</strong> &ndash; Continuous logarithmic legend with tick mark count defined by <strong>Number of levels</strong></li>
+<li><strong>Discrete Logarithmic</strong> &ndash; Logarithmic legend divided into levels defined by <strong>Number of levels</strong></li>
+<li><strong>Category</strong> &ndash; Special legend with one level for each category, either integer values or formation names.<br />
+Only available for result names ending with <em><code>NUM</code></em> or formation names.</li>
+</ul></li>
+<li><strong>Range type</strong>
+
+<ul>
+<li><strong>All Timesteps</strong> &ndash; values for all time steps are used to find min and max value of
+the result values represented by the color legend.<br />
+(Not available for Flow Diagnostics results)</li>
+<li><strong>Current Timestep</strong> &ndash; use current (one) time step to find min and max values<br /></li>
+<li><strong>User Defined Range</strong> &ndash; user specifies numeric values for min and max<br /></li>
+</ul></li>
+</ul>
+
+<p>Furthermore the legend can have a semi-transparent background applied to it by selecting the *<em>Show Box around Legends</em> option in the Preferences dialog.</p>
+
+<p><img src="/images/3d-main-window/legend_background.png" alt="Legend Background" /> <img src="/images/3d-main-window/legend_with_background.png" alt="Show Box around legends" /></p>
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
-
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
-
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
-
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
-
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
-
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -1811,6 +1835,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -1821,6 +1846,25 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
                     
                         
             
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
             
         
                     
@@ -1845,21 +1889,6 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
                     
                 
                 
@@ -1876,6 +1905,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2844,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/3d-main-window/cellresults/" title="Cell Results"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/3d-main-window/contourmaps/" title="Contour Maps" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

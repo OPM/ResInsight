@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Simulation Wells :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/wells-and-completions/simulationwells/">
     <nav id="sidebar" class="">
 
 
@@ -847,7 +847,7 @@
   
     
     <li data-nav-id="/wells-and-completions/" title="Wells and Completions" class="dd-item 
-        
+        parent
         
         
         ">
@@ -871,7 +871,7 @@
  
   
     
-      <li data-nav-id="/wells-and-completions/simulationwells/" title="Simulation Wells" class="dd-item ">
+      <li data-nav-id="/wells-and-completions/simulationwells/" title="Simulation Wells" class="dd-item active">
         <a href="/wells-and-completions/simulationwells/">
         Simulation Wells
         
@@ -1558,86 +1558,246 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/wells-and-completions/'>Wells and Completions</a> > Simulation Wells
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#commands">Commands</a></li>
+<li><a href="#overall-settings-for-simulation-wells">Overall Settings for Simulation Wells</a>
+<ul>
+<li><a href="#visibility">Visibility</a></li>
+<li><a href="#well-cells-and-fence">Well Cells and Fence</a></li>
+<li><a href="#size-scaling">Size Scaling</a></li>
+<li><a href="#colors">Colors</a></li>
+<li><a href="#well-pipe-geometry">Well Pipe Geometry</a></li>
+<li><a href="#advanced">Advanced</a></li>
+</ul></li>
+<li><a href="#individual-simulation-well-options">Individual Simulation Well options</a></li>
+<li><a href="#well-pipes-of-multi-segment-wells">Well Pipes of Multi Segment Wells</a>
+<ul>
+<li><a href="#geometry-approximation">Geometry Approximation</a></li>
+<li><a href="#dummy-branches">Dummy Branches</a></li>
+<li><a href="#picking-reveals-segment-branch-info">Picking Reveals Segment/Branch Info</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Simulation Wells
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/images/3d-main-window/SimulationWells.png" alt="" /></p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<p>This section describes how wells defined in the simulation are displayed, and how to control the different aspects of their visualization.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<h2 id="commands">Commands</h2>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p>Several commands are available as context commands on a simulation well. These commands are available either by right-clicking  the well in the <strong>3D View</strong> or in the <strong>Project Tree</strong>.</p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<ul>
+<li><strong>New Well Log Extraction Curve</strong> &ndash; Creates a new Well Log curve based on the selected simulation well, the current time step and cell property.  ( See <a href="/plot-window/welllogsandplots/#well-log-extraction-curves">Well Log Plots</a> )</li>
+<li><strong>New Well Log RFT Curve</strong> &ndash; Creates a new RFT curve in a well log plot based on the selected simulation well. This option is only present if the current simulation well has RFT data. ( See <a href="/plot-window/welllogsandplots/#well-log-rft-curves">Well Log Plots</a> )</li>
+<li><strong>New RFT Plot</strong> &ndash;  See [Well Log Plots](/plot-window/rftplot/.</li>
+<li><strong>Plot Production Rates</strong> &ndash; Creates a summary plot of the selected wells production rates, along  with the bottom hole pressure.<br />
+( See <a href="/plot-window/summaryplots/">Summary Plots</a> )</li>
+<li><strong>Plot Well Allocation</strong> &ndash; Creates or modifies the default Well Allocation Plot to show the well.
+allocation for the selected well. If the case has no Fluxes the well flow rates are shown instead.<br />
+( See <a href="/plot-window/flowdiagnosticsplots/"> Flow Diagnostics Plots </a> )</li>
+<li><strong>Show Contributing Wells</strong> &ndash; This command sets up a 3D View by adding filters and modifying the Cell Result based on Flow Diagnostic Calculations to show which regions and wells that contribute to the selected well by doing:
+
+<ul>
+<li>Add a property filter of <strong>Time Of Flight</strong> to/from the selected well to show only the cells that contribute to/are influenced by the well.</li>
+<li>Sets the <strong>Cell Result</strong> to show <strong>Tracer With Max Fraction</strong> based on <strong>All Injectors</strong> or <strong>All Producers</strong> (the opposite of the selected well)</li>
+<li>Toggles the visibility of the other Simulation wells to show only wells contributing to/influenced by the selected well.</li>
+</ul></li>
+<li><strong>New Fracture</strong> &ndash; Creates a new fracture along the simulation well. (See <a href="/plot-window/welllogsandplots/#fracture-instances">Fracture instances</a>)</li>
+<li><strong>New Intersection</strong> &ndash; creates a new intersection based on the selected simulation well.<br />
+( See <a href="/3d-main-window/intersections/">Well Log Plots</a> )
+<br /></li>
+</ul>
+
+<h2 id="overall-settings-for-simulation-wells">Overall Settings for Simulation Wells</h2>
+
+<p>The Property Panel of the <strong>Simulation Wells</strong> item in the <strong>Project Tree</strong> contains options that are applied across all the wells, while the visualization of each single well can be controlled by the options in the property panel of that particular well, and will override the overall settings in the <strong>Simulation Wells</strong> item.</p>
+
+<p>If an option is overridden in any of the wells, this will be indicated in the corresponding top level toggle which will be partially checked. Toggling such a setting will overwrite the ones set on the individual level.</p>
+
+<p>In the following are the different parts of the <strong>Simulation Wells</strong> property panel explained.</p>
+
+<h3 id="visibility">Visibility</h3>
+
+<p><img src="/images/3d-main-window/SimulationWellsVisibilityProperties.png" alt="" /></p>
+
+<p>These options controls the visibility of different aspects of the simulation wells.</p>
+
+<ul>
+<li><strong>Wells Trough Visible Cells Only</strong> &ndash; This option will only show wells with connections to cells deemed visible by the combined result of <strong>Range Filters</strong> and <strong>Property Filters</strong>.</li>
+<li><strong>Label</strong> &ndash; Controls visibility of well name labels in the 3D View</li>
+<li><strong>Well head</strong> &ndash; Controls visibility of the arrow displaying the production status of the well</li>
+<li><strong>Pipe</strong> &ndash; A symbolic pipe can be drawn between the well connection cells to illustrate the well. This option controls the visibility of the pipes.</li>
+<li><strong>Spheres</strong> &ndash; This option toggles the visibility of spheres drawn at the center of each well connection cell.</li>
+<li><strong>Communication Lines</strong> &ndash; Toggles the visibility of well communication lines.
+These arrows shows the communication between wells. Broader arrows indicate higher level of communication.
+These arrows are based on Flow Diagnostics calculations, and are only available if the eclipse results includes fluxes.
+Arrows representing communication in the opposite direction from what is expected (eg. producers supporting another well due to cross flow) are displayed in a layer &ldquo;under&rdquo; the other arrows, to make them easier to see.<br /></li>
+</ul>
+
+<h3 id="well-cells-and-fence">Well Cells and Fence</h3>
+
+<p><img src="/images/3d-main-window/SimulationWellsWellCellsProperties.png" alt="" /></p>
+
+<ul>
+<li><strong>Show Well Cells</strong> &ndash; This option toggles whether to add the well connection cells to the set of visible cells. If no cell filters are active, toggling this option will conveniently hide all other cells, displaying only the requested well cells.<br /></li>
+<li><strong>Show Well Cell Fence</strong> &ndash; This options toggles whether to add all cells in a given direction ( I, J or K) to the set of visible cells, which has a connecting cell within its set.</li>
+<li><strong>Well Fence direction</strong> &ndash; Controls whether to add extensions of the well cells in the I, J or K direction to the set of visible cells
+
+<br /></li>
+</ul>
+
+<h3 id="size-scaling">Size Scaling</h3>
+
+<p><img src="/images/3d-main-window/SimulationWellsScalingProperties.png" alt="" /></p>
+
+<ul>
+<li><strong>Well Head Scale</strong> &ndash; Scales the arrow displaying the production status of the well</li>
+<li><strong>Pipe Radius Scale</strong> &ndash; Scaling the pipe radius by the average i,j cell size.</li>
+<li><strong>Sphere Radius Scale</strong> &ndash; Scaling connection cell spheres radius by the average i,j cell size.</li>
+</ul>
+
+<p>Open Simulation Wells will be drawn with a slightly larger radius than closed wells. This makes open wells easier to see when they occupy the same cells as closed ones.</p>
+
+<h3 id="colors">Colors</h3>
+
+<p><img src="/images/3d-main-window/SimulationWellsColorsProperties.png" alt="" /></p>
+
+<p><img src="/images/3d-main-window/SimulationWellsColorsProperties_Uniform.png" alt="" /></p>
+
+<ul>
+<li><strong>Color Pipe Connections</strong> &ndash; Applies a red, green, blue or gray color to the section of the pipe touching a connection cell indicating the production status of the connection. Gas injection, oil production, water injection or closed respectively.<br /></li>
+<li><strong>Label Color</strong> &ndash; Sets the well label color in the 3D view.</li>
+<li><strong>Individual Pipe Colors</strong> - Select how each pipe will be colored.</li>
+</ul>
+
+<p>The <strong>Individual Pipe Color</strong> setting has two different options:</p>
+
+<ul>
+<li><strong>Unique Colors</strong> &ndash; Selecting this will apply unique colors from a pre-defined color palette to all the wells, overwriting the colors they had.</li>
+<li><strong>Uniform Default Color</strong> &ndash; Selecting this will apply the same color (made available in the <strong>Uniform Well Color</strong> option to all simulation wells.</li>
+</ul>
+
+<h3 id="well-pipe-geometry">Well Pipe Geometry</h3>
+
+<p><img src="/images/3d-main-window/SimulationWellsPipeGeometryProperties.png" alt="" /></p>
+
+<ul>
+<li><strong>Type</strong> &ndash; Controls whether the pipe will go from cell center to cell center or in a smoother trajectory.</li>
+<li><strong>Branch Detection</strong> &ndash; Enables splitting of wells into branches based on the positions of the connection cells.  This option applies to ordinary wells only and has no effect on multi segment wells (MSW).</li>
+</ul>
+
+<h3 id="advanced">Advanced</h3>
+
+<p><img src="/images/3d-main-window/SimulationWellsAdvancedProperties.png" alt="" /></p>
+
+<ul>
+<li><strong>Well Cell Transparency</strong> &ndash; Controls the transparency level for the well cells.</li>
+<li><strong>Well Head Position</strong> &ndash; Controls the depth position of the wellhead. Either relative to the top of the active cells in the relevant IJ-column, or relative to the highest active cell overall.<br /></li>
+</ul>
+
+<h2 id="individual-simulation-well-options">Individual Simulation Well options</h2>
+
+<p><img src="/images/3d-main-window/WellProperties.png" alt="" /></p>
+
+<p>Each of the wells has a set of individual settings which corresponds to the setting on the global level. See the documentation of <a href="#overall-settings-for-simulation-wells">Overall Settings for Simulation Wells</a>.</p>
+
+<p>Except for the <strong>Size Scaling</strong>, these options will override the corresponding setting on the global level,
+and will result in a partially checked state on the corresponding toggle in the <strong>Simulation Wells</strong> property panel.
+The <strong>Size Scaling</strong> options, however, works relative to the scaling level set on the top level.</p>
+
+<h2 id="well-pipes-of-multi-segment-wells">Well Pipes of Multi Segment Wells</h2>
+
+<p>ResInsight reads the MSW information in the result files and uses that to create a topologically correct visualization of the Multi Segment Well. Reading this information is somewhat time consuming, and can be turned off in the <a href="/misc/preferences/"> Preferences </a>.</p>
+
+<h3 id="geometry-approximation">Geometry Approximation</h3>
+
+<p>The pipe geometry generated for MSW&rsquo;s are based on the topology of the well (branch/segment structure) and the position of the cells being connected. The segment lengths are used as hints to place the branch points at sensible places. Thus the pipe geometry itself is not geometrically correct, but makes the topology of the well easier to see.</p>
+
+<h3 id="dummy-branches">Dummy Branches</h3>
+
+<p>Often MSW&rsquo;s are modeled using a long stem without connections and a multitude of small branches; one for each connection. ResInsight offsets the the pipe within the cell to clearly show how the topology of the well is defined.</p>
+
+<p><img src="/images/3d-main-window/MSWDummyBranchExample.png" alt="" /></p>
+
+<h3 id="picking-reveals-segment-branch-info">Picking Reveals Segment/Branch Info</h3>
+
+<p>Branch and segment info of a MSW-connected-Cell is shown in the <strong>Result Info</strong> window when picking a cell in the 3D View. This can be handy when relating the visualization to the input files.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2296,6 +2456,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2308,6 +2469,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
                     
                 
                 
@@ -2324,6 +2486,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2977,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/wells-and-completions/" title="Wells and Completions"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/wells-and-completions/wellpaths/" title="Well Paths" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

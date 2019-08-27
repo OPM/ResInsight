@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Ensemble Plotting :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/plot-window/ensembleplotting/">
     <nav id="sidebar" class="">
 
 
@@ -568,7 +568,7 @@
   
     
     <li data-nav-id="/plot-window/" title="Plot Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -668,7 +668,7 @@
  
   
     
-      <li data-nav-id="/plot-window/ensembleplotting/" title="Ensemble Plotting" class="dd-item ">
+      <li data-nav-id="/plot-window/ensembleplotting/" title="Ensemble Plotting" class="dd-item active">
         <a href="/plot-window/ensembleplotting/">
         Ensemble Plotting
         
@@ -1558,86 +1558,145 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/plot-window/'>Plot Main Window</a> > Ensemble Plotting
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#import">Import</a></li>
+<li><a href="#plotting">Plotting</a>
+<ul>
+<li><a href="#statistics-curves">Statistics curves</a></li>
+</ul></li>
+<li><a href="#derived-ensembles">Derived Ensembles</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Ensemble Plotting
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p>An ensemble is a group of cases that are tightly coupled, only a set of ensemble input parameters differ between cases. This makes it relevant to perform calculations and statistics analysis on ensembles.</p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<h2 id="import">Import</h2>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>There are several ways to import an ensemble:</p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<ul>
+<li>Use the <strong>Import Ensemble</strong> command in the window menu</li>
+<li>Use the <strong>Import Summary Case group</strong> and then convert the group to an ensemble</li>
+<li>Import a number of summary cases, move them into a group and then convert the group to an ensemble</li>
+</ul>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p>During import of a summary case, ResInsight tries to find an associated <strong>parameters.txt</strong> file or <strong>runspecification.xml</strong> file containing ensemble parameters. If found, the ensemble parameters are stored together with the summary case. When the user adds a summary case to an ensemble, then ResInsight will perform ensemble parameters validation. A warning dialog is displayed in the following cases:</p>
+
+<ul>
+<li>One or more of the cases in the ensemble have no ensemble parameters</li>
+<li>The list of ensemble parameters differ between cases in the ensemble</li>
+</ul>
+
+<h2 id="plotting">Plotting</h2>
+
+<p>Ensembles are plotted in the summary plot the same way as ordinary summary curves. Create a new summary plot using the <a href="/plot-window/summaryploteditor/">summary plot editor</a>. Imported ensembles will appear in a separate group in the list of summary cases. When an ensemble is selected, a new curve set is created and plotted as multiple summary curves. By default all curves in an ensemble curve set will have the same color. The coloring mode may be edited in the curve set&rsquo;s property editor in the project plot tree view. Two coloring modes are available:</p>
+
+<ul>
+<li><strong>Single color</strong> Use the same color for all curves in a curve set</li>
+<li><strong>By Ensemble Parameter</strong> One ensemble parameter is selected to control coloring. The ensemble parameter value for each case is used to pick a color in a color range. In this case a color legend appears.</li>
+</ul>
+
+<p>Stepping of data source for ensemble curves is described in <a href="/plot-window/summarysourcestepping/">Summary Plot Source Stepping</a></p>
+
+<h3 id="statistics-curves">Statistics curves</h3>
+
+<p>If the number of curves in a curve set is sufficient, ResInsight will calculate statistics for the curve set. The following statistics curves may be displayed:</p>
+
+<ul>
+<li><strong>P10</strong> &ndash; 10% of the curves in the curve set are above this curve</li>
+<li><strong>P50</strong> &ndash; 50% of the curves in the curve set are above this curve</li>
+<li><strong>Mean</strong> &ndash; Aritmetic mean for the curves in the curve set</li>
+<li><strong>P90</strong> &ndash; 90% of the curves in the curve set are above this curve</li>
+</ul>
+
+<p>Statistics curves may be toggled on or off in the curve set&rsquo;s property editor.</p>
+
+<p>Example:</p>
+
+<p><img src="/images/plot-window/Ensemble.png" alt="" /></p>
+
+<h2 id="derived-ensembles">Derived Ensembles</h2>
+
+<p>New ensembles can be created based on calculations on two or more ensembles. Such ensembles are called &lsquo;derived ensembles&rsquo;. A derived ensemble will contain data which are either the sum or difference between two other ensembles. An existing derived ensemble may be input to a new derived ensemble, making it possible to for instance add more than two ensembles.</p>
+
+<p>To create a derived ensemble, select two existing ensembled in the project tree. Right click and select <strong>New Derived Ensenble</strong>. A new derived ensemble is created with the two selected ensembles as input and a default arithmetic operator. In the property for the new ensemble, both input ensembles and operator can be modified.</p>
+
+<p>If the two input ensembles differs in which cases they consist of, ResInsight will display a warning and let the user decide whether to create the derived ensemble or not.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2072,6 +2131,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2084,6 +2144,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2149,6 +2212,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2164,6 +2228,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2879,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/plot-window/summarycrossplots/" title="Summary Cross Plot"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/plot-window/curvecalculator/" title="Curve Calculator" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

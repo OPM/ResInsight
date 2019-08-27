@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>FLUXNUM/MULTNUM :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/export/fluxnummultnum/">
     <nav id="sidebar" class="">
 
 
@@ -1139,7 +1139,7 @@
   
     
     <li data-nav-id="/export/" title="Export" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1201,7 +1201,7 @@
  
   
     
-      <li data-nav-id="/export/fluxnummultnum/" title="FLUXNUM/MULTNUM" class="dd-item ">
+      <li data-nav-id="/export/fluxnummultnum/" title="FLUXNUM/MULTNUM" class="dd-item active">
         <a href="/export/fluxnummultnum/">
         FLUXNUM/MULTNUM
         
@@ -1558,86 +1558,98 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/export/'>Export</a> > FLUXNUM/MULTNUM
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              FLUXNUM/MULTNUM
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
 
- 
+<p>The visible cells can be exported as a FLUXNUM or MULTNUM keyword that can be used in an Eclipse input data deck.</p>
+
+<p>You can do this by using the command <strong>Export Visible Cells as FLUXNUM/MULTNUM</strong> found by right clicking:</p>
+
+<ul>
+<li><strong>View</strong> in the Project Tree.</li>
+<li><strong>Cell Result</strong> in the Project Tree.</li>
+<li>In any Eclipse <strong>3D View</strong>.</li>
+</ul>
+
+<p>The command can also be found in <strong>File -&gt; Export</strong>. If the command is used in the project tree, the visible cells from the selected view are used for calculation. In the 3D view and from File -&gt; Export, the visible cells from the currently active 3D view are used.</p>
+
+<p><img src="/images/export/fluxnumMultnum.png" alt="" /></p>
+
+<ul>
+<li><strong>Export Filename</strong> &ndash; Name of the file to export to.</li>
+<li><strong>Export Keyword</strong> &ndash; Selects the Eclipse keyword to export.</li>
+<li><strong>Visible Active Cells Value</strong> &ndash; This value is used for all the active cells that passes the filters(Range Filter, Property Filter etc) in the 3D View, and thus is visible.</li>
+<li><strong>Hidden Active Cells Value</strong> &ndash; All the active cells that are not visible in the 3D view.</li>
+<li><strong>Inactive Cells Value</strong> &ndash; This value is used for all inactive cells, regardless of whether they are visible or not.</li>
+</ul>
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
-
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
-
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
-
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
-
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
-
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2520,6 +2532,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2532,6 +2545,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2565,6 +2581,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2580,6 +2597,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2832,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/export/eclipseproperties/" title="Eclipse Properties"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/export/completionexport/" title="Completions" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

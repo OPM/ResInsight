@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Contour Maps :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/3d-main-window/contourmaps/">
     <nav id="sidebar" class="">
 
 
@@ -248,7 +248,7 @@
   
     
     <li data-nav-id="/3d-main-window/" title="3D Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -332,7 +332,7 @@
  
   
     
-      <li data-nav-id="/3d-main-window/contourmaps/" title="Contour Maps" class="dd-item ">
+      <li data-nav-id="/3d-main-window/contourmaps/" title="Contour Maps" class="dd-item active">
         <a href="/3d-main-window/contourmaps/">
         Contour Maps
         
@@ -1558,86 +1558,202 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/3d-main-window/'>3D Main Window</a> > Contour Maps
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#creating-new-contour-maps">Creating New Contour Maps</a></li>
+<li><a href="#properties-of-the-contour-maps">Properties of the Contour Maps</a></li>
+<li><a href="#map-projection-properties">Map Projection Properties</a>
+<ul>
+<li><a href="#weighting-means-by-cell-result">Weighting Means by Cell Result</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Contour Maps
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/images/3d-main-window/ContourMaps.png" alt="" /></p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<p>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as Oil, Gas and Hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<h2 id="creating-new-contour-maps">Creating New Contour Maps</h2>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p>Contour Maps can be created in many different ways:</p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<ul>
+<li>New Contour Map from the right-click menu of case or the <strong>Contour Maps</strong> project tree item underneath the case. These will create contour maps with default values.</li>
+<li>New Contour Map from 3D View in the Eclipse View right-click menu. This will create a contour map based on the existing 3D View with matching filters and result.</li>
+<li>Duplicate Contour Map from the right-click menu of an existing Contour Map. This will copy the existing map.</li>
+</ul>
+
+<p><img src="/images/3d-main-window/NewContourMapFromCase.png" alt="" /> <img src="/images/3d-main-window/NewContourMapFromFolder.png" alt="" /></p>
+
+<p><img src="/images/3d-main-window/NewContourMapFromView.png" alt="" /> <img src="/images/3d-main-window/NewContourMapFromExisting.png" alt="" /></p>
+
+<h2 id="properties-of-the-contour-maps">Properties of the Contour Maps</h2>
+
+<p><img src="/images/3d-main-window/ContourMapViewProperties.png" alt="" /></p>
+
+<p>A contour Map has many of the same options available as a 3D View, but is always orthographic/parallel projection with no perspective projection or lighting available. Instead of the 3D Grid Box, the Contour Maps uses a 2D Grid simular to the <strong>2d Intersection Views</strong> with optional Axis Lines controlled with the <strong>Show Axis Lines</strong> toggle. The name of the map can be automatically generated from the Case Name, Property Type, Aggregation Type and Sample Spacing (See <strong>Map Projection Properties</strong> for the two latter).</p>
+
+<h2 id="map-projection-properties">Map Projection Properties</h2>
+
+<p><img src="/images/3d-main-window/ContourMapProjectionProperties.png" alt="" /></p>
+
+<p>The Map Projection settings control how the 3D Data is aggregated onto the 2D plane. In all cases the results are calculated for a square 2D Cell lying in an arbitrary z-plane of the 3D Grid. For each 2D cell a cuboid extrusion in the full bounding extent of the 3D grid is created and this cuboid extrusion is used to calculate the volume of intersection with the 3D Grid cells for all volume weighted sums and averages. For the regular sums, a vertical ray through the center of the 2D cell is used instead. Since the ray may travel through multiple cells in the same K-layer, all the values from within one K-layer are averaged before being added to the sum.</p>
+
+<p>A set of parameters governs this projection:</p>
+
+<ul>
+<li>The first option <strong>Sample Spacing Factor</strong> controls how many 2D Grid Cells are used in the map. The factor is multiplied by the characteristic cell length/width of the 3D grid to get the 2D Cell Size. A smaller factor will thus create a finer Contour Map.</li>
+<li>The second option <strong>Show Contour Lines</strong> toggles on/off the contour lines in the view.</li>
+<li>The final control in the <strong>Projection Settings</strong> box is the <strong>Result Aggregation</strong>. Here the following options are available:</li>
+</ul>
+
+<table>
+<thead>
+<tr>
+<th>Aggregation Type</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Oil Column</td>
+<td>A sum of SOIL * NTG * PORO * dZ</td>
+</tr>
+
+<tr>
+<td>Gas Column</td>
+<td>A sum of SGAS * NTG * PORO * dZ</td>
+</tr>
+
+<tr>
+<td>Hydrocarbon Column</td>
+<td>A sum of (SOIL + SGAS)* NTG * PORO * dZ</td>
+</tr>
+
+<tr>
+<td>Arithmetic Mean</td>
+<td>A volume weighted arithmetic mean of the specified cell result</td>
+</tr>
+
+<tr>
+<td>Harmonic Mean</td>
+<td>A volume weighted harmonic mean of the specified cell result</td>
+</tr>
+
+<tr>
+<td>Geometric Mean</td>
+<td>A volume weighted geometric mean of the specified cell result</td>
+</tr>
+
+<tr>
+<td>Volume Weighted Sum</td>
+<td>A volume weighted sum of the specified cell result. Suitable for volume fractions such as SOIL or PORO</td>
+</tr>
+
+<tr>
+<td>Sum</td>
+<td>A sum of the specified cell result. Suitable for absolute quantities.</td>
+</tr>
+
+<tr>
+<td>Top Value</td>
+<td>The first value encountered downwards vertically</td>
+</tr>
+
+<tr>
+<td>Min Value</td>
+<td>The minimum cell result value in the volume underneath the 2D Element</td>
+</tr>
+
+<tr>
+<td>Max Value</td>
+<td>The maximum cell result value in the volume underneath the 2D Element</td>
+</tr>
+</tbody>
+</table>
+
+<p>For the Column options, no <strong>Cell Result</strong> is available in the property tree under the Contour Map.</p>
+
+<h3 id="weighting-means-by-cell-result">Weighting Means by Cell Result</h3>
+
+<p><img src="/images/3d-main-window/ContourMapProjectionWeights.png" alt="" /></p>
+
+<p>For the <strong>Arithmetic Mean</strong>, <strong>Geometric Mean</strong> and <strong>Harmonic Mean</strong> it is also possible to specify a cell result as a weighting parameter in addition to the regular weighting by volume of intersection. The total weight will then be the volume of intersection multiplied by the specified cell result. The full range of regular cell results is available for this use.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -1811,6 +1927,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -1821,6 +1938,25 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
                     
                         
             
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
             
         
                     
@@ -1861,21 +1997,6 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
                     
                 
                 
@@ -1892,6 +2013,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2936,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/3d-main-window/resultcolorlegend/" title="Result Color Legend"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/3d-main-window/tensors/" title="Tensor Results" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

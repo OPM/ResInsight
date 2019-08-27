@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Octave Interface :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1566895791" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/">
+  <body class="" data-url="/scripting/octaveinterface/">
     <nav id="sidebar" class="">
 
 
@@ -1285,7 +1285,7 @@
   
     
     <li data-nav-id="/scripting/" title="Scripting" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1366,7 +1366,7 @@
  
   
     
-      <li data-nav-id="/scripting/octaveinterface/" title="Octave Interface" class="dd-item ">
+      <li data-nav-id="/scripting/octaveinterface/" title="Octave Interface" class="dd-item active">
         <a href="/scripting/octaveinterface/">
         Octave Interface
         
@@ -1558,86 +1558,254 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/scripting/'>Scripting</a> > Octave Interface
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#octave-script-management">Octave Script Management</a>
+<ul>
+<li><a href="#adding-script-folders">Adding Script Folders</a></li>
+<li><a href="#editing-octave-scripts">Editing Octave Scripts</a></li>
+</ul></li>
+<li><a href="#executing-octave-scripts">Executing Octave Scripts</a>
+<ul>
+<li><a href="#executing-a-script-once">Executing a Script Once</a></li>
+<li><a href="#executing-a-script-for-each-selected-case">Executing a Script for Each Selected Case</a></li>
+<li><a href="#process-monitor">Process Monitor</a></li>
+</ul></li>
+<li><a href="#octave-script-examples">Octave Script Examples</a>
+<ul>
+<li>
+<ul>
+<li><a href="#example-1">Example 1</a></li>
+<li><a href="#example-2">Example 2</a></li>
+<li><a href="#example-3">Example 3</a></li>
+<li><a href="#example-4-might-be-slow-on-big-models">Example 4 ( Might be slow on big models)</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Octave Interface
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p>ResInsight provides a flexible interface to <a href="http://www.gnu.org/software/octave/" title="Octave">Octave</a> including:</p>
 
-<p><img src="/images/FrontPageImage.png" alt="" /></p>
+<ul>
+<li>Octave functions that communicates with a running ResInsight session</li>
+<li>Features to simplify management and editing of Octave scripts from ResInsight</li>
+<li>Commands to execute scripts using Octave.<br /></li>
+</ul>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>The Octave functions are documented in <a href="/scripting/octaveinterfacereference/">Octave Interface Reference</a>.</p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<div class="notices info" ><p><b>Note:</b> The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.</p>
+</div>
+
+
+<h2 id="octave-script-management">Octave Script Management</h2>
+
+<p>Octave scripts are available in the <strong>Scripts</strong> folder in the <strong>Project Tree</strong>.</p>
+
+<p><img src="/images/scripting/OctaveScriptTree.png" alt="" /></p>
+
+<p>This folder contains an entry for each of the directories you have added as a <strong>Script Folder</strong>. Each of the folder lists available <em><code>*.m</code></em> files and sub directories.</p>
+
+<h3 id="adding-script-folders">Adding Script Folders</h3>
+
+<p>You can add directories by right-clicking the <strong>Scripts</strong> item to access the right-click menu.</p>
+
+<p>Multiple standard script folder locations can also be defined in the field <strong>Shared Script Folder(s)</strong> in the <strong>Preferences Dialog</strong> (<strong>Edit -&gt; Preferences</strong>).</p>
+
+<h3 id="editing-octave-scripts">Editing Octave Scripts</h3>
+
+<p>To enable script editing from ResInsight you need to set up the path to a text editor in the <strong>Script Editor</strong> field in the <strong>Preferences Dialog</strong> (<strong>Edit -&gt; Preferences</strong>)</p>
+
+<p>When done, scripts can be edited using the right-click menu command <strong>Edit</strong> on the script item in the tree.</p>
+
+<p>If you add a script file directly by creating a new file, the new script can be made visible in the user interface by activating <strong>Refresh</strong> in the right-click menu of a script folder.</p>
+
+<h2 id="executing-octave-scripts">Executing Octave Scripts</h2>
+
+<p>ResInsight can be instructed to execute an Octave script once as a one shot operation, or several times, one time for each selected case. The <a href="/scripting/octaveinterfacereference/">Octave Interface Reference</a> highlights in more depth how to design your Octave scripts to utilize these features.</p>
+
+<h3 id="executing-a-script-once">Executing a Script Once</h3>
+
+<p>A script can be started by navigating to the script in the <strong>Project Tree</strong>, and selecting <strong>Execute</strong> from the right-click menu. The currently active case (The one with the active 3D View) will then be set as ResInsight&rsquo;s <em>Current Case</em>, and the script is executed once.</p>
+
+<h3 id="executing-a-script-for-each-selected-case">Executing a Script for Each Selected Case</h3>
+
+<p>One script can be executed on many cases by first selecting a set of cases, and then activating <strong>Execute script</strong> from the right-click menu on the case selection. The script is then executed once per selected case setting the ResInsight&rsquo;s <em>Current Case</em> each time.</p>
+
+<p><img src="/images/scripting/ExecuteOctaveScriptOnSelectedCases.png" alt="" /></p>
+
+<h3 id="process-monitor">Process Monitor</h3>
+
+<p>When an Octave script is executed, the <strong>Process Monitor</strong> pops up and displays the output from Octave during the script execution as displayed below:</p>
+
+<p><img src="/images/scripting/ProcessMonitor.png" alt="" /></p>
+
+<p>In addition to the output from the script, it prints a start and stop time stamp. The <strong>Clear</strong>-button deletes all the text in the monitor, and the <strong>Stop</strong>-button tries to kill the running Octave process.</p>
+
+<h2 id="octave-script-examples">Octave Script Examples</h2>
+
+<p>Here are some example-scripts that illustrates the use of the octave interface.</p>
+
+
+<div class="notices info" ><p><b>Disclaimer:</b> The scripts are provided as illustration only. They are probably not the best way of using the octave script language, and could potentially be incorrect.</p>
+</div>
+
+
+<h4 id="example-1">Example 1</h4>
+
+<pre><code class="language-matlab"># Calculate change of oil saturation from time step to time step
+SOIL = riGetActiveCellProperty(&quot;SOIL&quot;);
+SOILDIFF = SOIL;
+
+i = 0;
+for timestep = SOIL
+	if (i &gt; 0) 
+		SOILDIFF(:,i) = timestep - SOIL(:,i);
+	endif
+	i++;
+endfor
+SOILDIFF(:,i) = 0;
+
+riSetActiveCellProperty(SOILDIFF, &quot;SOILDIFF&quot;);
+</code></pre>
+
+<h4 id="example-2">Example 2</h4>
+
+<pre><code class="language-matlab"># Set all values to &quot;Undefined&quot; exept k-layers from 17 to 20
+CInfo = riGetActiveCellInfo();
+SOIL = riGetActiveCellProperty(&quot;SOIL&quot;);
+
+Mask = (CInfo(:,4) &lt; 17) | (CInfo(:,4) &gt; 20)
+LGRSOIL = SOIL;
+i = 0;
+for i = (1:columns(LGRSOIL))
+    LGRSOIL(Mask,i) = nan;
+endfor
+
+riSetActiveCellProperty(LGRSOIL, &quot;KSlice&quot;);
+</code></pre>
+
+<h4 id="example-3">Example 3</h4>
+
+<pre><code class="language-matlab"># Keep the values in the first LGR only
+
+CInfo = riGetActiveCellInfo();
+SOIL = riGetActiveCellProperty(&quot;SOIL&quot;);
+
+Mask = (CInfo(:,1) != 1);
+
+LGRSOIL = SOIL;
+i = 0;
+for i = (1:columns(LGRSOIL))
+    LGRSOIL(Mask,i) = nan;
+endfor
+
+riSetActiveCellProperty(LGRSOIL, &quot;LGRSOIL&quot;);
+</code></pre>
+
+<h4 id="example-4-might-be-slow-on-big-models">Example 4 ( Might be slow on big models)</h4>
+
+<pre><code class="language-matlab"># Calculate the average SOIL value across K layers
+
+CInfo = riGetActiveCellInfo();
+SOIL = riGetActiveCellProperty(&quot;SOIL&quot;);
+
+SOIL_KAverage = SOIL;
+SOIL_KAverage(:) = nan;
+
+mini = min(CInfo(:,2))
+maxi = max(CInfo(:,2))
+
+minj = min(CInfo(:,3))
+maxj = max(CInfo(:,3))
+
+for i = mini:maxi
+  for j = minj:maxj 
+    Mask = (CInfo(:,1) == 0) &amp; (CInfo(:,2) == i) &amp; (CInfo(:,3) == j) ;
+
+    for ts = (1:columns(SOIL)) 
+      SOIL_KAverage(Mask, ts) = mean(SOIL(Mask, ts));
+    endfor
+  endfor
+endfor
+
+riSetActiveCellProperty(SOIL_KAverage, &quot;SOIL_KAverage&quot;);
+</code></pre>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2632,6 +2800,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2644,6 +2813,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2693,6 +2865,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2708,6 +2881,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2988,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/scripting/pythonrips/" title="Python API - rips"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/scripting/octaveinterfacereference/" title="Octave Interface Reference" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
