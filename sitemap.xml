@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/getting-started/overview/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/derivedresults/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/3dviews/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/import/eclipsecases/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/getting-started/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/linux-installation/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/misc/preferences/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/simulationwells/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/export/snapshots/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summaryplots/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_04/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_08/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/cellresults/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/scripting/commandlineinterface/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/export/eclipseproperties/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/import/geomechanicaldata/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/misc/memorymanagement/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summarysourcestepping/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/wellpaths/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2018_11/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/windows-installation/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/import/soursimrlresults/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/buildinstructions/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/scripting/commandfile/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/createnewwellpaths/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/import/elementpropertytable/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/export/fluxnummultnum/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/misc/keyboardshortcuts/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/getting-started/modelnavigation/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/import/observeddata/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/resultcolorlegend/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summaryploteditor/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/3dwelllogcurves/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/export/completionexport/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/contourmaps/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/import/pasteexceltimedata/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/scripting/pythonrips/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/misc/regressiontestsystem/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/getting-started/other/releasenotification/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summarycrossplots/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/completions/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/ensembleplotting/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/import/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/scripting/octaveinterface/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/tensors/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/export/exportwellpaths/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/completionslgr/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/curvecalculator/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/export/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/scripting/octaveinterfacereference/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/resultinspection/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/export/sectormodel/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/getting-started/other/testimonials/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/filters/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/scripting/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/welllogsandplots/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/intersections/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/misc/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/wellborestabilityplots/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/faults/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/rftplot/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/formations/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/pltplot/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/flowdiagnosticsplots/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/gridstatisticsdialog/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/casegroupsandstatistics/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/gridcrossplots/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/linkedviews/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/plot-window/saturationpressureplots/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/measurement/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/annotations/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/_footer/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/_header/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/about/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/search/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/support/</loc>
+  </url>
+  
+  <url>
+    <loc>https://opm.github.io/ResInsight-UserDocumentation/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

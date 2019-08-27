@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/ResInsight-UserDocumentation/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Result Inspection :: ResInsight</title>
 
     
     <link href="/ResInsight-UserDocumentation/css/nucleus.css?1566894805" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/ResInsight-UserDocumentation/">
+  <body class="" data-url="/ResInsight-UserDocumentation/3d-main-window/resultinspection/">
     <nav id="sidebar" class="">
 
 
@@ -248,7 +248,7 @@
   
     
     <li data-nav-id="/ResInsight-UserDocumentation/3d-main-window/" title="3D Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -370,7 +370,7 @@
  
   
     
-      <li data-nav-id="/ResInsight-UserDocumentation/3d-main-window/resultinspection/" title="Result Inspection" class="dd-item ">
+      <li data-nav-id="/ResInsight-UserDocumentation/3d-main-window/resultinspection/" title="Result Inspection" class="dd-item active">
         <a href="/ResInsight-UserDocumentation/3d-main-window/resultinspection/">
         Result Inspection
         
@@ -1558,86 +1558,308 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/ResInsight-UserDocumentation/'>ResInsight</a> > <a href='/ResInsight-UserDocumentation/3d-main-window/'>3D Main Window</a> > Result Inspection
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#result-info">Result Info</a>
+<ul>
+<li><a href="#eclipse-model">Eclipse Model</a></li>
+<li><a href="#geomechanical-model">Geomechanical Model</a></li>
+</ul></li>
+<li><a href="#result-plot">Result Plot</a>
+<ul>
+<li><a href="#adding-the-curves-to-a-summary-plot">Adding the Curves to a Summary Plot</a></li>
+</ul></li>
+<li><a href="#pvt-plot-eclipse-cases-only">PVT Plot (Eclipse Cases Only)</a></li>
+<li><a href="#relative-permeability-plot-eclipse-cases-only">Relative Permeability Plot (Eclipse Cases Only)</a></li>
+<li><a href="#mohr-s-circle-plot-geo-mechanical-models-only">Mohr&rsquo;s Circle Plot (Geo Mechanical Models Only)</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Result Inspection
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/ResultInspectionOverview.png" alt="" /></p>
 
-<p><img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="" /></p>
+<p>The results mapped on the 3D model can be inspected in detail by left clicking cells in the 3D view.
+The selected cells will be highlighted, text information displayed in the <strong>Result Info</strong> docking window, and the time-history values plotted in the <strong>Result Plot</strong>, if available.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/ResInsight-UserDocumentation/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/ResInsight-UserDocumentation/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/ResInsight-UserDocumentation/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<div class="notices note" ><p>Visibility of the docking widows can be controlled from the <b>Windows</b> menu.</p>
+</div>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/ResInsight-UserDocumentation/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+
+<h2 id="result-info">Result Info</h2>
+
+<p>Clicking cells will display slightly different information text based on the case type as described in the following tables.</p>
+
+<h3 id="eclipse-model">Eclipse Model</h3>
+
+<table>
+<thead>
+<tr>
+<th>Geometry</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Reservoir cell</td>
+<td>Displays grid cell result value, cell face, grid index and IJK coordinates for the cell. The intersection point coordinates is also displayed. Additional result details are listed in the section <strong>&ndash; Grid cell result details &ndash;</strong></td>
+</tr>
+
+<tr>
+<td>Fault face</td>
+<td>Displays the same info as for a <em>Reservoir cell</em>. In addition the section <strong>&ndash; Fault result details &ndash;</strong> containing Fault Name and Fault Face information.</td>
+</tr>
+
+<tr>
+<td>Fault face with NNC</td>
+<td>Displays the same info as <em>Fault face</em>, except the Non Neighbor Connections (NNC) result value is displayed instead of grid cell value. Information added in section <strong>&ndash; NNC details &ndash;</strong> is geometry information of the two cells connected by the NNC.</td>
+</tr>
+
+<tr>
+<td>Formation names</td>
+<td>Displays name of formation the cell is part of</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="geomechanical-model">Geomechanical Model</h3>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Closest result</td>
+<td>Closest node ID and result value</td>
+</tr>
+
+<tr>
+<td>Element</td>
+<td>Element ID and IJK coordinate for the element</td>
+</tr>
+
+<tr>
+<td>Intersection point</td>
+<td>Location of left-click intersection of the geometry</td>
+</tr>
+
+<tr>
+<td>Element result details</td>
+<td>Lists all integration point IDs and results with associated node IDs and node coordinates</td>
+</tr>
+
+<tr>
+<td>Formation names</td>
+<td>Displays name of formation the cell is part of</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="result-plot">Result Plot</h2>
+
+<p>If a dynamic none-Flow Diagnostics result is active, the result values of the selected cells for all time steps are displayed in the docking window <strong>Result Plot</strong> as one curve for each cell.</p>
+
+<p>Additional curves can be added to the plot if CTRL-key is pressed during picking. The different cells are highlighted in different colors, and the corresponding curve is colored using the same color.</p>
+
+<p>To clear the cell-selection, left-click outside the visible geometry.</p>
+
+<h3 id="adding-the-curves-to-a-summary-plot">Adding the Curves to a Summary Plot</h3>
+
+<p>The time history curves of the selected cells can be added to a Summary Plot by right-clicking in the <strong>Result Plot</strong> or in the 3D View.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/ResultPlotToSummaryPlotCommand.png" alt="" /></p>
+
+<p>A dialog will appear to prompt you to select an existion plot, or to create a new one.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/ResultPlotToSummaryPlotDialog.png" alt="" /></p>
+
+<h2 id="pvt-plot-eclipse-cases-only">PVT Plot (Eclipse Cases Only)</h2>
+
+<p>Show the PVT Plot window by selecting <strong>Windows -&gt; PVT Plot</strong>. When it is turned on, it will only be visible when the active view is a view of an Eclipse case.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/pvtOil.png" alt="" /></p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/pvtGas.png" alt="" /></p>
+
+<p>The PVT plot window shows two plots, based on PVTNUM in the selected cell. One plots <em>Phase Formation Volume Factor</em> and the other plots <em>Phase Viscosity</em>, both against pressure. The <em>Phase</em> can be either oil or gas, and can be selected in the top left corner of the window.</p>
+
+<p>Pressure for the selected cell, at the current time step, is marked on the plot as a vertical line, and a large circle marks the scalar value of the cell (formation volume factor/viscosity). RV for the selected cell is also shown.</p>
+
+<h2 id="relative-permeability-plot-eclipse-cases-only">Relative Permeability Plot (Eclipse Cases Only)</h2>
+
+<p>Show the Relative Permeability Plot window by selecting <strong>Windows -&gt; Relative Permeability Plot</strong>.  When it is turned on, it will only be visible when the active view is a view of an Eclipse case.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/RelativePermeability.png" alt="" /></p>
+
+<p>The Relative Permeability Plot window shows up to six curves, based on SATNUM in the selected cell. The curves can be turned on/off in the top left corner of the window, and they are described in the following table:</p>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+<th>Axis</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>KRW</td>
+<td>Relative permeability water</td>
+<td>KR (Left)</td>
+</tr>
+
+<tr>
+<td>KRG</td>
+<td>Relative permeability gas</td>
+<td>KR (Left)</td>
+</tr>
+
+<tr>
+<td>KROW</td>
+<td>Relative permeability oil water</td>
+<td>KR (Left)</td>
+</tr>
+
+<tr>
+<td>KROG</td>
+<td>Relative permeability oil gas</td>
+<td>KR (Left)</td>
+</tr>
+
+<tr>
+<td>PCOW</td>
+<td>Capilar pressure oil water</td>
+<td>PC (Right)</td>
+</tr>
+
+<tr>
+<td>PCOG</td>
+<td>Capilar pressure oil gas</td>
+<td>PC (Right)</td>
+</tr>
+</tbody>
+</table>
+
+<p>Saturation of water and gas in the selected cell, at the current time step, are annotated in the plot by a blue and orange vertical line, respectively. The intersections between the lines and the relevant curves are marked with large circles.</p>
+
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Log Scale Kr Axis</td>
+<td>Enable logarithmic Kr-axis</td>
+</tr>
+
+<tr>
+<td>Show Unscaled</td>
+<td>Display curves unscaled</td>
+</tr>
+
+<tr>
+<td>Fixed [0, 1] X-axis</td>
+<td>Use a fixed range on X-axis</td>
+</tr>
+
+<tr>
+<td>Fixed [0, 1] Kr-axis</td>
+<td>Use a fixed range on Kr-axis</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="mohr-s-circle-plot-geo-mechanical-models-only">Mohr&rsquo;s Circle Plot (Geo Mechanical Models Only)</h2>
+
+<p>Show the Mohr&rsquo;s Circle Plot window by selecting <strong>Windows -&gt; Mohr&rsquo;s Circle Plot</strong>.  When it is turned on, it will only be visible when the active view is a view of an Geo Mech case.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/mohrsCircles.png" alt="" /></p>
+
+<p>The Mohr&rsquo;s circle plot shows three circles representing the 3D state of stress for a selected cell. In addition, it shows the envelope, calculated from the <em>cohesion</em> and <em>friction angle</em> given in the geo mechanical view&rsquo;s property editor. Several sets of circles and envelopes can be added by selecting more than one cell in any view (as in image above).</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -1811,6 +2033,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -1821,6 +2044,25 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
                     
                         
             
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
             
         
                     
@@ -1893,21 +2135,6 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
                     
                 
                 
@@ -1924,6 +2151,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +3042,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/ResInsight-UserDocumentation/3d-main-window/tensors/" title="Tensor Results"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/ResInsight-UserDocumentation/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/ResInsight-UserDocumentation/3d-main-window/filters/" title="Cell Filters" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

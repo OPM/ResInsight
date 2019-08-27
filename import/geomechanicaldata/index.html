@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/ResInsight-UserDocumentation/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Geomechanical Data :: ResInsight</title>
 
     
     <link href="/ResInsight-UserDocumentation/css/nucleus.css?1566894805" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/ResInsight-UserDocumentation/">
+  <body class="" data-url="/ResInsight-UserDocumentation/import/geomechanicaldata/">
     <nav id="sidebar" class="">
 
 
@@ -993,7 +993,7 @@
   
     
     <li data-nav-id="/ResInsight-UserDocumentation/import/" title="Import" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1036,7 +1036,7 @@
  
   
     
-      <li data-nav-id="/ResInsight-UserDocumentation/import/geomechanicaldata/" title="Geomechanical Data" class="dd-item ">
+      <li data-nav-id="/ResInsight-UserDocumentation/import/geomechanicaldata/" title="Geomechanical Data" class="dd-item active">
         <a href="/ResInsight-UserDocumentation/import/geomechanicaldata/">
         Geomechanical Data
         
@@ -1558,86 +1558,124 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/ResInsight-UserDocumentation/'>ResInsight</a> > <a href='/ResInsight-UserDocumentation/import/'>Import</a> > Geomechanical Data
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#geo-mechanical-data-support">Geo Mechanical Data Support</a></li>
+<li><a href="#resinsight-features">ResInsight Features</a></li>
+<li><a href="#time-step-filtered-import">Time Step Filtered Import</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Geomechanical Data
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p>ResInsight can be built with support for reading and displaying geomechanical analysis models produced by ABAQUS in the <em><code>*.odb</code></em> format. This is only possible if you or your organization has a copy of the ODB-Api from Simulia, and a valid license to use it.</p>
 
-<p><img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="" /></p>
+<p>If you have, and would like to a use these features, please see <a href="/ResInsight-UserDocumentation/getting-started/download-and-install/buildinstructions/"> Build Instructions </a> for a description on how to build ResInsight and how to include the support for odb-files.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<h3 id="geo-mechanical-data-support">Geo Mechanical Data Support</h3>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/ResInsight-UserDocumentation/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/ResInsight-UserDocumentation/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/ResInsight-UserDocumentation/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p>Geo-mechanical data can be imported using the <strong>Import -&gt; Geo Mechanical Cases menu</strong>. Here three options are present: <strong>Import Geo Mechanical Model</strong>, <strong>Import Geo Mechanical Model (Time Step Filtered)</strong>  (both for odb files) and <strong>Import Element Property Table</strong>.</p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/ResInsight-UserDocumentation/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p><img src="/ResInsight-UserDocumentation/images/import/GeoMechImport.png" alt="" /></p>
+
+<p>ResInsight supports the elements C3D8R, C3D8 and C3D8P which are all HEX8 cells. It is also assumed that there are <em>no other element topologies</em> present in the odb file, and that there are only one part. For IJK-based range filters to work, it is also assumed that the elements in the part is topologically arranged as a complete box.</p>
+
+<p>ResInsight loads the second frame within each odb-step, and present those as the time series for each result.</p>
+
+<p>All the result fields in the odb-file is then available for post processing in ResInsight, but stresses and strains are converted to pressure-positive tensors as normally used in geomechanics, instead of the normal tension-positive tensors that ABAQUS stores.</p>
+
+<p>Pressure and stress are always displayed using the <em>Bar</em> unit.</p>
+
+<p>Other derived results are also calculated, and are described in <a href="/ResInsight-UserDocumentation/appendix/derivedresults"> Derived Results </a></p>
+
+<h3 id="resinsight-features">ResInsight Features</h3>
+
+<p>Most of the central features of ResInsight visualization setup also applies to ABAQUS Odb models, like range filters and property filters. Well Paths will also show up along with the odb models.</p>
+
+<p>The Octave interface, however, does not support the odb-data yet.</p>
+
+<h3 id="time-step-filtered-import">Time Step Filtered Import</h3>
+
+<p>By choosing the <strong>Import Geo Mechanical Model (Time Step Filtered)</strong> option, it is possible to limit the amount of time steps that are imported to improve the speed and reduce the memory use. If this option is chosen a tile step filter dialog is shown after selecting the file to import.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/import/GeoMechFilter.png" alt="" /></p>
+
+<p>The data can be filtered by skipping Days, Weeks, Months or Years in the top <strong>Filter Type</strong> drop down list and the range of time steps can be picked in the <strong>First Time Step</strong> and <strong>Last Time Steps</strong> lists. Furthermore, the final selection can be fine tuned by selecting or deselecting individual time steps in the <strong>Select From N Time Steps</strong> list. ResInsight will ignore any data that doesn&rsquo;t match these time steps and will thus reduce the amount of data imported.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2408,6 +2446,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2420,6 +2459,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2437,6 +2479,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2452,6 +2495,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2858,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/ResInsight-UserDocumentation/import/eclipsecases/" title="Eclipse Cases"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/ResInsight-UserDocumentation/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/ResInsight-UserDocumentation/import/soursimrlresults/" title="SourSimRL Results" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/ResInsight-UserDocumentation/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Command Line Interface :: ResInsight</title>
 
     
     <link href="/ResInsight-UserDocumentation/css/nucleus.css?1566894805" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/ResInsight-UserDocumentation/">
+  <body class="" data-url="/ResInsight-UserDocumentation/scripting/commandlineinterface/">
     <nav id="sidebar" class="">
 
 
@@ -1285,7 +1285,7 @@
   
     
     <li data-nav-id="/ResInsight-UserDocumentation/scripting/" title="Scripting" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1309,7 +1309,7 @@
  
   
     
-      <li data-nav-id="/ResInsight-UserDocumentation/scripting/commandlineinterface/" title="Command Line Interface" class="dd-item ">
+      <li data-nav-id="/ResInsight-UserDocumentation/scripting/commandlineinterface/" title="Command Line Interface" class="dd-item active">
         <a href="/ResInsight-UserDocumentation/scripting/commandlineinterface/">
         Command Line Interface
         
@@ -1558,86 +1558,322 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/ResInsight-UserDocumentation/'>ResInsight</a> > <a href='/ResInsight-UserDocumentation/scripting/'>Scripting</a> > Command Line Interface
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#usage-examples">Usage Examples</a>
+<ul>
+<li><a href="#example-1-create-snapshots-of-all-views-for-multiple-cases">Example 1 : Create snapshots of all views for multiple cases</a></li>
+<li><a href="#example-2-replace-a-single-case-and-take-snapshots-of-all-views">Example 2 : Replace a single case and take snapshots of all views</a></li>
+<li><a href="#example-3-replace-source-cases-in-a-case-group-and-create-snapshot">Example 3 : Replace source cases in a case group and create snapshot</a></li>
+<li><a href="#example-4-replace-source-cases-in-multiple-case-groups-and-create-snapshots">Example 4 : Replace source cases in multiple case groups and create snapshots</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Command Line Interface
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p>ResInsight supports several command line parameters that can be used to automate some tasks using shell scripts.</p>
 
-<p><img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="" /></p>
+<p>Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms. See GNU Standards for <a href="http://www.gnu.org/prep/standards/html_node/Command_002dLine-Interfaces.html#Command_002dLine-Interfaces">Command Line Interfaces</a>.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>Examples on how command line options are used are given <a href="/ResInsight-UserDocumentation/scripting/commandlineinterface/#usage-examples">below</a></p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/ResInsight-UserDocumentation/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/ResInsight-UserDocumentation/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/ResInsight-UserDocumentation/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/ResInsight-UserDocumentation/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<tbody>
+<tr>
+<td>&#45;&#45;help, &#45;&#45;?</td>
+<td>Displays help text and version info</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;project &lt;filename&gt;</td>
+<td>Open project file &lt;filename&gt;.</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;last</td>
+<td>Open last used project.</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;case &lt;casename&#124;filename&gt; [&lt;casename&#124;filename&gt;]</td>
+<td>Imports the Eclipse cases specified by case name with or without extension.If &lt;casename&gt;, import the corresponding grid file and summary file. If &lt;filename&gt; has extension .GRRID/.EGRID, import the grid file and corresponding summary file. If &lt;filename&gt; has extension .SMSPEC, import the summary file (does not open the grid file)</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;size &lt;width&gt; &lt;height&gt;</td>
+<td>Set size of the main application window.</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;console</td>
+<td>Launch as a console application without graphics</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;server [&lt;portnumber&gt;]</td>
+<td>Launch as a GRPC server. Default port is 50051</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;startdir &lt;folder&gt;</td>
+<td>Set startup directory.</td>
+</tr>
+</tbody>
+</table>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>&#45;&#45;commandFile &lt;commandFile&gt;</td>
+<td>Execute a command file. See <a href="/ResInsight-UserDocumentation/scripting/commandfile/">command file documentation.</a></td>
+</tr>
+
+<tr>
+<td>&#45;&#45;commandFileReplaceCases [&lt;caseId&gt;] &lt;caseListFile&gt;</td>
+<td>Supply list of cases to replace in project, performing command file for each case. Project to replace cases in must be set with <code>commandFileProject</code>. If caseId is not supplied, first case is replaced. When supplying caseId, multiple cases may be replaced at once, by supplying several caseIds and a file containing a list of grid-files to replace with for each caseId.</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;commandFileProject &lt;filename&gt;</td>
+<td>Project to use if performing case looping for command file. Used in conjunction with <code>commandFileReplaceCases</code>.</td>
+</tr>
+</tbody>
+</table>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>&#45;&#45;savesnapshots all&#124;views&#124;plots&#124;</td>
+<td>Save snapshot of all views or plots to project file location sub folder &lsquo;snapshots&rsquo;. Option &lsquo;all&rsquo; will include both views and plots. Application closes after snapshots have been written.</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;multiCaseSnapshots &lt;gridListFile&gt;</td>
+<td>For each grid file listed in the &lt;gridListFile&gt; file, replace the first case in the project and save snapshot of all views.</td>
+</tr>
+</tbody>
+</table>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>&#45;&#45;replaceCase [&lt;caseId&gt;] &lt;newGridFile&gt;</td>
+<td>Replace grid in &lt;caseId&gt; or first case with &lt;newGridFile&gt;. Repeat parameter for multiple replace operations.</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;replaceSourceCases [&lt;caseGroupId&gt;] &lt;gridListFile&gt;</td>
+<td>Replace source cases in &lt;caseGroupId&gt; or first grid case group with the grid files listed in the &lt;gridListFile&gt; file. Repeat parameter for multiple replace operations.</td>
+</tr>
+</tbody>
+</table>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>&#45;&#45;regressiontest &lt;folder&gt;</td>
+<td>System command</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;updateregressiontestbase &lt;folder&gt;</td>
+<td>System command</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;unittest</td>
+<td>Execute integration tests</td>
+</tr>
+
+<tr>
+<td>&#45;&#45;ignoreArgs</td>
+<td>System command</td>
+</tr>
+</tbody>
+</table>
+
+<p>See also the <a href="/ResInsight-UserDocumentation/misc/regressiontestsystem/">Regression Test System </a> for a more in-depth explanation.</p>
+
+
+<div class="notices note" ><p><b>Reduce project load time using <code>&ndash;replaceSourceCases</code></b>
+ <br>
+ResInsight stores data computed by statistics calculation in a cache file. When a project file is loaded, data from this cache is also imported. For large cases, the cached data can be large. When replacing source cases during batch, this data is never used and can be removed from the cache using the following workaround:
+<br>
+  - Open the project file used to produce statistics
+  <br>
+  - Select the statistics object in the project tree
+  <br>
+  - Click the button <b>Edit (Will DELETE current result)</b>
+  <br>
+  - Save the project file</p>
+</div>
+
+
+<h2 id="usage-examples">Usage Examples</h2>
+
+<p>These examples are also available from the <a href="https://github.com/OPM/ResInsight/tree/master/TestModels/Case_with_10_timesteps">test section</a>.</p>
+
+<h3 id="example-1-create-snapshots-of-all-views-for-multiple-cases">Example 1 : Create snapshots of all views for multiple cases</h3>
+
+<p>A list of cases is defined in <strong>CaseList.txt</strong>, containing the following</p>
+
+<pre><code>Real0/BRUGGE_0000.EGRID
+Real10/BRUGGE_0010.EGRID
+Real30/BRUGGE_0030.EGRID
+Real40/BRUGGE_0040.EGRID
+</code></pre>
+
+<p>The command line used to run this example is shown here:</p>
+
+<pre><code>ResInsight --project BatchTest.rsp --multiCaseSnapshots CaseList.txt --size 500 500
+</code></pre>
+
+<p>This will instruct ResInsight to read the project file <strong>BatchTest.rsp</strong>. All cases will be replaced one by one in ResInsight, and snapshots of all views will be written to file.</p>
+
+<h3 id="example-2-replace-a-single-case-and-take-snapshots-of-all-views">Example 2 : Replace a single case and take snapshots of all views</h3>
+
+<p>The command line used to run this example is shown here:</p>
+
+<pre><code>ResInsight --project BatchTest.rsp --replaceCase &quot;Real10\BRUGGE_0010.EGRID&quot; --savesnapshots
+</code></pre>
+
+<p>This will instruct ResInsight to read the project file <strong>BatchTest.rsp</strong>. The specified case <strong>Real10\BRUGGE_0010.EGRID</strong> will be imported into the project, and snapshots of all views will be written to file.</p>
+
+<h3 id="example-3-replace-source-cases-in-a-case-group-and-create-snapshot">Example 3 : Replace source cases in a case group and create snapshot</h3>
+
+<p>A list of cases is defined in <strong>CaseList2.txt</strong>, containing the following</p>
+
+<pre><code>Real0/BRUGGE_0000.EGRID
+Real10/BRUGGE_0010.EGRID
+</code></pre>
+
+<p>The command line used to run this example is shown here:</p>
+
+<pre><code>ResInsight --project BatchStatistics.rsp --replaceSourceCases CaseList2.txt --savesnapshots
+</code></pre>
+
+<p>This will instruct ResInsight to read the project file <strong>BatchStatistics.rsp</strong>. All cases specified will be imported in the case group specified in the project file. Statistics will be computed, and snapshots for all views will be written to file.</p>
+
+<h3 id="example-4-replace-source-cases-in-multiple-case-groups-and-create-snapshots">Example 4 : Replace source cases in multiple case groups and create snapshots</h3>
+
+<p>Multiple source case groups can be updated by repeating the replaceSourceCases parameter.</p>
+
+<p>The command line used to run this example is shown here:</p>
+
+<pre><code>ResInsight --project BatchStatistics.rsp --replaceSourceCases 0 CaseList2.txt --replaceSourceCases 1 CaseList3.txt --savesnapshots
+</code></pre>
+
+<p>This will instruct ResInsight to read the project file <strong>BatchStatistics.rsp</strong>. Source cases for case group 0 is given in CaseList2.txt, and source cases for case group 1 is given in CaseList3.txt. Statistics will be computed, and snapshots for all views will be written to file.</p>
+
+<p>The possibility to replace multiple cases can also be applied for single case replace (parameter <em>replaceCase</em>).</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2632,6 +2868,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2644,6 +2881,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
                     
                 
                 
@@ -2660,6 +2898,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +3053,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/ResInsight-UserDocumentation/scripting/" title="Scripting"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/ResInsight-UserDocumentation/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/ResInsight-UserDocumentation/scripting/commandfile/" title="Command File" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

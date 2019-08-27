@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/ResInsight-UserDocumentation/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Sector Model :: ResInsight</title>
 
     
     <link href="/ResInsight-UserDocumentation/css/nucleus.css?1566894805" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/ResInsight-UserDocumentation/">
+  <body class="" data-url="/ResInsight-UserDocumentation/export/sectormodel/">
     <nav id="sidebar" class="">
 
 
@@ -1139,7 +1139,7 @@
   
     
     <li data-nav-id="/ResInsight-UserDocumentation/export/" title="Export" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1258,7 +1258,7 @@
  
   
     
-      <li data-nav-id="/ResInsight-UserDocumentation/export/sectormodel/" title="Sector Model" class="dd-item ">
+      <li data-nav-id="/ResInsight-UserDocumentation/export/sectormodel/" title="Sector Model" class="dd-item active">
         <a href="/ResInsight-UserDocumentation/export/sectormodel/">
         Sector Model
         
@@ -1558,86 +1558,150 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/ResInsight-UserDocumentation/'>ResInsight</a> > <a href='/ResInsight-UserDocumentation/export/'>Export</a> > Sector Model
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#exporting-an-eclipse-sector-model">Exporting an Eclipse Sector Model</a></li>
+<li><a href="#exporting-grid-and-faults">Exporting Grid and Faults</a>
+<ul>
+<li><a href="#grid-export">Grid Export</a></li>
+<li><a href="#grid-box-selection">Grid Box Selection</a></li>
+<li><a href="#grid-refinement">Grid Refinement</a></li>
+<li><a href="#faults">Faults</a></li>
+</ul></li>
+<li><a href="#exporting-parameters">Exporting Parameters</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Sector Model
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p>Sub-sections of the Eclipse Grid with Parameters and Faults can be exported to Eclipse ASCII files in order to create new
+Simulations on the sub-section.</p>
 
-<p><img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="" /></p>
+<h3 id="exporting-an-eclipse-sector-model">Exporting an Eclipse Sector Model</h3>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>To launch the export dialog, right-click on either the <strong>3D-view</strong> in question or the <strong>Cell Result</strong>.</p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/ResInsight-UserDocumentation/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/ResInsight-UserDocumentation/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/ResInsight-UserDocumentation/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p><img src="/ResInsight-UserDocumentation/images/export/ExportSectorModel_RightClick.png" alt="" /></p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/ResInsight-UserDocumentation/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<h3 id="exporting-grid-and-faults">Exporting Grid and Faults</h3>
+
+<p><img src="/ResInsight-UserDocumentation/images/export/ExportSectorModel_Grid.png" alt="" /></p>
+
+<h4 id="grid-export">Grid Export</h4>
+
+<p>The Export dialog will allow the user to export grid data as ascii (An Eclipse Input Grid) to a specific file name by checking the <strong>Export Grid Data</strong> option.
+If the option <strong>Export in Local Coordinates</strong> is checked, the UTM-portion of the coordinates will be stripped and the Grid will
+be exported in a local coordinate system with no reference to actual location.</p>
+
+<h4 id="grid-box-selection">Grid Box Selection</h4>
+
+<p>The Grid Box selection group will allow the user to choose whether to export an IJK bounding box surrounding:</p>
+
+<ul>
+<li><strong>All Visible Cells</strong> &ndash; Controlled by range and property filters in the current view.</li>
+<li><strong>All Active Cells</strong> &ndash; All active cells in the Grid.</li>
+<li><strong>The Full Grid</strong> &ndash; The complete grid including inactive cells.</li>
+<li><strong>User Defined Selection</strong> &ndash; This will make the min and max IJK selection available to the user.</li>
+</ul>
+
+<p>Furthermore, by checking <strong>Make Invisible Cells Inactive</strong> any cells that are within the IJK bounding box, but are invisible, will be made
+inactive (ACTNUM = 0) in the exported grid.</p>
+
+<h4 id="grid-refinement">Grid Refinement</h4>
+
+<p>The grid can be refined by a different integer in all three directions by changing the default value of Cell Count = 1 for I, J or K. The grid results will be not be interpolated but all new cells will inherit the value of their original cell.</p>
+
+<h4 id="faults">Faults</h4>
+
+<p>Optionally export fault data to a separate fault file or append to the existing grid. Also, fault data can be ommitted by choosing &ldquo;Do not Export&rdquo; from the
+<strong>Export Fault Data</strong> drop down list.</p>
+
+<h3 id="exporting-parameters">Exporting Parameters</h3>
+
+<p><img src="/ResInsight-UserDocumentation/images/export/ExportSectorModel_Parameters.png" alt="" /></p>
+
+<p>The Static result values in the Grid may be exported as Eclipse Input Parameters. The default parameters are
+EQLNUM, FIPNUM, NTG, PERMX, PERMY, PERMZ, PORO, PVTNUM, SATNUM and SWATINIT. ACTNUM is exported by default in the Grid Export file.</p>
+
+<p>Other statuc result variables may be selected.</p>
+
+<p>By default the Parameters will be exported to a separate file per parameter in the grid folder location. However it is possible to
+append them to the grid file, export them all into a single parameter file or omit them completely be selecting different options in the <strong>Export Parameters</strong> drop down list.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2520,6 +2584,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2532,6 +2597,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2613,6 +2681,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2631,6 +2700,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2884,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/ResInsight-UserDocumentation/export/exportwellpaths/" title="Well Paths"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/ResInsight-UserDocumentation/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/ResInsight-UserDocumentation/scripting/" title="Scripting" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

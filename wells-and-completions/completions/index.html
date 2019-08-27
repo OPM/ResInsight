@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/ResInsight-UserDocumentation/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Completions :: ResInsight</title>
 
     
     <link href="/ResInsight-UserDocumentation/css/nucleus.css?1566894805" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/ResInsight-UserDocumentation/">
+  <body class="" data-url="/ResInsight-UserDocumentation/wells-and-completions/completions/">
     <nav id="sidebar" class="">
 
 
@@ -847,7 +847,7 @@
   
     
     <li data-nav-id="/ResInsight-UserDocumentation/wells-and-completions/" title="Wells and Completions" class="dd-item 
-        
+        parent
         
         
         ">
@@ -947,7 +947,7 @@
  
   
     
-      <li data-nav-id="/ResInsight-UserDocumentation/wells-and-completions/completions/" title="Completions" class="dd-item ">
+      <li data-nav-id="/ResInsight-UserDocumentation/wells-and-completions/completions/" title="Completions" class="dd-item active">
         <a href="/ResInsight-UserDocumentation/wells-and-completions/completions/">
         Completions
         
@@ -1558,86 +1558,618 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/ResInsight-UserDocumentation/'>ResInsight</a> > <a href='/ResInsight-UserDocumentation/wells-and-completions/'>Wells and Completions</a> > Completions
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#visualization-and-inspection-of-well-connection-factors">Visualization and Inspection of Well Connection Factors</a></li>
+<li><a href="#perforation-intervals">Perforation Intervals</a>
+<ul>
+<li><a href="#perforation-interval-valves">Perforation Interval Valves</a></li>
+<li><a href="#import-perforation-intervals">Import Perforation Intervals</a>
+<ul>
+<li><a href="#perforation-interval-file-format">Perforation Interval File Format</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#fishbones">Fishbones</a>
+<ul>
+<li><a href="#fishbones-subs-definition">Fishbones Subs Definition</a></li>
+<li><a href="#import-well-trajectories-as-fishbones-laterals">Import Well Trajectories as Fishbones Laterals</a></li>
+<li><a href="#export-fishbones-as-well-trajectories">Export Fishbones as Well Trajectories</a></li>
+</ul></li>
+<li><a href="#fractures">Fractures</a>
+<ul>
+<li><a href="#visualization-control">Visualization control</a></li>
+<li><a href="#fracture-templates">Fracture Templates</a>
+<ul>
+<li><a href="#common-fracture-template-options">Common Fracture Template Options</a></li>
+<li><a href="#non-darcy-flow">Non-Darcy Flow</a></li>
+<li><a href="#ellipse-fracture-template">Ellipse Fracture Template</a></li>
+<li><a href="#stimplan-fracture-template">Stimplan Fracture Template</a></li>
+</ul></li>
+<li><a href="#fracture-instances">Fracture Instances</a></li>
+<li><a href="#multiple-fracture-creation">Multiple Fracture Creation</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Completions
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/CompletionsIllustration.png" alt="" /></p>
 
-<p><img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="" /></p>
+<p>Three types of completions are available for modeling and export: Perforation intervals, fishbone wells and fractures. The purpose of modeling these completions, is that it enables ResInsight to export Eclipse keywords for doing more refined simulations.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>Completions can be modeled by adding new perforation intervals, fishbones subs or fractures. Details about the completions must then be specified, such as the length of the perforation interval or number of fishbone subs and laterals. After modeling the completions, the transmissibility (cell connection factors) can be calculated and exported to the Eclipse COMPDAT Keyword. See <a href="/ResInsight-UserDocumentation/export/completionexport/"> Export Completions</a></p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/ResInsight-UserDocumentation/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/ResInsight-UserDocumentation/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/ResInsight-UserDocumentation/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p>For fishbones completions, multi-segment well information can even be exported to the Eclipse Keywords WELSEGS, COMPSEGS and WSEGVALV. See <a href="/ResInsight-UserDocumentation/export/completionexport/#export-well-segments"> Export Well Segments</a></p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/ResInsight-UserDocumentation/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+
+<div class="notices note" ><p>The derived cell property <b>Completion Type</b> displays wich cells are intersected by the completions.
+  See <a href="/ResInsight-UserDocumentation/appendix/derivedresults#completion-type">Derived Results&rarr;Completion Type</a></p>
+</div>
+
+
+<h2 id="visualization-and-inspection-of-well-connection-factors">Visualization and Inspection of Well Connection Factors</h2>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/Completions_WellConnectionFactors.png" alt="" /></p>
+
+<p>Connection factors both from the Simulation Wells and the ones calculated from the modeled completions can be visualized in the 3D view by enabling <strong>Well Connection Factors</strong> in the <strong>Project Tree</strong>. The connection factors are displayed with a symbol as in the example shown above. The color of the symbol displays the magnitude of the connection factor and can be controlled by the legend settings.  Additional details of the connection factor are displayed in the <strong>Result Info</strong> window when clicking on the connection factor symbol.</p>
+
+<p>The <strong>Property Panel</strong> of the <strong>Well Connection Factors</strong> item has a few options:</p>
+
+<ul>
+<li><strong>Geometry Scale Factor</strong> &ndash; Scales the connection factor symbols relative to the displayed well path radius</li>
+<li><strong>Show on Closed Connections</strong> &ndash; Show the connection factors calculated for closed simulation well cells in addition to the ones at open cells.</li>
+</ul>
+
+<p>A combined view of well connection factors and the derived result <strong>Completion Type</strong> enables the user to see the completion type contributing to connection factor in a cell
+( <a href="/ResInsight-UserDocumentation/appendix/derivedresults#completion-type">Derived Results, Completion Type</a> )</p>
+
+<h2 id="perforation-intervals">Perforation Intervals</h2>
+
+<p>A new perforation interval on a well can be set up by right-clicking on the well in the <strong>3D View</strong> or in the <strong>Project Tree</strong>, and choosing the command <strong>Create Perforation interval</strong> in the <strong>Create Completions</strong> sub-menu. In the 3D View the completion will be created at the specific depth the right-click occured at.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/CreateCompletionOnWellPath.png" alt="" /></p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/PerforationIntervals_propEditor.png" alt="" /></p>
+
+<p>After creating the perforation interval, the following properties of the perforation can be set in the property editor:</p>
+
+<ul>
+<li><strong>Start MD</strong>, <strong>End MD</strong> &ndash; Measured depth along the well path for the perforation to start/stop.</li>
+<li><strong>Diameter</strong> &ndash; Diameter of the perforation, used in calculation of transmissibility ( For details on the transmissibility calculation, see <a href="/ResInsight-UserDocumentation/export/completionexport/#transmissibility-calculations">Transmissibility Calculations</a>).</li>
+<li><strong>Skin Factor</strong> &ndash; Skin factor for the perforation, used in calculation of transmissibility.</li>
+<li><strong>All Timesteps</strong> &ndash; If on, the perforation interval will be present for all time steps</li>
+<li><strong>Start Date</strong> &ndash; The perforation will be included in the model for all time steps after this date. If &ldquo;All TimeSteps&rdquo; is turned on, this option is not available and the perforation is included for all time steps.</li>
+</ul>
+
+<p>The perforation intervals will be indicated by different color along the well path.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/WellPerforationIntervalColor.png" alt="" /></p>
+
+<p>For each well path there is a top level folder in the <strong>Project Tree</strong> containing all the perforation intervals definitions containing settings that applies to all the perforation intervals for this well path.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/Perforations_PropEdit.png" alt="" /></p>
+
+<p>For multi-segment wells there are additional parameters which should be set. These are used in the export of WELSEGS data.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/PerfIntervalMsw.PNG" alt="" /></p>
+
+<ul>
+<li><strong>Multi Segment Well Options</strong> - Options used by the Well Segments Export
+
+<ul>
+<li><strong>Liner Inner Diameter</strong> &ndash; The liner inner diameter for the perforation intervals.</li>
+<li><strong>Roughness Factor</strong> &ndash; The roughness factor used in export of main bore segments.</li>
+<li><strong>Pressure Drop</strong> &ndash; can be either <em>Hydrostatic</em>, <em>Hydrostatic + Friction</em> or <em>Hydrostatic + Friction + Acceleration</em>.</li>
+<li><strong>Length and Depth</strong> &ndash; Used in WELSEGS export - when specifying the length and depth change for each segment</li>
+<li><strong>Incremental</strong> &ndash; length / depth of given segment</li>
+<li><strong>Absolute</strong> &ndash; the length down the tube or depth of the last nodal point</li>
+<li><strong>Enforce Max Segment Length</strong> &ndash; Limit segment to max size. When this check box is checked, a max segment length input field is displayed.
+<br /></li>
+</ul></li>
+</ul>
+
+<p>There are three options for Non-Darcy Flow. <strong>None</strong>, <strong>User defined D-factor</strong> and <strong>Compute D-factor</strong>. The second option displays an input field where the user defined D-factor can be entered. The last options brings up several input fields.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/PerfIntervalNonDarcy.PNG" alt="" /></p>
+
+<ul>
+<li><strong>Non-Darcy Flow</strong> - Non-Darcy settings for D factor computation
+
+<ul>
+<li><strong>Grid Permeability Scaling Factor</strong></li>
+<li><strong>Well Radius</strong></li>
+<li><strong>Relative Gas Density</strong></li>
+<li><strong>Gas Viscosity</strong></li>
+<li><strong>Inertial Coefficient</strong></li>
+<li><strong>Permeability Scaling Factor</strong></li>
+<li><strong>Porosity Scaling Factor</strong>
+<br /></li>
+</ul></li>
+</ul>
+
+<h3 id="perforation-interval-valves">Perforation Interval Valves</h3>
+
+<p>Perforation Intervals can have valves (ICDs/AICDs/ICVs) associated with them.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/ValveVisualisation.png" alt="" /></p>
+
+<p>These valves can be created by right-clicking on the Perforation Interval and selecting <strong>Create Valve</strong>.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/NewValve.png" alt="" /></p>
+
+<p>Each Valve require a <strong>Valve Template</strong> containing properties which can be shared among multiple Valves. If you have no Valve Template, a new one can be created by clicking the <strong>New</strong> button next to the Valve Template selection list.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/NewValveWithoutTemplate.png" alt="" /></p>
+
+<p>This will create a new <strong>Valve Template</strong> which can be of three different types:</p>
+
+<ul>
+<li><strong>ICD</strong> - In-flow Control Device, allowing the setting of <strong>Orifice Diameter</strong> and <strong>Flow Coefficient</strong>. ICDs are displayed in Orange.</li>
+<li><strong>AICD</strong> - Autonomous In-flow Control Device, providing several more parameters associated with the Eclipse simulation and seen in the picture below. AICDs are displayed in Dark Purple.</li>
+<li><strong>ICV</strong> - Interval Control Valves. Contains the same parameters as ICDs. The difference between the two in ResInsight is that many ICDs can be added at the same time, while there is only expected to be one ICV per perforation interval. ICVs are displayed in Pink.
+<br /></li>
+</ul>
+
+<p>An example of the ICD parameters can be seen below:
+<img src="/ResInsight-UserDocumentation/images/3d-main-window/ValveTemplate.png" alt="" /></p>
+
+<p>An example of the AICD parameters:
+<img src="/ResInsight-UserDocumentation/images/3d-main-window/ValveTemplate_AICD.png" alt="" /></p>
+
+<p>New templates can also be added by selecting the <strong>New Valve Template</strong> option from the right-click menu of the <strong>Valve Templates</strong> entry in the <strong>Completion Templates</strong> Project Tree item.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/NewValveTemplate.png" alt="" /></p>
+
+<p>For ICDs and AICDs, multiple valves can be added in the same go by specifying the number of valves, spacing of valves or specific positions of valves as chosen in the <strong>Location Defined By</strong> drop down list.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/ValveProperties_ICD.png" alt="" /></p>
+
+<p>For ICVs only one valve is added at a time so only the measured depth of that valve can be chosen.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/ValveProperties_ICV.png" alt="" /></p>
+
+<p>When you have a valid valve template selected, there is an <strong>Edit</strong> button next to the valve template selection. Clicking this will take you straight to modify the valve template.</p>
+
+<h3 id="import-perforation-intervals">Import Perforation Intervals</h3>
+
+<p>Perforation intervals can be imported into ResInsight from <em><code>*.ev</code></em> files. These files consist of a list of wells, and their corresponding measured depth values for perforation start and end.</p>
+
+<h4 id="perforation-interval-file-format">Perforation Interval File Format</h4>
+
+<p>&rdquo;&ndash;&rdquo; is interpreted as the start of a comment. The comment ends at the end of the line.
+The files can start with a unit definition line:</p>
+
+<pre><code>UNITS &lt;unitname&gt;
+</code></pre>
+
+
+<div class="notices info" ><p>This line is ignored for now. The numbers are interpreted to be in the units present in the case.</p>
+</div>
+
+
+<p>In the following any number of :</p>
+
+<pre><code>WELLNAME &lt;well-name&gt;
+&lt;date&gt;  &lt;well completion&gt;  &lt;top mMD&gt;  &lt;base mMD&gt;   &lt;bore hole diameter&gt;  &lt;skin factor&gt;
+&lt;date&gt;  &lt;well completion&gt;  &lt;top mMD&gt;  &lt;base mMD&gt;   &lt;bore hole diameter&gt;  &lt;skin factor&gt;
+</code></pre>
+
+<ul>
+<li><em>date</em> &ndash; Start date of the completion in the format &ldquo;dd mmm yyyy&rdquo;. Eg <code>01 SEP 2006</code>. A special <code>&quot;SOH&quot;</code>date is also allowed meaning Start Of History.</li>
+<li><em>well completion</em> &ndash; For now, only <code>&quot;perforation&quot;</code> is supported</li>
+</ul>
+
+<p>Here is an example:</p>
+
+<pre><code>UNITS METRIC
+
+-- R-2 AH sidetrack into Ile/Tilje
+WELLNAME R-2AH
+&quot;SOH&quot;   perforation 6200 6350 0.212 0   -- taget Ile 2 and Ile 3
+&quot;SOH&quot;   perforation 7050 7133 0.212 0   -- target Tilje 3, 83 m prodint
+
+-- S-2 AH
+WELLNAME S-2AH
+&quot;SOH&quot;   perforation 4340 4369 0.212 0   -- target Garn 2, 29 m prodint (update 290915)
+01 SEP 2006   perforation 5060 6185 0.212 0   -- target Tilje 3, 1125 m prodint
+</code></pre>
+
+<h2 id="fishbones">Fishbones</h2>
+
+<p>Fishbones are completions created by drilling or by jetting a set of small lateral holes with a high deviation from the main bore.
+Each set of holes created at the same location along the main bore, is referred to as a <em>sub</em> while each individual hole is called a <em>lateral</em>.</p>
+
+<p>For each well path there is a top level folder in the <strong>Project Tree</strong> containing all the Fishbones definitions containing settings that applies to all the fishbones for this well path. To make use of the Multi Segment Well option for pressure loss along laterals, the grid resolution needs to be fine enough to allow a grid cell to be connected to only one lateral.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/Fishbones_PropEdit.png" alt="" /></p>
+
+<ul>
+<li><strong>Fishbone Well Properties</strong> &ndash; Settings used when exporting well connection factors
+
+<ul>
+<li><strong>StartMD</strong> &ndash; the start position for the fishbones. This will be set to the highest possible value automatically, but can be set lower by the user. Gives the point along the well from which the transmissibility from the matrix to the main bore will be calculated.<br /></li>
+<li><strong>Main Bore Diameter</strong> &ndash; The hole diameter for the main bore will be used in the calculation of the transmissibility (connection factor) into the main bore.</li>
+<li><strong>Main Bore Skin Factor</strong> &ndash; The skin factor for the main bore, used in calculation of the transmissibility (connection factor) into the main bore.
+For multi-segment wells there are additional parameters which should be set. These are used in the export of WELSEGS data.</li>
+</ul></li>
+<li><strong>Multi Segment Wells</strong> - Options used by the Well Segments Export
+
+<ul>
+<li><strong>Liner Inner  eter</strong> &ndash; The liner inner diameter for the fishbones.</li>
+<li><strong>Roughness Factor</strong> &ndash; The roughness factor used in export of main bore segments.</li>
+<li><strong>Pressure Drop</strong> &ndash; can be either <em>Hydrostatic</em>, <em>Hydrostatic + Friction</em> or <em>Hydrostatic + Friction + Acceleration</em>.</li>
+<li><strong>Length and Depth</strong> &ndash; Used in WELSEGS export - when specifying the length and depth change for each segment</li>
+<li><strong>Incremental</strong> &ndash; length / depth of given segment</li>
+<li><strong>Absolute</strong> &ndash; the length down the tube or depth of the last nodal point</li>
+</ul></li>
+</ul>
+
+<h3 id="fishbones-subs-definition">Fishbones Subs Definition</h3>
+
+<p>To add new fishbones completions, select the <strong>New Fishbones Subs Definition</strong> command. This menu item is available by right clicking on <strong>Wells</strong> in the Project Tree or right clicking on the well trajectory in the 3D View.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/CreateCompletionOnWellPath.png" alt="" /></p>
+
+<p>The new <strong>Fishbones Subs Definition</strong> (a group of fishbone subs) is created in the Project tree. Several subs definitions can be created on the same well trajectory to give more flexibility in placing of the fishbones. The default sub definition is based on the Fishbones Drilling System with 3 laterals exiting per sub in a 8 <sup>1</sup>&frasl;<sub>2</sub>&rdquo; main bore.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/Fishbones_SubDefPropEdit.png" alt="" /></p>
+
+<ul>
+<li><strong>Appearance</strong>
+
+<ul>
+<li><strong>Fishbones Color</strong> &ndash; The 3D View color of the fishbones created by this definition</li>
+</ul></li>
+<li><strong>Location</strong> &ndash; Options to control the position and number of fishbone subs created by this definition
+
+<ul>
+<li><strong>Location Defined By</strong> &ndash; This setting will select how to define the location of the subs in this group.</li>
+<li><strong>Start MD</strong> &ndash; Position, in Measured depth along the well, of the first fishbone Sub.</li>
+<li><strong>End MD</strong> &ndash; Position of the last fishbone Sub.</li>
+<li><strong>Number of Subs</strong> &ndash; Defines the number of subs to create in the defined interval</li>
+<li><strong>Spacing</strong> &ndash; Spacing between the subs within the interval</li>
+<li><strong>Measured Depths</strong> &ndash; The measured depth of each of the fishbone subs. If the <strong>Location Defined By</strong> is set to the <strong>User Specified</strong> this will be directly editable by the user.</li>
+</ul></li>
+<li><strong>Laterals Configuration</strong> &ndash; Configures the laterals at each sub position.<br />
+
+<ul>
+<li><strong>Laterals Per Sub</strong> &ndash; Number of laterals for each sub position</li>
+<li><strong>Lenght(s)</strong> &ndash; Length of each lateral, in m or ft.</li>
+<li><strong>Exit Angle</strong> &ndash; Exit angle for fishbone lateral, in degree.</li>
+<li><strong>Build Angle</strong> &ndash; Build angle for fishbone lateral, in degree pr meter.</li>
+<li><strong>Orientation</strong></li>
+<li><strong>Fixed Angle</strong> &ndash; The user can specify the angle for the first lateral</li>
+<li><strong>Random angle</strong> &ndash; Each sub will have a random orientation. Notice that the angle between each of the laterals will be constant, with the laterals equally spaced.</li>
+<li><strong>Install Success Rate</strong> &ndash; Gives the probability of success for installation of each of the fishbones laterals. If 1, all laterals are installed.<br /></li>
+</ul></li>
+<li><strong>Well Properties</strong> &ndash; Settings to control the connection factor calculation used in <a href="/ResInsight-UserDocumentation/export/completionexport/">Completion Export</a>)
+
+<ul>
+<li><strong>Hole Diameter</strong> &ndash; The hole diameter of the lateral</li>
+<li><strong>Skin Factor</strong> &ndash; The skin factor used in the transmissibility calculation for the lateral.</li>
+</ul></li>
+<li><strong>Multi Segment Wells</strong> &ndash; Settings used for Well Segment Export
+
+<ul>
+<li><strong>Tubing Diameter</strong> &ndash; The diameter used in the <em>WELSEGS</em> export of the laterals.</li>
+<li><strong>Open Hole Roughness Factor</strong> &ndash; Exported directly to the <em>WELSEGS</em> keyword.</li>
+<li><strong>Tubing Roughness Factor</strong> &ndash; Exported directly to the <em>WELSEGS</em> keyword.</li>
+<li><strong>ICDs per Sub</strong> &ndash; The number of ICD (valves) per Sub, used for calculation of total ICD area for <em>WSEGVALV</em> export.</li>
+<li><strong>ICD Orifice Diameter</strong> &ndash; The Diameter of the ICD, used for calculation of ICD area for <em>WSEGVALV</em> export.</li>
+<li><strong>ICD Flow Coefficient</strong> &ndash; The flow coefficient, exported directly as a part of <em>WSEGVALV</em>.</li>
+</ul></li>
+</ul>
+
+<h3 id="import-well-trajectories-as-fishbones-laterals">Import Well Trajectories as Fishbones Laterals</h3>
+
+<p>The command <strong>Import Completions From File</strong> can be used to import well trajectories in the <em><code>*.dev</code></em> format as fishbone laterals.  The imported laterals are listed under the folder <strong>Imported Laterals</strong> in the <strong>Project Tree</strong>. These laterals behave as completions, and will be exported when exporting completion data using the settings in the property panel of the <strong>Imported Laterals</strong> folder.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/Fishbones_LateralsMSWprop.png" alt="" /></p>
+
+<h3 id="export-fishbones-as-well-trajectories">Export Fishbones as Well Trajectories</h3>
+
+<p>The <strong>Export Laterals</strong> command will export the fishbone laterals as a well trajectory into a  <em><code>*.dev*</code></em> -file.</p>
+
+
+<div class="notices info" ><p>Notice that only the trajectory data is exported. Properties related to well segment data or Completion Data export can not be written to <code><em>.dev</em></code> files.</p>
+</div>
+
+
+<h2 id="fractures">Fractures</h2>
+
+<p>Hydraulic fractures are completions created by pressurizing the reservoir at a certain point in the well, and thereby creating a crack in the formation. A substance is then injected into the crack to keep it open when relaxing the pressure.</p>
+
+<p>Fractures in ResInsight can be added both to simulation wells and Well Trajectories, and have two main types: Elliptical fractures and StimPlan fractures.</p>
+
+<h3 id="visualization-control">Visualization control</h3>
+
+<p>The <strong>Fractures</strong> item in the <strong>Project Tree</strong> controls whether to show the modeled fractures or not. For fractures along the well path the <strong>Perforation Length</strong> is shown as an olive green cylinder around the well path as shown in the image below.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/FractureVizControl.png" alt="" /></p>
+
+<ul>
+<li><strong>Colors</strong> &ndash; Control the color settings for the fractures in the View
+
+<ul>
+<li><strong>Result Variable</strong> &ndash; Selects the fracture result to use for coloring the fracture. This is most interesting when you have imported a StimPlan fracture with varying width, conductivity and other parameters. The legend item in the <strong>Project Tree</strong> controls how the legend is set up.</li>
+<li><strong>Default Color</strong> &ndash; The color to use if the requested result is not available for some fracture.</li>
+</ul></li>
+<li><strong>StimPlan</strong>
+
+<ul>
+<li><strong>Show Mesh</strong> &ndash; Toggles the visualization of the StimPlan mesh lines, showing the StimPlan cell borders</li>
+<li><strong>Color Interpolation</strong> &ndash; Toggles interpolation of the StimPlan results. When Off, one color per StimplanCell is shown. When on, ResInsight interpolates the color between the cells.
+<br /></li>
+</ul></li>
+</ul>
+
+<h3 id="fracture-templates">Fracture Templates</h3>
+
+<p>To create a functioning fracture you first need a <strong>Fracture Template</strong>. The template collects settings that are likely to be shared among several fractures, most importantly the fracture geometry. A fracture at a particular place refers to the template, and it is thereby possible to share fracture geometry and other settings between fracture instances.</p>
+
+<p>Fracture Templates are listed in a folder with the same name in the <strong>Project Tree</strong>.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/FractureTemplates.png" alt="" /></p>
+
+<p>To create a new fracture template, right-click the <strong>Fracture Template</strong> item in the tree, and select either <strong>New Ellipse Fracture Template</strong> or <strong>New StimPlan Fracture Template</strong>. If you have no existing fracture templates, you will be given the opportunity to create such templates through two buttons in the Fracture Property Editor as seen below.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/CreateFractureTemplate.png" alt="" /></p>
+
+<h4 id="common-fracture-template-options">Common Fracture Template Options</h4>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/CommonFractureTemplateProperties.png" alt="" /></p>
+
+<ul>
+<li><strong>Name</strong> &ndash; User defined name for the template. Used when selecting which template to use in the Fracture</li>
+<li><strong>ID</strong> &ndash; Assigned ID to be used when addressing this template form a Command file script</li>
+<li><strong>Geometry</strong>
+
+<ul>
+<li><strong>Fracture Orientation</strong> &ndash; The fractures orientation</li>
+<li><strong>Transverse(normal) to Well Path</strong> &ndash; The fracture plane is vertical and normal to the well path at the intersection point.</li>
+<li><strong>Along Well Path</strong> &ndash; Fracture is vertical and along the well path. This option enables options to control the perforation length and the efficiency of the well in the fracture. See below.</li>
+<li><strong>Azimuth</strong> &ndash; The fracture is vertical and in line with the Azimuth Angle (measured from North) supplied.</li>
+</ul></li>
+<li><strong>Fracture Truncation</strong>
+
+<ul>
+<li><strong>Use Containment</strong> &ndash; Enable this option to activate layer containment.</li>
+<li><strong>Top Layer</strong> &ndash; Topmost K-layer that the fracture will drain.</li>
+<li><strong>Base Layer</strong> &ndash; Lowest K-layer that the fracture will drain.</li>
+<li><strong>Truncate At Faults</strong> &ndash; Enable this option to activate fault truncation.</li>
+<li><strong>Minimum Fault Throw</strong> &ndash; Fault throw threshold to activate fault truncation.</li>
+</ul></li>
+<li><strong>Properties</strong> &ndash; The availability of these options depend on the <strong>Fracture Orientation</strong> and the <strong>Conductivity in Fracture</strong> setting.
+
+<ul>
+<li><strong>Conductivity in Fracture</strong></li>
+<li><strong>Finite Conductivity</strong> &ndash; Use a calculated conductivity for flow in the fracture. Either the StimPlan conductivity, or a constant conductivity in Ellipse fractures.</li>
+<li><strong>Infinite Conductivity</strong> &ndash; Assume infinite conductivity in the fracture itself. For StimPlan fractures this will ignore the conductivity in the StimPlan data.</li>
+<li><strong>Skin Factor</strong> &ndash; Used when exporting to Eclipse.</li>
+<li><strong>Perforation Length</strong> &ndash; The length of the intersection between the well bore and the fracture when the fracture is along the well path ( Fractures <strong>Along Well Path</strong> only ).</li>
+<li><strong>Perforation Efficiency</strong> &ndash; The efficiency of the wellbore-fracture perforation ( Fractures <strong>Along Well Path</strong> only ).</li>
+<li><strong>Well Diameter</strong> &ndash; Used when exporting to Eclipse.</li>
+</ul></li>
+<li><strong>Sensitivity Scale Factors</strong> &ndash; Each of the properties are scaled by the scaling factor. When used interactively, the <strong>Apply</strong> button must be pressed to apply the scaling factors. These scaling factors are also available from command file scripting
+
+<ul>
+<li><strong>Height, Width</strong> &ndash; Scales the height or the <em><em>Halflength</em></em> of the fracture template</li>
+<li><strong>D-factor</strong> &ndash; Scales the none-darcy flow factor</li>
+<li><strong>Conductivity</strong> &ndash; Scales the conductivity in the fracture directly</li>
+</ul></li>
+</ul>
+
+<h4 id="non-darcy-flow">Non-Darcy Flow</h4>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/FractureNonDarcyFlow.png" alt="" /></p>
+
+<p>Non-Darcy Flow is used to improve the computation of connection factors for cells penetrated by well pipes. A pre-computed D-factor can be set using <strong>User Defined D-factor</strong>. Selecting the option <strong>Compute D-factor</strong> displays the following set of properties:</p>
+
+<ul>
+<li><strong>Inertial Coefficient</strong>
+
+<ul>
+<li><strong>User Defined</strong> &ndash; Beta-factor in Forcheimer units</li>
+<li><strong>Use Fracture Beta Factor</strong> &ndash; Extract beta factor from the fracture template at the well intersection location. For transversal fractures, the conductivity is computed from the geometric average of fracture cells intersected by the fracture perforation length.</li>
+</ul></li>
+<li><strong>Effective Permeability</strong>
+
+<ul>
+<li><strong>User Defined</strong> &ndash; Defines the permeability <em>Ke</em> in milliDarcy in the property <strong>Effective Permeability</strong></li>
+<li><strong>Use Fracture Conductivity</strong> &ndash; Extract conductivity from the fracture template at the well intersection location and scale with <strong>Relative Permeability</strong>. For transversal fractures, the conductivity is computed from the weighted average of fracture cells intersected by the fracture perforation length.</li>
+</ul></li>
+<li><strong>Width</strong>
+
+<ul>
+<li><strong>User Defined</strong> &ndash; Defines the width of the fracture</li>
+<li><strong>Use Fracture Width</strong> &ndash; Extract width from the fracture template at the well intersection location. For transversal fractures, the width is based on the weighted average of fracture cells intersected by the fracture perforation length.</li>
+</ul></li>
+<li><strong>Relative Gas Density</strong></li>
+<li><strong>Gas Viscosity</strong></li>
+<li><strong>D Factor</strong> &ndash; Displays the computed value of the D factor. NOTE : For <em>transversal fractures</em>, the computed D factor is scaled by 1.2 to compensate for a different flow model</li>
+<li><strong>D Factor Details</strong> &ndash; Displays the value of variables used to compute the D factor</li>
+</ul>
+
+<h4 id="ellipse-fracture-template">Ellipse Fracture Template</h4>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/EllipseFractureTemplateProperties.png" alt="" /></p>
+
+<ul>
+<li><strong>Name</strong> &ndash; User name of this particular fracture template</li>
+<li><strong>Geometry</strong>
+
+<ul>
+<li><strong>Halflength X<sub>r</sub></strong> &ndash; Half the width of the ellipse</li>
+<li><strong>Height</strong> &ndash; The height of the elliptical fracture</li>
+<li><strong>Fracture Orientation</strong> &ndash; See above</li>
+</ul></li>
+<li><strong>Fracture Truncation</strong> &ndash; See above</li>
+<li><strong>Properties</strong> &ndash; The availability of these options depend on the <strong>Fracture Orientation</strong> and the <strong>Conductivity in Fracture</strong> setting
+
+<ul>
+<li><strong>Permeability</strong> &ndash; A constant permeability inside the fracture (Used to calculate conductivity in the fracture)</li>
+<li><strong>Width</strong> &ndash; Crack width (Used to calculate conductivity in the fracture)</li>
+</ul></li>
+<li><strong>Sensivity Scale Factors</strong> &ndash; See above</li>
+<li><strong>Non-Darcy Flow</strong> &ndash; See above</li>
+</ul>
+
+<h4 id="stimplan-fracture-template">Stimplan Fracture Template</h4>
+
+<p>StimPlan fracture templates imports XML output from the StimPlan software. These XML files contains results from a simulated hydraulic fracture, describing both geometry, varying crack width, resulting conductivity etc. as time varying quantities. Both symmetric and asymmetric StimPlan fracture templates are supported.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/StimplanFractureTemplateProperties.png" alt="" /></p>
+
+<ul>
+<li><strong>Name</strong> &ndash; User name of this particular fracture template</li>
+<li><strong>Show StimPlan Mesh</strong> &ndash; Show or hide the mesh lines on the fracture in the 3D View</li>
+<li><strong>Input</strong>
+
+<ul>
+<li><strong>File Name</strong> &ndash; Path to the imported StimPlan XML-file</li>
+<li><strong>Active Time step Index</strong> &ndash; Time step in the StimPlan simulation to use for transmissibility calculations and visualization</li>
+<li><strong>Well/fracture Intersection Depth</strong> &ndash; The position of the fracture along the well path as MD.</li>
+</ul></li>
+<li><strong>Geometry</strong>
+
+<ul>
+<li><strong>Fracture Orientation</strong> &ndash; See above</li>
+</ul></li>
+<li><strong>Fracture Truncation</strong> &ndash; See above</li>
+<li><strong>Properties</strong>
+
+<ul>
+<li><strong>Conductivity Scaling Factor</strong> &ndash; Scale the overall conductivity to do sensitivity studies.</li>
+</ul></li>
+<li><strong>Sensitivity Scale Factors</strong> &ndash; See above</li>
+<li><strong>Non-Darcy Flow</strong> &ndash; See above</li>
+</ul>
+
+<h3 id="fracture-instances">Fracture Instances</h3>
+
+<p>Instances of fractures can be created along well paths and simulation wells by right clicking the well pipe in the 3D view, or the corresponding items in the <strong>Project Tree</strong>.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/FractureInstancePropertyPanel.png" alt="" /></p>
+
+<ul>
+<li><strong>Name</strong> &ndash; User editable name</li>
+<li><strong>Fracture Template</strong> &ndash; Select the fracture template to use for this fracture. Click the <strong>Edit</strong> shortcut next to the template selection list to go directly to modify the selected template.</li>
+<li><strong>Location/Orientation</strong>
+
+<ul>
+<li><strong>Measured depth Location</strong> &ndash; The measured depth</li>
+<li><strong>Azimuth</strong> &ndash; Azimuth orientation of fracture.</li>
+<li><strong>Dip</strong> &ndash; Dip of fracture plane</li>
+<li><strong>Tilt</strong> &ndash; Rotation of fracture about its plane normal</li>
+</ul></li>
+<li><strong>Properties</strong>
+
+<ul>
+<li><strong>Fracture Unit System</strong> &ndash; Read only display of the units used for the current template</li>
+<li><strong>StimPlan Time Step</strong> &ndash; Displays the time step used by the template</li>
+<li><strong>Perforation Length</strong> / <strong>Perforation Efficiency</strong> / <strong>Well Diameter</strong> &ndash; These values are copied from the new template when selecting a different one. See <a href="/ResInsight-UserDocumentation/wells-and-completions/completions/#common-fracture-template-options">Common Fracture Template Options</a><br /></li>
+</ul></li>
+<li><strong>Fracture Center Info</strong> &ndash; This group displays info on where the center of the fracture is positioned. The center is defined to be where the well path intersects the fracture.</li>
+</ul>
+
+<h3 id="multiple-fracture-creation">Multiple Fracture Creation</h3>
+
+<p>In some cases the user wants to create a number of fractures on one or more well paths. Doing this by creating one by one fracture can be very error prone and time consuming. To ease this task, ResInsight has support for creating several fractures in one operation.</p>
+
+<p>Select one or more well paths in the project tree, right click and select <strong>Create Multiple Fractures</strong> from the right-click menu. Then the <strong>Create Multiple Fractures</strong> dialog appears. In this dialog, the user defines where fractures will be created on the selected well paths. Different fracture templates and spacing can be used for different K layer ranges in the grid, by adding new options lines to the table. To edit an option line, double click the field to edit. Adding and deleting option lines are done by right clicking the table.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/3d-main-window/CreateMultipleFracturesDialog.png" alt="" /></p>
+
+<ul>
+<li><strong>Case</strong> &ndash; Current grid case</li>
+<li><strong>Min Distance From Well TD</strong> &ndash; Minimum distance from well tip for created fractures</li>
+<li><strong>Max Fractures Per Well</strong> &ndash; Maximum number of fractures to create per well</li>
+<li><strong>Options</strong>
+
+<ul>
+<li><strong>Top K Layer</strong> &ndash; The topmost K layer to add fractures to</li>
+<li><strong>Base K Layer</strong> &ndash; The bottommost K layer to add fractures to</li>
+<li><strong>Template</strong> &ndash; The fracture template used in the specified K layer range</li>
+<li><strong>Spacing</strong> &ndash; The distance between each fracture in the K layer range</li>
+</ul></li>
+<li><strong>Generated Fractures</strong> &ndash; Output information to the user. Shows number of fractures that will be created on each selected well path</li>
+<li><strong>Replace Fractures</strong> &ndash; Press this button to delete all existing fractures on the selected wells before creating new fractures</li>
+<li><strong>Add Fractures</strong> &ndash; Press this button to add the new fractures to all selected wells (not deleting existing fractures)</li>
+</ul>
+
+<p>The Create Multiple Fractures function is also available as a CommandFile command. See the <a href="/ResInsight-UserDocumentation/scripting/commandfile/">CommandFile section</a></p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2296,6 +2828,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2308,6 +2841,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2373,6 +2909,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2388,6 +2925,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +3352,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/ResInsight-UserDocumentation/wells-and-completions/3dwelllogcurves/" title="3D Well Log Plots"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/ResInsight-UserDocumentation/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/ResInsight-UserDocumentation/wells-and-completions/completionslgr/" title="Completions LGR" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/ResInsight-UserDocumentation/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Snapshots :: ResInsight</title>
 
     
     <link href="/ResInsight-UserDocumentation/css/nucleus.css?1566894805" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/ResInsight-UserDocumentation/">
+  <body class="" data-url="/ResInsight-UserDocumentation/export/snapshots/">
     <nav id="sidebar" class="">
 
 
@@ -1139,7 +1139,7 @@
   
     
     <li data-nav-id="/ResInsight-UserDocumentation/export/" title="Export" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1163,7 +1163,7 @@
  
   
     
-      <li data-nav-id="/ResInsight-UserDocumentation/export/snapshots/" title="Snapshots" class="dd-item ">
+      <li data-nav-id="/ResInsight-UserDocumentation/export/snapshots/" title="Snapshots" class="dd-item active">
         <a href="/ResInsight-UserDocumentation/export/snapshots/">
         Snapshots
         
@@ -1558,86 +1558,151 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/ResInsight-UserDocumentation/'>ResInsight</a> > <a href='/ResInsight-UserDocumentation/export/'>Export</a> > Snapshots
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#snapshots-of-existing-views">Snapshots of Existing Views</a>
+<ul>
+<li><a href="#snapshot-to-clipboard-hahahugoshortcode-s1-hbhb">Snapshot to Clipboard HAHAHUGOSHORTCODE-s1-HBHB</a></li>
+<li><a href="#snapshot-to-file-hahahugoshortcode-s2-hbhb">Snapshot to File HAHAHUGOSHORTCODE-s2-HBHB</a></li>
+<li><a href="#snapshot-all-views-plots-to-file-hahahugoshortcode-s3-hbhb">Snapshot All Views/Plots to File HAHAHUGOSHORTCODE-s3-HBHB</a></li>
+</ul></li>
+<li><a href="#advanced-snapshot-export-hahahugoshortcode-s5-hbhb">Advanced Snapshot Export HAHAHUGOSHORTCODE-s5-HBHB</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Snapshots
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p>ResInsight has several commands to create snapshots conveniently. 3 commands to take snapshots of existing Plot and 3D Views directly, and a more advanced export command that can automatically modify Eclipse 3D Views before snapshotting them.</p>
 
-<p><img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="" /></p>
+<h2 id="snapshots-of-existing-views">Snapshots of Existing Views</h2>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>The commands to snapshot existing views and plots are available from the toolbar and the <strong>Edit</strong> and <strong>File</strong>-&gt;<strong>Export</strong> menus in the main windows <img src="https://opm.github.io/ResInsight-UserDocumentation/images/export/SnapShotToolBar.png" style="display:inline; vertical-align:middle; margin:0">
+</p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/ResInsight-UserDocumentation/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/ResInsight-UserDocumentation/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/ResInsight-UserDocumentation/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<h3 id="snapshot-to-clipboard-hahahugoshortcode-s1-hbhb">Snapshot to Clipboard <img src="https://opm.github.io/ResInsight-UserDocumentation/images/export/SnapShot.png" style="display:inline; vertical-align:middle; margin:0">
+</h3>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/ResInsight-UserDocumentation/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p>A snapshot of the active view is copied to the clipboard using <strong>Edit -&gt; Copy Snapshot To Clipboard</strong>.</p>
+
+<h3 id="snapshot-to-file-hahahugoshortcode-s2-hbhb">Snapshot to File <img src="https://opm.github.io/ResInsight-UserDocumentation/images/export/SnapShotSave.png" style="display:inline; vertical-align:middle; margin:0">
+</h3>
+
+<p>Image export of the currently active 3D View or Plot Window can be launched from <strong>File -&gt; Export -&gt; Snapshot To File</strong>.</p>
+
+<h3 id="snapshot-all-views-plots-to-file-hahahugoshortcode-s3-hbhb">Snapshot All Views/Plots to File <img src="https://opm.github.io/ResInsight-UserDocumentation/images/export/SnapShotSaveViews.png" style="display:inline; vertical-align:middle; margin:0">
+</h3>
+
+<p>If a project contains multiple 3D Views or Plot Windows, all of them can be exported in one go using <strong>File -&gt; Export -&gt; Snapshot All Views To File</strong>. This will either export all the 3D Views or all the Plot Windows, depending on whether you invoke the command in the 3D Main Window or the Plot Main Window.</p>
+
+<p>The files generated are stored in a folder named <em><code>snapshots</code></em> within the folder where the Project File resides.</p>
+
+
+<div class="notices note" ><p>Snapshots of existing views can also be created and saved from the command line
+ ( See <a href="/ResInsight-UserDocumentation/scripting/commandlineinterface/">Command Line Interface</a> ).</p>
+</div>
+
+
+<h2 id="advanced-snapshot-export-hahahugoshortcode-s5-hbhb">Advanced Snapshot Export <img src="https://opm.github.io/ResInsight-UserDocumentation/images/export/SnapShotSaveViews.png" style="display:inline; vertical-align:middle; margin:0">
+</h2>
+
+<p>The <strong>Advanced Snapshot Export</strong> command is useful for exporting several images of a specified set of views while simultaneously changing some of their settings. By using this command it is easy to document all layers of a specific model, or generate images with identical setup across several different cases. It is also easy to export an image for each of the time steps in a case, or even a combination of all these parameters.</p>
+
+<p>The <strong>Advanced Snapshot Export</strong> is available from the <strong>File</strong>-&gt;<strong>Export</strong> menu in the <strong>3D Main Window</strong>
+Invoking the command will display the following dialog:</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/export/SnapshotAdvancedExport.png" alt="" /></p>
+
+<p>This table defines which 3D Views to modify, and how to modify them. Each row defines the modifications of a specific view, and for all the combinations a row specifies, a snapshot is generated.</p>
+
+<p>To edit a row, the row must be activated by toggling it on in the <strong>Active</strong> column, then double click on the cell to edit.</p>
+
+<p>Options represented by columns:</p>
+
+<ul>
+<li><strong>View</strong> &ndash; Selects the view to modify.</li>
+<li><strong>Result Type</strong>, <strong>Properties</strong> &ndash; Defines a list of eclipse result properties to cycle through when creating snapshots. If properties from both the dynamic and static list is needed, you must create a new row.</li>
+<li><strong>Start Time</strong>, <strong>End Time</strong> &ndash; Defines the time step range to cycle through when creating snapshots.</li>
+<li><strong>Range Filter Slice</strong>, <strong>Range Start</strong>, <strong>Range End</strong> &ndash; Defines a range filter slice that will be added to the view, and then cycled from <em>Range Start</em> to <em>Range End</em> when creating snapshots.</li>
+<li><strong>Cases</strong> &ndash; Defines the cases to cycle while creating snapshots. Normally you can not change which case a view is displaying, but this option does temporarily.</li>
+</ul>
+
+<p>The number of exported snapshots from a row can easily end up being huge, so it is wise to use some caution. The total number will be Properties * Time Steps * Range Steps * Cases.</p>
+
+<p>Rows can be deleted and created by right-clicking in the table. 5 rows are created for convenience by default.</p>
+
+<p>The snapshots will be generated and saved to the folder displayed in the <strong>Export Folder</strong> field, when pressing the <strong>Export</strong> button. This might take quite some time, depending on you settings.</p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2520,6 +2585,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2532,6 +2598,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
                     
                 
                 
@@ -2548,6 +2615,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2882,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/ResInsight-UserDocumentation/export/" title="Export"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/ResInsight-UserDocumentation/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/ResInsight-UserDocumentation/export/eclipseproperties/" title="Eclipse Properties" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

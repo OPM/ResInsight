@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/ResInsight-UserDocumentation/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>Grid Cross Plots :: ResInsight</title>
 
     
     <link href="/ResInsight-UserDocumentation/css/nucleus.css?1566894805" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/ResInsight-UserDocumentation/">
+  <body class="" data-url="/ResInsight-UserDocumentation/plot-window/gridcrossplots/">
     <nav id="sidebar" class="">
 
 
@@ -568,7 +568,7 @@
   
     
     <li data-nav-id="/ResInsight-UserDocumentation/plot-window/" title="Plot Main Window" class="dd-item 
-        
+        parent
         
         
         ">
@@ -801,7 +801,7 @@
  
   
     
-      <li data-nav-id="/ResInsight-UserDocumentation/plot-window/gridcrossplots/" title="Grid Cross Plots" class="dd-item ">
+      <li data-nav-id="/ResInsight-UserDocumentation/plot-window/gridcrossplots/" title="Grid Cross Plots" class="dd-item active">
         <a href="/ResInsight-UserDocumentation/plot-window/gridcrossplots/">
         Grid Cross Plots
         
@@ -1558,86 +1558,200 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/ResInsight-UserDocumentation/'>ResInsight</a> > <a href='/ResInsight-UserDocumentation/plot-window/'>Plot Main Window</a> > Grid Cross Plots
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#creating-grid-cross-plots">Creating Grid Cross Plots</a></li>
+<li><a href="#grid-cross-plot-data-sets">Grid Cross Plot Data Sets</a></li>
+<li><a href="#show-plot-data">Show Plot Data</a></li>
+<li><a href="#swap-axes">Swap Axes</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Grid Cross Plots
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p><img src="/ResInsight-UserDocumentation/images/plot-window/GridCrossPlot.png" alt="" /></p>
 
-<p><img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="" /></p>
+<p>ResInsight supports the creation of scatter / cross plots of two Eclipse results against each  other, with each cell in the grid
+representing one data point in the plot. The data points can be grouped by a third result, by time step or by <strong>Formations</strong>.
+giving a separate color and label for each group. The above example shows a classic Porosity vs Permeability plot, grouped by
+formations, showing different trends for each formation.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<p>For continuous grouping parameters, the parameter will be divided into a set of equally sized intervals depending on the number of Color Legend intervals.</p>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/ResInsight-UserDocumentation/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/ResInsight-UserDocumentation/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/ResInsight-UserDocumentation/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p>Each cross plot can contain any number of <strong>Data Sets</strong>, representing a collection of cross plot points, where the <strong>Data Set</strong> can have a case source, time step and cell filter associated with it. This way, dynamic parameters for different time steps can be compared, or results from different case realizations.</p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/ResInsight-UserDocumentation/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<p>The Grid Cross plots may have a Symbol Legend below the plot, separating the Data Sets, and a Color Legend within the plot separating between the different Grouping categories or intervals. In addition, an Info Box will be added to the upper right corner of the plot, showing the different data sets in the plot and the parameters used. The Color Legends and Info Box can be moved to other parts of the plot and will snap to edges and corners when moved close to them.</p>
+
+<h2 id="creating-grid-cross-plots">Creating Grid Cross Plots</h2>
+
+<p><img src="/ResInsight-UserDocumentation/images/plot-window/GridCrossPlot_CreateFromView.png" alt="" />
+<img src="/ResInsight-UserDocumentation/images/plot-window/GridCrossPlot_Create.png" alt="" /></p>
+
+<p>Grid Cross Plots can be created in a couple of ways:</p>
+
+<ol>
+<li>Select a 3D view or Cell Result in the main ResInsight window, right-click and select <strong>Create Grid Cross Plot from 3d View</strong>. The resulting cross plot will display the current 3d Result x DEPTH and only contain data points for the visible cells.</li>
+<li>Right-click on the <strong>Grid Cross Plots</strong> entry under <strong>Plots</strong> in the <strong>Plot Window</strong>. By default the plot will contain the result values PORO x PERMX and will be grouped by formations (if any are loaded in the project). Data for all active cells will be displayed.</li>
+</ol>
+
+<p>Having created a Grid Cross Plot, the appearance of the Legends, the Info box and the Plot Title can be set in the Property Editor of the Grid Cross Plot.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/plot-window/GridCrossPlot_PropertyEditor.png" alt="" />
+<img src="/ResInsight-UserDocumentation/images/plot-window/GridCrossPlotAxis_PropertyEditor.png" alt="" /></p>
+
+<p>The plot also have some available settings for the two plot axes (X and Y), where the title position and font size can be altered plus the axis range may be controlled and the axis may be set as logarithmic and inverted so the smallest value is first (default for DEPTH on the Y-axis).</p>
+
+<h2 id="grid-cross-plot-data-sets">Grid Cross Plot Data Sets</h2>
+
+<p>Further Grid Cross Plot data sets can be added to a Plot by right clicking on the plot in the Project Tree and selecting <strong>New Data Set</strong>.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/plot-window/GridCrossPlotDataSet_Create.png" alt="" /></p>
+
+<p>The Data Sets contain all the parameters controlling the data source and types of data being plotted.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/plot-window/GridCrossPlotDataSet_PropertyEditor.png" alt="" /></p>
+
+<p>The available parameters are:</p>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Case</td>
+<td>The Eclipse Case containing the data</td>
+</tr>
+
+<tr>
+<td>Time Step</td>
+<td>Show data for All Time Steps or just a specific time step</td>
+</tr>
+
+<tr>
+<td>Filter by 3d View Visibility</td>
+<td>Pick a view to use only the cells visible in that view. Allows the use of range and property filters</td>
+</tr>
+
+<tr>
+<td>Group Data by</td>
+<td>Group and color data points by <strong>Time Step</strong>, <strong>Result Property</strong> or <strong>Formations</strong></td>
+</tr>
+
+<tr>
+<td>Data Grouping Property</td>
+<td>Available if grouping by <strong>Result Property</strong> and lets you pick any Eclipse result property and the number of intervals to divide the data into</td>
+</tr>
+
+<tr>
+<td>X-Axis Property</td>
+<td>The property representing the X-axis in the cross plot</td>
+</tr>
+
+<tr>
+<td>Y-Axis Property</td>
+<td>The property representing the Y-axis in the cross plot</td>
+</tr>
+
+<tr>
+<td>Name Configuration</td>
+<td>Add Case Name, Axis Variables, Time Step and/or Data Group to the name of the Data set</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="show-plot-data">Show Plot Data</h2>
+
+<p>The data used to create the Cross Plot can be exported by either right-clicking on the Cross Plot in the project tree or right clicking on the plot itself and selecting <strong>Show Plot Data</strong>.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/plot-window/GridCrossPlot_ShowData_ProjectTree.png" alt="" />
+<img src="/ResInsight-UserDocumentation/images/plot-window/GridCrossPlot_ShowData_PlotContext.png" alt="" /></p>
+
+<p>Either method will bring up a dialog containing column-based text showing the X and Y result values, the Group index and Group Description (the latter two if Grouping is enabled). One tab in the dialog will be added for each Data Set. The data can be copied to the clipboard or exported to file by right-clicking on the text area.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/plot-window/GridCrossPlot_ShowData.png" alt="" /></p>
+
+<h2 id="swap-axes">Swap Axes</h2>
+
+<p>The X- and Y-axes can be swapped, both for invididual data sets, by choosing <strong>Swap Axis Properties</strong> from the right-click menu of the Grid Cross Plot <strong>Data Set</strong>, or for all data sets by right clicking on either the Cross Plot in the Project Tree or on the plot itself and selecting <strong>Swap Axis Properties for all Data Sets in Plot</strong>. The X- and Y-axis will swap place retaining the properties, such as Logarithmic or inverted axes.</p>
+
+<p><img src="/ResInsight-UserDocumentation/images/plot-window/GridCrossPlot_SwapAxes.png" alt="" /></p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
@@ -2072,6 +2186,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2084,6 +2199,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2261,6 +2379,7 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
                 
                     
+                    
                 
                 
 
@@ -2276,6 +2395,9 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2812,8 +2934,10 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 	 
 	 
 		
+			<a class="nav nav-prev" href="/ResInsight-UserDocumentation/plot-window/flowdiagnosticsplots/" title="Flow Diagnostics Plots"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/ResInsight-UserDocumentation/getting-started/" title="Getting Started" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/ResInsight-UserDocumentation/plot-window/saturationpressureplots/" title="Saturation Pressure Plots" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/ResInsight-UserDocumentation/images/favicon.png" type="image/png">
 
-    <title>ResInsight :: ResInsight</title>
+    <title>About :: ResInsight</title>
 
     
     <link href="/ResInsight-UserDocumentation/css/nucleus.css?1566894805" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/ResInsight-UserDocumentation/">
+  <body class="" data-url="/ResInsight-UserDocumentation/about/">
     <nav id="sidebar" class="">
 
 
@@ -1558,86 +1558,142 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            <a href='/ResInsight-UserDocumentation/'>ResInsight</a> > About
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#efficient-user-interface">Efficient User Interface</a></li>
+<li><a href="#data-support">Data Support</a></li>
+<li><a href="#updating-and-refining-eclipse-simulation-models">Updating and Refining Eclipse simulation models</a></li>
+<li><a href="#flow-diagnostics">Flow Diagnostics</a></li>
+<li><a href="#octave-integration">Octave Integration</a></li>
+<li><a href="#project-organization">Project organization</a></li>
+<li><a href="#licensing">Licensing</a></li>
+<li><a href="#web-site-programming-and-design">Web site programming and design</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              About
+            </h1>
+          
 
         
 
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
-
- 
 
 
-<p><title>ResInsight • 3D viewer and post processing of reservoir models</title></p>
 
-<h1 id="post-processing-of-reservoir-simulations">Post Processing of Reservoir Simulations</h1>
+<p>ResInsight is an open source, cross-platform 3D visualization, curve plotting and post processing tool for Eclipse reservoir models and simulations.
+It can also be configured to visualize geomechanical simulations from ABAQUS.</p>
 
-<p><img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="" /></p>
+<p>The system also constitutes a framework for further development and can be extended to support new data sources and visualization methods, e.g. additional solvers, seismic data, CSEM, and more.</p>
 
-<!--
-<section class="intro">
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p class="first">Post Processing of Reservoir Simulations</p>
-    </div>
-    <div class="post-content">
-      <img src="/ResInsight-UserDocumentation/images/FrontPageImage.png" alt="Reservoir" />
-    </div>
-  </div>
-</section> -->
+<h3 id="efficient-user-interface">Efficient User Interface</h3>
 
-<section class="features">
-  <div class="grid">
-    <div class="unit one-third">
-      <h3>Fast and Free</h3>
-      <p>
-        &#x2713; Open source<br>
-        &#x2713; Efficient user interface<br>
-    &#x2713; Handles large Eclipse cases<br>
-        &#x2713; Plotting of summary vectors<br>
-    &#x2713; Embedded Flow Diagnostics<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Unique Features</h3>
-      <p>
-        &#x2713; NNC visualization<br>
-        &#x2713; Cell Edge Coloring<br>
-        &#x2713; Detailed MSW visualization<br>
-        &#x2713; Seamless <a href="http://www.gnu.org/software/octave/"> Octave</a> integration<br>
-        &#x2713; Supports geomechanical ABAQUS simulations<br>
-      </p>
-    </div>
-    <div class="unit one-third">
-      <h3>Getting started</h3>
-      <p>
-        It's easy and free, both on Linux and Windows:
-      </p>
-      <a href="/ResInsight-UserDocumentation/getting-started/download-and-install/">Download and Install &rarr;</a><br>
-      <a href="/ResInsight-UserDocumentation/getting-started/">Getting Started &rarr;</a>
-      <p>Sign up to be notified of new releases:
-        <br>
-        <a href="/ResInsight-UserDocumentation/getting-started/other/releasenotification/">Release Notification &rarr;</a>
-      </p>
-      </div>
-    <div class="clear"></div>
-  </div>
+<p>The user interface is tailored for efficient interpretation of reservoir simulation data with specialized visualizations of properties, faults and wells. It enables easy handling of a large number of realizations and calculation of statistics. To be highly responsive, ResInsight exploits multi-core CPUs and GPUs. Efficient plotting of well log plots and summary vectors is available through selected plotting features.</p>
 
-  <div class="grid">
-    <div class="unit whole center-on-mobiles">
-      <p>Here are some words from a few of the happy ResInsight users <a href="/ResInsight-UserDocumentation/getting-started/other/testimonials/">Testimonials &rarr;</a> </p>
-    </div>
-  </div>
-</section>
+<h3 id="data-support">Data Support</h3>
+
+<p>The main input data is
+<em><code>*.GRID</code></em> and <em><code>*.EGRID</code></em> files along with their <em><code>*.INIT</code></em> and restart files <em><code>*.XNNN</code></em> and <em><code>*.UNRST</code></em>.
+Summary vectors can be imported from <em><code>*.SMSPEC</code></em> files.
+ResInsight also supports selected parts of Eclipse input files and can read grid
+information and corresponding cell property data sets from <em><code>*.GRDECL</code></em> files.
+Well log data can be imported from <em><code>*.LAS</code></em> files.</p>
+
+<p>ResInsight can also be built with support for Geomechanical models from ABAQUS in the <em><code>*.odb</code></em> file format.</p>
+
+<h3 id="updating-and-refining-eclipse-simulation-models">Updating and Refining Eclipse simulation models</h3>
+
+<p>ResInsight contains several pre-processing tools for updating and improving Eclipse reservoir models, including but not limited to:</p>
+
+<ul>
+<li>Adding <strong>Well Path Completions</strong> such as fractures, fishbones and perforations to well paths, including transmissibility calculations to allow for simulation in Eclipse.</li>
+<li>Easily and visually generate setup files for <strong>Local Grid Refinement</strong> (LGR)</li>
+<li>The generation of Eclipse <strong>Multi Segment Well</strong>-models for well path completions.</li>
+</ul>
+
+<h3 id="flow-diagnostics">Flow Diagnostics</h3>
+
+<p>Flow diagnostics calculations are embedded in the user interface and allows instant visualization of several well-based flow diagnostics properties, such as : Time of flight, flooding and drainage regions, well pair communication, well tracer fractions, well allocation plots and well communication lines. The calculations are performed by a library called <a href="https://github.com/OPM/opm-flowdiagnostics">opm-flowdiagnostics</a> developed by <a href="http://www.sintef.no/digital">SINTEF Digital</a>. <a href="/ResInsight-UserDocumentation/3d-main-window/cellresults/#flow-diagnostic-results">More&hellip;</a></p>
+
+<h3 id="octave-integration">Octave Integration</h3>
+
+<p>Integration with GNU Octave enables powerful and flexible result manipulation and computations. Derived results can be returned to ResInsight for further handling and visualization. Eventually, derived and computed properties can be directly exported to Eclipse input formats for further simulation cycles and parameter studies.</p>
+
+<h3 id="project-organization">Project organization</h3>
+
+<p>ResInsight is developed by <a href="https://www.ceetronsolutions.com/">Ceetron Solutions</a> in collaboration with with <a href="https://www.equinor.com/">Equinor</a>.</p>
+
+<p>ResInsight is a part of the <a href="http://opm-project.org/">Open Porous Media Initiative</a>.
+The software is hosted at <a href="https://github.com/OPM/ResInsight">GitHub</a>, and the development progress can be monitored there. The GitHub issue tracker is heavily used to organize the development process.</p>
+
+<h3 id="licensing">Licensing</h3>
+
+<p>The software is licensed under GPL 3+, see <a href="https://github.com/OPM/ResInsight/blob/master/COPYING">Licensing details</a>.</p>
+
+<h3 id="web-site-programming-and-design">Web site programming and design</h3>
+
+<p>Web site is built with <a href="https://getgrav.org">Grav</a> and <a href="https://gohugo.io">Hugo</a></p>
+
+
+<footer class=" footline" >
 	
-  
+</footer>
+
+
         
         </div> 
         
