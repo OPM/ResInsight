@@ -18,44 +18,45 @@
 
 #include "RicSummaryPlotFeatureImpl.h"
 
-#include "RimSummaryCurve.h"
-#include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
-#include "RimProject.h"
-#include "RimMainPlotCollection.h"
-#include "RimSummaryCase.h"
-#include "RimEnsembleCurveSet.h"
-#include "RimEnsembleCurveSetCollection.h"
-
-#include "RiuPlotMainWindowTools.h"
-#include "RiuMainWindow.h"
-
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaDefines.h"
+#include "RiaEclipseFileNameTools.h"
+#include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
-#include "RiaEclipseFileNameTools.h"
-#include "RiaDefines.h"
+
+#include "RicCreateSummaryCaseCollectionFeature.h"
+#include "RicImportGeneralDataFeature.h"
+#include "RicImportSummaryCasesFeature.h"
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RifSummaryReaderInterface.h"
 
-#include "RicImportGeneralDataFeature.h"
-#include "RicCreateSummaryCaseCollectionFeature.h"
-#include "RicImportSummaryCasesFeature.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 
-#include <QStringList>
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseResultCase.h"
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
+#include "RimGridTimeHistoryCurve.h"
+#include "RimMainPlotCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
+
+#include "RiuMainWindow.h"
+#include "RiuPlotMainWindowTools.h"
+
 #include <QFileInfo>
 #include <QRegularExpression>
-#include "RiaImportEclipseCaseTools.h"
-#include "RimEclipseCase.h"
-#include "RimGridTimeHistoryCurve.h"
-#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
-#include "RimEclipseResultCase.h"
-#include "RimOilField.h"
-#include "RimEclipseCaseCollection.h"
-#include "RigEclipseResultAddress.h"
-#include "RigEclipseCaseData.h"
-#include "RigCaseCellResultsData.h"
+#include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
 ///
