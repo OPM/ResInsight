@@ -19,6 +19,8 @@
 #include "RimEclipseGeometrySelectionItem.h"
 
 #include "RigTimeHistoryResultAccessor.h"
+#include "RigEclipseCaseData.h"
+#include "RigGridBase.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -59,6 +61,24 @@ void RimEclipseGeometrySelectionItem::setFromSelectionItem(const RiuEclipseSelec
     m_localIntersectionPointInDisplay = selectionItem->m_localIntersectionPointInDisplay;
 
     m_eclipseCase = selectionItem->m_view->eclipseCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseGeometrySelectionItem::setFromCaseGridAndIJK(RimEclipseCase* eclipseCase,
+                                                            size_t gridIndex,
+                                                            size_t i,
+                                                            size_t j,
+                                                            size_t k)
+{
+    m_eclipseCase = eclipseCase;
+    m_gridIndex = gridIndex;
+
+    size_t lgrCellIndex = eclipseCase->eclipseCaseData()->grid(gridIndex)->cellIndexFromIJK(i, j, k);
+    size_t reservoirCellIndex = eclipseCase->eclipseCaseData()->grid(gridIndex)->reservoirCellIndex(lgrCellIndex);
+    m_cellIndex = reservoirCellIndex;
+
 }
 
 //--------------------------------------------------------------------------------------------------

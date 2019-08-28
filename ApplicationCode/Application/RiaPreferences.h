@@ -89,6 +89,7 @@ public: // Pdm Fields
     caf::PdmField<bool>     octaveShowHeaderInfoWhenExecutingScripts;
     
     caf::PdmField<QString>  pythonExecutable;
+    caf::PdmField<bool>     showPythonDebugInfo;
 
     caf::PdmField<QString>  ssihubAddress;
 
@@ -135,7 +136,7 @@ protected:
 private:
     static QString tabNameGeneral();
     static QString tabNameEclipse();
-    static QString tabNameEclipseSummary();
+    static QString tabNamePlotting();
     static QString tabNameScripting();
     static QString tabNameExport();
     static QString tabNameSystem();

@@ -32,6 +32,7 @@
 #include "cafPdmUiFilePathEditor.h"
 
 #include <QDate>
+#include <QDir>
 #include <QLocale>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
@@ -74,7 +75,10 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitFieldNoDefault(&scriptDirectories,        "scriptDirectory", "Shared Script Folder(s)", "", "", "");
     scriptDirectories.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
-    QString defaultTextEditor;
+	// TODO: This only currently works for installed ResInsight.
+	scriptDirectories = QCoreApplication::applicationDirPath() + "/Python/rips/PythonExamples";
+
+	QString defaultTextEditor;
 #ifdef WIN32
     defaultTextEditor = QString("notepad.exe");
 #else
@@ -101,6 +105,7 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&pythonExecutable, "pythonExecutable", QString("python"), "Python Executable Location", "", "", "");
     pythonExecutable.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     pythonExecutable.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    CAF_PDM_InitField(&showPythonDebugInfo, "pythonDebugInfo", false, "Show Python Debug Info", "", "", "");
 
     CAF_PDM_InitField(&ssihubAddress,                   "ssihubAddress", QString("http://"), "SSIHUB Address", "", "", "");
     ssihubAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
@@ -268,8 +273,6 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         viewsGroup->add(&showHud);
         
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup("Other");
-        otherGroup->add(&m_dateFormat);
-        otherGroup->add(&m_timeFormat);
         otherGroup->add(&ssihubAddress);
         otherGroup->add(&showLasCurveWithoutTvdWarning);
         otherGroup->add(&holoLensDisableCertificateVerification);
@@ -300,10 +303,12 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
             group->add(&summaryEnsembleImportMode);
         }
     }
-    else if (uiConfigName == RiaPreferences::tabNameEclipseSummary())
+    else if (uiConfigName == RiaPreferences::tabNamePlotting())
     {
         uiOrdering.add(&defaultSummaryCurvesTextFilter);
         uiOrdering.add(&defaultSummaryHistoryCurveStyle);
+        uiOrdering.add(&m_dateFormat);
+        uiOrdering.add(&m_timeFormat);
     }
     else if (uiConfigName == RiaPreferences::tabNameScripting())
     {
@@ -314,8 +319,9 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 #ifdef ENABLE_GRPC
         caf::PdmUiGroup* pythonGroup = uiOrdering.addNewGroup("Python");
         pythonGroup->add(&enableGrpcServer);
+        pythonGroup->add(&showPythonDebugInfo);
         pythonGroup->add(&defaultGrpcPortNumber);
-        pythonGroup->add(&pythonExecutable);
+        pythonGroup->add(&pythonExecutable);     
 #endif
         caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Script files");
         scriptGroup->add(&scriptDirectories);
@@ -426,9 +432,9 @@ QString RiaPreferences::tabNameEclipse()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameEclipseSummary() 
+QString RiaPreferences::tabNamePlotting() 
 {
-    return "Summary";
+    return "Plotting";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -464,7 +470,7 @@ QStringList RiaPreferences::tabNames()
 
     names << tabNameGeneral();
     names << tabNameEclipse();
-    names << tabNameEclipseSummary();
+    names << tabNamePlotting();
     names << tabNameScripting();
     names << tabNameExport();
 

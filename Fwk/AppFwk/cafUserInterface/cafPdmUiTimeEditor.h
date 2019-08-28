@@ -34,60 +34,56 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QTimeEdit>
 #include <QLabel>
 #include <QPointer>
 #include <QString>
+#include <QTimeEdit>
 #include <QWidget>
 
 namespace caf
 {
+//==================================================================================================
+///
+//==================================================================================================
+class PdmUiTimeEditorAttribute : public PdmUiEditorAttribute
+{
+public:
+    QString timeFormat;
 
-	//==================================================================================================
-	/// 
-	//==================================================================================================
-	class PdmUiTimeEditorAttribute : public PdmUiEditorAttribute
-	{
-	public:
-		QString timeFormat;
+public:
+    PdmUiTimeEditorAttribute() {}
+};
 
-	public:
-		PdmUiTimeEditorAttribute()
-		{
-		}
-	};
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class PdmUiTimeEditor : public PdmUiFieldEditorHandle
+{
+    Q_OBJECT
+    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
-	//--------------------------------------------------------------------------------------------------
-	/// 
-	//--------------------------------------------------------------------------------------------------
-	class PdmUiTimeEditor : public PdmUiFieldEditorHandle
-	{
-		Q_OBJECT
-			CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+public:
+    PdmUiTimeEditor() {}
+    ~PdmUiTimeEditor() override {}
 
-	public:
-		PdmUiTimeEditor() {}
-		~PdmUiTimeEditor() override {}
+protected:
+    QWidget* createEditorWidget(QWidget* parent) override;
+    QWidget* createLabelWidget(QWidget* parent) override;
+    void     configureAndUpdateUi(const QString& uiConfigName) override;
 
-	protected:
-		QWidget*    createEditorWidget(QWidget * parent) override;
-		QWidget*    createLabelWidget(QWidget * parent) override;
-		void        configureAndUpdateUi(const QString& uiConfigName) override;
+protected slots:
+    void slotEditingFinished();
+    void slotTimeChanged(const QTime& time);
 
-	protected slots:
-		void                slotEditingFinished();
+private:
+    QPointer<QTimeEdit>       m_timeEdit;
+    QPointer<QShortenedLabel> m_label;
 
-	private:
-		QPointer<QTimeEdit>      m_timeEdit;
-		QPointer<QShortenedLabel>         m_label;
-
-		PdmUiTimeEditorAttribute m_attributes;
-	};
-
+    PdmUiTimeEditorAttribute m_attributes;
+};
 
 } // end namespace caf

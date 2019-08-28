@@ -27,9 +27,9 @@
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcAppService::GetVersion(grpc::ServerContext* context, const rips::Empty* request, rips::Version* reply)
 {
-    reply->set_major_version(RESINSIGHT_MAJOR_VERSION);
-    reply->set_minor_version(RESINSIGHT_MINOR_VERSION);
-    reply->set_patch_version(RESINSIGHT_PATCH_VERSION);
+    reply->set_major_version(QString(RESINSIGHT_MAJOR_VERSION).toInt());
+    reply->set_minor_version(QString(RESINSIGHT_MINOR_VERSION).toInt());
+    reply->set_patch_version(QString(RESINSIGHT_PATCH_VERSION).toInt());
     return grpc::Status::OK;
 }
 

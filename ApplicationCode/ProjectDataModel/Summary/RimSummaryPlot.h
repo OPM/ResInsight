@@ -140,6 +140,9 @@ public:
     bool hasCustomFontSizes(RiaDefines::FontSettingType fontSettingType, int defaultFontSize) const override;
     bool applyFontSize(RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange = false) override;
 
+    void setNormalizationEnabled(bool enable);
+    bool isNormalizationEnabled();
+    void showLegend(bool enable);
 public:
     // Rim2dPlotInterface overrides
     void updateAxisScaling() override;
@@ -194,6 +197,8 @@ private:
 private:
     caf::PdmField<bool>                                 m_showPlotTitle;
     caf::PdmField<bool>                                 m_showLegend;
+    caf::PdmField<bool>                                 m_normalizeCurveYValues;
+
     caf::PdmField<int>                                  m_legendFontSize;
 
     caf::PdmField<bool>                                 m_useAutoPlotTitle;

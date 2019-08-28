@@ -1,0 +1,37 @@
+dist: xenial  # For 18.04, use bionic
+
+language: cpp
+
+compiler:
+  - gcc
+
+addons:
+  apt:
+    sources:
+    packages:
+      - cmake
+      - cmake-data
+      - libqt5opengl5
+      - qt5-qmake
+      - qt5-default
+      - libqt5opengl5-dev 
+      - qtbase5-dev 
+      - qtscript5-dev
+      
+before_script:
+    - git clone https://github.com/OPM/ResInsight.git
+
+script:
+    ############################################################################
+    # Build main and tests
+    ############################################################################
+     - mkdir -p build
+     - cd build
+     
+     - cmake -DRESINSIGHT_ENABLE_COTIRE=true .. 
+     
+     # Build the default target
+     #- make -j8
+     
+     # Build the target produced by Cotire
+     - make -j8 ResInsight_unity

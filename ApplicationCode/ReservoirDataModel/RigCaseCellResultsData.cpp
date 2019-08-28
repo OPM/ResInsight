@@ -991,7 +991,13 @@ std::vector<RigEclipseResultAddress> RigCaseCellResultsData::existingResults() c
 //--------------------------------------------------------------------------------------------------
 const RigEclipseResultInfo* RigCaseCellResultsData::resultInfo(const RigEclipseResultAddress& resVarAddr) const
 {
-    return &(m_resultInfos[findScalarResultIndexFromAddress(resVarAddr)]);
+    size_t index = findScalarResultIndexFromAddress(resVarAddr);
+    if (index < m_resultInfos.size())
+    {
+        return &(m_resultInfos[index]);
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

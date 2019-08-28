@@ -438,7 +438,9 @@ std::vector<QString> RiaQDateTimeTools::supportedDateFormats()
     dateFormats.push_back("yy;M/yy;d/M/yy");
     dateFormats.push_back("yy;M/yy;M/d/yy");
     dateFormats.push_back("yyyy;MM-yyyy;dd-MM-yyyy");
+    dateFormats.push_back("yyyy;MM.yyyy;dd.MM.yyyy");
     dateFormats.push_back("yyyy;MM-yyyy;MM-dd-yyyy");
+    dateFormats.push_back("yyyy;MM.yyyy;MM.dd.yyyy");
     dateFormats.push_back("yy;MM-yy;dd-MM-yy");
     dateFormats.push_back("yy;MM-yy;MM-dd-yy");
 

@@ -21,15 +21,20 @@
 
 #include "RicScriptFeatureImpl.h"
 
-#include "RimCalcScript.h"
 #include "RiaApplication.h"
+#include "RiaLogging.h"
+#include "RiaPreferences.h"
+#include "RimCalcScript.h"
 #include "RiuMainWindow.h"
+#include "RiuProcessMonitor.h"
 
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
 
 #include <QAction>
 #include <QFileInfo>
+
+#include <iostream>
 
 CAF_CMD_SOURCE_INIT(RicExecuteScriptFeature, "RicExecuteScriptFeature");
 
@@ -71,7 +76,35 @@ void RicExecuteScriptFeature::onActionTriggered(bool isChecked)
         if (!pythonPath.isEmpty())
         {
             QStringList arguments = RimCalcScript::createCommandLineArguments(calcScript->absoluteFileName());
-            RiaApplication::instance()->launchProcess(pythonPath, arguments, app->pythonProcessEnvironment());
+            QProcessEnvironment penv = app->pythonProcessEnvironment();
+
+            RiuProcessMonitor* processMonitor = RiuMainWindow::instance()->processMonitor();
+            if (RiaApplication::instance()->preferences()->showPythonDebugInfo() && processMonitor)
+            {
+                QStringList debugInfo;
+                debugInfo << "----- Launching Python interpreter -----";
+                debugInfo << "Python interpreter path: " + pythonPath;
+                debugInfo << "Using arguments: ";
+                for (QString argument : arguments)
+                {
+                    debugInfo << "*  " + argument;
+                }
+                QStringList envList = penv.toStringList();
+                debugInfo << "Using environment: ";
+                for (QString envVariable : envList)
+                {
+                    debugInfo << "*  " + envVariable;
+                }
+
+                debugInfo << "------------------------------------";
+
+                for (QString debugString : debugInfo)
+                {
+                    std::cout << debugString.toStdString() << std::endl;
+                    processMonitor->addStringToLog(debugString + "\n");
+                }
+            }
+            RiaApplication::instance()->launchProcess(pythonPath, arguments, penv);
         }
     }
 }
