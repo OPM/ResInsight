@@ -32,6 +32,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaEclipseFileNameTools.h"
 #include "RiaDefines.h"
