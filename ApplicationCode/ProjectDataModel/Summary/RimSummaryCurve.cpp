@@ -56,6 +56,7 @@
 #include "qwt_plot.h"
 
 #include <QMessageBox>
+#include "cafPdmUiLineEditor.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryCurve, "SummaryCurve");
@@ -73,31 +74,21 @@ RimSummaryCurve::RimSummaryCurve()
     m_yValuesSummaryCase.uiCapability()->setUiTreeChildrenHidden(true);
     m_yValuesSummaryCase.uiCapability()->setAutoAddingOptionFromValue(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_yValuesSelectedVariableDisplayField, "SelectedVariableDisplayVar", "Vector", "", "", "");
-    m_yValuesSelectedVariableDisplayField.xmlCapability()->disableIO();
-    m_yValuesSelectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitFieldNoDefault(&m_yValuesSummaryAddressUiField, "SelectedVariableDisplayVar", "Vector", "", "", "");
+    m_yValuesSummaryAddressUiField.xmlCapability()->disableIO();
+    m_yValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
 
-    CAF_PDM_InitFieldNoDefault(&m_yValuesSummaryFilter, "VarListFilter", "Filter", "", "", "");
-    m_yValuesSummaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
-    m_yValuesSummaryFilter.uiCapability()->setUiHidden(true);
 
-    m_yValuesSummaryFilter = new RimSummaryFilter;
-
-    CAF_PDM_InitFieldNoDefault(&m_yValuesUiFilterResultSelection, "FilterResultSelection", "Filter Result", "", "", "");
-    m_yValuesUiFilterResultSelection.xmlCapability()->disableIO();
-    m_yValuesUiFilterResultSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-    m_yValuesUiFilterResultSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_yValuesUiFilterResultSelection.uiCapability()->setAutoAddingOptionFromValue(false);
-    
-    CAF_PDM_InitFieldNoDefault(&m_yValuesCurveVariable, "SummaryAddress", "Summary Address", "", "", "");
-    m_yValuesCurveVariable.uiCapability()->setUiHidden(true);
-    m_yValuesCurveVariable.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_yValuesSummaryAddress, "SummaryAddress", "Summary Address", "", "", "");
+    m_yValuesSummaryAddress.uiCapability()->setUiHidden(true);
+    m_yValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_yPushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_yPushButtonSelectSummaryAddress);
+    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_yPushButtonSelectSummaryAddress = false;
 
-    m_yValuesCurveVariable = new RimSummaryAddress;
+    m_yValuesSummaryAddress = new RimSummaryAddress;
 
 
     // X Values
@@ -106,31 +97,23 @@ RimSummaryCurve::RimSummaryCurve()
     m_xValuesSummaryCase.uiCapability()->setUiTreeChildrenHidden(true);
     m_xValuesSummaryCase.uiCapability()->setAutoAddingOptionFromValue(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_xValuesSelectedVariableDisplayField, "SelectedVariableDisplayVarX", "Vector", "", "", "");
-    m_xValuesSelectedVariableDisplayField.xmlCapability()->disableIO();
-    m_xValuesSelectedVariableDisplayField.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitFieldNoDefault(&m_xValuesSummaryAddressUiField, "SelectedVariableDisplayVarX", "Vector", "", "", "");
+    m_xValuesSummaryAddressUiField.xmlCapability()->disableIO();
+    m_xValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
 
-    CAF_PDM_InitFieldNoDefault(&m_xValuesSummaryFilter, "VarListFilterX", "Filter", "", "", "");
-    m_xValuesSummaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
-    m_xValuesSummaryFilter.uiCapability()->setUiHidden(true);
 
-    m_xValuesSummaryFilter = new RimSummaryFilter;
 
-    CAF_PDM_InitFieldNoDefault(&m_xValuesUiFilterResultSelection, "FilterResultSelectionX", "Filter Result", "", "", "");
-    m_xValuesUiFilterResultSelection.xmlCapability()->disableIO();
-    m_xValuesUiFilterResultSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-    m_xValuesUiFilterResultSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_xValuesUiFilterResultSelection.uiCapability()->setAutoAddingOptionFromValue(false);
-
-    CAF_PDM_InitFieldNoDefault(&m_xValuesCurveVariable, "SummaryAddressX", "Summary Address", "", "", "");
-    m_xValuesCurveVariable.uiCapability()->setUiHidden(true);
-    m_xValuesCurveVariable.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_xValuesSummaryAddress, "SummaryAddressX", "Summary Address", "", "", "");
+    m_xValuesSummaryAddress.uiCapability()->setUiHidden(true);
+    m_xValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_xPushButtonSelectSummaryAddress, "SelectAddressX", "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_xPushButtonSelectSummaryAddress);
+    m_xPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
     m_xPushButtonSelectSummaryAddress = false;
 
-    m_xValuesCurveVariable = new RimSummaryAddress;
+    m_xValuesSummaryAddress = new RimSummaryAddress;
 
     
     // Other members
@@ -148,6 +131,19 @@ RimSummaryCurve::RimSummaryCurve()
 
     m_symbolSkipPixelDistance = 10.0f;
     m_curveThickness = 2;
+
+
+    CAF_PDM_InitFieldNoDefault(&m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter", "", "", "");
+    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden(true);
+    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden(true);
+    m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter;
+
+    CAF_PDM_InitFieldNoDefault(&m_xValuesSummaryFilter_OBSOLETE, "VarListFilterX", "Filter", "", "", "");
+    m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden(true);
+    m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden(true);
+    m_xValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_xValuesSummaryFilter_OBSOLETE = new RimSummaryFilter;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,7 +179,7 @@ RimSummaryCase* RimSummaryCurve::summaryCaseY() const
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::summaryAddressX() const
 {
-    return m_xValuesCurveVariable->address();
+    return m_xValuesSummaryAddress->address();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,7 +187,7 @@ RifEclipseSummaryAddress RimSummaryCurve::summaryAddressX() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryAddressX(const RifEclipseSummaryAddress& address)
 {
-    m_xValuesCurveVariable->setAddress(address);
+    m_xValuesSummaryAddress->setAddress(address);
 
     // TODO: Should interpolation be computed similar to RimSummaryCurve::setSummaryAddressY
 }
@@ -201,7 +197,7 @@ void RimSummaryCurve::setSummaryAddressX(const RifEclipseSummaryAddress& address
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::summaryAddressY() const
 {
-    return m_yValuesCurveVariable->address();
+    return m_yValuesSummaryAddress->address();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,14 +215,12 @@ void RimSummaryCurve::setSummaryAddressYAndApplyInterpolation(const RifEclipseSu
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryAddressY(const RifEclipseSummaryAddress& address)
 {
-    if (m_yValuesCurveVariable->address() != address)
+    if (m_yValuesSummaryAddress->address() != address)
     {
         m_qwtPlotCurve->clearErrorBars();
     }
 
-    m_yValuesCurveVariable->setAddress(address);
-
-    m_yValuesSummaryFilter->updateFromAddress(address);
+    m_yValuesSummaryAddress->setAddress(address);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,9 +256,25 @@ std::vector<double> RimSummaryCurve::valuesY() const
 
     if ( !reader ) return values;
 
-    RifEclipseSummaryAddress addr = m_yValuesCurveVariable()->address();
+    RifEclipseSummaryAddress addr = m_yValuesSummaryAddress()->address();
     reader->values(addr, &values);
 
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
+    bool isNormalized = plot->isNormalizationEnabled();
+    if (isNormalized)
+    {
+         auto minMaxPair = std::minmax_element(values.begin(), values.end());
+         double min = *minMaxPair.first;
+         double max = *minMaxPair.second;
+         double range = max - min;
+
+         for (double & v: values)
+         {
+            v = (v - min)/range;
+         }
+    }
+   
     return values;
 }
 
@@ -309,7 +319,7 @@ std::vector<double> RimSummaryCurve::valuesX() const
     {
         RifSummaryReaderInterface* reader = m_xValuesSummaryCase()->summaryReader();
 
-        RifEclipseSummaryAddress addr = m_xValuesCurveVariable()->address();
+        RifEclipseSummaryAddress addr = m_xValuesSummaryAddress()->address();
         reader->values(addr, &values);
     }
 
@@ -326,7 +336,7 @@ const std::vector<time_t>& RimSummaryCurve::timeStepsY() const
 
     if ( !reader ) return emptyVector;
 
-    RifEclipseSummaryAddress addr = m_yValuesCurveVariable()->address();
+    RifEclipseSummaryAddress addr = m_yValuesSummaryAddress()->address();
     
     return reader->timeSteps(addr);
 }
@@ -390,15 +400,14 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
             options.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
-    else if(fieldNeedingOptions == &m_yValuesUiFilterResultSelection)
+    else if (&m_yValuesSummaryAddressUiField == fieldNeedingOptions)
     {
-        appendOptionItemsForSummaryAddresses(&options, m_yValuesSummaryCase(), m_yValuesSummaryFilter());
+        appendOptionItemsForSummaryAddresses(&options, m_yValuesSummaryCase(), nullptr);
     }
-    else if (fieldNeedingOptions == &m_xValuesUiFilterResultSelection)
+    else if (&m_xValuesSummaryAddressUiField == fieldNeedingOptions)
     {
-        appendOptionItemsForSummaryAddresses(&options, m_xValuesSummaryCase(), m_xValuesSummaryFilter());
+        appendOptionItemsForSummaryAddresses(&options, m_xValuesSummaryCase(), nullptr);
     }
-
     return options;
 }
 
@@ -411,18 +420,18 @@ QString RimSummaryCurve::createCurveAutoName()
     firstAncestorOrThisOfTypeAsserted(plot);
 
     const RimSummaryPlotNameHelper* nameHelper = plot->activePlotTitleHelperAllCurves();
-    QString curveName = m_curveNameConfig->curveNameY(m_yValuesCurveVariable->address(), nameHelper);
+    QString curveName = m_curveNameConfig->curveNameY(m_yValuesSummaryAddress->address(), nameHelper);
     if (curveName.isEmpty())
     {
-        curveName = m_curveNameConfig->curveNameY(m_yValuesCurveVariable->address(), nullptr);
+        curveName = m_curveNameConfig->curveNameY(m_yValuesSummaryAddress->address(), nullptr);
     }
 
     if (isCrossPlotCurve())
     {
-        QString curveNameX = m_curveNameConfig->curveNameX(m_xValuesCurveVariable->address(), nameHelper);
+        QString curveNameX = m_curveNameConfig->curveNameX(m_xValuesSummaryAddress->address(), nameHelper);
         if (curveNameX.isEmpty())
         {
-            curveNameX = m_curveNameConfig->curveNameX(m_xValuesCurveVariable->address(), nullptr);
+            curveNameX = m_curveNameConfig->curveNameX(m_xValuesSummaryAddress->address(), nullptr);
         }
 
         if (!curveName.isEmpty() || !curveNameX.isEmpty())
@@ -457,11 +466,8 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
     this->RimPlotCurve::updateCurvePresentation(updateParentPlot);
 
-    m_yValuesSelectedVariableDisplayField = QString::fromStdString(m_yValuesCurveVariable->address().uiText());
-    m_yValuesUiFilterResultSelection = m_yValuesCurveVariable->address();
-
-    m_xValuesSelectedVariableDisplayField = QString::fromStdString(m_xValuesCurveVariable->address().uiText());
-    m_xValuesUiFilterResultSelection = m_xValuesCurveVariable->address();
+    m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address(); 
+    m_xValuesSummaryAddressUiField = m_xValuesSummaryAddress->address(); 
 
     updateConnectedEditors();
 
@@ -616,7 +622,7 @@ void RimSummaryCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
         if (attrib)
         {
-            attrib->m_buttonText = "Vector Selection Dialog";
+            attrib->m_buttonText = "...";
         }
     }
 }
@@ -630,18 +636,12 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 
     {
         QString curveDataGroupName = "Summary Vector";
-        if (isCrossPlotCurve()) curveDataGroupName += " Y";
+        if ( isCrossPlotCurve() ) curveDataGroupName += " Y";
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword(curveDataGroupName, "Summary Vector Y");
-        curveDataGroup->add(&m_yValuesSummaryCase);
-        curveDataGroup->add(&m_yValuesSelectedVariableDisplayField);
-        curveDataGroup->add(&m_plotAxis);
-        curveDataGroup->add(&m_yPushButtonSelectSummaryAddress);
-
-        QString curveVarSelectionGroupName = "Vector Selection Filter Y";
-        caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroupWithKeyword("Vector Selection Filter", curveVarSelectionGroupName);
-        curveVarSelectionGroup->setCollapsedByDefault(true);
-        m_yValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
-        curveVarSelectionGroup->add(&m_yValuesUiFilterResultSelection);
+        curveDataGroup->add(&m_yValuesSummaryCase,                  { true,  3, 1 });
+        curveDataGroup->add(&m_yValuesSummaryAddressUiField,        { true,  2, 1 });
+        curveDataGroup->add(&m_yPushButtonSelectSummaryAddress,     { false, 1, 0 });
+        curveDataGroup->add(&m_plotAxis,                            { true,  3, 1 });
 
         if (isCrossPlotCurve()) m_showErrorBars = false;
         else                   curveDataGroup->add(&m_showErrorBars);
@@ -650,14 +650,9 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     if (isCrossPlotCurve())
     {
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vector X");
-        curveDataGroup->add(&m_xValuesSummaryCase);
-        curveDataGroup->add(&m_xValuesSelectedVariableDisplayField);
-        curveDataGroup->add(&m_xPushButtonSelectSummaryAddress);
-
-        caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroupWithKeyword("Vector Selection Filter", "Vector Selection Filter X");
-        curveVarSelectionGroup->setCollapsedByDefault(true);
-        m_xValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
-        curveVarSelectionGroup->add(&m_xValuesUiFilterResultSelection);
+        curveDataGroup->add(&m_xValuesSummaryCase,              { true,  3, 1 });
+        curveDataGroup->add(&m_xValuesSummaryAddressUiField,    { true,  2, 1 });
+        curveDataGroup->add(&m_xPushButtonSelectSummaryAddress, { false, 1, 0});
     }
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
@@ -774,7 +769,7 @@ void RimSummaryCurve::applyCurveAutoNameSettings(const RimSummaryCurveAutoName& 
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurve::curveExportDescription(const RifEclipseSummaryAddress& address) const
 {
-    auto addr = address.isValid() ? address : m_yValuesCurveVariable->address();
+    auto addr = address.isValid() ? address : m_yValuesSummaryAddress->address();
 
     RimEnsembleCurveSetCollection* coll;
     firstAncestorOrThisOfType(coll);
@@ -820,7 +815,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
         }
     }
 
-    if (m_yValuesCurveVariable && m_yValuesCurveVariable->address().isHistoryQuantity())
+    if (m_yValuesSummaryAddress && m_yValuesSummaryAddress->address().isHistoryQuantity())
     {
         RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
@@ -850,7 +845,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
 void RimSummaryCurve::markCachedDataForPurge()
 {
     auto reader = valuesSummaryReaderY();
-    if(reader) reader->markForCachePurge(m_yValuesCurveVariable->address());
+    if(reader) reader->markForCachePurge(m_yValuesSummaryAddress->address());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -875,22 +870,22 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     bool loadAndUpdate = false;
     bool crossPlotTestForMatchingTimeSteps = false;
 
-    if(changedField == &m_yValuesUiFilterResultSelection)
+    if(changedField == &m_yValuesSummaryAddressUiField)
     {
-        m_yValuesCurveVariable->setAddress(m_yValuesUiFilterResultSelection());
+        m_yValuesSummaryAddress->setAddress(m_yValuesSummaryAddressUiField());
 
         this->calculateCurveInterpolationFromAddress();
 
         loadAndUpdate = true;
     } 
-    else if (changedField == &m_xValuesUiFilterResultSelection)
+    else if(changedField == &m_xValuesSummaryAddressUiField)
     {
-        m_xValuesCurveVariable->setAddress(m_xValuesUiFilterResultSelection());
+        m_xValuesSummaryAddress->setAddress(m_xValuesSummaryAddressUiField());
 
         this->calculateCurveInterpolationFromAddress();
 
         loadAndUpdate = true;
-    }
+    } 
     else if (&m_showCurve == changedField)
     {
         plot->updateAxes();
@@ -927,7 +922,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         RiuSummaryCurveDefSelectionDialog dlg(nullptr);
         RimSummaryCase* candidateCase = m_yValuesSummaryCase();
-        RifEclipseSummaryAddress candicateAddress = m_yValuesCurveVariable->address();
+        RifEclipseSummaryAddress candicateAddress = m_yValuesSummaryAddress->address();
 
         if (candidateCase == nullptr)
         {
@@ -936,7 +931,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         if (!candicateAddress.isValid())
         {
-            candicateAddress = m_xValuesCurveVariable->address();
+            candicateAddress = m_xValuesSummaryAddress->address();
         }
 
         dlg.hideEnsembles();
@@ -948,7 +943,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             if (curveSelection.size() > 0)
             {
                 m_yValuesSummaryCase = curveSelection[0].summaryCase();
-                m_yValuesCurveVariable->setAddress(curveSelection[0].summaryAddress());
+                m_yValuesSummaryAddress->setAddress(curveSelection[0].summaryAddress());
 
                 crossPlotTestForMatchingTimeSteps = true;
                 loadAndUpdate = true;
@@ -961,7 +956,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         RiuSummaryCurveDefSelectionDialog dlg(nullptr);
         RimSummaryCase* candidateCase = m_xValuesSummaryCase();
-        RifEclipseSummaryAddress candicateAddress = m_xValuesCurveVariable->address();
+        RifEclipseSummaryAddress candicateAddress = m_xValuesSummaryAddress->address();
 
         if (candidateCase == nullptr)
         {
@@ -970,7 +965,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         if (!candicateAddress.isValid())
         {
-            candicateAddress = m_yValuesCurveVariable->address();
+            candicateAddress = m_yValuesSummaryAddress->address();
         }
 
         dlg.hideEnsembles();
@@ -982,7 +977,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             if (curveSelection.size() > 0)
             {
                 m_xValuesSummaryCase = curveSelection[0].summaryCase();
-                m_xValuesCurveVariable->setAddress(curveSelection[0].summaryAddress());
+                m_xValuesSummaryAddress->setAddress(curveSelection[0].summaryAddress());
 
                 crossPlotTestForMatchingTimeSteps = true;
                 loadAndUpdate = true;
@@ -1108,7 +1103,7 @@ const std::vector<time_t>& RimSummaryCurve::timeStepsX() const
 
     if (!reader) return emptyVector;
 
-    RifEclipseSummaryAddress addr = m_xValuesCurveVariable()->address();
+    RifEclipseSummaryAddress addr = m_xValuesSummaryAddress()->address();
 
     return reader->timeSteps(addr);
 }
@@ -1118,9 +1113,9 @@ const std::vector<time_t>& RimSummaryCurve::timeStepsX() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::calculateCurveInterpolationFromAddress()
 {
-    if (m_yValuesCurveVariable())
+    if (m_yValuesSummaryAddress())
     {
-        auto address = m_yValuesCurveVariable()->address();
+        auto address = m_yValuesSummaryAddress()->address();
         if (address.hasAccumulatedData())
         {
             m_curveInterpolation = RiuQwtPlotCurve::INTERPOLATION_POINT_TO_POINT;

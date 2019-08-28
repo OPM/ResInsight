@@ -247,6 +247,15 @@ QVariant caf::PdmFieldUiCap<FieldType>::toUiBasedQVariant() const
     return PdmUiFieldSpecialization<typename FieldType::FieldDataType>::convert(m_field->value());
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template < typename FieldType>
+bool caf::PdmFieldUiCap<FieldType>::isQVariantDataEqual(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant) const
+{
+    return PdmUiFieldSpecialization<typename FieldType::FieldDataType>::isDataElementEqual(oldUiBasedQVariant, newUiBasedQVariant);
+}
+
 
 } // End of namespace caf
 

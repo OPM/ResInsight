@@ -429,6 +429,22 @@ RimEnsembleCurveSet::ColorMode RimEnsembleCurveSet::colorMode() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setColorMode(ColorMode mode)
+{
+    m_colorMode = mode;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setEnsembleParameter(const QString& parameterName)
+{
+    m_ensembleParameter = parameterName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 EnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() const
 {
     if (m_colorMode() == BY_ENSEMBLE_PARAM)

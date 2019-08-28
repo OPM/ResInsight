@@ -138,6 +138,30 @@ void RimGridTimeHistoryCurve::setFromSelectionItem(const RiuSelectionItem* selec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimGridTimeHistoryCurve::setFromEclipseCellAndResult(RimEclipseCase* eclCase,
+                                                          size_t gridIdx,
+                                                          size_t i,
+                                                          size_t j,
+                                                          size_t k,
+                                                          const RigEclipseResultAddress& resAddr)
+{
+    delete m_geometrySelectionItem();
+    delete m_eclipseResultDefinition();
+    delete m_geoMechResultDefinition();
+
+    m_eclipseResultDefinition = new RimEclipseResultDefinition;
+    m_eclipseResultDefinition->setEclipseCase(eclCase);
+    m_eclipseResultDefinition->setFromEclipseResultAddress(resAddr);
+
+    RimEclipseGeometrySelectionItem* geomSelectionItem = new RimEclipseGeometrySelectionItem;
+    m_geometrySelectionItem = geomSelectionItem;
+    geomSelectionItem->setFromCaseGridAndIJK(eclCase, gridIdx, i, j, k);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RiaDefines::PlotAxis RimGridTimeHistoryCurve::yAxis() const
 {
     return m_plotAxis();
@@ -187,6 +211,22 @@ std::vector<double> RimGridTimeHistoryCurve::yValues() const
         if (timeHistResultAccessor)
         {
             values = timeHistResultAccessor->timeHistoryValues();
+        }
+    }
+
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
+    bool isNormalized = plot->isNormalizationEnabled();
+    if (isNormalized)
+    {
+        auto minMaxPair = std::minmax_element(values.begin(), values.end());
+        double min = *minMaxPair.first;
+        double max = *minMaxPair.second;
+        double range = max - min;
+
+        for (double & v: values)
+        {
+            v = (v - min)/range;
         }
     }
 
