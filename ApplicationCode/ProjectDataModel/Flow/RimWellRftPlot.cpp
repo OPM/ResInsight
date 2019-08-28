@@ -450,6 +450,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
             auto rftCase = curveDefToAdd.address().summaryCase();
             curve->setSummaryCase(rftCase);
             curve->setEnsemble(curveDefToAdd.address().ensemble());
+            curve->setObservedFmuRftData(this->findObservedFmuData(m_wellPathNameOrSimWellName, curveDefToAdd.timeStep()));
             RifEclipseRftAddress address(m_wellPathNameOrSimWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE);
             curve->setRftAddress(address);
             curve->setZOrder(1);
@@ -472,6 +473,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
                     plotTrack->addCurve(curve);
                     curve->setEnsemble(ensemble);
                     curve->setRftAddress(rftAddress);
+                    curve->setObservedFmuRftData(this->findObservedFmuData(m_wellPathNameOrSimWellName, curveDefToAdd.timeStep()));
                     curve->setZOrder(RiuQwtPlotCurve::Z_ENSEMBLE_STAT_CURVE);
                     applyCurveAppearance(curve);
                     auto                        symbol   = statisticsCurveSymbolFromAddress(rftAddress);
@@ -731,7 +733,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
             item.setLevel(1);
             options.push_back(item);
         }
-		const std::vector<RimObservedFmuRftData*> observedFmuRftCases = RimWellPlotTools::observedFmuRftDataForWell(m_wellPathNameOrSimWellName);            
+		const std::vector<RimObservedFmuRftData*> observedFmuRftCases = RimWellPlotTools::observedFmuRftDataForWell(m_wellPathNameOrSimWellName);
 		if (!observedFmuRftCases.empty())
 		{
             options.push_back(caf::PdmOptionItemInfo::createHeader(
@@ -1123,4 +1125,20 @@ void RimWellRftPlot::defineCurveColorsAndSymbols(const std::set<RiaRftPltCurveDe
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimObservedFmuRftData* RimWellRftPlot::findObservedFmuData(const QString& wellPathName, const QDateTime& timeStep) const
+{
+    auto allObservedDataForWell = RimWellPlotTools::observedFmuRftDataForWell(wellPathName);
+    for (auto observedData : allObservedDataForWell)
+    {
+        if (observedData->rftReader()->availableTimeSteps(wellPathName).count(timeStep))
+        {
+            return observedData;
+        }
+    }
+    return nullptr;
 }

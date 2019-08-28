@@ -116,6 +116,8 @@ private:
     void syncCurvesFromUiSelection();
     void assignWellPathToExtractionCurves();
 
+    RimObservedFmuRftData* findObservedFmuData(const QString& wellPathName, const QDateTime& timeStep) const;
+
     std::set<RiaRftPltCurveDefinition> selectedCurveDefs() const;
     std::set<RiaRftPltCurveDefinition> curveDefsFromCurves() const;
 
@@ -161,5 +163,4 @@ private:
 	std::map<RifDataSourceForRftPlt, cvf::Color3f>     m_dataSourceColors;
     std::map<QDateTime, RiuQwtSymbol::PointSymbolEnum> m_timeStepSymbols;
     bool m_isOnLoad;
-
 };

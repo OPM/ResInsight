@@ -36,8 +36,10 @@ public:
 	void createRftReaderInterface();
     RifReaderRftInterface* rftReader();
 
-	bool hasWell(const QString& simWellName) const;
+	bool hasWell(const QString& wellPathName) const;
 	std::vector<QString> wells() const;
+
+    std::vector<std::pair<double, double>> derivedWellPathTvdMd(const QString& wellPathName) const;
 
 private:
     cvf::ref<RifReaderFmuRft> m_fmuRftReader;

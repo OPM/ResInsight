@@ -31,6 +31,7 @@
 #include "RigMainGrid.h"
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
+#include "RigWellPathGeometryTools.h"
 #include "RigWellPathIntersectionTools.h"
 
 #include "RimEclipseResultCase.h"
@@ -119,6 +120,7 @@ RimWellLogRftCurve::RimWellLogRftCurve()
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannelName, "WellLogChannelName", "Well Property", "", "", "");
 
     m_isUsingPseudoLength = false;
+    m_derivingMDFromObservedData = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -407,6 +409,15 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
         if (tvDepthVector.size() != measuredDepthVector.size())
         {
+            measuredDepthVector = interpolatedMeasuredDepthValuesFromObservedData(tvDepthVector);
+            if (measuredDepthVector.size() == tvDepthVector.size())
+            {
+                m_derivingMDFromObservedData = true;
+            }
+        }
+
+        if (tvDepthVector.size() != measuredDepthVector.size())
+        {
             m_isUsingPseudoLength = true;
             measuredDepthVector   = tvDepthVector;
         }
@@ -432,9 +443,10 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
                                        m_curveData->trueDepthPlotValues(displayUnit).data(),
                                        static_cast<int>(m_curveData->xPlotValues().size()));
             m_isUsingPseudoLength = false;
+            m_derivingMDFromObservedData = false;
         }
 
-        if (m_isUsingPseudoLength)
+        if (m_isUsingPseudoLength || m_derivingMDFromObservedData)
         {
             RimWellLogTrack* wellLogTrack;
             firstAncestorOrThisOfType(wellLogTrack);
@@ -443,7 +455,10 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
             RiuWellLogTrack* viewer = wellLogTrack->viewer();
             if (viewer)
             {
-                viewer->setDepthTitle("PL/" + wellLogPlot->depthPlotTitle());
+                if (m_derivingMDFromObservedData)
+                    viewer->setDepthTitle("OBS/" + wellLogPlot->depthPlotTitle());
+                else
+                    viewer->setDepthTitle("PL/" + wellLogPlot->depthPlotTitle());
             }
         }
 
@@ -835,7 +850,7 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 {
-	if (m_observedFmuRftData)
+	if (m_observedFmuRftData && !m_ensemble && !m_summaryCase)
 	{
         RifReaderRftInterface* reader = rftReader();
         std::vector<double>    values;
@@ -880,4 +895,30 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
     }
 
     return measuredDepthForCellsWhichHasRftData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogRftCurve::interpolatedMeasuredDepthValuesFromObservedData(const std::vector<double>& tvDepthValues)
+{
+    std::vector<double> interpolatedMdValues;
+    if (m_observedFmuRftData)
+    {
+        RifReaderRftInterface* reader = m_observedFmuRftData->rftReader();
+        if (reader)
+        {
+            std::vector<double>    tvdValuesOfObbservedData;
+            std::vector<double>    mdValuesOfObbservedData;
+
+            RifEclipseRftAddress tvdAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::TVD);
+            RifEclipseRftAddress mdAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::MD);
+
+            reader->values(tvdAddress, &tvdValuesOfObbservedData);
+            reader->values(mdAddress, &mdValuesOfObbservedData);
+            interpolatedMdValues = RigWellPathGeometryTools::interpolateMdFromTvd(mdValuesOfObbservedData, tvdValuesOfObbservedData, tvDepthValues);
+            CVF_ASSERT(interpolatedMdValues.size() == tvDepthValues.size());
+        }
+    }
+    return interpolatedMdValues;
 }

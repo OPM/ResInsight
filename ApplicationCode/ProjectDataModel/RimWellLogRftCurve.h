@@ -96,6 +96,7 @@ private:
     std::vector<double>  xValues();
     std::vector<double>  tvDepthValues();
     std::vector<double>  measuredDepthValues();
+    std::vector<double>  interpolatedMeasuredDepthValuesFromObservedData(const std::vector<double>& tvDepthValues);
 
 private:
     caf::PdmPtrField<RimEclipseResultCase*>     m_eclipseResultCase;
@@ -109,6 +110,7 @@ private:
 
     std::map<size_t, size_t>                                                 m_idxInWellPathToIdxInRftFile;
     bool                                                                     m_isUsingPseudoLength;
+    bool                                                                     m_derivingMDFromObservedData;
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;
 
 };
