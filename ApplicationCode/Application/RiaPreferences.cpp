@@ -105,6 +105,7 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&pythonExecutable, "pythonExecutable", QString("python"), "Python Executable Location", "", "", "");
     pythonExecutable.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     pythonExecutable.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    CAF_PDM_InitField(&showPythonDebugInfo, "pythonDebugInfo", false, "Show Python Debug Info", "", "", "");
 
     CAF_PDM_InitField(&ssihubAddress,                   "ssihubAddress", QString("http://"), "SSIHUB Address", "", "", "");
     ssihubAddress.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
@@ -318,8 +319,9 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 #ifdef ENABLE_GRPC
         caf::PdmUiGroup* pythonGroup = uiOrdering.addNewGroup("Python");
         pythonGroup->add(&enableGrpcServer);
+        pythonGroup->add(&showPythonDebugInfo);
         pythonGroup->add(&defaultGrpcPortNumber);
-        pythonGroup->add(&pythonExecutable);
+        pythonGroup->add(&pythonExecutable);     
 #endif
         caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Script files");
         scriptGroup->add(&scriptDirectories);
