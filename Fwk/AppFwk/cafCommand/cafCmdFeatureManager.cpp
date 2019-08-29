@@ -41,9 +41,6 @@
 #include "cafCmdSelectionHelper.h"
 #include "cafFactory.h" 
 
-#include "defaultfeatures/cafCmdDeleteItemFeature.h"
-#include "defaultfeatures/cafCmdAddItemFeature.h"
-
 #include <QAction>
 #include <QKeySequence>
 
@@ -56,9 +53,6 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 CmdFeatureManager::CmdFeatureManager()
 {
-    CmdDeleteItemFeature::idNameStatic();
-    CmdAddItemFeature::idNameStatic();
-
     // Make sure all command features are created. The command feature is registered
     // in the command factory, and instantiated when required. This will enable possibility
     // of searching through all command features instead of having to use the string keys to 
@@ -66,7 +60,7 @@ CmdFeatureManager::CmdFeatureManager()
     std::vector<std::string> keys = CommandFeatureFactory::instance()->allKeys();
     for (size_t i = 0; i < keys.size(); i++)
     {
-        action(QString::fromStdString(keys[i]));
+        createFeature(keys[i]);
     }
 }
 
@@ -335,6 +329,22 @@ std::vector<CmdFeature*> CmdFeatureManager::commandFeaturesMatchingKeyboardShort
     }
 
     return matches;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CmdFeatureManager::setCurrentContextMenuTargetWidget(QWidget * targetWidget)
+{
+    m_currentContextMenuTargetWidget = targetWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* CmdFeatureManager::currentContextMenuTargetWidget()
+{
+    return m_currentContextMenuTargetWidget;
 }
 
 } // end namespace caf

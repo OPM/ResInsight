@@ -17,6 +17,7 @@ set (MOC_HEADER_FILES
 
 # Resource file
 set( QRC_FILES  
+    ${QRC_FILES} 
     textedit.qrc
 )
 
@@ -76,6 +77,7 @@ if (USE_COMMAND_FRAMEWORK)
     set (TAP_LINK_LIBRARIES
         ${TAP_LINK_LIBRARIES}
         cafCommand
+        cafCommandFeatures
     )
 endif(USE_COMMAND_FRAMEWORK)
 

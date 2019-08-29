@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2019- Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,68 +34,24 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include <vector>
-#include <map>
-#include <set>
+#include "cafCmdFeature.h"
 
-#include <QObject>
-#include <QStringList>
-#include <QPointer>
-
-class QAction;
-class QKeySequence;
-class QWidget;
-
-namespace caf 
+namespace caf
 {
-
-class CmdFeature;
-
 //==================================================================================================
 /// 
 //==================================================================================================
-class CmdFeatureManager : public QObject
+class ToggleItemsOffFeature : public caf::CmdFeature
 {
-    Q_OBJECT
+    CAF_CMD_HEADER_INIT;
+protected:
 
-public:
-    static CmdFeatureManager* instance();
-    ~CmdFeatureManager() override;
-
-    QAction* action(const QString& commandId);
-    QAction* action(const QString& commandId, const QString& customActionText);
-    QAction* actionWithUserData(const QString& commandId, const QString& customActionText, const QVariant& userData);
-
-    void     refreshStates(const QStringList& commandIdList = QStringList());
-    void     refreshEnabledState(const QStringList& commandIdList = QStringList());
-    void     refreshCheckedState(const QStringList& commandIdList = QStringList());
-
-    CmdFeature*              getCommandFeature(const std::string& commandId);
-    std::vector<CmdFeature*> commandFeaturesMatchingSubString(const std::string& subString) const;
-    std::vector<CmdFeature*> commandFeaturesMatchingKeyboardShortcut(const QKeySequence& keySequence) const;
-
-    void     setCurrentContextMenuTargetWidget(QWidget * targetWidget);
-    QWidget* currentContextMenuTargetWidget();
-
-private:
-    CmdFeatureManager();
-
-    std::pair<CmdFeature*, size_t>  createFeature(const std::string& commandId);
-    std::pair<CmdFeature*, size_t>  findExistingCmdFeature(const std::string& commandId);
-
-    CmdFeature*                     commandFeature(const std::string& commandId) const;
-
-private:
-    std::vector<CmdFeature*>        m_commandFeatures;
-    std::map<std::string , size_t > m_commandIdToFeatureIdxMap;
-    std::map<QAction*, size_t >     m_actionToFeatureIdxMap;
-
-    QPointer<QWidget> m_currentContextMenuTargetWidget;
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };
 
-
-
-} // end namespace caf
+}

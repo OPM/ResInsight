@@ -28,20 +28,6 @@ set( PROJECT_FILES
     cafCmdUiCommandSystemImpl.h
     cafCmdUiCommandSystemImpl.cpp
 
-    # Default features
-    defaultfeatures/cafCmdAddItemExec.cpp
-    defaultfeatures/cafCmdAddItemExec.h
-    defaultfeatures/cafCmdAddItemExecData.cpp
-    defaultfeatures/cafCmdAddItemExecData.h
-    defaultfeatures/cafCmdAddItemFeature.cpp
-    defaultfeatures/cafCmdAddItemFeature.h
-    defaultfeatures/cafCmdDeleteItemExec.cpp
-    defaultfeatures/cafCmdDeleteItemExec.h
-    defaultfeatures/cafCmdDeleteItemExecData.cpp
-    defaultfeatures/cafCmdDeleteItemExecData.h
-    defaultfeatures/cafCmdDeleteItemFeature.cpp
-    defaultfeatures/cafCmdDeleteItemFeature.h
-
     cafCmdFieldChangeExec.cpp
     cafCmdFieldChangeExec.h
 

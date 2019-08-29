@@ -45,6 +45,7 @@
 #include <QMenuBar>
 #include <QTreeView>
 #include <QUndoView>
+#include "cafCmdFeatureMenuBuilder.h"
 
 
 class DemoPdmObjectGroup : public caf::PdmDocument
@@ -821,6 +822,14 @@ void MainWindow::createDockPanels()
 
         m_pdmUiTreeView = new caf::PdmUiTreeView(dockWidget);
         dockWidget->setWidget(m_pdmUiTreeView);
+        m_pdmUiTreeView->treeView()->setContextMenuPolicy(Qt::CustomContextMenu);
+
+        QObject::connect(m_pdmUiTreeView->treeView(), 
+            SIGNAL(customContextMenuRequested(const QPoint&)),
+            SLOT(slotCustomMenuRequestedForProjectTree(const QPoint&)));
+
+        m_pdmUiTreeView->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        m_pdmUiTreeView->enableSelectionManagerUpdating(true);
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     }
@@ -1234,4 +1243,32 @@ void MainWindow::slotSaveProject()
         m_testRoot->fileName = fileName;
         m_testRoot->writeFile();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void MainWindow::slotCustomMenuRequestedForProjectTree(const QPoint&)
+{
+    QObject*   senderObj = this->sender();
+    QTreeView* treeView  = dynamic_cast<QTreeView*>(senderObj);
+    if (treeView)
+    {
+        QMenu menu;
+        caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget(m_pdmUiTreeView);
+
+        caf::CmdFeatureMenuBuilder menuBuilder;
+
+        menuBuilder << "cafToggleItemsOnFeature";
+        menuBuilder << "cafToggleItemsOffFeature";
+        menuBuilder << "cafToggleItemsFeature";
+        menuBuilder << "Separator";
+        menuBuilder << "cafToggleItemsOnOthersOffFeature";
+
+        menuBuilder.appendToMenu(&menu);
+
+        menu.exec(QCursor::pos());
+        caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget(nullptr);
+    }
+
 }

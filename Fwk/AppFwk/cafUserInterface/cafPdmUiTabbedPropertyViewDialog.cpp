@@ -21,7 +21,7 @@ PdmUiTabbedPropertyViewDialog::PdmUiTabbedPropertyViewDialog(caf::PdmObject* obj
                                                              const QStringList& uiConfigNameForTabs,
                                                              const QString& windowTitle,
                                                              QWidget* parent)
-    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint)
 {
     this->setWindowTitle(windowTitle);
 

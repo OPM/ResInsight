@@ -262,6 +262,8 @@ void PdmUiTreeViewEditor::customMenuRequested(QPoint pos)
     SelectionManager::instance()->setActiveChildArrayFieldHandle(this->currentChildArrayFieldHandle());
 
     QMenu menu;
+    PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget(m_mainWidget->parentWidget());
+
     caf::PdmUiCommandSystemProxy::instance()->populateMenuWithDefaultCommands("PdmUiTreeViewEditor", &menu);
 
     if (menu.actions().size() > 0)
@@ -271,6 +273,8 @@ void PdmUiTreeViewEditor::customMenuRequested(QPoint pos)
 
         menu.exec(globalPos);
     }
+
+    PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget(nullptr);
 }
 
 

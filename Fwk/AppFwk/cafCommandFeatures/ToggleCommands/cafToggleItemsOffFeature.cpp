@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) Ceetron Solutions AS
+//   Copyright (C) 2019- Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,32 +34,47 @@
 //
 //##################################################################################################
 
-#pragma once
+#include "cafToggleItemsOffFeature.h"
 
-#include <vector>
+#include "cafToggleItemsFeatureImpl.h"
 
-class QVariant;
-class QMenu;
-class QString;
-class QWidget;
+#include "cafSelectionManager.h"
 
-namespace caf 
+#include <QAction>
+
+namespace caf
 {
+	
+CAF_CMD_SOURCE_INIT(ToggleItemsOffFeature, "cafToggleItemsOffFeature");
 
-class PdmFieldHandle;
-class PdmUiFieldHandle;
-
-
-class PdmUiCommandSystemInterface
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool ToggleItemsOffFeature::isCommandEnabled() 
 {
-public:
-    virtual void fieldChangedCommand( const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue) = 0;
-    virtual void setCurrentContextMenuTargetWidget(QWidget* targetWidget) = 0;
+    return ToggleItemsFeatureImpl::isToggleCommandsAvailable();
+}
 
-    virtual void populateMenuWithDefaultCommands(const QString& uiConfigName, QMenu* menu) = 0;
-};
-    
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void ToggleItemsOffFeature::onActionTriggered(bool isChecked)
+{
+    ToggleItemsFeatureImpl::setObjectToggleStateForSelection(ToggleItemsFeatureImpl::TOGGLE_OFF);
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void ToggleItemsOffFeature::setupActionLook(QAction* actionToSetup)
+{
+    if (ToggleItemsFeatureImpl::isToggleCommandsForSubItems())
+        actionToSetup->setText("Sub Items Off");
+    else
+        actionToSetup->setText("Off");
 
-} // End of namespace caf
+    actionToSetup->setIcon(QIcon(":/cafCommandFeatures/ToggleOffL16x16.png"));
 
+}
+
+}

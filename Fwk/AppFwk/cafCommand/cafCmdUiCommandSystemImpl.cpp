@@ -168,4 +168,12 @@ bool CmdUiCommandSystemImpl::disableUndoForFieldChange()
     return m_disableUndoForFieldChange;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CmdUiCommandSystemImpl::setCurrentContextMenuTargetWidget(QWidget* targetWidget)
+{
+    caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget(targetWidget);
+}
+
 } // end namespace caf

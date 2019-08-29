@@ -237,12 +237,15 @@ void PdmUiFieldEditorHandle::customMenuRequested(QPoint pos)
         }
 
         QMenu menu;
+        PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget(widget);
         objectHandle->uiCapability()->defineCustomContextMenu(uiField()->fieldHandle(), &menu, widget);
 
         if (!menu.actions().empty())
         {
             menu.exec(globalPos);
         }
+        PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget(nullptr);
+
     }
 }
 
