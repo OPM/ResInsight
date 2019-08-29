@@ -45,6 +45,7 @@ add_subdirectory (cafProjectDataModel/cafPdmXml)
 
 add_subdirectory(cafProjectDataModel)
 add_subdirectory(cafCommand)
+add_subdirectory(cafCommandFeatures)
 add_subdirectory(cafUserInterface)
 
 #executables

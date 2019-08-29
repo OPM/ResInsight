@@ -148,6 +148,17 @@ void PdmUiCommandSystemProxy::setUiValueToField(PdmUiFieldHandle* uiFieldHandle,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void PdmUiCommandSystemProxy::setCurrentContextMenuTargetWidget(QWidget* targetWidget)
+{
+    if (m_commandInterface)
+    {
+        m_commandInterface->setCurrentContextMenuTargetWidget(targetWidget);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmUiCommandSystemProxy::populateMenuWithDefaultCommands(const QString& uiConfigName, QMenu* menu)
 {
     if (m_commandInterface)
