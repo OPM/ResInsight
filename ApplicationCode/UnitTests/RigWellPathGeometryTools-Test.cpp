@@ -21,6 +21,7 @@
 #include "RigWellPathGeometryTools.h"
 
 #include <vector>
+#include <complex>
 
 //--------------------------------------------------------------------------------------------------
 ///
