@@ -28,7 +28,7 @@ script:
      - mkdir -p build
      - cd build
      
-     - cmake -DRESINSIGHT_ENABLE_COTIRE=true .. 
+     - cmake -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DRESINSIGHT_ENABLE_COTIRE=true .. 
      
      # Build the default target
      #- make -j8
