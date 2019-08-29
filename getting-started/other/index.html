@@ -9,21 +9,21 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>Tensor Results :: ResInsight</title>
+    <title>Other :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1567107104" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1567107104" rel="stylesheet">
-    <link href="/css/hybrid.css?1567107104" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1567107104" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1567107104" rel="stylesheet">
-    <link href="/css/auto-complete.css?1567107104" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1567107104" rel="stylesheet">
-    <link href="/css/theme.css?1567107104" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1567107104" rel="stylesheet">
+    <link href="/css/nucleus.css?1567107105" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1567107105" rel="stylesheet">
+    <link href="/css/hybrid.css?1567107105" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1567107105" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1567107105" rel="stylesheet">
+    <link href="/css/auto-complete.css?1567107105" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1567107105" rel="stylesheet">
+    <link href="/css/theme.css?1567107105" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1567107105" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1567107104"></script>
+    <script src="/js/jquery-3.3.1.min.js?1567107105"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/3d-main-window/tensors/">
+  <body class="" data-url="/getting-started/other/">
     <nav id="sidebar" class="">
 
 
@@ -70,7 +70,7 @@
   
     
     <li data-nav-id="/getting-started/" title="Getting Started" class="dd-item 
-        
+        parent
         
         
         ">
@@ -235,8 +235,8 @@
   
     
     <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
-        
-        
+        parent
+        active
         
         ">
       <a href="/getting-started/other/">
@@ -282,7 +282,7 @@
   
     
     <li data-nav-id="/3d-main-window/" title="3D Main Window" class="dd-item 
-        parent
+        
         
         
         ">
@@ -385,7 +385,7 @@
  
   
     
-      <li data-nav-id="/3d-main-window/tensors/" title="Tensor Results" class="dd-item active">
+      <li data-nav-id="/3d-main-window/tensors/" title="Tensor Results" class="dd-item ">
         <a href="/3d-main-window/tensors/">
         Tensor Results
         
@@ -1633,7 +1633,7 @@ if (!doNotTrack) {
             
           
           
-            <a href='/'>ResInsight</a> > <a href='/3d-main-window/'>3D Main Window</a> > Tensor Results
+            <a href='/'>ResInsight</a> > <a href='/getting-started/'>Getting Started</a> > Other
           
          
           
@@ -1646,21 +1646,7 @@ if (!doNotTrack) {
                 
                     <div class="progress">
     <div class="wrapper">
-<nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#visualization">Visualization</a></li>
-<li><a href="#properties">Properties</a>
-<ul>
-<li><a href="#value">Value</a></li>
-<li><a href="#visibility">Visibility</a></li>
-<li><a href="#vector-colors">Vector Colors</a></li>
-<li><a href="#vector-size">Vector Size</a></li>
-</ul></li>
-</ul></li>
-</ul>
-</nav>
+
     </div>
 </div>
 
@@ -1676,7 +1662,7 @@ if (!doNotTrack) {
           
             <h1>
               
-              Tensor Results
+              Other
             </h1>
           
 
@@ -1685,51 +1671,14 @@ if (!doNotTrack) {
 
 
 
+	
 
-<p><img src="/images/3d-main-window/tensorArrows.png" alt="" /></p>
 
-<p>Tensors are arrows showing the average principal vectors in an element, shown on every visible face of the element.</p>
-
-<p>The tensor results editor is found in a geo mechanical model&rsquo;s <strong>View</strong> in the project tree as seen below.</p>
-
-<p><img src="/images/3d-main-window/tensorProjectTree.png" alt="" /></p>
-
-<h2 id="visualization">Visualization</h2>
-
-<p><img src="/images/3d-main-window/tensorPressureTension.png" alt="" /></p>
-
-<p>The tensor arrows visualize the principal vectors in three directions. Each colored pair of arrows represents a principal.
-In the example above, the orange and blue arrows represent pressures and the white arrows represent a tension.</p>
-
-<h2 id="properties">Properties</h2>
-
-<p><img src="/images/3d-main-window/tensorPropEditor.png" alt="" /></p>
-
-<h3 id="value">Value</h3>
-
-<p>Tensor Results of an element can be calculated from one of the three result values <em>SE, ST</em> and <em>E</em>.</p>
-
-<h3 id="visibility">Visibility</h3>
-
-<p>Choose which of the three principals to be shown. The threshold removes all principals with an absolute value less than or equal to the threshold value.</p>
-
-<h3 id="vector-colors">Vector Colors</h3>
-
-<p>Choose which color palette to use for the three arrows. The colors appear in &ldquo;correct&rdquo; order (first color = principal 1).</p>
-
-<p>The vector color <strong>Result Colors</strong> is special. By choosing this color type, a new legend will appear. This legend is defined by the values in the Legend definition of the Element Tensor Results. The extreme values of the color mapper are the extremes of the three principals combined. In the example below, the color result is SE-S1. The largest arrow (principal 1) is quite similar to the cell color, as expected.</p>
-
-<p><img src="/images/3d-main-window/tensorsResultColor.png" alt="" /></p>
-
-<h3 id="vector-size">Vector Size</h3>
-
-<p>Scale method <strong>Result</strong> scales the arrows relative to the maximum result value of all components in the model. With scale method <strong>Constant</strong>, all the arrows are set to an equal constant size. The overall arrow size can be adjusted by using the <strong>Size Scale</strong>.</p>
 
 
 <footer class=" footline" >
 	
 </footer>
-
 
         
         </div> 
@@ -1762,6 +1711,22 @@ In the example above, the orange and blue arrows represent pressures and the whi
             
                 
                     
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
                         
                         
                     
@@ -1774,6 +1739,182 @@ In the example above, the orange and blue arrows represent pressures and the whi
                     
                     
 
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
                     
                         
             
@@ -1859,221 +2000,6 @@ In the example above, the orange and blue arrows represent pressures and the whi
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                        
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
                     
                 
                 
@@ -2121,10 +2047,39 @@ In the example above, the orange and blue arrows represent pressures and the whi
                         
             
             
+        
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
                 
                     
                         
                         
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+                
                     
                 
                 
@@ -2190,7 +2145,6 @@ In the example above, the orange and blue arrows represent pressures and the whi
             
                 
                     
-                    
                 
                 
 
@@ -2206,9 +2160,6 @@ In the example above, the orange and blue arrows represent pressures and the whi
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -3113,10 +3064,10 @@ In the example above, the orange and blue arrows represent pressures and the whi
 	 
 	 
 		
-			<a class="nav nav-prev" href="/3d-main-window/contourmaps/" title="Contour Maps"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/getting-started/other/" title="Other"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/3d-main-window/resultinspection/" title="Result Inspection" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/3d-main-window/" title="3D Main Window" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -3126,20 +3077,20 @@ In the example above, the orange and blue arrows represent pressures and the whi
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1567107104"></script>
-    <script src="/js/perfect-scrollbar.min.js?1567107104"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1567107104"></script>
-    <script src="/js/jquery.sticky.js?1567107104"></script>
-    <script src="/js/featherlight.min.js?1567107104"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1567107104"></script>
-    <script src="/js/highlight.pack.js?1567107104"></script>
+    <script src="/js/clipboard.min.js?1567107105"></script>
+    <script src="/js/perfect-scrollbar.min.js?1567107105"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1567107105"></script>
+    <script src="/js/jquery.sticky.js?1567107105"></script>
+    <script src="/js/featherlight.min.js?1567107105"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1567107105"></script>
+    <script src="/js/highlight.pack.js?1567107105"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1567107104"></script>
-    <script src="/js/learn.js?1567107104"></script>
-    <script src="/js/hugo-learn.js?1567107104"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1567107105"></script>
+    <script src="/js/learn.js?1567107105"></script>
+    <script src="/js/hugo-learn.js?1567107105"></script>
 
-    <link href="/mermaid/mermaid.css?1567107104" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1567107104"></script>
+    <link href="/mermaid/mermaid.css?1567107105" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1567107105"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
@@ -3147,4 +3098,3 @@ In the example above, the orange and blue arrows represent pressures and the whi
 
   </body>
 </html>
-

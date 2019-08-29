@@ -17,7 +17,7 @@
       
       <guid>https://resinsight.org/export/snapshots/</guid>
       <description>ResInsight has several commands to create snapshots conveniently. 3 commands to take snapshots of existing Plot and 3D Views directly, and a more advanced export command that can automatically modify Eclipse 3D Views before snapshotting them.
-Snapshots of Existing Views The commands to snapshot existing views and plots are available from the toolbar and the Edit and File-&amp;gt;Export menus in the main windows Snapshot to Clipboard  A snapshot of the active view is copied to the clipboard using Edit -&amp;gt; Copy Snapshot To Clipboard.</description>
+Snapshots of Existing Views The commands to snapshot existing views and plots are available from the toolbar and the Edit and File-&amp;gt;Export menus in the main windows Snapshot to Clipboard A snapshot of the active view is copied to the clipboard using Edit -&amp;gt; Copy Snapshot To Clipboard .</description>
     </item>
     
     <item>

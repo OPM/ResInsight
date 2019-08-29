@@ -66,28 +66,5 @@ These abbreviations are used in the tables below:
    Abbreviation Meaning     LMB Press the left mouse button   MMB Press the middle mouse button or scroll wheel button   RMB Press the right mouse button    The following applies to all navigation modes:</description>
     </item>
     
-    <item>
-      <title>Release Notification Subscription</title>
-      <link>https://resinsight.org/getting-started/other/releasenotification/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/other/releasenotification/</guid>
-      <description>LinkedIn Feel free to join ResInsight on LinkedIn
-Newsletter By subscribing to the Release Notification you will get notified when new releases are available. Please use the button below to send a request for subscription mail.
-Subscribe</description>
-    </item>
-    
-    <item>
-      <title>Testimonials</title>
-      <link>https://resinsight.org/getting-started/other/testimonials/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/other/testimonials/</guid>
-      <description>“I have been using ResInsight now for some time and have stopped using the commercial software as ResInsight is much more responsive and easier to use. It really is an excellent piece of software.”
-David Baxendale
-Senior Petroleum Engineering Advisor, RPS Energy
-&amp;ldquo;ResInsight is an excellent tool to visualize simulation results and offers good-looking and illustrative graphs for presentations. I found the integration with Octave especially powerful in my research.&amp;rdquo;</description>
-    </item>
-    
   </channel>
 </rss>
