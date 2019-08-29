@@ -48,6 +48,7 @@ private:
                                                                const std::vector<cvf::Vec3d>& vertices);
     static cvf::Vec3d estimateDominantDirectionInXYPlane(const std::vector<cvf::Vec3d>& vertices);
 
+    static double linearInterpolation(double x1, double x2, double y1, double y2, double x);
     static double linearInterpolation(const std::vector<double>& xValues, const std::vector<double>& yValues, int valueIndex, double x);
 
 };

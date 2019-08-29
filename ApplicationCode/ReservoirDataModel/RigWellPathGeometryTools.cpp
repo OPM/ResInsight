@@ -230,14 +230,40 @@ cvf::Vec3d RigWellPathGeometryTools::estimateDominantDirectionInXYPlane(const st
 double RigWellPathGeometryTools::linearInterpolation(const std::vector<double>& xValues, const std::vector<double>& yValues, int valueIndex, double x)
 {
     int N = (int) xValues.size() - 1;
-    int i = cvf::Math::clamp(valueIndex, 1, N);
-        
-    double x1 = xValues[i - 1];
-    double x2 = xValues[i];
-    double y1 = yValues[i - 1];
-    double y2 = yValues[i];
+    int i = cvf::Math::clamp(valueIndex, 0, N);
+    
+    std::vector<double> interpolatedValues;
+    // Backwards
+    if (i > 0)
+    {
+        double x1 = xValues[i - 1];
+        double x2 = xValues[i];
+        double y1 = yValues[i - 1];
+        double y2 = yValues[i];
+        interpolatedValues.push_back(linearInterpolation(x1, x2, y1, y2, x));
+    }
+    if (i < N)
+    {
+        double x1 = xValues[i];
+        double x2 = xValues[i + 1];
+        double y1 = yValues[i];
+        double y2 = yValues[i + 1];
+        interpolatedValues.push_back(linearInterpolation(x1, x2, y1, y2, x));
+    }
 
+    double sum = 0.0;
+    for (double value : interpolatedValues)
+    {
+        sum += value;
+    }
+    return sum / (double) interpolatedValues.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigWellPathGeometryTools::linearInterpolation(double x1, double x2, double y1, double y2, double x)
+{
     double M = (y2 - y1) / (x2 - x1);
-
     return M * (x - x1) + y1;
 }
