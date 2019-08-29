@@ -25,7 +25,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTestRunner.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaExtractionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools.h
-${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveMerger.h
+${CMAKE_CURRENT_LIST_DIR}/RiaCurveMerger.h
+${CMAKE_CURRENT_LIST_DIR}/RiaCurveMerger.inl
 ${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools.h
@@ -67,7 +68,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTestRunner.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaExtractionTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveMerger.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaCurveMerger.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools.cpp

@@ -21,11 +21,15 @@
 #include "RiaApplication.h"
 #include "RiaSummaryTools.h"
 
-#include "RimObservedData.h"
+#include "RimMainPlotCollection.h"
+#include "RimObservedFmuRftData.h"
+#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
 #include "RimProject.h"
+#include "RimRftPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimWellRftPlot.h"
 
 #include "cafSelectionManager.h"
 
@@ -47,11 +51,11 @@ void RicCloseObservedDataFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicCloseObservedDataFeature::deleteObservedData(const std::vector<RimObservedData*>& data)
+void RicCloseObservedDataFeature::deleteObservedSummaryData(const std::vector<RimObservedSummaryData*>& data)
 {
     RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
-    for (RimObservedData* observedData : data)
+    for (RimObservedSummaryData* observedData : data)
     {
         for (RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots)
         {
@@ -62,7 +66,30 @@ void RicCloseObservedDataFeature::deleteObservedData(const std::vector<RimObserv
         RimObservedDataCollection* observedDataCollection = nullptr;
         observedData->firstAncestorOrThisOfTypeAsserted(observedDataCollection);
         
-        observedDataCollection->removeObservedData(observedData);
+        observedDataCollection->removeObservedSummaryData(observedData);
+        delete observedData;
+        observedDataCollection->updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCloseObservedDataFeature::deleteObservedRmuRftData(const std::vector<RimObservedFmuRftData*>& data)
+{
+    RimProject*           proj        = RiaApplication::instance()->project();
+    RimRftPlotCollection* rftPlotColl = proj->mainPlotCollection()->rftPlotCollection();
+
+    for (RimObservedFmuRftData* observedData : data)
+    {
+        RimObservedDataCollection* observedDataCollection = nullptr;
+        observedData->firstAncestorOrThisOfTypeAsserted(observedDataCollection);
+
+		for (RimWellRftPlot* plot : rftPlotColl->rftPlots())
+		{
+            plot->deleteCurvesAssosicatedWithObservedData(observedData);
+		}
+        observedDataCollection->removeObservedFmuRftData(observedData);
         delete observedData;
         observedDataCollection->updateConnectedEditors();
     }
@@ -73,14 +100,17 @@ void RicCloseObservedDataFeature::deleteObservedData(const std::vector<RimObserv
 //--------------------------------------------------------------------------------------------------
 bool RicCloseObservedDataFeature::isCommandEnabled()
 {
-    std::vector<RimObservedData*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
+    std::vector<RimObservedSummaryData*> summarySelection;
+    caf::SelectionManager::instance()->objectsByType(&summarySelection);
 
-    if (selection.size() == 0)
+	std::vector<RimObservedFmuRftData*> fmuRftSelection;
+    caf::SelectionManager::instance()->objectsByType(&fmuRftSelection);
+
+    if (summarySelection.size() == 0 && fmuRftSelection.size() == 0)
     {
         return false;
     }
-    for (RimObservedData* data : selection)
+    for (RimObservedSummaryData* data : summarySelection)
     {
         if (!data->isObservedData())
         {
@@ -96,9 +126,14 @@ bool RicCloseObservedDataFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCloseObservedDataFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimObservedData*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    CVF_ASSERT(selection.size() > 0);
+    std::vector<RimObservedSummaryData*> summarySelection;
+    caf::SelectionManager::instance()->objectsByType(&summarySelection);
+
+    std::vector<RimObservedFmuRftData*> fmuRftSelection;
+    caf::SelectionManager::instance()->objectsByType(&fmuRftSelection);
+
+	CVF_ASSERT(!(summarySelection.empty() && fmuRftSelection.empty()));
     
-    RicCloseObservedDataFeature::deleteObservedData(selection);
+    RicCloseObservedDataFeature::deleteObservedSummaryData(summarySelection);
+    RicCloseObservedDataFeature::deleteObservedRmuRftData(fmuRftSelection);
 }

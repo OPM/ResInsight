@@ -73,10 +73,25 @@ void RimPlotCurve::PointSymbol::setUp()
     addItem(RiuQwtSymbol::SYMBOL_RECT, "SYMBOL_RECT", "Rect");
     addItem(RiuQwtSymbol::SYMBOL_DIAMOND, "SYMBOL_DIAMOND", "Diamond");
     addItem(RiuQwtSymbol::SYMBOL_TRIANGLE, "SYMBOL_TRIANGLE", "Triangle");
+    addItem(RiuQwtSymbol::SYMBOL_DOWN_TRIANGLE, "SYMBOL_DOWN_TRIANGLE", "Down Triangle");
     addItem(RiuQwtSymbol::SYMBOL_CROSS, "SYMBOL_CROSS", "Cross");
     addItem(RiuQwtSymbol::SYMBOL_XCROSS, "SYMBOL_XCROSS", "X Cross");
-
+    addItem(RiuQwtSymbol::SYMBOL_STAR1, "SYMBOL_STAR1", "Star 1");
+    addItem(RiuQwtSymbol::SYMBOL_STAR2, "SYMBOL_STAR2", "Star 2");
+    addItem(RiuQwtSymbol::SYMBOL_HEXAGON, "SYMBOL_HEXAGON", "Hexagon");
+    addItem(RiuQwtSymbol::SYMBOL_LEFT_TRIANGLE, "SYMBOL_LEFT_TRIANGLE", "Left Triangle");
+    addItem(RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, "SYMBOL_RIGHT_TRIANGLE", "Right Triangle");
     setDefault(RiuQwtSymbol::SYMBOL_NONE);
+}
+
+template<>
+void RimPlotCurve::LabelPosition::setUp()
+{
+    addItem(RiuQwtSymbol::LabelAboveSymbol, "LABEL_ABOVE_SYMBOL", "Label above Symbol");
+    addItem(RiuQwtSymbol::LabelBelowSymbol, "LABEL_BELOW_SYMBOL", "Label below Symbol");
+    addItem(RiuQwtSymbol::LabelLeftOfSymbol, "LABEL_LEFT_OF_SYMBOL", "Label left of Symbol");
+    addItem(RiuQwtSymbol::LabelRightOfSymbol, "LABEL_RIGHT_OF_SYMBOL", "Label right of Symbol");
+    setDefault(RiuQwtSymbol::LabelAboveSymbol);
 }
 
 }
@@ -86,7 +101,6 @@ void RimPlotCurve::PointSymbol::setUp()
 /// 
 //--------------------------------------------------------------------------------------------------
 RimPlotCurve::RimPlotCurve()
-    : m_symbolLabelPosition(RiuQwtSymbol::LabelAboveSymbol)
 {
     CAF_PDM_InitObject("Curve", ":/WellLogCurve16x16.png", "", "");
 
@@ -116,10 +130,13 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "");
 
-    CAF_PDM_InitField(&m_symbolSize, "SymbolSize", 6, "Symbol Size", "", "", "");
+	CAF_PDM_InitFieldNoDefault(&m_symbolLabel, "SymbolLabel", "Symbol Label", "", "", "");
+	CAF_PDM_InitField(&m_symbolSize, "SymbolSize", 6, "Symbol Size", "", "", "");
 
     CAF_PDM_InitField(&m_showErrorBars, "ShowErrorBars", true, "Show Error Bars", "", "", "");
 
+	CAF_PDM_InitFieldNoDefault(&m_symbolLabelPosition, "SymbolLabelPosition", "Symbol Label Position", "", "", "");
+    
     m_qwtPlotCurve = new RiuRimQwtPlotCurve(this);
 
     m_parentQwtPlot = nullptr;
@@ -548,7 +565,7 @@ void RimPlotCurve::updateCurveAppearance()
     if (m_pointSymbol() != RiuQwtSymbol::SYMBOL_NONE)
     {
         // QwtPlotCurve will take ownership of the symbol
-        symbol = new RiuQwtSymbol(m_pointSymbol(), m_symbolLabel, m_symbolLabelPosition);
+        symbol = new RiuQwtSymbol(m_pointSymbol(), m_symbolLabel(), m_symbolLabelPosition());
         symbol->setSize(m_symbolSize, m_symbolSize);
         symbol->setColor(curveColor);
 
@@ -686,6 +703,14 @@ RiuQwtSymbol::PointSymbolEnum RimPlotCurve::symbol()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimPlotCurve::symbolSize() const
+{
+    return m_symbolSize();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RimPlotCurve::symbolEdgeColor() const
 {
     return m_symbolEdgeColor;
@@ -713,6 +738,14 @@ void RimPlotCurve::setSymbolSkipDistance(float distance)
 void RimPlotCurve::setSymbolLabel(const QString& label)
 {
     m_symbolLabel = label;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSymbolLabelPosition(RiuQwtSymbol::LabelPosition labelPosition)
+{
+    m_symbolLabelPosition = labelPosition;
 }
 
 //--------------------------------------------------------------------------------------------------

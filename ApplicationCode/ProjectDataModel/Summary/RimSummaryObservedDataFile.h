@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
@@ -29,7 +29,7 @@ class RifReaderObservedData;
 //==================================================================================================
 //
 //==================================================================================================
-class RimSummaryObservedDataFile : public RimObservedData
+class RimSummaryObservedDataFile : public RimObservedSummaryData
 {
     CAF_PDM_HEADER_INIT;
 public:

@@ -25,9 +25,6 @@ RifEclipseRftAddress::RifEclipseRftAddress(QString wellName, QDateTime timeStep,
     : m_wellName(wellName)
     , m_wellLogChannel(wellLogChannelName)
 {
-    timeStep.setTimeSpec(Qt::TimeSpec::UTC);
-
-    m_timeStep.setTimeSpec(Qt::TimeSpec::UTC);
     m_timeStep = timeStep;
 }
 

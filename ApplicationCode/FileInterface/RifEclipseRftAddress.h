@@ -36,14 +36,19 @@ public:
     enum RftWellLogChannelType
     {
         NONE,
-        DEPTH,
+        TVD,
         PRESSURE,
         SWAT,
         SOIL,
         SGAS,
         WRAT,
         ORAT,
-        GRAT
+        GRAT,
+        MD,
+        PRESSURE_P10,
+        PRESSURE_P50,
+        PRESSURE_P90,
+        PRESSURE_MEAN
     };
 
 public:

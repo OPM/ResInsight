@@ -18,11 +18,12 @@
 
 #include "RimSummaryCurve.h"
 
+#include "RiaCurveMerger.h"
 #include "RiaDefines.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaStatisticsTools.h"
-#include "RiaTimeHistoryCurveMerger.h"
+#include "RiaCurveMerger.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -497,14 +498,14 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
             else
             {
                 RiaTimeHistoryCurveMerger curveMerger;
-                curveMerger.addCurveData(curveValuesX, curveTimeStepsX);
-                curveMerger.addCurveData(curveValuesY, curveTimeStepsY);
+                curveMerger.addCurveData(curveTimeStepsX, curveValuesX);
+                curveMerger.addCurveData(curveTimeStepsY, curveValuesY);
                 curveMerger.computeInterpolatedValues();
 
-                if (curveMerger.allTimeSteps().size() > 0)
+                if (curveMerger.allXValues().size() > 0)
                 {
-                    m_qwtPlotCurve->setSamplesFromXValuesAndYValues(curveMerger.interpolatedCurveValuesForAllTimeSteps(0), 
-                                                                    curveMerger.interpolatedCurveValuesForAllTimeSteps(1), 
+                    m_qwtPlotCurve->setSamplesFromXValuesAndYValues(curveMerger.interpolatedYValuesForAllXValues(0), 
+                                                                    curveMerger.interpolatedYValuesForAllXValues(1), 
                                                                     isLogCurve);
                 }
                 else
@@ -998,11 +999,11 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         if (!curveValuesX.empty() && !curveValuesY.empty())
         {
             RiaTimeHistoryCurveMerger curveMerger;
-            curveMerger.addCurveData(curveValuesX, curveTimeStepsX);
-            curveMerger.addCurveData(curveValuesY, curveTimeStepsY);
+            curveMerger.addCurveData(curveTimeStepsX, curveValuesX);
+            curveMerger.addCurveData(curveTimeStepsY, curveValuesY);
             curveMerger.computeInterpolatedValues();
 
-            if (curveMerger.validIntervalsForAllTimeSteps().size() == 0)
+            if (curveMerger.validIntervalsForAllXValues().size() == 0)
             {
                 QString description;
 

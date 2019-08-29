@@ -33,6 +33,8 @@
 
 class RimEclipseCase;
 class RimEclipseResultCase;
+class RimObservedFmuRftData;
+class RimSummaryCaseCollection;
 class RimWellLogCurve;
 class RimWellLogFileChannel;
 class RimWellLogPlot;
@@ -82,6 +84,10 @@ public:
 // Both
     static std::vector<RimEclipseResultCase*>               gridCasesForWell(const QString& simWellName);
     static std::vector<RimEclipseResultCase*>               rftCasesForWell(const QString& simWellName);
+    static std::vector<RimSummaryCaseCollection*>           rftEnsemblesForWell(const QString& simWellName);
+    static std::vector<RimSummaryCaseCollection*>           rftEnsembles();
+    static std::vector<RimObservedFmuRftData*>              observedFmuRftDataForWell(const QString& simWellName);
+    static std::vector<RimObservedFmuRftData*>              observedFmuRftData();
     static QString                                  simWellName(const QString& wellPathNameOrSimWellName);
 
     static std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
@@ -94,7 +100,7 @@ public:
                                                                                       const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults,
                                                                                       QList<caf::PdmOptionItemInfo>& options);
 
-    static std::set < RiaRftPltCurveDefinition >    curveDefsFromTimesteps(const QString& simWellName, 
+    static std::set < RiaRftPltCurveDefinition >    curveDefsFromTimesteps(const QString& wellPathNameOrSimWellName,
                                                                            const std::vector<QDateTime>& selectedTimeStepVector, 
                                                                            bool firstReportTimeStepIsValid, 
                                                                            const std::vector<RifDataSourceForRftPlt>& selectedSourcesExpanded,

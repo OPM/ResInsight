@@ -351,6 +351,7 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData(std::vector<RimSummaryCas
         if (sumCase)
         {
             sumCase->createSummaryReaderInterface();
+            sumCase->createRftReaderInterface();
             addCaseRealizationParametersIfFound(*sumCase, sumCase->summaryHeaderFilename());
         }
 

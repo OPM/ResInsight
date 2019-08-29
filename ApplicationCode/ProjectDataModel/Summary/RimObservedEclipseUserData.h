@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
@@ -29,7 +29,7 @@ class RifSummaryReaderInterface;
 //==================================================================================================
 //
 //==================================================================================================
-class RimObservedEclipseUserData : public RimObservedData
+class RimObservedEclipseUserData : public RimObservedSummaryData
 {
     CAF_PDM_HEADER_INIT;
 public:

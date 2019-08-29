@@ -32,7 +32,10 @@
 
 class RimWellLogFile;
 class RimEclipseCase;
-class RifReaderEclipseRft;
+class RifReaderRftInterface;
+class RimSummaryCase;
+class RimSummaryCaseCollection;
+class RimObservedFmuRftData;
 
 //==================================================================================================
 ///  
@@ -46,17 +49,26 @@ public:
         NONE,
         OBSERVED,
         RFT,
-        GRID
+        GRID,
+        ENSEMBLE_RFT,
+        SUMMARY_RFT,
+		OBSERVED_FMU_RFT
     };
 
     RifDataSourceForRftPlt();
     RifDataSourceForRftPlt(SourceType sourceType, RimEclipseCase* eclCase);
+    RifDataSourceForRftPlt(SourceType sourceType, RimSummaryCaseCollection* ensemble);
+    RifDataSourceForRftPlt(SourceType sourceType, RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble);
     RifDataSourceForRftPlt(SourceType sourceType, RimWellLogFile* wellLogFile = nullptr);
+    RifDataSourceForRftPlt(SourceType sourceType, RimObservedFmuRftData* observedFmuRftData);
 
     SourceType   sourceType() const;
     RimEclipseCase* eclCase() const;
-    RifReaderEclipseRft* rftReader() const;
+    RifReaderRftInterface* rftReader() const;
+    RimSummaryCaseCollection* ensemble() const;
+    RimSummaryCase* summaryCase() const;
     RimWellLogFile* wellLogFile() const;
+	RimObservedFmuRftData* observedFmuRftData() const;
 
     static QString sourceTypeUiText(SourceType sourceType);
 
@@ -64,9 +76,12 @@ public:
     friend bool operator<(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2);
 
 private:
-    SourceType                      m_sourceType;
-    caf::PdmPointer<RimEclipseCase> m_eclCase;
-    caf::PdmPointer<RimWellLogFile> m_wellLogFile;
+    SourceType                                m_sourceType;
+    caf::PdmPointer<RimEclipseCase>           m_eclCase;
+    caf::PdmPointer<RimSummaryCase>           m_summaryCase;
+    caf::PdmPointer<RimSummaryCaseCollection> m_ensemble;
+    caf::PdmPointer<RimWellLogFile>           m_wellLogFile;
+    caf::PdmPointer<RimObservedFmuRftData>    m_observedFmuRftData;
 };
 
 bool operator==(const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2);

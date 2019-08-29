@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include "cvfObject.h"
@@ -50,7 +51,7 @@ public:
                                                            std::vector<double>* values) const = 0;
 
     virtual std::string                             unitName(const RifEclipseSummaryAddress& resultAddress) const = 0;
-
+    virtual RiaEclipseUnitTools::UnitSystem         unitSystem() const = 0;
    
     virtual void                                    markForCachePurge(const RifEclipseSummaryAddress& address) {}
 

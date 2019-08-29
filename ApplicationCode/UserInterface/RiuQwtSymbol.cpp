@@ -54,7 +54,7 @@ RiuQwtSymbol::RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, Label
     case SYMBOL_DOWN_TRIANGLE:
         style = QwtSymbol::DTriangle;
         break;
-    case SYMBOL_LEFT_TRIANGLE:
+    case SYMBOL_LEFT_ALIGNED_TRIANGLE:
         style = QwtSymbol::Path;
         {
             QPainterPath path;
@@ -66,7 +66,7 @@ RiuQwtSymbol::RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, Label
             setPinPoint(QPointF(0, 0));
         }
         break;
-    case SYMBOL_RIGHT_TRIANGLE:
+    case SYMBOL_RIGHT_ALIGNED_TRIANGLE:
         style = QwtSymbol::Path;
         {
             QPainterPath path;
@@ -114,6 +114,11 @@ RiuQwtSymbol::RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, Label
     case SYMBOL_HEXAGON:
         style = QwtSymbol::Hexagon;
         break;
+    case SYMBOL_LEFT_TRIANGLE:
+        style = QwtSymbol::LTriangle;
+        break;
+    case SYMBOL_RIGHT_TRIANGLE:
+        style = QwtSymbol::RTriangle;
     default:
         break;
     }
@@ -132,7 +137,7 @@ void RiuQwtSymbol::renderSymbols(QPainter *painter, const QPointF *points, int n
         for (int i = 0; i < numPoints; i++)
         {
             auto position = points[i];
-            renderSymbolLabel(painter, position);
+            //renderSymbolLabel(painter, position);
         }
     }
 }
@@ -174,7 +179,6 @@ RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbolStyle(int indexLevel1, i
         {SYMBOL_ELLIPSE, SYMBOL_RECT, SYMBOL_DIAMOND},
         {SYMBOL_DOWN_TRIANGLE, SYMBOL_UP_TRIANGLE},
         {SYMBOL_LEFT_TRIANGLE, SYMBOL_RIGHT_TRIANGLE},
-        {SYMBOL_LEFT_ANGLED_TRIANGLE, SYMBOL_RIGHT_ANGLED_TRIANGLE},
         {SYMBOL_CROSS, SYMBOL_XCROSS},
         {SYMBOL_STAR1, SYMBOL_STAR2},
     };
@@ -208,7 +212,8 @@ QRect RiuQwtSymbol::labelBoundingRect(const QPainter* painter, const QRect& symb
 
     QPoint symbolPosition = symbolRect.topLeft();
 
-    int symbolWidth = symbolRect.width();
+    int symbolWidth  = symbolRect.width();
+    int symbolHeight = symbolRect.height();
     
     int labelWidth = painter->fontMetrics().width(m_label);
     int labelHeight = painter->fontMetrics().height();
@@ -217,6 +222,10 @@ QRect RiuQwtSymbol::labelBoundingRect(const QPainter* painter, const QRect& symb
     if (m_labelPosition == LabelAboveSymbol)
     {
         labelPosition = QPoint(symbolPosition.x() - labelWidth / 2, symbolPosition.y() - 5);
+    }
+    else if (m_labelPosition == LabelBelowSymbol)
+    {
+        labelPosition = QPoint(symbolPosition.x() - labelWidth / 2, symbolPosition.y() + symbolHeight + 5);
     }
     else if (m_labelPosition == LabelLeftOfSymbol)
     {

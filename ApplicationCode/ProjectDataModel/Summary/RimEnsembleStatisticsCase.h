@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimSummaryCase.h"
@@ -55,12 +56,12 @@ public:
     const RimEnsembleCurveSet*          curveSet() const;
 
     void                                calculate(const std::vector<RimSummaryCase*>& sumCases);
+    RiaEclipseUnitTools::UnitSystem     unitSystem() const;
 
 private:
     void                                calculate(const std::vector<RimSummaryCase*> sumCases, const RifEclipseSummaryAddress& inputAddress);
-    void clearData();
+    void                                clearData();
     std::vector<RimSummaryCase*>        validSummaryCases(const std::vector<RimSummaryCase*> allSumCases, const RifEclipseSummaryAddress& inputAddress);
-    void                                calculateStatistics(const std::vector<double>& values, double* p10, double* p50, double* p90, double* mean);
 
 private:
     std::unique_ptr<RifEnsembleStatisticsReader> m_statisticsReader;
@@ -72,5 +73,4 @@ private:
     std::vector<double>         m_p90Data;
     std::vector<double>         m_meanData;
 
-    RifEclipseSummaryAddress    m_addressUsedInLastCalculation;
 };

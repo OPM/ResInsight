@@ -40,9 +40,14 @@ public:
 public:
     static std::vector<cvf::Vec3d> calculateLineSegmentNormals(const std::vector<cvf::Vec3d>& vertices,
                                                                double                         angle);
+    static std::vector<double> interpolateMdFromTvd(const std::vector<double>& originalMdValues, const std::vector<double>& originalTvdValues, const std::vector<double>& tvdValuesToInterpolateFrom);
+
 private:
     static std::vector<cvf::Vec3d> interpolateUndefinedNormals(const cvf::Vec3d& planeNormal,
                                                                const std::vector<cvf::Vec3d>& normals,
                                                                const std::vector<cvf::Vec3d>& vertices);
     static cvf::Vec3d estimateDominantDirectionInXYPlane(const std::vector<cvf::Vec3d>& vertices);
+
+    static double linearInterpolation(const std::vector<double>& xValues, const std::vector<double>& yValues, int valueIndex, double x);
+
 };

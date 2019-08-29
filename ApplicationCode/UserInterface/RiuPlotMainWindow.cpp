@@ -250,6 +250,7 @@ void RiuPlotMainWindow::createMenus()
 
     importMenu->addSeparator();
     importMenu->addAction(cmdFeatureMgr->action("RicImportObservedDataInMenuFeature"));
+    importMenu->addAction(cmdFeatureMgr->action("RicImportObservedFmuDataInMenuFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportFormationNamesFeature"));
 
     QMenu* exportMenu = fileMenu->addMenu("&Export");

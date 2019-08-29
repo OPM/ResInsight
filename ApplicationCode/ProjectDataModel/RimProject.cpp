@@ -54,7 +54,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimMeasurement.h"
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimPltPlotCollection.h"
@@ -544,9 +544,9 @@ std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
         }
 
         auto observedDataColl = oilField->observedDataCollection();
-        if (observedDataColl != nullptr && observedDataColl->allObservedData().size() > 0)
+        if (observedDataColl != nullptr && observedDataColl->allObservedSummaryData().size() > 0)
         {
-            auto observedData = observedDataColl->allObservedData();
+            auto observedData = observedDataColl->allObservedSummaryData();
             sumCases.insert(sumCases.end(), observedData.begin(), observedData.end());
         }
     }

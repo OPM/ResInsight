@@ -234,7 +234,7 @@ void RicGridStatisticsDialog::createAndConnectToolbarActions()
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::deletePlotItems(QwtPlot* plot)
 {
-    auto itemList = plot->itemList();
+    QwtPlotItemList itemList = plot->itemList();
     for (auto item : itemList)
     {
         if (dynamic_cast<QwtPlotMarker*>(item)

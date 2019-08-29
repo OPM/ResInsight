@@ -18,7 +18,10 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
 #include "RifEclipseSummaryAddress.h"
+#include "RifEclipseRftAddress.h"
+#include "RifReaderEnsembleStatisticsRft.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -30,6 +33,8 @@
 #include <utility>
 #include <vector>
 
+class RifReaderRftInterface;
+class RifReaderEnsembleStatisticsRft;
 class RimSummaryCase;
 
 //==================================================================================================
@@ -87,6 +92,10 @@ public:
     bool                            isEnsemble() const;
     void                            setAsEnsemble(bool isEnsemble);
     virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const;
+    std::set<QString>               wellsWithRftData() const;
+    std::set<QDateTime>             rftTimeStepsForWell(const QString& wellName) const;
+    RifReaderRftInterface*          rftStatisticsReader();
+
     EnsembleParameter               ensembleParameter(const QString& paramName) const;
     void                            calculateEnsembleParametersIntersectionHash();
     void                            clearEnsembleParametersHashes();
@@ -95,6 +104,8 @@ public:
 
     static bool                     validateEnsembleCases(const std::vector<RimSummaryCase*> cases);
     bool                            operator<(const RimSummaryCaseCollection& rhs) const;
+
+    RiaEclipseUnitTools::UnitSystem unitSystem() const;
 private:
     caf::PdmFieldHandle*            userDescriptionField() override;
     QString                         nameAndItemCount() const;
@@ -112,9 +123,10 @@ protected:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
 
 private:
-    caf::PdmField<QString>                   m_name;
-    caf::PdmProxyValueField<QString>         m_nameAndItemCount;
-    caf::PdmField<bool>                      m_isEnsemble;
+    caf::PdmField<QString>                            m_name;
+    caf::PdmProxyValueField<QString>                  m_nameAndItemCount;
+    caf::PdmField<bool>                               m_isEnsemble;
+    cvf::ref<RifReaderEnsembleStatisticsRft>          m_statisticsEclipseRftReader;
 
     size_t                                   m_commonAddressCount;      // if different address count among cases, set to 0
 };

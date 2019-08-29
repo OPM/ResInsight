@@ -22,7 +22,8 @@
 
 #include <vector>
 
-class RimObservedData;
+class RimObservedFmuRftData;
+class RimObservedSummaryData;
 
 //==================================================================================================
 /// 
@@ -31,7 +32,8 @@ class RicCloseObservedDataFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 public:
-    static void deleteObservedData(const std::vector<RimObservedData*>& data);
+    static void deleteObservedSummaryData(const std::vector<RimObservedSummaryData*>& data);
+    static void deleteObservedRmuRftData(const std::vector<RimObservedFmuRftData*>& data);
 
 protected:
     // Overrides

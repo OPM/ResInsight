@@ -28,7 +28,6 @@
 #include "RifReaderEclipseSummary.h"
 
 #include "RigStatisticsMath.h"
-#include "RiaTimeHistoryCurveMerger.h"
 
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveFilter.h"
@@ -176,6 +175,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     m_ensembleStatCase.reset(new RimEnsembleStatisticsCase(this));
     m_ensembleStatCase->createSummaryReaderInterface();
+    m_ensembleStatCase->createRftReaderInterface();
 
     m_disableStatisticCurves = false;
     m_isCurveSetFiltered = false;

@@ -44,6 +44,9 @@ public:
 
     RimSummaryCalculation*              findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const;
 
+
+    RiaEclipseUnitTools::UnitSystem unitSystem() const override;
+
 private:
     caf::PdmPointer<RimSummaryCalculationCollection> m_calculationCollection;
 };

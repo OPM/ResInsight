@@ -32,7 +32,6 @@ class RicImportObservedDataFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    RicImportObservedDataFeature();
     static void selectObservedDataFileInDialog();
 
 private:

@@ -1,21 +1,20 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 
 #include "RimWellLogRftCurve.h"
 
@@ -32,11 +31,15 @@
 #include "RigMainGrid.h"
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
+#include "RigWellPathGeometryTools.h"
 #include "RigWellPathIntersectionTools.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimMainPlotCollection.h"
+#include "RimObservedFmuRftData.h"
 #include "RimProject.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimTools.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
@@ -60,26 +63,31 @@
 
 namespace caf
 {
-    template<>
-    void caf::AppEnum< RifEclipseRftAddress::RftWellLogChannelType >::setUp()
-    {
-        addItem(RifEclipseRftAddress::NONE, "NONE", "None");
-        addItem(RifEclipseRftAddress::DEPTH, "DEPTH", "Depth");
-        addItem(RifEclipseRftAddress::PRESSURE, "PRESSURE", "Pressure");
-        addItem(RifEclipseRftAddress::SWAT, "SWAT", "Water Saturation");
-        addItem(RifEclipseRftAddress::SOIL, "SOIL", "Oil Saturation");
-        addItem(RifEclipseRftAddress::SGAS, "SGAS", "Gas Saturation");
-        addItem(RifEclipseRftAddress::WRAT, "WRAT", "Water Flow");
-        addItem(RifEclipseRftAddress::ORAT, "ORAT", "Oil Flow");
-        addItem(RifEclipseRftAddress::GRAT, "GRAT", "Gas flow");
-        setDefault(RifEclipseRftAddress::NONE);
-    }
+template<>
+void caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::setUp()
+{
+    addItem(RifEclipseRftAddress::NONE, "NONE", "None");
+    addItem(RifEclipseRftAddress::TVD, "DEPTH", "Depth");
+    addItem(RifEclipseRftAddress::PRESSURE, "PRESSURE", "Pressure");
+    addItem(RifEclipseRftAddress::SWAT, "SWAT", "Water Saturation");
+    addItem(RifEclipseRftAddress::SOIL, "SOIL", "Oil Saturation");
+    addItem(RifEclipseRftAddress::SGAS, "SGAS", "Gas Saturation");
+    addItem(RifEclipseRftAddress::WRAT, "WRAT", "Water Flow");
+    addItem(RifEclipseRftAddress::ORAT, "ORAT", "Oil Flow");
+    addItem(RifEclipseRftAddress::GRAT, "GRAT", "Gas flow");
+    addItem(RifEclipseRftAddress::MD, "MD", "Measured Depth");
+    addItem(RifEclipseRftAddress::PRESSURE_P10, "PRESSURE_P10", "Pressure P10");
+    addItem(RifEclipseRftAddress::PRESSURE_P50, "PRESSURE_P50", "Pressure P50");
+    addItem(RifEclipseRftAddress::PRESSURE_P90, "PRESSURE_P90", "Pressure P90");
+    addItem(RifEclipseRftAddress::PRESSURE_MEAN, "PRESSURE_MEAN", "Pressure Mean");
+    setDefault(RifEclipseRftAddress::NONE);
 }
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT(RimWellLogRftCurve, "WellLogRftCurve");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellLogRftCurve::RimWellLogRftCurve()
 {
@@ -88,27 +96,40 @@ RimWellLogRftCurve::RimWellLogRftCurve()
     CAF_PDM_InitFieldNoDefault(&m_eclipseResultCase, "CurveEclipseResultCase", "Eclipse Result Case", "", "", "");
     m_eclipseResultCase.uiCapability()->setUiTreeChildrenHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_summaryCase, "CurveSummaryCase", "Summary Case", "", "", "");
+    m_summaryCase.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_ensemble, "CurveEnsemble", "Ensemble", "", "", "");
+    m_ensemble.uiCapability()->setUiTreeChildrenHidden(true);
+
+	CAF_PDM_InitFieldNoDefault(&m_observedFmuRftData, "ObservedFmuRftData", "Observed FMU RFT Data", "", "", "");
+    m_observedFmuRftData.uiCapability()->setUiTreeChildrenHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_timeStep, "TimeStep", "Time Step", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellName, "WellName", "Well Name", "", "", "");
     CAF_PDM_InitField(&m_branchIndex, "BranchIndex", 0, "Branch Index", "", "", "");
-    CAF_PDM_InitField(&m_branchDetection, "BranchDetection", true, "Branch Detection", "", 
-                      "Compute branches based on how simulation well cells are organized", "");
+    CAF_PDM_InitField(&m_branchDetection,
+                      "BranchDetection",
+                      true,
+                      "Branch Detection",
+                      "",
+                      "Compute branches based on how simulation well cells are organized",
+                      "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannelName, "WellLogChannelName", "Well Property", "", "", "");
 
     m_isUsingPseudoLength = false;
+    m_derivingMDFromObservedData = false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimWellLogRftCurve::~RimWellLogRftCurve()
-{
-}
+RimWellLogRftCurve::~RimWellLogRftCurve() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::wellName() const
 {
@@ -116,7 +137,7 @@ QString RimWellLogRftCurve::wellName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::wellLogChannelName() const
 {
@@ -124,7 +145,7 @@ QString RimWellLogRftCurve::wellLogChannelName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setEclipseResultCase(RimEclipseResultCase* eclipseResultCase)
 {
@@ -132,7 +153,7 @@ void RimWellLogRftCurve::setEclipseResultCase(RimEclipseResultCase* eclipseResul
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultCase* RimWellLogRftCurve::eclipseResultCase() const
 {
@@ -140,12 +161,61 @@ RimEclipseResultCase* RimWellLogRftCurve::eclipseResultCase() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setSummaryCase(RimSummaryCase* summaryCase)
+{
+    m_summaryCase = summaryCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimWellLogRftCurve::summaryCase() const
+{
+    return m_summaryCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setEnsemble(RimSummaryCaseCollection* ensemble)
+{
+    m_ensemble = ensemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCaseCollection* RimWellLogRftCurve::ensemble() const
+{
+    return m_ensemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setObservedFmuRftData(RimObservedFmuRftData* observedFmuRftData)
+{
+    m_observedFmuRftData = observedFmuRftData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimObservedFmuRftData* RimWellLogRftCurve::observedFmuRftData() const
+{
+    return m_observedFmuRftData;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setRftAddress(RifEclipseRftAddress address)
 {
-    m_timeStep = address.timeStep();
-    m_wellName = address.wellName();
+    m_timeStep           = address.timeStep();
+    m_wellName           = address.wellName();
     m_wellLogChannelName = address.wellLogChannel();
 }
 
@@ -158,21 +228,21 @@ RifEclipseRftAddress RimWellLogRftCurve::rftAddress() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setDefaultAddress(QString wellName)
 {
-    RifReaderEclipseRft* reader = rftReader();
+    RifReaderRftInterface* reader = rftReader();
     if (!reader) return;
 
-    bool wellNameHasRftData = false;
-    std::set<QString> wellNames = reader->wellNames();
+    bool              wellNameHasRftData = false;
+    std::set<QString> wellNames          = reader->wellNames();
     for (const QString& wellNameWithRft : wellNames)
     {
         if (wellName == wellNameWithRft)
         {
             wellNameHasRftData = true;
-            m_wellName = wellName;
+            m_wellName         = wellName;
             break;
         }
     }
@@ -180,16 +250,16 @@ void RimWellLogRftCurve::setDefaultAddress(QString wellName)
     if (!wellNameHasRftData)
     {
         m_wellLogChannelName = RifEclipseRftAddress::NONE;
-        m_timeStep = QDateTime();
+        m_timeStep           = QDateTime();
         return;
     }
 
     m_wellLogChannelName = RifEclipseRftAddress::PRESSURE;
 
-    std::vector<QDateTime> timeSteps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
-    if (timeSteps.size() > 0)
+    std::set<QDateTime> timeSteps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
+    if (!timeSteps.empty())
     {
-        m_timeStep = timeSteps[0];
+        m_timeStep = *(timeSteps.begin());
     }
     else
     {
@@ -198,7 +268,7 @@ void RimWellLogRftCurve::setDefaultAddress(QString wellName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::updateWellChannelNameAndTimeStep()
 {
@@ -208,43 +278,43 @@ void RimWellLogRftCurve::updateWellChannelNameAndTimeStep()
         return;
     }
 
-    RifReaderEclipseRft* reader = rftReader();
+    RifReaderRftInterface* reader = rftReader();
     if (!reader) return;
 
-    std::vector<RifEclipseRftAddress::RftWellLogChannelType> channelNames = reader->availableWellLogChannels(m_wellName);
+    std::set<RifEclipseRftAddress::RftWellLogChannelType> channelNames = reader->availableWellLogChannels(m_wellName);
 
     if (channelNames.empty())
     {
         m_wellLogChannelName = RifEclipseRftAddress::NONE;
     }
-    else if (std::find(channelNames.begin(), channelNames.end(), m_wellLogChannelName()) == channelNames.end())
+    else if (!channelNames.count(m_wellLogChannelName()))
     {
         m_wellLogChannelName = RifEclipseRftAddress::PRESSURE;
     }
 
-    std::vector<QDateTime> timeSteps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
+    std::set<QDateTime> timeSteps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
 
     if (timeSteps.empty())
     {
         m_timeStep = QDateTime();
     }
-    else if (std::find(timeSteps.begin(), timeSteps.end(), m_timeStep()) == timeSteps.end())
+    else if (!timeSteps.count(m_timeStep()))
     {
-        m_timeStep = timeSteps[0];
+        m_timeStep = *(timeSteps.begin());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setSimWellBranchData(bool branchDetection, int branchIndex)
 {
     m_branchDetection = branchDetection;
-    m_branchIndex = branchIndex;
+    m_branchIndex     = branchIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::createCurveAutoName()
 {
@@ -261,12 +331,25 @@ QString RimWellLogRftCurve::createCurveAutoName()
     {
         name.push_back(m_eclipseResultCase->caseUserDescription());
     }
+    else if (m_ensemble) // Summary RFT curves have both ensemble and summary set. Prioritize ensemble for name.
+    {
+        name.push_back(m_ensemble->name());
+    }
+    else if (m_summaryCase)
+    {
+        name.push_back(m_summaryCase->caseName());
+    }
+	else if (m_observedFmuRftData)
+	{
+        name.push_back(m_observedFmuRftData->name());
+	}
     if (wellLogChannelName() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(RifEclipseRftAddress::NONE))
-    { 
-        RifEclipseRftAddress::RftWellLogChannelType channelNameEnum = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::fromText(wellLogChannelName());
+    {
+        RifEclipseRftAddress::RftWellLogChannelType channelNameEnum =
+            caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::fromText(wellLogChannelName());
         name.push_back(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(channelNameEnum));
     }
-    if ( !m_timeStep().isNull())
+    if (!m_timeStep().isNull())
     {
         name.push_back(m_timeStep().toString(RiaQDateTimeTools::dateFormatString()));
     }
@@ -275,14 +358,14 @@ QString RimWellLogRftCurve::createCurveAutoName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
     this->RimPlotCurve::updateCurvePresentation(updateParentPlot);
 
     m_isUsingPseudoLength = false;
-    
+
     if (isCurveVisible())
     {
         m_curveData = new RigWellLogCurveData;
@@ -292,18 +375,55 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
         CVF_ASSERT(wellLogPlot);
 
         std::vector<double> measuredDepthVector = measuredDepthValues();
-        std::vector<double> tvDepthVector = tvDepthValues();
-        std::vector<double> values = xValues();
+        std::vector<double> tvDepthVector       = tvDepthValues();
+        std::vector<double> values              = xValues();
 
-        if (values.empty() ||
-            values.size() != tvDepthVector.size() ||
-            values.size() != measuredDepthVector.size())
+        if (values.empty() || values.size() != tvDepthVector.size())
         {
             this->detachQwtCurve();
             return;
         }
 
-        m_curveData->setValuesWithTVD(values, measuredDepthVector, tvDepthVector, RiaEclipseUnitTools::depthUnit(m_eclipseResultCase->eclipseCaseData()->unitsType()), false);
+        RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
+        if (m_eclipseResultCase)
+        {
+            unitSystem = m_eclipseResultCase->eclipseCaseData()->unitsType();
+        }
+        else if (m_summaryCase)
+        {
+            unitSystem = m_summaryCase->unitsSystem();
+        }
+		else if (m_ensemble)
+		{
+            unitSystem = m_ensemble->unitSystem();
+		}
+		else if (m_observedFmuRftData)
+		{
+			// TODO: Read unit system somewhere for FMU RFT Data
+            unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
+		}
+		else
+        {
+			CVF_ASSERT(false && "Need to have either an eclipse result case, a summary case or an ensemble");
+		}
+
+        if (tvDepthVector.size() != measuredDepthVector.size())
+        {
+            measuredDepthVector = interpolatedMeasuredDepthValuesFromObservedData(tvDepthVector);
+            if (measuredDepthVector.size() == tvDepthVector.size())
+            {
+                m_derivingMDFromObservedData = true;
+            }
+        }
+
+        if (tvDepthVector.size() != measuredDepthVector.size())
+        {
+            m_isUsingPseudoLength = true;
+            measuredDepthVector   = tvDepthVector;
+        }
+
+        m_curveData->setValuesWithTVD(
+            values, measuredDepthVector, tvDepthVector, RiaEclipseUnitTools::depthUnit(unitSystem), false);
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
         if (wellLogPlot)
@@ -313,15 +433,20 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
         if (wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH)
         {
-            m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->measuredDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+            m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(),
+                                       m_curveData->measuredDepthPlotValues(displayUnit).data(),
+                                       static_cast<int>(m_curveData->xPlotValues().size()));
         }
         else
         {
-            m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->trueDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+            m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(),
+                                       m_curveData->trueDepthPlotValues(displayUnit).data(),
+                                       static_cast<int>(m_curveData->xPlotValues().size()));
             m_isUsingPseudoLength = false;
+            m_derivingMDFromObservedData = false;
         }
 
-        if (m_isUsingPseudoLength)
+        if (m_isUsingPseudoLength || m_derivingMDFromObservedData)
         {
             RimWellLogTrack* wellLogTrack;
             firstAncestorOrThisOfType(wellLogTrack);
@@ -330,7 +455,10 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
             RiuWellLogTrack* viewer = wellLogTrack->viewer();
             if (viewer)
             {
-                viewer->setDepthTitle("PL/" + wellLogPlot->depthPlotTitle());
+                if (m_derivingMDFromObservedData)
+                    viewer->setDepthTitle("OBS/" + wellLogPlot->depthPlotTitle());
+                else
+                    viewer->setDepthTitle("PL/" + wellLogPlot->depthPlotTitle());
             }
         }
 
@@ -349,7 +477,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -359,10 +487,8 @@ void RimWellLogRftCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     curveDataGroup->add(&m_eclipseResultCase);
     curveDataGroup->add(&m_wellName);
 
-    RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromWellName(curveDataGroup,
-                                                                           m_wellName,
-                                                                           m_branchDetection,
-                                                                           m_branchIndex);
+    RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromWellName(
+        curveDataGroup, m_wellName, m_branchDetection, m_branchIndex);
 
     curveDataGroup->add(&m_wellLogChannelName);
     curveDataGroup->add(&m_timeStep);
@@ -378,9 +504,10 @@ void RimWellLogRftCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                        bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -397,7 +524,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
     else if (fieldNeedingOptions == &m_wellName)
     {
         options.push_back(caf::PdmOptionItemInfo("None", ""));
-        RifReaderEclipseRft* reader = rftReader();
+        RifReaderRftInterface* reader = rftReader();
         if (reader)
         {
             std::set<QString> wellNames = reader->wellNames();
@@ -409,26 +536,29 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
     }
     else if (fieldNeedingOptions == &m_wellLogChannelName)
     {
-        RifReaderEclipseRft* reader = rftReader();
+        RifReaderRftInterface* reader = rftReader();
         if (reader)
         {
             for (const RifEclipseRftAddress::RftWellLogChannelType& channelName : reader->availableWellLogChannels(m_wellName))
             {
-                options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(channelName), channelName));
+                options.push_back(caf::PdmOptionItemInfo(
+                    caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(channelName), channelName));
             }
         }
         if (options.empty())
         {
-            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(RifEclipseRftAddress::NONE), RifEclipseRftAddress::NONE));
+            options.push_back(caf::PdmOptionItemInfo(
+                caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(RifEclipseRftAddress::NONE),
+                RifEclipseRftAddress::NONE));
         }
     }
     else if (fieldNeedingOptions == &m_timeStep)
     {
-        RifReaderEclipseRft* reader = rftReader();
+        RifReaderRftInterface* reader = rftReader();
         if (reader)
         {
-            QString dateFormat = "dd MMM yyyy";
-            std::vector<QDateTime> timeStamps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
+            QString             dateFormat = "dd MMM yyyy";
+            std::set<QDateTime> timeStamps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
             for (const QDateTime& dt : timeStamps)
             {
                 QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(dt, dateFormat);
@@ -441,7 +571,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
     }
     else if (fieldNeedingOptions == &m_branchIndex)
     {
-        auto simulationWellBranches = 
+        auto simulationWellBranches =
             RiaSimWellBranchTools::simulationWellBranches(RimWellPlotTools::simWellName(m_wellName), m_branchDetection);
 
         options = RiaSimWellBranchTools::valueOptionsForBranchIndexField(simulationWellBranches);
@@ -451,17 +581,19 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                          const QVariant&            oldValue,
+                                          const QVariant&            newValue)
 {
     m_idxInWellPathToIdxInRftFile.clear();
 
     RimWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);
     if (changedField == &m_eclipseResultCase)
     {
-        m_timeStep = QDateTime();
-        m_wellName = "";
+        m_timeStep           = QDateTime();
+        m_wellName           = "";
         m_wellLogChannelName = RifEclipseRftAddress::NONE;
 
         this->loadDataAndUpdate(true);
@@ -473,8 +605,7 @@ void RimWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         updateWellChannelNameAndTimeStep();
         this->loadDataAndUpdate(true);
     }
-    else if (changedField == &m_branchDetection ||
-             changedField == &m_branchIndex)
+    else if (changedField == &m_branchDetection || changedField == &m_branchIndex)
     {
         QString simWellName = RimWellPlotTools::simWellName(m_wellName);
 
@@ -498,24 +629,36 @@ void RimWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseRft* RimWellLogRftCurve::rftReader() const 
+RifReaderRftInterface* RimWellLogRftCurve::rftReader() const
 {
-    if (!m_eclipseResultCase()) return nullptr;
-
-    return m_eclipseResultCase()->rftReader();
+    if (m_eclipseResultCase())
+    {
+        return m_eclipseResultCase()->rftReader();
+    }
+    else if (m_summaryCase()) // Summary RFT curves have both summary and ensemble set. Prioritize summary for reader.
+    {
+        return m_summaryCase()->rftReader();
+    }
+    else if (m_ensemble())
+    {
+        return m_ensemble()->rftStatisticsReader();
+    }
+	else if (m_observedFmuRftData())
+	{
+        return m_observedFmuRftData()->rftReader();
+	}
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 {
-    if (!m_eclipseResultCase()) return nullptr;
-    RifReaderEclipseRft* reader = rftReader();
+    RifReaderRftInterface* reader = rftReader();
     if (!reader) return nullptr;
-    
 
     RimMainPlotCollection* mainPlotCollection;
     this->firstAncestorOrThisOfTypeAsserted(mainPlotCollection);
@@ -525,13 +668,13 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 
     RigEclipseWellLogExtractor* eclExtractor = nullptr;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject*  proj     = RiaApplication::instance()->project();
     RimWellPath* wellPath = proj->wellPathFromSimWellName(m_wellName());
-    eclExtractor = wellLogCollection->findOrCreateExtractor(wellPath, m_eclipseResultCase);
+    eclExtractor          = wellLogCollection->findOrCreateExtractor(wellPath, m_eclipseResultCase);
 
     if (!eclExtractor)
     {
-        QString simWellName = RimWellPlotTools::simWellName(m_wellName);
+        QString                         simWellName = RimWellPlotTools::simWellName(m_wellName);
         std::vector<const RigWellPath*> wellPaths = RiaSimWellBranchTools::simulationWellBranches(simWellName, m_branchDetection);
         if (wellPaths.size() == 0) return nullptr;
 
@@ -539,10 +682,8 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 
         auto wellPathBranch = wellPaths[m_branchIndex];
 
-        eclExtractor = wellLogCollection->findOrCreateSimWellExtractor(simWellName,
-                                                                       QString("Find or create sim well extractor"), 
-                                                                       wellPathBranch,
-                                                                       m_eclipseResultCase->eclipseCaseData());
+        eclExtractor = wellLogCollection->findOrCreateSimWellExtractor(
+            simWellName, QString("Find or create sim well extractor"), wellPathBranch, m_eclipseResultCase->eclipseCaseData());
         m_isUsingPseudoLength = true;
     }
 
@@ -550,7 +691,7 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogRftCurve::createWellPathIdxToRftFileIdxMapping()
 {
@@ -573,16 +714,19 @@ bool RimWellLogRftCurve::createWellPathIdxToRftFileIdxMapping()
         globCellIndicesToIndexInWell[intersections[idx].globCellIndex] = idx;
     }
 
-    RifEclipseRftAddress depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::DEPTH);
+    RifEclipseRftAddress     depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::TVD);
     std::vector<caf::VecIjk> rftIndices;
-    rftReader()->cellIndices(depthAddress, &rftIndices);
+    RifReaderEclipseRft*     eclipseRftReader = dynamic_cast<RifReaderEclipseRft*>(rftReader());
+    if (!eclipseRftReader) return false;
+
+    eclipseRftReader->cellIndices(depthAddress, &rftIndices);
 
     const RigMainGrid* mainGrid = eclExtractor->caseData()->mainGrid();
 
     for (size_t idx = 0; idx < rftIndices.size(); idx++)
     {
-        caf::VecIjk ijkIndex = rftIndices[idx];
-        size_t globalCellIndex = mainGrid->cellIndexFromIJK(ijkIndex.i(), ijkIndex.j(), ijkIndex.k());
+        caf::VecIjk ijkIndex        = rftIndices[idx];
+        size_t      globalCellIndex = mainGrid->cellIndexFromIJK(ijkIndex.i(), ijkIndex.j(), ijkIndex.k());
 
         if (globCellIndicesToIndexInWell.find(globalCellIndex) != globCellIndicesToIndexInWell.end())
         {
@@ -594,7 +738,7 @@ bool RimWellLogRftCurve::createWellPathIdxToRftFileIdxMapping()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RimWellLogRftCurve::rftFileIndex(size_t wellPathIndex)
 {
@@ -612,7 +756,7 @@ size_t RimWellLogRftCurve::rftFileIndex(size_t wellPathIndex)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RimWellLogRftCurve::sortedIndicesInRftFile()
 {
@@ -631,19 +775,19 @@ std::vector<size_t> RimWellLogRftCurve::sortedIndicesInRftFile()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimWellLogRftCurve::xValues()
 {
-    RifReaderEclipseRft* reader = rftReader();
-    std::vector<double> values;
+    RifReaderRftInterface* reader = rftReader();
+    std::vector<double>    values;
 
     if (!reader) return values;
 
     RifEclipseRftAddress address(m_wellName(), m_timeStep, m_wellLogChannelName());
 
     reader->values(address, &values);
-    
+
     bool wellPathExists = createWellPathIdxToRftFileIdxMapping();
 
     if (wellPathExists)
@@ -657,7 +801,7 @@ std::vector<double> RimWellLogRftCurve::xValues()
                 valuesSorted.push_back((values.at(idx)));
             }
         }
-        
+
         return valuesSorted;
     }
     else
@@ -667,16 +811,16 @@ std::vector<double> RimWellLogRftCurve::xValues()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimWellLogRftCurve::tvDepthValues()
 {
-    RifReaderEclipseRft* reader = rftReader();
-    std::vector<double> values;
+    RifReaderRftInterface* reader = rftReader();
+    std::vector<double>    values;
 
     if (!reader) return values;
 
-    RifEclipseRftAddress depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::DEPTH);
+    RifEclipseRftAddress depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::TVD);
     reader->values(depthAddress, &values);
 
     bool wellPathExists = createWellPathIdxToRftFileIdxMapping();
@@ -702,42 +846,79 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 {
+	if (m_observedFmuRftData && !m_ensemble && !m_summaryCase)
+	{
+        RifReaderRftInterface* reader = rftReader();
+        std::vector<double>    values;
+
+        if (!reader) return values;
+
+        RifEclipseRftAddress depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::MD);
+        reader->values(depthAddress, &values);
+        return values;
+	}
+
     std::vector<double> measuredDepthForCells;
-    
+
     RigEclipseWellLogExtractor* eclExtractor = extractor();
 
     if (!eclExtractor) return measuredDepthForCells;
 
     std::vector<double> measuredDepthForIntersections = eclExtractor->cellIntersectionMDs();
-    
+
     if (measuredDepthForIntersections.empty())
     {
         return measuredDepthForCells;
     }
-    
-    std::vector< size_t> globCellIndices = eclExtractor->intersectedCellsGlobIdx();
 
+    std::vector<size_t> globCellIndices = eclExtractor->intersectedCellsGlobIdx();
 
     for (size_t i = 0; i < globCellIndices.size() - 1; i = i + 2)
     {
         double sum = measuredDepthForIntersections[i] + measuredDepthForIntersections[i + 1];
 
-        measuredDepthForCells.push_back( sum / 2.0 );
+        measuredDepthForCells.push_back(sum / 2.0);
     }
 
     std::vector<double> measuredDepthForCellsWhichHasRftData;
 
     for (size_t i = 0; i < measuredDepthForCells.size(); i++)
     {
-        if(rftFileIndex(i) != cvf::UNDEFINED_SIZE_T)
+        if (rftFileIndex(i) != cvf::UNDEFINED_SIZE_T)
         {
             measuredDepthForCellsWhichHasRftData.push_back(measuredDepthForCells[i]);
         }
     }
 
     return measuredDepthForCellsWhichHasRftData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogRftCurve::interpolatedMeasuredDepthValuesFromObservedData(const std::vector<double>& tvDepthValues)
+{
+    std::vector<double> interpolatedMdValues;
+    if (m_observedFmuRftData)
+    {
+        RifReaderRftInterface* reader = m_observedFmuRftData->rftReader();
+        if (reader)
+        {
+            std::vector<double>    tvdValuesOfObbservedData;
+            std::vector<double>    mdValuesOfObbservedData;
+
+            RifEclipseRftAddress tvdAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::TVD);
+            RifEclipseRftAddress mdAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::MD);
+
+            reader->values(tvdAddress, &tvdValuesOfObbservedData);
+            reader->values(mdAddress, &mdValuesOfObbservedData);
+            interpolatedMdValues = RigWellPathGeometryTools::interpolateMdFromTvd(mdValuesOfObbservedData, tvdValuesOfObbservedData, tvDepthValues);
+            CVF_ASSERT(interpolatedMdValues.size() == tvDepthValues.size());
+        }
+    }
+    return interpolatedMdValues;
 }

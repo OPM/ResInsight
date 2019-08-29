@@ -79,6 +79,69 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
     return interpolateUndefinedNormals(up, pointNormals, vertices);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Lets you estimate MD values from an existing md/tvd relationship and a new set of TVD-values
+/// Requires the points to be ordered from the start/top of the well path to the end/bottom.
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd(const std::vector<double>& originalMdValues, const std::vector<double>& originalTvdValues, const std::vector<double>& tvdValuesToInterpolateFrom)
+{
+    CVF_ASSERT(!originalMdValues.empty());
+    if (originalMdValues.size() < 2u)
+    {
+        return {originalMdValues};
+    }
+
+    std::vector<double> interpolatedMdValues;
+    interpolatedMdValues.reserve(tvdValuesToInterpolateFrom.size());
+
+    std::vector<double>::const_iterator last_it = originalTvdValues.begin();
+    for (std::vector<double>::const_iterator it = tvdValuesToInterpolateFrom.begin(); it != tvdValuesToInterpolateFrom.end(); ++it)
+    {
+        double tvdValue = *it;
+        double sign = 0.0;
+        if (it != tvdValuesToInterpolateFrom.begin())
+        {
+            sign = *it - *(it - 1);
+        }
+        else
+        {
+            sign = *(it + 1) - *it;
+        }
+        if (std::fabs(sign) < 1.0e-8)
+        {
+            continue;
+        }
+            
+        sign /= std::fabs(sign);
+
+        auto current_it = last_it;
+        // Is incrementing current_it taking us closer to the TVD value we want?
+        while (current_it != originalTvdValues.end())
+        {
+            if (*current_it * sign >= tvdValue * sign)
+            {
+                break;
+            }
+
+            auto next_it = current_it + 1;
+            if (next_it != originalTvdValues.end())
+            {                
+                double originalDataSign = (*next_it - *current_it);
+                originalDataSign /= std::fabs(originalDataSign);
+                if (originalDataSign * sign < 0.0)
+                    break;
+            }
+            current_it = next_it;
+        }
+
+        int valueIndex = static_cast<int>(current_it - originalTvdValues.begin());
+        double mdValue = linearInterpolation(originalTvdValues, originalMdValues, valueIndex, tvdValue);
+        interpolatedMdValues.push_back(mdValue);
+        last_it = current_it;
+    }
+    return interpolatedMdValues;
+}
+
 std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(const cvf::Vec3d&              planeNormal,
                                                                               const std::vector<cvf::Vec3d>& normals,
                                                                               const std::vector<cvf::Vec3d>& vertices)
@@ -159,4 +222,22 @@ cvf::Vec3d RigWellPathGeometryTools::estimateDominantDirectionInXYPlane(const st
     }
 
     return directionSum.getNormalized();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigWellPathGeometryTools::linearInterpolation(const std::vector<double>& xValues, const std::vector<double>& yValues, int valueIndex, double x)
+{
+    int N = (int) xValues.size() - 1;
+    int i = cvf::Math::clamp(valueIndex, 1, N);
+        
+    double x1 = xValues[i - 1];
+    double x2 = xValues[i];
+    double y1 = yValues[i - 1];
+    double y2 = yValues[i];
+
+    double M = (y2 - y1) / (x2 - x1);
+
+    return M * (x - x1) + y1;
 }

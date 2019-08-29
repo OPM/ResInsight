@@ -26,7 +26,8 @@
 
 #include "RifKeywordVectorParser.h"
 
-#include "RimObservedData.h"
+#include "RimObservedFmuRftData.h"
+#include "RimObservedSummaryData.h"
 #include "RimCsvUserData.h"
 #include "RimObservedEclipseUserData.h"
 #include "RimSummaryObservedDataFile.h"
@@ -51,8 +52,9 @@ RimObservedDataCollection::RimObservedDataCollection()
     CAF_PDM_InitObject("Observed Data", ":/Folder.png", "", "");
     
     CAF_PDM_InitFieldNoDefault(&m_observedDataArray, "ObservedDataArray", "", "", "", "");
-
+    CAF_PDM_InitFieldNoDefault(&m_observedFmuRftArray, "ObservedFmuRftDataArray", "", "", "", "");
     m_observedDataArray.uiCapability()->setUiHidden(true);
+    m_observedFmuRftArray.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,23 +63,41 @@ RimObservedDataCollection::RimObservedDataCollection()
 RimObservedDataCollection::~RimObservedDataCollection()
 {
     m_observedDataArray.deleteAllChildObjects();
+    m_observedFmuRftArray.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimObservedDataCollection::removeObservedData(RimObservedData* observedData)
+void RimObservedDataCollection::removeObservedSummaryData(RimObservedSummaryData* observedData)
 {
     m_observedDataArray.removeChildObject(observedData);
     caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObservedDataCollection::removeObservedFmuRftData(RimObservedFmuRftData* observedFmuRftData)
+{
+    m_observedFmuRftArray.removeChildObject(observedFmuRftData);
+    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimObservedData*> RimObservedDataCollection::allObservedData()
+std::vector<RimObservedSummaryData*> RimObservedDataCollection::allObservedSummaryData() const
 {
     return m_observedDataArray.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimObservedFmuRftData*> RimObservedDataCollection::allObservedFmuRftData() const
+{
+    return m_observedFmuRftArray.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +120,7 @@ bool RimObservedDataCollection::fileExists(const QString& fileName, QString* err
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void updateNewSummaryObjectCreated(caf::PdmObject* object)
+void updateNewObservedDataCreated(caf::PdmObject* object)
 {
     RiuPlotMainWindowTools::showPlotMainWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem(object);
@@ -115,11 +135,11 @@ void updateNewSummaryObjectCreated(caf::PdmObject* object)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(const QString& fileName, QString* errorText /*= nullptr*/)
+RimObservedSummaryData* RimObservedDataCollection::createAndAddRsmObservedSummaryDataFromFile(const QString& fileName, QString* errorText /*= nullptr*/)
 {
     if (!fileExists(fileName, errorText)) return nullptr;
 
-    RimObservedData* observedData = nullptr;
+    RimObservedSummaryData* observedData = nullptr;
     RimObservedEclipseUserData* columnBasedUserData = new RimObservedEclipseUserData();
     observedData = columnBasedUserData;
 
@@ -134,7 +154,7 @@ RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(
         errorText->append(observedData->errorMessagesFromReader());
     }
 
-    updateNewSummaryObjectCreated(observedData);
+    updateNewObservedDataCreated(observedData);
 
     this->updateConnectedEditors();
 
@@ -144,11 +164,11 @@ RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(const QString& fileName, bool useSavedFieldsValuesInDialog, QString* errorText /*= nullptr*/)
+RimObservedSummaryData* RimObservedDataCollection::createAndAddCvsObservedSummaryDataFromFile(const QString& fileName, bool useSavedFieldsValuesInDialog, QString* errorText /*= nullptr*/)
 {
     if (!fileExists(fileName, errorText)) return nullptr;
 
-    RimObservedData* observedData = nullptr;
+    RimObservedSummaryData* observedData = nullptr;
 
     RimCsvUserData* userData = new RimCsvUserData();
     RicPasteAsciiDataToSummaryPlotFeatureUi* parseOptions = userData->parseOptions();
@@ -192,9 +212,28 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
         return nullptr;
     }
 
-    updateNewSummaryObjectCreated(observedData);
+    updateNewObservedDataCreated(observedData);
 
     this->updateConnectedEditors();
 
     return observedData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimObservedFmuRftData* RimObservedDataCollection::createAndAddFmuRftDataFromPath(const QString& directoryPath)
+{
+    QString name = QString("Imported FMU RFT Data %1").arg(m_observedFmuRftArray.size() + 1);
+
+    RimObservedFmuRftData* fmuRftData = new RimObservedFmuRftData;
+    fmuRftData->setDirectoryPath(directoryPath);
+    fmuRftData->createRftReaderInterface();
+    fmuRftData->setName(name);
+    m_observedFmuRftArray.push_back(fmuRftData);
+
+	updateNewObservedDataCreated(fmuRftData);
+    this->updateConnectedEditors();
+
+    return fmuRftData;
 }

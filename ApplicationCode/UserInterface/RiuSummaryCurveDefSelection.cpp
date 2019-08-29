@@ -27,7 +27,7 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RimCalculatedSummaryCase.h"
-#include "RimObservedData.h"
+#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -634,11 +634,11 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
 
                     // Observed data
                     auto observedDataColl = oilField->observedDataCollection();
-                    if (observedDataColl->allObservedData().size() > 0)
+                    if (observedDataColl->allObservedSummaryData().size() > 0)
                     {
                         options.push_back(caf::PdmOptionItemInfo::createHeader("Observed Data", true));
 
-                        for (const auto& obsData : observedDataColl->allObservedData())
+                        for (const auto& obsData : observedDataColl->allObservedSummaryData())
                         {
                             auto optionItem = caf::PdmOptionItemInfo(obsData->caseName(), obsData);
                             optionItem.setLevel(1);
@@ -1234,7 +1234,7 @@ void RiuSummaryCurveDefSelection::resetAllFields()
 //--------------------------------------------------------------------------------------------------
 bool RiuSummaryCurveDefSelection::isObservedData(const RimSummaryCase *sumCase) const
 {
-    return dynamic_cast<const RimObservedData*>(sumCase) != nullptr;
+    return dynamic_cast<const RimObservedSummaryData*>(sumCase) != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

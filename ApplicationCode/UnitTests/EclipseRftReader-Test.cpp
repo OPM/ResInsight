@@ -15,7 +15,7 @@ TEST(DISABLED_RifReaderEclipseRftTest, TestRifEclipseRftAddress)
     
     RifReaderEclipseRft reader(filename);
 
-    std::vector<RifEclipseRftAddress> addresses = reader.eclipseRftAddresses();
+    std::set<RifEclipseRftAddress> addresses = reader.eclipseRftAddresses();
 
     /*for (RifEclipseRftAddress address : addresses)
     {
@@ -32,7 +32,7 @@ TEST(DISABLED_RifReaderEclipseRftTest, TestRifEclipseRftAddress)
     ASSERT_TRUE(addresses.size() > 0);
 
     std::vector<double> values;
-    reader.values(addresses[0], &values);
+    reader.values(*addresses.begin(), &values);
     ASSERT_TRUE(values.size() > 0);
 
     std::cout << "First value: " << values.front() << ", last value: " << values.back() << std::endl;
