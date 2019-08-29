@@ -23,7 +23,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaStatisticsTools.h"
-#include "RiaTimeHistoryCurveMerger.h"
+#include "RiaCurveMerger.h"
 
 #include "RifReaderEclipseSummary.h"
 
