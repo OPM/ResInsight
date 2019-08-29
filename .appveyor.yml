@@ -15,6 +15,6 @@ build_script:
 
     if exist "%QT5%" set Path=%QT5%\bin;%Path%
 
-    cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Release -DRESINSIGHT_ENABLE_COTIRE=on "-DCMAKE_PREFIX_PATH=%QT5%" ..
+    cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Release -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DRESINSIGHT_ENABLE_COTIRE=on "-DCMAKE_PREFIX_PATH=%QT5%" ..
 
     cmake --build . --target ResInsight_unity --config Release
