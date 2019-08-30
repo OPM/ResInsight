@@ -23,6 +23,8 @@
 #include "cvfMath.h"
 #include "cvfMatrix3.h"
 
+#include <QDebug>
+
 #include <algorithm>
 #include <cmath>
 
@@ -94,52 +96,119 @@ std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd(const std::ve
     std::vector<double> interpolatedMdValues;
     interpolatedMdValues.reserve(tvdValuesToInterpolateFrom.size());
 
-    std::vector<double>::const_iterator last_it = originalTvdValues.begin();
-    for (std::vector<double>::const_iterator it = tvdValuesToInterpolateFrom.begin(); it != tvdValuesToInterpolateFrom.end(); ++it)
+    QPolygonF originalPoints;
+    for (size_t i = 0; i < originalMdValues.size(); ++i)
     {
-        double tvdValue = *it;
-        double sign = 0.0;
-        if (it != tvdValuesToInterpolateFrom.begin())
+        originalPoints << QPointF(originalMdValues[i], originalTvdValues[i]);
+    }
+    QwtSpline spline;
+    spline.setPoints(originalPoints);
+
+    double lastTVDValue = -1.0;
+    std::vector<int> segmentStartIndices = findSegmentIndices(originalMdValues, originalTvdValues, tvdValuesToInterpolateFrom);
+    for (size_t i = 0; i < segmentStartIndices.size(); ++i)
+    {
+        double currentTVDValue = tvdValuesToInterpolateFrom[i];
+        int startIndex = segmentStartIndices[i];
+        int endIndex = startIndex + 1;
+
+        // Search interval for best MD value
+        double startMD = originalMdValues[startIndex];
+        double endMD;
+        
+        double mdDiff = 0.0;
+        if (interpolatedMdValues.size() > 1)
         {
-            sign = *it - *(it - 1);
+            mdDiff = interpolatedMdValues[i - 1] - interpolatedMdValues[i - 2];
+        }
+
+       
+        if (endIndex == originalMdValues.size())
+        {
+            endMD = originalMdValues[startIndex] + mdDiff;
         }
         else
         {
-            sign = *(it + 1) - *it;
+            if (!interpolatedMdValues.empty())
+            {
+                startMD = std::max(startMD, interpolatedMdValues.back() + 0.25 * mdDiff);
+            }
+            endMD = originalMdValues[endIndex] + mdDiff * 0.5;
         }
-        if (std::fabs(sign) < 1.0e-8)
-        {
-            continue;
-        }
-            
-        sign /= std::fabs(sign);
 
-        auto current_it = last_it;
-        // Is incrementing current_it taking us closer to the TVD value we want?
-        while (current_it != originalTvdValues.end())
+        double mdValue = solveForX(spline, startMD, endMD, currentTVDValue);
+        interpolatedMdValues.push_back(mdValue);
+
+        lastTVDValue = currentTVDValue;
+    }
+    return interpolatedMdValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RigWellPathGeometryTools::findSegmentIndices(const std::vector<double>& originalMdValues, const std::vector<double>& originalTvdValues, const std::vector<double>& tvdValuesToInterpolateFrom)
+{
+    CVF_ASSERT(!originalMdValues.empty());
+    if (originalMdValues.size() < 2u)
+    {
+        return {0};
+    }
+
+    QPolygonF polygon;
+    for (size_t i = 0; i < originalMdValues.size(); ++i)
+    {
+        polygon << QPointF(originalMdValues[i], originalTvdValues[i]);
+    }
+    QwtSpline spline;
+    spline.setPoints(polygon);
+    for (double md = 0.0; md < 1000; md += 50)
+    {
+        qDebug() << md << ", " << spline.value(md);
+    }
+
+    std::vector<int> segmentStartIndices;
+    segmentStartIndices.reserve(tvdValuesToInterpolateFrom.size());
+
+    int lastStartIndex = 0;
+    for (std::vector<double>::const_iterator it = tvdValuesToInterpolateFrom.begin(); it != tvdValuesToInterpolateFrom.end(); ++it)
+    {
+        double tvdValue = *it;
+        int currentStartIndex = lastStartIndex;
+       
+        // Increment current_it until we find an interval containing our TVD
+        while (currentStartIndex < (int)(originalTvdValues.size() - 1))
         {
-            if (*current_it * sign >= tvdValue * sign)
+            double diffCurrent = originalTvdValues[currentStartIndex] - tvdValue;
+            if (std::abs(diffCurrent) < 1.0e-8) // Current is matching the point
             {
                 break;
             }
 
-            auto next_it = current_it + 1;
-            if (next_it != originalTvdValues.end())
-            {                
-                double originalDataSign = (*next_it - *current_it);
-                originalDataSign /= std::fabs(originalDataSign);
-                if (originalDataSign * sign < 0.0)
-                    break;
-            }
-            current_it = next_it;
-        }
+            int nextStartIndex = currentStartIndex + 1;
 
-        int valueIndex = static_cast<int>(current_it - originalTvdValues.begin());
-        double mdValue = linearInterpolation(originalTvdValues, originalMdValues, valueIndex, tvdValue);
-        interpolatedMdValues.push_back(mdValue);
-        last_it = current_it;
+            double diffNext = originalTvdValues[nextStartIndex] - tvdValue;
+            if (diffCurrent * diffNext < 0.0) // One is above, the other is below
+            {
+                break;
+            }
+            // Attempt to interpolate
+            double mdCurrent = originalMdValues[currentStartIndex];
+            double mdNext = originalMdValues[nextStartIndex];
+            double tvdCurrent = spline.value(mdCurrent);
+            double tvdNext = spline.value(mdNext);
+            if (std::abs(tvdCurrent - tvdValue) < std::abs(tvdNext - tvdValue))
+            {
+                break;
+            }
+            currentStartIndex = nextStartIndex;
+        }
+        segmentStartIndices.push_back(currentStartIndex);
+
+        lastStartIndex = currentStartIndex;
     }
-    return interpolatedMdValues;
+
+    return segmentStartIndices;
 }
 
 std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(const cvf::Vec3d&              planeNormal,
@@ -227,43 +296,45 @@ cvf::Vec3d RigWellPathGeometryTools::estimateDominantDirectionInXYPlane(const st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigWellPathGeometryTools::linearInterpolation(const std::vector<double>& xValues, const std::vector<double>& yValues, int valueIndex, double x)
+double RigWellPathGeometryTools::solveForX(const QwtSpline& spline, double minX, double maxX, double y)
 {
-    int N = (int) xValues.size() - 1;
-    int i = cvf::Math::clamp(valueIndex, 0, N);
-    
-    std::vector<double> interpolatedValues;
-    // Backwards
-    if (i > 0)
-    {
-        double x1 = xValues[i - 1];
-        double x2 = xValues[i];
-        double y1 = yValues[i - 1];
-        double y2 = yValues[i];
-        interpolatedValues.push_back(linearInterpolation(x1, x2, y1, y2, x));
-    }
-    if (i < N)
-    {
-        double x1 = xValues[i];
-        double x2 = xValues[i + 1];
-        double y1 = yValues[i];
-        double y2 = yValues[i + 1];
-        interpolatedValues.push_back(linearInterpolation(x1, x2, y1, y2, x));
-    }
+    const double phi = (1.0 + std::sqrt(5.0)) / 2.0;
+    const double tol = 1.0e-8;
 
-    double sum = 0.0;
-    for (double value : interpolatedValues)
-    {
-        sum += value;
-    }
-    return sum / (double) interpolatedValues.size();
-}
+    double a = minX, b = maxX;
+    double c = b - (b - a) / phi;
+    double d = a + (b - a) / phi;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RigWellPathGeometryTools::linearInterpolation(double x1, double x2, double y1, double y2, double x)
-{
-    double M = (y2 - y1) / (x2 - x1);
-    return M * (x - x1) + y1;
+    double fa = spline.value(a) - y;
+    double fb = spline.value(b) - y;
+    double fc = spline.value(c) - y;
+    double fd = spline.value(d) - y;
+
+    for (int n = 0; n < 100; ++n)
+    {
+        if (std::fabs(c - d) < tol)
+        {
+            break;
+        }
+        
+        if (std::fabs(fc) < std::fabs(fd))
+        {
+            b = d;
+            fb = fd;
+            d = c;
+            fd = fc;
+            c = b - (b - a) / phi;
+            fc = spline.value(c) - y;
+        }
+        else
+        {
+            a = c;
+            fa = fc;
+            c = d;
+            fc = fd;
+            d = a + (b - a) / phi;
+            fd = spline.value(d) - y;
+        }
+    }
+    return (a + b) / 2.0;
 }
