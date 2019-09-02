@@ -128,7 +128,21 @@ class Case (PdmObject):
         return receivedActiveCells
 
     def timeSteps(self):
-        """Get a list containing time step strings for all time steps"""
+        """Get a list containing all time steps
+
+        The time steps are defined by the class **TimeStepDate** : 
+        
+        Type      | Name      
+        --------- | ----------
+        int       | year      
+        int       | month     
+        int       | day       
+        int       | hour      
+        int       | minute    
+        int       | second    
+
+        
+        """
         return self.stub.GetTimeSteps(self.request).dates
 
     def daysSinceStart(self):
