@@ -10,7 +10,7 @@ endif()
 
 # Qt
 if (NOT DEFINED(CEE_USE_QT5))
-	option(CEE_USE_QT5 "Use Qt5" OFF)
+	option(CEE_USE_QT5 "Use Qt5" ON)
 endif(NOT DEFINED(CEE_USE_QT5))
 
 if (CEE_USE_QT5)
