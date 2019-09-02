@@ -137,7 +137,6 @@ public:
 
     static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
-        assert(false); // Not sure this actually works JJS
         return variantValue == variantValue2;
     }
 };

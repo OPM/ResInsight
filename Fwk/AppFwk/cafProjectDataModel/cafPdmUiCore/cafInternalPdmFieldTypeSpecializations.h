@@ -86,7 +86,7 @@ public:
 
     static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
-        return PdmValueFieldSpecialization<T>::isEqual(variantValue, variantValue2);
+        return PdmValueFieldSpecialization<std::list<T>>::isEqual(variantValue, variantValue2);
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
@@ -123,7 +123,7 @@ public:
 
     static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
-        return PdmValueFieldSpecialization<T>::isEqual(variantValue, variantValue2);
+        return PdmValueFieldSpecialization<std::vector<T>>::isEqual(variantValue, variantValue2);
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
