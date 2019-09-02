@@ -23,8 +23,6 @@
 #include "cvfMath.h"
 #include "cvfMatrix3.h"
 
-#include <QDebug>
-
 #include <algorithm>
 #include <cmath>
 
@@ -96,50 +94,41 @@ std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd(const std::ve
     std::vector<double> interpolatedMdValues;
     interpolatedMdValues.reserve(tvdValuesToInterpolateFrom.size());
 
-    QPolygonF originalPoints;
-    for (size_t i = 0; i < originalMdValues.size(); ++i)
-    {
-        originalPoints << QPointF(originalMdValues[i], originalTvdValues[i]);
-    }
-    QwtSpline spline;
-    spline.setPoints(originalPoints);
+   
+    QwtSpline spline = createSpline(originalMdValues, originalTvdValues);
 
-    double lastTVDValue = -1.0;
-    std::vector<int> segmentStartIndices = findSegmentIndices(originalMdValues, originalTvdValues, tvdValuesToInterpolateFrom);
+    std::vector<int> segmentStartIndices = findSplineSegmentsContainingRoots(spline, originalMdValues, originalTvdValues, tvdValuesToInterpolateFrom);
     for (size_t i = 0; i < segmentStartIndices.size(); ++i)
     {
         double currentTVDValue = tvdValuesToInterpolateFrom[i];
-        int startIndex = segmentStartIndices[i];
-        int endIndex = startIndex + 1;
+        double startMD = spline.points().front().x();
+        double endMD = spline.points().back().y();
+        if (segmentStartIndices[i] != -1)
+        {
+            int startIndex = segmentStartIndices[i];
+            int endIndex = startIndex + 1;
 
-        // Search interval for best MD value
-        double startMD = originalMdValues[startIndex];
-        double endMD;
-        
-        double mdDiff = 0.0;
-        if (interpolatedMdValues.size() > 1)
-        {
-            mdDiff = interpolatedMdValues[i - 1] - interpolatedMdValues[i - 2];
-        }
+            // Search interval for best MD value
+            startMD = spline.points()[startIndex].x();
+            endMD = spline.points().back().y();
 
-       
-        if (endIndex == originalMdValues.size())
-        {
-            endMD = originalMdValues[startIndex] + mdDiff;
-        }
-        else
-        {
-            if (!interpolatedMdValues.empty())
+            double mdDiff = 0.0;
+            if (interpolatedMdValues.size() > 1)
             {
-                startMD = std::max(startMD, interpolatedMdValues.back() + 0.25 * mdDiff);
+                mdDiff = interpolatedMdValues[i - 1] - interpolatedMdValues[i - 2];
             }
-            endMD = originalMdValues[endIndex] + mdDiff * 0.5;
-        }
 
+            if (endIndex < spline.points().size())
+            {
+                if (!interpolatedMdValues.empty())
+                {
+                    startMD = std::max(startMD, interpolatedMdValues.back() + 0.1 * mdDiff);
+                }
+                endMD = spline.points()[endIndex].x();
+            }
+        }
         double mdValue = solveForX(spline, startMD, endMD, currentTVDValue);
         interpolatedMdValues.push_back(mdValue);
-
-        lastTVDValue = currentTVDValue;
     }
     return interpolatedMdValues;
 }
@@ -147,65 +136,48 @@ std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd(const std::ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RigWellPathGeometryTools::findSegmentIndices(const std::vector<double>& originalMdValues, const std::vector<double>& originalTvdValues, const std::vector<double>& tvdValuesToInterpolateFrom)
+std::vector<int> RigWellPathGeometryTools::findSplineSegmentsContainingRoots(const QwtSpline& spline, const std::vector<double>& originalMdValues, const std::vector<double>& originalTvdValues, const std::vector<double>& tvdValuesToInterpolateFrom)
 {
-    CVF_ASSERT(!originalMdValues.empty());
-    if (originalMdValues.size() < 2u)
-    {
-        return {0};
-    }
-
-    QPolygonF polygon;
-    for (size_t i = 0; i < originalMdValues.size(); ++i)
-    {
-        polygon << QPointF(originalMdValues[i], originalTvdValues[i]);
-    }
-    QwtSpline spline;
-    spline.setPoints(polygon);
-    for (double md = 0.0; md < 1000; md += 50)
-    {
-        qDebug() << md << ", " << spline.value(md);
-    }
-
     std::vector<int> segmentStartIndices;
     segmentStartIndices.reserve(tvdValuesToInterpolateFrom.size());
 
-    int lastStartIndex = 0;
+    int lastSplineStartIndex = 0;
     for (std::vector<double>::const_iterator it = tvdValuesToInterpolateFrom.begin(); it != tvdValuesToInterpolateFrom.end(); ++it)
     {
         double tvdValue = *it;
-        int currentStartIndex = lastStartIndex;
+
+        int currentSplineStartIndex = lastSplineStartIndex;
        
+        bool foundMatch = false;
         // Increment current_it until we find an interval containing our TVD
-        while (currentStartIndex < (int)(originalTvdValues.size() - 1))
+        while (currentSplineStartIndex < spline.points().size() - 2)
         {
-            double diffCurrent = originalTvdValues[currentStartIndex] - tvdValue;
+            double diffCurrent = spline.points()[currentSplineStartIndex].y() - tvdValue;
             if (std::abs(diffCurrent) < 1.0e-8) // Current is matching the point
             {
+                foundMatch = true;
                 break;
             }
 
-            int nextStartIndex = currentStartIndex + 1;
+            int nextStartIndex = currentSplineStartIndex + 1;
 
-            double diffNext = originalTvdValues[nextStartIndex] - tvdValue;
+            double diffNext = spline.points()[nextStartIndex].y() - tvdValue;
             if (diffCurrent * diffNext < 0.0) // One is above, the other is below
             {
+                foundMatch = true;
                 break;
             }
-            // Attempt to interpolate
-            double mdCurrent = originalMdValues[currentStartIndex];
-            double mdNext = originalMdValues[nextStartIndex];
-            double tvdCurrent = spline.value(mdCurrent);
-            double tvdNext = spline.value(mdNext);
-            if (std::abs(tvdCurrent - tvdValue) < std::abs(tvdNext - tvdValue))
-            {
-                break;
-            }
-            currentStartIndex = nextStartIndex;
+            currentSplineStartIndex = nextStartIndex;
         }
-        segmentStartIndices.push_back(currentStartIndex);
-
-        lastStartIndex = currentStartIndex;
+        if (foundMatch)
+        {
+            segmentStartIndices.push_back(currentSplineStartIndex);
+            lastSplineStartIndex = currentSplineStartIndex;
+        }
+        else
+        {
+            segmentStartIndices.push_back(-1);
+        }
     }
 
     return segmentStartIndices;
@@ -337,4 +309,47 @@ double RigWellPathGeometryTools::solveForX(const QwtSpline& spline, double minX,
         }
     }
     return (a + b) / 2.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QwtSpline RigWellPathGeometryTools::createSpline(const std::vector<double>& originalMdValues, const std::vector<double>& originalTvdValues)
+{
+    QPolygonF polygon;
+    for (size_t i = 0; i < originalMdValues.size(); ++i)
+    {
+        polygon << QPointF(originalMdValues[i], originalTvdValues[i]);
+    }
+    QwtSplineCurveFitter curveFitter;
+    QPolygonF splinePoints = curveFitter.fitCurve(polygon);
+
+    // Extend spline from 0.0 to a large value for MD
+    {
+        double x1 = splinePoints[0].x();
+        double x2 = splinePoints[1].x();
+        double y1 = splinePoints[0].y();
+        double y2 = splinePoints[1].y();
+        double M = (y2 - y1) / (x2 - x1);
+
+        QPointF startPoint(0.0f, M * (0.0f - x1) + y1);
+        splinePoints.push_front(startPoint);
+    }
+    {
+        int N = splinePoints.size() - 1;
+        double x1 = splinePoints[N - 1].x();
+        double x2 = splinePoints[N].x();
+        double y1 = splinePoints[N - 1].y();
+        double y2 = splinePoints[N].y();
+        double M = (y2 - y1) / (x2 - x1);
+        double endX = 2.0 * splinePoints[N].x();
+
+        QPointF endPoint(endX, M  * (endX - x1) + y1);
+        splinePoints.push_back(endPoint);
+    }
+
+    QwtSpline spline;
+    spline.setPoints(splinePoints);
+
+    return spline;
 }
