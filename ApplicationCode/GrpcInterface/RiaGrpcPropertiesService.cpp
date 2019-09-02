@@ -54,8 +54,8 @@ public:
     ///
     //--------------------------------------------------------------------------------------------------
     RiaCellResultsStateHandler(bool clientStreamer = false)
-        : m_request(nullptr)
-        , m_eclipseCase(nullptr)
+        : m_eclipseCase(nullptr)
+        , m_porosityModel(RiaDefines::MATRIX_MODEL)
         , m_streamedValueCount(0u)
         , m_cellCount(0u)
         , m_clientStreamer(clientStreamer)
@@ -83,26 +83,24 @@ public:
     //--------------------------------------------------------------------------------------------------
     Status init(const PropertyRequest* request)
     {
-        m_request = request;
-
         int caseId    = request->case_request().id();
         m_eclipseCase = dynamic_cast<RimEclipseCase*>(RiaGrpcServiceInterface::findCase(caseId));
 
         if (m_eclipseCase)
         {
-            auto                    porosityModel = static_cast<RiaDefines::PorosityModelType>(request->porosity_model());
-            auto                    caseData      = m_eclipseCase->eclipseCaseData();
-            auto                    resultData    = caseData->results(porosityModel);
-            auto                    resultType    = static_cast<RiaDefines::ResultCatType>(request->property_type());
-            size_t                  timeStep      = static_cast<size_t>(request->time_step());
-            
-			m_resultAddress = RigEclipseResultAddress(resultType, QString::fromStdString(request->property_name()));
+            m_porosityModel   = static_cast<RiaDefines::PorosityModelType>(request->porosity_model());
+            auto   caseData   = m_eclipseCase->eclipseCaseData();
+            auto   resultData = caseData->results(m_porosityModel);
+            auto   resultType = static_cast<RiaDefines::ResultCatType>(request->property_type());
+            size_t timeStep   = static_cast<size_t>(request->time_step());
+
+            m_resultAddress = RigEclipseResultAddress(resultType, QString::fromStdString(request->property_name()));
 
             if (resultData->ensureKnownResultLoaded(m_resultAddress))
             {
                 if (timeStep < resultData->timeStepCount(m_resultAddress))
                 {
-                    initResultAccess(caseData, request->grid_index(), porosityModel, timeStep, m_resultAddress);
+                    initResultAccess(caseData, request->grid_index(), m_porosityModel, timeStep, m_resultAddress);
                     return grpc::Status::OK;
                 }
                 return grpc::Status(grpc::NOT_FOUND, "No such time step");
@@ -120,7 +118,7 @@ public:
                 scalarResultFrames.resize(timeStepCount);
                 if (timeStep < resultData->timeStepCount(m_resultAddress))
                 {
-                    initResultAccess(caseData, request->grid_index(), porosityModel, timeStep, m_resultAddress);
+                    initResultAccess(caseData, request->grid_index(), m_porosityModel, timeStep, m_resultAddress);
                     return grpc::Status::OK;
                 }
                 return grpc::Status(grpc::NOT_FOUND, "No such time step");
@@ -198,9 +196,8 @@ public:
     {
         if (m_eclipseCase)
         {
-            auto porosityModel = static_cast<RiaDefines::PorosityModelType>(m_request->porosity_model());
             auto caseData      = m_eclipseCase->eclipseCaseData();
-            auto resultData    = caseData->results(porosityModel);
+            auto resultData    = caseData->results(m_porosityModel);
             resultData->recalculateStatistics(m_resultAddress);
 
             for (Rim3dView* view : m_eclipseCase->views())
@@ -221,12 +218,12 @@ protected:
     virtual void   setCellResult(size_t currentCellIndex, double value)       = 0;
 
 protected:
-    const rips::PropertyRequest* m_request;
-    RimEclipseCase*              m_eclipseCase;
-    size_t                       m_streamedValueCount;
-    size_t                       m_cellCount;
-    bool                         m_clientStreamer;
-    RigEclipseResultAddress      m_resultAddress;
+    RimEclipseCase*               m_eclipseCase;
+    RiaDefines::PorosityModelType m_porosityModel;
+    size_t                        m_streamedValueCount;
+    size_t                        m_cellCount;
+    bool                          m_clientStreamer;
+    RigEclipseResultAddress       m_resultAddress;
 };
 
 class RiaActiveCellResultsStateHandler : public RiaCellResultsStateHandler
