@@ -263,6 +263,19 @@ class Commands:
         return self.__execute(createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(caseIds=caseIds))
 
     def exportFlowCharacteristics(self, caseId, timeSteps, injectors, producers, fileName, minimumCommunication=0.0, aquiferCellThreshold=0.1):
+        """ Export Flow Characteristics data to text file in CSV format
+
+        Parameter                 | Description                                   | Type
+        ------------------------- | --------------------------------------------- | -----
+        caseId                    | ID of case                                    | Integer          
+        timeSteps                 | Time step indices                             | List of Integer  
+        injectors                 | Injector names                                | List of Strings  
+        producers                 | Producer names                                | List of Strings  
+        fileName                  | Export file name                              | Integer          
+        minimumCommunication      | Minimum Communication, defaults to 0.0        | Integer          
+        aquiferCellThreshold      | Aquifer Cell Threshold, defaults to 0.1       | Integer          
+
+        """
         if isinstance(timeSteps, int):
             timeSteps = [timeSteps]
         if isinstance(injectors, str):
