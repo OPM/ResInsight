@@ -92,13 +92,9 @@ class Case (PdmObject):
                 must be 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
 		
         Returns:
-            Stream of cell info objects with the following attributes:
-                grid_index(int): grid the cell belongs to
-                parent_grid_index(int): parent of the grid the cell belongs to
-                coarsening_box_index(int): the coarsening box index
-                local_ijk(Vec3i: i(int), j(int), k(int)): local cell index in i, j, k directions.
-                parent_ijk(Vec3i: i(int), j(int), k(int)): cell index in parent grid in i, j, k.
-		
+            Stream of **CellInfo** objects
+        
+        See cellInfoForActiveCells() for detalis on the **CellInfo** class.
         """
         porosityModelEnum = Case_pb2.PorosityModelType.Value(porosityModel)
         request =  Case_pb2.CellInfoRequest(case_request=self.request,
@@ -113,12 +109,26 @@ class Case (PdmObject):
                 must be 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
 		
         Returns:
-            List of cell info objects with the following attributes:
-                grid_index(int): grid the cell belongs to
-                parent_grid_index(int): parent of the grid the cell belongs to
-                coarsening_box_index(int): the coarsening box index
-                local_ijk(Vec3i: i(int), j(int), k(int)): local cell index in i, j, k directions.
-                parent_ijk(Vec3i: i(int), j(int), k(int)): cell index in parent grid in i, j, k.		
+            List of **CellInfo** objects
+
+        ### CellInfo class description
+
+        Parameter                 | Description                                   | Type
+        ------------------------- | --------------------------------------------- | -----
+        grid_index                | Index to grid                                 | Integer          
+        parent_grid_index         | Index to parent grid                          | Integer          
+        coarsening_box_index      | Index to coarsening box                       | Integer          
+        local_ijk                 | Cell index in IJK directions of local grid    | Vec3i
+        parent_ijk                | Cell index in IJK directions of parent grid   | Vec3i
+		
+        ### Vec3i class description
+
+        Parameter        | Description                                  | Type
+        ---------------- | -------------------------------------------- | -----
+        i                | I grid index                                 | Integer          
+        j                | J grid index                                 | Integer          
+        k                | K grid index                                 | Integer          
+
         """
         activeCellInfoChunks = self.cellInfoForActiveCellsAsync()
         receivedActiveCells = []
