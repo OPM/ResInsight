@@ -394,14 +394,13 @@ Paste Options Dialog Most of the fields in this dialog are the same as in the CS
     </item>
     
     <item>
-      <title>Python API - rips</title>
-      <link>https://resinsight.org/scripting/pythonrips/</link>
+      <title>Python Examples</title>
+      <link>https://resinsight.org/scripting/pythonexamples/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/scripting/pythonrips/</guid>
-      <description>ResInsight has a gRPC Remote Procedure Call interface with a Python Client interface. This interface allows you to interact with a running ResInsight instance from a Python script.
-The Python client package is available for install via the Python PIP package system with pip install rips as admin user, or pip install --user rips as a regular user.
-On some systems the pip command may have to be replaced by python -m pip.</description>
+      <guid>https://resinsight.org/scripting/pythonexamples/</guid>
+      <description>This pages is created based on the content in the PythonExamples folder located inside the rips module, made available online for convenience.
+AllCases ################################################################################### # This example will connect to ResInsight, retrieve a list of cases and print info # ################################################################################### # Import the ResInsight Processing Server Module import rips # Connect to ResInsight resInsight = rips.Instance.find() if resInsight is not None: # Get a list of all cases cases = resInsight.</description>
     </item>
     
     <item>
@@ -433,6 +432,33 @@ Subscribe</description>
       <guid>https://resinsight.org/plot-window/summarycrossplots/</guid>
       <description>A Summary Cross Plot is a window displaying a graph in the main area of the Plot Main Window. It is very similar to an ordinary Summary Plot, but there are some differences:
  Summary Cross Plot displays one vector against another vector, not one vector against time. Not possible to paste Excel/CSV data to a summary cross plot. Summary cross plots have no Plot Editor.  The only way to create a new Summary Cross Plot, is to select the context command New Summary Cross Plot on the Plot Main Window -&amp;gt; Project Tree -&amp;gt; Summary Cross Plots item.</description>
+    </item>
+    
+    <item>
+      <title>Python API - rips</title>
+      <link>https://resinsight.org/scripting/pythonrips/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/scripting/pythonrips/</guid>
+      <description>Instance Module class rips.Instance(port=50051, launched=False) The ResInsight Instance class. Use to launch or find existing ResInsight instances
+launched() Tells us whether the application was launched as a new process. If the application was launched we may need to close it when exiting the script.
+ Type
+bool
+  commands() Command executor. Set when creating an instance.
+ Type
+Commands
+  project() Current project in ResInsight. Set when creating an instance and updated when opening/closing projects.</description>
+    </item>
+    
+    <item>
+      <title>Python Configuration</title>
+      <link>https://resinsight.org/scripting/pythonconfiguration/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/scripting/pythonconfiguration/</guid>
+      <description>ResInsight has a gRPC Remote Procedure Call interface with a Python Client interface. This interface allows you to interact with a running ResInsight instance from a Python script.
+The Python client package is available for install via the Python PIP package system with pip install rips as admin user, or pip install --user rips as a regular user.
+On some systems the pip command may have to be replaced by python -m pip.</description>
     </item>
     
     <item>

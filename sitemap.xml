@@ -159,7 +159,7 @@
   </url>
   
   <url>
-    <loc>https://resinsight.org/scripting/pythonrips/</loc>
+    <loc>https://resinsight.org/scripting/pythonexamples/</loc>
   </url>
   
   <url>
@@ -176,6 +176,14 @@
   
   <url>
     <loc>https://resinsight.org/wells-and-completions/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/scripting/pythonrips/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/scripting/pythonconfiguration/</loc>
   </url>
   
   <url>
@@ -259,10 +267,6 @@
   </url>
   
   <url>
-    <loc>https://resinsight.org/getting-started/other/</loc>
-  </url>
-  
-  <url>
     <loc>https://resinsight.org/plot-window/rftplot/</loc>
   </url>
   
@@ -320,6 +324,7 @@
   
   <url>
     <loc>https://resinsight.org/categories/</loc>
+    <priority>0</priority>
   </url>
   
   <url>
@@ -336,6 +341,7 @@
   
   <url>
     <loc>https://resinsight.org/tags/</loc>
+    <priority>0</priority>
   </url>
   
 </urlset>

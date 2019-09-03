@@ -3,27 +3,27 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.57.2" />
+    <meta name="generator" content="Hugo 0.56.3" />
     <meta name="description" content="">
 
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>Other :: ResInsight</title>
+    <title>Python Configuration :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1567107105" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1567107105" rel="stylesheet">
-    <link href="/css/hybrid.css?1567107105" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1567107105" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1567107105" rel="stylesheet">
-    <link href="/css/auto-complete.css?1567107105" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1567107105" rel="stylesheet">
-    <link href="/css/theme.css?1567107105" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1567107105" rel="stylesheet">
+    <link href="/css/nucleus.css?1567502464" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1567502464" rel="stylesheet">
+    <link href="/css/hybrid.css?1567502464" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1567502464" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1567502464" rel="stylesheet">
+    <link href="/css/auto-complete.css?1567502464" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1567502464" rel="stylesheet">
+    <link href="/css/theme.css?1567502464" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1567502464" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1567107105"></script>
+    <script src="/js/jquery-3.3.1.min.js?1567502464"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/getting-started/other/">
+  <body class="" data-url="/scripting/pythonconfiguration/">
     <nav id="sidebar" class="">
 
 
@@ -70,7 +70,7 @@
   
     
     <li data-nav-id="/getting-started/" title="Getting Started" class="dd-item 
-        parent
+        
         
         
         ">
@@ -227,44 +227,10 @@
 
             
           
-            
-            
-
-
- 
-  
-    
-    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
-        parent
-        active
-        
-        ">
-      <a href="/getting-started/other/">
-          Other
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-          
-          
-        
-          
              
             
           
              
-            
-          
-        
-        </ul>
-              
-    </li>
-  
- 
-
             
           
         
@@ -1319,7 +1285,7 @@
   
     
     <li data-nav-id="/scripting/" title="Scripting" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1381,9 +1347,47 @@
  
   
     
+      <li data-nav-id="/scripting/pythonexamples/" title="Python Examples" class="dd-item ">
+        <a href="/scripting/pythonexamples/">
+        Python Examples
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/scripting/pythonrips/" title="Python API - rips" class="dd-item ">
         <a href="/scripting/pythonrips/">
         Python API - rips
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/scripting/pythonconfiguration/" title="Python Configuration" class="dd-item active">
+        <a href="/scripting/pythonconfiguration/">
+        Python Configuration
         
         </a>
     </li>
@@ -1633,7 +1637,7 @@ if (!doNotTrack) {
             
           
           
-            <a href='/'>ResInsight</a> > <a href='/getting-started/'>Getting Started</a> > Other
+            <a href='/'>ResInsight</a> > <a href='/scripting/'>Scripting</a> > Python Configuration
           
          
           
@@ -1662,7 +1666,7 @@ if (!doNotTrack) {
           
             <h1>
               
-              Other
+              Python Configuration
             </h1>
           
 
@@ -1670,15 +1674,27 @@ if (!doNotTrack) {
 
 
 
+<p><img src="/images/scripting/python-logo-master-v3-TM.png" alt="" /></p>
 
-	
+<p>ResInsight has a <a href="https://www.grpc.io/">gRPC Remote Procedure Call</a> interface with a Python Client interface. This interface allows you to interact with a running ResInsight instance from a Python script.</p>
 
+<p>The Python client package is available for install via the Python PIP package system with <code>pip install rips</code> as admin user, or <code>pip install --user rips</code> as a regular user.</p>
 
+<p>On some systems the <code>pip</code> command may have to be replaced by <code>python -m pip</code>.</p>
+
+<p>In order for gRPC to be available, ResInsight needs to be built with the <code>RESINSIGHT_ENABLE_GRPC</code> option set. A valid gRPC build will show a message in the About dialog confirming gRPC is available:</p>
+
+<p><img src="/images/scripting/AboutGrpc.png" alt="image" /></p>
+
+<p>Furthermore, gRPC needs to be enabled in the Scripting tab of the Preference dialog:</p>
+
+<p><img src="/images/scripting/PrefGrpc.png" alt="image" /></p>
 
 
 <footer class=" footline" >
 	
 </footer>
+
 
         
         </div> 
@@ -1711,6 +1727,8 @@ if (!doNotTrack) {
             
                 
                     
+                        
+                        
                     
                 
                 
@@ -1726,19 +1744,17 @@ if (!doNotTrack) {
             
             
                 
-                    
-                        
-                        
                     
                 
                 
 
-                    
                     
-                        
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -1803,21 +1819,7 @@ if (!doNotTrack) {
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
                     
-
-                    
                         
             
             
@@ -1828,9 +1830,8 @@ if (!doNotTrack) {
             
         
                     
+                        
             
-        
-                    
             
         
                     
@@ -1838,9 +1839,6 @@ if (!doNotTrack) {
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1850,34 +1848,18 @@ if (!doNotTrack) {
                     
 
                     
-                        
-            
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
+        
                     
+                        
+            
             
         
                     
                         
             
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
+        
                     
             
         
@@ -1894,22 +1876,6 @@ if (!doNotTrack) {
                     
                     
 
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
                     
                         
             
@@ -1925,24 +1891,12 @@ if (!doNotTrack) {
                 
 
                     
-                    
-                        
                     
                     
 
                     
-                        
             
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
+        
                     
                         
             
@@ -1988,9 +1942,6 @@ if (!doNotTrack) {
                     
                     
 
-                    
-            
-        
                     
             
         
@@ -1999,7 +1950,6 @@ if (!doNotTrack) {
             
             
                 
-                    
                     
                 
                 
@@ -2008,19 +1958,6 @@ if (!doNotTrack) {
                     
                     
 
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-            
-        
                     
             
         
@@ -2029,7 +1966,6 @@ if (!doNotTrack) {
             
             
                 
-                    
                     
                 
                 
@@ -2038,31 +1974,15 @@ if (!doNotTrack) {
                     
                     
 
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
                     
             
         
                     
-            
-        
-                    
                         
             
             
                 
                     
-                        
-                        
-                    
                 
                 
 
@@ -2071,9 +1991,7 @@ if (!doNotTrack) {
                     
 
                     
-                        
             
-            
         
                     
                         
@@ -2200,6 +2118,9 @@ if (!doNotTrack) {
                     
                     
 
+                    
+            
+        
                     
             
         
@@ -2216,9 +2137,6 @@ if (!doNotTrack) {
                     
                     
 
-                    
-            
-        
                     
                         
             
@@ -2312,9 +2230,6 @@ if (!doNotTrack) {
                     
                     
 
-                    
-            
-        
                     
             
         
@@ -2331,6 +2246,9 @@ if (!doNotTrack) {
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -2428,6 +2346,9 @@ if (!doNotTrack) {
             
         
                     
+            
+        
+                    
                         
             
             
@@ -2440,9 +2361,6 @@ if (!doNotTrack) {
                     
                     
 
-                    
-            
-        
                     
                         
             
@@ -2771,19 +2689,7 @@ if (!doNotTrack) {
             
             
                 
-                    
-                
-                
-
-                    
-                    
-                    
-
                     
-                        
-            
-            
-                
                     
                 
                 
@@ -2792,30 +2698,14 @@ if (!doNotTrack) {
                     
                     
 
-                    
-            
-        
                     
                         
             
             
-                
-                    
                 
-                
-
-                    
-                    
                     
-
-                    
-            
-        
-                    
                         
-            
-            
-                
+                        
                     
                 
                 
@@ -2876,26 +2766,11 @@ if (!doNotTrack) {
             
         
                     
-            
-        
-                    
                         
             
             
-                
-                    
                 
-                
-
-                    
-                    
-                    
-
                     
-                        
-            
-            
-                
                     
                 
                 
@@ -2911,39 +2786,10 @@ if (!doNotTrack) {
                         
             
             
-                
-                    
                 
-                
-
-                    
-                    
-                    
-
                     
-            
-        
-                    
                         
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
                         
-            
-            
-                
                     
                 
                 
@@ -3064,10 +2910,10 @@ if (!doNotTrack) {
 	 
 	 
 		
-			<a class="nav nav-prev" href="/getting-started/other/" title="Other"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/scripting/pythonrips/" title="Python API - rips"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/3d-main-window/" title="3D Main Window" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/scripting/octaveinterface/" title="Octave Interface" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -3077,20 +2923,20 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1567107105"></script>
-    <script src="/js/perfect-scrollbar.min.js?1567107105"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1567107105"></script>
-    <script src="/js/jquery.sticky.js?1567107105"></script>
-    <script src="/js/featherlight.min.js?1567107105"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1567107105"></script>
-    <script src="/js/highlight.pack.js?1567107105"></script>
+    <script src="/js/clipboard.min.js?1567502464"></script>
+    <script src="/js/perfect-scrollbar.min.js?1567502464"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1567502464"></script>
+    <script src="/js/jquery.sticky.js?1567502464"></script>
+    <script src="/js/featherlight.min.js?1567502464"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1567502464"></script>
+    <script src="/js/highlight.pack.js?1567502464"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1567107105"></script>
-    <script src="/js/learn.js?1567107105"></script>
-    <script src="/js/hugo-learn.js?1567107105"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1567502464"></script>
+    <script src="/js/learn.js?1567502464"></script>
+    <script src="/js/hugo-learn.js?1567502464"></script>
 
-    <link href="/mermaid/mermaid.css?1567107105" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1567107105"></script>
+    <link href="/mermaid/mermaid.css?1567502464" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1567502464"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
@@ -3098,3 +2944,4 @@ if (!doNotTrack) {
 
   </body>
 </html>
+

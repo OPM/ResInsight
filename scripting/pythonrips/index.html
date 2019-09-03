@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.57.2" />
+    <meta name="generator" content="Hugo 0.56.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Python API - rips :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1567107104" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1567107104" rel="stylesheet">
-    <link href="/css/hybrid.css?1567107104" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1567107104" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1567107104" rel="stylesheet">
-    <link href="/css/auto-complete.css?1567107104" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1567107104" rel="stylesheet">
-    <link href="/css/theme.css?1567107104" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1567107104" rel="stylesheet">
+    <link href="/css/nucleus.css?1567502464" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1567502464" rel="stylesheet">
+    <link href="/css/hybrid.css?1567502464" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1567502464" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1567502464" rel="stylesheet">
+    <link href="/css/auto-complete.css?1567502464" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1567502464" rel="stylesheet">
+    <link href="/css/theme.css?1567502464" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1567502464" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1567107104"></script>
+    <script src="/js/jquery-3.3.1.min.js?1567502464"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -227,44 +227,10 @@
 
             
           
-            
-            
-
-
- 
-  
-    
-    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
-        
-        
-        
-        ">
-      <a href="/getting-started/other/">
-          Other
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-          
-          
-        
-          
              
             
           
              
-            
-          
-        
-        </ul>
-              
-    </li>
-  
- 
-
             
           
         
@@ -1381,9 +1347,47 @@
  
   
     
+      <li data-nav-id="/scripting/pythonexamples/" title="Python Examples" class="dd-item ">
+        <a href="/scripting/pythonexamples/">
+        Python Examples
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/scripting/pythonrips/" title="Python API - rips" class="dd-item active">
         <a href="/scripting/pythonrips/">
         Python API - rips
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/scripting/pythonconfiguration/" title="Python Configuration" class="dd-item ">
+        <a href="/scripting/pythonconfiguration/">
+        Python Configuration
         
         </a>
     </li>
@@ -1683,6 +1687,10 @@ if (!doNotTrack) {
 <li><a href="#groupid">groupId()</a></li>
 <li><a href="#cellcount-porositymodel-matrix-model">cellCount(porosityModel=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
 <li><a href="#cellinfoforactivecells-porositymodel-matrix-model">cellInfoForActiveCells(porosityModel=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
+</ul></li>
+<li><a href="#cellinfo-class-description">CellInfo class description</a></li>
+<li><a href="#vec3i-class-description">Vec3i class description</a>
+<ul>
 <li><a href="#cellinfoforactivecellsasync-porositymodel-matrix-model">cellInfoForActiveCellsAsync(porosityModel=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
 <li><a href="#createview">createView()</a></li>
 <li><a href="#dayssincestart">daysSinceStart()</a></li>
@@ -1848,19 +1856,7 @@ if (!doNotTrack) {
 
 
 
-<p>ResInsight has a <a href="https://www.grpc.io/">gRPC Remote Procedure Call</a> interface with a Python Client interface. This interface allows you to interact with a running ResInsight instance from a Python script.</p>
-
-<p>The Python client package is available for install via the Python PIP package system with <code>pip install rips</code> as admin user, or <code>pip install --user rips</code> as a regular user.</p>
-
-<p>On some systems the <code>pip</code> command may have to be replaced by <code>python -m pip</code>.</p>
-
-<p>In order for gRPC to be available, ResInsight needs to be built with the <code>RESINSIGHT_ENABLE_GRPC</code> option set. A valid gRPC build will show a message in the About dialog confirming gRPC is available:</p>
-
-<p><img src="/images/scripting/AboutGrpc.png" alt="image" /></p>
-
-<p>Furthermore, gRPC needs to be enabled in the Scripting tab of the Preference dialog:</p>
-
-<p><img src="/images/scripting/PrefGrpc.png" alt="image" /></p>
+<p><img src="/images/scripting/python-logo-master-v3-TM.png" alt="" /></p>
 
 <h1 id="instance-module">Instance Module</h1>
 
@@ -2061,16 +2057,84 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 
 <li><p><strong>Returns</strong></p>
 
-<p>grid_index(int): grid the cell belongs to
-parent_grid_index(int): parent of the grid the cell belongs to
-coarsening_box_index(int): the coarsening box index
-local_ijk(Vec3i: i(int), j(int), k(int)): local cell index in i, j, k directions.
-parent_ijk(Vec3i: i(int), j(int), k(int)): cell index in parent grid in i, j, k.</p></li>
-
-<li><p><strong>Return type</strong></p>
-
-<p>List of cell info objects with the following attributes</p></li>
+<p>List of <strong>CellInfo</strong> objects</p></li>
 </ul>
+
+<h3 id="cellinfo-class-description">CellInfo class description</h3>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Type</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>grid_index</td>
+<td>Index to grid</td>
+<td>Integer</td>
+</tr>
+
+<tr>
+<td>parent_grid_index</td>
+<td>Index to parent grid</td>
+<td>Integer</td>
+</tr>
+
+<tr>
+<td>coarsening_box_index</td>
+<td>Index to coarsening box</td>
+<td>Integer</td>
+</tr>
+
+<tr>
+<td>local_ijk</td>
+<td>Cell index in IJK directions of local grid</td>
+<td>Vec3i</td>
+</tr>
+
+<tr>
+<td>parent_ijk</td>
+<td>Cell index in IJK directions of parent grid</td>
+<td>Vec3i</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="vec3i-class-description">Vec3i class description</h3>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Type</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>i</td>
+<td>I grid index</td>
+<td>Integer</td>
+</tr>
+
+<tr>
+<td>j</td>
+<td>J grid index</td>
+<td>Integer</td>
+</tr>
+
+<tr>
+<td>k</td>
+<td>K grid index</td>
+<td>Integer</td>
+</tr>
+</tbody>
+</table>
 
 <h4 id="cellinfoforactivecellsasync-porositymodel-matrix-model">cellInfoForActiveCellsAsync(porosityModel=&lsquo;MATRIX_MODEL&rsquo;)</h4>
 
@@ -2084,16 +2148,10 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 
 <li><p><strong>Returns</strong></p>
 
-<p>grid_index(int): grid the cell belongs to
-parent_grid_index(int): parent of the grid the cell belongs to
-coarsening_box_index(int): the coarsening box index
-local_ijk(Vec3i: i(int), j(int), k(int)): local cell index in i, j, k directions.
-parent_ijk(Vec3i: i(int), j(int), k(int)): cell index in parent grid in i, j, k.</p></li>
-
-<li><p><strong>Return type</strong></p>
-
-<p>Stream of cell info objects with the following attributes</p></li>
+<p>Stream of <strong>CellInfo</strong> objects</p></li>
 </ul>
+
+<p>See cellInfoForActiveCells() for detalis on the <strong>CellInfo</strong> class.</p>
 
 <h4 id="createview">createView()</h4>
 
@@ -2125,7 +2183,50 @@ parent_ijk(Vec3i: i(int), j(int), k(int)): cell index in parent grid in i, j, k.
 
 <h4 id="timesteps">timeSteps()</h4>
 
-<p>Get a list containing time step strings for all time steps</p>
+<p>Get a list containing all time steps</p>
+
+<p>The time steps are defined by the class <strong>TimeStepDate</strong> :</p>
+
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>int</td>
+<td>year</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td>month</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td>day</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td>hour</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td>minute</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td>second</td>
+</tr>
+</tbody>
+</table>
 
 <h4 id="view-id">view(id)</h4>
 
@@ -2155,8 +2256,12 @@ if resInsight is not None:
     for case in cases:
         print(&quot;Case name: &quot; + case.name)
         print(&quot;Case grid path: &quot; + case.gridPath())
-        # Create a new view
-        view = case.createView()
+        
+        timesteps = case.timeSteps()
+        for t in timesteps:
+            print(&quot;Year: &quot; + str(t.year))
+            print(&quot;Month: &quot; + str(t.month))
+        
     
 
 </code></pre>
@@ -2165,19 +2270,16 @@ if resInsight is not None:
 
 <h4 id="class-rips-commands-channel">class rips.Commands(channel)</h4>
 
-<p>Command executor which can run ResInsight Command File commands nearly verbatim</p>
-
-<p>Documentation Command File Interface:</p>
-
-<pre><code>[https://resinsight.org/docs/commandfile/](https://resinsight.org/docs/commandfile/)
-</code></pre>
+<p>Command executor which can run ResInsight Command File commands nearly verbatim. See
+<a href="/scripting/commandfile/"> Command File Interface </a></p>
 
 <p>The differences are:</p>
 
-<pre><code>* Enum values have to be provided as strings. I.e. &quot;ALL&quot; instead of ALL.
+<ul>
+<li><p>Enum values have to be provided as strings. I.e. &ldquo;ALL&rdquo; instead of ALL.</p></li>
 
-* Booleans have to be specified as correct Python. True instead of true.
-</code></pre>
+<li><p>Booleans have to be specified as correct Python. True instead of true.</p></li>
+</ul>
 
 <h4 id="cloneview-viewid">cloneView(viewId)</h4>
 
@@ -2212,6 +2314,62 @@ if resInsight is not None:
 <h4 id="createview-caseid">createView(caseId)</h4>
 
 <h4 id="exportflowcharacteristics-caseid-timesteps-injectors-producers-filename-minimumcommunication-0-0-aquifercellthreshold-0-1">exportFlowCharacteristics(caseId, timeSteps, injectors, producers, fileName, minimumCommunication=0.0, aquiferCellThreshold=0.1)</h4>
+
+<p>Export Flow Characteristics data to text file in CSV format</p>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Type</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>caseId</td>
+<td>ID of case</td>
+<td>Integer</td>
+</tr>
+
+<tr>
+<td>timeSteps</td>
+<td>Time step indices</td>
+<td>List of Integer</td>
+</tr>
+
+<tr>
+<td>injectors</td>
+<td>Injector names</td>
+<td>List of Strings</td>
+</tr>
+
+<tr>
+<td>producers</td>
+<td>Producer names</td>
+<td>List of Strings</td>
+</tr>
+
+<tr>
+<td>fileName</td>
+<td>Export file name</td>
+<td>Integer</td>
+</tr>
+
+<tr>
+<td>minimumCommunication</td>
+<td>Minimum Communication, defaults to 0.0</td>
+<td>Integer</td>
+</tr>
+
+<tr>
+<td>aquiferCellThreshold</td>
+<td>Aquifer Cell Threshold, defaults to 0.1</td>
+<td>Integer</td>
+</tr>
+</tbody>
+</table>
 
 <h4 id="exportmsw-caseid-wellpath">exportMsw(caseId, wellPath)</h4>
 
@@ -2977,10 +3135,11 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
 
                     
                     
-                        
                     
-                    
 
+                    
+            
+        
                     
                         
             
@@ -3045,19 +3204,6 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
                     
                         
             
@@ -3069,9 +3215,8 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
             
         
                     
+                        
             
-        
-                    
             
         
                     
@@ -3088,34 +3233,18 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
 
                     
-                        
-            
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
+        
                     
+                        
             
+            
         
                     
                         
             
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
+        
                     
             
         
@@ -3132,12 +3261,6 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
                     
 
-                    
-            
-        
-                    
-            
-        
                     
                         
             
@@ -3147,40 +3270,18 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                         
             
             
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
                 
                     
                 
                 
 
-                    
                     
-                        
                     
                     
 
                     
-                        
             
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
+        
                     
                         
             
@@ -3226,9 +3327,6 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
                     
 
-                    
-            
-        
                     
             
         
@@ -3245,19 +3343,6 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
                     
 
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-            
-        
                     
             
         
@@ -3274,19 +3359,6 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
                     
 
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-            
-        
                     
             
         
@@ -3304,8 +3376,6 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
 
                     
-                        
-            
             
         
                     
@@ -3433,6 +3503,9 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
                     
 
+                    
+            
+        
                     
             
         
@@ -3450,9 +3523,6 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
 
                     
-            
-        
-                    
                         
             
             
@@ -3545,9 +3615,6 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
                     
 
-                    
-            
-        
                     
             
         
@@ -3565,6 +3632,9 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -3657,6 +3727,9 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
                     
 
+                    
+            
+        
                     
             
         
@@ -3674,9 +3747,6 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
 
                     
-            
-        
-                    
                         
             
             
@@ -4004,67 +4074,23 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
             
             
                 
-                    
-                
-                
-
                     
                     
-                    
-
-                    
-                        
-            
-            
                 
-                    
                 
-                
 
                     
                     
                     
 
-                    
-            
-        
                     
                         
             
             
-                
-                    
                 
-                
-
-                    
-                    
-                    
-
                     
-            
-        
-                    
                         
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
                         
-            
-            
-                
                     
                 
                 
@@ -4105,34 +4131,15 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                     
                     
 
-                    
-            
-        
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
                     
-
-                    
                         
             
             
                 
                     
-                        
-                        
                     
                 
                 
@@ -4148,24 +4155,10 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
                         
             
             
-                
-                    
                 
-                
-
-                    
-                    
                     
-
-                    
-            
-        
-                    
                         
-            
-            
-                
-                    
+                        
                     
                 
                 
@@ -4182,9 +4175,6 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -4305,10 +4295,10 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
 	 
 	 
 		
-			<a class="nav nav-prev" href="/scripting/commandfile/" title="Command File"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/scripting/pythonexamples/" title="Python Examples"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/scripting/octaveinterface/" title="Octave Interface" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/scripting/pythonconfiguration/" title="Python Configuration" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -4318,20 +4308,20 @@ view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1567107104"></script>
-    <script src="/js/perfect-scrollbar.min.js?1567107104"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1567107104"></script>
-    <script src="/js/jquery.sticky.js?1567107104"></script>
-    <script src="/js/featherlight.min.js?1567107104"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1567107104"></script>
-    <script src="/js/highlight.pack.js?1567107104"></script>
+    <script src="/js/clipboard.min.js?1567502464"></script>
+    <script src="/js/perfect-scrollbar.min.js?1567502464"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1567502464"></script>
+    <script src="/js/jquery.sticky.js?1567502464"></script>
+    <script src="/js/featherlight.min.js?1567502464"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1567502464"></script>
+    <script src="/js/highlight.pack.js?1567502464"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1567107104"></script>
-    <script src="/js/learn.js?1567107104"></script>
-    <script src="/js/hugo-learn.js?1567107104"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1567502464"></script>
+    <script src="/js/learn.js?1567502464"></script>
+    <script src="/js/hugo-learn.js?1567502464"></script>
 
-    <link href="/mermaid/mermaid.css?1567107104" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1567107104"></script>
+    <link href="/mermaid/mermaid.css?1567502464" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1567502464"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

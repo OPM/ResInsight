@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.57.2" />
+    <meta name="generator" content="Hugo 0.56.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Command File :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1567107103" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1567107103" rel="stylesheet">
-    <link href="/css/hybrid.css?1567107103" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1567107103" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1567107103" rel="stylesheet">
-    <link href="/css/auto-complete.css?1567107103" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1567107103" rel="stylesheet">
-    <link href="/css/theme.css?1567107103" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1567107103" rel="stylesheet">
+    <link href="/css/nucleus.css?1567502464" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1567502464" rel="stylesheet">
+    <link href="/css/hybrid.css?1567502464" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1567502464" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1567502464" rel="stylesheet">
+    <link href="/css/auto-complete.css?1567502464" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1567502464" rel="stylesheet">
+    <link href="/css/theme.css?1567502464" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1567502464" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1567107103"></script>
+    <script src="/js/jquery-3.3.1.min.js?1567502464"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -227,44 +227,10 @@
 
             
           
-            
-            
-
-
- 
-  
-    
-    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
-        
-        
-        
-        ">
-      <a href="/getting-started/other/">
-          Other
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-          
-          
-        
-          
              
             
           
              
-            
-          
-        
-        </ul>
-              
-    </li>
-  
- 
-
             
           
         
@@ -1381,9 +1347,47 @@
  
   
     
+      <li data-nav-id="/scripting/pythonexamples/" title="Python Examples" class="dd-item ">
+        <a href="/scripting/pythonexamples/">
+        Python Examples
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/scripting/pythonrips/" title="Python API - rips" class="dd-item ">
         <a href="/scripting/pythonrips/">
         Python API - rips
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/scripting/pythonconfiguration/" title="Python Configuration" class="dd-item ">
+        <a href="/scripting/pythonconfiguration/">
+        Python Configuration
         
         </a>
     </li>
@@ -1685,6 +1689,7 @@ if (!doNotTrack) {
 <li><a href="#exportmsw">exportMsw</a></li>
 <li><a href="#exportwellpaths">exportWellPaths</a></li>
 <li><a href="#exportvisiblecells">exportVisibleCells</a></li>
+<li><a href="#exportflowcharacteristics">exportFlowCharacteristics</a></li>
 <li><a href="#setexportfolder">setExportFolder</a></li>
 </ul></li>
 <li><a href="#other">Other</a>
@@ -2515,6 +2520,75 @@ exportPropertyInViews(caseId=1, viewNames=[&quot;view A&quot;, &quot;view 4&quot
 <pre><code>exporVisibleCells(caseId=0, viewName=&quot;View 1&quot;, exportKeyword=MULTNUM)
 </code></pre>
 
+<h3 id="exportflowcharacteristics">exportFlowCharacteristics</h3>
+
+<p>Export Flow Characteristics data to text file in CSV format</p>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Type</th>
+<th>Required</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>caseId</td>
+<td>ID of case</td>
+<td>Integer</td>
+<td>&#10004;</td>
+</tr>
+
+<tr>
+<td>timeSteps</td>
+<td>Time step indices</td>
+<td>List of Integer</td>
+<td>&#10004;</td>
+</tr>
+
+<tr>
+<td>injectors</td>
+<td>Injector names</td>
+<td>List of Strings</td>
+<td></td>
+</tr>
+
+<tr>
+<td>producers</td>
+<td>Producer names</td>
+<td>List of Strings</td>
+<td></td>
+</tr>
+
+<tr>
+<td>fileName</td>
+<td>Export file name</td>
+<td>Integer</td>
+<td></td>
+</tr>
+
+<tr>
+<td>minimumCommunication</td>
+<td>Minimum Communication, defaults to 0.0</td>
+<td>Integer</td>
+<td></td>
+</tr>
+
+<tr>
+<td>aquiferCellThreshold</td>
+<td>Aquifer Cell Threshold, defaults to 0.1</td>
+<td>Integer</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+<pre><code>exportFlowCharacteristics(caseId=0, timeSteps=[1, 5, 6], injectors=[&quot;INJA&quot;, &quot;INJB&quot;], producers=[&quot;PROD_F&quot;], fileName=&quot;myData.csv&quot;)
+</code></pre>
+
 <h3 id="setexportfolder">setExportFolder</h3>
 
 <p>Set the folder to export different types of data to. Set this before attempting to export data to ensure it is exported to desired location.</p>
@@ -3024,10 +3098,11 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
 
                     
                     
-                        
                     
-                    
 
+                    
+            
+        
                     
                         
             
@@ -3092,19 +3167,6 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
                     
                         
             
@@ -3116,9 +3178,8 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
             
         
                     
+                        
             
-        
-                    
             
         
                     
@@ -3135,34 +3196,18 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
 
                     
-                        
-            
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
+        
                     
+                        
             
+            
         
                     
                         
             
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
+        
                     
             
         
@@ -3179,12 +3224,6 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
                     
 
-                    
-            
-        
-                    
-            
-        
                     
                         
             
@@ -3194,40 +3233,18 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                         
             
             
-        
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
                 
                     
                 
                 
 
                     
-                    
-                        
                     
                     
 
                     
-                        
             
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
+        
                     
                         
             
@@ -3273,9 +3290,6 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
                     
 
-                    
-            
-        
                     
             
         
@@ -3292,19 +3306,6 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
                     
 
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-            
-        
                     
             
         
@@ -3321,19 +3322,6 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
                     
 
-                    
-                        
-            
-            
-        
-                    
-                        
-            
-            
-        
-                    
-            
-        
                     
             
         
@@ -3351,9 +3339,7 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
 
                     
-                        
             
-            
         
                     
                         
@@ -3480,6 +3466,9 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
                     
 
+                    
+            
+        
                     
             
         
@@ -3496,9 +3485,6 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
                     
 
-                    
-            
-        
                     
                         
             
@@ -3592,9 +3578,6 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
                     
 
-                    
-            
-        
                     
             
         
@@ -3611,6 +3594,9 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -3704,6 +3690,9 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
                     
 
+                    
+            
+        
                     
             
         
@@ -3720,9 +3709,6 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
                     
 
-                    
-            
-        
                     
                         
             
@@ -4050,20 +4036,8 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                         
             
             
-                
-                    
-                
                 
-
-                    
-                    
                     
-
-                    
-                        
-            
-            
-                
                     
                 
                 
@@ -4073,45 +4047,13 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
 
                     
-            
-        
-                    
                         
             
             
-                
-                    
                 
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
                     
                         
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
                         
-            
-            
-                
                     
                 
                 
@@ -4127,23 +4069,8 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                         
             
             
-                
-                    
-                
                 
-
-                    
-                    
-                    
-
-                    
-            
-        
                     
-                        
-            
-            
-                
                     
                 
                 
@@ -4152,27 +4079,10 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
                     
                     
 
-                    
-            
-        
                     
             
         
-                    
-                        
-            
-            
-                
                     
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
                         
             
             
@@ -4197,7 +4107,6 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
             
                 
                     
-                    
                 
                 
 
@@ -4213,9 +4122,6 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -4355,7 +4261,7 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
 			<a class="nav nav-prev" href="/scripting/commandlineinterface/" title="Command Line Interface"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/scripting/pythonrips/" title="Python API - rips" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/scripting/pythonexamples/" title="Python Examples" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -4365,20 +4271,20 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1567107103"></script>
-    <script src="/js/perfect-scrollbar.min.js?1567107103"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1567107103"></script>
-    <script src="/js/jquery.sticky.js?1567107103"></script>
-    <script src="/js/featherlight.min.js?1567107103"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1567107103"></script>
-    <script src="/js/highlight.pack.js?1567107103"></script>
+    <script src="/js/clipboard.min.js?1567502464"></script>
+    <script src="/js/perfect-scrollbar.min.js?1567502464"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1567502464"></script>
+    <script src="/js/jquery.sticky.js?1567502464"></script>
+    <script src="/js/featherlight.min.js?1567502464"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1567502464"></script>
+    <script src="/js/highlight.pack.js?1567502464"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1567107103"></script>
-    <script src="/js/learn.js?1567107103"></script>
-    <script src="/js/hugo-learn.js?1567107103"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1567502464"></script>
+    <script src="/js/learn.js?1567502464"></script>
+    <script src="/js/hugo-learn.js?1567502464"></script>
 
-    <link href="/mermaid/mermaid.css?1567107103" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1567107103"></script>
+    <link href="/mermaid/mermaid.css?1567502464" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1567502464"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

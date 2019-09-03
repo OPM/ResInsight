@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>Ensemble Plotting :: ResInsight</title>
+    <title>Python Examples :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1567502464" rel="stylesheet">
@@ -33,7 +33,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/plot-window/ensembleplotting/">
+  <body class="" data-url="/scripting/pythonexamples/">
     <nav id="sidebar" class="">
 
 
@@ -568,7 +568,7 @@
   
     
     <li data-nav-id="/plot-window/" title="Plot Main Window" class="dd-item 
-        parent
+        
         
         
         ">
@@ -668,7 +668,7 @@
  
   
     
-      <li data-nav-id="/plot-window/ensembleplotting/" title="Ensemble Plotting" class="dd-item active">
+      <li data-nav-id="/plot-window/ensembleplotting/" title="Ensemble Plotting" class="dd-item ">
         <a href="/plot-window/ensembleplotting/">
         Ensemble Plotting
         
@@ -1285,7 +1285,7 @@
   
     
     <li data-nav-id="/scripting/" title="Scripting" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1347,7 +1347,7 @@
  
   
     
-      <li data-nav-id="/scripting/pythonexamples/" title="Python Examples" class="dd-item ">
+      <li data-nav-id="/scripting/pythonexamples/" title="Python Examples" class="dd-item active">
         <a href="/scripting/pythonexamples/">
         Python Examples
         
@@ -1637,7 +1637,7 @@ if (!doNotTrack) {
             
           
           
-            <a href='/'>ResInsight</a> > <a href='/plot-window/'>Plot Main Window</a> > Ensemble Plotting
+            <a href='/'>ResInsight</a> > <a href='/scripting/'>Scripting</a> > Python Examples
           
          
           
@@ -1652,15 +1652,27 @@ if (!doNotTrack) {
     <div class="wrapper">
 <nav id="TableOfContents">
 <ul>
-<li>
-<ul>
-<li><a href="#import">Import</a></li>
-<li><a href="#plotting">Plotting</a>
-<ul>
-<li><a href="#statistics-curves">Statistics curves</a></li>
-</ul></li>
-<li><a href="#derived-ensembles">Derived Ensembles</a></li>
-</ul></li>
+<li><a href="#allcases">AllCases</a></li>
+<li><a href="#appinfo">AppInfo</a></li>
+<li><a href="#casegridgroup">CaseGridGroup</a></li>
+<li><a href="#caseinfostreamingexample">CaseInfoStreamingExample</a></li>
+<li><a href="#commandexample">CommandExample</a></li>
+<li><a href="#errorhandling">ErrorHandling</a></li>
+<li><a href="#exportsnapshots">ExportSnapshots</a></li>
+<li><a href="#gridinformation">GridInformation</a></li>
+<li><a href="#inputproptestasync">InputPropTestAsync</a></li>
+<li><a href="#inputproptestsync">InputPropTestSync</a></li>
+<li><a href="#instanceexample">InstanceExample</a></li>
+<li><a href="#launchwithcommandlineoptions">LaunchWithCommandLineOptions</a></li>
+<li><a href="#selectedcases">SelectedCases</a></li>
+<li><a href="#setcellresult">SetCellResult</a></li>
+<li><a href="#setflowdiagnosticsresult">SetFlowDiagnosticsResult</a></li>
+<li><a href="#setgridproperties">SetGridProperties</a></li>
+<li><a href="#soilaverageasync">SoilAverageAsync</a></li>
+<li><a href="#soilaveragesync">SoilAverageSync</a></li>
+<li><a href="#soilporvasync">SoilPorvAsync</a></li>
+<li><a href="#soilporvsync">SoilPorvSync</a></li>
+<li><a href="#viewexample">ViewExample</a></li>
 </ul>
 </nav>
     </div>
@@ -1678,7 +1690,7 @@ if (!doNotTrack) {
           
             <h1>
               
-              Ensemble Plotting
+              Python Examples
             </h1>
           
 
@@ -1688,60 +1700,673 @@ if (!doNotTrack) {
 
 
 
-<p>An ensemble is a group of cases that are tightly coupled, only a set of ensemble input parameters differ between cases. This makes it relevant to perform calculations and statistics analysis on ensembles.</p>
+<p><img src="/images/scripting/python-logo-master-v3-TM.png" alt="" /></p>
 
-<h2 id="import">Import</h2>
+<p>This pages is created based on the content in the <strong>PythonExamples</strong> folder located inside the <strong>rips</strong> module, made available online for convenience.</p>
 
-<p>There are several ways to import an ensemble:</p>
+<h1 id="allcases">AllCases</h1>
 
-<ul>
-<li>Use the <strong>Import Ensemble</strong> command in the window menu</li>
-<li>Use the <strong>Import Summary Case group</strong> and then convert the group to an ensemble</li>
-<li>Import a number of summary cases, move them into a group and then convert the group to an ensemble</li>
-</ul>
+<pre><code>###################################################################################
+# This example will connect to ResInsight, retrieve a list of cases and print info
+# 
+###################################################################################
 
-<p>During import of a summary case, ResInsight tries to find an associated <strong>parameters.txt</strong> file or <strong>runspecification.xml</strong> file containing ensemble parameters. If found, the ensemble parameters are stored together with the summary case. When the user adds a summary case to an ensemble, then ResInsight will perform ensemble parameters validation. A warning dialog is displayed in the following cases:</p>
+# Import the ResInsight Processing Server Module
+import rips
 
-<ul>
-<li>One or more of the cases in the ensemble have no ensemble parameters</li>
-<li>The list of ensemble parameters differ between cases in the ensemble</li>
-</ul>
+# Connect to ResInsight
+resInsight  = rips.Instance.find()
+if resInsight is not None:
+    # Get a list of all cases
+    cases = resInsight.project.cases()
 
-<h2 id="plotting">Plotting</h2>
+    print (&quot;Got &quot; + str(len(cases)) + &quot; cases: &quot;)
+    for case in cases:
+        print(&quot;Case name: &quot; + case.name)
+        print(&quot;Case grid path: &quot; + case.gridPath())
+        
+        timesteps = case.timeSteps()
+        for t in timesteps:
+            print(&quot;Year: &quot; + str(t.year))
+            print(&quot;Month: &quot; + str(t.month))
+        
+    
 
-<p>Ensembles are plotted in the summary plot the same way as ordinary summary curves. Create a new summary plot using the <a href="/plot-window/summaryploteditor/">summary plot editor</a>. Imported ensembles will appear in a separate group in the list of summary cases. When an ensemble is selected, a new curve set is created and plotted as multiple summary curves. By default all curves in an ensemble curve set will have the same color. The coloring mode may be edited in the curve set&rsquo;s property editor in the project plot tree view. Two coloring modes are available:</p>
+</code></pre>
 
-<ul>
-<li><strong>Single color</strong> Use the same color for all curves in a curve set</li>
-<li><strong>By Ensemble Parameter</strong> One ensemble parameter is selected to control coloring. The ensemble parameter value for each case is used to pick a color in a color range. In this case a color legend appears.</li>
-</ul>
+<h1 id="appinfo">AppInfo</h1>
 
-<p>Stepping of data source for ensemble curves is described in <a href="/plot-window/summarysourcestepping/">Summary Plot Source Stepping</a></p>
+<pre><code>import rips
 
-<h3 id="statistics-curves">Statistics curves</h3>
+resInsight  = rips.Instance.find()
+if resInsight is not None:
+    print(resInsight.versionString())
+    print(&quot;Is this a console run?&quot;, resInsight.isConsole())
+</code></pre>
 
-<p>If the number of curves in a curve set is sufficient, ResInsight will calculate statistics for the curve set. The following statistics curves may be displayed:</p>
+<h1 id="casegridgroup">CaseGridGroup</h1>
 
-<ul>
-<li><strong>P10</strong> &ndash; 10% of the curves in the curve set are above this curve</li>
-<li><strong>P50</strong> &ndash; 50% of the curves in the curve set are above this curve</li>
-<li><strong>Mean</strong> &ndash; Aritmetic mean for the curves in the curve set</li>
-<li><strong>P90</strong> &ndash; 90% of the curves in the curve set are above this curve</li>
-</ul>
+<pre><code>import os
+import rips
 
-<p>Statistics curves may be toggled on or off in the curve set&rsquo;s property editor.</p>
+resInsight  = rips.Instance.find()
 
-<p>Example:</p>
+casePaths = []
+casePaths.append(&quot;C:/Users/lindk/source/repos/ResInsight/TestModels/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID&quot;)
+casePaths.append(&quot;C:/Users/lindk/source/repos/ResInsight/TestModels/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID&quot;)
+for casePath in casePaths:
+    assert os.path.exists(casePath), &quot;You need to set valid case paths for this script to work&quot;
 
-<p><img src="/images/plot-window/Ensemble.png" alt="" /></p>
+caseGroup = resInsight.project.createGridCaseGroup(casePaths=casePaths)
 
-<h2 id="derived-ensembles">Derived Ensembles</h2>
+caseGroup.printObjectInfo()
+    
+#statCases = caseGroup.statisticsCases()
+#caseIds = []
+#for statCase in statCases:
+#    statCase.setValue(&quot;DynamicPropertiesToCalculate&quot;, [&quot;SWAT&quot;])
+#    statCase.update()
+#    caseIds.append(statCase.getValue(&quot;CaseId&quot;))
 
-<p>New ensembles can be created based on calculations on two or more ensembles. Such ensembles are called &lsquo;derived ensembles&rsquo;. A derived ensemble will contain data which are either the sum or difference between two other ensembles. An existing derived ensemble may be input to a new derived ensemble, making it possible to for instance add more than two ensembles.</p>
+resInsight.commands.computeCaseGroupStatistics(caseGroupId=caseGroup.groupId)
 
-<p>To create a derived ensemble, select two existing ensembled in the project tree. Right click and select <strong>New Derived Ensenble</strong>. A new derived ensemble is created with the two selected ensembles as input and a default arithmetic operator. In the property for the new ensemble, both input ensembles and operator can be modified.</p>
+view = caseGroup.views()[0]
+cellResult = view.cellResult()
+cellResult.setValue(&quot;ResultVariable&quot;, &quot;PRESSURE_DEV&quot;)
+cellResult.update()
+        
+</code></pre>
 
-<p>If the two input ensembles differs in which cases they consist of, ResInsight will display a warning and let the user decide whether to create the derived ensemble or not.</p>
+<h1 id="caseinfostreamingexample">CaseInfoStreamingExample</h1>
+
+<pre><code>###############################################################################
+# This example will get the cell info for the active cells for the first case
+###############################################################################
+
+# Import the ResInsight Processing Server Module
+import rips
+
+# Connect to ResInsight
+resInsight  = rips.Instance.find()
+
+# Get the case with id == 0. This will fail if your project doesn't have a case with id == 0
+case = resInsight.project.case(id = 0)
+
+# Get the cell count object
+cellCounts = case.cellCount()
+print(&quot;Number of active cells: &quot; + str(cellCounts.active_cell_count))
+print(&quot;Total number of reservoir cells: &quot; + str(cellCounts.reservoir_cell_count))
+
+# Get information for all active cells
+activeCellInfos = case.cellInfoForActiveCells()
+
+# A simple check on the size of the cell info
+assert(cellCounts.active_cell_count == len(activeCellInfos))
+
+# Print information for the first active cell
+print(&quot;First active cell: &quot;)
+print(activeCellInfos[0])
+</code></pre>
+
+<h1 id="commandexample">CommandExample</h1>
+
+<pre><code>###############################################################################
+# This example will run a few ResInsight command file commands
+# .. which are exposed in the Python interface.
+# Including setting time step, window size and export snapshots and properties
+###############################################################################
+import os
+import tempfile
+import rips
+
+# Load instance
+resInsight = rips.Instance.find()
+
+# Run a couple of commands
+resInsight.commands.setTimeStep(caseId=0, timeStep=3)
+resInsight.commands.setMainWindowSize(width=800, height=500)
+
+# Create a temporary directory which will disappear at the end of this script
+# If you want to keep the files, provide a good path name instead of tmpdirname
+with tempfile.TemporaryDirectory(prefix=&quot;rips&quot;) as tmpdirname:
+    print(&quot;Temporary folder: &quot;, tmpdirname)
+    
+    # Set export folder for snapshots and properties
+    resInsight.commands.setExportFolder(type='SNAPSHOTS', path=tmpdirname)
+    resInsight.commands.setExportFolder(type='PROPERTIES', path=tmpdirname)
+    
+    # Export snapshots
+    resInsight.commands.exportSnapshots()
+    
+    # Print contents of temporary folder
+    print(os.listdir(tmpdirname))
+    
+    assert(len(os.listdir(tmpdirname)) &gt; 0)
+    case = resInsight.project.case(id=0)
+    
+    # Export properties in the view
+    resInsight.commands.exportPropertyInViews(0, &quot;3D View&quot;, 0)
+    
+    # Check that the exported file exists
+    expectedFileName = case.name + &quot;-&quot; + str(&quot;3D_View&quot;) + &quot;-&quot; + &quot;T3&quot; + &quot;-SOIL&quot;
+    fullPath = tmpdirname + &quot;/&quot; + expectedFileName
+    assert(os.path.exists(fullPath))
+
+</code></pre>
+
+<h1 id="errorhandling">ErrorHandling</h1>
+
+<pre><code>###################################################################
+# This example demonstrates the use of ResInsight exceptions 
+# for proper error handling
+###################################################################
+
+import rips
+import grpc
+
+resInsight     = rips.Instance.find()
+
+case = None
+
+# Try loading a non-existing case. We should get a grpc.RpcError exception from the server
+try:
+    case = resInsight.project.loadCase(&quot;Nonsense&quot;)
+except grpc.RpcError as e:
+    print(&quot;Expected Server Exception Received: &quot;, e)
+
+case = resInsight.project.case(id=0)
+if case is not None:
+    results = case.properties.activeCellProperty('STATIC_NATIVE', 'PORO', 0)
+    activeCellCount = len(results)
+
+    # Send the results back to ResInsight inside try / except construct
+    try:        
+        case.properties.setActiveCellProperty(results, 'GENERATED', 'POROAPPENDED', 0)
+        print(&quot;Everything went well as expected&quot;)
+    except: # Match any exception, but it should not happen
+        print(&quot;Ooops!&quot;)
+
+    # Add another value, so this is outside the bounds of the active cell result storage
+    results.append(1.0)
+
+    # This time we should get a grpc.RpcError exception, which is a server side error.
+    try:        
+        case.properties.setActiveCellProperty(results, 'GENERATED', 'POROAPPENDED', 0)
+        print(&quot;Everything went well??&quot;)
+    except grpc.RpcError as e:
+        print(&quot;Expected Server Exception Received: &quot;, e)
+    except IndexError:
+        print (&quot;Got index out of bounds error. This shouldn't happen here&quot;)
+
+    # With a chunk size exactly matching the active cell count the server will not
+    # be able to see any error as it will successfully close the stream after receiving
+    # the correct number of values, even if the python client has more chunks to send
+    case.properties.chunkSize = activeCellCount
+
+    try:        
+        case.properties.setActiveCellProperty(results, 'GENERATED', 'POROAPPENDED', 0)
+        print(&quot;Everything went well??&quot;)
+    except grpc.RpcError as e:
+        print(&quot;Got unexpected server exception&quot;, e, &quot;This should not happen now&quot;)
+    except IndexError:
+        print (&quot;Got expected index out of bounds error on client side&quot;)
+
+        
+
+</code></pre>
+
+<h1 id="exportsnapshots">ExportSnapshots</h1>
+
+<pre><code>############################################################################
+# This script will export snapshots for two properties in every loaded case
+# And put them in a snapshots folder in the same folder as the case grid
+############################################################################
+import os
+import rips
+
+# Load instance
+resInsight = rips.Instance.find()
+cases = resInsight.project.cases()
+
+# Set main window size
+resInsight.commands.setMainWindowSize(width=800, height=500)
+
+n = 5                            # every n-th timestep for snapshot
+property_list = ['SOIL', 'PRESSURE'] # list of parameter for snapshot
+
+print (&quot;Looping through cases&quot;)
+for case in cases:
+    # Get grid path and its folder name
+    casepath = case.gridPath()
+    foldername = os.path.dirname(casepath)
+    
+    # create a folder to hold the snapshots
+    dirname = os.path.join(foldername, 'snapshots')
+        
+    if os.path.exists(dirname) is False:
+        os.mkdir(dirname)
+    
+    print (&quot;Exporting to folder: &quot; + dirname)
+    resInsight.commands.setExportFolder(type='SNAPSHOTS', path=dirname)
+   
+    timeSteps = case.timeSteps()
+    tss_snapshot = range(0, len(timeSteps), n)
+    print(case.name, case.id, 'Number of timesteps: ' + str(len(timeSteps)))
+    print('Number of timesteps for snapshoting: ' + str(len(tss_snapshot)))
+        
+    view = case.views()[0]
+    for property in property_list:
+        view.applyCellResult(resultType='DYNAMIC_NATIVE', resultVariable=property)
+        for ts_snapshot in tss_snapshot:
+            resInsight.commands.setTimeStep(caseId = case.id, timeStep = ts_snapshot)        
+            resInsight.commands.exportSnapshots(type='VIEWS', caseId=case.id)  # ‘ALL’, ‘VIEWS’ or ‘PLOTS’ default is 'ALL'
+</code></pre>
+
+<h1 id="gridinformation">GridInformation</h1>
+
+<pre><code>######################################################################################
+# This example prints information about the grids of all cases in the current project
+######################################################################################
+
+import rips
+
+resInsight  = rips.Instance.find()
+
+cases = resInsight.project.cases()
+print(&quot;Number of cases found: &quot;, len(cases))
+for case in cases:
+    print(case.name)
+    grids = case.grids()
+    print(&quot;Number of grids: &quot;, len(grids))
+    for grid in grids:
+        print(&quot;Grid dimensions: &quot;, grid.dimensions())
+
+
+
+</code></pre>
+
+<h1 id="inputproptestasync">InputPropTestAsync</h1>
+
+<pre><code>########################################################################################
+# This example generates a derived property in an asynchronous manner
+# Meaning it does not wait for all the data for each stage to be read before proceeding
+########################################################################################
+import rips
+import time
+
+# Internal function for creating a result from a small chunk of poro and permx results
+# The return value of the function is a generator for the results rather than the result itself.
+def createResult(poroChunks, permxChunks):
+    # Loop through all the chunks of poro and permx in order
+    for (poroChunk, permxChunk) in zip(poroChunks, permxChunks):
+        resultChunk = []
+        # Loop through all the values inside the chunks, in order
+        for (poro, permx) in zip(poroChunk.values, permxChunk.values):
+            resultChunk.append(poro * permx)
+        # Return a generator object that behaves like a Python iterator
+        yield resultChunk
+
+resInsight     = rips.Instance.find()
+start = time.time()
+case = resInsight.project.case(id=0)
+
+# Get a generator for the poro results. The generator will provide a chunk each time it is iterated
+poroChunks = case.properties.activeCellPropertyAsync('STATIC_NATIVE', 'PORO', 0)
+# Get a generator for the permx results. The generator will provide a chunk each time it is iterated
+permxChunks = case.properties.activeCellPropertyAsync('STATIC_NATIVE', 'PERMX', 0)
+
+# Send back the result with the result provided by a generator object.
+# Iterating the result generator will cause the script to read from the poro and permx generators
+# And return the result of each iteration
+case.properties.setActiveCellPropertyAsync(createResult(poroChunks, permxChunks),
+                                           'GENERATED', 'POROPERMXAS', 0)
+
+end = time.time()
+print(&quot;Time elapsed: &quot;, end - start)
+print(&quot;Transferred all results back&quot;)
+view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXAS')
+</code></pre>
+
+<h1 id="inputproptestsync">InputPropTestSync</h1>
+
+<pre><code>########################################################################################
+# This example generates a derived property in an synchronous manner
+# Meaning it completes reading each result before calculating the derived result
+# See InputPropTestAsync for how to do this asynchronously instead.
+########################################################################################
+import rips
+import time
+import grpc
+
+resInsight     = rips.Instance.find()
+start = time.time()
+case = resInsight.project.case(id=0)
+
+# Read poro result into list
+poroResults = case.properties.activeCellProperty('STATIC_NATIVE', 'PORO', 0)
+# Read permx result into list
+permxResults = case.properties.activeCellProperty('STATIC_NATIVE', 'PERMX', 0)
+
+# Generate output result
+results = []
+for (poro, permx) in zip(poroResults, permxResults):
+    results.append(poro * permx)
+
+try:
+    # Send back output result
+    case.properties.setActiveCellProperty(results, 'GENERATED', 'POROPERMXSY', 0)
+except grpc.RpcError as e:
+    print(&quot;Exception Received: &quot;, e)
+
+
+end = time.time()
+print(&quot;Time elapsed: &quot;, end - start)
+print(&quot;Transferred all results back&quot;)
+
+view = case.views()[0].applyCellResult('GENERATED', 'POROPERMXSY')
+</code></pre>
+
+<h1 id="instanceexample">InstanceExample</h1>
+
+<pre><code>#######################################
+# This example connects to ResInsight
+#######################################
+import rips
+
+resInsight  = rips.Instance.find()
+
+if resInsight is None:
+    print('ERROR: could not find ResInsight')
+else:
+	print('Successfully connected to ResInsight')
+</code></pre>
+
+<h1 id="launchwithcommandlineoptions">LaunchWithCommandLineOptions</h1>
+
+<pre><code># Load ResInsight Processing Server Client Library
+import rips
+# Launch ResInsight with last project file and a Window size of 600x1000 pixels
+resInsight = rips.Instance.launch(commandLineParameters=['--last', '--size', 600, 1000])
+# Get a list of all cases
+cases = resInsight.project.cases()
+
+print (&quot;Got &quot; + str(len(cases)) + &quot; cases: &quot;)
+for case in cases:
+    print(&quot;Case name: &quot; + case.name)
+    print(&quot;Case grid path: &quot; + case.gridPath())
+</code></pre>
+
+<h1 id="selectedcases">SelectedCases</h1>
+
+<pre><code>############################################################################
+# This example returns the currently selected cases in ResInsight
+# Because running this script in the GUI takes away the selection
+# This script does not run successfully from within the ResInsight GUI
+# And will need to be run from the command line separately from ResInsight
+############################################################################
+
+import rips
+
+resInsight  = rips.Instance.find()
+if resInsight is not None:
+    cases = resInsight.project.selectedCases()
+
+    print (&quot;Got &quot; + str(len(cases)) + &quot; cases: &quot;)
+    for case in cases:
+        print(case.name)
+        for property in case.properties.available('DYNAMIC_NATIVE'):
+            print(property)
+
+
+</code></pre>
+
+<h1 id="setcellresult">SetCellResult</h1>
+
+<pre><code>######################################################################
+# This script applies a cell result to the first view in the project
+######################################################################
+import rips
+
+resInsight  = rips.Instance.find()
+
+view = resInsight.project.view(0)
+view.applyCellResult(resultType='STATIC_NATIVE', resultVariable='DX')
+</code></pre>
+
+<h1 id="setflowdiagnosticsresult">SetFlowDiagnosticsResult</h1>
+
+<pre><code>######################################################################
+# This script applies a flow diagnostics cell result to the first view in the project
+######################################################################
+
+# Load ResInsight Processing Server Client Library
+import rips
+# Connect to ResInsight instance
+resInsight = rips.Instance.find()
+
+view = resInsight.project.view(0)
+#view.applyFlowDiagnosticsCellResult(resultVariable='Fraction',
+#                                    selectionMode='FLOW_TR_INJ_AND_PROD')
+                                    
+# Example of setting individual wells. Commented out because well names are case specific.
+view.applyFlowDiagnosticsCellResult(resultVariable='Fraction',
+                                    selectionMode='FLOW_TR_BY_SELECTION',
+                                    injectors = ['C-1H', 'C-2H', 'F-2H'],
+                                    producers = ['B-1AH', 'B-3H', 'D-1H'])
+</code></pre>
+
+<h1 id="setgridproperties">SetGridProperties</h1>
+
+<pre><code>######################################################################
+# This script sets values for SOIL for all grid cells in the first case in the project
+######################################################################
+import rips
+
+resInsight     = rips.Instance.find()
+
+case = resInsight.project.case(id=0)
+totalCellCount = case.cellCount().reservoir_cell_count
+
+values = []
+for i in range(0, totalCellCount):
+    values.append(i % 2 * 0.75);
+
+print(&quot;Applying values to full grid&quot;)
+case.properties.setGridProperty(values, 'DYNAMIC_NATIVE', 'SOIL', 0)
+
+</code></pre>
+
+<h1 id="soilaverageasync">SoilAverageAsync</h1>
+
+<pre><code>###########################################################################################
+# This example will asynchronously calculate the average value for SOIL for all time steps
+###########################################################################################
+
+import rips
+import itertools
+import time
+
+resInsight     = rips.Instance.find()
+
+start          = time.time()
+
+# Get the case with case id 0
+case           = resInsight.project.case(id=0)
+
+# Get a list of all time steps
+timeSteps      = case.timeSteps()
+
+averages = []
+for i in range(0, len(timeSteps)):
+    # Get the results from time step i asynchronously
+    # It actually returns a generator object almost immediately
+	resultChunks = case.properties.activeCellPropertyAsync('DYNAMIC_NATIVE', 'SOIL', i)
+	mysum = 0.0
+	count = 0
+    # Loop through and append the average. each time we loop resultChunks
+    # We will trigger a read of the input data, meaning the script will start
+    # Calculating averages before the whole resultValue for this time step has been received
+	for chunk in resultChunks:
+		mysum += sum(chunk.values)
+		count += len(chunk.values)
+
+	averages.append(mysum/count)
+
+end = time.time()
+print(&quot;Time elapsed: &quot;, end - start)
+print(averages)
+</code></pre>
+
+<h1 id="soilaveragesync">SoilAverageSync</h1>
+
+<pre><code>###########################################################################################
+# This example will synchronously calculate the average value for SOIL for all time steps
+###########################################################################################
+import rips
+import itertools
+import time
+
+resInsight     = rips.Instance.find()
+
+start          = time.time()
+case           = resInsight.project.case(id=0)
+
+# Get the case with case id 0
+case           = resInsight.project.case(id=0)
+
+# Get a list of all time steps
+timeSteps      = case.timeSteps()
+
+averages = []
+for i in range(0, len(timeSteps)):
+    # Get a list of all the results for time step i
+	results = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', i)
+	mysum = sum(results)
+	averages.append(mysum/len(results))
+
+end = time.time()
+print(&quot;Time elapsed: &quot;, end - start)
+print(averages)
+</code></pre>
+
+<h1 id="soilporvasync">SoilPorvAsync</h1>
+
+<pre><code>##############################################################################
+# This example will create a derived result for each time step asynchronously
+##############################################################################
+
+import rips
+import time
+
+# Internal function for creating a result from a small chunk of soil and porv results
+# The return value of the function is a generator for the results rather than the result itself.
+def createResult(soilChunks, porvChunks):
+    for (soilChunk, porvChunk) in zip(soilChunks, porvChunks):
+        resultChunk = []
+        number = 0
+        for (soilValue, porvValue) in zip(soilChunk.values, porvChunk.values):
+            resultChunk.append(soilValue * porvValue)
+        # Return a Python generator
+        yield resultChunk
+
+resInsight   = rips.Instance.find()
+start        = time.time()
+case         = resInsight.project.case(id=0)
+timeStepInfo = case.timeSteps()
+
+# Get a generator for the porv results. The generator will provide a chunk each time it is iterated
+porvChunks   = case.properties.activeCellPropertyAsync('STATIC_NATIVE', 'PORV', 0)
+
+# Read the static result into an array, so we don't have to transfer it for each iteration
+# Note we use the async method even if we synchronise here, because we need the values chunked
+# ... to match the soil chunks
+porvArray = []
+for porvChunk in porvChunks:
+    porvArray.append(porvChunk)
+
+for i in range (0, len(timeStepInfo)):
+    # Get a generator object for the SOIL property for time step i
+    soilChunks = case.properties.activeCellPropertyAsync('DYNAMIC_NATIVE', 'SOIL', i)
+    # Create the generator object for the SOIL * PORV derived result
+    result_generator = createResult(soilChunks, iter(porvArray))
+    # Send back the result asynchronously with a generator object
+    case.properties.setActiveCellPropertyAsync(result_generator, 'GENERATED', 'SOILPORVAsync', i)
+
+end = time.time()
+print(&quot;Time elapsed: &quot;, end - start)
+        
+print(&quot;Transferred all results back&quot;)
+
+view = case.views()[0].applyCellResult('GENERATED', 'SOILPORVAsync')
+</code></pre>
+
+<h1 id="soilporvsync">SoilPorvSync</h1>
+
+<pre><code>##############################################################################
+# This example will create a derived result for each time step synchronously
+##############################################################################
+
+import rips
+import time
+
+resInsight = rips.Instance.find()
+start = time.time()
+case       = resInsight.project.case(id=0)
+
+# Read the full porv result
+porvResults = case.properties.activeCellProperty('STATIC_NATIVE', 'PORV', 0)
+timeStepInfo = case.timeSteps()
+
+for i in range (0, len(timeStepInfo)):
+    # Read the full SOIl result for time step i
+    soilResults = case.properties.activeCellProperty('DYNAMIC_NATIVE', 'SOIL', i)
+    
+    # Generate the result by looping through both lists in order
+    results = []
+    for (soil, porv) in zip(soilResults, porvResults):
+        results.append(soil * porv)
+
+    # Send back result
+    case.properties.setActiveCellProperty(results, 'GENERATED', 'SOILPORVSync', i)
+
+end = time.time()
+print(&quot;Time elapsed: &quot;, end - start)
+
+print(&quot;Transferred all results back&quot;)
+
+view = case.views()[0].applyCellResult('GENERATED', 'SOILPORVSync')
+</code></pre>
+
+<h1 id="viewexample">ViewExample</h1>
+
+<pre><code>#############################################################
+# This example will alter the views of all cases
+# By setting the background color and toggle the grid box
+# Also clones the first view
+#############################################################
+import rips
+# Connect to ResInsight instance
+resInsight = rips.Instance.find()
+
+# Check if connection worked
+if resInsight is not None:
+    # Get a list of all cases
+    cases = resInsight.project.cases()
+    for case in cases:
+        # Get a list of all views
+        views = case.views()
+        for view in views:
+            # Set some parameters for the view
+            view.setShowGridBox(not view.showGridBox())
+            view.setBackgroundColor(&quot;#3388AA&quot;)            
+            # Update the view in ResInsight
+            view.update()
+        # Clone the first view
+        newView = views[0].clone()
+        view.setShowGridBox(False)
+        newView.setBackgroundColor(&quot;#FFAA33&quot;)
+        newView.update()
+</code></pre>
 
 
 <footer class=" footline" >
@@ -2183,7 +2808,6 @@ if (!doNotTrack) {
             
                 
                     
-                    
                 
                 
 
@@ -2196,9 +2820,6 @@ if (!doNotTrack) {
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2264,7 +2885,6 @@ if (!doNotTrack) {
             
                 
                     
-                    
                 
                 
 
@@ -2280,9 +2900,6 @@ if (!doNotTrack) {
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2751,6 +3368,7 @@ if (!doNotTrack) {
             
                 
                     
+                    
                 
                 
 
@@ -2763,6 +3381,9 @@ if (!doNotTrack) {
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2796,6 +3417,7 @@ if (!doNotTrack) {
             
                 
                     
+                    
                 
                 
 
@@ -2811,6 +3433,9 @@ if (!doNotTrack) {
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2963,10 +3588,10 @@ if (!doNotTrack) {
 	 
 	 
 		
-			<a class="nav nav-prev" href="/plot-window/summarycrossplots/" title="Summary Cross Plot"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/scripting/commandfile/" title="Command File"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/plot-window/curvecalculator/" title="Curve Calculator" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/scripting/pythonrips/" title="Python API - rips" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
