@@ -253,7 +253,7 @@ QVariant caf::PdmFieldUiCap<FieldType>::toUiBasedQVariant() const
 template < typename FieldType>
 bool caf::PdmFieldUiCap<FieldType>::isQVariantDataEqual(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant) const
 {
-    return PdmUiFieldSpecialization<typename FieldType::FieldDataType>::isDataElementEqual(oldUiBasedQVariant, newUiBasedQVariant);
+    return PdmValueFieldSpecialization<typename FieldType::FieldDataType>::isEqual(oldUiBasedQVariant, newUiBasedQVariant);
 }
 
 
