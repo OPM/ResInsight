@@ -42,6 +42,7 @@ public:
 
     const std::vector<cvf::Vec3d>&  wellPathPoints() const;
     const std::vector<double>&      measureDepths() const;
+    std::vector<double>             trueVerticalDepths() const;
 
     RigWellPath();
     void                        setDatumElevation(double value);

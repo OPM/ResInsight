@@ -408,3 +408,16 @@ const std::vector<double>& RigWellPath::measureDepths() const
     return m_measuredDepths;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellPath::trueVerticalDepths() const
+{
+    std::vector<double> tvds;
+    for (const cvf::Vec3d& point : m_wellPathPoints)
+    {
+        tvds.push_back(std::fabs(point.z()));
+    }
+    return tvds;
+}
+
