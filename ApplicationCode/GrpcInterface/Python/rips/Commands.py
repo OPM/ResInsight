@@ -10,14 +10,13 @@ import Commands_pb2_grpc as CmdRpc
 import rips.Case
 
 class Commands:
-    """Command executor which can run ResInsight Command File commands nearly verbatim
-    
-    Documentation Command File Interface:
-        https://resinsight.org/docs/commandfile/
+    """Command executor which can run ResInsight Command File commands nearly verbatim. See    
+    [ Command File Interface ]({{< ref "commandfile.md" >}})
 
     The differences are:
-        * Enum values have to be provided as strings. I.e. "ALL" instead of ALL.
-        * Booleans have to be specified as correct Python. True instead of true.
+
+    - Enum values have to be provided as strings. I.e. "ALL" instead of ALL.
+    - Booleans have to be specified as correct Python. True instead of true.
     
     """
     def __init__(self, channel):
