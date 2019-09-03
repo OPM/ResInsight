@@ -4,6 +4,8 @@ published = true
 weight = 40
 +++
 
+![]({{< relref "" >}}images/scripting/python-logo-master-v3-TM.png)
+
 This pages is created based on the content in the **PythonExamples** folder located inside the **rips** module, made available online for convenience. 
  
 
