@@ -80,23 +80,21 @@ void RimDataSourceForRftPlt::setAddress(const RifDataSourceForRftPlt& address)
 //--------------------------------------------------------------------------------------------------
 RifDataSourceForRftPlt RimDataSourceForRftPlt::address() const
 {
-    if (m_eclCase())
+    switch(m_sourceType())
     {
-        return RifDataSourceForRftPlt(m_sourceType(), m_eclCase);
+        case RifDataSourceForRftPlt::OBSERVED:
+            return RifDataSourceForRftPlt(m_sourceType(), m_wellLogFile);
+        case RifDataSourceForRftPlt::RFT:
+        case RifDataSourceForRftPlt::GRID:
+            return RifDataSourceForRftPlt(m_sourceType(), m_eclCase);
+        case RifDataSourceForRftPlt::ENSEMBLE_RFT:
+            return RifDataSourceForRftPlt(m_sourceType(), m_ensemble);
+        case RifDataSourceForRftPlt::OBSERVED_FMU_RFT:
+            return RifDataSourceForRftPlt(m_sourceType(), m_observedFmuRftData);
+        default:
+            break;
     }
-    else if (m_wellLogFile())
-    {
-        return RifDataSourceForRftPlt(m_sourceType(), m_wellLogFile);
-    }
-    else if (m_ensemble())
-    {
-        return RifDataSourceForRftPlt(m_sourceType(), m_ensemble);
-    }
-    else if (m_observedFmuRftData())
-    {
-        return RifDataSourceForRftPlt(m_sourceType(), m_observedFmuRftData);
-    }
-    return RifDataSourceForRftPlt(RifDataSourceForRftPlt::NONE);
+    return RifDataSourceForRftPlt();
 }
 
 //--------------------------------------------------------------------------------------------------
