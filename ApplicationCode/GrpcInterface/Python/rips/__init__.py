@@ -1,9 +1,9 @@
 name = "rips"
-from .Case import Case
-from .Grid import Grid
-from .Properties import Properties
-from .Instance import Instance
-from .Commands import Commands
-from .PdmObject import PdmObject
-from .View import View
-from .Project import Project
+from rips.Case import Case
+from rips.Grid import Grid
+from rips.Properties import Properties
+from rips.Instance import Instance
+from rips.Commands import Commands
+from rips.PdmObject import PdmObject
+from rips.View import View
+from rips.Project import Project
