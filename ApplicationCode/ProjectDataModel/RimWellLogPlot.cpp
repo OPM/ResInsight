@@ -117,7 +117,7 @@ RimWellLogPlot::RimWellLogPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Move-assignment operator. Argument has to be passed with std::move()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot& RimWellLogPlot::operator=(RimWellLogPlot&& rhs)
 {

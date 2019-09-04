@@ -691,7 +691,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         curveGroupId++;
     }
 
-    loadDataAndUpdate();
+    RimWellLogPlot::onLoadDataAndUpdate();
     plotTrack->calculateXZoomRange();
 }
 
@@ -1088,7 +1088,6 @@ void RimWellPltPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
     syncCurvesFromUiSelection();
-    RimWellLogPlot::loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1096,6 +1095,6 @@ void RimWellPltPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimWellPltPlot::createViewWidget(QWidget* mainWindowParent)
 {
-    m_viewer = new RiuWellPltPlot(this, mainWindowParent);
+    m_viewer = new RiuWellLogPlot(this, mainWindowParent);
     return m_viewer;
 }

@@ -592,7 +592,7 @@ const char* RimWellRftPlot::plotNameFormatString()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::deleteCurvesAssosicatedWithObservedData(const RimObservedFmuRftData* observedFmuRftData)
 {
-	for (auto track : m_wellLogPlot_OBSOLETE->tracks())
+	for (auto track : tracks())
 	{
         auto curves = track->curvesVector();
 		for (auto curve : curves)
@@ -724,7 +724,7 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
         m_branchIndex = 0;
 
-        RimWellLogTrack* const plotTrack = m_wellLogPlot_OBSOLETE->trackByIndex(0);
+        RimWellLogTrack* const plotTrack = trackByIndex(0);
         if (plotTrack)
         {
             plotTrack->deleteAllCurves();
@@ -799,7 +799,7 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
     if (trackCount() > 0)
     {
-        RimWellLogTrack* track = m_wellLogPlot_OBSOLETE->trackByIndex(0);
+        RimWellLogTrack* track = trackByIndex(0);
 
         track->uiOrderingForRftPltFormations(uiOrdering);
 
@@ -911,7 +911,7 @@ void RimWellRftPlot::onLoadDataAndUpdate()
         assignWellPathToExtractionCurves();
     }
 
-    RimWellLogPlot::loadDataAndUpdate();
+    RimWellLogPlot::onLoadDataAndUpdate();
 
     updateEditorsFromCurves();
 }
@@ -962,7 +962,7 @@ void RimWellRftPlot::assignWellPathToExtractionCurves()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimWellRftPlot::createViewWidget(QWidget* mainWindowParent)
 {
-    m_viewer = new RiuWellRftPlot(this, mainWindowParent);
+    m_viewer = new RiuWellLogPlot(this, mainWindowParent);
     return m_viewer;
 }
 

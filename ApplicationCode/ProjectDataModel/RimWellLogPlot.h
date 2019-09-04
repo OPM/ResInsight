@@ -63,7 +63,6 @@ public:
     RimWellLogPlot();
     ~RimWellLogPlot() override;
 
-    // Move-assignment operator
     RimWellLogPlot& operator=(RimWellLogPlot&& rhs);
 
     QWidget*                                        createPlotWidget();
