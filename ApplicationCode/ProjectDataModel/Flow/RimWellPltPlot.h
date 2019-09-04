@@ -106,8 +106,6 @@ private:
 
     // RimViewWindow overrides
 
-	QWidget*                            createViewWidget(QWidget* mainWindowParent) override; 
-
     void                                setPlotXAxisTitles(RimWellLogTrack* plotTrack);
 
     void                                updateFormationsOnPlot() const;

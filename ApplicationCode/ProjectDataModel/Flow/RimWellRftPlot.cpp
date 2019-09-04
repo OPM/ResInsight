@@ -53,7 +53,6 @@
 #include "RimWellPltPlot.h"
 
 #include "RiuWellLogTrack.h"
-#include "RiuWellRftPlot.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -88,6 +87,8 @@ RimWellRftPlot::RimWellRftPlot()
     m_wellLogPlot_OBSOLETE = new RimWellLogPlot();
     m_wellLogPlot_OBSOLETE->setDepthType(RimWellLogPlot::TRUE_VERTICAL_DEPTH);
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable(false);
+
+    m_depthType = RimWellLogPlot::TRUE_VERTICAL_DEPTH;
 
     CAF_PDM_InitFieldNoDefault(&m_wellPathNameOrSimWellName, "WellName", "Well Name", "", "", "");
     CAF_PDM_InitField(&m_branchIndex, "BranchIndex", 0, "Branch Index", "", "", "");
@@ -522,7 +523,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
         assignWellPathToExtractionCurves();
     }
 
-    loadDataAndUpdate();
+    RimWellLogPlot::onLoadDataAndUpdate();
     if (plotTrack->curveCount())
     {
         zoomAll();
@@ -955,15 +956,6 @@ void RimWellRftPlot::assignWellPathToExtractionCurves()
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RimWellRftPlot::createViewWidget(QWidget* mainWindowParent)
-{
-    m_viewer = new RiuWellLogPlot(this, mainWindowParent);
-    return m_viewer;
 }
 
 //--------------------------------------------------------------------------------------------------

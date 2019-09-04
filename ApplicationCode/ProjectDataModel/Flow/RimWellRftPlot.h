@@ -114,8 +114,6 @@ private:
 
     // RimViewWindow overrides
 
-    QWidget* createViewWidget(QWidget* mainWindowParent) override;
-
     void applyCurveAppearance(RimWellLogCurve* newCurve);
 
     void    updateFormationsOnPlot() const;

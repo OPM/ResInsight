@@ -27,6 +27,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuPlotObjectPicker.h"
 #include "RiuWellLogTrack.h"
 
 #include "cafSelectionManager.h"
@@ -54,6 +55,8 @@ RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
 {
     Q_ASSERT(plotDefinition);
     m_plotDefinition = plotDefinition;
+
+    new RiuPlotObjectPicker(m_plotTitle, m_plotDefinition);
 
     QPalette newPalette(palette());
     newPalette.setColor(QPalette::Background, Qt::white);

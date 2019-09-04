@@ -57,8 +57,6 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
 
-#include "RiuWellPltPlot.h"
-
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafVecIjk.h"
@@ -1088,13 +1086,4 @@ void RimWellPltPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
     syncCurvesFromUiSelection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RimWellPltPlot::createViewWidget(QWidget* mainWindowParent)
-{
-    m_viewer = new RiuWellLogPlot(this, mainWindowParent);
-    return m_viewer;
 }
