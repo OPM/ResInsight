@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -34,9 +34,11 @@
 CAF_CMD_SOURCE_INIT(RicCreateSummaryCaseCollectionFeature, "RicCreateSummaryCaseCollectionFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RicCreateSummaryCaseCollectionFeature::groupSummaryCases(std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble)
+RimSummaryCaseCollection* RicCreateSummaryCaseCollectionFeature::groupSummaryCases(std::vector<RimSummaryCase*> cases,
+                                                                                   const QString&               groupName,
+                                                                                   bool                         isEnsemble)
 {
     RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
     if (!cases.empty())
@@ -53,7 +55,7 @@ RimSummaryCaseCollection* RicCreateSummaryCaseCollectionFeature::groupSummaryCas
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCreateSummaryCaseCollectionFeature::isCommandEnabled()
 {
@@ -76,7 +78,7 @@ bool RicCreateSummaryCaseCollectionFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCreateSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 {
@@ -88,7 +90,7 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCreateSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSetup)
 {

@@ -3,21 +3,20 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 
 #include "RimCellRangeFilter.h"
 
@@ -39,45 +38,44 @@
 CAF_PDM_SOURCE_INIT(RimCellRangeFilter, "CellRangeFilter");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilter::RimCellRangeFilter()
 {
     CAF_PDM_InitObject("Cell Range Filter", ":/CellFilter_Range.png", "", "");
 
-    CAF_PDM_InitField(&m_gridIndex, "GridIndex",  0,  "Grid", "", "","");
-    CAF_PDM_InitField(&propagateToSubGrids, "PropagateToSubGrids",  true,  "Apply to Subgrids", "", "","");
+    CAF_PDM_InitField(&m_gridIndex, "GridIndex", 0, "Grid", "", "", "");
+    CAF_PDM_InitField(&propagateToSubGrids, "PropagateToSubGrids", true, "Apply to Subgrids", "", "", "");
 
-    CAF_PDM_InitField(&startIndexI, "StartIndexI",  1,  "Start Index I", "", "","");
+    CAF_PDM_InitField(&startIndexI, "StartIndexI", 1, "Start Index I", "", "", "");
     startIndexI.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
-    
-    CAF_PDM_InitField(&cellCountI,  "CellCountI",   1,  "Cell Count I", "", "","");
+
+    CAF_PDM_InitField(&cellCountI, "CellCountI", 1, "Cell Count I", "", "", "");
     cellCountI.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&startIndexJ, "StartIndexJ",  1,  "Start Index J", "", "","");
+    CAF_PDM_InitField(&startIndexJ, "StartIndexJ", 1, "Start Index J", "", "", "");
     startIndexJ.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&cellCountJ,  "CellCountJ",   1,  "Cell Count J", "", "","");
+    CAF_PDM_InitField(&cellCountJ, "CellCountJ", 1, "Cell Count J", "", "", "");
     cellCountJ.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&startIndexK, "StartIndexK",  1,  "Start Index K", "", "","");
+    CAF_PDM_InitField(&startIndexK, "StartIndexK", 1, "Start Index K", "", "", "");
     startIndexK.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&cellCountK,  "CellCountK",   1,  "Cell Count K", "", "","");
+    CAF_PDM_InitField(&cellCountK, "CellCountK", 1, "Cell Count K", "", "", "");
     cellCountK.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_useIndividualCellIndices, "UseIndividualCellIndices", false, "Use Individual Cell Indices", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_individualCellIndices, "IndividualCellIndices", "Cell Indices", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
+    CAF_PDM_InitFieldNoDefault(
+        &m_individualCellIndices, "IndividualCellIndices", "Cell Indices", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
 
     updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimCellRangeFilter::~RimCellRangeFilter()
-{
-}
+RimCellRangeFilter::~RimCellRangeFilter() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -96,9 +94,11 @@ int RimCellRangeFilter::gridIndex() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimCellRangeFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                          const QVariant&            oldValue,
+                                          const QVariant&            newValue)
 {
     if (changedField == &m_gridIndex)
     {
@@ -106,13 +106,13 @@ void RimCellRangeFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 
         if (grid && grid->cellCountI() > 0 && grid->cellCountJ() > 0 && grid->cellCountK() > 0)
         {
-            cellCountI = static_cast<int>(grid->cellCountI());
+            cellCountI  = static_cast<int>(grid->cellCountI());
             startIndexI = 1;
 
-            cellCountJ = static_cast<int>(grid->cellCountJ());
+            cellCountJ  = static_cast<int>(grid->cellCountJ());
             startIndexJ = 1;
 
-            cellCountK = static_cast<int>(grid->cellCountK());
+            cellCountK  = static_cast<int>(grid->cellCountK());
             startIndexK = 1;
         }
 
@@ -120,17 +120,17 @@ void RimCellRangeFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 
         return;
     }
-    
+
     if (changedField != &name)
     {
         computeAndSetValidValues();
-    
+
         parentContainer()->updateDisplayModeNotifyManagedViews(this);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::computeAndSetValidValues()
 {
@@ -139,20 +139,20 @@ void RimCellRangeFilter::computeAndSetValidValues()
     const cvf::StructGridInterface* grid = selectedGrid();
     if (grid && grid->cellCountI() > 0 && grid->cellCountJ() > 0 && grid->cellCountK() > 0)
     {
-        cellCountI = cvf::Math::clamp(cellCountI.v(),   1, static_cast<int>(grid->cellCountI()));
+        cellCountI  = cvf::Math::clamp(cellCountI.v(), 1, static_cast<int>(grid->cellCountI()));
         startIndexI = cvf::Math::clamp(startIndexI.v(), 1, static_cast<int>(grid->cellCountI()));
 
-        cellCountJ = cvf::Math::clamp(cellCountJ.v(),   1, static_cast<int>(grid->cellCountJ()));
+        cellCountJ  = cvf::Math::clamp(cellCountJ.v(), 1, static_cast<int>(grid->cellCountJ()));
         startIndexJ = cvf::Math::clamp(startIndexJ.v(), 1, static_cast<int>(grid->cellCountJ()));
 
-        cellCountK = cvf::Math::clamp(cellCountK.v(),   1, static_cast<int>(grid->cellCountK()));
+        cellCountK  = cvf::Math::clamp(cellCountK.v(), 1, static_cast<int>(grid->cellCountK()));
         startIndexK = cvf::Math::clamp(startIndexK.v(), 1, static_cast<int>(grid->cellCountK()));
     }
     this->updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::updateActiveState()
 {
@@ -160,7 +160,7 @@ void RimCellRangeFilter::updateActiveState()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimCellRangeFilter::useIndividualCellIndices() const
 {
@@ -168,7 +168,7 @@ bool RimCellRangeFilter::useIndividualCellIndices() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<cvf::Vec3d>& RimCellRangeFilter::individualCellIndices() const
 {
@@ -176,7 +176,7 @@ const std::vector<cvf::Vec3d>& RimCellRangeFilter::individualCellIndices() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::setDefaultValues()
 {
@@ -189,10 +189,10 @@ void RimCellRangeFilter::setDefaultValues()
     Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimView);
     auto actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
-    
+
     RimCase* rimCase = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimCase);
-   
+
     const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid(rimCase);
 
     if (grid == mainGrid && actCellInfo)
@@ -212,23 +212,23 @@ void RimCellRangeFilter::setDefaultValues()
         startIndexI = static_cast<int>(min.x());
         startIndexJ = static_cast<int>(min.y());
         startIndexK = static_cast<int>(min.z());
-        cellCountI = static_cast<int>(max.x() - min.x() + 1);
-        cellCountJ = static_cast<int>(max.y() - min.y() + 1);
-        cellCountK = static_cast<int>(max.z() - min.z() + 1);
+        cellCountI  = static_cast<int>(max.x() - min.x() + 1);
+        cellCountJ  = static_cast<int>(max.y() - min.y() + 1);
+        cellCountK  = static_cast<int>(max.z() - min.z() + 1);
     }
     else
     {
         startIndexI = 1;
         startIndexJ = 1;
         startIndexK = 1;
-        cellCountI = static_cast<int>(grid->cellCountI() );
-        cellCountJ = static_cast<int>(grid->cellCountJ() );
-        cellCountK = static_cast<int>(grid->cellCountK() );
+        cellCountI  = static_cast<int>(grid->cellCountI());
+        cellCountJ  = static_cast<int>(grid->cellCountJ());
+        cellCountK  = static_cast<int>(grid->cellCountK());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection* RimCellRangeFilter::parentContainer()
 {
@@ -236,9 +236,11 @@ RimCellRangeFilterCollection* RimCellRangeFilter::parentContainer()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                               QString                    uiConfigName,
+                                               caf::PdmUiEditorAttribute* attribute)
 {
     caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>(attribute);
     if (!myAttr || !parentContainer())
@@ -247,7 +249,7 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
     }
 
     const cvf::StructGridInterface* grid = selectedGrid();
-    
+
     if (!grid) return;
 
     if (field == &startIndexI || field == &cellCountI)
@@ -255,7 +257,7 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
         myAttr->m_minimum = 1;
         myAttr->m_maximum = static_cast<int>(grid->cellCountI());
     }
-    else if (field == &startIndexJ  || field == &cellCountJ)
+    else if (field == &startIndexJ || field == &cellCountJ)
     {
         myAttr->m_minimum = 1;
         myAttr->m_maximum = static_cast<int>(grid->cellCountJ());
@@ -268,7 +270,7 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -321,7 +323,7 @@ void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
         cellCountJ.uiCapability()->setUiName(QString("  Width"));
         cellCountK.uiCapability()->setUiName(QString("  Width"));
     }
-    
+
     uiOrdering.add(&name);
     uiOrdering.add(&filterMode);
     uiOrdering.add(&m_gridIndex);
@@ -333,7 +335,7 @@ void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     uiOrdering.add(&startIndexK);
     uiOrdering.add(&cellCountK);
 
-    if(RiaApplication::enableDevelopmentFeatures())
+    if (RiaApplication::enableDevelopmentFeatures())
     {
         auto group = uiOrdering.addNewGroup("Single Cell Filtering (TEST)");
         group->setCollapsedByDefault(true);
@@ -347,7 +349,7 @@ void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
 {
@@ -358,9 +360,10 @@ void RimCellRangeFilter::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrde
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                        bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -392,7 +395,7 @@ QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const ca
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimCellRangeFilter::isRangeFilterControlled() const
 {
@@ -409,7 +412,7 @@ bool RimCellRangeFilter::isRangeFilterControlled() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const cvf::StructGridInterface* RimCellRangeFilter::selectedGrid()
 {
@@ -424,4 +427,3 @@ const cvf::StructGridInterface* RimCellRangeFilter::selectedGrid()
 
     return RigReservoirGridTools::gridByIndex(rimCase, clampedIndex);
 }
-

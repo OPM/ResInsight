@@ -44,7 +44,6 @@ class QString;
 class RicExportFractureCompletionsImpl
 {
 public:
-
     enum PressureDepletionWBHPSource
     {
         WBHP_FROM_SUMMARY,
@@ -56,40 +55,44 @@ public:
     //--------------------------------------------------------------------------------------------------
     struct PressureDepletionParameters
     {
-        PressureDepletionParameters(bool                        performScaling = false,
+        PressureDepletionParameters(bool                        performScaling          = false,
                                     int                         pressureScalingTimeStep = 0,
-                                    PressureDepletionWBHPSource wbhpSource = WBHP_FROM_SUMMARY,
-                                    double                      userWBHP = 200.0)
+                                    PressureDepletionWBHPSource wbhpSource              = WBHP_FROM_SUMMARY,
+                                    double                      userWBHP                = 200.0)
             : performScaling(performScaling)
             , pressureScalingTimeStep(pressureScalingTimeStep)
             , wbhpSource(wbhpSource)
             , userWBHP(userWBHP)
-        {}
+        {
+        }
 
         bool                        performScaling;
         int                         pressureScalingTimeStep;
         PressureDepletionWBHPSource wbhpSource;
         double                      userWBHP;
-    };     
+    };
 
-    static std::vector<RigCompletionData> generateCompdatValuesForWellPath(RimWellPath* wellPath,
-                                                                           RimEclipseCase* caseToApply,
-                                                                           std::vector<RicWellPathFractureReportItem>* fractureDataForReport,
-                                                                           QTextStream* outputStreamForIntermediateResultsText,
-                                                                           PressureDepletionParameters pdParams = PressureDepletionParameters());
+    static std::vector<RigCompletionData>
+        generateCompdatValuesForWellPath(RimWellPath*                                wellPath,
+                                         RimEclipseCase*                             caseToApply,
+                                         std::vector<RicWellPathFractureReportItem>* fractureDataForReport,
+                                         QTextStream*                                outputStreamForIntermediateResultsText,
+                                         PressureDepletionParameters                 pdParams = PressureDepletionParameters());
 
-    static std::vector<RigCompletionData> generateCompdatValuesForSimWell(RimEclipseCase* eclipseCase,
-                                                                          const RimSimWellInView* well,
-                                                                          QTextStream* outputStreamForIntermediateResultsText,
-                                                                          PressureDepletionParameters pdParams = PressureDepletionParameters());
+    static std::vector<RigCompletionData>
+        generateCompdatValuesForSimWell(RimEclipseCase*             eclipseCase,
+                                        const RimSimWellInView*     well,
+                                        QTextStream*                outputStreamForIntermediateResultsText,
+                                        PressureDepletionParameters pdParams = PressureDepletionParameters());
 
-    static std::vector<RigCompletionData> generateCompdatValues(RimEclipseCase* caseToApply,
-                                                                const QString& wellNameForExport,
-                                                                const RigWellPath* wellPathGeometry,
-                                                                const std::vector<const RimFracture*>& fractures,
-                                                                std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
-                                                                QTextStream* outputStreamForIntermediateResultsText,
-                                                                PressureDepletionParameters pdParams = PressureDepletionParameters());
+    static std::vector<RigCompletionData>
+        generateCompdatValues(RimEclipseCase*                             caseToApply,
+                              const QString&                              wellNameForExport,
+                              const RigWellPath*                          wellPathGeometry,
+                              const std::vector<const RimFracture*>&      fractures,
+                              std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
+                              QTextStream*                                outputStreamForIntermediateResultsText,
+                              PressureDepletionParameters                 pdParams = PressureDepletionParameters());
 
     static void getWellPressuresAndInitialProductionTimeStepFromSummaryData(const RimEclipseCase* caseToApply,
                                                                             const QString&        wellPathName,
@@ -99,13 +102,14 @@ public:
                                                                             double*               currentWellPressure);
 
 private:
-    static std::vector<RigCompletionData> generateCompdatValuesConst(const RimEclipseCase* caseToApply,
-                                                                     const QString& wellPathName,
-                                                                     const RigWellPath* wellPathGeometry,
-                                                                     const std::vector<const RimFracture*>& fractures,
-                                                                     std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
-                                                                     QTextStream* outputStreamForIntermediateResultsText,
-                                                                     PressureDepletionParameters pdParams);
+    static std::vector<RigCompletionData>
+        generateCompdatValuesConst(const RimEclipseCase*                       caseToApply,
+                                   const QString&                              wellPathName,
+                                   const RigWellPath*                          wellPathGeometry,
+                                   const std::vector<const RimFracture*>&      fractures,
+                                   std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
+                                   QTextStream*                                outputStreamForIntermediateResultsText,
+                                   PressureDepletionParameters                 pdParams);
 
     static bool checkForStimPlanConductivity(const RimFractureTemplate* fracTemplate, const RimFracture* fracture);
 
@@ -122,13 +126,15 @@ private:
 
     static std::map<size_t, double> calculateMatrixToWellTransmissibilities(RigTransmissibilityCondenser& transCondenser);
 
-    static std::vector<RigCompletionData> generateCompdatValuesForFracture(const std::map<size_t, double>& matrixToWellTransmissibilites,
-                                                                           const QString&                  wellPathName,
-                                                                           const RimEclipseCase*           caseToApply,
-                                                                           const RimFracture*              fracture,
-                                                                           const RimFractureTemplate*      fracTemplate);
+    static std::vector<RigCompletionData>
+        generateCompdatValuesForFracture(const std::map<size_t, double>& matrixToWellTransmissibilites,
+                                         const QString&                  wellPathName,
+                                         const RimEclipseCase*           caseToApply,
+                                         const RimFracture*              fracture,
+                                         const RimFractureTemplate*      fracTemplate);
 
-    static void computeNonDarcyFlowParameters(const RimFracture* fracture, std::vector<RigCompletionData>& allCompletionsForOneFracture);
+    static void computeNonDarcyFlowParameters(const RimFracture*              fracture,
+                                              std::vector<RigCompletionData>& allCompletionsForOneFracture);
 
     static double sumUpTransmissibilities(const std::vector<RigCompletionData>& allCompletionsForOneFracture);
 

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -28,55 +28,54 @@
 
 #include <QFileInfo>
 
-namespace caf {
-
-    template<>
-    void caf::AppEnum< RimWellPathImport::UtmFilterEnum >::setUp()
-    {
-        addItem(RimWellPathImport::UTM_FILTER_OFF,      "UTM_FILTER_OFF",       "Off");
-        addItem(RimWellPathImport::UTM_FILTER_PROJECT,  "UTM_FILTER_PROJECT",   "Project");
-        addItem(RimWellPathImport::UTM_FILTER_CUSTOM,   "UTM_FILTER_CUSTOM",    "Custom");
-        setDefault(RimWellPathImport::UTM_FILTER_PROJECT);
-    }
+namespace caf
+{
+template<>
+void caf::AppEnum<RimWellPathImport::UtmFilterEnum>::setUp()
+{
+    addItem(RimWellPathImport::UTM_FILTER_OFF, "UTM_FILTER_OFF", "Off");
+    addItem(RimWellPathImport::UTM_FILTER_PROJECT, "UTM_FILTER_PROJECT", "Project");
+    addItem(RimWellPathImport::UTM_FILTER_CUSTOM, "UTM_FILTER_CUSTOM", "Custom");
+    setDefault(RimWellPathImport::UTM_FILTER_PROJECT);
+}
 
 } // End namespace caf
 
-
 CAF_PDM_SOURCE_INIT(RimWellPathImport, "RimWellPathImport");
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPathImport::RimWellPathImport()
 {
     CAF_PDM_InitObject("RimWellPathImport", "", "", "");
 
-    CAF_PDM_InitField(&wellTypeSurvey,       "WellTypeSurvey",         true,   "Survey", "", "", "");
-    CAF_PDM_InitField(&wellTypePlans,        "WellTypePlans",          true,   "Plans", "", "", "");
- 
+    CAF_PDM_InitField(&wellTypeSurvey, "WellTypeSurvey", true, "Survey", "", "", "");
+    CAF_PDM_InitField(&wellTypePlans, "WellTypePlans", true, "Plans", "", "", "");
+
     caf::AppEnum<RimWellPathImport::UtmFilterEnum> defaultUtmMode = UTM_FILTER_OFF;
-    CAF_PDM_InitField(&utmFilterMode, "UtmMode", defaultUtmMode, "Utm Filter",   "", "", "");
+    CAF_PDM_InitField(&utmFilterMode, "UtmMode", defaultUtmMode, "Utm Filter", "", "", "");
 
-    CAF_PDM_InitField(&north, "UtmNorth", 0.0,    "North", "", "", "");
-    CAF_PDM_InitField(&south, "UtmSouth", 0.0,    "South", "", "", "");
-    CAF_PDM_InitField(&east,  "UtmEast",  0.0,    "East", "", "", "");
-    CAF_PDM_InitField(&west,  "UtmWest",  0.0,    "West", "", "", "");
+    CAF_PDM_InitField(&north, "UtmNorth", 0.0, "North", "", "", "");
+    CAF_PDM_InitField(&south, "UtmSouth", 0.0, "South", "", "", "");
+    CAF_PDM_InitField(&east, "UtmEast", 0.0, "East", "", "", "");
+    CAF_PDM_InitField(&west, "UtmWest", 0.0, "West", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&regions, "Regions", "",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&regions, "Regions", "", "", "", "");
     regions.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathImport::updateRegions(const QStringList& regionStrings, const QStringList& fieldStrings, const QStringList& edmIds)
+void RimWellPathImport::updateRegions(const QStringList& regionStrings,
+                                      const QStringList& fieldStrings,
+                                      const QStringList& edmIds)
 {
     assert(regionStrings.size() == fieldStrings.size() && regionStrings.size() == edmIds.size());
 
     std::vector<RimOilRegionEntry*> regionsToRemove;
-    
+
     // Remove regions and fields not present in last request
     for (size_t regionIdx = 0; regionIdx < this->regions.size(); regionIdx++)
     {
@@ -112,11 +111,10 @@ void RimWellPathImport::updateRegions(const QStringList& regionStrings, const QS
         delete regionsToRemove[i];
     }
 
-
     for (int i = 0; i < regionStrings.size(); i++)
     {
         RimOilRegionEntry* oilRegionEntry = nullptr;
-        RimOilFieldEntry*  oilFieldEntry = nullptr;
+        RimOilFieldEntry*  oilFieldEntry  = nullptr;
 
         for (size_t regionIdx = 0; regionIdx < this->regions.size(); regionIdx++)
         {
@@ -136,7 +134,7 @@ void RimWellPathImport::updateRegions(const QStringList& regionStrings, const QS
 
         if (!oilRegionEntry)
         {
-            oilRegionEntry = new RimOilRegionEntry;
+            oilRegionEntry       = new RimOilRegionEntry;
             oilRegionEntry->name = regionStrings[i];
 
             this->regions.push_back(oilRegionEntry);
@@ -146,8 +144,8 @@ void RimWellPathImport::updateRegions(const QStringList& regionStrings, const QS
 
         if (!oilFieldEntry)
         {
-            oilFieldEntry = new RimOilFieldEntry;
-            oilFieldEntry->name = fieldStrings[i];
+            oilFieldEntry        = new RimOilFieldEntry;
+            oilFieldEntry->name  = fieldStrings[i];
             oilFieldEntry->edmId = edmIds[i];
 
             oilRegionEntry->fields.push_back(oilFieldEntry);
@@ -158,7 +156,7 @@ void RimWellPathImport::updateRegions(const QStringList& regionStrings, const QS
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathImport::initAfterRead()
 {
@@ -166,7 +164,7 @@ void RimWellPathImport::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathImport::updateFieldVisibility()
 {
@@ -187,9 +185,11 @@ void RimWellPathImport::updateFieldVisibility()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathImport::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimWellPathImport::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                         const QVariant&            oldValue,
+                                         const QVariant&            newValue)
 {
     if (changedField == &utmFilterMode)
     {
@@ -198,9 +198,9 @@ void RimWellPathImport::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathImport::defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+void RimWellPathImport::defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     caf::PdmUiTreeViewEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>(attribute);
     if (myAttr)
@@ -212,7 +212,7 @@ void RimWellPathImport::defineObjectEditorAttribute(QString uiConfigName, caf::P
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPathImport::~RimWellPathImport()
 {
@@ -220,7 +220,7 @@ RimWellPathImport::~RimWellPathImport()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathImport::updateFilePaths()
 {
@@ -236,7 +236,7 @@ void RimWellPathImport::updateFilePaths()
             QFileInfo fi(oilField->wellsFilePath);
 
             QString newWellsFilePath = wellPathsFolderPath + "/" + fi.fileName();
-            oilField->wellsFilePath = newWellsFilePath;
+            oilField->wellsFilePath  = newWellsFilePath;
 
             for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
             {
@@ -244,12 +244,9 @@ void RimWellPathImport::updateFilePaths()
 
                 QFileInfo fiWell(rimWellPathEntry->wellPathFilePath);
 
-                QString newFilePath = wellPathsFolderPath + "/" + fiWell.fileName();
+                QString newFilePath                = wellPathsFolderPath + "/" + fiWell.fileName();
                 rimWellPathEntry->wellPathFilePath = newFilePath;
             }
         }
     }
 }
-
-
-

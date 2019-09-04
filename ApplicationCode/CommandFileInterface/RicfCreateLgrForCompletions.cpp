@@ -18,12 +18,12 @@
 
 #include "RicfCreateLgrForCompletions.h"
 
-#include "RicfCommandFileExecutor.h"
 #include "RicfApplicationTools.h"
+#include "RicfCommandFileExecutor.h"
 
-#include "RicDeleteTemporaryLgrsFeature.h"
-#include "RicCreateTemporaryLgrFeature.h"
 #include "ExportCommands/RicExportLgrFeature.h"
+#include "RicCreateTemporaryLgrFeature.h"
+#include "RicDeleteTemporaryLgrsFeature.h"
 
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
@@ -110,21 +110,20 @@ RicfCommandResponse RicfCreateLgrForCompletions::execute()
     caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);
     QStringList wellsIntersectingOtherLgrs;
 
-    feature->createLgrsForWellPaths(
-        wellPaths,
-        eclipseCase,
-        m_timeStep,
-        lgrCellCounts,
-        m_splitType(),
-        {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES},
-        &wellsIntersectingOtherLgrs);
+    feature->createLgrsForWellPaths(wellPaths,
+                                    eclipseCase,
+                                    m_timeStep,
+                                    lgrCellCounts,
+                                    m_splitType(),
+                                    {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES},
+                                    &wellsIntersectingOtherLgrs);
 
     feature->updateViews(eclipseCase);
 
     RicfCommandResponse response;
     if (!wellsIntersectingOtherLgrs.empty())
     {
-        auto wellsList = wellsIntersectingOtherLgrs.join(", ");
+        auto    wellsList = wellsIntersectingOtherLgrs.join(", ");
         QString warning(
             "createLgrForCompletions: No LGRs created for some wells due to existing intersecting LGR(s).Affected wells : " +
             wellsList);

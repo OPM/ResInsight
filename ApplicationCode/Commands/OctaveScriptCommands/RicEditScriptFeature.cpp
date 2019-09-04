@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,8 @@
 
 #include "RicScriptFeatureImpl.h"
 
-#include "RimCalcScript.h"
 #include "RiaApplication.h"
+#include "RimCalcScript.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -35,7 +35,7 @@
 CAF_CMD_SOURCE_INIT(RicEditScriptFeature, "RicEditScriptFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEditScriptFeature::isCommandEnabled()
 {
@@ -44,7 +44,7 @@ bool RicEditScriptFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEditScriptFeature::onActionTriggered(bool isChecked)
 {
@@ -53,8 +53,8 @@ void RicEditScriptFeature::onActionTriggered(bool isChecked)
 
     RimCalcScript* calcScript = selection[0];
 
-    RiaApplication* app = RiaApplication::instance();
-    QString scriptEditor = app->scriptEditorPath();
+    RiaApplication* app          = RiaApplication::instance();
+    QString         scriptEditor = app->scriptEditorPath();
     if (!scriptEditor.isEmpty())
     {
         QStringList arguments;
@@ -66,13 +66,15 @@ void RicEditScriptFeature::onActionTriggered(bool isChecked)
 
         if (!myProcess->waitForStarted(1000))
         {
-            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                                 "Script editor",
+                                 "Failed to start script editor executable\n" + scriptEditor);
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEditScriptFeature::setupActionLook(QAction* actionToSetup)
 {

@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,14 +22,13 @@
 #include <QDir>
 #include <set>
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const QChar RiaFilePathTools::SEPARATOR = '/';
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaFilePathTools::toInternalSeparator(const QString& path)
 {
@@ -47,7 +46,7 @@ QString RiaFilePathTools::toInternalSeparator(const QString& path)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString& RiaFilePathTools::appendSeparatorIfNo(QString& path)
 {
@@ -59,7 +58,7 @@ QString& RiaFilePathTools::appendSeparatorIfNo(QString& path)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaFilePathTools::relativePath(const QString& rootDir, const QString& dir)
 {
@@ -78,7 +77,7 @@ QString RiaFilePathTools::relativePath(const QString& rootDir, const QString& di
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RiaFilePathTools::equalPaths(const QString& path1, const QString& path2)
 {
@@ -98,15 +97,15 @@ QString RiaFilePathTools::canonicalPath(const QString& path)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::pair<QString, QString> RiaFilePathTools::toFolderAndFileName(const QString& absFileName)
 {
-    auto absFN = toInternalSeparator(absFileName);
-    int lastSep = absFN.lastIndexOf(SEPARATOR);
+    auto absFN   = toInternalSeparator(absFileName);
+    int  lastSep = absFN.lastIndexOf(SEPARATOR);
     if (lastSep > 0)
     {
-        return std::make_pair(absFN.left(lastSep), absFN.mid(lastSep+1));
+        return std::make_pair(absFN.left(lastSep), absFN.mid(lastSep + 1));
     }
     else
     {
@@ -115,12 +114,12 @@ std::pair<QString, QString> RiaFilePathTools::toFolderAndFileName(const QString&
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaFilePathTools::removeDuplicatePathSeparators(const QString& path)
 {
     QString correctedPath = path;
-    int len;
+    int     len;
     do
     {
         len = correctedPath.size();
@@ -131,7 +130,7 @@ QString RiaFilePathTools::removeDuplicatePathSeparators(const QString& path)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaFilePathTools::rootSearchPathFromSearchFilter(const QString& searchFilter)
 {
@@ -139,9 +138,9 @@ QString RiaFilePathTools::rootSearchPathFromSearchFilter(const QString& searchFi
 
     QStringList pathPartList = searchFilter.split(SEPARATOR);
 
-    QStringList::iterator pathPartIt= pathPartList.begin();
+    QStringList::iterator pathPartIt = pathPartList.begin();
 
-    for ( ; pathPartIt != pathPartList.end(); ++pathPartIt)
+    for (; pathPartIt != pathPartList.end(); ++pathPartIt)
     {
         QString pathPart = *pathPartIt;
 
@@ -155,7 +154,6 @@ QString RiaFilePathTools::rootSearchPathFromSearchFilter(const QString& searchFi
         if (pathPart.contains("*")) break;
         if (pathPart.contains("?")) break;
         if (pathPart.contains("[")) break;
-
     }
 
     pathPartList.erase(pathPartIt, pathPartList.end());

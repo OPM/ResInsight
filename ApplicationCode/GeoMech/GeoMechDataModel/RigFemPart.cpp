@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,24 +24,21 @@
 #include "cvfBoundingBoxTree.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigFemPart::RigFemPart()
-    :m_elementPartId(-1), m_characteristicElementSize(std::numeric_limits<float>::infinity())
+    : m_elementPartId(-1)
+    , m_characteristicElementSize(std::numeric_limits<float>::infinity())
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RigFemPart::~RigFemPart()
-{
-
-}
+RigFemPart::~RigFemPart() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFemPart::preAllocateElementStorage(int elementCount)
 {
@@ -49,11 +46,11 @@ void RigFemPart::preAllocateElementStorage(int elementCount)
     m_elementTypes.reserve(elementCount);
     m_elementConnectivityStartIndices.reserve(elementCount);
 
-    m_allElementConnectivities.reserve(elementCount*8);
+    m_allElementConnectivities.reserve(elementCount * 8);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFemPart::appendElement(RigElementType elmType, int id, const int* connectivities)
 {
@@ -69,7 +66,7 @@ void RigFemPart::appendElement(RigElementType elmType, int id, const int* connec
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RigFemPartGrid* RigFemPart::getOrCreateStructGrid() const
 {
@@ -82,7 +79,7 @@ const RigFemPartGrid* RigFemPart::getOrCreateStructGrid() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFemPart::assertNodeToElmIndicesIsCalculated()
 {
@@ -93,7 +90,7 @@ void RigFemPart::assertNodeToElmIndicesIsCalculated()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFemPart::calculateNodeToElmRefs()
 {
@@ -102,8 +99,8 @@ void RigFemPart::calculateNodeToElmRefs()
 
     for (int eIdx = 0; eIdx < static_cast<int>(m_elementId.size()); ++eIdx)
     {
-        int elmNodeCount = RigFemTypes::elmentNodeCount(elementType(eIdx));
-        const int* elmNodes = connectivities(eIdx);
+        int        elmNodeCount = RigFemTypes::elmentNodeCount(elementType(eIdx));
+        const int* elmNodes     = connectivities(eIdx);
         for (int localIdx = 0; localIdx < elmNodeCount; ++localIdx)
         {
             m_nodeToElmRefs[elmNodes[localIdx]].push_back(eIdx);
@@ -113,11 +110,11 @@ void RigFemPart::calculateNodeToElmRefs()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<int>& RigFemPart::elementsUsingNode(int nodeIndex) const
 {
-   return m_nodeToElmRefs[nodeIndex];
+    return m_nodeToElmRefs[nodeIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,7 +126,7 @@ const std::vector<unsigned char>& RigFemPart::elementLocalIndicesForNode(int nod
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFemPart::assertElmNeighborsIsCalculated()
 {
@@ -141,46 +138,46 @@ void RigFemPart::assertElmNeighborsIsCalculated()
 
 #include "RigFemFaceComparator.h"
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFemPart::calculateElmNeighbors()
 {
     // Calculate elm neighbors: elmIdxs matching each face of the element
 
     RigFemFaceComparator fComp; // Outside loop to avoid memory alloc/dealloc. Rember to set as private in opm parallelization
-    std::vector<int> candidates;//
+    std::vector<int>     candidates; //
 
     m_elmNeighbors.resize(this->elementCount());
 
     for (int eIdx = 0; eIdx < this->elementCount(); ++eIdx)
     {
-        RigElementType elmType = this->elementType(eIdx);
-        const int* elmNodes = this->connectivities(eIdx);
+        RigElementType elmType  = this->elementType(eIdx);
+        const int*     elmNodes = this->connectivities(eIdx);
 
-        int faceCount = RigFemTypes::elmentFaceCount(elmType);
+        int faceCount     = RigFemTypes::elmentFaceCount(elmType);
         int neighborCount = 0;
         for (int faceIdx = 0; faceIdx < faceCount; ++faceIdx)
         {
             m_elmNeighbors[eIdx].indicesToNeighborElms[faceIdx] = -1;
-            m_elmNeighbors[eIdx].faceInNeighborElm[faceIdx] = -1;
-            int faceNodeCount = 0;
+            m_elmNeighbors[eIdx].faceInNeighborElm[faceIdx]     = -1;
+            int        faceNodeCount                            = 0;
             const int* localFaceIndices = RigFemTypes::localElmNodeIndicesForFace(elmType, faceIdx, &faceNodeCount);
 
             // Get neighbor candidates
             candidates.clear();
             {
-                int firstNodeIdxOfFace = elmNodes[localFaceIndices[0]];
-                const std::vector<int>& candidates1 = this->elementsUsingNode(firstNodeIdxOfFace);
+                int                     firstNodeIdxOfFace = elmNodes[localFaceIndices[0]];
+                const std::vector<int>& candidates1        = this->elementsUsingNode(firstNodeIdxOfFace);
 
                 if (!candidates1.empty())
                 {
                     // Get neighbor candidates from the diagonal node
 
                     int thirdNodeIdxOfFace = elmNodes[localFaceIndices[3]];
-                    
+
                     const std::vector<int>& candidates2 = this->elementsUsingNode(thirdNodeIdxOfFace);
 
-                    // The candidates are sorted from smallest to largest, so we do a linear search to find the 
+                    // The candidates are sorted from smallest to largest, so we do a linear search to find the
                     // (two) common cells in the two arrays, and leaving this element out, we have one candidate left
 
                     size_t idx1 = 0;
@@ -188,47 +185,57 @@ void RigFemPart::calculateElmNeighbors()
 
                     while (idx1 < candidates1.size() && idx2 < candidates2.size())
                     {
-                        if (candidates1[idx1] < candidates2[idx2]){ ++idx1; continue; }
-                        if (candidates1[idx1] > candidates2[idx2]){ ++idx2; continue; }
+                        if (candidates1[idx1] < candidates2[idx2])
+                        {
+                            ++idx1;
+                            continue;
+                        }
+                        if (candidates1[idx1] > candidates2[idx2])
+                        {
+                            ++idx2;
+                            continue;
+                        }
                         if (candidates1[idx1] == candidates2[idx2])
                         {
                             if (candidates1[idx1] != eIdx)
                             {
                                 candidates.push_back(candidates1[idx1]);
                             }
-                            ++idx1; ++idx2;
+                            ++idx1;
+                            ++idx2;
                         }
                     }
                 }
             }
 
-            if (candidates.size()) 
+            if (candidates.size())
             {
                 fComp.setMainFace(elmNodes, localFaceIndices, faceNodeCount);
             }
 
-            // Check if any of the neighbor candidates faces matches 
+            // Check if any of the neighbor candidates faces matches
             for (int nbcIdx = 0; nbcIdx < static_cast<int>(candidates.size()); ++nbcIdx)
             {
                 int nbcElmIdx = candidates[nbcIdx];
 
-                RigElementType nbcElmType = this->elementType(nbcElmIdx);
-                const int* nbcElmNodes = this->connectivities(nbcElmIdx);
+                RigElementType nbcElmType  = this->elementType(nbcElmIdx);
+                const int*     nbcElmNodes = this->connectivities(nbcElmIdx);
 
-                int nbcFaceCount = RigFemTypes::elmentFaceCount(nbcElmType);
+                int  nbcFaceCount    = RigFemTypes::elmentFaceCount(nbcElmType);
                 bool isNeighborFound = false;
                 for (int nbcFaceIdx = 0; nbcFaceIdx < nbcFaceCount; ++nbcFaceIdx)
                 {
-                    int nbcFaceNodeCount = 0;
-                    const int* nbcLocalFaceIndices = RigFemTypes::localElmNodeIndicesForFace(nbcElmType, nbcFaceIdx, &nbcFaceNodeCount);
+                    int        nbcFaceNodeCount = 0;
+                    const int* nbcLocalFaceIndices =
+                        RigFemTypes::localElmNodeIndicesForFace(nbcElmType, nbcFaceIdx, &nbcFaceNodeCount);
 
                     // Compare faces
                     if (fComp.isSameButOposite(nbcElmNodes, nbcLocalFaceIndices, nbcFaceNodeCount))
                     {
                         m_elmNeighbors[eIdx].indicesToNeighborElms[faceIdx] = nbcElmIdx;
-                        m_elmNeighbors[eIdx].faceInNeighborElm[faceIdx] = nbcFaceIdx;
-                        isNeighborFound = true;
-                       
+                        m_elmNeighbors[eIdx].faceInNeighborElm[faceIdx]     = nbcFaceIdx;
+                        isNeighborFound                                     = true;
+
                         break;
                     }
                 }
@@ -249,18 +256,18 @@ void RigFemPart::calculateElmNeighbors()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3f RigFemPart::faceNormal(int elmIdx, int faceIdx) const
 {
     const std::vector<cvf::Vec3f>& nodeCoordinates = this->nodes().coordinates;
 
-    RigElementType eType = this->elementType(elmIdx);
-    const int* elmNodeIndices = this->connectivities(elmIdx);
+    RigElementType eType          = this->elementType(elmIdx);
+    const int*     elmNodeIndices = this->connectivities(elmIdx);
 
-    int faceNodeCount = 0;
-    const int*  localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(eType, faceIdx, &faceNodeCount);
-    
+    int        faceNodeCount              = 0;
+    const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(eType, faceIdx, &faceNodeCount);
+
     if (faceNodeCount == 4)
     {
         const cvf::Vec3f* quadVxs[4];
@@ -270,7 +277,7 @@ cvf::Vec3f RigFemPart::faceNormal(int elmIdx, int faceIdx) const
         quadVxs[2] = &(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]]);
         quadVxs[3] = &(nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]]);
 
-        cvf::Vec3f normal = (*(quadVxs[2]) -  *(quadVxs[0])) ^ (*(quadVxs[3]) - *(quadVxs[1]));
+        cvf::Vec3f normal = (*(quadVxs[2]) - *(quadVxs[0])) ^ (*(quadVxs[3]) - *(quadVxs[1]));
         return normal;
     }
     else if (faceNodeCount != 4)
@@ -282,14 +289,14 @@ cvf::Vec3f RigFemPart::faceNormal(int elmIdx, int faceIdx) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 float RigFemPart::characteristicElementSize() const
 {
     if (m_characteristicElementSize != std::numeric_limits<float>::infinity()) return m_characteristicElementSize;
 
-    int elmsToAverageCount = 0;
-    float sumMaxEdgeLength = 0;
+    int   elmsToAverageCount = 0;
+    float sumMaxEdgeLength   = 0;
     for (int elmIdx = 0; elmIdx < elementCount(); elmIdx++)
     {
         RigElementType eType = this->elementType(elmIdx);
@@ -297,17 +304,17 @@ float RigFemPart::characteristicElementSize() const
         if (eType == HEX8P)
         {
             const int* elmentConn = this->connectivities(elmIdx);
-            cvf::Vec3f nodePos0 = this->nodes().coordinates[elmentConn[0]];
-            cvf::Vec3f nodePos1 = this->nodes().coordinates[elmentConn[1]];
-            cvf::Vec3f nodePos3 = this->nodes().coordinates[elmentConn[3]];
-            cvf::Vec3f nodePos4 = this->nodes().coordinates[elmentConn[4]];
+            cvf::Vec3f nodePos0   = this->nodes().coordinates[elmentConn[0]];
+            cvf::Vec3f nodePos1   = this->nodes().coordinates[elmentConn[1]];
+            cvf::Vec3f nodePos3   = this->nodes().coordinates[elmentConn[3]];
+            cvf::Vec3f nodePos4   = this->nodes().coordinates[elmentConn[4]];
 
-            float l1 = (nodePos1-nodePos0).length();
-            float l3 = (nodePos3-nodePos0).length();
-            float l4 = (nodePos4-nodePos0).length();
+            float l1 = (nodePos1 - nodePos0).length();
+            float l3 = (nodePos3 - nodePos0).length();
+            float l4 = (nodePos4 - nodePos0).length();
 
-            float maxLength = l1 > l3 ? l1: l3;
-            maxLength = maxLength > l4 ? maxLength: l4;
+            float maxLength = l1 > l3 ? l1 : l3;
+            maxLength       = maxLength > l4 ? maxLength : l4;
 
             sumMaxEdgeLength += maxLength;
             ++elmsToAverageCount;
@@ -316,13 +323,13 @@ float RigFemPart::characteristicElementSize() const
 
     CVF_ASSERT(elmsToAverageCount);
 
-    m_characteristicElementSize = sumMaxEdgeLength/elmsToAverageCount;
+    m_characteristicElementSize = sumMaxEdgeLength / elmsToAverageCount;
 
     return m_characteristicElementSize;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RigFemPart::boundingBox() const
 {
@@ -338,7 +345,7 @@ cvf::BoundingBox RigFemPart::boundingBox() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFemPart::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices) const
 {
@@ -372,7 +379,7 @@ void RigFemPart::ensureIntersectionSearchTreeIsBuilt() const
         for (size_t elmIdx = 0; elmIdx < elmCount; ++elmIdx)
         {
             const int*        cellIndices = connectivities(elmIdx);
-            cvf::BoundingBox& cellBB = cellBoundingBoxes[elmIdx];
+            cvf::BoundingBox& cellBB      = cellBoundingBoxes[elmIdx];
             cellBB.add(m_nodes.coordinates[cellIndices[0]]);
             cellBB.add(m_nodes.coordinates[cellIndices[1]]);
             cellBB.add(m_nodes.coordinates[cellIndices[2]]);
@@ -389,15 +396,15 @@ void RigFemPart::ensureIntersectionSearchTreeIsBuilt() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RigFemPart::elementNodeResultCount() const
 {
     int lastElmIdx = this->elementCount() - 1;
     if (lastElmIdx < 0) return 0;
-    RigElementType elmType = this->elementType(lastElmIdx);
-    int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
-    size_t lastElmResultIdx = this->elementNodeResultIdx(lastElmIdx, elmNodeCount -1);
+    RigElementType elmType          = this->elementType(lastElmIdx);
+    int            elmNodeCount     = RigFemTypes::elmentNodeCount(elmType);
+    size_t         lastElmResultIdx = this->elementNodeResultIdx(lastElmIdx, elmNodeCount - 1);
 
     return lastElmResultIdx + 1;
 }
@@ -430,4 +437,3 @@ size_t RigFemPart::resultValueIdxFromResultPosType(RigFemResultPosEnum resultPos
     CVF_ASSERT(false);
     return 0u;
 }
-

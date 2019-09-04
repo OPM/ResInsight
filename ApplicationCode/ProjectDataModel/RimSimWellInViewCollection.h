@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -32,18 +32,18 @@ class RimEclipseView;
 class RimSimWellInView;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimSimWellInViewCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
-public:
 
+public:
     RimSimWellInViewCollection();
     ~RimSimWellInViewCollection() override;
-    
-    void                                setReservoirView(RimEclipseView* ownerReservoirView);
+
+    void setReservoirView(RimEclipseView* ownerReservoirView);
 
     enum WellVisibilityType
     {
@@ -64,7 +64,7 @@ public:
 
     enum WellFenceType
     {
-        K_DIRECTION, 
+        K_DIRECTION,
         J_DIRECTION,
         I_DIRECTION
     };
@@ -72,7 +72,7 @@ public:
 
     enum WellHeadPositionType
     {
-        WELLHEAD_POS_ACTIVE_CELLS_BB, 
+        WELLHEAD_POS_ACTIVE_CELLS_BB,
         WELLHEAD_POS_TOP_COLUMN
     };
     typedef caf::AppEnum<RimSimWellInViewCollection::WellHeadPositionType> WellHeadPositionEnum;
@@ -93,83 +93,83 @@ public:
 
     typedef caf::AppEnum<RimSimWellInViewCollection::WellPipeColors> WellPipeColorsEnum;
 
-    caf::PdmField<bool>                 isActive;
-    caf::PdmField<bool>                 showWellsIntersectingVisibleCells;
-    
-    caf::PdmField<double>               wellHeadScaleFactor;
-    caf::PdmField<double>               pipeScaleFactor;
-    caf::PdmField<double>               spheresScaleFactor;
+    caf::PdmField<bool> isActive;
+    caf::PdmField<bool> showWellsIntersectingVisibleCells;
 
-    caf::PdmField<cvf::Color3f>         wellLabelColor;
-    caf::PdmField<bool>                 showConnectionStatusColors;
+    caf::PdmField<double> wellHeadScaleFactor;
+    caf::PdmField<double> pipeScaleFactor;
+    caf::PdmField<double> spheresScaleFactor;
 
-    void                                setShowWellCellsState(bool enable);
-    bool                                showWellCells();
+    caf::PdmField<cvf::Color3f> wellLabelColor;
+    caf::PdmField<bool>         showConnectionStatusColors;
 
-    bool                                showWellCommunicationLines() { return m_showWellCommunicationLines();}
+    void setShowWellCellsState(bool enable);
+    bool showWellCells();
 
-    caf::PdmField<WellFenceEnum>        wellCellFenceType;
-    caf::PdmField<double>               wellCellTransparencyLevel;
+    bool showWellCommunicationLines()
+    {
+        return m_showWellCommunicationLines();
+    }
 
-    caf::PdmField<int>                  pipeCrossSectionVertexCount;
-    caf::PdmField<WellPipeCoordEnum>    wellPipeCoordType;
+    caf::PdmField<WellFenceEnum> wellCellFenceType;
+    caf::PdmField<double>        wellCellTransparencyLevel;
+
+    caf::PdmField<int>               pipeCrossSectionVertexCount;
+    caf::PdmField<WellPipeCoordEnum> wellPipeCoordType;
 
     caf::PdmField<WellHeadPositionEnum> wellHeadPosition;
 
-    caf::PdmField<bool>                 isAutoDetectingBranches;
-    
-    caf::PdmChildArrayField<RimSimWellInView*>     wells;
+    caf::PdmField<bool> isAutoDetectingBranches;
 
-    RimSimWellInView*                   findWell(QString name);
-    bool                                hasVisibleWellCells();
-    bool                                hasVisibleWellPipes();
-    void                                sortWellsByName();
+    caf::PdmChildArrayField<RimSimWellInView*> wells;
 
-    const std::vector<cvf::ubyte>&      resultWellGeometryVisibilities(size_t frameIndex);       
-    void                                scheduleIsWellPipesVisibleRecalculation();
-    void                                updateStateForVisibilityCheckboxes();
+    RimSimWellInView* findWell(QString name);
+    bool              hasVisibleWellCells();
+    bool              hasVisibleWellPipes();
+    void              sortWellsByName();
 
-    
-    void                                assignDefaultWellColors();
+    const std::vector<cvf::ubyte>& resultWellGeometryVisibilities(size_t frameIndex);
+    void                           scheduleIsWellPipesVisibleRecalculation();
+    void                           updateStateForVisibilityCheckboxes();
 
-    static void                         updateWellAllocationPlots();
+    void assignDefaultWellColors();
+
+    static void updateWellAllocationPlots();
 
 protected:
-    void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-    void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
-
-    caf::PdmFieldHandle*        objectToggleField() override;
-    void                        initAfterRead() override;
+    caf::PdmFieldHandle* objectToggleField() override;
+    void                 initAfterRead() override;
 
 private:
-    void                                calculateWellGeometryVisibility(size_t frameIndex);
-    void                                updateStateFromEnabledChildCount(size_t showLabelCount, caf::PdmField<caf::Tristate>* fieldToUpdate);
+    void calculateWellGeometryVisibility(size_t frameIndex);
+    void updateStateFromEnabledChildCount(size_t showLabelCount, caf::PdmField<caf::Tristate>* fieldToUpdate);
 
 private:
-    RimEclipseView*                     m_reservoirView;
-    std::vector< std::vector< cvf::ubyte > > m_framesOfResultWellPipeVisibilities;  
-    
+    RimEclipseView*                      m_reservoirView;
+    std::vector<std::vector<cvf::ubyte>> m_framesOfResultWellPipeVisibilities;
+
     // Fields
-    caf::PdmField<cvf::Color3f>         m_defaultWellPipeColor;
-    caf::PdmField<WellPipeColorsEnum>   m_wellPipeColors;
+    caf::PdmField<cvf::Color3f>       m_defaultWellPipeColor;
+    caf::PdmField<WellPipeColorsEnum> m_wellPipeColors;
 
-    caf::PdmField<caf::Tristate>        m_showWellLabel;
-    caf::PdmField<caf::Tristate>        m_showWellHead;
-    caf::PdmField<caf::Tristate>        m_showWellPipe;
-    caf::PdmField<caf::Tristate>        m_showWellSpheres;
-    caf::PdmField<caf::Tristate>        m_showWellCells;
-    caf::PdmField<caf::Tristate>        m_showWellCellFence;
+    caf::PdmField<caf::Tristate> m_showWellLabel;
+    caf::PdmField<caf::Tristate> m_showWellHead;
+    caf::PdmField<caf::Tristate> m_showWellPipe;
+    caf::PdmField<caf::Tristate> m_showWellSpheres;
+    caf::PdmField<caf::Tristate> m_showWellCells;
+    caf::PdmField<caf::Tristate> m_showWellCellFence;
 
-    caf::PdmField<bool>                 m_showWellCommunicationLines; 
+    caf::PdmField<bool> m_showWellCommunicationLines;
 
     // Obsolete fields
     caf::PdmField<WellVisibilityEnum>       obsoleteField_wellPipeVisibility;
     caf::PdmField<WellCellsRangeFilterEnum> obsoleteField_wellCellsToRangeFilterMode;
 
-    caf::PdmField<bool>                     obsoleteField_showWellLabel;
-    caf::PdmField<bool>                     obsoleteField_showWellHead;
-    caf::PdmField<bool>                     obsoleteField_showWellCellFence;
+    caf::PdmField<bool> obsoleteField_showWellLabel;
+    caf::PdmField<bool> obsoleteField_showWellHead;
+    caf::PdmField<bool> obsoleteField_showWellCellFence;
 };

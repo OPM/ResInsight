@@ -50,7 +50,7 @@ size_t RivWellConnectionSourceInfo::globalCellIndexFromTriangleIndex(cvf::uint t
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RivWellConnectionSourceInfo::connectionFactorFromTriangleIndex(cvf::uint triangleIndex) const
 {

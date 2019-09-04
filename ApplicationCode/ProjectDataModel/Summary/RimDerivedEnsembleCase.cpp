@@ -18,9 +18,9 @@
 
 #include "RimDerivedEnsembleCase.h"
 
+#include "RiaCurveMerger.h"
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
-#include "RiaCurveMerger.h"
 
 #include "RifDerivedEnsembleReader.h"
 

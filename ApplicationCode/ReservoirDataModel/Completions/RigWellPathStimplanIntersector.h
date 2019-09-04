@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfMatrix4.h"
 
 #include <map>

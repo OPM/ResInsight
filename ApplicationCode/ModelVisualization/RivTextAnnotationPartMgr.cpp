@@ -3,22 +3,20 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
-
 
 #include "RivTextAnnotationPartMgr.h"
 
@@ -38,8 +36,8 @@
 #include "RivPartPriority.h"
 #include "RivPolylineGenerator.h"
 
-#include "cafEffectGenerator.h"
 #include "cafDisplayCoordTransform.h"
+#include "cafEffectGenerator.h"
 #include "cafFixedAtlasFont.h"
 
 #include "cvfDrawableGeo.h"
@@ -48,12 +46,13 @@
 #include "cvfPart.h"
 #include "cvfqtUtils.h"
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RivTextAnnotationPartMgr::RivTextAnnotationPartMgr(Rim3dView* view, RimTextAnnotation* annotationLocal)
-: m_rimView(view), m_rimAnnotationLocal(annotationLocal), m_rimAnnotationInView(nullptr)
+    : m_rimView(view)
+    , m_rimAnnotationLocal(annotationLocal)
+    , m_rimAnnotationInView(nullptr)
 {
 }
 
@@ -68,19 +67,14 @@ RivTextAnnotationPartMgr::RivTextAnnotationPartMgr(Rim3dView* view, RimTextAnnot
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivTextAnnotationPartMgr::~RivTextAnnotationPartMgr()
-{
-
-}
+RivTextAnnotationPartMgr::~RivTextAnnotationPartMgr() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * displayXf,
-                                          bool doFlatten,
-                                          double xOffset)
+void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform* displayXf, bool doFlatten, double xOffset)
 {
     clearAllGeometry();
 
@@ -91,25 +85,25 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
     cvf::Vec3d labelPositionInDomain  = getLabelPointInDomain(collection->snapAnnotations(), collection->annotationPlaneZ());
 
     cvf::Vec3d anchorPosition = displayXf->transformToDisplayCoord(anchorPositionInDomain);
-    cvf::Vec3d labelPosition = displayXf->transformToDisplayCoord(labelPositionInDomain);
-    QString text = rimAnnotation()->text();
+    cvf::Vec3d labelPosition  = displayXf->transformToDisplayCoord(labelPositionInDomain);
+    QString    text           = rimAnnotation()->text();
 
-    auto fontSize = rimAnnotation()->appearance()->fontSize();
-    auto fontColor = rimAnnotation()->appearance()->fontColor();
+    auto fontSize        = rimAnnotation()->appearance()->fontSize();
+    auto fontColor       = rimAnnotation()->appearance()->fontColor();
     auto backgroundColor = rimAnnotation()->appearance()->backgroundColor();
     auto anchorLineColor = rimAnnotation()->appearance()->anchorLineColor();
 
     // Line part
     {
-        std::vector<cvf::Vec3d> points = { anchorPosition, labelPosition };
+        std::vector<cvf::Vec3d> points = {anchorPosition, labelPosition};
 
         cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(points);
 
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setDrawable(drawableGeo.p());
 
-        caf::MeshEffectGenerator    colorEffgen(anchorLineColor);
-        cvf::ref<cvf::Effect>       eff = colorEffgen.generateUnCachedEffect();
+        caf::MeshEffectGenerator colorEffgen(anchorLineColor);
+        cvf::ref<cvf::Effect>    eff = colorEffgen.generateUnCachedEffect();
 
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::PartType::MeshLines);
@@ -120,7 +114,7 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
 
     // Text part
     {
-        auto font = RiaFontCache::getFont(fontSize);
+        auto                        font         = RiaFontCache::getFont(fontSize);
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
         drawableText->setFont(font.p());
         drawableText->setCheckPosVisible(false);
@@ -187,25 +181,26 @@ bool RivTextAnnotationPartMgr::isTextInBoundingBox(const cvf::BoundingBox& bound
 
     auto effectiveBoundingBox = RiaBoundingBoxTools::inflate(boundingBox, 3);
     if (effectiveBoundingBox.contains(getAnchorPointInDomain(coll->snapAnnotations(), coll->annotationPlaneZ())) ||
-        effectiveBoundingBox.contains(getLabelPointInDomain(coll->snapAnnotations(), coll->annotationPlaneZ()))) return true;
+        effectiveBoundingBox.contains(getLabelPointInDomain(coll->snapAnnotations(), coll->annotationPlaneZ())))
+        return true;
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivTextAnnotationPartMgr::clearAllGeometry()
 {
-    m_linePart = nullptr;
+    m_linePart  = nullptr;
     m_labelPart = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivTextAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                                 const caf::DisplayCoordTransform * displayXf,
-                                                                 const cvf::BoundingBox& boundingBox)
+void RivTextAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                                                 const caf::DisplayCoordTransform* displayXf,
+                                                                 const cvf::BoundingBox&           boundingBox)
 {
     if (!rimAnnotation() || !isAnnotationVisible()) return;
 
@@ -252,9 +247,7 @@ RimTextAnnotation* RivTextAnnotationPartMgr::rimAnnotation() const
 //--------------------------------------------------------------------------------------------------
 bool RivTextAnnotationPartMgr::isAnnotationVisible() const
 {
-    if (m_rimAnnotationLocal)
-        return m_rimAnnotationLocal->isVisible();
-    if(m_rimAnnotationInView)
-        return m_rimAnnotationInView->isVisible();
+    if (m_rimAnnotationLocal) return m_rimAnnotationLocal->isVisible();
+    if (m_rimAnnotationInView) return m_rimAnnotationInView->isVisible();
     return false;
 }

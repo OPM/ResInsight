@@ -20,7 +20,6 @@
 
 #include "cafPdmPointer.h"
 
-
 #include "cvfObject.h"
 
 #include <vector>

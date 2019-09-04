@@ -3,22 +3,20 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
-
 
 #include "RivAnnotationsPartMgr.h"
 
@@ -28,29 +26,25 @@
 #include "RimAnnotationInViewCollection.h"
 #include "RimProject.h"
 
-#include "RimUserDefinedPolylinesAnnotationInView.h"
 #include "RimPolylinesFromFileAnnotationInView.h"
+#include "RimUserDefinedPolylinesAnnotationInView.h"
 
-#include "RivTextAnnotationPartMgr.h"
-#include "RivReachCircleAnnotationPartMgr.h"
 #include "RivPolylineAnnotationPartMgr.h"
-
+#include "RivReachCircleAnnotationPartMgr.h"
+#include "RivTextAnnotationPartMgr.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RivAnnotationsPartMgr::RivAnnotationsPartMgr(Rim3dView* view)
-: m_rimView(view)
+    : m_rimView(view)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivAnnotationsPartMgr::~RivAnnotationsPartMgr()
-{
-
-}
+RivAnnotationsPartMgr::~RivAnnotationsPartMgr() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -59,7 +53,7 @@ void RivAnnotationsPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList*     
                                                        const caf::DisplayCoordTransform* displayCoordTransform,
                                                        const cvf::BoundingBox&           boundingBox)
 {
-     createAnnotationPartManagers();
+    createAnnotationPartManagers();
 
     for (auto& partMgr : m_textAnnotationPartMgrs)
     {
@@ -86,11 +80,11 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
     if (colls.empty()) return;
     auto coll = colls.front();
 
-    auto        localTextAnnotations = coll->textAnnotations();
-    auto        textAnnotations = coll->globalTextAnnotations();
-    auto        reachCircleAnnotations = coll->globalReachCircleAnnotations();
-    auto        userDefinedPolylineAnnotations = coll->globalUserDefinedPolylineAnnotations();
-    auto        polylineFromFileAnnotations = coll->globalPolylineFromFileAnnotations();
+    auto localTextAnnotations           = coll->textAnnotations();
+    auto textAnnotations                = coll->globalTextAnnotations();
+    auto reachCircleAnnotations         = coll->globalReachCircleAnnotations();
+    auto userDefinedPolylineAnnotations = coll->globalUserDefinedPolylineAnnotations();
+    auto polylineFromFileAnnotations    = coll->globalPolylineFromFileAnnotations();
 
     clearGeometryCache();
 
@@ -128,11 +122,10 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
             m_polylineAnnotationPartMgrs.push_back(apm);
         }
     }
-    
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivAnnotationsPartMgr::clearGeometryCache()
 {

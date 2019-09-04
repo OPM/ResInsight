@@ -19,7 +19,6 @@
 
 #include "RigGridCrossPlotCurveGrouping.h"
 
-
 #include "cvfArray.h"
 
 #include <map>
@@ -42,11 +41,11 @@ struct RigEclipseCrossPlotResult
 class RigEclipseCrossPlotDataExtractor
 {
 public:
-    static RigEclipseCrossPlotResult extract(RigEclipseCaseData*                 eclipseCase,
-                                             int                                 resultTimeStep,
-                                             const RigEclipseResultAddress&      xAddress,
-                                             const RigEclipseResultAddress&      yAddress,
-                                             RigGridCrossPlotCurveGrouping       groupingType,
-                                             const RigEclipseResultAddress&      groupAddress,
-                                             std::map<int, cvf::UByteArray>      timeStepCellVisibilityMap);
+    static RigEclipseCrossPlotResult extract(RigEclipseCaseData*            eclipseCase,
+                                             int                            resultTimeStep,
+                                             const RigEclipseResultAddress& xAddress,
+                                             const RigEclipseResultAddress& yAddress,
+                                             RigGridCrossPlotCurveGrouping  groupingType,
+                                             const RigEclipseResultAddress& groupAddress,
+                                             std::map<int, cvf::UByteArray> timeStepCellVisibilityMap);
 };

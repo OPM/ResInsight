@@ -34,7 +34,7 @@ class RimPlotCellFilterCollection : public RimPlotCellFilter
 public:
     RimPlotCellFilterCollection();
 
-    void addCellFilter(RimPlotCellFilter* cellFilter);
+    void   addCellFilter(RimPlotCellFilter* cellFilter);
     size_t cellFilterCount() const;
 
     void computeCellVisibilityFromFilter(size_t timeStepIndex, cvf::UByteArray* cellVisibility);

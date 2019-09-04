@@ -180,5 +180,3 @@ std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>>& RicMswSubSegment
 {
     return m_intersections;
 }
-
-

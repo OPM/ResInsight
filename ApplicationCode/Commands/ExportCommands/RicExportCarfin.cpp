@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -37,11 +37,10 @@
 #include <QAction>
 #include <QFile>
 
-
 CAF_CMD_SOURCE_INIT(RicExportCarfin, "RicExportCarfin");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicExportCarfin::isCommandEnabled()
 {
@@ -54,7 +53,7 @@ bool RicExportCarfin::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportCarfin::onActionTriggered(bool isChecked)
 {
@@ -62,7 +61,7 @@ void RicExportCarfin::onActionTriggered(bool isChecked)
     CVF_ASSERT(rimCase);
 
     QString exportCarfinDataAsString = RiaApplication::instance()->project()->dialogData()->exportCarfinDataAsString();
-    
+
     RicExportCarfinUi* exportCarfinObject = RiaApplication::instance()->project()->dialogData()->exportCarfin();
 
     exportCarfinObject->setCase(rimCase);
@@ -73,29 +72,27 @@ void RicExportCarfin::onActionTriggered(bool isChecked)
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         QString filePath = exportCarfinObject->exportFileName();
-        QFile exportFile(filePath);
+        QFile   exportFile(filePath);
         if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text))
         {
             RiaLogging::error(QString("Export CARFIN: Could not open the file: %1").arg(filePath));
             return;
         }
 
-        QTextStream stream(&exportFile);
+        QTextStream                  stream(&exportFile);
         RifEclipseDataTableFormatter formatter(stream);
 
-        std::vector<RifEclipseOutputTableColumn> header = {
-            RifEclipseOutputTableColumn("I1"),
-            RifEclipseOutputTableColumn("I2"),
-            RifEclipseOutputTableColumn("J1"),
-            RifEclipseOutputTableColumn("J2"),
-            RifEclipseOutputTableColumn("K1"),
-            RifEclipseOutputTableColumn("K2"),
-            RifEclipseOutputTableColumn("NX"),
-            RifEclipseOutputTableColumn("NY"),
-            RifEclipseOutputTableColumn("NZ"),
-            RifEclipseOutputTableColumn("NWMAX"),
-            RifEclipseOutputTableColumn("Parent LGR")
-        };
+        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn("I1"),
+                                                           RifEclipseOutputTableColumn("I2"),
+                                                           RifEclipseOutputTableColumn("J1"),
+                                                           RifEclipseOutputTableColumn("J2"),
+                                                           RifEclipseOutputTableColumn("K1"),
+                                                           RifEclipseOutputTableColumn("K2"),
+                                                           RifEclipseOutputTableColumn("NX"),
+                                                           RifEclipseOutputTableColumn("NY"),
+                                                           RifEclipseOutputTableColumn("NZ"),
+                                                           RifEclipseOutputTableColumn("NWMAX"),
+                                                           RifEclipseOutputTableColumn("Parent LGR")};
 
         formatter.keyword("CARFIN");
         formatter.header(header);
@@ -122,7 +119,6 @@ void RicExportCarfin::onActionTriggered(bool isChecked)
 
         formatter.rowCompleted();
         formatter.tableCompleted();
-
     }
     else
     {
@@ -131,7 +127,7 @@ void RicExportCarfin::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportCarfin::setupActionLook(QAction* actionToSetup)
 {
@@ -140,7 +136,7 @@ void RicExportCarfin::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RicExportCarfin::selectedCase()
 {

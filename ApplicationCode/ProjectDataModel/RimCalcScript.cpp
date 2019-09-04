@@ -37,7 +37,7 @@ RimCalcScript::RimCalcScript()
     CAF_PDM_InitObject("CalcScript", ":/OctaveScriptFile16x16.png", "Calc Script", "");
 
     CAF_PDM_InitField(&absoluteFileName, "AbsolutePath", QString(), "Location", "", "", "");
-    
+
     absoluteFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 }
 
@@ -94,7 +94,7 @@ QStringList RimCalcScript::createCommandLineArguments(const QString& absoluteFil
         {
             QFileInfo fi(absoluteFileNameScript);
             QString   octaveFunctionSearchPath = fi.absolutePath();
-            QString   absFilePath = fi.absoluteFilePath();
+            QString   absFilePath              = fi.absoluteFilePath();
 
             arguments << octaveFunctionSearchPath;
             arguments << absFilePath;

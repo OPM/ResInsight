@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017- Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,12 +23,11 @@
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveSet.h"
 
+#include <cafPdmUiPushButtonEditor.h>
 #include <cafPdmUiTableViewEditor.h>
 #include <cafPdmUiTreeOrdering.h>
-#include <cafPdmUiPushButtonEditor.h>
 
 #include <algorithm>
-
 
 CAF_PDM_SOURCE_INIT(RimEnsembleCurveFilterCollection, "RimEnsembleCurveFilterCollection");
 
@@ -40,7 +39,7 @@ static std::vector<RimEnsembleCurveFilter*> _removedFilters;
 static void garbageCollectFilters();
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 {
@@ -50,7 +49,7 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_filters, "CurveFilters", "", "", "", "");
     m_filters.uiCapability()->setUiTreeChildrenHidden(true);
-    //m_filters.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
+    // m_filters.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
     m_filters.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_newFilterButton, "NewEnsembleFilter", "New Filter", "", "", "");
@@ -60,7 +59,7 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilter* RimEnsembleCurveFilterCollection::addFilter(const QString& ensembleParameterName)
 {
@@ -72,7 +71,7 @@ RimEnsembleCurveFilter* RimEnsembleCurveFilterCollection::addFilter(const QStrin
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::removeFilter(RimEnsembleCurveFilter* filter)
 {
@@ -82,11 +81,11 @@ void RimEnsembleCurveFilterCollection::removeFilter(RimEnsembleCurveFilter* filt
     m_filters.removeChildObject(filter);
     size_t sizeAfter = m_filters.size();
 
-    if(sizeAfter < sizeBefore) _removedFilters.push_back(filter);
+    if (sizeAfter < sizeBefore) _removedFilters.push_back(filter);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleCurveFilter*> RimEnsembleCurveFilterCollection::filters() const
 {
@@ -94,7 +93,7 @@ std::vector<RimEnsembleCurveFilter*> RimEnsembleCurveFilterCollection::filters()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleCurveFilterCollection::isActive() const
 {
@@ -102,9 +101,10 @@ bool RimEnsembleCurveFilterCollection::isActive() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilterCollection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RimEnsembleCurveFilterCollection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -112,9 +112,11 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilterCollection::calculateValueOp
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEnsembleCurveFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                        const QVariant&            oldValue,
+                                                        const QVariant&            newValue)
 {
     RimEnsembleCurveSet* curveSet;
     firstAncestorOrThisOfType(curveSet);
@@ -131,12 +133,11 @@ void RimEnsembleCurveFilterCollection::fieldChangedByUi(const caf::PdmFieldHandl
         addFilter();
         updateConnectedEditors();
         curveSet->updateAllCurves();
-
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -145,7 +146,7 @@ void RimEnsembleCurveFilterCollection::defineUiOrdering(QString uiConfigName, ca
     for (auto& filter : m_filters)
     {
         QString groupTitle;
-        auto selEnsembleParam = filter->selectedEnsembleParameter();
+        auto    selEnsembleParam = filter->selectedEnsembleParameter();
         if (selEnsembleParam.isNumeric())
         {
             groupTitle = filter->ensembleParameterName();
@@ -156,9 +157,8 @@ void RimEnsembleCurveFilterCollection::defineUiOrdering(QString uiConfigName, ca
             }
             else
             {
-                groupTitle += QString(" [%2 .. %3]")
-                    .arg(QString::number(filter->minValue()))
-                    .arg(QString::number(filter->maxValue()));
+                groupTitle +=
+                    QString(" [%2 .. %3]").arg(QString::number(filter->minValue())).arg(QString::number(filter->maxValue()));
             }
         }
         else if (selEnsembleParam.isText())
@@ -189,7 +189,8 @@ void RimEnsembleCurveFilterCollection::defineUiOrdering(QString uiConfigName, ca
             }
         }
 
-        caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroupWithKeyword(groupTitle, QString("EnsembleFilter_") + filter->filterId());
+        caf::PdmUiGroup* filterGroup =
+            uiOrdering.addNewGroupWithKeyword(groupTitle, QString("EnsembleFilter_") + filter->filterId());
         filter->defineUiOrdering(uiConfigName, *filterGroup);
     }
 
@@ -197,17 +198,20 @@ void RimEnsembleCurveFilterCollection::defineUiOrdering(QString uiConfigName, ca
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /* = "" */)
+void RimEnsembleCurveFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                            QString                 uiConfigName /* = "" */)
 {
     uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveFilterCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimEnsembleCurveFilterCollection::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                             QString                    uiConfigName,
+                                                             caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_newFilterButton)
     {
@@ -219,15 +223,16 @@ void RimEnsembleCurveFilterCollection::defineEditorAttribute(const caf::PdmField
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::loadDataAndUpdate()
 {
-    for (auto& filter : m_filters) filter->loadDataAndUpdate();
+    for (auto& filter : m_filters)
+        filter->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimEnsembleCurveFilterCollection::objectToggleField()
 {
@@ -235,7 +240,7 @@ caf::PdmFieldHandle* RimEnsembleCurveFilterCollection::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void garbageCollectFilters()
 {

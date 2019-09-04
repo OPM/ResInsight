@@ -2,37 +2,37 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicEclipsePropertyFilterFeatureImpl.h"
 
+#include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseView.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
 #include "RimViewController.h"
 
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
 #include "Riu3DMainWindowTools.h"
+#include "cvfAssert.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipsePropertyFilter*> RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilters()
 {
@@ -43,7 +43,7 @@ std::vector<RimEclipsePropertyFilter*> RicEclipsePropertyFilterFeatureImpl::sele
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipsePropertyFilterCollection*> RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections()
 {
@@ -54,7 +54,7 @@ std::vector<RimEclipsePropertyFilterCollection*> RicEclipsePropertyFilterFeature
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter(RimEclipsePropertyFilterCollection* propertyFilterCollection)
 {
@@ -67,13 +67,13 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter(RimEclipsePropertyFi
 
     propertyFilterCollection->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem(propertyFilter);
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter(RimEclipsePropertyFilterCollection* propertyFilterCollection, size_t index)
+void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter(RimEclipsePropertyFilterCollection* propertyFilterCollection,
+                                                               size_t                              index)
 {
     RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
     propertyFilterCollection->propertyFilters.insertAt(static_cast<int>(index), propertyFilter);
@@ -87,7 +87,7 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter(RimEclipsePropert
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable(caf::PdmObjectHandle* object)
 {
@@ -106,7 +106,7 @@ bool RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable(caf::
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterFeatureImpl::setDefaults(RimEclipsePropertyFilter* propertyFilter)
 {

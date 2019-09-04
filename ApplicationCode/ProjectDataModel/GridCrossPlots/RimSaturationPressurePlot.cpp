@@ -53,7 +53,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion(RiaDefines::Poros
     CVF_ASSERT(eclipseResultCase && eclipseResultCase->eclipseCaseData());
 
     auto equilData = eclipseResultCase->eclipseCaseData()->equilData();
-    if (zeroBasedEquilRegionIndex >= (int) equilData.size())
+    if (zeroBasedEquilRegionIndex >= (int)equilData.size())
     {
         RiaLogging::error("Invalid equilibrium region index");
         return;

@@ -1,36 +1,35 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimReachCircleAnnotation.h"
 
+#include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationLineAppearance.h"
 #include "RimGridView.h"
 #include "RimProject.h"
-#include "RimAnnotationCollection.h"
 
 #include "RicVec3dPickEventHandler.h"
 
-#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiPickableLineEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimReachCircleAnnotation, "RimReachCircleAnnotation");
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -93,7 +92,7 @@ void RimReachCircleAnnotation::enablePicking(bool enable)
 cvf::Vec3d RimReachCircleAnnotation::centerPoint() const
 {
     auto pos = m_centerPointXyd();
-    pos.z() = -pos.z();
+    pos.z()  = -pos.z();
     return pos;
 }
 
@@ -188,7 +187,7 @@ void RimReachCircleAnnotation::defineEditorAttribute(const caf::PdmFieldHandle* 
         if (attr)
         {
             attr->pickEventHandler = m_centerPointEventHandler;
-            attr->enablePicking = m_centerPointPickEnabled;
+            attr->enablePicking    = m_centerPointPickEnabled;
             if (m_centerPointXyd().isZero())
             {
                 attr->enablePicking = true;
@@ -211,6 +210,4 @@ void RimReachCircleAnnotation::defineEditorAttribute(const caf::PdmFieldHandle* 
             }
         }
     }
-
 }
-

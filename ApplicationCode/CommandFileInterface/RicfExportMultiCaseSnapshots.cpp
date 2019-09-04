@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,15 +27,15 @@
 CAF_PDM_SOURCE_INIT(RicfExportMultiCaseSnapshots, "exportMultiCaseSnapshots");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicfExportMultiCaseSnapshots::RicfExportMultiCaseSnapshots()
 {
-    RICF_InitField(&m_gridListFile, "gridListFile", QString(), "Grid List File",  "", "", "");
+    RICF_InitField(&m_gridListFile, "gridListFile", QString(), "Grid List File", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfExportMultiCaseSnapshots::execute()
 {
@@ -44,7 +44,7 @@ RicfCommandResponse RicfExportMultiCaseSnapshots::execute()
     {
         QString error("exportMultiCaseSnapshots: Requires GUI Application");
         RiaLogging::error(error);
-        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);        
+        return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
     if (m_gridListFile().isNull())
     {
@@ -56,13 +56,15 @@ RicfCommandResponse RicfExportMultiCaseSnapshots::execute()
     QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
     if (lastProjectPath.isNull())
     {
-        QString error("exportMultiCaseSnapshots: 'openProject' must be called before 'exportMultiCaseSnapshots' to specify project file to replace cases in.");
+        QString error("exportMultiCaseSnapshots: 'openProject' must be called before 'exportMultiCaseSnapshots' to specify "
+                      "project file to replace cases in.");
         RiaLogging::error(error);
         return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, error);
     }
 
     std::vector<QString> listFileNames = RiaApplication::readFileListFromTextFile(m_gridListFile());
-    app->runMultiCaseSnapshots(lastProjectPath, listFileNames, RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::SNAPSHOTS));
+    app->runMultiCaseSnapshots(
+        lastProjectPath, listFileNames, RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::SNAPSHOTS));
 
     return RicfCommandResponse();
 }

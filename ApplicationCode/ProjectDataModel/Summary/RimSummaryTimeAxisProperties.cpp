@@ -49,7 +49,7 @@ void caf::AppEnum<RimSummaryTimeAxisProperties::TimeUnitType>::setUp()
     addItem(RimSummaryTimeAxisProperties::MINUTES, "MINUTES", "Minutes");
     addItem(RimSummaryTimeAxisProperties::HOURS, "HOURS", "Hours");
     addItem(RimSummaryTimeAxisProperties::DAYS, "DAYS ", "Days");
-	addItem(RimSummaryTimeAxisProperties::MONTHS, "MONTHS", "Months");
+    addItem(RimSummaryTimeAxisProperties::MONTHS, "MONTHS", "Months");
     addItem(RimSummaryTimeAxisProperties::YEARS, "YEARS", "Years");
 
     setDefault(RimSummaryTimeAxisProperties::YEARS);
@@ -100,8 +100,8 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     m_titleFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
     CAF_PDM_InitField(&m_valuesFontSize, "ValuesFontSize", 10, "Font Size", "", "", "");
     m_valuesFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
-	
-	CAF_PDM_InitField(&m_automaticDateComponents, "AutoDate", true, "Automatic Date/Time Labels", "", "", "");
+
+    CAF_PDM_InitField(&m_automaticDateComponents, "AutoDate", true, "Automatic Date/Time Labels", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_dateComponents, "DateComponents", "Set Date Label", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_timeComponents, "TimeComponents", "Set Time Label", "", "", "");
 
@@ -374,9 +374,9 @@ QList<caf::PdmOptionItemInfo> RimSummaryTimeAxisProperties::calculateValueOption
     {
         for (auto timeFormat : RiaQDateTimeTools::supportedTimeFormats())
         {
-            QTime   exampleTime = QTime(15, 48, 22);
-            QString timeFormatString =
-                RiaQDateTimeTools::timeFormatString(timeFormat, timeComponents(RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND));
+            QTime   exampleTime      = QTime(15, 48, 22);
+            QString timeFormatString = RiaQDateTimeTools::timeFormatString(
+                timeFormat, timeComponents(RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND));
             QString uiText = QString("%1 (%2)").arg(timeFormatString).arg(exampleTime.toString(timeFormatString));
             uiText.replace("AP", "AM/PM");
             options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(timeFormat)));
@@ -472,10 +472,11 @@ double RimSummaryTimeAxisProperties::fromDaysToDisplayUnitScale()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaQDateTimeTools::DateFormatComponents RimSummaryTimeAxisProperties::dateComponents(RiaQDateTimeTools::DateFormatComponents fallback) const
+RiaQDateTimeTools::DateFormatComponents
+    RimSummaryTimeAxisProperties::dateComponents(RiaQDateTimeTools::DateFormatComponents fallback) const
 {
     if (m_automaticDateComponents()) return fallback;
-    
+
     RiaQDateTimeTools::DateFormatComponents components = m_dateComponents();
 
     return components;
@@ -484,10 +485,11 @@ RiaQDateTimeTools::DateFormatComponents RimSummaryTimeAxisProperties::dateCompon
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaQDateTimeTools::TimeFormatComponents RimSummaryTimeAxisProperties::timeComponents(RiaQDateTimeTools::TimeFormatComponents fallback) const
+RiaQDateTimeTools::TimeFormatComponents
+    RimSummaryTimeAxisProperties::timeComponents(RiaQDateTimeTools::TimeFormatComponents fallback) const
 {
     if (m_automaticDateComponents()) return fallback;
-	
+
     RiaQDateTimeTools::TimeFormatComponents components = m_timeComponents();
 
     return components;
@@ -516,13 +518,13 @@ void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::P
 {
     caf::PdmUiGroup& titleGroup = *(uiOrdering.addNewGroup("Axis Title"));
     titleGroup.add(&showTitle);
-	titleGroup.add(&title);
-	title.uiCapability()->setUiReadOnly(!showTitle());
-	if (showTitle())
-	{		
-		titleGroup.add(&m_titlePositionEnum);
-		titleGroup.add(&m_titleFontSize);
-	}
+    titleGroup.add(&title);
+    title.uiCapability()->setUiReadOnly(!showTitle());
+    if (showTitle())
+    {
+        titleGroup.add(&m_titlePositionEnum);
+        titleGroup.add(&m_titleFontSize);
+    }
 
     caf::PdmUiGroup* timeGroup = uiOrdering.addNewGroup("Time Values");
     timeGroup->add(&m_timeMode);
@@ -532,12 +534,12 @@ void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::P
         timeGroup->add(&m_visibleTimeRangeMax, false);
         timeGroup->add(&m_visibleDateRangeMin, true);
         timeGroup->add(&m_visibleTimeRangeMin, false);
-		timeGroup->add(&m_automaticDateComponents);
-		if (!m_automaticDateComponents())
-		{
-			timeGroup->add(&m_dateComponents);
-			timeGroup->add(&m_timeComponents);
-		}
+        timeGroup->add(&m_automaticDateComponents);
+        if (!m_automaticDateComponents())
+        {
+            timeGroup->add(&m_dateComponents);
+            timeGroup->add(&m_timeComponents);
+        }
     }
     else
     {
@@ -546,19 +548,19 @@ void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::P
         timeGroup->add(&m_visibleTimeSinceStartRangeMin);
     }
     timeGroup->add(&m_valuesFontSize);
-	if (m_timeMode() == DATE)
-	{
-		caf::PdmUiGroup* advancedGroup = timeGroup->addNewGroup("Date/Time Label Format");
-		advancedGroup->setCollapsedByDefault(true);
-		if (m_automaticDateComponents() || m_dateComponents() != RiaQDateTimeTools::DATE_FORMAT_NONE)
-		{
-			advancedGroup->add(&m_dateFormat);
-		}
-		if (m_automaticDateComponents() || m_timeComponents() != RiaQDateTimeTools::TIME_FORMAT_NONE)
-		{
-			advancedGroup->add(&m_timeFormat);
-		}        
-	}
+    if (m_timeMode() == DATE)
+    {
+        caf::PdmUiGroup* advancedGroup = timeGroup->addNewGroup("Date/Time Label Format");
+        advancedGroup->setCollapsedByDefault(true);
+        if (m_automaticDateComponents() || m_dateComponents() != RiaQDateTimeTools::DATE_FORMAT_NONE)
+        {
+            advancedGroup->add(&m_dateFormat);
+        }
+        if (m_automaticDateComponents() || m_timeComponents() != RiaQDateTimeTools::TIME_FORMAT_NONE)
+        {
+            advancedGroup->add(&m_timeFormat);
+        }
+    }
 
     uiOrdering.skipRemainingFields(true);
 }

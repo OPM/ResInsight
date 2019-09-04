@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -34,36 +34,35 @@
 
 #include <map>
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalculator(RimEclipseResultCase* caseToApply, 
-                                                                                     QString wellname, 
-                                                                                     size_t timestep)
+RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalculator(RimEclipseResultCase* caseToApply,
+                                                                                     QString               wellname,
+                                                                                     size_t                timestep)
 {
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
-    
 
-    const std::vector<double>* swatResults = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SWAT", timestep);
-    const std::vector<double>* soilResults = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SOIL", timestep);
-    const std::vector<double>* sgasResults = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SGAS", timestep);
-    const std::vector<double>* porvResults = eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::STATIC_NATIVE, "PORV", 0);
-        
+    const std::vector<double>* swatResults =
+        eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SWAT", timestep);
+    const std::vector<double>* soilResults =
+        eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SOIL", timestep);
+    const std::vector<double>* sgasResults =
+        eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SGAS", timestep);
+    const std::vector<double>* porvResults =
+        eclipseCaseData->resultValues(RiaDefines::MATRIX_MODEL, RiaDefines::STATIC_NATIVE, "PORV", 0);
+
     RimFlowDiagSolution* flowDiagSolution = caseToApply->defaultFlowDiagSolution();
 
-    std::string resultNameTof = "TOF";
-    const std::vector<double>* tofData = flowDiagSolution->flowDiagResults()->resultValues(RigFlowDiagResultAddress(resultNameTof,
-                                                                                                                    RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
-                                                                                                                    wellname.toStdString()),
-                                                                                           timestep);
+    std::string                resultNameTof = "TOF";
+    const std::vector<double>* tofData       = flowDiagSolution->flowDiagResults()->resultValues(
+        RigFlowDiagResultAddress(resultNameTof, RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL, wellname.toStdString()),
+        timestep);
 
-    std::string resultNameFraction = "Fraction";
-    const std::vector<double>* fractionData = flowDiagSolution->flowDiagResults()->resultValues(RigFlowDiagResultAddress(resultNameFraction,
-                                                                                                                         RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
-                                                                                                                         wellname.toStdString()),
-                                                                                                timestep);
+    std::string                resultNameFraction = "Fraction";
+    const std::vector<double>* fractionData       = flowDiagSolution->flowDiagResults()->resultValues(
+        RigFlowDiagResultAddress(resultNameFraction, RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL, wellname.toStdString()),
+        timestep);
 
     sortTofAndCalculateAccPhaseFraction(tofData,
                                         fractionData,
@@ -78,18 +77,19 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFraction(const std::vector<double>* tofData,
-                                                                                    const std::vector<double>* fractionData,
-                                                                                    const std::vector<double>* porvResults,
-                                                                                    const std::vector<double>* swatResults,
-                                                                                    const std::vector<double>* soilResults,
-                                                                                    const std::vector<double>* sgasResults,
-                                                                                    std::vector<double>& tofInIncreasingOrder,
-                                                                                    std::vector<double>& accumulatedPhaseFractionSwat,
-                                                                                    std::vector<double>& accumulatedPhaseFractionSoil,
-                                                                                    std::vector<double>& accumulatedPhaseFractionSgas)
+void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFraction(
+    const std::vector<double>* tofData,
+    const std::vector<double>* fractionData,
+    const std::vector<double>* porvResults,
+    const std::vector<double>* swatResults,
+    const std::vector<double>* soilResults,
+    const std::vector<double>* sgasResults,
+    std::vector<double>&       tofInIncreasingOrder,
+    std::vector<double>&       accumulatedPhaseFractionSwat,
+    std::vector<double>&       accumulatedPhaseFractionSoil,
+    std::vector<double>&       accumulatedPhaseFractionSgas)
 
 {
     if (tofData == nullptr || fractionData == nullptr)
@@ -97,7 +97,7 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
         return;
     }
 
-    std::map<double, std::vector<int> > tofAndIndexMap;
+    std::map<double, std::vector<int>> tofAndIndexMap;
 
     for (int i = 0; i < static_cast<int>(tofData->size()); i++)
     {
@@ -108,17 +108,17 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
         auto iteratorBoolFromInsertToMap = tofAndIndexMap.insert(std::make_pair(tofData->at(i), vectorOfIndexes));
         if (!iteratorBoolFromInsertToMap.second)
         {
-            //Element exist already, was not inserted
+            // Element exist already, was not inserted
             iteratorBoolFromInsertToMap.first->second.push_back(i);
         }
     }
 
-    double fractionPorvSum = 0.0;
+    double fractionPorvSum          = 0.0;
     double fractionPorvPhaseSumSwat = 0.0;
     double fractionPorvPhaseSumSoil = 0.0;
     double fractionPorvPhaseSumSgas = 0.0;
-    
-    for (auto element : tofAndIndexMap) 
+
+    for (auto element : tofAndIndexMap)
     {
         double tofValue = element.first;
         for (int index : element.second)

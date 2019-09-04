@@ -1,72 +1,72 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicSummaryCaseRestartDialog.h"
+#include "ExportCommands/RicSnapshotFilenameGenerator.h"
 #include "ExportCommands/RicSnapshotViewToClipboardFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
-#include "ExportCommands/RicSnapshotFilenameGenerator.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaFilePathTools.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 
-#include "RifReaderEclipseSummary.h"
 #include "RifEclipseSummaryTools.h"
+#include "RifReaderEclipseSummary.h"
 
-#include "RimEclipseView.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimEclipseView.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuTools.h"
 
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QTextEdit>
-#include <QCheckBox>
-#include <QDialogButtonBox>
-#include <QPushButton>
-#include <QRadioButton>
-#include <QToolBar>
+#include <QAbstractItemView>
 #include <QAction>
+#include <QCheckBox>
+#include <QClipboard>
+#include <QDateTime>
+#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
 #include <QListWidget>
-#include <QAbstractItemView>
 #include <QMenu>
-#include <QDateTime>
-#include <QClipboard>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QTextEdit>
+#include <QToolBar>
+#include <QVBoxLayout>
 
 #include <cvfAssert.h>
 
-#include <vector>
 #include <ctime>
 #include <thread>
+#include <vector>
 
-#define DEFAULT_DIALOG_WIDTH        550
-#define DEFAULT_DIALOG_INIT_HEIGHT  150
-
+#define DEFAULT_DIALOG_WIDTH 550
+#define DEFAULT_DIALOG_INIT_HEIGHT 150
 
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> makeShortPath(const std::vector<std::vector<RifRestartFileInfo>>& fileInfoLists)
+std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>>
+    makeShortPath(const std::vector<std::vector<RifRestartFileInfo>>& fileInfoLists)
 {
     // Build output lists
     std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> output;
@@ -83,8 +83,8 @@ std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> makeShortPath(c
             newFi = std::make_pair(fi, fi.fileName);
             QFileInfo(fi.fileName).fileName();
 
-            QString absPath = QFileInfo(fi.fileName).absoluteDir().absolutePath();
-            QString prefix = RiaFilePathTools::equalPaths(currentFilePath, absPath) ? "" : ".../";
+            QString absPath      = QFileInfo(fi.fileName).absoluteDir().absolutePath();
+            QString prefix       = RiaFilePathTools::equalPaths(currentFilePath, absPath) ? "" : ".../";
             newFi.first.fileName = prefix + QFileInfo(fi.fileName).fileName();
             currList.push_back(newFi);
         }
@@ -94,21 +94,21 @@ std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> makeShortPath(c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
     : QDialog(parent, RiuTools::defaultDialogFlags())
 {
     // Create widgets
-    m_currentFilesLayout = new QGridLayout();
-    m_summaryReadAllBtn = new QRadioButton(this);
+    m_currentFilesLayout      = new QGridLayout();
+    m_summaryReadAllBtn       = new QRadioButton(this);
     m_summarySeparateCasesBtn = new QRadioButton(this);
-    m_summaryNotReadBtn = new QRadioButton(this);
-    m_gridSeparateCasesBtn = new QRadioButton(this);
-    m_gridNotReadBtn = new QRadioButton(this);
-    m_warnings = new QListWidget(this);
-    m_showFullPathCheckBox = new QCheckBox(this);
-    m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply);
+    m_summaryNotReadBtn       = new QRadioButton(this);
+    m_gridSeparateCasesBtn    = new QRadioButton(this);
+    m_gridNotReadBtn          = new QRadioButton(this);
+    m_warnings                = new QListWidget(this);
+    m_showFullPathCheckBox    = new QCheckBox(this);
+    m_buttons                 = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply);
 
     // Connect to signals
     connect(m_showFullPathCheckBox, SIGNAL(stateChanged(int)), this, SLOT(slotShowFullPathToggled(int)));
@@ -200,14 +200,12 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog(QWidget* parent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCaseRestartDialog::~RicSummaryCaseRestartDialog()
-{
-}
+RicSummaryCaseRestartDialog::~RicSummaryCaseRestartDialog() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const QString& initialSummaryFile,
                                                                           const QString& initialGridFile,
@@ -231,8 +229,8 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         return dialogResult;
     }
 
-    RicSummaryCaseRestartDialog  dialog(parent);
-    bool handleSummaryFile = false;
+    RicSummaryCaseRestartDialog dialog(parent);
+    bool                        handleSummaryFile = false;
 
     RifRestartFileInfo currentFileInfo;
     if (!initialSummaryFile.isEmpty())
@@ -267,20 +265,22 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
                                                  defaultSummaryImportOption,
                                                  defaultGridImportOption,
                                                  {},
-                                                 QStringList({ initialGridFile }),
+                                                 QStringList({initialGridFile}),
                                                  useFirstSummaryCaseAsTemplate || (lastResult && lastResult->applyToAll));
     }
 
-    RifReaderEclipseSummary reader;
-    bool hasWarnings = false;
+    RifReaderEclipseSummary         reader;
+    bool                            hasWarnings     = false;
     std::vector<RifRestartFileInfo> originFileInfos = reader.getRestartFiles(initialSummaryFile, &hasWarnings);
 
     // If no restart files are found and no warnings, do not show dialog
-    if (originFileInfos.empty() &&!hasWarnings)
+    if (originFileInfos.empty() && !hasWarnings)
     {
-        return RicSummaryCaseRestartDialogResult(RicSummaryCaseRestartDialogResult::SUMMARY_OK, NOT_IMPORT, NOT_IMPORT,
-                                                 QStringList({ initialSummaryFile }),
-                                                 QStringList({ initialGridFile }),
+        return RicSummaryCaseRestartDialogResult(RicSummaryCaseRestartDialogResult::SUMMARY_OK,
+                                                 NOT_IMPORT,
+                                                 NOT_IMPORT,
+                                                 QStringList({initialSummaryFile}),
+                                                 QStringList({initialGridFile}),
                                                  useFirstSummaryCaseAsTemplate || lastResult->applyToAll);
     }
 
@@ -292,7 +292,8 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 
         if (hasWarnings)
         {
-            for (const QString& warning : reader.warnings()) RiaLogging::error(warning);
+            for (const QString& warning : reader.warnings())
+                RiaLogging::error(warning);
         }
     }
     else
@@ -326,26 +327,33 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         // Set default import options
         switch (defaultSummaryImportOption)
         {
-        case ImportOptions::IMPORT_ALL:       dialog.m_summaryReadAllBtn->setChecked(true); break;
-        case ImportOptions::SEPARATE_CASES:   dialog.m_summarySeparateCasesBtn->setChecked(true); break;
-        case ImportOptions::NOT_IMPORT:       dialog.m_summaryNotReadBtn->setChecked(true); break;
+            case ImportOptions::IMPORT_ALL:
+                dialog.m_summaryReadAllBtn->setChecked(true);
+                break;
+            case ImportOptions::SEPARATE_CASES:
+                dialog.m_summarySeparateCasesBtn->setChecked(true);
+                break;
+            case ImportOptions::NOT_IMPORT:
+                dialog.m_summaryNotReadBtn->setChecked(true);
+                break;
         }
 
         if (handleGridFile)
         {
             switch (defaultGridImportOption)
             {
-            case ImportOptions::SEPARATE_CASES:   dialog.m_gridSeparateCasesBtn->setChecked(true); break;
-            case ImportOptions::NOT_IMPORT:       dialog.m_gridNotReadBtn->setChecked(true); break;
+                case ImportOptions::SEPARATE_CASES:
+                    dialog.m_gridSeparateCasesBtn->setChecked(true);
+                    break;
+                case ImportOptions::NOT_IMPORT:
+                    dialog.m_gridNotReadBtn->setChecked(true);
+                    break;
             }
         }
 
         // Remove common root path
-        std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> fileInfosNoRoot = makeShortPath(
-            {
-                currentFileInfos, originSummaryFileInfos, originGridFileInfos
-            }
-        );
+        std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> fileInfosNoRoot =
+            makeShortPath({currentFileInfos, originSummaryFileInfos, originGridFileInfos});
 
         // Populate file list backing lists
         dialog.m_fileLists.push_back(fileInfosNoRoot[CURRENT_FILES_LIST_INDEX]);
@@ -386,7 +394,8 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 
     if (dialogResult.status != RicSummaryCaseRestartDialogResult::SUMMARY_OK)
     {
-        return RicSummaryCaseRestartDialogResult(dialogResult.status, NOT_IMPORT, NOT_IMPORT, QStringList(), QStringList(), false);
+        return RicSummaryCaseRestartDialogResult(
+            dialogResult.status, NOT_IMPORT, NOT_IMPORT, QStringList(), QStringList(), false);
     }
 
     dialogResult.summaryFiles.push_back(RiaFilePathTools::toInternalSeparator(initialSummaryFile));
@@ -415,27 +424,23 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialog::ImportOptions RicSummaryCaseRestartDialog::selectedSummaryImportOption() const
 {
-    return
-        m_summaryReadAllBtn->isChecked() ?          IMPORT_ALL :
-        m_summarySeparateCasesBtn->isChecked() ?    SEPARATE_CASES :
-                                                    NOT_IMPORT;
+    return m_summaryReadAllBtn->isChecked() ? IMPORT_ALL : m_summarySeparateCasesBtn->isChecked() ? SEPARATE_CASES : NOT_IMPORT;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialog::ImportOptions RicSummaryCaseRestartDialog::selectedGridImportOption() const
 {
-    return
-        m_gridSeparateCasesBtn->isChecked() ? SEPARATE_CASES : NOT_IMPORT;
+    return m_gridSeparateCasesBtn->isChecked() ? SEPARATE_CASES : NOT_IMPORT;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSummaryCaseRestartDialog::okToAllSelected() const
 {
@@ -443,7 +448,7 @@ bool RicSummaryCaseRestartDialog::okToAllSelected() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCaseRestartDialog::updateFileListWidget(QGridLayout* gridLayout, int listIndex)
 {
@@ -455,7 +460,7 @@ void RicSummaryCaseRestartDialog::updateFileListWidget(QGridLayout* gridLayout, 
         delete item->widget();
         delete item;
     }
-    
+
     if (m_fileLists[listIndex].empty())
     {
         QWidget* parent = gridLayout->parentWidget();
@@ -463,7 +468,7 @@ void RicSummaryCaseRestartDialog::updateFileListWidget(QGridLayout* gridLayout, 
     }
 
     int maxFilesToDisplay = 4;
-    int currFiles = 0;
+    int currFiles         = 0;
     for (const auto& fileInfo : m_fileLists[listIndex])
     {
         appendFileInfoToGridLayout(gridLayout, fileInfo.first, fileInfo.second);
@@ -477,20 +482,22 @@ void RicSummaryCaseRestartDialog::updateFileListWidget(QGridLayout* gridLayout, 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout* gridLayout, const RifRestartFileInfo& fileInfo, const QString& fullPathFileName)
+void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout*              gridLayout,
+                                                             const RifRestartFileInfo& fileInfo,
+                                                             const QString&            fullPathFileName)
 {
     CVF_ASSERT(gridLayout);
 
-    QDateTime startDate = QDateTime::fromTime_t(fileInfo.startDate);
-    QString startDateString = startDate.toString(RiaQDateTimeTools::dateFormatString());
-    QDateTime endDate = QDateTime::fromTime_t(fileInfo.endDate);
-    QString endDateString = endDate.toString(RiaQDateTimeTools::dateFormatString());
-    int rowCount = gridLayout->rowCount();
+    QDateTime startDate       = QDateTime::fromTime_t(fileInfo.startDate);
+    QString   startDateString = startDate.toString(RiaQDateTimeTools::dateFormatString());
+    QDateTime endDate         = QDateTime::fromTime_t(fileInfo.endDate);
+    QString   endDateString   = endDate.toString(RiaQDateTimeTools::dateFormatString());
+    int       rowCount        = gridLayout->rowCount();
 
     QLabel* fileNameLabel = new QLabel();
-    QLabel* dateLabel = new QLabel();
+    QLabel* dateLabel     = new QLabel();
     fileNameLabel->setText(m_showFullPathCheckBox->isChecked() ? fullPathFileName : fileInfo.fileName);
     dateLabel->setText(startDateString + " - " + endDateString);
 
@@ -500,14 +507,17 @@ void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout(QGridLayout* gridLa
 
     // File name copy context menu
     fileNameLabel->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(fileNameLabel, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(slotFileNameCopyCustomMenuRequested(const QPoint&)));
+    connect(fileNameLabel,
+            SIGNAL(customContextMenuRequested(const QPoint&)),
+            this,
+            SLOT(slotFileNameCopyCustomMenuRequested(const QPoint&)));
 
     // Full path in tooltip
     fileNameLabel->setToolTip(fullPathFileName);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCaseRestartDialog::appendTextToGridLayout(QGridLayout* gridLayout, const QString& text)
 {
@@ -523,7 +533,7 @@ void RicSummaryCaseRestartDialog::appendTextToGridLayout(QGridLayout* gridLayout
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifRestartFileInfo RicSummaryCaseRestartDialog::getFileInfo(const QString& summaryHeaderFile)
 {
@@ -532,7 +542,7 @@ RifRestartFileInfo RicSummaryCaseRestartDialog::getFileInfo(const QString& summa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCaseRestartDialog::displayWarningsIfAny(const QStringList& warnings)
 {
@@ -545,7 +555,7 @@ void RicSummaryCaseRestartDialog::displayWarningsIfAny(const QStringList& warnin
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryCaseRestartDialog::fullFileName(const QString& shortOrFullFileName)
 {
@@ -553,15 +563,14 @@ QString RicSummaryCaseRestartDialog::fullFileName(const QString& shortOrFullFile
     {
         for (const auto& fileInfo : fileInfos)
         {
-            if (fileInfo.first.fileName == shortOrFullFileName || fileInfo.second == shortOrFullFileName)
-                return fileInfo.second;
+            if (fileInfo.first.fileName == shortOrFullFileName || fileInfo.second == shortOrFullFileName) return fileInfo.second;
         }
     }
     return "";
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCaseRestartDialog::slotShowFullPathToggled(int state)
 {
@@ -572,25 +581,27 @@ void RicSummaryCaseRestartDialog::slotShowFullPathToggled(int state)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCaseRestartDialog::slotDialogButtonClicked(QAbstractButton* button)
 {
-    bool cancelButtonClicked    = m_buttons->button(QDialogButtonBox::Cancel) == button;
-    bool okToAllButtonClicked   = m_buttons->button(QDialogButtonBox::Apply) == button;
+    bool cancelButtonClicked  = m_buttons->button(QDialogButtonBox::Cancel) == button;
+    bool okToAllButtonClicked = m_buttons->button(QDialogButtonBox::Apply) == button;
 
     m_okToAllPressed = okToAllButtonClicked;
-    if (cancelButtonClicked) reject();
-    else                     accept();
+    if (cancelButtonClicked)
+        reject();
+    else
+        accept();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCaseRestartDialog::slotFileNameCopyCustomMenuRequested(const QPoint& point)
 {
-    QMenu menu;
-    QPoint globalPoint = point;
+    QMenu    menu;
+    QPoint   globalPoint = point;
     QAction* action;
 
     QLabel* sourceLabel = dynamic_cast<QLabel*>(sender());
@@ -605,12 +616,12 @@ void RicSummaryCaseRestartDialog::slotFileNameCopyCustomMenuRequested(const QPoi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCaseRestartDialog::slotCopyFileNameToClipboard()
 {
     QAction* a = dynamic_cast<QAction*>(sender());
-    
+
     QClipboard* cb = RiaGuiApplication::clipboard();
     if (cb)
     {

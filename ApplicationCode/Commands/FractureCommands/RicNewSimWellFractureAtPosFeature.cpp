@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
 #include "RivSimWellPipeSourceInfo.h"
- 
+
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -47,7 +47,7 @@
 CAF_CMD_SOURCE_INIT(RicNewSimWellFractureAtPosFeature, "RicNewSimWellFractureAtPosFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 {
@@ -58,11 +58,11 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     if (!activeView) return;
 
     Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
-    RiuSelectionItem* selItem = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
+    RiuSelectionItem*      selItem       = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
 
     RiuSimWellSelectionItem* simWellItem = static_cast<RiuSimWellSelectionItem*>(selItem);
     if (!simWellItem) return;
-    
+
     RimSimWellInView* simWell = simWellItem->m_simWell;
     if (!simWell) return;
 
@@ -87,7 +87,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     simWell->firstAncestorOrThisOfType(oilfield);
     if (!oilfield) return;
 
-    std::vector<RimFracture* > oldFractures;
+    std::vector<RimFracture*> oldFractures;
     oilfield->descendantsIncludingThisOfType(oldFractures);
     QString fracNum = QString("%1").arg(oldFractures.size(), 2, 10, QChar('0'));
 
@@ -101,10 +101,10 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
         {
             unitSet = eclipseCase->eclipseCaseData()->unitsType();
         }
-    
+
         fracture->setFractureUnit(unitSet);
     }
-    
+
     RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection()->firstFractureOfUnit(unitSet);
     fracture->setFractureTemplate(fracDef);
 
@@ -123,7 +123,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellFractureAtPosFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -132,7 +132,7 @@ void RicNewSimWellFractureAtPosFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewSimWellFractureAtPosFeature::isCommandEnabled()
 {

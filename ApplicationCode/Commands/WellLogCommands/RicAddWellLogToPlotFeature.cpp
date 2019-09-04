@@ -2,25 +2,25 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicAddWellLogToPlotFeature.h"
 
-#include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
+#include "RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -45,9 +45,8 @@
 
 CAF_CMD_SOURCE_INIT(RicAddWellLogToPlotFeature, "RicAddWellLogToPlotFeature");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicAddWellLogToPlotFeature::isCommandEnabled()
 {
@@ -56,13 +55,13 @@ bool RicAddWellLogToPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimWellLogFileChannel*> selection = selectedWellLogs();
     if (selection.size() < 1) return;
-    
+
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
@@ -82,8 +81,8 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
         wellLog->firstAncestorOrThisOfType(wellLogFile);
         if (wellLogFile)
         {
-            RimWellLogFileCurve* curve = new RimWellLogFileCurve;
-            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plotTrack->curveCount());
+            RimWellLogFileCurve* curve      = new RimWellLogFileCurve;
+            cvf::Color3f         curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plotTrack->curveCount());
             curve->setColor(curveColor);
 
             plotTrack->addCurve(curve);
@@ -102,7 +101,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             curve->setWellLogFile(wellLogFile);
 
             curve->loadDataAndUpdate(true);
-        }        
+        }
     }
     plot->calculateAvailableDepthRange();
     plot->updateDepthZoom();
@@ -116,7 +115,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAddWellLogToPlotFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -124,7 +123,7 @@ void RicAddWellLogToPlotFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogFileChannel*> RicAddWellLogToPlotFeature::selectedWellLogs()
 {

@@ -54,7 +54,7 @@ void RicCreateMultipleFracturesOptionItemUi::setValues(int                  topK
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RicCreateMultipleFracturesOptionItemUi::topKLayer() const
 {
@@ -62,7 +62,7 @@ int RicCreateMultipleFracturesOptionItemUi::topKLayer() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RicCreateMultipleFracturesOptionItemUi::baseKLayer() const
 {

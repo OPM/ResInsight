@@ -64,8 +64,10 @@ void RicNewIntersectionViewFeature::onActionTriggered(bool isChecked)
         {
             if (intersection->direction() != RimIntersection::CS_VERTICAL)
             {
-                QString text = QString("The intersection view only supports vertical intersections.\n" 
-                                       "The intersection '%1' is not vertical but a converted version will be shown in the view .").arg(intersection->name());
+                QString text =
+                    QString("The intersection view only supports vertical intersections.\n"
+                            "The intersection '%1' is not vertical but a converted version will be shown in the view .")
+                        .arg(intersection->name());
 
                 QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), "New Intersection View", text);
             }
@@ -82,7 +84,7 @@ void RicNewIntersectionViewFeature::onActionTriggered(bool isChecked)
 
     if (objectToSelect)
     {
-        //RiuMainWindow::instance()->selectAsCurrentItem(objectToSelect);
+        // RiuMainWindow::instance()->selectAsCurrentItem(objectToSelect);
     }
 }
 
@@ -103,7 +105,7 @@ std::set<RimIntersection*> RicNewIntersectionViewFeature::selectedIntersections(
     std::set<RimIntersection*> objects;
 
     Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
-    RiuSelectionItem*    selItem       = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
+    RiuSelectionItem*      selItem       = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
 
     RiuGeneralSelectionItem* generalSelectionItem = static_cast<RiuGeneralSelectionItem*>(selItem);
     if (generalSelectionItem)

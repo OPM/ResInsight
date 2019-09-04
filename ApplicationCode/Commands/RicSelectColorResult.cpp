@@ -20,12 +20,12 @@
 
 #include "RiaApplication.h"
 #include "RicWellLogTools.h"
+#include "Rim2dIntersectionView.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "Rim2dIntersectionView.h"
 #include "RimIntersection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -68,12 +68,14 @@ bool RicSelectColorResult::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSelectColorResult::onActionTriggered(bool isChecked)
 {
-    Rim3dView*              activeView = RiaApplication::instance()->activeReservoirView();
-    Rim2dIntersectionView*  int2dView = dynamic_cast<Rim2dIntersectionView*>(activeView);
-    RimGridView*            gridView = nullptr;
+    Rim3dView*             activeView = RiaApplication::instance()->activeReservoirView();
+    Rim2dIntersectionView* int2dView  = dynamic_cast<Rim2dIntersectionView*>(activeView);
+    RimGridView*           gridView   = nullptr;
 
-    if (int2dView)  gridView = gridViewFrom2dIntersectionView(int2dView);
-    else            gridView = dynamic_cast<RimGridView*>(activeView);
+    if (int2dView)
+        gridView = gridViewFrom2dIntersectionView(int2dView);
+    else
+        gridView = dynamic_cast<RimGridView*>(activeView);
 
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(gridView);
     if (eclView)
@@ -85,6 +87,6 @@ void RicSelectColorResult::onActionTriggered(bool isChecked)
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(gridView);
     if (geoMechView)
     {
-        Riu3DMainWindowTools::selectAsCurrentItem(geoMechView->cellResult(), int2dView== nullptr);
+        Riu3DMainWindowTools::selectAsCurrentItem(geoMechView->cellResult(), int2dView == nullptr);
     }
 }

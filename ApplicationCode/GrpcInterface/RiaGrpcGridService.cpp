@@ -29,20 +29,18 @@ using namespace rips;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridService::GetDimensions(grpc::ServerContext*     context,
-                                               const GridRequest* request,
-                                               GridDimensions*    reply)
+grpc::Status RiaGrpcGridService::GetDimensions(grpc::ServerContext* context, const GridRequest* request, GridDimensions* reply)
 {
     RimCase* rimCase = findCase(request->case_request().id());
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
     if (eclipseCase)
     {
-        size_t gridIndex = (size_t) request->grid_index();
+        size_t gridIndex = (size_t)request->grid_index();
         if (gridIndex < eclipseCase->mainGrid()->gridCount())
         {
-            const RigGridBase* grid = eclipseCase->mainGrid()->gridByIndex(gridIndex);
-            Vec3i* dimensions = new Vec3i;
+            const RigGridBase* grid       = eclipseCase->mainGrid()->gridByIndex(gridIndex);
+            Vec3i*             dimensions = new Vec3i;
             dimensions->set_i((int)grid->cellCountI());
             dimensions->set_j((int)grid->cellCountJ());
             dimensions->set_k((int)grid->cellCountK());
@@ -63,13 +61,8 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridService::createCallbacks()
 {
     typedef RiaGrpcGridService Self;
 
-    return {
-        new RiaGrpcUnaryCallback<Self, GridRequest, GridDimensions>(
-            this, &Self::GetDimensions, &Self::RequestGetDimensions)
-    };
+    return {new RiaGrpcUnaryCallback<Self, GridRequest, GridDimensions>(this, &Self::GetDimensions, &Self::RequestGetDimensions)};
 }
-
 
 static bool RiaGrpcGridService_init =
     RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcGridService>(typeid(RiaGrpcGridService).hash_code());
-

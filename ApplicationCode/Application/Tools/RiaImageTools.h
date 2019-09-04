@@ -28,5 +28,3 @@ public:
     static void distanceTransform2d(std::vector<std::vector<unsigned int>>& image);
     static void makeGrayScale(QImage& image);
 };
-
-

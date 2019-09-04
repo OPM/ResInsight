@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-std::ostream& operator<< (std::ostream& out, const QString & text)
+std::ostream& operator<<(std::ostream& out, const QString& text)
 {
     out << text.toStdString();
     return out;
@@ -81,5 +81,4 @@ TEST(RiaFilePathTools, rootSearchPathFromSearchFilter)
         QString resultRootPath = RiaFilePathTools::rootSearchPathFromSearchFilter(testPath);
         EXPECT_EQ(QString("//A/B[?]/E/"), resultRootPath);
     }
-
 }

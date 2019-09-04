@@ -22,7 +22,6 @@
 
 #include "VdeExportPart.h"
 
-
 #include "cvfCollection.h"
 
 class QString;
@@ -39,7 +38,7 @@ class Part;
 class RicHoloLensExportImpl
 {
 public:
-    static std::vector<VdeExportPart> partsForExport(const RimGridView& view);
+    static std::vector<VdeExportPart>                      partsForExport(const RimGridView& view);
     static std::vector<std::pair<cvf::Vec3f, cvf::String>> labelsForExport(const RimGridView& view);
 
 private:

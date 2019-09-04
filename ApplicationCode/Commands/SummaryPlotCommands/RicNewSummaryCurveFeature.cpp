@@ -18,8 +18,8 @@
 
 #include "RicNewSummaryCurveFeature.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
+#include "RiaGuiApplication.h"
 
 #include "RiaSummaryTools.h"
 #include "RimMainPlotCollection.h"
@@ -36,12 +36,11 @@
 
 #include "cvfAssert.h"
 
-#include <QAction>
-#include "RiuPlotMainWindowTools.h"
 #include "RicSummaryPlotFeatureImpl.h"
+#include "RiuPlotMainWindowTools.h"
+#include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicNewSummaryCurveFeature, "RicNewSummaryCurveFeature");
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -56,8 +55,8 @@ bool RicNewSummaryCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-    RimProject* project = app->project();
+    RiaGuiApplication* app     = RiaGuiApplication::instance();
+    RimProject*        project = app->project();
     CVF_ASSERT(project);
 
     RimSummaryPlot* plot = selectedSummaryPlot();

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,15 +26,14 @@
 #include "RimSummaryCalculationCollection.h"
 
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiObjectEditorHandle.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
-#include "cafPdmUiObjectEditorHandle.h"
-
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCalculator, "RicSummaryCurveCalculator");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculator::RicSummaryCurveCalculator()
 {
@@ -42,12 +41,12 @@ RicSummaryCurveCalculator::RicSummaryCurveCalculator()
 
     CAF_PDM_InitFieldNoDefault(&m_currentCalculation, "CurrentCalculation", "", "", "", "");
     m_currentCalculation.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    //m_currentCalculation.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+    // m_currentCalculation.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_currentCalculation.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_newCalculation, "NewCalculation", "New Calculation", "", "", "");
     RicSummaryCurveCalculator::assignPushButtonEditor(&m_newCalculation);
-    
+
     CAF_PDM_InitFieldNoDefault(&m_deleteCalculation, "DeleteCalculation", "Delete Calculation", "", "", "");
     RicSummaryCurveCalculator::assignPushButtonEditor(&m_deleteCalculation);
 
@@ -55,7 +54,7 @@ RicSummaryCurveCalculator::RicSummaryCurveCalculator()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryCurveCalculator::calculatedSummariesGroupName()
 {
@@ -63,7 +62,7 @@ QString RicSummaryCurveCalculator::calculatedSummariesGroupName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryCurveCalculator::calulationGroupName()
 {
@@ -71,7 +70,7 @@ QString RicSummaryCurveCalculator::calulationGroupName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculation* RicSummaryCurveCalculator::currentCalculation() const
 {
@@ -79,7 +78,7 @@ RimSummaryCalculation* RicSummaryCurveCalculator::currentCalculation() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculator::setCurrentCalculation(RimSummaryCalculation* calculation)
 {
@@ -87,7 +86,7 @@ void RicSummaryCurveCalculator::setCurrentCalculation(RimSummaryCalculation* cal
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSummaryCurveCalculator::parseExpression() const
 {
@@ -112,16 +111,18 @@ bool RicSummaryCurveCalculator::parseExpression() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculator::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RicSummaryCurveCalculator::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                 const QVariant&            oldValue,
+                                                 const QVariant&            newValue)
 {
     if (changedField == &m_newCalculation)
     {
         m_newCalculation = false;
 
         RimSummaryCalculation* rimCalc = calculationCollection()->addCalculation();
-        m_currentCalculation = rimCalc;
+        m_currentCalculation           = rimCalc;
 
         this->updateConnectedEditors();
     }
@@ -141,7 +142,7 @@ void RicSummaryCurveCalculator::fieldChangedByUi(const caf::PdmFieldHandle* chan
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculator::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -154,14 +155,16 @@ void RicSummaryCurveCalculator::defineUiOrdering(QString uiConfigName, caf::PdmU
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword("Calculated Summaries", RicSummaryCurveCalculator::calculatedSummariesGroupName());
+        caf::PdmUiGroup* group =
+            uiOrdering.addNewGroupWithKeyword("Calculated Summaries", RicSummaryCurveCalculator::calculatedSummariesGroupName());
         group->add(&m_currentCalculation);
         group->add(&m_newCalculation);
         group->add(&m_deleteCalculation);
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword("Calculation Settings", RicSummaryCurveCalculator::calulationGroupName());
+        caf::PdmUiGroup* group =
+            uiOrdering.addNewGroupWithKeyword("Calculation Settings", RicSummaryCurveCalculator::calulationGroupName());
         if (m_currentCalculation())
         {
             m_currentCalculation->uiOrdering(uiConfigName, *group);
@@ -170,9 +173,10 @@ void RicSummaryCurveCalculator::defineUiOrdering(QString uiConfigName, caf::PdmU
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicSummaryCurveCalculator::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RicSummaryCurveCalculator::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                               bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
     if (fieldNeedingOptions == &m_currentCalculation)
@@ -187,7 +191,7 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCalculator::calculateValueOptions(c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculationCollection* RicSummaryCurveCalculator::calculationCollection()
 {
@@ -201,7 +205,7 @@ RimSummaryCalculationCollection* RicSummaryCurveCalculator::calculationCollectio
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculator::assignPushButtonEditor(caf::PdmFieldHandle* fieldHandle)
 {
@@ -213,11 +217,11 @@ void RicSummaryCurveCalculator::assignPushButtonEditor(caf::PdmFieldHandle* fiel
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculator::assignPushButtonEditorText(caf::PdmUiEditorAttribute* attribute, const QString& text)
 {
-    caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+    caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
     if (attrib)
     {
         attrib->m_buttonText = text;
@@ -225,7 +229,7 @@ void RicSummaryCurveCalculator::assignPushButtonEditorText(caf::PdmUiEditorAttri
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSummaryCurveCalculator::calculate() const
 {
@@ -256,9 +260,11 @@ bool RicSummaryCurveCalculator::calculate() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculator::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RicSummaryCurveCalculator::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                      QString                    uiConfigName,
+                                                      caf::PdmUiEditorAttribute* attribute)
 {
     if (&m_newCalculation == field)
     {

@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -41,10 +41,14 @@
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot(RimTofAccumulatedPhaseFractionsPlot* plotDefinition, QWidget* parent)
-    : QwtPlot(parent), m_watCurve(nullptr), m_oilCurve(nullptr), m_gasCurve(nullptr)
+RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot(RimTofAccumulatedPhaseFractionsPlot* plotDefinition,
+                                                                         QWidget*                             parent)
+    : QwtPlot(parent)
+    , m_watCurve(nullptr)
+    , m_oilCurve(nullptr)
+    , m_gasCurve(nullptr)
 {
     Q_ASSERT(plotDefinition);
     m_plotDefinition = plotDefinition;
@@ -56,7 +60,7 @@ RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot(RimTofA
     setAutoFillBackground(true);
     setDefaults();
     QwtText title("Cumulative Saturation by Time of Flight");
-    QFont titleFont = title.font();
+    QFont   titleFont = title.font();
     titleFont.setPointSize(12);
     title.setFont(titleFont);
     setTitle(title);
@@ -68,7 +72,7 @@ RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot(RimTofA
     m_watCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 
     m_oilCurve = new QwtPlotCurve;
-    setCurveColor(m_oilCurve,  QColor(123, 167, 0)); // Green
+    setCurveColor(m_oilCurve, QColor(123, 167, 0)); // Green
     m_oilCurve->setZ(0.8);
     m_oilCurve->setTitle("Oil");
     m_oilCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
@@ -85,7 +89,7 @@ RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot(RimTofA
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuTofAccumulatedPhaseFractionsPlot::~RiuTofAccumulatedPhaseFractionsPlot()
 {
@@ -112,7 +116,7 @@ RiuTofAccumulatedPhaseFractionsPlot::~RiuTofAccumulatedPhaseFractionsPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuTofAccumulatedPhaseFractionsPlot::sizeHint() const
 {
@@ -120,7 +124,7 @@ QSize RiuTofAccumulatedPhaseFractionsPlot::sizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RiuTofAccumulatedPhaseFractionsPlot::heightForWidth(int w) const
 {
@@ -128,7 +132,7 @@ int RiuTofAccumulatedPhaseFractionsPlot::heightForWidth(int w) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimTofAccumulatedPhaseFractionsPlot* RiuTofAccumulatedPhaseFractionsPlot::ownerPlotDefinition()
 {
@@ -136,7 +140,7 @@ RimTofAccumulatedPhaseFractionsPlot* RiuTofAccumulatedPhaseFractionsPlot::ownerP
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuTofAccumulatedPhaseFractionsPlot::ownerViewWindow() const
 {
@@ -144,13 +148,13 @@ RimViewWindow* RiuTofAccumulatedPhaseFractionsPlot::ownerViewWindow() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuTofAccumulatedPhaseFractionsPlot::setSamples(std::vector<double> xSamples,
                                                      std::vector<double> watValues,
                                                      std::vector<double> oilValues,
                                                      std::vector<double> gasValues,
-                                                     int maxTofYears)
+                                                     int                 maxTofYears)
 {
     m_xValues.clear();
     m_watValues.clear();
@@ -172,7 +176,6 @@ void RiuTofAccumulatedPhaseFractionsPlot::setSamples(std::vector<double> xSample
     m_oilCurve->setSamples(m_xValues.data(), m_oilValues.data(), static_cast<int>(m_xValues.size()));
     m_gasCurve->setSamples(m_xValues.data(), m_gasValues.data(), static_cast<int>(m_xValues.size()));
 
-
     if (!m_xValues.empty())
     {
         double maxVal = 0;
@@ -187,7 +190,7 @@ void RiuTofAccumulatedPhaseFractionsPlot::setSamples(std::vector<double> xSample
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuTofAccumulatedPhaseFractionsPlot::setDefaults()
 {
@@ -208,14 +211,14 @@ void RiuTofAccumulatedPhaseFractionsPlot::setDefaults()
     setSizePolicy(sizePolicy);
     updateGeometry();
 
-    // The legend will be deleted in the destructor of the plot or when 
+    // The legend will be deleted in the destructor of the plot or when
     // another legend is inserted.
     QwtLegend* legend = new QwtLegend(this);
     this->insertLegend(legend, BottomLegend);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuTofAccumulatedPhaseFractionsPlot::setCommonPlotBehaviour(QwtPlot* plot)
 {
@@ -243,7 +246,7 @@ void RiuTofAccumulatedPhaseFractionsPlot::setCommonPlotBehaviour(QwtPlot* plot)
     grid->setPen(gridPen);
 
     // Axis number font
-    QFont axisFont =  plot->axisFont(QwtPlot::xBottom);
+    QFont axisFont = plot->axisFont(QwtPlot::xBottom);
     axisFont.setPointSize(10);
 
     plot->setAxisFont(QwtPlot::xBottom, axisFont);
@@ -252,17 +255,17 @@ void RiuTofAccumulatedPhaseFractionsPlot::setCommonPlotBehaviour(QwtPlot* plot)
     plot->setAxisFont(QwtPlot::yRight, axisFont);
 
     // Axis title font
-    QwtText axisTitle = plot->axisTitle(QwtPlot::xBottom);
-    QFont axisTitleFont = axisTitle.font();
+    QwtText axisTitle     = plot->axisTitle(QwtPlot::xBottom);
+    QFont   axisTitleFont = axisTitle.font();
     axisTitleFont.setPointSize(10);
     axisTitleFont.setBold(false);
     axisTitle.setFont(axisTitleFont);
     axisTitle.setRenderFlags(Qt::AlignRight);
 
     plot->setAxisTitle(QwtPlot::xBottom, axisTitle);
-    plot->setAxisTitle(QwtPlot::xTop,    axisTitle);
-    plot->setAxisTitle(QwtPlot::yLeft,   axisTitle);
-    plot->setAxisTitle(QwtPlot::yRight,  axisTitle);
+    plot->setAxisTitle(QwtPlot::xTop, axisTitle);
+    plot->setAxisTitle(QwtPlot::yLeft, axisTitle);
+    plot->setAxisTitle(QwtPlot::yRight, axisTitle);
 
     // Enable mouse tracking and event filter
 
@@ -274,20 +277,20 @@ void RiuTofAccumulatedPhaseFractionsPlot::setCommonPlotBehaviour(QwtPlot* plot)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuTofAccumulatedPhaseFractionsPlot::setCurveColor(QwtPlotCurve* curve, QColor color)
 {
     curve->setBrush(QBrush(color));
 
-    QLinearGradient gradient; 
+    QLinearGradient gradient;
     gradient.setCoordinateMode(QGradient::StretchToDeviceMode);
-    gradient.setColorAt(0,    color.darker(110));
+    gradient.setColorAt(0, color.darker(110));
     gradient.setColorAt(0.15, color);
     gradient.setColorAt(0.25, color);
-    gradient.setColorAt(0.4,  color.darker(110));
-    gradient.setColorAt(0.6,  color);
-    gradient.setColorAt(0.8,  color.darker(110));
-    gradient.setColorAt(1,    color);
+    gradient.setColorAt(0.4, color.darker(110));
+    gradient.setColorAt(0.6, color);
+    gradient.setColorAt(0.8, color.darker(110));
+    gradient.setColorAt(1, color);
     curve->setBrush(gradient);
 }

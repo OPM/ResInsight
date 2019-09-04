@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,22 +22,20 @@
 #include "RigFemPart.h"
 #include "RigMainGrid.h"
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivEclipseIntersectionGrid::RivEclipseIntersectionGrid(const RigMainGrid * mainGrid,
-    const RigActiveCellInfo* activeCellInfo,
-    bool showInactiveCells)
-    : m_mainGrid(mainGrid),
-    m_activeCellInfo(activeCellInfo),
-    m_showInactiveCells(showInactiveCells)
+RivEclipseIntersectionGrid::RivEclipseIntersectionGrid(const RigMainGrid*       mainGrid,
+                                                       const RigActiveCellInfo* activeCellInfo,
+                                                       bool                     showInactiveCells)
+    : m_mainGrid(mainGrid)
+    , m_activeCellInfo(activeCellInfo)
+    , m_showInactiveCells(showInactiveCells)
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RivEclipseIntersectionGrid::displayOffset() const
 {
@@ -45,7 +43,7 @@ cvf::Vec3d RivEclipseIntersectionGrid::displayOffset() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RivEclipseIntersectionGrid::boundingBox() const
 {
@@ -53,15 +51,16 @@ cvf::BoundingBox RivEclipseIntersectionGrid::boundingBox() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivEclipseIntersectionGrid::findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const
+void RivEclipseIntersectionGrid::findIntersectingCells(const cvf::BoundingBox& intersectingBB,
+                                                       std::vector<size_t>*    intersectedCells) const
 {
     m_mainGrid->findIntersectingCells(intersectingBB, intersectedCells);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RivEclipseIntersectionGrid::useCell(size_t cellIndex) const
 {
@@ -73,7 +72,7 @@ bool RivEclipseIntersectionGrid::useCell(size_t cellIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivEclipseIntersectionGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const
 {
@@ -81,7 +80,7 @@ void RivEclipseIntersectionGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivEclipseIntersectionGrid::cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const
 {
@@ -94,24 +93,24 @@ void RivEclipseIntersectionGrid::cellCornerIndices(size_t cellIndex, size_t corn
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-const RigFault* RivEclipseIntersectionGrid::findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
+const RigFault* RivEclipseIntersectionGrid::findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex,
                                                                               cvf::StructGridInterface::FaceType face) const
 {
     return m_mainGrid->findFaultFromCellIndexAndCellFace(reservoirCellIndex, face);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivFemIntersectionGrid::RivFemIntersectionGrid(const RigFemPart * femPart) : m_femPart(femPart)
+RivFemIntersectionGrid::RivFemIntersectionGrid(const RigFemPart* femPart)
+    : m_femPart(femPart)
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RivFemIntersectionGrid::displayOffset() const
 {
@@ -119,7 +118,7 @@ cvf::Vec3d RivFemIntersectionGrid::displayOffset() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RivFemIntersectionGrid::boundingBox() const
 {
@@ -127,15 +126,16 @@ cvf::BoundingBox RivFemIntersectionGrid::boundingBox() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivFemIntersectionGrid::findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const
+void RivFemIntersectionGrid::findIntersectingCells(const cvf::BoundingBox& intersectingBB,
+                                                   std::vector<size_t>*    intersectedCells) const
 {
     m_femPart->findIntersectingCells(intersectingBB, intersectedCells);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RivFemIntersectionGrid::useCell(size_t cellIndex) const
 {
@@ -147,15 +147,15 @@ bool RivFemIntersectionGrid::useCell(size_t cellIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivFemIntersectionGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const
 {
     RigElementType elmType = m_femPart->elementType(cellIndex);
     if (!(elmType == HEX8 || elmType == HEX8P)) return;
 
-    const std::vector<cvf::Vec3f>& nodeCoords = m_femPart->nodes().coordinates;
-    const int* cornerIndices = m_femPart->connectivities(cellIndex);
+    const std::vector<cvf::Vec3f>& nodeCoords    = m_femPart->nodes().coordinates;
+    const int*                     cornerIndices = m_femPart->connectivities(cellIndex);
 
     cellCorners[0] = cvf::Vec3d(nodeCoords[cornerIndices[0]]);
     cellCorners[1] = cvf::Vec3d(nodeCoords[cornerIndices[1]]);
@@ -168,13 +168,13 @@ void RivFemIntersectionGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d cel
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivFemIntersectionGrid::cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const
 {
     RigElementType elmType = m_femPart->elementType(cellIndex);
     if (!(elmType == HEX8 || elmType == HEX8P)) return;
-    int elmIdx = static_cast<int>(cellIndex);
+    int elmIdx       = static_cast<int>(cellIndex);
     cornerIndices[0] = m_femPart->elementNodeResultIdx(elmIdx, 0);
     cornerIndices[1] = m_femPart->elementNodeResultIdx(elmIdx, 1);
     cornerIndices[2] = m_femPart->elementNodeResultIdx(elmIdx, 2);
@@ -186,11 +186,10 @@ void RivFemIntersectionGrid::cellCornerIndices(size_t cellIndex, size_t cornerIn
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-const RigFault* RivFemIntersectionGrid::findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
+const RigFault* RivFemIntersectionGrid::findFaultFromCellIndexAndCellFace(size_t                             reservoirCellIndex,
                                                                           cvf::StructGridInterface::FaceType face) const
 {
     return nullptr;
 }
-

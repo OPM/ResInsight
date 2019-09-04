@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,8 +25,8 @@
 #include "RimProject.h"
 #include "RimViewWindow.h"
 
-#include "RicSnapshotViewToFileFeature.h"
 #include "RicSnapshotFilenameGenerator.h"
+#include "RicSnapshotViewToFileFeature.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -39,12 +39,10 @@
 #include <QFileInfo>
 #include <QMdiSubWindow>
 
-
 CAF_CMD_SOURCE_INIT(RicSnapshotAllPlotsToFileFeature, "RicSnapshotAllPlotsToFileFeature");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 {
@@ -66,9 +64,10 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(const QString& snapshotFolderName, const QString& prefix)
+void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(const QString& snapshotFolderName,
+                                                                          const QString& prefix)
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -106,7 +105,7 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(const 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSnapshotAllPlotsToFileFeature::isCommandEnabled()
 {
@@ -114,7 +113,7 @@ bool RicSnapshotAllPlotsToFileFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllPlotsToFileFeature::onActionTriggered(bool isChecked)
 {
@@ -133,11 +132,10 @@ void RicSnapshotAllPlotsToFileFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllPlotsToFileFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Snapshot All Plots To File");
     actionToSetup->setIcon(QIcon(":/SnapShotSaveViews.png"));
 }
-

@@ -18,8 +18,8 @@
 #include "RimWellPathAttributeCollection.h"
 
 #include "RimProject.h"
-#include "RimWellPathAttribute.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPathAttribute.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTableViewEditor.h"
@@ -44,9 +44,7 @@ RimWellPathAttributeCollection::RimWellPathAttributeCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathAttributeCollection::~RimWellPathAttributeCollection()
-{
-}
+RimWellPathAttributeCollection::~RimWellPathAttributeCollection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -97,7 +95,7 @@ void RimWellPathAttributeCollection::insertAttribute(RimWellPathAttribute* inser
 void RimWellPathAttributeCollection::deleteAttribute(RimWellPathAttribute* attributeToDelete)
 {
     m_attributes.removeChildObject(attributeToDelete);
-    delete attributeToDelete;    
+    delete attributeToDelete;
 
     this->updateAllReferringTracks();
 }
@@ -115,8 +113,8 @@ void RimWellPathAttributeCollection::deleteAllAttributes()
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu,
-                                                    QMenu*                     menu,
-                                                    QWidget*                   fieldEditorWidget)
+                                                             QMenu*                     menu,
+                                                             QWidget*                   fieldEditorWidget)
 {
     caf::CmdFeatureMenuBuilder menuBuilder;
 
@@ -130,16 +128,18 @@ void RimWellPathAttributeCollection::defineCustomContextMenu(const caf::PdmField
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttributeCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimWellPathAttributeCollection::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                           QString                    uiConfigName,
+                                                           caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_attributes)
     {
         auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
         if (tvAttribute)
         {
-            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
+            tvAttribute->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
             tvAttribute->alwaysEnforceResizePolicy = true;
-            tvAttribute->minimumHeight = 300;
+            tvAttribute->minimumHeight             = 300;
         }
     }
 }
@@ -159,7 +159,6 @@ void RimWellPathAttributeCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering
 {
     uiTreeOrdering.skipRemainingChildren(true);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

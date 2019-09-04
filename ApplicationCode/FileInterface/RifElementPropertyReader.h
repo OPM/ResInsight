@@ -20,7 +20,6 @@
 
 #include "RifElementPropertyTableReader.h"
 
-
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
@@ -49,11 +48,11 @@ public:
     std::vector<std::string> fieldsInFile(const std::string& fileName) const;
 
 private:
-    void makeElementIdToIdxMap();
+    void        makeElementIdToIdxMap();
     static void outputWarningAboutWrongFileData();
 
 private:
     std::map<std::string, RifElementPropertyMetadata> m_fieldsMetaData;
-    std::vector<int> m_elementIdxToId;
-    std::unordered_map<int, int> m_elementIdToIdx;
+    std::vector<int>                                  m_elementIdxToId;
+    std::unordered_map<int, int>                      m_elementIdToIdx;
 };

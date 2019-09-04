@@ -109,9 +109,9 @@ grpc::Status RiaActiveCellInfoStateHandler::assignNextActiveCellInfoData(rips::C
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaActiveCellInfoStateHandler::assignCellInfoData(rips::CellInfo*       cellInfo,
-                                                             const std::vector<RigCell>& reservoirCells,
-                                                             size_t                      cellIdx)
+void RiaActiveCellInfoStateHandler::assignCellInfoData(rips::CellInfo*             cellInfo,
+                                                       const std::vector<RigCell>& reservoirCells,
+                                                       size_t                      cellIdx)
 {
     RigGridBase* grid = reservoirCells[cellIdx].hostGrid();
     CVF_ASSERT(grid != nullptr);
@@ -189,17 +189,17 @@ const std::vector<RigCell>& RiaActiveCellInfoStateHandler::reservoirCells() cons
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaActiveCellInfoStateHandler::assignReply(rips::CellInfoArray* reply)
 {
-    const size_t packageSize = RiaGrpcServiceInterface::numberOfMessagesForByteCount(sizeof(rips::CellInfoArray));
+    const size_t packageSize  = RiaGrpcServiceInterface::numberOfMessagesForByteCount(sizeof(rips::CellInfoArray));
     size_t       packageIndex = 0u;
     reply->mutable_data()->Reserve((int)packageSize);
     for (; packageIndex < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++packageIndex)
     {
-        rips::CellInfo  singleCellInfo;
-        grpc::Status          singleCellInfoStatus = assignNextActiveCellInfoData(&singleCellInfo);
+        rips::CellInfo singleCellInfo;
+        grpc::Status   singleCellInfoStatus = assignNextActiveCellInfoData(&singleCellInfo);
         if (singleCellInfoStatus.ok())
         {
             rips::CellInfo* allocCellInfo = reply->add_data();
-            *allocCellInfo = singleCellInfo;
+            *allocCellInfo                = singleCellInfo;
         }
         else
         {
@@ -216,14 +216,15 @@ grpc::Status RiaActiveCellInfoStateHandler::assignReply(rips::CellInfoArray* rep
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcCaseService::GetGridCount(grpc::ServerContext* context, const rips::CaseRequest* request, rips::GridCount* reply)
+grpc::Status
+    RiaGrpcCaseService::GetGridCount(grpc::ServerContext* context, const rips::CaseRequest* request, rips::GridCount* reply)
 {
     RimCase* rimCase = findCase(request->id());
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
     if (eclipseCase)
     {
-        int gridCount = (int) eclipseCase->mainGrid()->gridCount();
+        int gridCount = (int)eclipseCase->mainGrid()->gridCount();
         reply->set_count(gridCount);
         return Status::OK;
     }
@@ -233,28 +234,28 @@ grpc::Status RiaGrpcCaseService::GetGridCount(grpc::ServerContext* context, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcCaseService::GetCellCount(grpc::ServerContext* context, const rips::CellInfoRequest* request, rips::CellCount* reply)
+grpc::Status
+    RiaGrpcCaseService::GetCellCount(grpc::ServerContext* context, const rips::CellInfoRequest* request, rips::CellCount* reply)
 {
     RimCase* rimCase = findCase(request->case_request().id());
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
     if (eclipseCase)
     {
-        auto porosityModel = RiaDefines::PorosityModelType(request->porosity_model());
+        auto               porosityModel  = RiaDefines::PorosityModelType(request->porosity_model());
         RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo(porosityModel);
-        reply->set_active_cell_count((int) activeCellInfo->reservoirActiveCellCount());
-        reply->set_reservoir_cell_count((int) activeCellInfo->reservoirCellCount());
+        reply->set_active_cell_count((int)activeCellInfo->reservoirActiveCellCount());
+        reply->set_reservoir_cell_count((int)activeCellInfo->reservoirCellCount());
         return grpc::Status::OK;
     }
     return grpc::Status(grpc::NOT_FOUND, "Eclipse Case not found");
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 grpc::Status
-RiaGrpcCaseService::GetTimeSteps(grpc::ServerContext* context, const rips::CaseRequest* request, rips::TimeStepDates* reply)
+    RiaGrpcCaseService::GetTimeSteps(grpc::ServerContext* context, const rips::CaseRequest* request, rips::TimeStepDates* reply)
 {
     RimCase* rimCase = findCase(request->id());
 
@@ -299,8 +300,9 @@ grpc::Status RiaGrpcCaseService::GetDaysSinceStart(grpc::ServerContext*     cont
             }
         }
 
-        std::vector<double> daysSinceSimulationStart =
-            eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart(addrToMaxTimeStepCountResult);
+        std::vector<double> daysSinceSimulationStart = eclipseCase->eclipseCaseData()
+                                                           ->results(RiaDefines::MATRIX_MODEL)
+                                                           ->daysSinceSimulationStart(addrToMaxTimeStepCountResult);
 
         for (auto days : daysSinceSimulationStart)
         {
@@ -352,10 +354,10 @@ grpc::Status
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcCaseService::GetCellInfoForActiveCells(grpc::ServerContext*                      context,
-                                                                const rips::CellInfoRequest*        request,
-                                                                rips::CellInfoArray*                reply,
-                                                                RiaActiveCellInfoStateHandler* stateHandler)
+grpc::Status RiaGrpcCaseService::GetCellInfoForActiveCells(grpc::ServerContext*           context,
+                                                           const rips::CellInfoRequest*   request,
+                                                           rips::CellInfoArray*           reply,
+                                                           RiaActiveCellInfoStateHandler* stateHandler)
 {
     return stateHandler->assignReply(reply);
 }
@@ -367,14 +369,16 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
 {
     typedef RiaGrpcCaseService Self;
 
-    return {new RiaGrpcUnaryCallback<Self, CaseRequest, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
-            new RiaGrpcUnaryCallback<Self, CellInfoRequest, CellCount>(this, &Self::GetCellCount, &Self::RequestGetCellCount),
-            new RiaGrpcUnaryCallback<Self, CaseRequest, TimeStepDates>(this, &Self::GetTimeSteps, &Self::RequestGetTimeSteps),
-            new RiaGrpcUnaryCallback<Self, CaseRequest, DaysSinceStart>(this, &Self::GetDaysSinceStart, &Self::RequestGetDaysSinceStart),
-            new RiaGrpcUnaryCallback<Self, CaseRequest, CaseInfo>(this, &Self::GetCaseInfo, &Self::RequestGetCaseInfo),
-            new RiaGrpcUnaryCallback<Self, CaseRequest, PdmObject>(this, &Self::GetPdmObject, &Self::RequestGetPdmObject),
-            new RiaGrpcServerToClientStreamCallback<Self, CellInfoRequest, CellInfoArray, RiaActiveCellInfoStateHandler>(
-                this, &Self::GetCellInfoForActiveCells, &Self::RequestGetCellInfoForActiveCells, new RiaActiveCellInfoStateHandler)};
+    return {
+        new RiaGrpcUnaryCallback<Self, CaseRequest, GridCount>(this, &Self::GetGridCount, &Self::RequestGetGridCount),
+        new RiaGrpcUnaryCallback<Self, CellInfoRequest, CellCount>(this, &Self::GetCellCount, &Self::RequestGetCellCount),
+        new RiaGrpcUnaryCallback<Self, CaseRequest, TimeStepDates>(this, &Self::GetTimeSteps, &Self::RequestGetTimeSteps),
+        new RiaGrpcUnaryCallback<Self, CaseRequest, DaysSinceStart>(
+            this, &Self::GetDaysSinceStart, &Self::RequestGetDaysSinceStart),
+        new RiaGrpcUnaryCallback<Self, CaseRequest, CaseInfo>(this, &Self::GetCaseInfo, &Self::RequestGetCaseInfo),
+        new RiaGrpcUnaryCallback<Self, CaseRequest, PdmObject>(this, &Self::GetPdmObject, &Self::RequestGetPdmObject),
+        new RiaGrpcServerToClientStreamCallback<Self, CellInfoRequest, CellInfoArray, RiaActiveCellInfoStateHandler>(
+            this, &Self::GetCellInfoForActiveCells, &Self::RequestGetCellInfoForActiveCells, new RiaActiveCellInfoStateHandler)};
 }
 
 static bool RiaGrpcCaseService_init =

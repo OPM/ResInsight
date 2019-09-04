@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfVector3.h"
 
 #include "cvfBoundingBox.h"
@@ -31,11 +30,11 @@
 class RigCellGeometryTools
 {
 public:
-    static double                    calculateCellVolume(const std::array<cvf::Vec3d, 8>& hexCorners);
-    static bool                      estimateHexOverlapWithBoundingBox(const std::array<cvf::Vec3d, 8>& hexCorners,
-                                                                       const cvf::BoundingBox&          boundingBox2dExtrusion,
-                                                                       std::array<cvf::Vec3d, 8>*       overlapCorners,
-                                                                       cvf::BoundingBox*                overlapBoundingBox);
+    static double calculateCellVolume(const std::array<cvf::Vec3d, 8>& hexCorners);
+    static bool   estimateHexOverlapWithBoundingBox(const std::array<cvf::Vec3d, 8>& hexCorners,
+                                                    const cvf::BoundingBox&          boundingBox2dExtrusion,
+                                                    std::array<cvf::Vec3d, 8>*       overlapCorners,
+                                                    cvf::BoundingBox*                overlapBoundingBox);
 
     static void createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments,
                                               std::vector<std::vector<cvf::Vec3d>>&         polygons,

@@ -730,21 +730,21 @@ std::set<RiaRftPltCurveDefinition>
                 }
             }
         }
-		else if (addr.sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT)
-		{
+        else if (addr.sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT)
+        {
             RimObservedFmuRftData* observedFmuRftData = addr.observedFmuRftData();
-			if (observedFmuRftData && observedFmuRftData->rftReader())
+            if (observedFmuRftData && observedFmuRftData->rftReader())
             {
                 std::set<QDateTime> timeSteps = observedFmuRftData->rftReader()->availableTimeSteps(wellPathNameOrSimWellName);
-				for (const QDateTime& time : timeSteps)
-				{
-					if (selectedTimeStepSet.count(time))
-					{
+                for (const QDateTime& time : timeSteps)
+                {
+                    if (selectedTimeStepSet.count(time))
+                    {
                         curveDefs.insert(RiaRftPltCurveDefinition(addr, wellPathNameOrSimWellName, time));
-					}
-				}
-			}
-		}
+                    }
+                }
+            }
+        }
         else if (addr.sourceType() == RifDataSourceForRftPlt::ENSEMBLE_RFT)
         {
             if (addr.ensemble())
@@ -979,10 +979,10 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::calculat
             {
                 std::set<QDateTime> rftFmuTimes =
                     source.observedFmuRftData()->rftReader()->availableTimeSteps(wellPathNameOrSimWellName);
-				for (const QDateTime& date : rftFmuTimes)
-				{
+                for (const QDateTime& date : rftFmuTimes)
+                {
                     observedTimeStepsWithSources[date].insert(source);
-				}
+                }
             }
         }
     }
@@ -993,8 +993,7 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::calculat
         {
             if (source.sourceType() == RifDataSourceForRftPlt::RFT && source.rftReader())
             {
-                std::set<QDateTime> rftTimes =
-                    source.rftReader()->availableTimeSteps(simWellName, interestingRFTResults);
+                std::set<QDateTime> rftTimes = source.rftReader()->availableTimeSteps(simWellName, interestingRFTResults);
                 for (const QDateTime& date : rftTimes)
                 {
                     rftTimeStepsWithSources[date].insert(source);

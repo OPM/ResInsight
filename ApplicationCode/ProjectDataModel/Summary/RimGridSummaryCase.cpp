@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -28,15 +28,14 @@
 
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 
-
-CAF_PDM_SOURCE_INIT(RimGridSummaryCase,"GridSummaryCase");
+CAF_PDM_SOURCE_INIT(RimGridSummaryCase, "GridSummaryCase");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGridSummaryCase::RimGridSummaryCase()
 {
@@ -56,15 +55,12 @@ RimGridSummaryCase::RimGridSummaryCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimGridSummaryCase::~RimGridSummaryCase()
-{
-
-}
+RimGridSummaryCase::~RimGridSummaryCase() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString summaryHeaderFilenameFromEclipseCase(RimEclipseCase* eclCase)
 {
@@ -72,13 +68,13 @@ QString summaryHeaderFilenameFromEclipseCase(RimEclipseCase* eclCase)
 
     QFileInfo gridFileInfo(eclCase->gridFileName());
 
-    QString possibleSumHeaderFileName = gridFileInfo.path() +"/"+ gridFileInfo.completeBaseName() + ".SMSPEC";
+    QString possibleSumHeaderFileName = gridFileInfo.path() + "/" + gridFileInfo.completeBaseName() + ".SMSPEC";
 
-    return possibleSumHeaderFileName; 
+    return possibleSumHeaderFileName;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString caseNameFromEclipseCase(RimEclipseCase* eclCase)
 {
@@ -88,20 +84,20 @@ QString caseNameFromEclipseCase(RimEclipseCase* eclCase)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGridSummaryCase::setAssociatedEclipseCase(RimEclipseCase* eclipseCase)
 {
-    m_eclipseCase = eclipseCase;
+    m_eclipseCase           = eclipseCase;
     m_summaryHeaderFilename = summaryHeaderFilenameFromEclipseCase(eclipseCase);
-    m_cachedCaseName = caseNameFromEclipseCase(eclipseCase);
+    m_cachedCaseName        = caseNameFromEclipseCase(eclipseCase);
 
     this->updateAutoShortName();
     this->updateTreeItemName();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimGridSummaryCase::associatedEclipseCase()
 {
@@ -113,13 +109,13 @@ RimEclipseCase* RimGridSummaryCase::associatedEclipseCase()
         firstAncestorOrThisOfTypeAsserted(project);
         std::vector<RimCase*> allCases;
         project->allCases(allCases);
-        for ( RimCase* someCase: allCases )
+        for (RimCase* someCase : allCases)
         {
             auto eclCase = dynamic_cast<RimEclipseCase*>(someCase);
-            if ( eclCase )
+            if (eclCase)
             {
                 QString sumHeaderFileName = summaryHeaderFilenameFromEclipseCase(eclCase);
-                if ( sumHeaderFileName == m_summaryHeaderFilename )
+                if (sumHeaderFileName == m_summaryHeaderFilename)
                 {
                     m_eclipseCase = eclCase;
                     this->updateAutoShortName();
@@ -135,7 +131,7 @@ RimEclipseCase* RimGridSummaryCase::associatedEclipseCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimGridSummaryCase::summaryHeaderFilename() const
 {
@@ -145,9 +141,9 @@ QString RimGridSummaryCase::summaryHeaderFilename() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString RimGridSummaryCase::caseName()  const
+QString RimGridSummaryCase::caseName() const
 {
     if (m_eclipseCase()) m_cachedCaseName = caseNameFromEclipseCase(m_eclipseCase());
 
@@ -155,7 +151,7 @@ QString RimGridSummaryCase::caseName()  const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimGridSummaryCase::eclipseGridFileName() const
 {
@@ -165,23 +161,24 @@ QString RimGridSummaryCase::eclipseGridFileName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimGridSummaryCase::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
+void RimGridSummaryCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
     // Shouldn't have to do anything
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGridSummaryCase::createSummaryReaderInterface()
 {
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), m_includeRestartFiles);
+    m_summaryFileReader =
+        RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename(), m_includeRestartFiles);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimGridSummaryCase::summaryReader()
 {
@@ -189,7 +186,7 @@ RifSummaryReaderInterface* RimGridSummaryCase::summaryReader()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGridSummaryCase::setIncludeRestartFiles(bool includeRestartFiles)
 {
@@ -197,7 +194,7 @@ void RimGridSummaryCase::setIncludeRestartFiles(bool includeRestartFiles)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFileSummaryCase* RimGridSummaryCase::createFileSummaryCaseCopy()
 {
@@ -206,4 +203,3 @@ RimFileSummaryCase* RimGridSummaryCase::createFileSummaryCaseCopy()
     fileSummaryCase->setIncludeRestartFiles(m_includeRestartFiles());
     return fileSummaryCase;
 }
-

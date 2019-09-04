@@ -218,9 +218,10 @@ void RimTensorResults::mappingRange(double* min, double* max) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RigFemResultAddress> RimTensorResults::observedResults() const
 {
-    RigFemResultAddress mainResult = selectedTensorResult();
+    RigFemResultAddress              mainResult       = selectedTensorResult();
     std::vector<RigFemResultAddress> tensorComponents = RigFemPartResultsCollection::tensorComponentAddresses(mainResult);
-    std::vector<RigFemResultAddress> principleComponents = RigFemPartResultsCollection::tensorPrincipalComponentAdresses(mainResult);
+    std::vector<RigFemResultAddress> principleComponents =
+        RigFemPartResultsCollection::tensorPrincipalComponentAdresses(mainResult);
     tensorComponents.insert(tensorComponents.end(), principleComponents.begin(), principleComponents.end());
     return tensorComponents;
 }
@@ -304,11 +305,12 @@ QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions(const caf:
     }
     else if (fieldNeedingOptions == &m_rangeMode)
     {
-        options.push_back(caf::PdmOptionItemInfo(RimRegularLegendConfig::RangeModeEnum::uiText(RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS),
-                                                 RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS));
         options.push_back(
-            caf::PdmOptionItemInfo(RimRegularLegendConfig::RangeModeEnum::uiText(RimRegularLegendConfig::AUTOMATIC_CURRENT_TIMESTEP),
-                                   RimRegularLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
+            caf::PdmOptionItemInfo(RimRegularLegendConfig::RangeModeEnum::uiText(RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS),
+                                   RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS));
+        options.push_back(caf::PdmOptionItemInfo(
+            RimRegularLegendConfig::RangeModeEnum::uiText(RimRegularLegendConfig::AUTOMATIC_CURRENT_TIMESTEP),
+            RimRegularLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
     }
 
     return options;

@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@
 #include "RifReaderSettings.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifReaderInterface::isFaultImportEnabled()
 {
@@ -33,7 +33,7 @@ bool RifReaderInterface::isFaultImportEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifReaderInterface::isImportOfCompleteMswDataEnabled()
 {
@@ -41,7 +41,7 @@ bool RifReaderInterface::isImportOfCompleteMswDataEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifReaderInterface::isNNCsEnabled()
 {
@@ -49,7 +49,7 @@ bool RifReaderInterface::isNNCsEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const QString RifReaderInterface::faultIncludeFileAbsolutePathPrefix()
 {
@@ -57,7 +57,7 @@ const QString RifReaderInterface::faultIncludeFileAbsolutePathPrefix()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifReaderInterface::setTimeStepFilter(const std::vector<size_t>& fileTimeStepIndices)
 {
@@ -65,7 +65,7 @@ void RifReaderInterface::setTimeStepFilter(const std::vector<size_t>& fileTimeSt
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::set<RiaDefines::PhaseType> RifReaderInterface::availablePhases() const
 {
@@ -73,7 +73,7 @@ std::set<RiaDefines::PhaseType> RifReaderInterface::availablePhases() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifReaderInterface::isTimeStepIncludedByFilter(size_t timeStepIndex) const
 {
@@ -91,7 +91,7 @@ bool RifReaderInterface::isTimeStepIncludedByFilter(size_t timeStepIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RifReaderInterface::timeStepIndexOnFile(size_t timeStepIndex) const
 {
@@ -104,7 +104,7 @@ size_t RifReaderInterface::timeStepIndexOnFile(size_t timeStepIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RifReaderSettings* RifReaderInterface::readerSettings() const
 {
@@ -114,4 +114,3 @@ const RifReaderSettings* RifReaderInterface::readerSettings() const
 
     return prefs->readerSettings();
 }
-

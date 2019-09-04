@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2013-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@
 #include <QMouseEvent>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicBoxManipulatorEventHandler::RicBoxManipulatorEventHandler(caf::Viewer* viewer)
     : m_viewer(viewer)
@@ -45,7 +45,7 @@ RicBoxManipulatorEventHandler::RicBoxManipulatorEventHandler(caf::Viewer* viewer
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicBoxManipulatorEventHandler::~RicBoxManipulatorEventHandler()
 {
@@ -53,7 +53,7 @@ RicBoxManipulatorEventHandler::~RicBoxManipulatorEventHandler()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicBoxManipulatorEventHandler::setOrigin(const cvf::Vec3d& origin)
 {
@@ -63,17 +63,17 @@ void RicBoxManipulatorEventHandler::setOrigin(const cvf::Vec3d& origin)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicBoxManipulatorEventHandler::setSize(const cvf::Vec3d& size)
 {
     m_partManager->setSize(size);
-    
+
     emit notifyRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicBoxManipulatorEventHandler::appendPartsToModel(cvf::ModelBasicList* model)
 {
@@ -81,9 +81,9 @@ void RicBoxManipulatorEventHandler::appendPartsToModel(cvf::ModelBasicList* mode
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent)
+bool RicBoxManipulatorEventHandler::eventFilter(QObject* obj, QEvent* inputEvent)
 {
     if (inputEvent->type() == QEvent::MouseButtonPress)
     {
@@ -96,7 +96,7 @@ bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent
             {
                 m_partManager->tryToActivateManipulator(hitItems.firstItem());
 
-                if(m_partManager->isManipulatorActive())
+                if (m_partManager->isManipulatorActive())
                 {
                     emit notifyRedraw();
 
@@ -111,8 +111,8 @@ bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent
         {
             QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(inputEvent);
 
-            //qDebug() << "Inside mouse move";
-            //qDebug() << mouseEvent->pos();
+            // qDebug() << "Inside mouse move";
+            // qDebug() << mouseEvent->pos();
 
             int translatedMousePosX = mouseEvent->pos().x();
             int translatedMousePosY = m_viewer->height() - mouseEvent->pos().y();
@@ -151,4 +151,3 @@ bool RicBoxManipulatorEventHandler::eventFilter(QObject *obj, QEvent* inputEvent
 
     return false;
 }
-

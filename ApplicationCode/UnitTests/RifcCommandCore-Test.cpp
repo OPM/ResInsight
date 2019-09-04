@@ -7,19 +7,21 @@
 
 #include "cafPdmField.h"
 
-class TestCommand1: public RicfCommandObject
+class TestCommand1 : public RicfCommandObject
 {
     CAF_PDM_HEADER_INIT;
-public: 
-    TestCommand1() 
+
+public:
+    TestCommand1()
     {
-        RICF_InitField(&m_textArgument,   "TextArgument",   QString(), "TextArgument",   "", "", "");
-        RICF_InitField(&m_doubleArgument, "DoubleArgument",       0.0, "DoubleArgument", "", "", "");
-        RICF_InitField(&m_intArgument,    "IntArgument",            0, "IntArgument",    "", "", "");
-        RICF_InitField(&m_boolArgument,   "BoolArgument", false, "BoolArgument", "", "", "");
+        RICF_InitField(&m_textArgument, "TextArgument", QString(), "TextArgument", "", "", "");
+        RICF_InitField(&m_doubleArgument, "DoubleArgument", 0.0, "DoubleArgument", "", "", "");
+        RICF_InitField(&m_intArgument, "IntArgument", 0, "IntArgument", "", "", "");
+        RICF_InitField(&m_boolArgument, "BoolArgument", false, "BoolArgument", "", "", "");
     }
 
-    RicfCommandResponse execute() override {
+    RicfCommandResponse execute() override
+    {
         std::cout << "TestCommand1::execute("
                   << "\"" << m_textArgument().toStdString() << "\", " << m_doubleArgument() << ", " << m_intArgument << ", "
                   << m_boolArgument << ");" << std::endl;
@@ -34,24 +36,24 @@ public:
 
 CAF_PDM_SOURCE_INIT(TestCommand1, "TestCommand1");
 
-
-class TC2: public RicfCommandObject
+class TC2 : public RicfCommandObject
 {
     CAF_PDM_HEADER_INIT;
-public: 
-    TC2() 
+
+public:
+    TC2()
     {
-        RICF_InitField(&m_textArgument,   "ta",   QString(), "TextArgument",   "", "", "");
-        RICF_InitField(&m_doubleArgument, "da",         0.0, "DoubleArgument", "", "", "");
-        RICF_InitField(&m_intArgument,    "ia",            0,"IntArgument",    "", "", "");
-        RICF_InitField(&m_boolArgument,   "ba",        false,"BoolArgument", "", "", "");
+        RICF_InitField(&m_textArgument, "ta", QString(), "TextArgument", "", "", "");
+        RICF_InitField(&m_doubleArgument, "da", 0.0, "DoubleArgument", "", "", "");
+        RICF_InitField(&m_intArgument, "ia", 0, "IntArgument", "", "", "");
+        RICF_InitField(&m_boolArgument, "ba", false, "BoolArgument", "", "", "");
     }
 
     RicfCommandResponse execute() override
     {
-        std::cout << "TC2::execute(" << "\"" << m_textArgument().toStdString() << "\", "
-        << m_doubleArgument() << ", " 
-        << m_intArgument() << ", " << m_boolArgument() << ");" << std::endl;
+        std::cout << "TC2::execute("
+                  << "\"" << m_textArgument().toStdString() << "\", " << m_doubleArgument() << ", " << m_intArgument() << ", "
+                  << m_boolArgument() << ");" << std::endl;
         return RicfCommandResponse();
     }
 
@@ -63,21 +65,22 @@ public:
 
 CAF_PDM_SOURCE_INIT(TC2, "TC2");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RicfCommands, Test1)
 {
-    QString commandString("TestCommand1(IntArgument=3, TextArgument=\"Dette er en tekst, \\\"og\\\" jeg er: (happy)\", DoubleArgument=5.0e3) \n"
-                          "TestCommand1 (  IntArgument = 4 , \n  TextArgument =  \"Dette er en tekst, \\\"og\\\" jeg er: (happy)\", \n  DoubleArgument =  5.0e-3  ) \n"
-                          "  TestCommand1(TextArgument=\"Litt kortere tekst.\", BoolArgument=true) \n"
-                          "TC2( ia = -12, ba=True, ta = \"Floff\", da =-662.518)\n"
-                          "TC2 ( ta = \"Hepp\", ia = 3, ba = false, da= 0.123)");
+    QString commandString(
+        "TestCommand1(IntArgument=3, TextArgument=\"Dette er en tekst, \\\"og\\\" jeg er: (happy)\", DoubleArgument=5.0e3) \n"
+        "TestCommand1 (  IntArgument = 4 , \n  TextArgument =  \"Dette er en tekst, \\\"og\\\" jeg er: (happy)\", \n  "
+        "DoubleArgument =  5.0e-3  ) \n"
+        "  TestCommand1(TextArgument=\"Litt kortere tekst.\", BoolArgument=true) \n"
+        "TC2( ia = -12, ba=True, ta = \"Floff\", da =-662.518)\n"
+        "TC2 ( ta = \"Hepp\", ia = 3, ba = false, da= 0.123)");
 
-    //std::cout << commandString.toStdString() << std::endl;
+    // std::cout << commandString.toStdString() << std::endl;
 
-    QTextStream inputStream(&commandString);
+    QTextStream  inputStream(&commandString);
     RicfMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
@@ -87,12 +90,12 @@ TEST(RicfCommands, Test1)
     EXPECT_EQ(39, tc1->m_textArgument().size());
     EXPECT_EQ(5.0e3, tc1->m_doubleArgument());
     EXPECT_FALSE(tc1->m_boolArgument());
-    
+
     tc1 = dynamic_cast<TestCommand1*>(objects[1]);
     EXPECT_EQ(39, tc1->m_textArgument().size());
     EXPECT_EQ(5e-3, tc1->m_doubleArgument());
     EXPECT_FALSE(tc1->m_boolArgument());
-    
+
     tc1 = dynamic_cast<TestCommand1*>(objects[2]);
     EXPECT_EQ(19, tc1->m_textArgument().size());
     EXPECT_EQ(0.0, tc1->m_doubleArgument());
@@ -110,31 +113,32 @@ TEST(RicfCommands, Test1)
     EXPECT_EQ(3, tc2->m_intArgument());
     EXPECT_FALSE(tc2->m_boolArgument());
 
-    for (auto obj: objects)
+    for (auto obj : objects)
     {
         obj->execute();
     }
 
-    for (auto obj: objects)
+    for (auto obj : objects)
     {
-        delete(obj);
+        delete (obj);
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RicfCommands, ErrorMessages)
 {
-    QString commandString("TesCommand1(IntArgument=3, TextArgument=\"Dette er en tekst, \\\"og\\\" jeg er: (happy)\", DoubleArgument=5.0e3) \n"
-                          "TestCommand1 (  IntArgument = , \n  TextA rgument =  \"Dette er en tekst, \\\"og\\\" jeg er: (happy)\", \n  DoubleArgument  ) \n"
-                          "  TestCommand1(TextArgument=Litt kortere tekst.\") \n"
-                          "TC3 ( ta = \"Hepp\", ia = 3, da= 0.123)");
+    QString commandString(
+        "TesCommand1(IntArgument=3, TextArgument=\"Dette er en tekst, \\\"og\\\" jeg er: (happy)\", DoubleArgument=5.0e3) \n"
+        "TestCommand1 (  IntArgument = , \n  TextA rgument =  \"Dette er en tekst, \\\"og\\\" jeg er: (happy)\", \n  "
+        "DoubleArgument  ) \n"
+        "  TestCommand1(TextArgument=Litt kortere tekst.\") \n"
+        "TC3 ( ta = \"Hepp\", ia = 3, da= 0.123)");
 
     std::cout << commandString.toStdString() << std::endl;
 
-    QTextStream inputStream(&commandString);
+    QTextStream  inputStream(&commandString);
     RicfMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
@@ -148,7 +152,7 @@ TEST(RicfCommands, ErrorMessages)
     // Line 4 : Can't find = after argument named DoubleArgument
     // Line 5 : Missing quotes around TextArgument value
 
-    for (const auto& msg: errors.m_messages)
+    for (const auto& msg : errors.m_messages)
     {
         QString label;
         if (msg.first == RicfMessages::MESSAGE_ERROR)
@@ -162,21 +166,21 @@ TEST(RicfCommands, ErrorMessages)
         std::cout << label.toStdString() << msg.second.toStdString() << std::endl;
     }
 
-    for (auto obj: objects)
+    for (auto obj : objects)
     {
-        delete(obj);
+        delete (obj);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RicfCommands, EmptyArgumentList)
 {
     // Ensure no error messages when command with no arguments is read
     QString commandString("TestCommand1()");
 
-    QTextStream inputStream(&commandString);
+    QTextStream  inputStream(&commandString);
     RicfMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
@@ -186,13 +190,12 @@ TEST(RicfCommands, EmptyArgumentList)
 
     for (auto obj : objects)
     {
-        delete(obj);
+        delete (obj);
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RicfCommands, TransformFileCommandObjectsToExecutableCommandObjects)
 {
@@ -212,7 +215,7 @@ TEST(RicfCommands, TransformFileCommandObjectsToExecutableCommandObjects)
 
     )";
 
-    QTextStream inputStream(&commandString);
+    QTextStream  inputStream(&commandString);
     RicfMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
@@ -224,12 +227,12 @@ TEST(RicfCommands, TransformFileCommandObjectsToExecutableCommandObjects)
 
     for (auto obj : exeObjects)
     {
-        delete(obj);
+        delete (obj);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RicfCommands, IgnoreCommentLines)
 {
@@ -249,7 +252,7 @@ TEST(RicfCommands, IgnoreCommentLines)
 
     )";
 
-    QTextStream inputStream(&commandString);
+    QTextStream  inputStream(&commandString);
     RicfMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
@@ -259,7 +262,7 @@ TEST(RicfCommands, IgnoreCommentLines)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RicfCommands, IgnoreCommentLinesShowErrorLine)
 {
@@ -280,7 +283,7 @@ TEST(RicfCommands, IgnoreCommentLinesShowErrorLine)
 
     )";
 
-    QTextStream inputStream(&commandString);
+    QTextStream  inputStream(&commandString);
     RicfMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
@@ -289,15 +292,15 @@ TEST(RicfCommands, IgnoreCommentLinesShowErrorLine)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RicfCommands, WriteCommand)
 {
     TestCommand1 testCmd;
-    testCmd.m_textArgument = "My Test";
+    testCmd.m_textArgument   = "My Test";
     testCmd.m_doubleArgument = 1.123;
-    testCmd.m_intArgument = -123;
-    testCmd.m_boolArgument = true;
+    testCmd.m_intArgument    = -123;
+    testCmd.m_boolArgument   = true;
 
     QString commandString;
     {
@@ -312,7 +315,7 @@ TEST(RicfCommands, WriteCommand)
     }
 
     {
-        QTextStream inputStream(&commandString);
+        QTextStream  inputStream(&commandString);
         RicfMessages errors;
 
         auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);

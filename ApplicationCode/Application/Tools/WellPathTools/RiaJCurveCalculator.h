@@ -18,13 +18,12 @@
 
 #pragma once
 
-
 #include "cvfVector3.h"
 
 //--------------------------------------------------------------------------------------------------
-///                + p1 
-///           t1 //   
-///              |  r1  + C   
+///                + p1
+///           t1 //
+///              |  r1  + C
 ///               \
 ///                + firstArcEndpoint
 ///                 \ 
@@ -34,8 +33,7 @@
 class RiaJCurveCalculator
 {
 public:
-    RiaJCurveCalculator(cvf::Vec3d p1,  double azi1, double inc1, double r1,
-                        cvf::Vec3d p2);
+    RiaJCurveCalculator(cvf::Vec3d p1, double azi1, double inc1, double r1, cvf::Vec3d p2);
     enum CurveStatus
     {
         OK,
@@ -44,27 +42,47 @@ public:
         FAILED_RADIUS_TOO_LARGE
     };
 
-    CurveStatus curveStatus()      const { return m_curveStatus;}
+    CurveStatus curveStatus() const
+    {
+        return m_curveStatus;
+    }
 
-    cvf::Vec3d  firstArcEndpoint() const { return m_firstArcEndpoint; }
+    cvf::Vec3d firstArcEndpoint() const
+    {
+        return m_firstArcEndpoint;
+    }
 
-    double      radius()           const  { return m_radius; }
-    cvf::Vec3d  firstCenter()      const { return m_c1; }
-    cvf::Vec3d  firstNormal()      const { return m_n1; }
-                
-    double      endAzimuth()       const  { return m_endAzi; }
-    double      endInclination()   const  { return m_endInc; }
-private:        
+    double radius() const
+    {
+        return m_radius;
+    }
+    cvf::Vec3d firstCenter() const
+    {
+        return m_c1;
+    }
+    cvf::Vec3d firstNormal() const
+    {
+        return m_n1;
+    }
+
+    double endAzimuth() const
+    {
+        return m_endAzi;
+    }
+    double endInclination() const
+    {
+        return m_endInc;
+    }
+
+private:
     CurveStatus m_curveStatus;
 
-    cvf::Vec3d  m_firstArcEndpoint;
-    
-    double      m_radius;
-    cvf::Vec3d  m_c1;
-    cvf::Vec3d  m_n1;
+    cvf::Vec3d m_firstArcEndpoint;
 
-    double      m_endAzi;
-    double      m_endInc;
+    double     m_radius;
+    cvf::Vec3d m_c1;
+    cvf::Vec3d m_n1;
+
+    double m_endAzi;
+    double m_endInc;
 };
-
-

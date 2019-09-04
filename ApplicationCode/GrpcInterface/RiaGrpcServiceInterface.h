@@ -46,9 +46,9 @@ class RiaGrpcServiceInterface
 {
 public:
     virtual std::vector<RiaGrpcCallbackInterface*> createCallbacks() = 0;
-    virtual ~RiaGrpcServiceInterface() = default;
+    virtual ~RiaGrpcServiceInterface()                               = default;
     static RimCase* findCase(int caseId);
-    static size_t numberOfMessagesForByteCount(size_t messageSize, size_t byteCount = 64 * 1024u);
+    static size_t   numberOfMessagesForByteCount(size_t messageSize, size_t byteCount = 64 * 1024u);
 
     static void copyPdmObjectFromCafToRips(const caf::PdmObject* source, rips::PdmObject* destination);
     static void copyPdmObjectFromRipsToCaf(const rips::PdmObject* source, caf::PdmObject* destination);
@@ -60,4 +60,3 @@ public:
 
 #include "cafFactory.h"
 typedef caf::Factory<RiaGrpcServiceInterface, size_t> RiaGrpcServiceFactory;
-

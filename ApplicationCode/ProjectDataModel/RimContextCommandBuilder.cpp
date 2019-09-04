@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,16 +27,16 @@
 #include "Rim3dWellLogFileCurve.h"
 #include "Rim3dWellLogRftCurve.h"
 #include "RimAnnotationCollection.h"
-#include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationGroupCollection.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimCalcScript.h"
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilter.h"
@@ -44,12 +44,12 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEnsembleCurveFilterCollection.h"
-#include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimFaultInView.h"
+#include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
-#include "RimFishboneWellPathCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFlowPlotCollection.h"
@@ -74,6 +74,7 @@
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
+#include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -103,23 +104,22 @@
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
-#include "RimSaturationPressurePlotCollection.h"
 
 #include "RimEllipseFractureTemplate.h"
-#include "RimStimPlanFractureTemplate.h"
-#include "RimFractureTemplateCollection.h"
 #include "RimFractureTemplate.h"
-#include "RimSimWellFracture.h"
-#include "RimWellPathFracture.h"
-#include "RimWellPathFractureCollection.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimModeledWellPath.h"
+#include "RimSimWellFracture.h"
+#include "RimStimPlanFractureTemplate.h"
 #include "RimValveTemplate.h"
 #include "RimValveTemplateCollection.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "RiuMainWindow.h"
 
-#include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 #include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
+#include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
@@ -129,20 +129,20 @@
 #include "cafSelectionManagerTools.h"
 #include "cvfAssert.h"
 
+#include <QDir>
 #include <QIcon>
 #include <QMenu>
 #include <QString>
 #include <QStringList>
-#include <QDir>
 
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 {
-    //QStringList commandIds;
+    // QStringList commandIds;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
     std::vector<caf::PdmUiItem*> uiItems;
@@ -309,7 +309,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicExportSelectedWellPathsFeature";
             menuBuilder << "RicExportVisibleWellPathsFeature";
             menuBuilder.subMenuEnd();
-            appendExportCompletions(menuBuilder);         
+            appendExportCompletions(menuBuilder);
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
@@ -342,7 +342,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder.addSeparator();
 
-            if ( dynamic_cast<RimModeledWellPath*>(uiItem) )
+            if (dynamic_cast<RimModeledWellPath*>(uiItem))
             {
                 menuBuilder << "RicShowWellPlanFeature";
             }
@@ -358,26 +358,22 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             appendExportCompletions(menuBuilder);
         }
-        else if (dynamic_cast<RimPerforationCollection*>(uiItem) ||
-                 dynamic_cast<RimPerforationInterval*>(uiItem))
+        else if (dynamic_cast<RimPerforationCollection*>(uiItem) || dynamic_cast<RimPerforationInterval*>(uiItem))
         {
             menuBuilder << "RicNewPerforationIntervalFeature";
-            if (dynamic_cast<RimPerforationInterval*>(uiItem))
-                menuBuilder << "RicNewValveFeature";
+            if (dynamic_cast<RimPerforationInterval*>(uiItem)) menuBuilder << "RicNewValveFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicEditPerforationCollectionFeature";
             menuBuilder.addSeparator();
             appendExportCompletions(menuBuilder);
         }
-        else if (dynamic_cast<RimFishbonesCollection*>(uiItem) ||
-                 dynamic_cast<RimFishbonesMultipleSubs*>(uiItem) ||
-                 dynamic_cast<RimFishboneWellPathCollection*>(uiItem))        
+        else if (dynamic_cast<RimFishbonesCollection*>(uiItem) || dynamic_cast<RimFishbonesMultipleSubs*>(uiItem) ||
+                 dynamic_cast<RimFishboneWellPathCollection*>(uiItem))
         {
             menuBuilder << "RicNewFishbonesSubsFeature";
             appendExportCompletions(menuBuilder);
         }
-        else if (dynamic_cast<RimWellPathFractureCollection*>(uiItem) ||
-                 dynamic_cast<RimWellPathFracture*>(uiItem))
+        else if (dynamic_cast<RimWellPathFractureCollection*>(uiItem) || dynamic_cast<RimWellPathFracture*>(uiItem))
         {
             menuBuilder << "RicNewWellPathFractureFeature";
             appendExportCompletions(menuBuilder);
@@ -386,10 +382,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicDeleteWellPathAttributeFeature";
         }
-        else if (dynamic_cast<Rim3dWellLogCurveCollection*>(uiItem) ||
-                 dynamic_cast<Rim3dWellLogExtractionCurve*>(uiItem) ||
-                 dynamic_cast<Rim3dWellLogFileCurve*>(uiItem) ||
-                 dynamic_cast<Rim3dWellLogRftCurve*>(uiItem))
+        else if (dynamic_cast<Rim3dWellLogCurveCollection*>(uiItem) || dynamic_cast<Rim3dWellLogExtractionCurve*>(uiItem) ||
+                 dynamic_cast<Rim3dWellLogFileCurve*>(uiItem) || dynamic_cast<Rim3dWellLogRftCurve*>(uiItem))
         {
             menuBuilder << "RicAdd3dWellLogCurveFeature";
             menuBuilder << "RicAdd3dWellLogFileCurveFeature";
@@ -404,8 +398,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder.subMenuStart("Move LAS file to well path");
 
-            RimWellPath* parentWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>();
-            QString parentWellPathName = parentWellPath ? parentWellPath->name() : "";
+            RimWellPath* parentWellPath     = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>();
+            QString      parentWellPathName = parentWellPath ? parentWellPath->name() : "";
 
             for (RimWellPath* wellPath : allWellPaths())
             {
@@ -532,7 +526,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicSwapGridCrossPlotDataSetAxesFeature";
         }
-        else if (dynamic_cast<RimSummaryPlot*>(uiItem))  // This is also the definition for RimSummaryCrossPlot
+        else if (dynamic_cast<RimSummaryPlot*>(uiItem)) // This is also the definition for RimSummaryCrossPlot
         {
             RimSummaryCrossPlot* summaryCrossPlot = dynamic_cast<RimSummaryCrossPlot*>(uiItem);
 
@@ -556,7 +550,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             // Export is not supported for cross plot
             if (!summaryCrossPlot) menuBuilder << "RicAsciiExportSummaryPlotFeature";
-            
+
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
@@ -647,7 +641,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             if (!dynamic_cast<RimObservedSummaryData*>(uiItem))
             {
                 menuBuilder << "RicShowSummaryCurveCalculatorFeature";
-                //menuBuilder << "RicNewSummaryPlotFeature";
+                // menuBuilder << "RicNewSummaryPlotFeature";
             }
         }
         else if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
@@ -703,18 +697,18 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicExportCompletionsForVisibleSimWellsFeature";
         }
-        else if(dynamic_cast<RimFormationNames*>(uiItem))
+        else if (dynamic_cast<RimFormationNames*>(uiItem))
         {
             menuBuilder << "RicImportFormationNamesFeature";
             menuBuilder << "RicReloadFormationNamesFeature";
         }
-        else if(dynamic_cast<RimFormationNamesCollection*>(uiItem))
+        else if (dynamic_cast<RimFormationNamesCollection*>(uiItem))
         {
             menuBuilder << "RicImportFormationNamesFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicReloadFormationNamesFeature";
         }
-        else if ( dynamic_cast<RimFaultInView*>(uiItem) )
+        else if (dynamic_cast<RimFaultInView*>(uiItem))
         {
             menuBuilder << "RicExportFaultsFeature";
         }
@@ -748,7 +742,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimValveTemplate*>(uiItem))
         {
-           menuBuilder << "RicDeleteValveTemplateFeature";
+            menuBuilder << "RicDeleteValveTemplateFeature";
         }
         else if (dynamic_cast<RimFractureTemplateCollection*>(uiItem))
         {
@@ -781,8 +775,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicConvertFractureTemplateUnitFeature";
         }
-        else if (dynamic_cast<RimAnnotationCollection*>(uiItem)
-                || dynamic_cast<RimAnnotationGroupCollection*>(uiItem))
+        else if (dynamic_cast<RimAnnotationCollection*>(uiItem) || dynamic_cast<RimAnnotationGroupCollection*>(uiItem))
         {
             menuBuilder << "RicCreateTextAnnotationFeature";
             menuBuilder << "RicCreateReachCircleAnnotationFeature";
@@ -817,12 +810,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicPasteSummaryCaseFeature";
         menuBuilder.addSeparator();
         menuBuilder << "RicCopyReferencesToClipboardFeature";
-        
+
         menuBuilder << "RicLinkViewFeature";
 
         menuBuilder << "RicShowPlotDataFeature";
         menuBuilder << "RicShowTotalAllocationDataFeature";
-        
+
         menuBuilder << "RicNewDerivedEnsembleFeature";
         menuBuilder << "RicNewSummaryPlotFeature";
         menuBuilder << "RicNewDefaultSummaryPlotFeature";
@@ -848,7 +841,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
         // Work in progress -- End
         appendCreateCompletions(menuBuilder, menuBuilder.itemCount() > 0u);
-        bool addedExportWellPaths   = appendExportWellPaths(menuBuilder, menuBuilder.itemCount() > 0u) > 0;
+        bool addedExportWellPaths = appendExportWellPaths(menuBuilder, menuBuilder.itemCount() > 0u) > 0;
         appendExportCompletions(menuBuilder, menuBuilder.itemCount() > 0u && !addedExportWellPaths);
 
         if (menuBuilder.itemCount() > 0u)
@@ -883,8 +876,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicAsciiExportWellLogPlotFeature";
         }
-        else if (dynamic_cast<RimWellLogCurve*>(uiItem) ||
-                 dynamic_cast<RimWellLogTrack*>(uiItem) ||
+        else if (dynamic_cast<RimWellLogCurve*>(uiItem) || dynamic_cast<RimWellLogTrack*>(uiItem) ||
                  dynamic_cast<RimWellLogPlot*>(uiItem))
         {
             menuBuilder << "RicExportToLasFileFeature";
@@ -894,7 +886,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicExportToLasFileFeature";
         }
-        else if (dynamic_cast<RimFaultInView*>(uiItem) )
+        else if (dynamic_cast<RimFaultInView*>(uiItem))
         {
             menuBuilder << "RicExportFaultsFeature";
         }
@@ -939,7 +931,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
     }
 
-    if ( caf::CmdFeatureManager::instance()->getCommandFeature("RicDeleteItemFeature")->canFeatureBeExecuted() )
+    if (caf::CmdFeatureManager::instance()->getCommandFeature("RicDeleteItemFeature")->canFeatureBeExecuted())
     {
         menuBuilder << "Separator";
         menuBuilder << "RicDeleteItemFeature";
@@ -971,7 +963,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicWellLogFileCloseFeature";
     }
 
-    if ( caf::CmdFeatureManager::instance()->getCommandFeature("RicCloseCaseFeature")->canFeatureBeExecuted() )
+    if (caf::CmdFeatureManager::instance()->getCommandFeature("RicCloseCaseFeature")->canFeatureBeExecuted())
     {
         menuBuilder << "Separator";
         menuBuilder << "RicCloseCaseFeature";
@@ -981,7 +973,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimContextCommandBuilder::allWellPaths()
 {
@@ -990,7 +982,7 @@ std::vector<RimWellPath*> RimContextCommandBuilder::allWellPaths()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimContextCommandBuilder::createExecuteScriptForCasesFeatureMenu(caf::CmdFeatureMenuBuilder& menuBuilder)
 {
@@ -1005,8 +997,8 @@ void RimContextCommandBuilder::createExecuteScriptForCasesFeatureMenu(caf::CmdFe
         {
             menuBuilder.subMenuStart("Execute script");
 
-            RiaApplication* app = RiaApplication::instance();
-            RimProject* proj = app->project();
+            RiaApplication* app  = RiaApplication::instance();
+            RimProject*     proj = app->project();
             if (proj && proj->scriptCollection())
             {
                 RimScriptCollection* rootScriptCollection = proj->scriptCollection();
@@ -1030,7 +1022,7 @@ void RimContextCommandBuilder::createExecuteScriptForCasesFeatureMenu(caf::CmdFe
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimContextCommandBuilder::appendScriptItems(caf::CmdFeatureMenuBuilder& menuBuilder, RimScriptCollection* scriptCollection)
 {
@@ -1040,16 +1032,18 @@ void RimContextCommandBuilder::appendScriptItems(caf::CmdFeatureMenuBuilder& men
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
     CVF_ASSERT(commandManager);
 
-    RicExecuteScriptForCasesFeature* executeScriptFeature = dynamic_cast<RicExecuteScriptForCasesFeature*>(commandManager->getCommandFeature("RicExecuteScriptForCasesFeature"));
+    RicExecuteScriptForCasesFeature* executeScriptFeature =
+        dynamic_cast<RicExecuteScriptForCasesFeature*>(commandManager->getCommandFeature("RicExecuteScriptForCasesFeature"));
     CVF_ASSERT(executeScriptFeature);
 
     for (size_t i = 0; i < scriptCollection->calcScripts.size(); i++)
     {
         RimCalcScript* calcScript = scriptCollection->calcScripts[i];
-        QFileInfo fi(calcScript->absoluteFileName());
+        QFileInfo      fi(calcScript->absoluteFileName());
 
         QString menuText = fi.baseName();
-        menuBuilder.addCmdFeatureWithUserData("RicExecuteScriptForCasesFeature", menuText, QVariant(calcScript->absoluteFileName()));
+        menuBuilder.addCmdFeatureWithUserData(
+            "RicExecuteScriptForCasesFeature", menuText, QVariant(calcScript->absoluteFileName()));
     }
 
     for (size_t i = 0; i < scriptCollection->subDirectories.size(); i++)
@@ -1095,7 +1089,8 @@ int RimContextCommandBuilder::appendCreateCompletions(caf::CmdFeatureMenuBuilder
     candidates << "Separator";
     candidates << "RicCreateTemporaryLgrFeature";
 
-    return appendSubMenuWithCommands(menuBuilder, candidates, "Create Completions", QIcon(":/CompletionsSymbol16x16.png"), addSeparatorBeforeMenu);
+    return appendSubMenuWithCommands(
+        menuBuilder, candidates, "Create Completions", QIcon(":/CompletionsSymbol16x16.png"), addSeparatorBeforeMenu);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1109,9 +1104,9 @@ int RimContextCommandBuilder::appendExportCompletions(caf::CmdFeatureMenuBuilder
     candidates << "RicExportFishbonesLateralsFeature";
     candidates << "RicExportCompletionsWellSegmentsFeature";
 
-    return appendSubMenuWithCommands(menuBuilder, candidates, "Export Completions", QIcon(":/ExportCompletionsSymbol16x16.png"), addSeparatorBeforeMenu);
+    return appendSubMenuWithCommands(
+        menuBuilder, candidates, "Export Completions", QIcon(":/ExportCompletionsSymbol16x16.png"), addSeparatorBeforeMenu);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1134,7 +1129,7 @@ int RimContextCommandBuilder::appendSubMenuWithCommands(caf::CmdFeatureMenuBuild
                                                         const QIcon&                menuIcon /*= QIcon()*/,
                                                         bool                        addSeparatorBeforeMenu /*=false*/)
 {
-    int actualCommandsAdded = 0;
+    int         actualCommandsAdded = 0;
     QStringList validCommands;
     for (QString candidate : commandCandidates)
     {

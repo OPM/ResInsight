@@ -36,9 +36,9 @@
 #include "RiuWidgetDragger.h"
 
 #include "RiuPlotMainWindowTools.h"
-#include "RiuQwtPlotZoomer.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
+#include "RiuQwtPlotZoomer.h"
 #include "RiuQwtScalePicker.h"
 
 #include "RimProject.h"
@@ -47,13 +47,13 @@
 #include "cafSelectionManager.h"
 #include "cafTitledOverlayFrame.h"
 
+#include "qwt_date_scale_draw.h"
+#include "qwt_date_scale_engine.h"
 #include "qwt_interval.h"
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_panner.h"
 #include "qwt_plot_zoomer.h"
-#include "qwt_date_scale_draw.h"
-#include "qwt_date_scale_engine.h"
 #include "qwt_scale_div.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
@@ -62,8 +62,6 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QWheelEvent>
-
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -101,9 +99,9 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimViewWindow* viewWindow, QWidget* parent 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::useDateBasedTimeAxis(const QString& dateFormat,
-                                             const QString& timeFormat,
-	                                         RiaQDateTimeTools::DateFormatComponents dateComponents,
+void RiuSummaryQwtPlot::useDateBasedTimeAxis(const QString&                          dateFormat,
+                                             const QString&                          timeFormat,
+                                             RiaQDateTimeTools::DateFormatComponents dateComponents,
                                              RiaQDateTimeTools::TimeFormatComponents timeComponents)
 {
     RiuQwtPlotTools::enableDateBasedBottomXAxis(this, dateFormat, timeFormat, dateComponents, timeComponents);
@@ -118,7 +116,6 @@ void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
     setAxisScaleDraw(QwtPlot::xBottom, new QwtScaleDraw());
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -129,7 +126,7 @@ void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet* c
     auto it = m_ensembleLegendWidgets.find(curveSetToShowLegendFor);
     if (it == m_ensembleLegendWidgets.end() || it->second == nullptr)
     {
-        overlayWidget = new RiuCvfOverlayItemWidget(this, canvas());
+        overlayWidget                                    = new RiuCvfOverlayItemWidget(this, canvas());
         m_ensembleLegendWidgets[curveSetToShowLegendFor] = overlayWidget;
     }
     else

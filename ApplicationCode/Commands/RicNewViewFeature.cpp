@@ -2,32 +2,32 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicNewViewFeature.h"
 
-#include "RimEclipseContourMapView.h"
+#include "Rim3dView.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
-#include "Rim3dView.h"
 
-#include "Riu3DMainWindowTools.h"
 #include "RiaLogging.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -36,7 +36,7 @@
 CAF_CMD_SOURCE_INIT(RicNewViewFeature, "RicNewViewFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewViewFeature::addReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase)
 {
@@ -49,46 +49,43 @@ void RicNewViewFeature::addReservoirView(RimEclipseCase* eclipseCase, RimGeoMech
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewViewFeature::isCommandEnabled()
 {
-    return selectedEclipseCase() != nullptr
-        || selectedEclipseView() != nullptr
-        || selectedGeoMechCase() != nullptr
-        || selectedGeoMechView() != nullptr;
+    return selectedEclipseCase() != nullptr || selectedEclipseView() != nullptr || selectedGeoMechCase() != nullptr ||
+           selectedGeoMechView() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewViewFeature::onActionTriggered(bool isChecked)
 {
     // Establish type of selected object
-    RimEclipseCase* eclipseCase = selectedEclipseCase();
-    RimGeoMechCase* geomCase = selectedGeoMechCase();
-    RimGeoMechView* geoMechView = selectedGeoMechView();
+    RimEclipseCase* eclipseCase   = selectedEclipseCase();
+    RimGeoMechCase* geomCase      = selectedGeoMechCase();
+    RimGeoMechView* geoMechView   = selectedGeoMechView();
     RimEclipseView* reservoirView = selectedEclipseView();
-    
 
     // Find case to insert into
-    if (geoMechView) geomCase = geoMechView->geoMechCase();   
+    if (geoMechView) geomCase = geoMechView->geoMechCase();
     if (reservoirView) eclipseCase = reservoirView->eclipseCase();
 
     addReservoirView(eclipseCase, geomCase);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewViewFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New View");
     actionToSetup->setIcon(QIcon(":/3DView16x16.png"));
-}    
+}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RicNewViewFeature::createReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase)
 {
@@ -120,7 +117,7 @@ Rim3dView* RicNewViewFeature::createReservoirView(RimEclipseCase* eclipseCase, R
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RicNewViewFeature::selectedEclipseCase()
 {
@@ -136,7 +133,7 @@ RimEclipseCase* RicNewViewFeature::selectedEclipseCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase* RicNewViewFeature::selectedGeoMechCase()
 {
@@ -152,7 +149,7 @@ RimGeoMechCase* RicNewViewFeature::selectedGeoMechCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicNewViewFeature::selectedEclipseView()
 {
@@ -171,7 +168,7 @@ RimEclipseView* RicNewViewFeature::selectedEclipseView()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView* RicNewViewFeature::selectedGeoMechView()
 {

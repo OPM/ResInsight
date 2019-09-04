@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,15 +22,14 @@
 #include "cvfAssert.h"
 
 #include <cstddef>
-#include <vector>
-#include <utility>
 #include <set>
+#include <utility>
+#include <vector>
 
 class QDateTime;
 
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class RiaCurveDataTools
 {
@@ -38,13 +37,11 @@ public:
     typedef std::vector<std::pair<size_t, size_t>> CurveIntervals;
 
 public:
-    static CurveIntervals calculateIntervalsOfValidValues(const std::vector<double>& values,
-                                                          bool includePositiveValuesOnly);
+    static CurveIntervals calculateIntervalsOfValidValues(const std::vector<double>& values, bool includePositiveValuesOnly);
 
-    template <typename T>
-    static void getValuesByIntervals(const std::vector<T>& values,
-                                     const CurveIntervals& intervals,
-                                     std::vector<T>* filteredValues)
+    template<typename T>
+    static void
+        getValuesByIntervals(const std::vector<T>& values, const CurveIntervals& intervals, std::vector<T>* filteredValues)
     {
         CVF_ASSERT(filteredValues);
 
@@ -62,4 +59,3 @@ public:
 public:
     static bool isValidValue(double value, bool allowPositiveValuesOnly);
 };
-

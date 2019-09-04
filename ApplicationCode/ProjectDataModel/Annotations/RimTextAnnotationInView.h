@@ -1,34 +1,34 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
+#include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
-#include "cafAppEnum.h"
-#include "cafPdmUiOrdering.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmUiOrdering.h"
 
 // Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"    
 #include "cafPdmChildField.h"
+#include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
 
 #include "cvfObject.h"
@@ -51,18 +51,18 @@ public:
     RimTextAnnotationInView(RimTextAnnotation* sourceAnnotation);
     ~RimTextAnnotationInView() override {}
 
-    bool    isActive() const;
-    void    setSourceAnnotation(RimTextAnnotation* annotation);
+    bool               isActive() const;
+    void               setSourceAnnotation(RimTextAnnotation* annotation);
     RimTextAnnotation* sourceAnnotation() const;
 
-    bool    isVisible() const;
+    bool isVisible() const;
 
 protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     caf::PdmFieldHandle* objectToggleField() override;
-    caf::PdmFieldHandle*         userDescriptionField() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    caf::PdmField<bool>                         m_isActive;
-    caf::PdmPtrField<RimTextAnnotation*>        m_sourceAnnotation;
+    caf::PdmField<bool>                  m_isActive;
+    caf::PdmPtrField<RimTextAnnotation*> m_sourceAnnotation;
 };

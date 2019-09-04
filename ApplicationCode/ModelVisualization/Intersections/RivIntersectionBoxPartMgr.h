@@ -20,7 +20,6 @@
 
 #include "RivIntersectionBoxGeometryGenerator.h"
 
-
 #include "cvfObject.h"
 
 namespace cvf

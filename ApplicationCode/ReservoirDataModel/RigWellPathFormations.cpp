@@ -23,8 +23,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellPathFormations::RigWellPathFormations(const std::vector<RigWellPathFormation>& formations, const QString& filePath,
-                                             const QString& key)
+RigWellPathFormations::RigWellPathFormations(const std::vector<RigWellPathFormation>& formations,
+                                             const QString&                           filePath,
+                                             const QString&                           key)
 {
     m_filePath  = filePath;
     m_keyInFile = key;
@@ -48,8 +49,8 @@ RigWellPathFormations::RigWellPathFormations(const std::vector<RigWellPathFormat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names,
-                                                                           std::vector<double>*  measuredDepths,
+void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>*         names,
+                                                                           std::vector<double>*          measuredDepths,
                                                                            RimWellLogPlot::DepthTypeEnum depthType) const
 {
     std::map<double, bool, DepthComp> tempMakeVectorUniqueOnMeasuredDepth;
@@ -98,9 +99,6 @@ void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth(std::
             }
         }
     }
-
-
-
 
     /*
     for (const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations)
@@ -151,8 +149,10 @@ void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth(std::
 //--------------------------------------------------------------------------------------------------
 void RigWellPathFormations::evaluateFormationsForOnePosition(
     const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
-    const FormationLevel& maxLevel, const PickPosition& position,
-    std::map<double, LevelAndName, DepthComp>* uniqueListMaker, RimWellLogPlot::DepthTypeEnum depthType) const
+    const FormationLevel&                                               maxLevel,
+    const PickPosition&                                                 position,
+    std::map<double, LevelAndName, DepthComp>*                          uniqueListMaker,
+    RimWellLogPlot::DepthTypeEnum                                       depthType) const
 {
     QString postFix;
 
@@ -191,7 +191,8 @@ void RigWellPathFormations::evaluateFormationsForOnePosition(
                 depth = formation.first.tvdBase;
             }
         }
-        else return;
+        else
+            return;
 
         if (formation.second > maxLevel) continue;
 
@@ -206,8 +207,10 @@ void RigWellPathFormations::evaluateFormationsForOnePosition(
 ///
 //--------------------------------------------------------------------------------------------------
 void RigWellPathFormations::evaluateFormations(const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
-                                               const FormationLevel& maxLevel, std::vector<QString>* names,
-                                               std::vector<double>* depths, RimWellLogPlot::DepthTypeEnum depthType) const
+                                               const FormationLevel&                                               maxLevel,
+                                               std::vector<QString>*                                               names,
+                                               std::vector<double>*                                                depths,
+                                               RimWellLogPlot::DepthTypeEnum depthType) const
 {
     std::map<double, LevelAndName, DepthComp> tempMakeVectorUniqueOnDepth;
 
@@ -224,8 +227,10 @@ void RigWellPathFormations::evaluateFormations(const std::vector<std::pair<RigWe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::evaluateFluids(const std::vector<RigWellPathFormation>& fluidFormations, std::vector<QString>* names,
-                                           std::vector<double>* depths, RimWellLogPlot::DepthTypeEnum depthType) const
+void RigWellPathFormations::evaluateFluids(const std::vector<RigWellPathFormation>& fluidFormations,
+                                           std::vector<QString>*                    names,
+                                           std::vector<double>*                     depths,
+                                           RimWellLogPlot::DepthTypeEnum            depthType) const
 {
     std::map<double, QString, DepthComp> uniqueListMaker;
 
@@ -240,7 +245,8 @@ void RigWellPathFormations::evaluateFluids(const std::vector<RigWellPathFormatio
         {
             depthBase = formation.tvdBase;
         }
-        else return;
+        else
+            return;
 
         uniqueListMaker[depthBase] = formation.formationName + " Base";
     }
@@ -256,7 +262,8 @@ void RigWellPathFormations::evaluateFluids(const std::vector<RigWellPathFormatio
         {
             depthTop = formation.tvdTop;
         }
-        else return;
+        else
+            return;
 
         uniqueListMaker[depthTop] = formation.formationName + " Top";
     }
@@ -269,10 +276,13 @@ void RigWellPathFormations::evaluateFluids(const std::vector<RigWellPathFormatio
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::depthAndFormationNamesUpToLevel(FormationLevel level, std::vector<QString>* names, std::vector<double>* depths,
-                                                            bool includeFluids, RimWellLogPlot::DepthTypeEnum depthType) const
+void RigWellPathFormations::depthAndFormationNamesUpToLevel(FormationLevel                level,
+                                                            std::vector<QString>*         names,
+                                                            std::vector<double>*          depths,
+                                                            bool                          includeFluids,
+                                                            RimWellLogPlot::DepthTypeEnum depthType) const
 {
     names->clear();
     depths->clear();
@@ -416,17 +426,28 @@ RigWellPathFormations::FormationLevel RigWellPathFormations::detectLevel(QString
 
     switch (dotCount)
     {
-        case 0: return RigWellPathFormations::LEVEL1;
-        case 1: return RigWellPathFormations::LEVEL2;
-        case 2: return RigWellPathFormations::LEVEL3;
-        case 3: return RigWellPathFormations::LEVEL4;
-        case 4: return RigWellPathFormations::LEVEL5;
-        case 5: return RigWellPathFormations::LEVEL6;
-        case 6: return RigWellPathFormations::LEVEL7;
-        case 7: return RigWellPathFormations::LEVEL8;
-        case 8: return RigWellPathFormations::LEVEL9;
-        case 9: return RigWellPathFormations::LEVEL10;
-        default: break;
+        case 0:
+            return RigWellPathFormations::LEVEL1;
+        case 1:
+            return RigWellPathFormations::LEVEL2;
+        case 2:
+            return RigWellPathFormations::LEVEL3;
+        case 3:
+            return RigWellPathFormations::LEVEL4;
+        case 4:
+            return RigWellPathFormations::LEVEL5;
+        case 5:
+            return RigWellPathFormations::LEVEL6;
+        case 6:
+            return RigWellPathFormations::LEVEL7;
+        case 7:
+            return RigWellPathFormations::LEVEL8;
+        case 8:
+            return RigWellPathFormations::LEVEL9;
+        case 9:
+            return RigWellPathFormations::LEVEL10;
+        default:
+            break;
     }
     return RigWellPathFormations::UNKNOWN;
 }

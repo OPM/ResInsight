@@ -21,12 +21,12 @@
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
-#include "RiaPreferences.h"
 #include "RiaFontCache.h"
+#include "RiaPreferences.h"
 #include "RigStatisticsCalculator.h"
 
-#include "RimRiuQwtPlotOwnerInterface.h"
 #include "RimPlotAxisAnnotation.h"
+#include "RimRiuQwtPlotOwnerInterface.h"
 
 #include "cafPdmUiSliderEditor.h"
 
@@ -122,7 +122,7 @@ caf::PdmFieldHandle* RimPlotAxisProperties::userDescriptionField()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimPlotAxisProperties::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                              bool*                      useOptionsOnly)
+                                                                           bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
@@ -345,7 +345,7 @@ bool RimPlotAxisProperties::isAxisInverted() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotAxisAnnotation*> RimPlotAxisProperties::annotations() const
 {
@@ -353,7 +353,7 @@ std::vector<RimPlotAxisAnnotation*> RimPlotAxisProperties::annotations() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::appendAnnotation(RimPlotAxisAnnotation* annotation)
 {
@@ -377,7 +377,7 @@ bool RimPlotAxisProperties::isActive() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::setInvertedAxis(bool enable)
 {
@@ -385,7 +385,7 @@ void RimPlotAxisProperties::setInvertedAxis(bool enable)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::showAnnotationObjectsInProjectTree()
 {
@@ -395,8 +395,9 @@ void RimPlotAxisProperties::showAnnotationObjectsInProjectTree()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
-                                                const QVariant& newValue)
+void RimPlotAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                             const QVariant&            oldValue,
+                                             const QVariant&            newValue)
 {
     if (changedField == &isAutoTitle)
     {
@@ -457,7 +458,7 @@ caf::PdmFieldHandle* RimPlotAxisProperties::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotAxisLogRangeCalculator::RimPlotAxisLogRangeCalculator(QwtPlot::Axis                     axis,
+RimPlotAxisLogRangeCalculator::RimPlotAxisLogRangeCalculator(QwtPlot::Axis                           axis,
                                                              const std::vector<const QwtPlotCurve*>& qwtCurves)
     : m_axis(axis)
     , m_curves(qwtCurves)
@@ -469,13 +470,13 @@ RimPlotAxisLogRangeCalculator::RimPlotAxisLogRangeCalculator(QwtPlot::Axis      
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisLogRangeCalculator::computeAxisRange(double* minPositive, double* max) const
 {
-    double minPosValue    = HUGE_VAL;
-    double maxValue       = -HUGE_VAL;
+    double minPosValue = HUGE_VAL;
+    double maxValue    = -HUGE_VAL;
 
     for (const QwtPlotCurve* curve : m_curves)
     {
-        double minPosCurveValue    = HUGE_VAL;
-        double maxCurveValue       = -HUGE_VAL;
+        double minPosCurveValue = HUGE_VAL;
+        double maxCurveValue    = -HUGE_VAL;
 
         if (curveValueRange(curve, &minPosCurveValue, &maxCurveValue))
         {
@@ -497,7 +498,7 @@ void RimPlotAxisLogRangeCalculator::computeAxisRange(double* minPositive, double
         minPosValue = RiaDefines::minimumDefaultLogValuePlot();
         maxValue    = RiaDefines::maximumDefaultValuePlot();
     }
-  
+
     *minPositive = minPosValue;
     *max         = maxValue;
 }
@@ -525,9 +526,9 @@ bool RimPlotAxisLogRangeCalculator::curveValueRange(const QwtPlotCurve* qwtCurve
 
     for (size_t i = 0; i < qwtCurve->dataSize(); ++i)
     {
-        QPointF sample = qwtCurve->sample((int) i);
+        QPointF    sample = qwtCurve->sample((int)i);
         cvf::Vec2f vec(sample.x(), sample.y());
-        float value = vec[axisValueIndex];
+        float      value = vec[axisValueIndex];
         if (value == HUGE_VALF) continue;
 
         maxF = std::max(maxF, value);
@@ -538,7 +539,7 @@ bool RimPlotAxisLogRangeCalculator::curveValueRange(const QwtPlotCurve* qwtCurve
     }
 
     *minPositive = minPosF;
-    *max = maxF;
+    *max         = maxF;
 
     return true;
 }

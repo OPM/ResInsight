@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot(bool showAfterCreation, const QString& plotDescription)
 {
@@ -44,7 +44,7 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot(bool showAfterCr
 
     RimWellLogPlot* plot = new RimWellLogPlot();
     plot->setAsPlotMdiWindow();
-    
+
     wellLogPlotColl->wellLogPlots().push_back(plot);
 
     if (!plotDescription.isEmpty())
@@ -65,9 +65,11 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot(bool showAfterCr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(bool updateAfter, const QString& trackDescription, RimWellLogPlot* existingPlot)
+RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(bool            updateAfter,
+                                                                      const QString&  trackDescription,
+                                                                      RimWellLogPlot* existingPlot)
 {
     RimWellLogPlot* plot = existingPlot;
     if (plot == nullptr)
@@ -107,7 +109,7 @@ void RicNewWellLogPlotFeatureImpl::updateAfterCreation(RimWellLogPlot* plot)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection* RicNewWellLogPlotFeatureImpl::wellLogPlotCollection()
 {

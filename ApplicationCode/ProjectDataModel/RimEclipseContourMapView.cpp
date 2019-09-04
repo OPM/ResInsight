@@ -1,39 +1,39 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimEclipseContourMapView.h"
 
-#include "RivContourMapProjectionPartMgr.h"
 #include "RiuViewer.h"
+#include "RivContourMapProjectionPartMgr.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimViewNameConfig.h"
-#include "RimEclipseContourMapProjection.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseContourMapProjection.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGridCollection.h"
-#include "RimSimWellInViewCollection.h"
 #include "RimScaleLegendConfig.h"
+#include "RimSimWellInViewCollection.h"
+#include "RimViewNameConfig.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
@@ -45,11 +45,7 @@
 
 CAF_PDM_SOURCE_INIT(RimEclipseContourMapView, "RimContourMapView");
 
-const cvf::Mat4d RimEclipseContourMapView::sm_defaultViewMatrix = cvf::Mat4d(1, 0, 0, 0,
-                                                                             0, 1, 0, 0,
-                                                                             0, 0, 1, 1000,
-                                                                             0, 0, 0, 1);
-
+const cvf::Mat4d RimEclipseContourMapView::sm_defaultViewMatrix = cvf::Mat4d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1000, 0, 0, 0, 1);
 
 RimEclipseContourMapView::RimEclipseContourMapView()
     : m_cameraPositionLastUpdate(cvf::Vec3d::UNDEFINED)
@@ -59,7 +55,7 @@ RimEclipseContourMapView::RimEclipseContourMapView()
     CAF_PDM_InitFieldNoDefault(&m_contourMapProjection, "ContourMapProjection", "Contour Map Projection", "", "", "");
     m_contourMapProjection = new RimEclipseContourMapProjection();
 
-    CAF_PDM_InitField(&m_showAxisLines,   "ShowAxisLines", true, "Show Axis Lines", "", "", "");
+    CAF_PDM_InitField(&m_showAxisLines, "ShowAxisLines", true, "Show Axis Lines", "", "", "");
     CAF_PDM_InitField(&m_showScaleLegend, "ShowScaleLegend", true, "Show Scale Legend", "", "", "");
 
     setFaultVisParameters();
@@ -177,7 +173,7 @@ void RimEclipseContourMapView::initAfterRead()
 void RimEclipseContourMapView::createDisplayModel()
 {
     RimEclipseView::createDisplayModel();
-    
+
     if (!this->isTimeStepDependentDataVisible())
     {
         // Need to add geometry even if it hasn't happened during dynamic time step update.
@@ -274,8 +270,8 @@ void RimEclipseContourMapView::updateGeometry()
 void RimEclipseContourMapView::setFaultVisParameters()
 {
     faultCollection()->setShowFaultsOutsideFilter(false);
-    faultCollection()->showOppositeFaultFaces = true;
-    faultCollection()->faultResult            = RimFaultInViewCollection::FAULT_NO_FACE_CULLING;
+    faultCollection()->showOppositeFaultFaces    = true;
+    faultCollection()->faultResult               = RimFaultInViewCollection::FAULT_NO_FACE_CULLING;
     faultResultSettings()->showCustomFaultResult = true;
     faultResultSettings()->customFaultResult()->setResultVariable("None");
 }
@@ -334,7 +330,8 @@ void RimEclipseContourMapView::appendContourLinesToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendContourLinesToModel(viewer()->mainCamera(), contourMapLabelModelBasicList.p(), transForm.p());
+            m_contourMapProjectionPartMgr->appendContourLinesToModel(
+                viewer()->mainCamera(), contourMapLabelModelBasicList.p(), transForm.p());
             contourMapLabelModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel(contourMapLabelModelBasicList.p());
         }
@@ -431,7 +428,9 @@ void RimEclipseContourMapView::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEclipseContourMapView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                const QVariant&            oldValue,
+                                                const QVariant&            newValue)
 {
     RimEclipseView::fieldChangedByUi(changedField, oldValue, newValue);
 
@@ -506,7 +505,7 @@ void RimEclipseContourMapView::onViewNavigationChanged()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseContourMapView::zoomChangeAboveTreshold(const cvf::Vec3d& currentCameraPosition) const
 {
-    double distance = std::max(std::fabs(m_cameraPositionLastUpdate.z()), std::fabs(currentCameraPosition.z()));
+    double       distance  = std::max(std::fabs(m_cameraPositionLastUpdate.z()), std::fabs(currentCameraPosition.z()));
     const double threshold = 0.05 * distance;
     return std::fabs(m_cameraPositionLastUpdate.z() - currentCameraPosition.z()) > threshold;
 }

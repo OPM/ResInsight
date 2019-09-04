@@ -34,11 +34,12 @@ class RicNewValveTemplateFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void selectValveTemplateAndUpdate(RimValveTemplate*           valveTemplate);
+    static void selectValveTemplateAndUpdate(RimValveTemplate* valveTemplate);
     static void createNewValveTemplateForValveAndUpdate(RimWellPathValve* valve);
+
 protected:
     static RimValveTemplate* createNewValveTemplate();
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
-    bool isCommandEnabled() override;
+    void                     onActionTriggered(bool isChecked) override;
+    void                     setupActionLook(QAction* actionToSetup) override;
+    bool                     isCommandEnabled() override;
 };

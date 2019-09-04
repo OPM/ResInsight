@@ -2,28 +2,28 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "Riu3dSelectionManager.h"
 
-#include "RimGridView.h"
+#include "Rim2dIntersectionView.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
+#include "RimGridView.h"
 #include "RimSimWellInView.h"
-#include "Rim2dIntersectionView.h"
 #include "RimWellPath.h"
 
 #include "RivSimWellPipeSourceInfo.h"
@@ -31,9 +31,8 @@
 
 #include "RiuSelectionChangedHandler.h"
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Riu3dSelectionManager::Riu3dSelectionManager()
     : m_notificationCenter(new RiuSelectionChangedHandler)
@@ -42,7 +41,7 @@ Riu3dSelectionManager::Riu3dSelectionManager()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Riu3dSelectionManager::~Riu3dSelectionManager()
 {
@@ -53,7 +52,7 @@ Riu3dSelectionManager::~Riu3dSelectionManager()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Riu3dSelectionManager* Riu3dSelectionManager::instance()
 {
@@ -62,7 +61,7 @@ Riu3dSelectionManager* Riu3dSelectionManager::instance()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Riu3dSelectionManager::selectedItems(std::vector<RiuSelectionItem*>& items, int role) const
 {
@@ -71,9 +70,8 @@ void Riu3dSelectionManager::selectedItems(std::vector<RiuSelectionItem*>& items,
     items = s;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuSelectionItem* Riu3dSelectionManager::selectedItem(int role /*= RUI_APPLICATION_GLOBAL*/) const
 {
@@ -91,7 +89,7 @@ RiuSelectionItem* Riu3dSelectionManager::selectedItem(int role /*= RUI_APPLICATI
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Riu3dSelectionManager::appendItemToSelection(RiuSelectionItem* item, int role)
 {
@@ -103,7 +101,7 @@ void Riu3dSelectionManager::appendItemToSelection(RiuSelectionItem* item, int ro
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Riu3dSelectionManager::setSelectedItem(RiuSelectionItem* item, int role)
 {
@@ -117,7 +115,7 @@ void Riu3dSelectionManager::setSelectedItem(RiuSelectionItem* item, int role)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Riu3dSelectionManager::deleteAllItems(int role)
 {
@@ -130,7 +128,7 @@ void Riu3dSelectionManager::deleteAllItems(int role)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool Riu3dSelectionManager::isEmpty(int role) const
 {
@@ -140,7 +138,7 @@ bool Riu3dSelectionManager::isEmpty(int role) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void Riu3dSelectionManager::deleteAllItemsFromSelection(int role)
 {
@@ -155,27 +153,27 @@ void Riu3dSelectionManager::deleteAllItemsFromSelection(int role)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuEclipseSelectionItem::RiuEclipseSelectionItem(RimEclipseView* view,
-                                                 size_t gridIndex,
-                                                 size_t cellIndex,
-                                                 size_t nncIndex,
-                                                 cvf::Color3f color,
+RiuEclipseSelectionItem::RiuEclipseSelectionItem(RimEclipseView*                    view,
+                                                 size_t                             gridIndex,
+                                                 size_t                             cellIndex,
+                                                 size_t                             nncIndex,
+                                                 cvf::Color3f                       color,
                                                  cvf::StructGridInterface::FaceType face,
-                                                 const cvf::Vec3d& localIntersectionPointInDisplay)
-    :   m_view(view),
-        m_gridIndex(gridIndex),
-        m_gridLocalCellIndex(cellIndex),
-        m_nncIndex(nncIndex),
-        m_color(color),
-        m_face(face),
-        m_localIntersectionPointInDisplay(localIntersectionPointInDisplay)
+                                                 const cvf::Vec3d&                  localIntersectionPointInDisplay)
+    : m_view(view)
+    , m_gridIndex(gridIndex)
+    , m_gridLocalCellIndex(cellIndex)
+    , m_nncIndex(nncIndex)
+    , m_color(color)
+    , m_face(face)
+    , m_localIntersectionPointInDisplay(localIntersectionPointInDisplay)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView*   view,
                                                  size_t            gridIndex,
@@ -215,17 +213,17 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView*                
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Riu2dIntersectionSelectionItem::Riu2dIntersectionSelectionItem(Rim2dIntersectionView* view, RiuSelectionItem *selItem)
+Riu2dIntersectionSelectionItem::Riu2dIntersectionSelectionItem(Rim2dIntersectionView* view, RiuSelectionItem* selItem)
 {
-    m_view = view;
+    m_view           = view;
     m_eclipseSelItem = dynamic_cast<RiuEclipseSelectionItem*>(selItem);
     m_geoMechSelItem = dynamic_cast<RiuGeoMechSelectionItem*>(selItem);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Riu2dIntersectionSelectionItem::~Riu2dIntersectionSelectionItem()
 {
@@ -234,7 +232,7 @@ Riu2dIntersectionSelectionItem::~Riu2dIntersectionSelectionItem()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmPointer<Rim2dIntersectionView> Riu2dIntersectionSelectionItem::view() const
 {
@@ -242,7 +240,7 @@ caf::PdmPointer<Rim2dIntersectionView> Riu2dIntersectionSelectionItem::view() co
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuEclipseSelectionItem* Riu2dIntersectionSelectionItem::eclipseSelectionItem() const
 {
@@ -250,7 +248,7 @@ RiuEclipseSelectionItem* Riu2dIntersectionSelectionItem::eclipseSelectionItem() 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuGeoMechSelectionItem* Riu2dIntersectionSelectionItem::geoMechSelectionItem() const
 {
@@ -258,11 +256,11 @@ RiuGeoMechSelectionItem* Riu2dIntersectionSelectionItem::geoMechSelectionItem() 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuWellPathSelectionItem::RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
-                                                   const cvf::Vec3d& pipeCenterLineIntersectionInDomainCoords,
-                                                   double measuredDepth,
+RiuWellPathSelectionItem::RiuWellPathSelectionItem(const RivWellPathSourceInfo*   wellPathSourceInfo,
+                                                   const cvf::Vec3d&              pipeCenterLineIntersectionInDomainCoords,
+                                                   double                         measuredDepth,
                                                    RimWellPathComponentInterface* component /*=nullptr*/)
     : m_pipeCenterlineIntersectionInDomainCoords(pipeCenterLineIntersectionInDomainCoords)
     , m_measuredDepth(measuredDepth)
@@ -272,19 +270,17 @@ RiuWellPathSelectionItem::RiuWellPathSelectionItem(const RivWellPathSourceInfo* 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuSimWellSelectionItem::RiuSimWellSelectionItem(RimSimWellInView* simwell, 
-                                                  cvf::Vec3d m_domainCoord,
-                                                  size_t m_branchIndex)
-    : m_simWell(simwell),
-    m_domainCoord(m_domainCoord),
-    m_branchIndex(m_branchIndex)
+RiuSimWellSelectionItem::RiuSimWellSelectionItem(RimSimWellInView* simwell, cvf::Vec3d m_domainCoord, size_t m_branchIndex)
+    : m_simWell(simwell)
+    , m_domainCoord(m_domainCoord)
+    , m_branchIndex(m_branchIndex)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuGeneralSelectionItem::RiuGeneralSelectionItem(caf::PdmObject* object)
     : m_object(object)

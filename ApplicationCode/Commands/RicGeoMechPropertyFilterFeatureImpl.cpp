@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,8 +24,8 @@
 
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
-#include "RimGeoMechView.h"
 #include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -34,7 +34,7 @@
 #include "cvfAssert.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGeoMechPropertyFilter*> RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilters()
 {
@@ -45,7 +45,7 @@ std::vector<RimGeoMechPropertyFilter*> RicGeoMechPropertyFilterFeatureImpl::sele
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGeoMechPropertyFilterCollection*> RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilterCollections()
 {
@@ -56,7 +56,7 @@ std::vector<RimGeoMechPropertyFilterCollection*> RicGeoMechPropertyFilterFeature
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGeoMechPropertyFilterFeatureImpl::addPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
 {
@@ -69,13 +69,13 @@ void RicGeoMechPropertyFilterFeatureImpl::addPropertyFilter(RimGeoMechPropertyFi
 
     propertyFilterCollection->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem(propertyFilter);
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection, size_t index)
+void RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection,
+                                                               size_t                              index)
 {
     RimGeoMechPropertyFilter* propertyFilter = createPropertyFilter(propertyFilterCollection);
     CVF_ASSERT(propertyFilter);
@@ -86,11 +86,10 @@ void RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter(RimGeoMechPropert
 
     propertyFilterCollection->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem(propertyFilter);
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicGeoMechPropertyFilterFeatureImpl::isPropertyFilterCommandAvailable(caf::PdmObjectHandle* object)
 {
@@ -99,9 +98,10 @@ bool RicGeoMechPropertyFilterFeatureImpl::isPropertyFilterCommandAvailable(caf::
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechPropertyFilter* RicGeoMechPropertyFilterFeatureImpl::createPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
+RimGeoMechPropertyFilter*
+    RicGeoMechPropertyFilterFeatureImpl::createPropertyFilter(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
 {
     CVF_ASSERT(propertyFilterCollection);
 
@@ -114,7 +114,7 @@ RimGeoMechPropertyFilter* RicGeoMechPropertyFilterFeatureImpl::createPropertyFil
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGeoMechPropertyFilterFeatureImpl::setDefaults(RimGeoMechPropertyFilter* propertyFilter)
 {

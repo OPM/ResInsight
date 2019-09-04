@@ -41,14 +41,13 @@ public:
     RimFractureTemplate* fractureTemplate() const;
     double               minimumSpacing() const;
 
-    bool                isKLayerContained(int oneBasedK) const;
+    bool isKLayerContained(int oneBasedK) const;
 
 private:
-    void
-        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                bool*                      useOptionsOnly) override;
+                                                        bool*                      useOptionsOnly) override;
 
 private:
     caf::PdmField<int>                     m_topKOneBased; // Eclipse uses 1-based indexing

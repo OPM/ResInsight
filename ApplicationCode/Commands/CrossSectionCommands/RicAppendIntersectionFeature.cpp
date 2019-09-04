@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@
 CAF_CMD_SOURCE_INIT(RicAppendIntersectionFeature, "RicAppendIntersectionFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicAppendIntersectionFeature::isCommandEnabled()
 {
@@ -43,7 +43,7 @@ bool RicAppendIntersectionFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAppendIntersectionFeature::onActionTriggered(bool isChecked)
 {
@@ -61,7 +61,7 @@ void RicAppendIntersectionFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAppendIntersectionFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -70,23 +70,21 @@ void RicAppendIntersectionFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection)
-    : CmdExecuteCommand(nullptr),
-    m_intersectionCollection(intersectionCollection)
+    : CmdExecuteCommand(nullptr)
+    , m_intersectionCollection(intersectionCollection)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicAppendIntersectionFeatureCmd::~RicAppendIntersectionFeatureCmd()
-{
-}
+RicAppendIntersectionFeatureCmd::~RicAppendIntersectionFeatureCmd() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicAppendIntersectionFeatureCmd::name()
 {
@@ -94,21 +92,21 @@ QString RicAppendIntersectionFeatureCmd::name()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAppendIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT(m_intersectionCollection);
 
     RimIntersection* intersection = new RimIntersection();
-    intersection->name = QString("Intersection");
+    intersection->name            = QString("Intersection");
     m_intersectionCollection->appendIntersectionAndUpdate(intersection);
 
     RimGridView* view = nullptr;
     m_intersectionCollection->firstAncestorOrThisOfTypeAsserted(view);
 
     RimGeoMechView* geoMechView = nullptr;
-    geoMechView = dynamic_cast<RimGeoMechView*>(view);
+    geoMechView                 = dynamic_cast<RimGeoMechView*>(view);
     if (geoMechView)
     {
         geoMechView->tensorResults()->setShowTensors(false);
@@ -116,8 +114,6 @@ void RicAppendIntersectionFeatureCmd::redo()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeatureCmd::undo()
-{
-}
+void RicAppendIntersectionFeatureCmd::undo() {}

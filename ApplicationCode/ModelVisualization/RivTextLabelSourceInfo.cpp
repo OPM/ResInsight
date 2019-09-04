@@ -30,7 +30,7 @@ RivTextLabelSourceInfo::RivTextLabelSourceInfo(caf::PdmObject* pdmObject, const 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::String RivTextLabelSourceInfo::text() const
 {
@@ -38,7 +38,7 @@ cvf::String RivTextLabelSourceInfo::text() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3f RivTextLabelSourceInfo::textPositionDisplayCoord() const
 {

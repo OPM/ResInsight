@@ -21,8 +21,8 @@
 #include "RigWellPath.h"
 
 #include "RimProject.h"
-#include "RimWellPathAttributeCollection.h"
 #include "RimWellPath.h"
+#include "RimWellPathAttributeCollection.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -41,7 +41,7 @@ RimWellPathAttribute::RimWellPathAttribute()
     CAF_PDM_InitObject("RimWellPathAttribute", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_type, "CompletionType", "Type    ", "", "", "");
     CAF_PDM_InitField(&m_startMD, "DepthStart", -1.0, "Start MD", "", "", "");
-    CAF_PDM_InitField(&m_endMD,   "DepthEnd",   -1.0, "End MD",   "", "", "");
+    CAF_PDM_InitField(&m_endMD, "DepthEnd", -1.0, "End MD", "", "", "");
     CAF_PDM_InitField(&m_diameterInInches, "DiameterInInches", MAX_DIAMETER_IN_INCHES, "Diameter", "", "", "");
     m_type = RiaDefines::CASING;
     m_diameterInInches.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
@@ -50,10 +50,7 @@ RimWellPathAttribute::RimWellPathAttribute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathAttribute::~RimWellPathAttribute()
-{
-
-}
+RimWellPathAttribute::~RimWellPathAttribute() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +64,7 @@ double RimWellPathAttribute::diameterInInches() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathAttribute::diameterLabel() const
 {
-    return generateInchesLabel(m_diameterInInches());    
+    return generateInchesLabel(m_diameterInInches());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,7 +85,7 @@ bool RimWellPathAttribute::operator<(const RimWellPathAttribute& rhs) const
 void RimWellPathAttribute::setDepthsFromWellPath(const RimWellPath* wellPath)
 {
     m_startMD = wellPath->wellPathGeometry()->measureDepths().front();
-    m_endMD = wellPath->wellPathGeometry()->measureDepths().back();
+    m_endMD   = wellPath->wellPathGeometry()->measureDepths().back();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,12 +162,13 @@ bool RimWellPathAttribute::isDiameterSupported() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                          bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
     if (fieldNeedingOptions == &m_type)
     {
-        std::set<RiaDefines::WellPathComponentType> supportedTypes = { RiaDefines::CASING, RiaDefines::LINER, RiaDefines::PACKER };
+        std::set<RiaDefines::WellPathComponentType> supportedTypes = {RiaDefines::CASING, RiaDefines::LINER, RiaDefines::PACKER};
         for (RiaDefines::WellPathComponentType type : supportedTypes)
         {
             options.push_back(caf::PdmOptionItemInfo(CompletionTypeEnum::uiText(type), type));
@@ -180,7 +178,17 @@ QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions(const 
     {
         if (isDiameterSupported())
         {
-            std::vector<double> values = { MAX_DIAMETER_IN_INCHES, 22.0, 20.0, 18.0 + 5.0 / 8.0, 16.0, 14.0, 13.0 + 3.0 / 8.0, 10.0 + 3.0 / 4.0, 9.0 + 7.0 / 8.0, 9.0 + 5.0 / 8.0, MIN_DIAMETER_IN_INCHES };
+            std::vector<double> values = {MAX_DIAMETER_IN_INCHES,
+                                          22.0,
+                                          20.0,
+                                          18.0 + 5.0 / 8.0,
+                                          16.0,
+                                          14.0,
+                                          13.0 + 3.0 / 8.0,
+                                          10.0 + 3.0 / 4.0,
+                                          9.0 + 7.0 / 8.0,
+                                          9.0 + 5.0 / 8.0,
+                                          MIN_DIAMETER_IN_INCHES};
 
             for (double value : values)
             {
@@ -201,7 +209,7 @@ QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions(const 
 QString RimWellPathAttribute::generateInchesLabel(double diameter)
 {
     double integerPart = 0.0;
-    double fraction = modf(diameter, &integerPart);
+    double fraction    = modf(diameter, &integerPart);
 
     int numerator = static_cast<int>(std::round(8.0 * fraction));
 
@@ -256,9 +264,9 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttribute::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{ 
+{
     bool startDepthAvailable = m_type() != RiaDefines::CASING;
 
-    m_startMD.uiCapability()->setUiReadOnly(!startDepthAvailable);    
-    m_diameterInInches.uiCapability()->setUiReadOnly(!isDiameterSupported());    
+    m_startMD.uiCapability()->setUiReadOnly(!startDepthAvailable);
+    m_diameterInInches.uiCapability()->setUiReadOnly(!isDiameterSupported());
 }

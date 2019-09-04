@@ -62,15 +62,14 @@ private:
     void clearTitleSubStrings();
     void extractPlotTitleSubStrings();
 
-    std::set<RimSummaryCase*> setOfSummaryCases() const;
+    std::set<RimSummaryCase*>           setOfSummaryCases() const;
     std::set<RimSummaryCaseCollection*> setOfEnsembleCases() const;
-
 
 private:
     RiaSummaryCurveAnalyzer m_analyzer;
 
-    std::vector<caf::PdmPointer<RimSummaryCase>>            m_summaryCases;
-    std::vector<caf::PdmPointer<RimSummaryCaseCollection>>   m_ensembleCases;
+    std::vector<caf::PdmPointer<RimSummaryCase>>           m_summaryCases;
+    std::vector<caf::PdmPointer<RimSummaryCaseCollection>> m_ensembleCases;
 
     std::string m_titleQuantity;
     std::string m_titleWellName;

@@ -1,42 +1,42 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicNewWellBoreStabilityPlotFeature.h"
 
-#include "RicNewWellLogPlotFeatureImpl.h"
-#include "RicNewWellLogFileCurveFeature.h"
 #include "RicNewWellLogCurveExtractionFeature.h"
+#include "RicNewWellLogFileCurveFeature.h"
+#include "RicNewWellLogPlotFeatureImpl.h"
 #include "RicWellLogTools.h"
 
-#include "RigFemResultAddress.h"
 #include "RigFemPartResultsCollection.h"
+#include "RigFemResultAddress.h"
 #include "RigGeoMechCaseData.h"
 #include "RigWellPath.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
+#include "RimWellLogExtractionCurve.h"
+#include "RimWellLogFile.h"
+#include "RimWellLogFileChannel.h"
+#include "RimWellLogFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
-#include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFile.h"
-#include "RimWellLogFileCurve.h"
-#include "RimWellLogFileChannel.h"
 #include "RimWellPath.h"
 
 #include "RicWellLogTools.h"
@@ -44,10 +44,10 @@
 
 #include "RiaApplication.h"
 
-#include "cvfAssert.h"
-#include "cvfMath.h"
 #include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
+#include "cvfAssert.h"
+#include "cvfMath.h"
 
 #include <QAction>
 #include <QDateTime>
@@ -58,18 +58,18 @@
 CAF_CMD_SOURCE_INIT(RicNewWellBoreStabilityPlotFeature, "RicNewWellBoreStabilityPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellBoreStabilityPlotFeature::isCommandEnabled()
-{    
+{
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (!view) return false;
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
-    return geoMechView != nullptr;    
+    return geoMechView != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellBoreStabilityPlotFeature::onActionTriggered(bool isChecked)
 {
@@ -110,7 +110,7 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered(bool isChecked)
         auto task = progInfo.task("Creating formation track", 2);
         createFormationTrack(plot, wellPath, geoMechCase);
     }
-    
+
     {
         auto task = progInfo.task("Creating well design track", 3);
         createCasingShoeTrack(plot, wellPath, geoMechCase);
@@ -146,7 +146,7 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellBoreStabilityPlotFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -157,7 +157,9 @@ void RicNewWellBoreStabilityPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellBoreStabilityPlotFeature::createFormationTrack(RimWellLogPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase)
+void RicNewWellBoreStabilityPlotFeature::createFormationTrack(RimWellLogPlot* plot,
+                                                              RimWellPath*    wellPath,
+                                                              RimGeoMechCase* geoMechCase)
 {
     RimWellLogTrack* formationTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(false, "Formations", plot);
     formationTrack->setFormationWellPath(wellPath);
@@ -170,7 +172,9 @@ void RicNewWellBoreStabilityPlotFeature::createFormationTrack(RimWellLogPlot* pl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack(RimWellLogPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase)
+void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack(RimWellLogPlot* plot,
+                                                               RimWellPath*    wellPath,
+                                                               RimGeoMechCase* geoMechCase)
 {
     RimWellLogTrack* casingShoeTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(false, "Well Design", plot);
     casingShoeTrack->setWidthScaleFactor(RimWellLogTrack::NARROW_TRACK);
@@ -182,13 +186,15 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack(RimWellLogPlot* p
     casingShoeTrack->setWellPathAttributesSource(wellPath);
     casingShoeTrack->setVisibleXRange(0.0, 0.0);
     casingShoeTrack->setAutoScaleXEnabled(true);
-    casingShoeTrack->loadDataAndUpdate();    
+    casingShoeTrack->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack(RimWellLogPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechView)
+void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack(RimWellLogPlot* plot,
+                                                                    RimWellPath*    wellPath,
+                                                                    RimGeoMechView* geoMechView)
 {
     RimWellLogTrack* stabilityCurvesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(false, "Stability Curves", plot);
     stabilityCurvesTrack->setWidthScaleFactor(RimWellLogTrack::EXTRA_WIDE_TRACK);
@@ -202,14 +208,20 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack(RimWellLogPl
 
     std::vector<QString> resultNames = RiaDefines::wellPathStabilityResultNames();
 
-    std::vector<cvf::Color3f> colors = { cvf::Color3f::RED, cvf::Color3f::PURPLE, cvf::Color3f::GREEN, cvf::Color3f::BLUE, cvf::Color3f::ORANGE };
-    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = { RiuQwtPlotCurve::STYLE_SOLID, RiuQwtPlotCurve::STYLE_DASH, RiuQwtPlotCurve::STYLE_DASH_DOT, RiuQwtPlotCurve::STYLE_SOLID, RiuQwtPlotCurve::STYLE_DASH};
-    
+    std::vector<cvf::Color3f> colors = {
+        cvf::Color3f::RED, cvf::Color3f::PURPLE, cvf::Color3f::GREEN, cvf::Color3f::BLUE, cvf::Color3f::ORANGE};
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = {RiuQwtPlotCurve::STYLE_SOLID,
+                                                              RiuQwtPlotCurve::STYLE_DASH,
+                                                              RiuQwtPlotCurve::STYLE_DASH_DOT,
+                                                              RiuQwtPlotCurve::STYLE_SOLID,
+                                                              RiuQwtPlotCurve::STYLE_DASH};
+
     for (size_t i = 0; i < resultNames.size(); ++i)
     {
-        const QString& resultName = resultNames[i];
-        RigFemResultAddress resAddr(RIG_WELLPATH_DERIVED, resultName.toStdString(), "");
-        RimWellLogExtractionCurve* curve = RicWellLogTools::addExtractionCurve(stabilityCurvesTrack, geoMechView, wellPath, nullptr, 0, false, false);
+        const QString&             resultName = resultNames[i];
+        RigFemResultAddress        resAddr(RIG_WELLPATH_DERIVED, resultName.toStdString(), "");
+        RimWellLogExtractionCurve* curve =
+            RicWellLogTools::addExtractionCurve(stabilityCurvesTrack, geoMechView, wellPath, nullptr, 0, false, false);
         curve->setGeoMechResultAddress(resAddr);
         curve->setCurrentTimeStep(geoMechView->currentTimeStep());
         curve->setCustomName(resultName);
@@ -224,22 +236,25 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack(RimWellLogPl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellBoreStabilityPlotFeature::createAnglesTrack(RimWellLogPlot* plot, RimWellPath* wellPath, RimGeoMechView* geoMechView)
+void RicNewWellBoreStabilityPlotFeature::createAnglesTrack(RimWellLogPlot* plot,
+                                                           RimWellPath*    wellPath,
+                                                           RimGeoMechView* geoMechView)
 {
     RimWellLogTrack* wellPathAnglesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(false, "Well Path Angles", plot);
-    double minValue = 360.0, maxValue = 0.0;
-    const double angleIncrement = 90.0;
+    double           minValue = 360.0, maxValue = 0.0;
+    const double     angleIncrement  = 90.0;
     std::vector<QString> resultNames = RiaDefines::wellPathAngleResultNames();
-    
-    std::vector<cvf::Color3f> colors = { cvf::Color3f::DARK_RED, cvf::Color3f::BLUE };
 
-    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = { RiuQwtPlotCurve::STYLE_SOLID, RiuQwtPlotCurve::STYLE_DASH };
+    std::vector<cvf::Color3f> colors = {cvf::Color3f::DARK_RED, cvf::Color3f::BLUE};
+
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = {RiuQwtPlotCurve::STYLE_SOLID, RiuQwtPlotCurve::STYLE_DASH};
 
     for (size_t i = 0; i < resultNames.size(); ++i)
     {
-        const QString& resultName = resultNames[i];
-        RigFemResultAddress resAddr(RIG_WELLPATH_DERIVED, resultName.toStdString(), "");
-        RimWellLogExtractionCurve* curve = RicWellLogTools::addExtractionCurve(wellPathAnglesTrack, geoMechView, wellPath, nullptr, 0, false, false);
+        const QString&             resultName = resultNames[i];
+        RigFemResultAddress        resAddr(RIG_WELLPATH_DERIVED, resultName.toStdString(), "");
+        RimWellLogExtractionCurve* curve =
+            RicWellLogTools::addExtractionCurve(wellPathAnglesTrack, geoMechView, wellPath, nullptr, 0, false, false);
         curve->setGeoMechResultAddress(resAddr);
         curve->setCurrentTimeStep(geoMechView->currentTimeStep());
         curve->setCustomName(resultName);
@@ -249,7 +264,7 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack(RimWellLogPlot* plot,
         curve->setLineThickness(2);
 
         curve->loadDataAndUpdate(false);
-        
+
         double actualMinValue = minValue, actualMaxValue = maxValue;
         curve->valueRange(&actualMinValue, &actualMaxValue);
         while (maxValue < actualMaxValue)

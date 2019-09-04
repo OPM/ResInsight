@@ -20,8 +20,8 @@
 
 #include "SummaryPlotCommands/RicNewDerivedEnsembleFeature.h"
 
-#include "RimDerivedEnsembleCaseCollection.h"
 #include "RimDerivedEnsembleCase.h"
+#include "RimDerivedEnsembleCaseCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -34,13 +34,13 @@
 
 namespace caf
 {
-    template<>
-    void caf::AppEnum<DerivedEnsembleOperator>::setUp()
-    {
-        addItem(DERIVED_ENSEMBLE_SUB, "Sub", "-");
-        addItem(DERIVED_ENSEMBLE_ADD, "Add", "+");
-        setDefault(DERIVED_ENSEMBLE_SUB);
-    }
+template<>
+void caf::AppEnum<DerivedEnsembleOperator>::setUp()
+{
+    addItem(DERIVED_ENSEMBLE_SUB, "Sub", "-");
+    addItem(DERIVED_ENSEMBLE_ADD, "Add", "+");
+    setDefault(DERIVED_ENSEMBLE_SUB);
+}
 }
 
 CAF_PDM_SOURCE_INIT(RimDerivedEnsembleCaseCollection, "RimDerivedEnsembleCaseCollection");
@@ -83,13 +83,10 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimDerivedEnsembleCaseCollection::~RimDerivedEnsembleCaseCollection()
-{
-
-}
+RimDerivedEnsembleCaseCollection::~RimDerivedEnsembleCaseCollection() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCaseCollection::setEnsemble1(RimSummaryCaseCollection* ensemble)
 {
@@ -98,7 +95,7 @@ void RimDerivedEnsembleCaseCollection::setEnsemble1(RimSummaryCaseCollection* en
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCaseCollection::setEnsemble2(RimSummaryCaseCollection* ensemble)
 {
@@ -107,31 +104,32 @@ void RimDerivedEnsembleCaseCollection::setEnsemble2(RimSummaryCaseCollection* en
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimDerivedEnsembleCaseCollection::allSummaryCases() const
 {
     std::vector<RimSummaryCase*> cases;
-    for (auto sumCase : allDerivedCases(true)) cases.push_back(sumCase);
+    for (auto sumCase : allDerivedCases(true))
+        cases.push_back(sumCase);
     return cases;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RimDerivedEnsembleCaseCollection::ensembleSummaryAddresses() const
 {
     std::set<RifEclipseSummaryAddress> addresses;
     if (!m_ensemble1 || !m_ensemble2) return addresses;
 
-    addresses = m_ensemble1->ensembleSummaryAddresses();
+    addresses   = m_ensemble1->ensembleSummaryAddresses();
     auto addrs2 = m_ensemble2->ensembleSummaryAddresses();
     addresses.insert(addrs2.begin(), addrs2.end());
     return addresses;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
 {
@@ -167,7 +165,7 @@ void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimDerivedEnsembleCaseCollection::hasCaseReference(const RimSummaryCase* sumCase) const
 {
@@ -183,7 +181,7 @@ bool RimDerivedEnsembleCaseCollection::hasCaseReference(const RimSummaryCase* su
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCaseCollection::onLoadDataAndUpdate()
 {
@@ -193,9 +191,10 @@ void RimDerivedEnsembleCaseCollection::onLoadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimDerivedEnsembleCaseCollection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RimDerivedEnsembleCaseCollection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -203,7 +202,7 @@ QList<caf::PdmOptionItemInfo> RimDerivedEnsembleCaseCollection::calculateValueOp
     {
         for (auto ensemble : allEnsembles())
         {
-            if(ensemble != this) options.push_back(caf::PdmOptionItemInfo(ensemble->name(), ensemble));
+            if (ensemble != this) options.push_back(caf::PdmOptionItemInfo(ensemble->name(), ensemble));
         }
     }
     else if (fieldNeedingOptions == &m_caseCount)
@@ -217,7 +216,7 @@ QList<caf::PdmOptionItemInfo> RimDerivedEnsembleCaseCollection::calculateValueOp
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCaseCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -236,36 +235,38 @@ void RimDerivedEnsembleCaseCollection::defineUiOrdering(QString uiConfigName, ca
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedEnsembleCaseCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimDerivedEnsembleCaseCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                        const QVariant&            oldValue,
+                                                        const QVariant&            newValue)
 {
-    bool doUpdate = false;
+    bool doUpdate      = false;
     bool doUpdateCases = false;
-    bool doShowDialog = false;
+    bool doShowDialog  = false;
 
     if (changedField == &m_ensemble1 || changedField == &m_ensemble2)
     {
-        doUpdate = true;
+        doUpdate      = true;
         doUpdateCases = true;
-        doShowDialog = true;
+        doShowDialog  = true;
     }
     else if (changedField == &m_operator)
     {
-        doUpdate = true;
+        doUpdate      = true;
         doUpdateCases = true;
-        doShowDialog = false;
+        doShowDialog  = false;
     }
     else if (changedField == &m_swapEnsemblesButton)
     {
         m_swapEnsemblesButton = false;
-        auto temp = m_ensemble1();
-        m_ensemble1 = m_ensemble2();
-        m_ensemble2 = temp;
+        auto temp             = m_ensemble1();
+        m_ensemble1           = m_ensemble2();
+        m_ensemble2           = temp;
 
-        doUpdate = true;
+        doUpdate      = true;
         doUpdateCases = true;
-        doShowDialog = false;
+        doShowDialog  = false;
     }
 
     if (doUpdate)
@@ -290,14 +291,15 @@ void RimDerivedEnsembleCaseCollection::fieldChangedByUi(const caf::PdmFieldHandl
         {
             refering->updateReferringCurveSets();
         }
-
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedEnsembleCaseCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimDerivedEnsembleCaseCollection::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                             QString                    uiConfigName,
+                                                             caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_swapEnsemblesButton)
     {
@@ -310,21 +312,24 @@ void RimDerivedEnsembleCaseCollection::defineEditorAttribute(const caf::PdmField
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCaseCollection::setAllCasesNotInUse()
 {
-    for (auto derCase : allDerivedCases(true)) derCase->setInUse(false);
+    for (auto derCase : allDerivedCases(true))
+        derCase->setInUse(false);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCaseCollection::deleteCasesNoInUse()
 {
     std::vector<RimDerivedEnsembleCase*> inactiveCases;
-    auto allCases = allDerivedCases(false);
-    std::copy_if(allCases.begin(), allCases.end(), std::back_inserter(inactiveCases), [](RimDerivedEnsembleCase* derCase) { return !derCase->isInUse(); });
+    auto                                 allCases = allDerivedCases(false);
+    std::copy_if(allCases.begin(), allCases.end(), std::back_inserter(inactiveCases), [](RimDerivedEnsembleCase* derCase) {
+        return !derCase->isInUse();
+    });
 
     for (auto derCase : inactiveCases)
     {
@@ -334,12 +339,13 @@ void RimDerivedEnsembleCaseCollection::deleteCasesNoInUse()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimDerivedEnsembleCase* RimDerivedEnsembleCaseCollection::firstCaseNotInUse()
 {
     auto allCases = allDerivedCases(false);
-    auto itr = std::find_if(allCases.begin(), allCases.end(), [](RimDerivedEnsembleCase* derCase) { return !derCase->isInUse(); });
+    auto itr =
+        std::find_if(allCases.begin(), allCases.end(), [](RimDerivedEnsembleCase* derCase) { return !derCase->isInUse(); });
     if (itr != allCases.end())
     {
         return *itr;
@@ -352,7 +358,7 @@ RimDerivedEnsembleCase* RimDerivedEnsembleCaseCollection::firstCaseNotInUse()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimDerivedEnsembleCase*> RimDerivedEnsembleCaseCollection::allDerivedCases(bool activeOnly) const
 {
@@ -369,7 +375,7 @@ std::vector<RimDerivedEnsembleCase*> RimDerivedEnsembleCaseCollection::allDerive
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCaseCollection::updateAutoName()
 {
@@ -377,17 +383,11 @@ void RimDerivedEnsembleCaseCollection::updateAutoName()
 
     auto derivedEnsemble1 = dynamic_cast<RimDerivedEnsembleCaseCollection*>(m_ensemble1());
     auto derivedEnsemble2 = dynamic_cast<RimDerivedEnsembleCaseCollection*>(m_ensemble2());
-    bool isDerived1 = derivedEnsemble1 != nullptr;
-    bool isDerived2 = derivedEnsemble2 != nullptr;
+    bool isDerived1       = derivedEnsemble1 != nullptr;
+    bool isDerived2       = derivedEnsemble2 != nullptr;
 
-    QString name =
-        (isDerived1 ? "(" : "") +
-        (m_ensemble1 ? m_ensemble1->name() : "") +
-        (isDerived1 ? ")" : "") +
-        " " + op + " " +
-        (isDerived2 ? "(" : "") +
-        (m_ensemble2 ? m_ensemble2->name() : "") +
-        (isDerived2 ? ")" : "");
+    QString name = (isDerived1 ? "(" : "") + (m_ensemble1 ? m_ensemble1->name() : "") + (isDerived1 ? ")" : "") + " " + op + " " +
+                   (isDerived2 ? "(" : "") + (m_ensemble2 ? m_ensemble2->name() : "") + (isDerived2 ? ")" : "");
     setName(name);
 
     // If other derived ensembles are referring to this ensemble, update theirs name as well
@@ -399,9 +399,10 @@ void RimDerivedEnsembleCaseCollection::updateAutoName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByParametersHash(const std::vector<RimSummaryCase*>& cases, size_t hash) const
+RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByParametersHash(const std::vector<RimSummaryCase*>& cases,
+                                                                           size_t                              hash) const
 {
     for (auto sumCase : cases)
     {
@@ -412,12 +413,12 @@ RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByParametersHash(const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimDerivedEnsembleCaseCollection*> RimDerivedEnsembleCaseCollection::findReferringEnsembles() const
 {
     std::vector<RimDerivedEnsembleCaseCollection*> referringEnsembles;
-    RimSummaryCaseMainCollection* mainColl;
+    RimSummaryCaseMainCollection*                  mainColl;
 
     firstAncestorOrThisOfType(mainColl);
     if (mainColl)
@@ -438,7 +439,7 @@ std::vector<RimDerivedEnsembleCaseCollection*> RimDerivedEnsembleCaseCollection:
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCaseCollection*> RimDerivedEnsembleCaseCollection::allEnsembles() const
 {

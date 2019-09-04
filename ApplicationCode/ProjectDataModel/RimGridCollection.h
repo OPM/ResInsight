@@ -71,7 +71,7 @@ public:
     ~RimGridInfoCollection() override {}
 
     bool                      isActive() const;
-    void                      addGridInfo(RimGridInfo * gridInfo);
+    void                      addGridInfo(RimGridInfo* gridInfo);
     void                      clear();
     bool                      containsGrid(const QString& gridName) const;
     void                      deleteGridInfo(const QString& gridName);

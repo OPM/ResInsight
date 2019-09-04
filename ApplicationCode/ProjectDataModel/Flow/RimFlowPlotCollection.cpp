@@ -1,34 +1,33 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFlowPlotCollection.h"
 
-#include "RimWellAllocationPlot.h"
 #include "RimFlowCharacteristicsPlot.h"
+#include "RimWellAllocationPlot.h"
 
-
-#include "cvfAssert.h"
 #include "cafProgressInfo.h"
+#include "cvfAssert.h"
 
 CAF_PDM_SOURCE_INIT(RimFlowPlotCollection, "FlowPlotCollection");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFlowPlotCollection::RimFlowPlotCollection()
 {
@@ -40,12 +39,13 @@ RimFlowPlotCollection::RimFlowPlotCollection()
     CAF_PDM_InitFieldNoDefault(&m_defaultWellAllocPlot, "DefaultWellAllocationPlot", "", "", "", "");
     m_defaultWellAllocPlot.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_storedWellAllocPlots, "StoredWellAllocationPlots", "Stored Well Allocation Plots",  "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_storedFlowCharacteristicsPlots, "StoredFlowCharacteristicsPlots", "Stored Flow Characteristics Plots",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_storedWellAllocPlots, "StoredWellAllocationPlots", "Stored Well Allocation Plots", "", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        &m_storedFlowCharacteristicsPlots, "StoredFlowCharacteristicsPlots", "Stored Flow Characteristics Plots", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFlowPlotCollection::~RimFlowPlotCollection()
 {
@@ -55,16 +55,16 @@ RimFlowPlotCollection::~RimFlowPlotCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::closeDefaultPlotWindowAndDeletePlots()
 {
-    if ( m_defaultWellAllocPlot )
+    if (m_defaultWellAllocPlot)
     {
         m_defaultWellAllocPlot->removeFromMdiAreaAndDeleteViewWidget();
         delete m_defaultWellAllocPlot();
     }
-    
+
     delete m_flowCharacteristicsPlot;
 
     m_storedWellAllocPlots.deleteAllChildObjects();
@@ -72,7 +72,7 @@ void RimFlowPlotCollection::closeDefaultPlotWindowAndDeletePlots()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::loadDataAndUpdate()
 {
@@ -100,7 +100,7 @@ void RimFlowPlotCollection::loadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RimFlowPlotCollection::plotCount() const
 {
@@ -112,7 +112,7 @@ size_t RimFlowPlotCollection::plotCount() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::addWellAllocPlotToStoredPlots(RimWellAllocationPlot* plot)
 {
@@ -120,7 +120,7 @@ void RimFlowPlotCollection::addWellAllocPlotToStoredPlots(RimWellAllocationPlot*
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::addFlowCharacteristicsPlotToStoredPlots(RimFlowCharacteristicsPlot* plot)
 {
@@ -128,13 +128,13 @@ void RimFlowPlotCollection::addFlowCharacteristicsPlotToStoredPlots(RimFlowChara
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot* RimFlowPlotCollection::defaultWellAllocPlot()
 {
-    if ( !m_defaultWellAllocPlot() ) 
+    if (!m_defaultWellAllocPlot())
     {
-        m_defaultWellAllocPlot = new RimWellAllocationPlot; 
+        m_defaultWellAllocPlot = new RimWellAllocationPlot;
         m_defaultWellAllocPlot->setDescription("Default Flow Diagnostics Plot");
     }
 
@@ -144,16 +144,16 @@ RimWellAllocationPlot* RimFlowPlotCollection::defaultWellAllocPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFlowCharacteristicsPlot* RimFlowPlotCollection::defaultFlowCharacteristicsPlot()
 {
-    if ( !m_flowCharacteristicsPlot() ) 
+    if (!m_flowCharacteristicsPlot())
     {
-        m_flowCharacteristicsPlot = new RimFlowCharacteristicsPlot; 
+        m_flowCharacteristicsPlot = new RimFlowCharacteristicsPlot;
     }
 
     this->updateConnectedEditors();
 
-    return m_flowCharacteristicsPlot();  
+    return m_flowCharacteristicsPlot();
 }

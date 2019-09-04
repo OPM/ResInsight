@@ -154,13 +154,9 @@ RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findRimCurveSetFromQwtCurve(
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::addCurveSet(RimEnsembleCurveSet* curveSet)
 {
-
     if (curveSet)
     {
-
         m_curveSets.push_back(curveSet);
-
-       
     }
 }
 
@@ -169,21 +165,20 @@ void RimEnsembleCurveSetCollection::addCurveSet(RimEnsembleCurveSet* curveSet)
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::deleteCurveSet(RimEnsembleCurveSet* curveSet)
 {
-    deleteCurveSets({ curveSet });
+    deleteCurveSets({curveSet});
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::deleteCurveSets(const std::vector<RimEnsembleCurveSet*> curveSets)
 {
-    for(const auto curveSet : curveSets)
+    for (const auto curveSet : curveSets)
     {
         m_curveSets.removeChildObject(curveSet);
         curveSet->markCachedDataForPurge();
         delete curveSet;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,7 +190,7 @@ std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSets() con
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RimEnsembleCurveSetCollection::curveSetCount() const
 {
@@ -203,7 +198,7 @@ size_t RimEnsembleCurveSetCollection::curveSetCount() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimEnsembleCurveSetCollection::fieldsToShowInToolbar()
 {
@@ -211,12 +206,12 @@ std::vector<caf::PdmFieldHandle*> RimEnsembleCurveSetCollection::fieldsToShowInT
     {
         return m_ySourceStepping->fieldsToShowInToolbar();
     }
-    
+
     return std::vector<caf::PdmFieldHandle*>();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::setCurveSetForSourceStepping(RimEnsembleCurveSet* curveSet)
 {
@@ -224,7 +219,7 @@ void RimEnsembleCurveSetCollection::setCurveSetForSourceStepping(RimEnsembleCurv
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimEnsembleCurveSetCollection::curveSetForSourceStepping() const
 {
@@ -232,7 +227,7 @@ RimEnsembleCurveSet* RimEnsembleCurveSetCollection::curveSetForSourceStepping() 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSetsForSourceStepping() const
 {
@@ -244,7 +239,6 @@ std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSetsForSou
 
         {
             // Add corresponding history/summary curve with or without H
-
 
             std::string quantity = m_curveSetForSourceStepping->summaryAddress().quantityName();
 
@@ -311,7 +305,7 @@ void RimEnsembleCurveSetCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {

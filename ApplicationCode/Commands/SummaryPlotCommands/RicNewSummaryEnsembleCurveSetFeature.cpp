@@ -18,8 +18,8 @@
 
 #include "RicNewSummaryEnsembleCurveSetFeature.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
+#include "RiaGuiApplication.h"
 
 #include "RiaSummaryTools.h"
 #include "RimEnsembleCurveSet.h"
@@ -105,11 +105,11 @@ bool RicNewSummaryEnsembleCurveSetFeature::isCommandEnabled()
     {
         RimProject* project = RiaApplication::instance()->project();
         CVF_ASSERT(project);
-		if (!project->summaryGroups().empty())
-		{
+        if (!project->summaryGroups().empty())
+        {
             return true;
-		}
-	}
+        }
+    }
     return false;
 }
 

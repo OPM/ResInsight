@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,7 @@
 #include "RicWellLogTools.h"
 
 #include "RigFlowDiagResults.h"
+#include "Rim3dView.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowCharacteristicsPlot.h"
@@ -30,7 +31,6 @@
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
-#include "Rim3dView.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -40,7 +40,7 @@ CAF_CMD_SOURCE_INIT(RicShowFlowCharacteristicsPlotFeature, "RicShowFlowCharacter
 
 RimEclipseResultCase* activeEclipseResultCase()
 {
-    Rim3dView * activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
 
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(activeView);
 
@@ -52,7 +52,7 @@ RimEclipseResultCase* activeEclipseResultCase()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicShowFlowCharacteristicsPlotFeature::isCommandEnabled()
 {
@@ -68,21 +68,21 @@ bool RicShowFlowCharacteristicsPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicShowFlowCharacteristicsPlotFeature::onActionTriggered(bool isChecked)
 {
     RimEclipseResultCase* eclCase = activeEclipseResultCase();
 
-    if (eclCase &&  eclCase->defaultFlowDiagSolution())
+    if (eclCase && eclCase->defaultFlowDiagSolution())
     {
         // Make sure flow results for the the active timestep is calculated, to avoid an empty plot
         {
-            Rim3dView * activeView = RiaApplication::instance()->activeReservoirView();
-            if (activeView && eclCase->defaultFlowDiagSolution()->flowDiagResults()) 
+            Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+            if (activeView && eclCase->defaultFlowDiagSolution()->flowDiagResults())
             {
                 // Trigger calculation
-                eclCase->defaultFlowDiagSolution()->flowDiagResults()->maxAbsPairFlux(activeView->currentTimeStep()); 
+                eclCase->defaultFlowDiagSolution()->flowDiagResults()->maxAbsPairFlux(activeView->currentTimeStep());
             }
         }
 
@@ -104,7 +104,7 @@ void RicShowFlowCharacteristicsPlotFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicShowFlowCharacteristicsPlotFeature::setupActionLook(QAction* actionToSetup)
 {

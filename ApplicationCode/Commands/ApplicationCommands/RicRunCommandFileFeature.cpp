@@ -40,10 +40,11 @@ bool RicRunCommandFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicRunCommandFileFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder("COMMAND_FILE");
+    RiaApplication* app        = RiaApplication::instance();
+    QString         defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder("COMMAND_FILE");
 
-    QString fileName = QFileDialog::getOpenFileName(nullptr, "Open ResInsight Command File", defaultDir, "ResInsight Command File (*.txt);;All files(*.*)");
+    QString fileName = QFileDialog::getOpenFileName(
+        nullptr, "Open ResInsight Command File", defaultDir, "ResInsight Command File (*.txt);;All files(*.*)");
 
     if (!fileName.isEmpty())
     {
@@ -60,7 +61,7 @@ void RicRunCommandFileFeature::onActionTriggered(bool isChecked)
             RicfCommandFileExecutor::instance()->executeCommands(in);
 
             QDir::setCurrent(applicationPath);
-        
+
             app->setLastUsedDialogDirectory("COMMAND_FILE", QFileInfo(fileName).absolutePath());
         }
     }

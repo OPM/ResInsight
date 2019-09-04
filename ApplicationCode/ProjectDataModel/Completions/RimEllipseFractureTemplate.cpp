@@ -238,9 +238,10 @@ WellFractureIntersectionData RimEllipseFractureTemplate::wellFractureIntersectio
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEllipseFractureTemplate::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimEllipseFractureTemplate::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                                bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -258,7 +259,7 @@ QList<caf::PdmOptionItemInfo> RimEllipseFractureTemplate::calculateValueOptions(
         if (isBetaFactorAvailableOnFile())
         {
             options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<BetaFactorEnum>::uiText(BETA_FACTOR_FROM_FRACTURE),
-                              BETA_FACTOR_FROM_FRACTURE));
+                                                     BETA_FACTOR_FROM_FRACTURE));
         }
     }
 

@@ -2,40 +2,40 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "gtest/gtest.h"
 #include "RifOdbReader.h"
-#include "RigGeoMechCaseData.h"
 #include "RigFemPartCollection.h"
+#include "RigGeoMechCaseData.h"
+#include "gtest/gtest.h"
 
 #include "cvfDebugTimer.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(OdbReaderTest, BasicTests)
 {
     std::cout << TEST_FILE << std::endl;
     std::cout << std::endl;
-    cvf::ref<RifOdbReader> reader = new RifOdbReader;
-    cvf::ref<RigGeoMechCaseData> femCase = new RigGeoMechCaseData("");
+    cvf::ref<RifOdbReader>         reader  = new RifOdbReader;
+    cvf::ref<RigGeoMechCaseData>   femCase = new RigGeoMechCaseData("");
     cvf::ref<RigFemPartCollection> femData = femCase->femParts();
 
     cvf::DebugTimer timer("DebugTimer");
@@ -55,13 +55,15 @@ TEST(OdbReaderTest, BasicTests)
     EXPECT_EQ(2, reader->frameTimes(0).size());
     EXPECT_EQ(1.0, reader->frameTimes(0)[1]);
 
-    std::map<std::string, std::vector<std::string> > scalarNodeFieldsMap = reader->scalarNodeFieldAndComponentNames();
+    std::map<std::string, std::vector<std::string>> scalarNodeFieldsMap = reader->scalarNodeFieldAndComponentNames();
     EXPECT_EQ(3, scalarNodeFieldsMap.size());
-    
-    std::map<std::string, std::vector<std::string> > scalarElementNodeFieldsMap = reader->scalarElementNodeFieldAndComponentNames();
+
+    std::map<std::string, std::vector<std::string>> scalarElementNodeFieldsMap =
+        reader->scalarElementNodeFieldAndComponentNames();
     EXPECT_EQ(0, scalarElementNodeFieldsMap.size());
-    
-    std::map<std::string, std::vector<std::string> > scalarIntegrationPointFieldsMap = reader->scalarIntegrationPointFieldAndComponentNames();
+
+    std::map<std::string, std::vector<std::string>> scalarIntegrationPointFieldsMap =
+        reader->scalarIntegrationPointFieldAndComponentNames();
     EXPECT_EQ(6, scalarIntegrationPointFieldsMap.size());
 
     std::vector<float> displacementValues;
@@ -83,7 +85,7 @@ TEST(OdbReaderTest, BasicTests)
     EXPECT_FLOAT_EQ(-1408592.5, integrationPointS22[1]);
     EXPECT_FLOAT_EQ(-1345666.9, integrationPointS22[2]);
 
-       std::vector<float> elementNodeS11;
+    std::vector<float> elementNodeS11;
     reader->readScalarElementNodeField("S", "S11", 0, 0, 1, &elementNodeS11);
     EXPECT_EQ(34560, elementNodeS11.size());
     EXPECT_FLOAT_EQ(-2074357.3, elementNodeS11[0]);
@@ -118,8 +120,6 @@ TEST(OdbReaderTest, BasicTests)
     EXPECT_FLOAT_EQ(0.24549910, voidrValues[2]);
 
     timer.restart();
-       reader->readScalarIntegrationPointField("S", "S22", 0, 0, 1, &integrationPointS22);
+    reader->readScalarIntegrationPointField("S", "S22", 0, 0, 1, &integrationPointS22);
     timer.reportLapTime("Read S/S22 final time");
 }
-
-

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -30,9 +30,8 @@
 #include <QStringList>
 #include <QTextStream>
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifColumnBasedUserDataParser::RifColumnBasedUserDataParser(const QString& data, QString* errorText)
     : m_errorText(errorText)
@@ -40,18 +39,16 @@ RifColumnBasedUserDataParser::RifColumnBasedUserDataParser(const QString& data, 
     parseTableData(data);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<TableData>& RifColumnBasedUserDataParser::tableData() const
 {
     return m_tableDatas;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const Column* RifColumnBasedUserDataParser::columnInfo(size_t tableIndex, size_t columnIndex) const
 {
@@ -63,12 +60,12 @@ const Column* RifColumnBasedUserDataParser::columnInfo(size_t tableIndex, size_t
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifColumnBasedUserDataParser::parseTableData(const QString& data)
 {
-    std::string stdData = data.toStdString();
-    bool isFixedWidth = RifEclipseUserDataParserTools::isFixedWidthHeader(stdData);
+    std::string stdData      = data.toStdString();
+    bool        isFixedWidth = RifEclipseUserDataParserTools::isFixedWidthHeader(stdData);
 
     std::stringstream streamData;
     streamData.str(stdData);
@@ -84,7 +81,7 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
         if (isFixedWidth)
         {
             auto columnInfos = RifEclipseUserDataParserTools::columnInfoForFixedColumnWidth(streamData);
-            table = TableData("", "", columnInfos);
+            table            = TableData("", "", columnInfos);
         }
         else
         {
@@ -101,7 +98,7 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
         }
 
         std::vector<Column>& columnInfos = table.columnInfos();
-        int columnCount = static_cast<int>(columnInfos.size());
+        int                  columnCount = static_cast<int>(columnInfos.size());
         if (columnCount == 0) break;
 
         int stepTypeIndex = -1;
@@ -118,11 +115,10 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
 
         do
         {
-            QString qLine = QString::fromStdString(line);
+            QString     qLine   = QString::fromStdString(line);
             QStringList entries = qLine.split(" ", QString::SkipEmptyParts);
 
-            if (stepTypeIndex > -1 &&
-                (unsigned int)entries.size() < columnInfos.size())
+            if (stepTypeIndex > -1 && (unsigned int)entries.size() < columnInfos.size())
             {
                 entries.insert(stepTypeIndex, " ");
             }

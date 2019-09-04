@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,9 +24,8 @@
 
 #include "cvfAssert.h"
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifKeywordVectorParser::RifKeywordVectorParser(const QString& data)
 {
@@ -34,7 +33,7 @@ RifKeywordVectorParser::RifKeywordVectorParser(const QString& data)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<KeywordBasedVector>& RifKeywordVectorParser::keywordBasedVectors() const
 {
@@ -42,7 +41,7 @@ const std::vector<KeywordBasedVector>& RifKeywordVectorParser::keywordBasedVecto
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifKeywordVectorParser::canBeParsed(const QString& data)
 {
@@ -70,7 +69,7 @@ bool RifKeywordVectorParser::canBeParsed(const QString& data)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifKeywordVectorParser::parseData(const QString& data)
 {
@@ -79,7 +78,7 @@ void RifKeywordVectorParser::parseData(const QString& data)
     std::string line;
     std::getline(streamData, line);
 
-    do 
+    do
     {
         while (RifEclipseUserDataParserTools::isLineSkippable(line) && !streamData.eof())
         {

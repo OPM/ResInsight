@@ -19,7 +19,6 @@
 
 #pragma once
 
-
 #include "cvfArray.h"
 #include "cvfColor4.h"
 #include "cvfMatrix4.h"

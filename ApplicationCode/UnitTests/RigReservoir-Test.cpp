@@ -3,17 +3,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,9 +24,8 @@
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RigGridManager, BasicTest)
 {
@@ -49,7 +48,7 @@ TEST(RigGridManager, BasicTest)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RigGridManager, EqualTests)
 {
@@ -61,12 +60,10 @@ TEST(RigGridManager, EqualTests)
     cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData(nullptr);
     eclipseCase->setMainGrid(mainGridA.p());
 
-
     RigGridManager gridCollection;
     gridCollection.addCase(eclipseCase.p());
 
-
-    cvf::ref<RigMainGrid> mainGridB = new RigMainGrid;
+    cvf::ref<RigMainGrid> mainGridB    = new RigMainGrid;
     cvf::ref<RigMainGrid> existingGrid = gridCollection.findEqualGrid(mainGridB.p());
     EXPECT_TRUE(existingGrid.isNull());
 
@@ -83,15 +80,14 @@ TEST(RigGridManager, EqualTests)
     // Overwrite to match the node structure of mainGridA
     mainGridB->nodes()[1] = cvf::Vec3d(0, 0, 1);
     mainGridB->nodes()[2] = cvf::Vec3d(0, 0, 2);
-    existingGrid = gridCollection.findEqualGrid(mainGridB.p());
+    existingGrid          = gridCollection.findEqualGrid(mainGridB.p());
     EXPECT_TRUE(existingGrid.notNull());
-
 }
 
 /*
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RigReservoirTest, BasicTest)
 {
@@ -121,8 +117,9 @@ TEST(RigReservoirTest, BasicTest)
     {
         qDebug() << "Index" << i << "is " << wellCellTimeHistory->m_resultTimeStepIndexToWellTimeStepIndex[i];
 
-        const RigWellResultFrame& wellCells = wellCellTimeHistory->wellResultFrame(wellCellTimeHistory->m_resultTimeStepIndexToWellTimeStepIndex[i]);
-        qDebug() << wellCells.m_timestamp;
+        const RigWellResultFrame& wellCells =
+wellCellTimeHistory->wellResultFrame(wellCellTimeHistory->m_resultTimeStepIndexToWellTimeStepIndex[i]); qDebug() <<
+wellCells.m_timestamp;
     }
 
 }

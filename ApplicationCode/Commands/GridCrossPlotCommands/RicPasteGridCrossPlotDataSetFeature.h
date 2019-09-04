@@ -37,8 +37,4 @@ protected:
 
 private:
     static std::vector<caf::PdmPointer<RimGridCrossPlotDataSet>> gridCrossPlotDataSetsOnClipboard();
-
 };
-
-
-

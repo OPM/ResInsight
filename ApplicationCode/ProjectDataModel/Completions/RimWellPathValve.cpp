@@ -18,8 +18,8 @@
 
 #include "RimWellPathValve.h"
 
-#include "RiaDefines.h"
 #include "RiaColorTables.h"
+#include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -47,11 +47,11 @@ RimWellPathValve::RimWellPathValve()
     CAF_PDM_InitObject("WellPathValve", ":/ICDValve16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_valveTemplate, "ValveTemplate", "Valve Template", "", "", "");
-    CAF_PDM_InitField(&m_measuredDepth, "StartMeasuredDepth", 0.0, "Start MD", "", "", "");    
+    CAF_PDM_InitField(&m_measuredDepth, "StartMeasuredDepth", 0.0, "Start MD", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_multipleValveLocations, "ValveLocations", "Valve Locations", "", "", "");
     CAF_PDM_InitField(&m_editValveTemplate, "EditTemplate", false, "Edit", "", "", "");
     CAF_PDM_InitField(&m_createValveTemplate, "CreateTemplate", false, "Create", "", "", "");
-    
+
     m_measuredDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     m_multipleValveLocations = new RimMultipleValveLocations;
     m_multipleValveLocations.uiCapability()->setUiTreeHidden(true);
@@ -62,16 +62,12 @@ RimWellPathValve::RimWellPathValve()
     m_createValveTemplate.uiCapability()->setUiEditorTypeName(caf::PdmUiToolButtonEditor::uiEditorTypeName());
 
     nameField()->uiCapability()->setUiReadOnly(true);
-
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathValve::~RimWellPathValve()
-{
-
-}
+RimWellPathValve::~RimWellPathValve() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -82,8 +78,8 @@ void RimWellPathValve::perforationIntervalUpdated()
     {
         const RimPerforationInterval* perfInterval = nullptr;
         this->firstAncestorOrThisOfType(perfInterval);
-        double startMD = perfInterval->startMD();
-        double endMD   = perfInterval->endMD();
+        double startMD  = perfInterval->startMD();
+        double endMD    = perfInterval->endMD();
         m_measuredDepth = cvf::Math::clamp(m_measuredDepth(), std::min(startMD, endMD), std::max(startMD, endMD));
     }
     else if (componentType() == RiaDefines::ICD || componentType() == RiaDefines::AICD)
@@ -98,11 +94,10 @@ void RimWellPathValve::perforationIntervalUpdated()
 void RimWellPathValve::setMeasuredDepthAndCount(double startMD, double spacing, int valveCount)
 {
     m_measuredDepth = startMD;
-    double endMD = startMD + spacing * valveCount;
+    double endMD    = startMD + spacing * valveCount;
     m_multipleValveLocations->initFields(RimMultipleValveLocations::VALVE_COUNT, startMD, endMD, spacing, valveCount, {});
     m_multipleValveLocations->computeRangesAndLocations();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -267,8 +262,8 @@ std::vector<std::pair<double, double>> RimWellPathValve::valveSegments() const
     RimPerforationInterval* perforationInterval = nullptr;
     this->firstAncestorOrThisOfType(perforationInterval);
 
-    double startMD = perforationInterval->startMD();
-    double endMD   = perforationInterval->endMD();
+    double              startMD  = perforationInterval->startMD();
+    double              endMD    = perforationInterval->endMD();
     std::vector<double> valveMDs = valveLocations();
 
     std::vector<std::pair<double, double>> segments;
@@ -277,7 +272,7 @@ std::vector<std::pair<double, double>> RimWellPathValve::valveSegments() const
     for (size_t i = 0; i < valveMDs.size(); ++i)
     {
         double segmentStart = startMD;
-        double segmentEnd = endMD;
+        double segmentEnd   = endMD;
         if (i > 0)
         {
             segmentStart = 0.5 * (valveMDs[i - 1] + valveMDs[i]);
@@ -432,7 +427,8 @@ void RimWellPathValve::templateUpdated()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellPathValve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimWellPathValve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                      bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -443,14 +439,16 @@ QList<caf::PdmOptionItemInfo> RimWellPathValve::calculateValueOptions(const caf:
     {
         options.push_back(caf::PdmOptionItemInfo(valveTemplate->name(), valveTemplate));
     }
-    
+
     return options;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathValve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimWellPathValve::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                        const QVariant&            oldValue,
+                                        const QVariant&            newValue)
 {
     if (changedField == &m_valveTemplate)
     {
@@ -483,7 +481,7 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 {
     uiOrdering.skipRemainingFields(true);
 
-    uiOrdering.add(&m_valveTemplate, { true, 2, 1 });
+    uiOrdering.add(&m_valveTemplate, {true, 2, 1});
 
     {
         if (m_valveTemplate() != nullptr)
@@ -494,7 +492,7 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
     }
 
     if (componentType() == RiaDefines::ICV || componentType() == RiaDefines::ICD)
-    {        
+    {
         if (componentType() == RiaDefines::ICV)
         {
             RimWellPath* wellPath;
@@ -503,14 +501,14 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
             {
                 if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
                 {
-                   m_measuredDepth.uiCapability()->setUiName("Measured Depth [m]");                
+                    m_measuredDepth.uiCapability()->setUiName("Measured Depth [m]");
                 }
                 else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
                 {
                     m_measuredDepth.uiCapability()->setUiName("Measured Depth [ft]");
                 }
             }
-            uiOrdering.add(&m_measuredDepth, { true, 3, 1 });
+            uiOrdering.add(&m_measuredDepth, {true, 3, 1});
         }
     }
 
@@ -532,41 +530,43 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathValve::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimWellPathValve::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                             QString                    uiConfigName,
+                                             caf::PdmUiEditorAttribute* attribute)
 {
-      if (field == &m_measuredDepth)
-      {
-          caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+    if (field == &m_measuredDepth)
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
 
-          if (myAttr)
-          {
-              double minimumValue = 0.0, maximumValue = 0.0;
+        if (myAttr)
+        {
+            double minimumValue = 0.0, maximumValue = 0.0;
 
-              RimPerforationInterval* perforationInterval = nullptr;
-              this->firstAncestorOrThisOfType(perforationInterval);
+            RimPerforationInterval* perforationInterval = nullptr;
+            this->firstAncestorOrThisOfType(perforationInterval);
 
-              if (perforationInterval)
-              {
-                  minimumValue = perforationInterval->startMD();
-                  maximumValue = perforationInterval->endMD();
-              }
-              else
-              {
-                  RimWellPath* rimWellPath = nullptr;
-                  this->firstAncestorOrThisOfTypeAsserted(rimWellPath);
-                  RigWellPath* wellPathGeo = rimWellPath->wellPathGeometry();
-                  if (!wellPathGeo) return;
+            if (perforationInterval)
+            {
+                minimumValue = perforationInterval->startMD();
+                maximumValue = perforationInterval->endMD();
+            }
+            else
+            {
+                RimWellPath* rimWellPath = nullptr;
+                this->firstAncestorOrThisOfTypeAsserted(rimWellPath);
+                RigWellPath* wellPathGeo = rimWellPath->wellPathGeometry();
+                if (!wellPathGeo) return;
 
-                  if (wellPathGeo->m_measuredDepths.size() > 2)
-                  {
-                      minimumValue = wellPathGeo->measureDepths().front();
-                      maximumValue = wellPathGeo->measureDepths().back();
-                  }
-              }
-              myAttr->m_minimum = minimumValue;
-              myAttr->m_maximum = maximumValue;
-          }
-      }
+                if (wellPathGeo->m_measuredDepths.size() > 2)
+                {
+                    minimumValue = wellPathGeo->measureDepths().front();
+                    maximumValue = wellPathGeo->measureDepths().back();
+                }
+            }
+            myAttr->m_minimum = minimumValue;
+            myAttr->m_maximum = maximumValue;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

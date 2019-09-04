@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,34 +22,32 @@
 #include <cmath>
 
 #include "cvfDrawableGeo.h"
-#include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfOutlineEdgeExtractor.h"
+#include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfStructGridGeometryGenerator.h"
 
 #include "cvfScalarMapper.h"
 
 #include "RigFault.h"
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivFaultGeometryGenerator::RivFaultGeometryGenerator(const cvf::StructGridInterface* grid, const RigFault* fault, bool computeNativeFaultFaces)
-   : m_grid(grid),
-   m_fault(fault),
-   m_computeNativeFaultFaces(computeNativeFaultFaces)
+RivFaultGeometryGenerator::RivFaultGeometryGenerator(const cvf::StructGridInterface* grid,
+                                                     const RigFault*                 fault,
+                                                     bool                            computeNativeFaultFaces)
+    : m_grid(grid)
+    , m_fault(fault)
+    , m_computeNativeFaultFaces(computeNativeFaultFaces)
 {
-    m_quadMapper = new cvf::StructGridQuadToCellFaceMapper;
+    m_quadMapper     = new cvf::StructGridQuadToCellFaceMapper;
     m_triangleMapper = new cvf::StuctGridTriangleToCellFaceMapper(m_quadMapper.p());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivFaultGeometryGenerator::~RivFaultGeometryGenerator()
-{
-}
+RivFaultGeometryGenerator::~RivFaultGeometryGenerator() {}
 
 //--------------------------------------------------------------------------------------------------
 /// Generate surface drawable geo from the specified region
@@ -70,18 +68,17 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::generateSurface()
 
 //--------------------------------------------------------------------------------------------------
 /// Generates simplified mesh as line drawing
-/// Must call generateSurface first 
+/// Must call generateSurface first
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createMeshDrawable()
 {
-
     if (!(m_vertices.notNull() && m_vertices->size() != 0)) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray(m_vertices.p());
 
-    cvf::ref<cvf::UIntArray> indices = lineIndicesFromQuadVertexArray(m_vertices.p());
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt(cvf::PT_LINES);
+    cvf::ref<cvf::UIntArray>               indices = lineIndicesFromQuadVertexArray(m_vertices.p());
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> prim    = new cvf::PrimitiveSetIndexedUInt(cvf::PT_LINES);
     prim->setIndices(indices.p());
 
     geo->addPrimitiveSet(prim.p());
@@ -89,7 +86,7 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createMeshDrawable()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createOutlineMeshDrawable(double creaseAngle)
 {
@@ -117,38 +114,38 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createOutlineMeshDrawable(
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::UIntArray> RivFaultGeometryGenerator::lineIndicesFromQuadVertexArray(const cvf::Vec3fArray* vertexArray)
 {
     CVF_ASSERT(vertexArray);
 
     size_t numVertices = vertexArray->size();
-    int numQuads = static_cast<int>(numVertices/4);
-    CVF_ASSERT(numVertices%4 == 0);
+    int    numQuads    = static_cast<int>(numVertices / 4);
+    CVF_ASSERT(numVertices % 4 == 0);
 
     cvf::ref<cvf::UIntArray> indices = new cvf::UIntArray;
-    indices->resize(numQuads*8);
+    indices->resize(numQuads * 8);
 
 #pragma omp parallel for
     for (int i = 0; i < numQuads; i++)
-    {        
-        int idx = 8*i;
-        indices->set(idx + 0, i*4 + 0);
-        indices->set(idx + 1, i*4 + 1);
-        indices->set(idx + 2, i*4 + 1);
-        indices->set(idx + 3, i*4 + 2);
-        indices->set(idx + 4, i*4 + 2);
-        indices->set(idx + 5, i*4 + 3);
-        indices->set(idx + 6, i*4 + 3);
-        indices->set(idx + 7, i*4 + 0);
+    {
+        int idx = 8 * i;
+        indices->set(idx + 0, i * 4 + 0);
+        indices->set(idx + 1, i * 4 + 1);
+        indices->set(idx + 2, i * 4 + 1);
+        indices->set(idx + 3, i * 4 + 2);
+        indices->set(idx + 4, i * 4 + 2);
+        indices->set(idx + 5, i * 4 + 3);
+        indices->set(idx + 6, i * 4 + 3);
+        indices->set(idx + 7, i * 4 + 0);
     }
 
     return indices;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivFaultGeometryGenerator::computeArrays()
 {
@@ -163,15 +160,15 @@ void RivFaultGeometryGenerator::computeArrays()
 #pragma omp parallel for
     for (int fIdx = 0; fIdx < static_cast<int>(faultFaces.size()); fIdx++)
     {
-        size_t cellIndex = faultFaces[fIdx].m_nativeReservoirCellIndex;
-        cvf::StructGridInterface::FaceType face = faultFaces[fIdx].m_nativeFace;
+        size_t                             cellIndex = faultFaces[fIdx].m_nativeReservoirCellIndex;
+        cvf::StructGridInterface::FaceType face      = faultFaces[fIdx].m_nativeFace;
 
         if (cellIndex >= m_cellVisibility->size()) continue;
 
         if (!m_computeNativeFaultFaces)
         {
             cellIndex = faultFaces[fIdx].m_oppositeReservoirCellIndex;
-            face = cvf::StructGridInterface::oppositeFace(faultFaces[fIdx].m_nativeFace);
+            face      = cvf::StructGridInterface::oppositeFace(faultFaces[fIdx].m_nativeFace);
         }
 
         if (!(*m_cellVisibility)[cellIndex]) continue;
@@ -202,7 +199,7 @@ void RivFaultGeometryGenerator::computeArrays()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivFaultGeometryGenerator::setCellVisibility(const cvf::UByteArray* cellVisibility)
 {

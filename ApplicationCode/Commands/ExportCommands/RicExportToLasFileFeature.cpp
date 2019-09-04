@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -32,16 +32,14 @@
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
-  
+
 #include <QAction>
 #include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT(RicExportToLasFileFeature, "RicExportToLasFileFeature");
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicExportToLasFileFeature::isCommandEnabled()
 {
@@ -52,7 +50,7 @@ bool RicExportToLasFileFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
 {
@@ -65,23 +63,23 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder("WELL_LOGS_DIR");
 
-    RigLasFileExporter lasExporter(curves);
+    RigLasFileExporter           lasExporter(curves);
     RicExportToLasFileResampleUi featureUi;
     featureUi.exportFolder = defaultDir;
 
     {
         std::vector<QString> wellNames;
-        std::vector<double> rkbDiffs;
+        std::vector<double>  rkbDiffs;
         lasExporter.wellPathsAndRkbDiff(&wellNames, &rkbDiffs);
         featureUi.setRkbDiffs(wellNames, rkbDiffs);
     }
-    
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Export Curve Data to LAS file(s)", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+
+    caf::PdmUiPropertyViewDialog propertyDialog(
+        nullptr, &featureUi, "Export Curve Data to LAS file(s)", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     RicExportFeatureImpl::configureForExport(propertyDialog.dialogButtonBox());
     propertyDialog.resize(QSize(400, 330));
-    
-    if (propertyDialog.exec() == QDialog::Accepted &&
-        !featureUi.exportFolder().isEmpty())
+
+    if (propertyDialog.exec() == QDialog::Accepted && !featureUi.exportFolder().isEmpty())
     {
         if (featureUi.activateResample)
         {
@@ -91,7 +89,7 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
         if (featureUi.exportTvdrkb)
         {
             std::vector<QString> wellNames;
-            std::vector<double> rkbDiffs;
+            std::vector<double>  rkbDiffs;
             lasExporter.wellPathsAndRkbDiff(&wellNames, &rkbDiffs);
 
             std::vector<double> userDefRkbDiff;
@@ -107,10 +105,9 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportToLasFileFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export To LAS Files...");
 }
-

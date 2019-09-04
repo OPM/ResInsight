@@ -28,8 +28,8 @@
 #include "RimPolylineTarget.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
 
-#include "RiuViewerCommands.h"
 #include "RiuViewer.h"
+#include "RiuViewerCommands.h"
 
 #include "RivPolylinesAnnotationSourceInfo.h"
 
@@ -75,7 +75,7 @@ bool RicPolylineTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEvent&
 {
     if (m_polylineDef)
     {
-        Rim3dView* rimView             = eventObject.m_view;
+        Rim3dView* rimView = eventObject.m_view;
 
         auto firstPickItem       = eventObject.m_pickItemInfos.front();
         auto targetPointInDomain = rimView->displayCoordTransform()->transformToDomainCoord(firstPickItem.globalPickedPoint());
@@ -92,4 +92,3 @@ bool RicPolylineTargetsPickEventHandler::handle3dPickEvent(const Ric3dPickEvent&
 
     return false;
 }
-

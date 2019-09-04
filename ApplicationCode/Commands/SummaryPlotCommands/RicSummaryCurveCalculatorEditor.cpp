@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -31,9 +31,8 @@
 #include <QSplitter>
 #include <QTableView>
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculatorEditor::RicSummaryCurveCalculatorEditor()
     : m_pdmTableView(nullptr)
@@ -44,7 +43,7 @@ RicSummaryCurveCalculatorEditor::RicSummaryCurveCalculatorEditor()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculatorEditor::~RicSummaryCurveCalculatorEditor()
 {
@@ -60,13 +59,15 @@ RicSummaryCurveCalculatorEditor::~RicSummaryCurveCalculatorEditor()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName)
+void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(
+    const caf::PdmUiOrdering& topLevelUiOrdering,
+    const QString&            uiConfigName)
 {
     if (!m_firstRowLeftLayout || !m_firstRowRightLayout) return;
 
-    const std::vector<caf::PdmUiItem *>& topLevelUiItems = topLevelUiOrdering.uiItems();
+    const std::vector<caf::PdmUiItem*>& topLevelUiItems = topLevelUiOrdering.uiItems();
 
     int layoutItemIndex = 0;
     for (size_t i = 0; i < topLevelUiItems.size(); ++i)
@@ -75,8 +76,8 @@ void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiOrd
 
         if (topLevelUiItems[i]->isUiGroup())
         {
-            caf::PdmUiGroup* group = static_cast<caf::PdmUiGroup*>(topLevelUiItems[i]);
-            auto groupBox = updateGroupBoxWithContent(group, uiConfigName);
+            caf::PdmUiGroup* group    = static_cast<caf::PdmUiGroup*>(topLevelUiItems[i]);
+            auto             groupBox = updateGroupBoxWithContent(group, uiConfigName);
 
             if (group->keyword() == RicSummaryCurveCalculator::calculatedSummariesGroupName())
             {
@@ -114,7 +115,7 @@ void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiOrd
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QWidget* RicSummaryCurveCalculatorEditor::createWidget(QWidget* parent)
 {
@@ -137,18 +138,18 @@ QWidget* RicSummaryCurveCalculatorEditor::createWidget(QWidget* parent)
     mainLayout->setContentsMargins(5, 5, 5, 5);
     widget->setLayout(mainLayout);
 
-    QFrame* firstRowFrame = new QFrame(widget);
+    QFrame*      firstRowFrame  = new QFrame(widget);
     QHBoxLayout* firstRowLayout = new QHBoxLayout;
     firstRowLayout->setContentsMargins(0, 0, 0, 0);
     firstRowFrame->setLayout(firstRowLayout);
 
     QFrame* firstRowLeftFrame = new QFrame(widget);
-    m_firstRowLeftLayout = new QHBoxLayout;
+    m_firstRowLeftLayout      = new QHBoxLayout;
     m_firstRowLeftLayout->setContentsMargins(0, 0, 0, 0);
     firstRowLeftFrame->setLayout(m_firstRowLeftLayout);
 
     QFrame* firstRowRightFrame = new QFrame(widget);
-    m_firstRowRightLayout = new QVBoxLayout;
+    m_firstRowRightLayout      = new QVBoxLayout;
     m_firstRowRightLayout->setContentsMargins(0, 0, 0, 0);
     firstRowRightFrame->setLayout(m_firstRowRightLayout);
 
@@ -182,12 +183,10 @@ QWidget* RicSummaryCurveCalculatorEditor::createWidget(QWidget* parent)
     return widget;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel* RicSummaryCurveCalculatorEditor::updateGroupBoxWithContent(caf::PdmUiGroup* group,
-                                                                            const QString& uiConfigName)
+QMinimizePanel* RicSummaryCurveCalculatorEditor::updateGroupBoxWithContent(caf::PdmUiGroup* group, const QString& uiConfigName)
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
 
@@ -196,7 +195,7 @@ QMinimizePanel* RicSummaryCurveCalculatorEditor::updateGroupBoxWithContent(caf::
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculator* RicSummaryCurveCalculatorEditor::calculator() const
 {
@@ -204,7 +203,7 @@ RicSummaryCurveCalculator* RicSummaryCurveCalculatorEditor::calculator() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorEditor::slotCalculate()
 {
@@ -214,7 +213,7 @@ void RicSummaryCurveCalculatorEditor::slotCalculate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorEditor::slotParseExpression()
 {
@@ -222,4 +221,3 @@ void RicSummaryCurveCalculatorEditor::slotParseExpression()
 
     m_calculator->updateConnectedEditors();
 }
-

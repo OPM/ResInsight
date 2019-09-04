@@ -18,8 +18,8 @@
 #include "RiuMdiArea.h"
 
 #include "RiuMainWindow.h"
-#include "RiuPlotMainWindow.h"
 #include "RiuMdiSubWindow.h"
+#include "RiuPlotMainWindow.h"
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

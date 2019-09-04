@@ -1,44 +1,43 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimTextAnnotation.h"
 
-#include "RimAnnotationInViewCollection.h"
-#include "RimGridView.h"
-#include "RimProject.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationGroupCollection.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationTextAppearance.h"
+#include "RimGridView.h"
+#include "RimProject.h"
 
-#include "RicVec3dPickEventHandler.h"
 #include "AnnotationCommands/RicTextAnnotation3dEditor.h"
+#include "RicVec3dPickEventHandler.h"
 
 #include "cafCmdFeatureManager.h"
+#include "cafPdmUiPickableLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeOrdering.h"
-#include "cafPdmUiPickableLineEditor.h"
 
 #include <QAction>
 #include <QPointer>
 
 CAF_PDM_SOURCE_INIT(RimTextAnnotation, "RimTextAnnotation");
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -78,16 +77,12 @@ RimTextAnnotation::RimTextAnnotation()
 
     m_anchorPointPickEventHandler.reset(new RicVec3dPickEventHandler(&m_anchorPointXyd));
     m_labelPointPickEventHandler.reset(new RicVec3dPickEventHandler(&m_labelPointXyd, 0.1));
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimTextAnnotation::~RimTextAnnotation()
-{
-
-}
+RimTextAnnotation::~RimTextAnnotation() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -95,14 +90,14 @@ RimTextAnnotation::~RimTextAnnotation()
 cvf::Vec3d RimTextAnnotation::anchorPoint() const
 {
     auto pos = m_anchorPointXyd();
-    pos.z() = -pos.z();
+    pos.z()  = -pos.z();
     return pos;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimTextAnnotation::setAnchorPoint(const Vec3d & pointXyz) 
+void RimTextAnnotation::setAnchorPoint(const Vec3d& pointXyz)
 {
     m_anchorPointXyd = pointXyz;
     m_anchorPointXyd.v().z() *= -1;
@@ -114,14 +109,14 @@ void RimTextAnnotation::setAnchorPoint(const Vec3d & pointXyz)
 cvf::Vec3d RimTextAnnotation::labelPoint() const
 {
     auto pos = m_labelPointXyd();
-    pos.z() = -pos.z();
+    pos.z()  = -pos.z();
     return pos;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimTextAnnotation::setLabelPoint(const Vec3d & pointXyz)
+void RimTextAnnotation::setLabelPoint(const Vec3d& pointXyz)
 {
     m_labelPointXyd = pointXyz;
     m_labelPointXyd.v().z() *= -1;
@@ -152,7 +147,7 @@ void RimTextAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add(&m_anchorPointPickEnabledButtonField, false);
     uiOrdering.add(&m_labelPointXyd);
     uiOrdering.add(&m_labelPointPickEnabledButtonField, false);
-    
+
     uiOrdering.add(&m_text);
 
     auto appearanceGroup = uiOrdering.addNewGroup("Text Appearance");
@@ -190,7 +185,7 @@ void RimTextAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     RimAnnotationCollectionBase* annColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(annColl);
 
-    if(annColl) annColl->scheduleRedrawOfRelevantViews();
+    if (annColl) annColl->scheduleRedrawOfRelevantViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,7 +197,7 @@ caf::PdmFieldHandle* RimTextAnnotation::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimTextAnnotation::isActive()
 {
@@ -219,7 +214,7 @@ bool RimTextAnnotation::isVisible() const
 
     bool visible = true;
     if (coll) visible = coll->isVisible();
-    if(visible) visible = m_isActive;
+    if (visible) visible = m_isActive;
 
     return visible;
 }
@@ -241,7 +236,7 @@ RimAnnotationTextAppearance* RimTextAnnotation::appearance() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimTextAnnotation::objectToggleField()
 {
@@ -284,7 +279,6 @@ void RimTextAnnotation::defineEditorAttribute(const caf::PdmFieldHandle* field,
             }
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,5 +288,3 @@ QString RimTextAnnotation::extractNameFromText() const
 {
     return m_text().split("\n").front();
 }
-
-

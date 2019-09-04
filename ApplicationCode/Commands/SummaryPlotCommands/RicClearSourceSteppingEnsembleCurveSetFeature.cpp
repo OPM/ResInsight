@@ -48,8 +48,8 @@ bool RicClearSourceSteppingEnsembleCurveSetFeature::isCommandEnabled()
         c->firstAncestorOrThisOfTypeAsserted(summaryPlot);
         if (summaryPlot)
         {
-            if (summaryPlot->ensembleCurveSetCollection()->curveSetForSourceStepping()
-                || summaryPlot->summaryCurveCollection()->curveForSourceStepping())
+            if (summaryPlot->ensembleCurveSetCollection()->curveSetForSourceStepping() ||
+                summaryPlot->summaryCurveCollection()->curveForSourceStepping())
             {
                 return true;
             }
@@ -81,7 +81,7 @@ void RicClearSourceSteppingEnsembleCurveSetFeature::onActionTriggered(bool isChe
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicClearSourceSteppingEnsembleCurveSetFeature::clearAllSourceSteppingInSummaryPlot(const RimSummaryPlot* summaryPlot)
 {

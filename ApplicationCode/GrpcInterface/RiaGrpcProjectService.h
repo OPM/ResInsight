@@ -42,7 +42,8 @@ public:
     grpc::Status GetSelectedCases(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply) override;
     grpc::Status GetAllCaseGroups(grpc::ServerContext* context, const rips::Empty* request, rips::CaseGroups* reply) override;
     grpc::Status GetAllCases(grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply) override;
-    grpc::Status GetCasesInGroup(grpc::ServerContext* context, const rips::CaseGroup* request, rips::CaseInfoArray* reply) override;
+    grpc::Status
+                 GetCasesInGroup(grpc::ServerContext* context, const rips::CaseGroup* request, rips::CaseInfoArray* reply) override;
     grpc::Status GetPdmObject(grpc::ServerContext* context, const rips::Empty* request, rips::PdmObject* reply) override;
 
 public:

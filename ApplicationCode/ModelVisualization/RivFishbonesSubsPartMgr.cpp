@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -34,9 +34,8 @@
 #include "cvfPart.h"
 #include "cvfTransform.h"
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RivFishbonesSubsPartMgr::RivFishbonesSubsPartMgr(RimFishbonesMultipleSubs* subs)
     : m_rimFishbonesSubs(subs)
@@ -44,17 +43,16 @@ RivFishbonesSubsPartMgr::RivFishbonesSubsPartMgr(RimFishbonesMultipleSubs* subs)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivFishbonesSubsPartMgr::~RivFishbonesSubsPartMgr()
-{
-
-}
+RivFishbonesSubsPartMgr::~RivFishbonesSubsPartMgr() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivFishbonesSubsPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+void RivFishbonesSubsPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                                         const caf::DisplayCoordTransform* displayCoordTransform,
+                                                         double                            characteristicCellSize)
 {
     clearGeometryCache();
 
@@ -72,7 +70,7 @@ void RivFishbonesSubsPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mo
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivFishbonesSubsPartMgr::clearGeometryCache()
 {
@@ -80,7 +78,7 @@ void RivFishbonesSubsPartMgr::clearGeometryCache()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivFishbonesSubsPartMgr::buildParts(const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
 {
@@ -97,7 +95,10 @@ void RivFishbonesSubsPartMgr::buildParts(const caf::DisplayCoordTransform* displ
 
             std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords(lateralDomainCoords);
 
-            geoGenerator.cylinderWithCenterLineParts(&m_parts, displayCoords, m_rimFishbonesSubs->fishbonesColor(), wellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
+            geoGenerator.cylinderWithCenterLineParts(&m_parts,
+                                                     displayCoords,
+                                                     m_rimFishbonesSubs->fishbonesColor(),
+                                                     wellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
         }
     }
 
@@ -107,4 +108,3 @@ void RivFishbonesSubsPartMgr::buildParts(const caf::DisplayCoordTransform* displ
         part->setSourceInfo(objectSourceInfo.p());
     }
 }
-

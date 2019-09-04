@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,18 +20,18 @@
 
 #include "RimMockModelSettings.h"
 
+#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "ExportCommands/RicExportCarfinUi.h"
 #include "ExportCommands/RicExportEclipseSectorModelUi.h"
-#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
+#include "ExportCommands/RicExportLgrUi.h"
+#include "ExportCommands/RicExportWellPathsUi.h"
 #include "FractureCommands/RicCreateMultipleFracturesUi.h"
 #include "HoloLensCommands/RicHoloLensExportToFolderUi.h"
-#include "ExportCommands/RicExportWellPathsUi.h"
-#include "ExportCommands/RicExportLgrUi.h"
 
 CAF_PDM_SOURCE_INIT(RimDialogData, "RimDialogData");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimDialogData::RimDialogData()
 {
@@ -46,7 +46,8 @@ RimDialogData::RimDialogData()
     CAF_PDM_InitFieldNoDefault(&m_multipleFractionsData, "MultipleFractionsData", "Multiple Fractures Data", "", "", "");
     m_multipleFractionsData = new RiuCreateMultipleFractionsUi();
 
-    CAF_PDM_InitFieldNoDefault(&m_holoLenseExportToFolderData, "HoloLenseExportToFolderData", "Holo Lens Export To Folder Data", "", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        &m_holoLenseExportToFolderData, "HoloLenseExportToFolderData", "Holo Lens Export To Folder Data", "", "", "");
     m_holoLenseExportToFolderData = new RicHoloLensExportToFolderUi();
 
     CAF_PDM_InitFieldNoDefault(&m_exportWellPathsData, "ExportwellPathsData", "Export Well Paths Data", "", "", "");
@@ -63,7 +64,7 @@ RimDialogData::RimDialogData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimDialogData::clearProjectSpecificData()
 {
@@ -71,7 +72,7 @@ void RimDialogData::clearProjectSpecificData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicExportCarfinUi* RimDialogData::exportCarfin() const
 {
@@ -79,7 +80,7 @@ RicExportCarfinUi* RimDialogData::exportCarfin() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimDialogData::exportCarfinDataAsString() const
 {
@@ -87,7 +88,7 @@ QString RimDialogData::exportCarfinDataAsString() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimDialogData::setExportCarfinDataFromString(const QString& data)
 {
@@ -96,7 +97,7 @@ void RimDialogData::setExportCarfinDataFromString(const QString& data)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicExportCompletionDataSettingsUi* RimDialogData::exportCompletionData() const
 {
@@ -104,7 +105,7 @@ RicExportCompletionDataSettingsUi* RimDialogData::exportCompletionData() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuCreateMultipleFractionsUi* RimDialogData::multipleFractionsData() const
 {
@@ -112,7 +113,7 @@ RiuCreateMultipleFractionsUi* RimDialogData::multipleFractionsData() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicHoloLensExportToFolderUi* RimDialogData::holoLensExportToFolderData() const
 {
@@ -120,7 +121,7 @@ RicHoloLensExportToFolderUi* RimDialogData::holoLensExportToFolderData() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicExportWellPathsUi* RimDialogData::wellPathsExportData() const
 {
@@ -128,7 +129,7 @@ RicExportWellPathsUi* RimDialogData::wellPathsExportData() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicExportLgrUi* RimDialogData::exportLgrData() const
 {
@@ -144,10 +145,9 @@ RicExportEclipseSectorModelUi* RimDialogData::exportSectorModelUi() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimMockModelSettings* RimDialogData::mockModelSettings() const
 {
     return m_mockModelSettings;
 }
-

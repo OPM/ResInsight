@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -37,22 +37,21 @@
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimWellLogTrack.h"
 #include "RiuMainWindow.h"
 
 #include "RicWellLogTools.h"
 
+#include "cafPdmUiItem.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
-#include "cafPdmUiItem.h"
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-template <typename T>
+template<typename T>
 class RiuTypedPdmObjects
 {
 public:
@@ -61,7 +60,7 @@ public:
         objectGroup.objectsByType(&m_typedObjects);
     }
 
-    explicit RiuTypedPdmObjects(const std::vector<caf::PdmPointer<caf::PdmObjectHandle> >& objectHandles)
+    explicit RiuTypedPdmObjects(const std::vector<caf::PdmPointer<caf::PdmObjectHandle>>& objectHandles)
     {
         for (size_t i = 0; i < objectHandles.size(); i++)
         {
@@ -82,7 +81,7 @@ public:
         return typedObjectsGetter.typedObjects().size() > 0;
     }
 
-    static bool containsTypedObjects(const std::vector<caf::PdmPointer<caf::PdmObjectHandle> >& objectHandles)
+    static bool containsTypedObjects(const std::vector<caf::PdmPointer<caf::PdmObjectHandle>>& objectHandles)
     {
         RiuTypedPdmObjects<T> typedObjectsGetter(objectHandles);
         return typedObjectsGetter.typedObjects().size() > 0;
@@ -101,12 +100,11 @@ private:
     }
 
 private:
-    std::vector<caf::PdmPointer<T> > m_typedObjects;
+    std::vector<caf::PdmPointer<T>> m_typedObjects;
 };
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuDragDrop::RiuDragDrop()
 {
@@ -114,18 +112,16 @@ RiuDragDrop::RiuDragDrop()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuDragDrop::~RiuDragDrop()
-{
-}
+RiuDragDrop::~RiuDragDrop() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Qt::DropActions RiuDragDrop::supportedDropActions() const
 {
-    // Keep drag items so that we can determine allowed actions while dragging    
+    // Keep drag items so that we can determine allowed actions while dragging
     m_dragItems = objectHandlesFromSelection();
 
     if (RiuTypedPdmObjects<RimEclipseCase>::containsTypedObjects(m_dragItems))
@@ -141,16 +137,16 @@ Qt::DropActions RiuDragDrop::supportedDropActions() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
+Qt::ItemFlags RiuDragDrop::flags(const QModelIndex& index) const
 {
     Qt::ItemFlags itemflags = nullptr;
 
     if (index.isValid())
     {
         caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
-        caf::PdmUiItem* uiItem = uiTreeView->uiItemFromModelIndex(index);
+        caf::PdmUiItem*     uiItem     = uiTreeView->uiItemFromModelIndex(index);
 
         caf::PdmObject* pdmObj = dynamic_cast<caf::PdmObject*>(uiItem);
         if (pdmObj)
@@ -160,10 +156,8 @@ Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
             if (wellAllocationPlot) return itemflags;
         }
 
-        if (dynamic_cast<RimEclipseCase*>(uiItem) ||
-            dynamic_cast<RimWellLogCurve*>(uiItem) ||
-            dynamic_cast<RimWellLogFileChannel*>(uiItem) || 
-            dynamic_cast<RimWellLogTrack*>(uiItem) ||
+        if (dynamic_cast<RimEclipseCase*>(uiItem) || dynamic_cast<RimWellLogCurve*>(uiItem) ||
+            dynamic_cast<RimWellLogFileChannel*>(uiItem) || dynamic_cast<RimWellLogTrack*>(uiItem) ||
             dynamic_cast<RimSummaryCase*>(uiItem))
         {
             // TODO: Remember to handle reservoir holding the main grid
@@ -249,16 +243,16 @@ Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+bool RiuDragDrop::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
 {
-    caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
-    caf::PdmUiItem* dropTargetUiItem = uiTreeView->uiItemFromModelIndex(parent);
-    caf::PdmObjectHandle* dropTarget = dynamic_cast<caf::PdmObjectHandle*>(dropTargetUiItem);
+    caf::PdmUiTreeView*   uiTreeView       = RiuMainWindow::instance()->projectTreeView();
+    caf::PdmUiItem*       dropTargetUiItem = uiTreeView->uiItemFromModelIndex(parent);
+    caf::PdmObjectHandle* dropTarget       = dynamic_cast<caf::PdmObjectHandle*>(dropTargetUiItem);
     if (dropTarget)
     {
-        caf::PdmObjectGroup draggedObjects;
+        caf::PdmObjectGroup        draggedObjects;
         const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>(data);
         if (myMimeData && parent.isValid())
         {
@@ -316,18 +310,18 @@ bool RiuDragDrop::dropMimeData(const QMimeData *data, Qt::DropAction action, int
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QMimeData* RiuDragDrop::mimeData(const QModelIndexList &indexes) const
+QMimeData* RiuDragDrop::mimeData(const QModelIndexList& indexes) const
 {
     MimeDataWithIndexes* myObj = new MimeDataWithIndexes();
     myObj->setIndexes(indexes);
-        
+
     return myObj;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QStringList RiuDragDrop::mimeTypes() const
 {
@@ -337,7 +331,7 @@ QStringList RiuDragDrop::mimeTypes() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuDragDrop::onDragCanceled()
 {
@@ -345,7 +339,7 @@ void RiuDragDrop::onDragCanceled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuDragDrop::moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup)
 {
@@ -354,7 +348,7 @@ void RiuDragDrop::moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIden
     if (RicCloseCaseFeature::userConfirmedGridCaseGroupChange(casesToBeDeleted))
     {
         RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(objectGroup, gridCaseGroup);
-    
+
         for (size_t i = 0; i < casesToBeDeleted.size(); i++)
         {
             RicCloseCaseFeature::deleteEclipseCase(casesToBeDeleted[i]);
@@ -363,9 +357,11 @@ void RiuDragDrop::moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIden
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleGridCaseGroupDrop(Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup)
+bool RiuDragDrop::handleGridCaseGroupDrop(Qt::DropAction             action,
+                                          caf::PdmObjectGroup&       objectGroup,
+                                          RimIdenticalGridCaseGroup* gridCaseGroup)
 {
     if (action == Qt::CopyAction)
     {
@@ -380,11 +376,14 @@ bool RiuDragDrop::handleGridCaseGroupDrop(Qt::DropAction action, caf::PdmObjectG
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObjectGroup& draggedObjects, RimWellLogTrack* trackTarget)
+bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction       action,
+                                             caf::PdmObjectGroup& draggedObjects,
+                                             RimWellLogTrack*     trackTarget)
 {
-    std::vector<RimWellLogFileChannel*> wellLogFileChannels = RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup(draggedObjects);
+    std::vector<RimWellLogFileChannel*> wellLogFileChannels =
+        RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup(draggedObjects);
     if (wellLogFileChannels.size() > 0)
     {
         if (action == Qt::CopyAction)
@@ -411,7 +410,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
         {
             RimWellLogPlot* wellLogPlot;
             trackTarget->firstAncestorOrThisOfType(wellLogPlot);
-            RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(wellLogPlot, wellLogPlotTracks, trackTarget); 
+            RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(wellLogPlot, wellLogPlotTracks, trackTarget);
             return true;
         }
     }
@@ -420,9 +419,11 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGroup& draggedObjects, RimWellLogPlot* wellLogPlotTarget)
+bool RiuDragDrop::handleWellLogPlotDrop(Qt::DropAction       action,
+                                        caf::PdmObjectGroup& draggedObjects,
+                                        RimWellLogPlot*      wellLogPlotTarget)
 {
     std::vector<RimWellLogTrack*> wellLogPlotTracks = RiuTypedPdmObjects<RimWellLogTrack>::typedObjectsFromGroup(draggedObjects);
     if (wellLogPlotTracks.size() > 0)
@@ -438,9 +439,11 @@ bool RiuDragDrop::handleWellLogPlotDrop(Qt::DropAction action, caf::PdmObjectGro
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleWellLogPlotCurveDrop(Qt::DropAction action, caf::PdmObjectGroup& draggedObjects, RimWellLogCurve* curveDropTarget)
+bool RiuDragDrop::handleWellLogPlotCurveDrop(Qt::DropAction       action,
+                                             caf::PdmObjectGroup& draggedObjects,
+                                             RimWellLogCurve*     curveDropTarget)
 {
     std::vector<RimWellLogCurve*> wellLogPlotCurves = RiuTypedPdmObjects<RimWellLogCurve>::typedObjectsFromGroup(draggedObjects);
     if (wellLogPlotCurves.size() > 0)
@@ -459,9 +462,11 @@ bool RiuDragDrop::handleWellLogPlotCurveDrop(Qt::DropAction action, caf::PdmObje
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleSummaryCaseCollectionDrop(Qt::DropAction action, caf::PdmObjectGroup& draggedObjects, RimSummaryCaseCollection* summaryCaseDropTarget)
+bool RiuDragDrop::handleSummaryCaseCollectionDrop(Qt::DropAction            action,
+                                                  caf::PdmObjectGroup&      draggedObjects,
+                                                  RimSummaryCaseCollection* summaryCaseDropTarget)
 {
     std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup(draggedObjects);
 
@@ -471,7 +476,7 @@ bool RiuDragDrop::handleSummaryCaseCollectionDrop(Qt::DropAction action, caf::Pd
     {
         RimSummaryCaseCollection* summaryCaseCollection;
         summaryCase->firstAncestorOrThisOfType(summaryCaseCollection);
-        
+
         if (summaryCaseCollection)
         {
             summaryCaseCollection->removeCase(summaryCase);
@@ -494,13 +499,15 @@ bool RiuDragDrop::handleSummaryCaseCollectionDrop(Qt::DropAction action, caf::Pd
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleSummaryCaseMainCollectionDrop(Qt::DropAction action, caf::PdmObjectGroup& draggedObjects, RimSummaryCaseMainCollection* summaryCaseDropTarget)
+bool RiuDragDrop::handleSummaryCaseMainCollectionDrop(Qt::DropAction                action,
+                                                      caf::PdmObjectGroup&          draggedObjects,
+                                                      RimSummaryCaseMainCollection* summaryCaseDropTarget)
 {
     std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup(draggedObjects);
-    
-    if (action != Qt::MoveAction || summaryCases.size() == 0 ) return false;
+
+    if (action != Qt::MoveAction || summaryCases.size() == 0) return false;
 
     for (RimSummaryCase* summaryCase : summaryCases)
     {
@@ -516,12 +523,12 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop(Qt::DropAction action, caf
     }
 
     summaryCaseDropTarget->updateConnectedEditors();
-    
+
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuDragDrop::objectGroupFromModelIndexes(caf::PdmObjectGroup* objectGroup, const QModelIndexList& indexes)
 {
@@ -532,7 +539,7 @@ void RiuDragDrop::objectGroupFromModelIndexes(caf::PdmObjectGroup* objectGroup, 
 
     for (int i = 0; i < indexes.size(); i++)
     {
-        caf::PdmUiItem* uiItem = uiTreeView->uiItemFromModelIndex(indexes[i]);
+        caf::PdmUiItem*       uiItem    = uiTreeView->uiItemFromModelIndex(indexes[i]);
         caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(uiItem);
         if (objHandle)
         {
@@ -542,14 +549,14 @@ void RiuDragDrop::objectGroupFromModelIndexes(caf::PdmObjectGroup* objectGroup, 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmPointer<caf::PdmObjectHandle> > RiuDragDrop::objectHandlesFromSelection()
+std::vector<caf::PdmPointer<caf::PdmObjectHandle>> RiuDragDrop::objectHandlesFromSelection()
 {
     std::vector<caf::PdmObjectHandle*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
-    std::vector<caf::PdmPointer<caf::PdmObjectHandle> > objectHandles;
+    std::vector<caf::PdmPointer<caf::PdmObjectHandle>> objectHandles;
 
     for (size_t sIdx = 0; sIdx < selection.size(); sIdx++)
     {
@@ -560,7 +567,7 @@ std::vector<caf::PdmPointer<caf::PdmObjectHandle> > RiuDragDrop::objectHandlesFr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuDragDrop::onProposedDropActionUpdated(Qt::DropAction action)
 {

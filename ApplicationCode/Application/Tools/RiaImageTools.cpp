@@ -77,9 +77,9 @@ void RiaImageTools::distanceTransform2d(std::vector<std::vector<unsigned int>>& 
 #pragma omp parallel for
     for (int64_t y = 0; y < N; ++y)
     {
-        int64_t           q = 0;
-        std::vector<int64_t> s(std::max(N, M), (int64_t) 0);
-        std::vector<int64_t> t(std::max(N, M), (int64_t) 0);
+        int64_t              q = 0;
+        std::vector<int64_t> s(std::max(N, M), (int64_t)0);
+        std::vector<int64_t> t(std::max(N, M), (int64_t)0);
 
         for (int64_t u = 1; u < M - 1; ++u)
         {
@@ -133,4 +133,3 @@ void RiaImageTools::makeGrayScale(QImage& image)
         }
     }
 }
-

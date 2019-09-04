@@ -1,21 +1,20 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017- Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 
 #include "RimObservedDataCollection.h"
 
@@ -26,31 +25,31 @@
 
 #include "RifKeywordVectorParser.h"
 
-#include "RimObservedFmuRftData.h"
-#include "RimObservedSummaryData.h"
 #include "RimCsvUserData.h"
 #include "RimObservedEclipseUserData.h"
+#include "RimObservedFmuRftData.h"
+#include "RimObservedSummaryData.h"
 #include "RimSummaryObservedDataFile.h"
 
-#include "RiuPlotMainWindowTools.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
-#include "cafUtils.h"
 #include "cafPdmSettings.h"
-#include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiObjectEditorHandle.h"
+#include "cafPdmUiPropertyViewDialog.h"
+#include "cafUtils.h"
 
 #include <QFile>
 
 CAF_PDM_SOURCE_INIT(RimObservedDataCollection, "ObservedDataCollection");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimObservedDataCollection::RimObservedDataCollection()
 {
     CAF_PDM_InitObject("Observed Data", ":/Folder.png", "", "");
-    
+
     CAF_PDM_InitFieldNoDefault(&m_observedDataArray, "ObservedDataArray", "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_observedFmuRftArray, "ObservedFmuRftDataArray", "", "", "", "");
     m_observedDataArray.uiCapability()->setUiHidden(true);
@@ -58,7 +57,7 @@ RimObservedDataCollection::RimObservedDataCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimObservedDataCollection::~RimObservedDataCollection()
 {
@@ -67,7 +66,7 @@ RimObservedDataCollection::~RimObservedDataCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimObservedDataCollection::removeObservedSummaryData(RimObservedSummaryData* observedData)
 {
@@ -85,7 +84,7 @@ void RimObservedDataCollection::removeObservedFmuRftData(RimObservedFmuRftData* 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimObservedSummaryData*> RimObservedDataCollection::allObservedSummaryData() const
 {
@@ -101,7 +100,7 @@ std::vector<RimObservedFmuRftData*> RimObservedDataCollection::allObservedFmuRft
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimObservedDataCollection::fileExists(const QString& fileName, QString* errorText /*= nullptr*/)
 {
@@ -118,7 +117,7 @@ bool RimObservedDataCollection::fileExists(const QString& fileName, QString* err
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void updateNewObservedDataCreated(caf::PdmObject* object)
 {
@@ -133,15 +132,16 @@ void updateNewObservedDataCreated(caf::PdmObject* object)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimObservedSummaryData* RimObservedDataCollection::createAndAddRsmObservedSummaryDataFromFile(const QString& fileName, QString* errorText /*= nullptr*/)
+RimObservedSummaryData* RimObservedDataCollection::createAndAddRsmObservedSummaryDataFromFile(const QString& fileName,
+                                                                                              QString* errorText /*= nullptr*/)
 {
     if (!fileExists(fileName, errorText)) return nullptr;
 
-    RimObservedSummaryData* observedData = nullptr;
+    RimObservedSummaryData*     observedData        = nullptr;
     RimObservedEclipseUserData* columnBasedUserData = new RimObservedEclipseUserData();
-    observedData = columnBasedUserData;
+    observedData                                    = columnBasedUserData;
 
     this->m_observedDataArray.push_back(observedData);
     observedData->setSummaryHeaderFileName(fileName);
@@ -162,15 +162,17 @@ RimObservedSummaryData* RimObservedDataCollection::createAndAddRsmObservedSummar
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimObservedSummaryData* RimObservedDataCollection::createAndAddCvsObservedSummaryDataFromFile(const QString& fileName, bool useSavedFieldsValuesInDialog, QString* errorText /*= nullptr*/)
+RimObservedSummaryData* RimObservedDataCollection::createAndAddCvsObservedSummaryDataFromFile(const QString& fileName,
+                                                                                              bool useSavedFieldsValuesInDialog,
+                                                                                              QString* errorText /*= nullptr*/)
 {
     if (!fileExists(fileName, errorText)) return nullptr;
 
     RimObservedSummaryData* observedData = nullptr;
 
-    RimCsvUserData* userData = new RimCsvUserData();
+    RimCsvUserData*                          userData     = new RimCsvUserData();
     RicPasteAsciiDataToSummaryPlotFeatureUi* parseOptions = userData->parseOptions();
 
     if (useSavedFieldsValuesInDialog)
@@ -190,7 +192,7 @@ RimObservedSummaryData* RimObservedDataCollection::createAndAddCvsObservedSummar
 
     caf::PdmSettings::writeFieldsToApplicationStore(parseOptions);
 
-    //userData->setParseOptions(parseOptionsUi.parseOptions());
+    // userData->setParseOptions(parseOptionsUi.parseOptions());
     userData->setSummaryHeaderFileName(fileName);
     userData->createSummaryReaderInterface();
     userData->updateMetaData();
@@ -232,7 +234,7 @@ RimObservedFmuRftData* RimObservedDataCollection::createAndAddFmuRftDataFromPath
     fmuRftData->setName(name);
     m_observedFmuRftArray.push_back(fmuRftData);
 
-	updateNewObservedDataCreated(fmuRftData);
+    updateNewObservedDataCreated(fmuRftData);
     this->updateConnectedEditors();
 
     return fmuRftData;

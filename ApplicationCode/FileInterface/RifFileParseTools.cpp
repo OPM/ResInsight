@@ -18,9 +18,8 @@
 
 #include "RifFileParseTools.h"
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QStringList RifFileParseTools::splitLineAndTrim(const QString& line, const QString& separator, bool skipEmptyParts)
 {
@@ -33,7 +32,7 @@ QStringList RifFileParseTools::splitLineAndTrim(const QString& line, const QStri
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QStringList RifFileParseTools::splitLineAndTrim(const QString& line, const QRegExp& regexp, bool skipEmptyParts)
 {

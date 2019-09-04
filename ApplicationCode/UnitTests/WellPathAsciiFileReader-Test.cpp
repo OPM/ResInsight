@@ -6,7 +6,7 @@
 #include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RimWellPathAsciiFileReaderTest, TestWellNameNoColon)
 {
@@ -20,14 +20,14 @@ TEST(RimWellPathAsciiFileReaderTest, TestWellNameNoColon)
             out << "1 2 3";
         }
 
-        RifWellPathImporter reader;
+        RifWellPathImporter           reader;
         RifWellPathImporter::WellData wpData = reader.readWellData(file.fileName(), 0);
         EXPECT_TRUE(wpData.m_name == wellName);
-     }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RimWellPathAsciiFileReaderTest, TestWellNameWithColon)
 {
@@ -41,14 +41,14 @@ TEST(RimWellPathAsciiFileReaderTest, TestWellNameWithColon)
             out << "1 2 3";
         }
 
-        RifWellPathImporter reader;
+        RifWellPathImporter           reader;
         RifWellPathImporter::WellData wpData = reader.readWellData(file.fileName(), 0);
         EXPECT_TRUE(wpData.m_name == wellName);
-     }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RimWellPathAsciiFileReaderTest, TestWellNameWithColonAndSpace)
 {
@@ -62,8 +62,8 @@ TEST(RimWellPathAsciiFileReaderTest, TestWellNameWithColonAndSpace)
             out << "1 2 3";
         }
 
-        RifWellPathImporter reader;
+        RifWellPathImporter           reader;
         RifWellPathImporter::WellData wpData = reader.readWellData(file.fileName(), 0);
         EXPECT_TRUE(wpData.m_name == wellName);
-     }
+    }
 }

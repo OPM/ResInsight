@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,8 +20,8 @@
 #include "RimGeoMechPropertyFilter.h"
 
 #include "RigFemPartResultsCollection.h"
-#include "RigGeoMechCaseData.h"
 #include "RigFormationNames.h"
+#include "RigGeoMechCaseData.h"
 
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechResultDefinition.h"
@@ -38,7 +38,7 @@
 CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilter, "GeoMechPropertyFilter");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
     : m_parentContainer(nullptr)
@@ -66,7 +66,7 @@ RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPropertyFilter::~RimGeoMechPropertyFilter()
 {
@@ -74,15 +74,14 @@ RimGeoMechPropertyFilter::~RimGeoMechPropertyFilter()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimGeoMechPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                const QVariant&            oldValue,
+                                                const QVariant&            newValue)
 {
-    if (   &lowerBound == changedField
-        || &upperBound == changedField
-        || &isActive == changedField
-        || &filterMode == changedField
-        || &m_selectedCategoryValues == changedField)
+    if (&lowerBound == changedField || &upperBound == changedField || &isActive == changedField || &filterMode == changedField ||
+        &m_selectedCategoryValues == changedField)
     {
         this->updateIconState();
         this->updateFilterName();
@@ -93,7 +92,7 @@ void RimGeoMechPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::setParentContainer(RimGeoMechPropertyFilterCollection* parentContainer)
 {
@@ -101,7 +100,7 @@ void RimGeoMechPropertyFilter::setParentContainer(RimGeoMechPropertyFilterCollec
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPropertyFilterCollection* RimGeoMechPropertyFilter::parentContainer()
 {
@@ -109,7 +108,7 @@ RimGeoMechPropertyFilterCollection* RimGeoMechPropertyFilter::parentContainer()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::setToDefaultValues()
 {
@@ -126,9 +125,9 @@ void RimGeoMechPropertyFilter::setToDefaultValues()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
+void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&name);
 
@@ -139,7 +138,7 @@ void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
     group2.add(&filterMode);
 
-    if ( resultDefinition->hasCategoryResult() )
+    if (resultDefinition->hasCategoryResult())
     {
         group2.add(&m_selectedCategoryValues);
     }
@@ -155,7 +154,7 @@ void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
 {
@@ -165,7 +164,7 @@ void RimGeoMechPropertyFilter::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::updateReadOnlyStateOfAllFields()
 {
@@ -186,7 +185,7 @@ void RimGeoMechPropertyFilter::updateReadOnlyStateOfAllFields()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
 {
@@ -203,13 +202,12 @@ bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
             isPropertyFilterControlled = true;
         }
     }
-   
+
     return isPropertyFilterControlled;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::updateActiveState()
 {
@@ -217,7 +215,7 @@ void RimGeoMechPropertyFilter::updateActiveState()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPropertyFilter::isActiveAndHasResult()
 {
@@ -225,14 +223,16 @@ bool RimGeoMechPropertyFilter::isActiveAndHasResult()
     {
         return true;
     }
-    
+
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechPropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimGeoMechPropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                     QString                    uiConfigName,
+                                                     caf::PdmUiEditorAttribute* attribute)
 {
     if (m_minimumResultValue == cvf::UNDEFINED_DOUBLE || m_maximumResultValue == cvf::UNDEFINED_DOUBLE)
     {
@@ -253,7 +253,7 @@ void RimGeoMechPropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::computeResultValueRange()
 {
@@ -290,12 +290,12 @@ void RimGeoMechPropertyFilter::computeResultValueRange()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::updateFilterName()
 {
     RigFemResultAddress resultAddress = resultDefinition->resultAddress();
-    QString newFiltername;
+    QString             newFiltername;
 
     if (resultAddress.resultPosType == RIG_FORMATION_NAMES)
     {
@@ -307,21 +307,28 @@ void RimGeoMechPropertyFilter::updateFilterName()
 
         switch (resultAddress.resultPosType)
         {
-            case RIG_NODAL: posName = "N"; break;
-            case RIG_ELEMENT_NODAL: posName = "EN"; break;
-            case RIG_INTEGRATION_POINT: posName = "IP"; break;
-            case RIG_ELEMENT: posName = "E"; break;
+            case RIG_NODAL:
+                posName = "N";
+                break;
+            case RIG_ELEMENT_NODAL:
+                posName = "EN";
+                break;
+            case RIG_INTEGRATION_POINT:
+                posName = "IP";
+                break;
+            case RIG_ELEMENT:
+                posName = "E";
+                break;
         }
 
         QString fieldUiName = resultDefinition->resultFieldUiName();
         QString compoUiName = resultDefinition->resultComponentUiName();
 
-        newFiltername =  posName + ", " + fieldUiName + ", " + compoUiName + " ("
-         + QString::number(lowerBound()) + " .. " + QString::number(upperBound) + ")";
+        newFiltername = posName + ", " + fieldUiName + ", " + compoUiName + " (" + QString::number(lowerBound()) + " .. " +
+                        QString::number(upperBound) + ")";
     }
 
     this->name = newFiltername;
 
     uiCapability()->updateConnectedEditors();
 }
-

@@ -62,9 +62,9 @@ void RicReloadWellPathFormationNamesFeature::onActionTriggered(bool isChecked)
         wellPaths[0]->firstAncestorOrThisOfTypeAsserted(wellPathCollection);
         wellPathCollection->reloadAllWellPathFormations();
     }
-    else if (wellPathCollections.size() > 0) 
+    else if (wellPathCollections.size() > 0)
     {
-        wellPathCollections[0]->reloadAllWellPathFormations(); 
+        wellPathCollections[0]->reloadAllWellPathFormations();
     }
 
     RimProject* project = RiaApplication::instance()->project();

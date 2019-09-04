@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,18 +21,16 @@
 
 #include "RigGridBase.h"
 
-#include <cmath>
 #include "RigCell.h"
 #include "RigMainGrid.h"
-
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigCombTransResultAccessor::RigCombTransResultAccessor(const RigGridBase* grid)
     : m_grid(grid)
 {
-    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +48,7 @@ void RigCombTransResultAccessor::setTransResultAccessors(RigResultAccessor* xTra
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigCombTransResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 {
@@ -61,7 +59,9 @@ double RigCombTransResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 //--------------------------------------------------------------------------------------------------
 /// Get tran value from neighbor cell. Return 0.0 on active/inactive cell borders and end of grid
 //--------------------------------------------------------------------------------------------------
-double RigCombTransResultAccessor::neighborCellTran(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId, const RigResultAccessor* transAccessor) const
+double RigCombTransResultAccessor::neighborCellTran(size_t                             gridLocalCellIndex,
+                                                    cvf::StructGridInterface::FaceType faceId,
+                                                    const RigResultAccessor*           transAccessor) const
 {
     if (transAccessor != nullptr)
     {
@@ -89,13 +89,13 @@ double RigCombTransResultAccessor::neighborCellTran(size_t gridLocalCellIndex, c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigCombTransResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
     switch (faceId)
     {
-    case cvf::StructGridInterface::POS_I:
+        case cvf::StructGridInterface::POS_I:
         {
             if (m_xTransAccessor.notNull())
             {
@@ -103,12 +103,12 @@ double RigCombTransResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf
             }
         }
         break;
-    case cvf::StructGridInterface::NEG_I:
+        case cvf::StructGridInterface::NEG_I:
         {
             return this->neighborCellTran(gridLocalCellIndex, cvf::StructGridInterface::NEG_I, m_xTransAccessor.p());
         }
         break;
-    case cvf::StructGridInterface::POS_J:
+        case cvf::StructGridInterface::POS_J:
         {
             if (m_yTransAccessor.notNull())
             {
@@ -116,12 +116,12 @@ double RigCombTransResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf
             }
         }
         break;
-    case cvf::StructGridInterface::NEG_J:
+        case cvf::StructGridInterface::NEG_J:
         {
             return this->neighborCellTran(gridLocalCellIndex, cvf::StructGridInterface::NEG_J, m_yTransAccessor.p());
         }
         break;
-    case cvf::StructGridInterface::POS_K:
+        case cvf::StructGridInterface::POS_K:
         {
             if (m_zTransAccessor.notNull())
             {
@@ -129,20 +129,20 @@ double RigCombTransResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf
             }
         }
         break;
-    case cvf::StructGridInterface::NEG_K:
+        case cvf::StructGridInterface::NEG_K:
         {
             return this->neighborCellTran(gridLocalCellIndex, cvf::StructGridInterface::NEG_K, m_zTransAccessor.p());
         }
         break;
-    default:
-        break;
+        default:
+            break;
     }
 
     return HUGE_VAL;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigCombTransResultAccessor::cellScalarGlobIdx(size_t globCellIndex) const
 {
@@ -152,11 +152,10 @@ double RigCombTransResultAccessor::cellScalarGlobIdx(size_t globCellIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigCombTransResultAccessor::cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
     size_t gridLocalCellIndex = m_grid->mainGrid()->cell(globCellIndex).gridLocalCellIndex();
     return this->cellFaceScalar(gridLocalCellIndex, faceId);
 }
-

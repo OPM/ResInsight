@@ -94,9 +94,9 @@ void RigActiveCellInfo::setCellResultIndex(size_t reservoirCellIndex, size_t res
 
     m_cellIndexToResultIndex[reservoirCellIndex] = reservoirCellResultIndex;
 
-    #pragma omp critical
+#pragma omp critical
     {
-        if ( reservoirCellResultIndex >= m_reservoirCellResultCount )
+        if (reservoirCellResultIndex >= m_reservoirCellResultCount)
         {
             m_reservoirCellResultCount = reservoirCellResultIndex + 1;
         }

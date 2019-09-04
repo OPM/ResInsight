@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,12 +27,14 @@
 #include "RivGridPartMgr.h"
 #include "RivReservoirFaultsPartMgr.h"
 
-#include "cvfStructGrid.h"
 #include "cvfModelBasicList.h"
+#include "cvfStructGrid.h"
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::clearAndSetReservoir(RivCellSetEnum cellSetType, RimEclipseCase* eclipseCase, RimEclipseView* reservoirView)
+void RivReservoirPartMgr::clearAndSetReservoir(RivCellSetEnum  cellSetType,
+                                               RimEclipseCase* eclipseCase,
+                                               RimEclipseView* reservoirView)
 {
     m_allGrids.clear();
 
@@ -42,7 +44,7 @@ void RivReservoirPartMgr::clearAndSetReservoir(RivCellSetEnum cellSetType, RimEc
 
         std::vector<const RigGridBase*> grids;
         eclipseCaseData->allGrids(&grids);
-        for (size_t i = 0; i < grids.size() ; ++i)
+        for (size_t i = 0; i < grids.size(); ++i)
         {
             m_allGrids.push_back(new RivGridPartMgr(cellSetType, eclipseCase, grids[i], i));
         }
@@ -56,11 +58,11 @@ void RivReservoirPartMgr::clearAndSetReservoir(RivCellSetEnum cellSetType, RimEc
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::setTransform(cvf::Transform* scaleTransform)
 {
-    for (size_t i = 0; i < m_allGrids.size() ; ++i)
+    for (size_t i = 0; i < m_allGrids.size(); ++i)
     {
         m_allGrids[i]->setTransform(scaleTransform);
     }
@@ -72,7 +74,7 @@ void RivReservoirPartMgr::setTransform(cvf::Transform* scaleTransform)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::setCellVisibility(size_t gridIndex, cvf::UByteArray* cellVisibilities)
 {
@@ -87,20 +89,20 @@ void RivReservoirPartMgr::setCellVisibility(size_t gridIndex, cvf::UByteArray* c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::UByteArray> RivReservoirPartMgr::cellVisibility(size_t gridIdx)
 {
-    CVF_ASSERT(gridIdx < m_allGrids.size()); 
-    return  m_allGrids[gridIdx]->cellVisibility();
+    CVF_ASSERT(gridIdx < m_allGrids.size());
+    return m_allGrids[gridIdx]->cellVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::updateCellColor(cvf::Color4f color)
 {
-    for (size_t i = 0; i < m_allGrids.size() ; ++i)
+    for (size_t i = 0; i < m_allGrids.size(); ++i)
     {
         m_allGrids[i]->updateCellColor(color);
     }
@@ -113,44 +115,46 @@ void RivReservoirPartMgr::updateCellColor(cvf::Color4f color)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
 {
-    for (size_t i = 0; i < m_allGrids.size() ; ++i)
+    for (size_t i = 0; i < m_allGrids.size(); ++i)
     {
         m_allGrids[i]->updateCellResultColor(timeStepIndex, cellResultColors);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
+void RivReservoirPartMgr::updateCellEdgeResultColor(size_t                timeStepIndex,
+                                                    RimEclipseCellColors* cellResultColors,
+                                                    RimCellEdgeColors*    cellEdgeResultColors)
 {
-    for (size_t i = 0; i < m_allGrids.size() ; ++i)
+    for (size_t i = 0; i < m_allGrids.size(); ++i)
     {
         m_allGrids[i]->updateCellEdgeResultColor(timeStepIndex, cellResultColors, cellEdgeResultColors);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::appendGridPartsToModel(cvf::ModelBasicList* model)
 {
-    for (size_t i = 0; i < m_allGrids.size() ; ++i)
+    for (size_t i = 0; i < m_allGrids.size(); ++i)
     {
         m_allGrids[i]->appendPartsToModel(model);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::appendGridPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& gridIndices)
 {
-    for (size_t i = 0; i < gridIndices.size() ; ++i)
+    for (size_t i = 0; i < gridIndices.size(); ++i)
     {
         if (gridIndices[i] < m_allGrids.size())
         {
@@ -160,7 +164,7 @@ void RivReservoirPartMgr::appendGridPartsToModel(cvf::ModelBasicList* model, con
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::updateFaultColors(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
 {
@@ -171,7 +175,7 @@ void RivReservoirPartMgr::updateFaultColors(size_t timeStepIndex, RimEclipseCell
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::appendFaultPartsToModel(cvf::ModelBasicList* model)
 {
@@ -182,7 +186,7 @@ void RivReservoirPartMgr::appendFaultPartsToModel(cvf::ModelBasicList* model)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::appendFaultLabelPartsToModel(cvf::ModelBasicList* model)
 {
@@ -193,7 +197,7 @@ void RivReservoirPartMgr::appendFaultLabelPartsToModel(cvf::ModelBasicList* mode
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::forceWatertightGeometryOn()
 {
@@ -204,7 +208,7 @@ void RivReservoirPartMgr::forceWatertightGeometryOn()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::clearWatertightGeometryFlag()
 {
@@ -215,14 +219,14 @@ void RivReservoirPartMgr::clearWatertightGeometryFlag()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateFaultCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
+void RivReservoirPartMgr::updateFaultCellEdgeResultColor(size_t                timeStepIndex,
+                                                         RimEclipseCellColors* cellResultColors,
+                                                         RimCellEdgeColors*    cellEdgeResultColors)
 {
     if (m_faultsPartMgr.notNull())
     {
         m_faultsPartMgr->updateCellEdgeResultColor(timeStepIndex, cellResultColors, cellEdgeResultColors);
     }
-
 }
-

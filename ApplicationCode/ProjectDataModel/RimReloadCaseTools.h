@@ -29,7 +29,7 @@ class RimReloadCaseTools
 public:
     // Reload all eclipse data, both grid and summary
     static void reloadAllEclipseData(RimEclipseCase* eclipseCase);
-    
+
     // Reload grid data, but not summary
     static void reloadAllEclipseGridData(RimEclipseCase* eclipseCase);
 

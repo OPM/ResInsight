@@ -28,13 +28,13 @@
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 
-#include "RimEclipseContourMapView.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
@@ -418,7 +418,7 @@ void RimViewController::updateOptionSensitivity()
     else
     {
         this->m_syncCamera.uiCapability()->setUiReadOnly(true);
-        this->m_syncCamera = false;        
+        this->m_syncCamera = false;
     }
 
     if (isPropertyFilterControlPossible())
@@ -452,7 +452,6 @@ void RimViewController::updateOptionSensitivity()
     }
 
     m_syncVisibleCells.uiCapability()->setUiReadOnly(!this->isMasterAndDepViewDifferentType());
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -569,8 +568,8 @@ void RimViewController::updateLegendDefinitions()
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateDefaultOptions()
 {
-    m_syncCellResult = isCellResultControlAdvisable();
-    m_syncRangeFilters = isRangeFilterControlAdvisable();
+    m_syncCellResult      = isCellResultControlAdvisable();
+    m_syncRangeFilters    = isRangeFilterControlAdvisable();
     m_syncPropertyFilters = isPropertyFilterControlAdvisable();
 }
 
@@ -912,7 +911,7 @@ bool RimViewController::isRangeFilterMappingApplicable() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isCellResultControlAdvisable() const
 {
-    bool contourMapMasterView = dynamic_cast<RimEclipseContourMapView*>(masterView()) != nullptr;
+    bool contourMapMasterView  = dynamic_cast<RimEclipseContourMapView*>(masterView()) != nullptr;
     bool contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>(managedEclipseView()) != nullptr;
     return !isMasterAndDepViewDifferentType() && contourMapMasterView != contourMapManagedView;
 }
@@ -932,7 +931,7 @@ bool RimViewController::isRangeFilterControlAdvisable() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isPropertyFilterControlAdvisable() const
 {
-    bool contourMapMasterView = dynamic_cast<RimEclipseContourMapView*>(masterView()) != nullptr;
+    bool contourMapMasterView  = dynamic_cast<RimEclipseContourMapView*>(masterView()) != nullptr;
     bool contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>(managedEclipseView()) != nullptr;
     return isPropertyFilterControlPossible() && contourMapMasterView != contourMapManagedView;
 }
@@ -1070,7 +1069,6 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -1078,7 +1076,6 @@ void RimViewController::updatePropertyFilterOverrides(RimPropertyFilter* changed
 {
     updateOverrides();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

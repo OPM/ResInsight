@@ -28,8 +28,9 @@
 class RiuCreateMultipleFractionsUi;
 class RimEclipseCase;
 
-namespace caf {
-    class PdmUiPropertyViewDialog;
+namespace caf
+{
+class PdmUiPropertyViewDialog;
 }
 
 //==================================================================================================
@@ -43,8 +44,8 @@ class RicCreateMultipleFracturesFeature : public caf::CmdFeature
 public:
     RicCreateMultipleFracturesFeature() {}
 
-    void appendFractures();
-    void replaceFractures();
+    void                                appendFractures();
+    void                                replaceFractures();
     std::pair<cvf::Vec3st, cvf::Vec3st> ijkRangeForGrid(RimEclipseCase* gridCase) const;
 
 private slots:
@@ -61,5 +62,5 @@ private:
 
 private:
     QPointer<caf::PdmUiPropertyViewDialog> m_dialog;
-    QString m_copyOfObject;
+    QString                                m_copyOfObject;
 };

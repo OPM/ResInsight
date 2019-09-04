@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,13 +25,12 @@
 
 #include "RicfCommandObject.h"
 
-
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultInfo.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
-#include "RigEclipseResultInfo.h"
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -52,24 +51,24 @@
 CAF_PDM_SOURCE_INIT(RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 {
     CAF_PDM_InitObject("Grid Case Group", ":/GridCaseGroup16x16.png", "", "");
 
-    RICF_InitField(&name,    "UserDescription",  QString("Grid Case Group"), "Name", "", "", "");
+    RICF_InitField(&name, "UserDescription", QString("Grid Case Group"), "Name", "", "", "");
 
-    RICF_InitField(&groupId, "GroupId", -1, "Case Group ID", "", "" ,"");
+    RICF_InitField(&groupId, "GroupId", -1, "Case Group ID", "", "", "");
     groupId.uiCapability()->setUiReadOnly(true);
     groupId.capability<RicfFieldHandle>()->setIOWriteable(false);
 
-
-    CAF_PDM_InitFieldNoDefault(&statisticsCaseCollection, "StatisticsCaseCollection", "statisticsCaseCollection ChildArrayField", "", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        &statisticsCaseCollection, "StatisticsCaseCollection", "statisticsCaseCollection ChildArrayField", "", "", "");
     statisticsCaseCollection.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&caseCollection, "CaseCollection", "Source Cases ChildArrayField", "", "", "");
     caseCollection.uiCapability()->setUiHidden(true);
- 
+
     caseCollection = new RimCaseCollection;
     caseCollection->uiCapability()->setUiName("Source Cases");
     caseCollection->uiCapability()->setUiIconFromResourceString(":/Cases16x16.png");
@@ -78,15 +77,14 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     statisticsCaseCollection->uiCapability()->setUiName("Derived Statistics");
     statisticsCaseCollection->uiCapability()->setUiIconFromResourceString(":/Histograms16x16.png");
 
-
     m_mainGrid = nullptr;
 
-    m_unionOfMatrixActiveCells = new RigActiveCellInfo;
+    m_unionOfMatrixActiveCells   = new RigActiveCellInfo;
     m_unionOfFractureActiveCells = new RigActiveCellInfo;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup::~RimIdenticalGridCaseGroup()
 {
@@ -100,7 +98,7 @@ RimIdenticalGridCaseGroup::~RimIdenticalGridCaseGroup()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::addCase(RimEclipseCase* reservoir)
 {
@@ -125,7 +123,7 @@ void RimIdenticalGridCaseGroup::addCase(RimEclipseCase* reservoir)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::removeCase(RimEclipseCase* reservoir)
 {
@@ -140,14 +138,14 @@ void RimIdenticalGridCaseGroup::removeCase(RimEclipseCase* reservoir)
     {
         m_mainGrid = nullptr;
     }
-    
+
     clearActiveCellUnions();
     clearStatisticsResults();
     updateMainGridAndActiveCellsForStatisticsCases();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RimIdenticalGridCaseGroup::mainGrid()
 {
@@ -157,7 +155,7 @@ RigMainGrid* RimIdenticalGridCaseGroup::mainGrid()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimIdenticalGridCaseGroup::userDescriptionField()
 {
@@ -175,7 +173,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     }
 
     // Read the main case completely including grid.
-    // The mainGrid from the first case is reused directly in for the other cases. 
+    // The mainGrid from the first case is reused directly in for the other cases.
     // When reading active cell info, only the total cell count is tested for consistency
 
     RimEclipseCase* mainCase = caseCollection()->reservoirs[0];
@@ -186,8 +184,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
         if (RiaGuiApplication::isRunning())
         {
-            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
-                "Error when opening project file", errorMessage);
+            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), "Error when opening project file", errorMessage);
         }
         RiaLogging::error(errorMessage);
         return;
@@ -199,16 +196,15 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RiaDefines::PorosityModelType poroModel = RiaDefines::MATRIX_MODEL;
     mainCase->results(poroModel)->createPlaceholderResultEntries();
 
-
     // Action A : Read active cell info
     // Read active cell info from all source cases. The file access is optimized for this purpose, and result meta data
     // is copied from main case to all other cases (see "Action B")
-    
+
     caf::ProgressInfo info(caseCollection()->reservoirs.size(), "Case group - Reading Active Cell data");
     for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
     {
         RimEclipseResultCase* rimReservoir = dynamic_cast<RimEclipseResultCase*>(caseCollection()->reservoirs[i]);
-        if(!rimReservoir) continue; // Input reservoir
+        if (!rimReservoir) continue; // Input reservoir
 
         if (!rimReservoir->openAndReadActiveCellData(rigCaseData))
         {
@@ -242,11 +238,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         computeUnionOfActiveCells();
     }
 
-
-    RigCaseCellResultsData::copyResultsMetaDataFromMainCase(rigCaseData, 
-                                                            poroModel, 
-                                                            caseCollection->reservoirs.childObjects());
-
+    RigCaseCellResultsData::copyResultsMetaDataFromMainCase(rigCaseData, poroModel, caseCollection->reservoirs.childObjects());
 
     // "Load" the statistical cases
 
@@ -263,9 +255,8 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 {
@@ -286,7 +277,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
     m_unionOfMatrixActiveCells->setGridCount(m_mainGrid->gridCount());
     m_unionOfFractureActiveCells->setGridCount(m_mainGrid->gridCount());
 
-    size_t globalActiveMatrixIndex = 0;
+    size_t globalActiveMatrixIndex   = 0;
     size_t globalActiveFractureIndex = 0;
 
     for (size_t gridIdx = 0; gridIdx < m_mainGrid->gridCount(); gridIdx++)
@@ -304,7 +295,10 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if (activeM[gridLocalCellIndex] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->isActive(reservoirCellIndex))
+                    if (caseCollection->reservoirs[caseIdx]
+                            ->eclipseCaseData()
+                            ->activeCellInfo(RiaDefines::MATRIX_MODEL)
+                            ->isActive(reservoirCellIndex))
                     {
                         activeM[gridLocalCellIndex] = 1;
                     }
@@ -312,7 +306,10 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if (activeF[gridLocalCellIndex] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->isActive(reservoirCellIndex))
+                    if (caseCollection->reservoirs[caseIdx]
+                            ->eclipseCaseData()
+                            ->activeCellInfo(RiaDefines::FRACTURE_MODEL)
+                            ->isActive(reservoirCellIndex))
                     {
                         activeF[gridLocalCellIndex] = 1;
                     }
@@ -320,7 +317,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
             }
         }
 
-        size_t activeMatrixIndex = 0;
+        size_t activeMatrixIndex   = 0;
         size_t activeFractureIndex = 0;
 
         for (size_t gridLocalCellIndex = 0; gridLocalCellIndex < grid->cellCount(); gridLocalCellIndex++)
@@ -349,15 +346,16 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCase()
 {
     RimEclipseStatisticsCase* newStatisticsCase = new RimEclipseStatisticsCase;
 
-    newStatisticsCase->caseUserDescription = QString("Statistics ") + QString::number(statisticsCaseCollection()->reservoirs.size()+1);
+    newStatisticsCase->caseUserDescription =
+        QString("Statistics ") + QString::number(statisticsCaseCollection()->reservoirs.size() + 1);
     statisticsCaseCollection()->reservoirs.push_back(newStatisticsCase);
-    
+
     newStatisticsCase->populateResultSelectionAfterLoadingGrid();
     newStatisticsCase->openEclipseGridFile();
     newStatisticsCase->eclipseCaseData()->computeActiveCellBoundingBoxes();
@@ -366,7 +364,7 @@ RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 {
@@ -387,7 +385,7 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::clearStatisticsResults()
 {
@@ -416,7 +414,7 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::clearActiveCellUnions()
 {
@@ -425,7 +423,7 @@ void RimIdenticalGridCaseGroup::clearActiveCellUnions()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimIdenticalGridCaseGroup::contains(RimEclipseCase* reservoir) const
 {
@@ -439,12 +437,12 @@ bool RimIdenticalGridCaseGroup::contains(RimEclipseCase* reservoir) const
             return true;
         }
     }
-    
+
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells(RiaDefines::PorosityModelType porosityType)
 {
@@ -459,7 +457,7 @@ RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells(RiaDefines::Por
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimIdenticalGridCaseGroup::isStatisticsCaseCollection(RimCaseCollection* rimCaseCollection)
 {
@@ -476,11 +474,11 @@ bool RimIdenticalGridCaseGroup::isStatisticsCaseCollection(RimCaseCollection* ri
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimIdenticalGridCaseGroup::mainCase()
 {
-    if(caseCollection()->reservoirs().size())
+    if (caseCollection()->reservoirs().size())
     {
         return caseCollection()->reservoirs()[0];
     }
@@ -489,4 +487,3 @@ RimEclipseCase* RimIdenticalGridCaseGroup::mainCase()
         return nullptr;
     }
 }
-

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017- Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -33,23 +33,17 @@
 #include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifColumnBasedUserData::RifColumnBasedUserData()
-{
-    
-}
+RifColumnBasedUserData::RifColumnBasedUserData() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifColumnBasedUserData::~RifColumnBasedUserData()
-{
-
-}
+RifColumnBasedUserData::~RifColumnBasedUserData() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifColumnBasedUserData::parse(const QString& data, QString* errorText)
 {
@@ -69,11 +63,10 @@ bool RifColumnBasedUserData::parse(const QString& data, QString* errorText)
     buildTimeStepsAndMappings();
 
     return true;
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifColumnBasedUserData::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
 {
@@ -100,7 +93,7 @@ bool RifColumnBasedUserData::values(const RifEclipseSummaryAddress& resultAddres
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifColumnBasedUserData::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
@@ -111,12 +104,12 @@ const std::vector<time_t>& RifColumnBasedUserData::timeSteps(const RifEclipseSum
     }
 
     static std::vector<time_t> emptyVector;
-    
+
     return emptyVector;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::string RifColumnBasedUserData::unitName(const RifEclipseSummaryAddress& resultAddress) const
 {
@@ -144,7 +137,7 @@ RiaEclipseUnitTools::UnitSystem RifColumnBasedUserData::unitSystem() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifColumnBasedUserData::buildTimeStepsAndMappings()
 {
@@ -174,30 +167,30 @@ void RifColumnBasedUserData::buildTimeStepsAndMappings()
                 m_allResultAddresses.insert(sumAddress);
 
                 m_mapFromAddressToTimeStepIndex[sumAddress] = m_timeSteps.size() - 1;
-                m_mapFromAddressToResultIndex[sumAddress] = std::make_pair(tableIndex, columIndex);
+                m_mapFromAddressToResultIndex[sumAddress]   = std::make_pair(tableIndex, columIndex);
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<time_t> RifColumnBasedUserData::createTimeSteps(const TableData& tableData)
 {
     std::vector<time_t> tsVector;
 
-    size_t dateColumnIndex = tableData.columnInfos().size();
-    size_t daysColumnIndex = tableData.columnInfos().size();
+    size_t dateColumnIndex  = tableData.columnInfos().size();
+    size_t daysColumnIndex  = tableData.columnInfos().size();
     size_t yearsColumnIndex = tableData.columnInfos().size();
     size_t yearXColumnIndex = tableData.columnInfos().size();
 
     // Find first column matching the text criteria
-    
+
     for (size_t columIndex = 0; columIndex < tableData.columnInfos().size(); columIndex++)
     {
         const Column& ci = tableData.columnInfos()[columIndex];
-        
+
         if (dateColumnIndex == tableData.columnInfos().size() &&
             RifEclipseUserDataKeywordTools::isDate(ci.summaryAddress.quantityName()))
         {

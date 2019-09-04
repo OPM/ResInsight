@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,12 +22,12 @@
 
 #include "ExportCommands/RicAdvancedSnapshotExportFeature.h"
 
+#include "Rim3dView.h"
+#include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimProject.h"
-#include "Rim3dView.h"
 
 #include "RiuTools.h"
 
@@ -35,10 +35,11 @@
 #include "cafPdmUiTableView.h"
 #include "cafSelectionManager.h"
 
-#include <QFileDialog>
 #include <QAbstractItemView>
 #include <QBoxLayout>
 #include <QDialogButtonBox>
+#include <QFileDialog>
+#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
@@ -46,19 +47,17 @@
 #include <QTableView>
 #include <QToolButton>
 #include <QWidget>
-#include <QHeaderView>
-
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuAdvancedSnapshotExportWidget::RiuAdvancedSnapshotExportWidget(QWidget* parent, RimProject* project)
-    : QDialog(parent, RiuTools::defaultDialogFlags()),
-    m_rimProject(project)
+    : QDialog(parent, RiuTools::defaultDialogFlags())
+    , m_rimProject(project)
 {
     setWindowTitle("Advanced Snapshot Export");
 
-    int nWidth = 1000;
+    int nWidth  = 1000;
     int nHeight = 300;
     resize(nWidth, nHeight);
 
@@ -107,7 +106,6 @@ RiuAdvancedSnapshotExportWidget::RiuAdvancedSnapshotExportWidget(QWidget* parent
         dialogLayout->addLayout(layout);
     }
 
-
     // Buttons
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
@@ -122,7 +120,7 @@ RiuAdvancedSnapshotExportWidget::RiuAdvancedSnapshotExportWidget(QWidget* parent
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuAdvancedSnapshotExportWidget::~RiuAdvancedSnapshotExportWidget()
 {
@@ -132,7 +130,7 @@ RiuAdvancedSnapshotExportWidget::~RiuAdvancedSnapshotExportWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuAdvancedSnapshotExportWidget::addSnapshotItemFromActiveView()
 {
@@ -142,17 +140,16 @@ void RiuAdvancedSnapshotExportWidget::addSnapshotItemFromActiveView()
     if (activeView)
     {
         RimAdvancedSnapshotExportDefinition* multiSnapshot = new RimAdvancedSnapshotExportDefinition();
-        multiSnapshot->view = activeView;
+        multiSnapshot->view                                = activeView;
 
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(activeView);
         if (eclipseView)
         {
             multiSnapshot->eclipseResultType = eclipseView->cellResult()->resultType();
             multiSnapshot->selectedEclipseResults.v().push_back(eclipseView->cellResult()->resultVariable());
-
         }
         multiSnapshot->timeStepStart = activeView->currentTimeStep();
-        multiSnapshot->timeStepEnd = activeView->currentTimeStep();
+        multiSnapshot->timeStepEnd   = activeView->currentTimeStep();
 
         RimCase* sourceCase = nullptr;
         activeView->firstAncestorOrThisOfType(sourceCase);
@@ -167,7 +164,7 @@ void RiuAdvancedSnapshotExportWidget::addSnapshotItemFromActiveView()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuAdvancedSnapshotExportWidget::addEmptySnapshotItems(size_t itemCount)
 {
@@ -176,7 +173,7 @@ void RiuAdvancedSnapshotExportWidget::addEmptySnapshotItems(size_t itemCount)
     for (size_t i = 0; i < itemCount; i++)
     {
         RimAdvancedSnapshotExportDefinition* multiSnapshot = new RimAdvancedSnapshotExportDefinition();
-        multiSnapshot->isActive = false;
+        multiSnapshot->isActive                            = false;
 
         m_rimProject->multiSnapshotDefinitions.push_back(multiSnapshot);
     }
@@ -195,30 +192,29 @@ void RiuAdvancedSnapshotExportWidget::setExportFolder(const QString& folder)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuAdvancedSnapshotExportWidget::exportFolder() const 
+QString RiuAdvancedSnapshotExportWidget::exportFolder() const
 {
     return m_exportFolderLineEdit->text();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuAdvancedSnapshotExportWidget::customMenuRequested(QPoint pos)
 {
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
 
     QMenu menu;
-    menu.addAction(commandManager->action("PdmListField_DeleteItem","Delete row"));
+    menu.addAction(commandManager->action("PdmListField_DeleteItem", "Delete row"));
 
     QAction* newRowAction = new QAction("New row", this);
     connect(newRowAction, SIGNAL(triggered()), SLOT(addSnapshotItem()));
     menu.addAction(newRowAction);
 
     QAction* clearAllRows = new QAction("Clear", this);
-    connect(clearAllRows, SIGNAL(triggered()), SLOT(deleteAllSnapshotItems())); 
+    connect(clearAllRows, SIGNAL(triggered()), SLOT(deleteAllSnapshotItems()));
     menu.addAction(clearAllRows);
-    
-    
+
     // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
     QPoint globalPos = m_pdmTableView->tableView()->viewport()->mapToGlobal(pos);
 
@@ -226,7 +222,7 @@ void RiuAdvancedSnapshotExportWidget::customMenuRequested(QPoint pos)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuAdvancedSnapshotExportWidget::deleteAllSnapshotItems()
 {
@@ -238,7 +234,7 @@ void RiuAdvancedSnapshotExportWidget::deleteAllSnapshotItems()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuAdvancedSnapshotExportWidget::exportSnapshots()
 {
@@ -246,16 +242,16 @@ void RiuAdvancedSnapshotExportWidget::exportSnapshots()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuAdvancedSnapshotExportWidget::folderSelectionClicked()
 {
     QString defaultPath = m_exportFolderLineEdit->text();
 
     QString directoryPath = QFileDialog::getExistingDirectory(m_exportFolderLineEdit,
-        tr("Get existing directory"),
-        defaultPath,
-        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+                                                              tr("Get existing directory"),
+                                                              defaultPath,
+                                                              QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     if (!directoryPath.isEmpty())
     {
@@ -264,7 +260,7 @@ void RiuAdvancedSnapshotExportWidget::folderSelectionClicked()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuAdvancedSnapshotExportWidget::addSnapshotItem()
 {

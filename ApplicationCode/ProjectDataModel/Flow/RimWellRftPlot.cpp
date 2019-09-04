@@ -168,7 +168,7 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
         currentSymbol = m_timeStepSymbols[newCurveDef.timeStep()];
     }
 
-	bool isObservedData = newCurveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED ||
+    bool isObservedData = newCurveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED ||
                           newCurveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT;
     // Observed data
     currentLineStyle = isObservedData ? RiuQwtPlotCurve::STYLE_NONE : RiuQwtPlotCurve::STYLE_SOLID;
@@ -265,8 +265,8 @@ void RimWellRftPlot::applyInitialSelections()
     {
         std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::rftPlotChannelTypes();
 
-        auto relevantTimeSteps =
-            RimWellPlotTools::calculateRelevantTimeStepsFromCases(m_wellPathNameOrSimWellName, m_selectedSources, channelTypesToUse);
+        auto relevantTimeSteps = RimWellPlotTools::calculateRelevantTimeStepsFromCases(
+            m_wellPathNameOrSimWellName, m_selectedSources, channelTypesToUse);
 
         std::vector<QDateTime> timeStepVector;
         for (const auto& item : relevantTimeSteps)
@@ -411,7 +411,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
 
     defineCurveColorsAndSymbols(allCurveDefs);
 
-	std::set<RimSummaryCaseCollection*> ensemblesWithSummaryCurves;
+    std::set<RimSummaryCaseCollection*> ensemblesWithSummaryCurves;
 
     // Add new curves
     for (const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs)
@@ -436,7 +436,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
             auto curve = new RimWellLogRftCurve();
             plotTrack->addCurve(curve);
 
-			auto observedFmuRftData = curveDefToAdd.address().observedFmuRftData();
+            auto observedFmuRftData = curveDefToAdd.address().observedFmuRftData();
             curve->setObservedFmuRftData(observedFmuRftData);
             RifEclipseRftAddress address(m_wellPathNameOrSimWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE);
             curve->setRftAddress(address);
@@ -456,7 +456,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
             curve->setZOrder(1);
             applyCurveAppearance(curve);
 
-			bool isFirstSummaryCurveInEnsemble = ensemblesWithSummaryCurves.count(curveDefToAdd.address().ensemble()) == 0u;
+            bool isFirstSummaryCurveInEnsemble = ensemblesWithSummaryCurves.count(curveDefToAdd.address().ensemble()) == 0u;
             curve->showLegend(isFirstSummaryCurveInEnsemble);
             ensemblesWithSummaryCurves.insert(curveDefToAdd.address().ensemble());
         }
@@ -473,7 +473,8 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>
                     plotTrack->addCurve(curve);
                     curve->setEnsemble(ensemble);
                     curve->setRftAddress(rftAddress);
-                    curve->setObservedFmuRftData(this->findObservedFmuData(m_wellPathNameOrSimWellName, curveDefToAdd.timeStep()));
+                    curve->setObservedFmuRftData(
+                        this->findObservedFmuData(m_wellPathNameOrSimWellName, curveDefToAdd.timeStep()));
                     curve->setZOrder(RiuQwtPlotCurve::Z_ENSEMBLE_STAT_CURVE);
                     applyCurveAppearance(curve);
                     auto                        symbol   = statisticsCurveSymbolFromAddress(rftAddress);
@@ -647,19 +648,19 @@ const char* RimWellRftPlot::plotNameFormatString()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::deleteCurvesAssosicatedWithObservedData(const RimObservedFmuRftData* observedFmuRftData)
 {
-	for (auto track : m_wellLogPlot->tracks())
-	{
+    for (auto track : m_wellLogPlot->tracks())
+    {
         auto curves = track->curvesVector();
-		for (auto curve : curves)
-		{
+        for (auto curve : curves)
+        {
             RimWellLogRftCurve* rftCurve = dynamic_cast<RimWellLogRftCurve*>(curve);
-			if (rftCurve && rftCurve->observedFmuRftData() == observedFmuRftData)
-			{
+            if (rftCurve && rftCurve->observedFmuRftData() == observedFmuRftData)
+            {
                 track->takeOutCurve(rftCurve);
                 delete rftCurve;
-			}
-		}		
-	}
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -693,7 +694,8 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
             }
         }
 
-        const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsemblesForWell(m_wellPathNameOrSimWellName);
+        const std::vector<RimSummaryCaseCollection*> rftEnsembles =
+            RimWellPlotTools::rftEnsemblesForWell(m_wellPathNameOrSimWellName);
         if (!rftEnsembles.empty())
         {
             options.push_back(caf::PdmOptionItemInfo::createHeader(
@@ -733,21 +735,21 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
             item.setLevel(1);
             options.push_back(item);
         }
-		const std::vector<RimObservedFmuRftData*> observedFmuRftCases = RimWellPlotTools::observedFmuRftDataForWell(m_wellPathNameOrSimWellName);
-		if (!observedFmuRftCases.empty())
-		{
+        const std::vector<RimObservedFmuRftData*> observedFmuRftCases =
+            RimWellPlotTools::observedFmuRftDataForWell(m_wellPathNameOrSimWellName);
+        if (!observedFmuRftCases.empty())
+        {
             options.push_back(caf::PdmOptionItemInfo::createHeader(
                 RifDataSourceForRftPlt::sourceTypeUiText(RifDataSourceForRftPlt::OBSERVED_FMU_RFT), true));
 
-			for (const auto& observedFmuRftCase : observedFmuRftCases)
-			{
+            for (const auto& observedFmuRftCase : observedFmuRftCases)
+            {
                 auto addr = RifDataSourceForRftPlt(RifDataSourceForRftPlt::OBSERVED_FMU_RFT, observedFmuRftCase);
                 auto item = caf::PdmOptionItemInfo(observedFmuRftCase->name(), QVariant::fromValue(addr));
                 item.setLevel(1);
                 options.push_back(item);
-			}
-		}
-
+            }
+        }
     }
     else if (fieldNeedingOptions == &m_selectedTimeSteps)
     {
@@ -923,7 +925,7 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
             }
         }
         const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsembles();
-		// Ensemble RFT wells		
+        // Ensemble RFT wells
         {
             for (RimSummaryCaseCollection* summaryCaseColl : rftEnsembles)
             {
@@ -935,23 +937,23 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
             }
         }
 
-		// Observed FMU RFT wells
+        // Observed FMU RFT wells
         const std::vector<RimObservedFmuRftData*> allRftFmuData = RimWellPlotTools::observedFmuRftData();
-		if (!allRftFmuData.empty())
-		{
-			for (RimObservedFmuRftData* rftFmuData : allRftFmuData)
-			{
-				for (QString wellName : rftFmuData->wells())
-				{
+        if (!allRftFmuData.empty())
+        {
+            for (RimObservedFmuRftData* rftFmuData : allRftFmuData)
+            {
+                for (QString wellName : rftFmuData->wells())
+                {
                     wellNames[wellName].push_back("Observed");
-				}
-			}
-		}
+                }
+            }
+        }
 
         for (const auto& wellName : wellNames)
         {
-            const QStringList& tags = wellName.second;
-            QString uiText = wellName.first;
+            const QStringList& tags   = wellName.second;
+            QString            uiText = wellName.first;
             if (!tags.empty())
             {
                 uiText += QString(" (%1)").arg(wellName.second.join(", "));

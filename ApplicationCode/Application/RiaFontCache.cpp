@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -113,9 +113,9 @@ int RiaFontCache::pointSizeFromFontSizeEnum(FontSize fontSize)
 //--------------------------------------------------------------------------------------------------
 RiaFontCache::FontSize RiaFontCache::fontSizeEnumFromPointSize(int pointSize)
 {
-    std::vector<FontSize> allValues =
-    { FONT_SIZE_8, FONT_SIZE_10, FONT_SIZE_12, FONT_SIZE_14, FONT_SIZE_16, FONT_SIZE_24, FONT_SIZE_32 };
-    
+    std::vector<FontSize> allValues = {
+        FONT_SIZE_8, FONT_SIZE_10, FONT_SIZE_12, FONT_SIZE_14, FONT_SIZE_16, FONT_SIZE_24, FONT_SIZE_32};
+
     FontSize closestEnumValue = FONT_SIZE_8;
     int      closestDiff      = std::numeric_limits<int>::max();
     for (FontSize enumValue : allValues)

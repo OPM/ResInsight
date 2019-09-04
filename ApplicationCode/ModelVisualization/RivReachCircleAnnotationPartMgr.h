@@ -1,27 +1,26 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-
+#include "cafPdmPointer.h"
 #include "cvfAssert.h"
 #include "cvfObject.h"
-#include "cafPdmPointer.h"
 
 #include "cvfVector3.h"
 
@@ -29,15 +28,15 @@
 
 namespace cvf
 {
-    class BoundingBox;
-    class Part;
-    class ModelBasicList;
-    class Transform;
-    class Font;
+class BoundingBox;
+class Part;
+class ModelBasicList;
+class Transform;
+class Font;
 }
 namespace caf
 {
-    class DisplayCoordTransform;
+class DisplayCoordTransform;
 }
 
 class Rim3dView;
@@ -53,9 +52,9 @@ public:
     RivReachCircleAnnotationPartMgr(Rim3dView* view, RimReachCircleAnnotationInView* annotationInView);
     ~RivReachCircleAnnotationPartMgr() override;
 
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
+    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
                                            const caf::DisplayCoordTransform* displayXf,
-                                           const cvf::BoundingBox& boundingBox);
+                                           const cvf::BoundingBox&           boundingBox);
 
 private:
     void buildParts(const caf::DisplayCoordTransform* displayXf, bool doFlatten, double xOffset);
@@ -68,8 +67,8 @@ private:
 
     RimAnnotationInViewCollection* annotationCollection() const;
 
-    caf::PdmPointer<Rim3dView>                  m_rimView;
-    caf::PdmPointer<RimReachCircleAnnotationInView>   m_rimAnnotationInView;
-    cvf::ref<cvf::Part>                         m_circlePart;
-    cvf::ref<cvf::Part>                         m_centerPointPart;
+    caf::PdmPointer<Rim3dView>                      m_rimView;
+    caf::PdmPointer<RimReachCircleAnnotationInView> m_rimAnnotationInView;
+    cvf::ref<cvf::Part>                             m_circlePart;
+    cvf::ref<cvf::Part>                             m_centerPointPart;
 };

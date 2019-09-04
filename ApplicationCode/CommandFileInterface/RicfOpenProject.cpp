@@ -42,7 +42,7 @@ RicfOpenProject::RicfOpenProject()
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfOpenProject::execute()
 {
-    QString projectPath = m_path;
+    QString   projectPath = m_path;
     QFileInfo projectPathInfo(projectPath);
     if (!projectPathInfo.exists())
     {

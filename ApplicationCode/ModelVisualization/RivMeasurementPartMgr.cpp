@@ -117,8 +117,7 @@ void RivMeasurementPartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivMeasurementPartMgr::buildPolyLineParts(const cvf::Camera* camera,
-                                               const caf::DisplayCoordTransform* displayCoordTransform)
+void RivMeasurementPartMgr::buildPolyLineParts(const cvf::Camera* camera, const caf::DisplayCoordTransform* displayCoordTransform)
 {
     auto pointsInDisplay = displayCoordTransform->transformToDisplayCoords(m_measurement->pointsInDomainCoords());
 
@@ -179,8 +178,8 @@ void RivMeasurementPartMgr::buildPolyLineParts(const cvf::Camera* camera,
     // Text label
     if (pointsInDisplay.size() > 1)
     {
-        bool negativeXDir = false;
-        cvf::Vec3d lastV = pointsInDisplay[pointsInDisplay.size() - 1] - pointsInDisplay[pointsInDisplay.size() - 2];
+        bool       negativeXDir = false;
+        cvf::Vec3d lastV        = pointsInDisplay[pointsInDisplay.size() - 1] - pointsInDisplay[pointsInDisplay.size() - 2];
         if (lastV.x() < 0.0)
         {
             negativeXDir = true;

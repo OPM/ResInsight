@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,17 +21,17 @@
 #include "RicSummaryCurveCalculator.h"
 #include "RicSummaryCurveCalculatorEditor.h"
 
-#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculation.h"
+#include "RimSummaryCalculationCollection.h"
 
 #include "RiuTools.h"
 
 #include <QDialogButtonBox>
-#include <QVBoxLayout>
 #include <QMessageBox>
+#include <QVBoxLayout>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculatorDialog::RicSummaryCurveCalculatorDialog(QWidget* parent)
     : QDialog(parent, RiuTools::defaultDialogFlags())
@@ -43,14 +43,12 @@ RicSummaryCurveCalculatorDialog::RicSummaryCurveCalculatorDialog(QWidget* parent
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog()
-{
-}
+RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi(RimSummaryCalculation* calculation)
 {
@@ -60,7 +58,7 @@ void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi(RimSummaryCalcul
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorDialog::slotTryCloseDialog()
 {
@@ -108,7 +106,7 @@ void RicSummaryCurveCalculatorDialog::slotTryCloseDialog()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorDialog::setUp()
 {
@@ -122,12 +120,12 @@ void RicSummaryCurveCalculatorDialog::setUp()
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(slotTryCloseDialog()));
 
     mainLayout->addWidget(buttonBox);
-    
+
     m_summaryCalcEditor->updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RicSummaryCurveCalculatorDialog::dirtyCount() const
 {

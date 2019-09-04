@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableVectors.h"
 #include "cvfObject.h"
@@ -54,30 +53,30 @@ public:
 
     void clearGeometry();
 
-    cvf::ref<cvf::DrawableGeo> background() const;
-    cvf::ref<cvf::DrawableGeo> border() const;
+    cvf::ref<cvf::DrawableGeo>     background() const;
+    cvf::ref<cvf::DrawableGeo>     border() const;
     cvf::ref<cvf::DrawableVectors> curveNormalVectors() const;
 
     const std::vector<cvf::Vec3d>& vertices() const;
 
 private:
-    void               createCurveNormalVectors(const caf::DisplayCoordTransform* displayCoordTransform, 
-                                                size_t                         clipStartIndex,
-                                                double                         planeOffsetFromWellPathCenter,
-                                                double                         planeWidth,
-                                                double                         samplingIntervalSize,
-                                                const std::vector<cvf::Vec3d>& wellPathSegmentNormals);
-    
-    void               createBackground(cvf::Vec3fArray* vertexArray);
-    void               createBorder(cvf::Vec3fArray* vertexArray);
+    void createCurveNormalVectors(const caf::DisplayCoordTransform* displayCoordTransform,
+                                  size_t                            clipStartIndex,
+                                  double                            planeOffsetFromWellPathCenter,
+                                  double                            planeWidth,
+                                  double                            samplingIntervalSize,
+                                  const std::vector<cvf::Vec3d>&    wellPathSegmentNormals);
+
+    void createBackground(cvf::Vec3fArray* vertexArray);
+    void createBorder(cvf::Vec3fArray* vertexArray);
 
     const RigWellPath* wellPathGeometry() const;
 
 private:
-    caf::PdmPointer<RimWellPath>     m_wellPath;
-    cvf::ref<cvf::DrawableGeo>       m_background;
-    cvf::ref<cvf::DrawableGeo>       m_border;
-    cvf::ref<cvf::DrawableVectors>   m_curveNormalVectors;
+    caf::PdmPointer<RimWellPath>   m_wellPath;
+    cvf::ref<cvf::DrawableGeo>     m_background;
+    cvf::ref<cvf::DrawableGeo>     m_border;
+    cvf::ref<cvf::DrawableVectors> m_curveNormalVectors;
 
-    std::vector<cvf::Vec3d>          m_vertices;
+    std::vector<cvf::Vec3d> m_vertices;
 };

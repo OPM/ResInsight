@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
@@ -11,25 +11,25 @@
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimProject.h"
 #include "RimNameConfig.h"
 #include "Rim3dWellLogCurve.h"
+#include "RimProject.h"
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 
 CAF_PDM_SOURCE_INIT(RimNameConfig, "RimCurveNameConfig");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimNameConfig::RimNameConfig(const RimNameConfigHolderInterface* configHolder /*= nullptr*/)
     : m_configHolder(configHolder)
@@ -46,11 +46,9 @@ RimNameConfig::RimNameConfig(const RimNameConfigHolderInterface* configHolder /*
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimNameConfig::~RimNameConfig()
-{
-}
+RimNameConfig::~RimNameConfig() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -61,7 +59,7 @@ QString RimNameConfig::customName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimNameConfig::nameField()
 {
@@ -69,11 +67,11 @@ caf::PdmFieldHandle* RimNameConfig::nameField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimNameConfig::name() const
 {
-    return m_autoName();    
+    return m_autoName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,7 +92,7 @@ void RimNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& u
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimNameConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
@@ -102,7 +100,7 @@ void RimNameConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimNameConfig::autoName() const
 {
@@ -110,7 +108,7 @@ QString RimNameConfig::autoName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimNameConfig::setCustomName(const QString& name)
 {
@@ -118,7 +116,7 @@ void RimNameConfig::setCustomName(const QString& name)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimNameConfig::updateAllSettings()
 {
@@ -131,7 +129,7 @@ void RimNameConfig::updateAllSettings()
     caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>(holder);
     if (pdmObject)
     {
-        pdmObject->updateConnectedEditors();        
+        pdmObject->updateConnectedEditors();
     }
 }
 

@@ -22,7 +22,6 @@
 
 #include "RigEclipseToStimPlanCellTransmissibilityCalculator.h"
 
-
 #include "cvfMatrix4.h"
 
 #include <map>

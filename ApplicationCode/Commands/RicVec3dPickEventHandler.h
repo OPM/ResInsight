@@ -39,5 +39,3 @@ private:
     caf::PdmField<cvf::Vec3d>* m_vectorField;
     double                     m_zOffsetFactor;
 };
-
-

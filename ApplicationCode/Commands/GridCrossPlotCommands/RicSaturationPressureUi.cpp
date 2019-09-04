@@ -35,7 +35,7 @@ RicSaturationPressureUi::RicSaturationPressureUi()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSaturationPressureUi::setSelectedCase(RimEclipseCase* eclipseCase)
 {

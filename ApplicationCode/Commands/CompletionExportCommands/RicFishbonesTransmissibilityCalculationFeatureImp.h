@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfVector3.h"
 
 #include <map>

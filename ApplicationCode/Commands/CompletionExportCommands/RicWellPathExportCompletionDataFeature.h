@@ -31,7 +31,7 @@ class RicWellPathExportCompletionDataFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void prepareExportSettingsAndExportCompletions(const QString& dialogTitle,
+    static void prepareExportSettingsAndExportCompletions(const QString&                        dialogTitle,
                                                           const std::vector<RimWellPath*>&      wellPaths,
                                                           const std::vector<RimSimWellInView*>& simWells);
 

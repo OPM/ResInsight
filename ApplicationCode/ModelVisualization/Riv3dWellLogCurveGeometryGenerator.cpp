@@ -26,9 +26,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-
-#include "cafLine.h"
 #include "cafDisplayCoordTransform.h"
+#include "cafLine.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 
 #include "cvfBoundingBox.h"
@@ -59,13 +58,12 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
     // Make sure all drawables are cleared in case we return early to avoid a
     // previous drawable being "stuck" when changing result type.
     clearCurvePointsAndGeometry();
-    
+
     float curveUIRange = rim3dWellLogCurve->maxCurveUIValue() - rim3dWellLogCurve->minCurveUIValue();
     if (curveUIRange < 1.0e-6f)
     {
         return;
     }
-
 
     std::vector<double> resultValues;
     std::vector<double> resultMds;
@@ -100,8 +98,8 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
 
     std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords(wellPathGeometry()->m_wellPathPoints);
 
-    std::vector<cvf::Vec3d> wellPathCurveNormals =
-        RigWellPathGeometryTools::calculateLineSegmentNormals(displayCoords, rim3dWellLogCurve->drawPlaneAngle(rim3dWellLogCurve->drawPlane()));
+    std::vector<cvf::Vec3d> wellPathCurveNormals = RigWellPathGeometryTools::calculateLineSegmentNormals(
+        displayCoords, rim3dWellLogCurve->drawPlaneAngle(rim3dWellLogCurve->drawPlane()));
 
     std::vector<cvf::Vec3d> interpolatedWellPathPoints;
     std::vector<cvf::Vec3d> interpolatedCurveNormals;
@@ -172,7 +170,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
         m_curveVertices.push_back(curvePoint);
     }
     m_curveVertices = projectVerticesOntoTriangles(m_curveVertices, drawSurfaceVertices);
-    
+
     createNewVerticesAlongTriangleEdges(drawSurfaceVertices);
 
     {
@@ -193,7 +191,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
         }
 
         cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
-        cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(indices);
+        cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray(indices);
 
         m_curveDrawable = new cvf::DrawableGeo();
 
@@ -244,10 +242,10 @@ bool Riv3dWellLogCurveGeometryGenerator::findClosestPointOnCurve(const cvf::Vec3
                                                                  double*           measuredDepthAtPoint,
                                                                  double*           valueAtClosestPoint) const
 {
-    double      closestDistance = m_planeWidth * 0.1;
-    *closestPoint              = cvf::Vec3d::UNDEFINED;
-    *measuredDepthAtPoint      = cvf::UNDEFINED_DOUBLE;
-    *valueAtClosestPoint       = cvf::UNDEFINED_DOUBLE;
+    double closestDistance = m_planeWidth * 0.1;
+    *closestPoint          = cvf::Vec3d::UNDEFINED;
+    *measuredDepthAtPoint  = cvf::UNDEFINED_DOUBLE;
+    *valueAtClosestPoint   = cvf::UNDEFINED_DOUBLE;
     if (m_curveVertices.size() < 2u) false;
     CVF_ASSERT(m_curveVertices.size() == m_curveValues.size());
     for (size_t i = 1; i < m_curveVertices.size(); ++i)
@@ -261,10 +259,10 @@ bool Riv3dWellLogCurveGeometryGenerator::findClosestPointOnCurve(const cvf::Vec3
             cvf::Vec3d ap = globalIntersection - a;
             cvf::Vec3d ab = b - a;
             // Projected point is clamped to one of the end points of the segment.
-            double      distanceToProjectedPointAlongAB = ap * ab / (ab * ab);
-            double      clampedDistance                 = cvf::Math::clamp(distanceToProjectedPointAlongAB, 0.0, 1.0);
+            double     distanceToProjectedPointAlongAB = ap * ab / (ab * ab);
+            double     clampedDistance                 = cvf::Math::clamp(distanceToProjectedPointAlongAB, 0.0, 1.0);
             cvf::Vec3d projectionOfGlobalIntersection  = a + clampedDistance * ab;
-            double      distance                        = (projectionOfGlobalIntersection - globalIntersection).length();
+            double     distance                        = (projectionOfGlobalIntersection - globalIntersection).length();
             if (distance < closestDistance)
             {
                 *closestPoint   = cvf::Vec3d(projectionOfGlobalIntersection);
@@ -304,10 +302,7 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongTriangleEdges(con
 
             std::vector<cvf::Vec3d> extraVertices;
 
-            createNewVerticesAlongSegment(m_curveVertices[i],
-                                          m_curveVertices[i + 1],
-                                          drawSurfaceVertices,
-                                          &extraVertices);
+            createNewVerticesAlongSegment(m_curveVertices[i], m_curveVertices[i + 1], drawSurfaceVertices, &extraVertices);
 
             for (const cvf::Vec3d& extraVertex : extraVertices)
             {
@@ -316,7 +311,7 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongTriangleEdges(con
                 double dotProduct               = newSegmentVector * fullSegmentVector;
                 double fractionAlongFullSegment = dotProduct / fullSegmentVector.lengthSquared();
                 double measuredDepth            = m_curveMeasuredDepths[i] * (1 - fractionAlongFullSegment) +
-                                                  m_curveMeasuredDepths[i + 1] * fractionAlongFullSegment;
+                                       m_curveMeasuredDepths[i + 1] * fractionAlongFullSegment;
                 double valueAtPoint =
                     m_curveValues[i] * (1 - fractionAlongFullSegment) + m_curveValues[i + 1] * fractionAlongFullSegment;
                 expandedCurveVertices.push_back(extraVertex);
@@ -331,7 +326,6 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongTriangleEdges(con
             expandedCurveVertices.push_back(m_curveVertices[i]);
             expandedMeasuredDepths.push_back(m_curveMeasuredDepths[i]);
             expandedValues.push_back(m_curveValues[i]);
-            
         }
     }
 
@@ -356,15 +350,15 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongSegment(const cvf
     {
         caf::Line<double> triangleEdge1 = caf::Line<double>(drawSurfaceVertices[j], drawSurfaceVertices[j + 1]);
         caf::Line<double> triangleEdge2 = caf::Line<double>(drawSurfaceVertices[j + 2], drawSurfaceVertices[j + 1]);
-        cvf::Vec3d       triangleNormal =
+        cvf::Vec3d        triangleNormal =
             (triangleEdge1.vector().getNormalized() ^ triangleEdge2.vector().getNormalized()).getNormalized();
 
-        cvf::Vec3d       currentSubSegment      = ptEnd - extraVertices->back();
-        cvf::Vec3d       projectedSegmentVector = currentSubSegment - (currentSubSegment * triangleNormal) * triangleNormal;
+        cvf::Vec3d        currentSubSegment      = ptEnd - extraVertices->back();
+        cvf::Vec3d        projectedSegmentVector = currentSubSegment - (currentSubSegment * triangleNormal) * triangleNormal;
         caf::Line<double> projectedCurveLine(extraVertices->back(), extraVertices->back() + projectedSegmentVector);
 
         // Only attempt to find intersections with the first edge. The other edge is handled with the next triangle.
-        bool withinSegments = false;
+        bool              withinSegments = false;
         caf::Line<double> connectingLine = projectedCurveLine.findLineBetweenNearestPoints(triangleEdge1, &withinSegments);
 
         cvf::Vec3d newVertex        = connectingLine.end();

@@ -27,11 +27,12 @@ class RiaWeightedMeanCalculator
 public:
     RiaWeightedMeanCalculator();
 
-    void   addValueAndWeight(T value, double weight);
+    void addValueAndWeight(T value, double weight);
 
     T      weightedMean() const;
     double aggregatedWeight() const;
     bool   validAggregatedWeight() const;
+
 private:
     T      m_aggregatedValue;
     double m_aggregatedWeight;

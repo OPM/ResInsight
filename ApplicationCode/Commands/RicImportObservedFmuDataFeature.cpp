@@ -20,9 +20,9 @@
 #include "RiaApplication.h"
 #include "RifReaderFmuRft.h"
 
+#include "RimObservedDataCollection.h"
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
-#include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 
@@ -35,7 +35,6 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-
 CAF_CMD_SOURCE_INIT(RicImportObservedFmuDataFeature, "RicImportObservedFmuDataFeature");
 
 //--------------------------------------------------------------------------------------------------
@@ -43,29 +42,29 @@ CAF_CMD_SOURCE_INIT(RicImportObservedFmuDataFeature, "RicImportObservedFmuDataFe
 //--------------------------------------------------------------------------------------------------
 void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
 {
-    RiaApplication* app       = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectory("SUMMARY_CASE_DIR");
-    QString directory  = QFileDialog::getExistingDirectory(
+    RiaApplication* app        = RiaApplication::instance();
+    QString         defaultDir = app->lastUsedDialogDirectory("SUMMARY_CASE_DIR");
+    QString         directory  = QFileDialog::getExistingDirectory(
         nullptr, "Import Observed FMU Data Recursively from Directory", defaultDir, QFileDialog::ShowDirsOnly);
 
-	QStringList subDirsWithFmuData = RifReaderFmuRft::findSubDirectoriesWithFmuRftData(directory);
+    QStringList subDirsWithFmuData = RifReaderFmuRft::findSubDirectoriesWithFmuRftData(directory);
     if (subDirsWithFmuData.empty()) return;
 
-	RimProject*                proj = app->project();
+    RimProject*                proj = app->project();
     RimObservedDataCollection* observedDataCollection =
         proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if (!observedDataCollection) return;
 
-	const RimObservedFmuRftData* importedData = nullptr;
-	for (const QString& subDir : subDirsWithFmuData)
-	{
-        importedData = observedDataCollection->createAndAddFmuRftDataFromPath(subDir);		
-	}
-	if (importedData != nullptr)
-	{
+    const RimObservedFmuRftData* importedData = nullptr;
+    for (const QString& subDir : subDirsWithFmuData)
+    {
+        importedData = observedDataCollection->createAndAddFmuRftDataFromPath(subDir);
+    }
+    if (importedData != nullptr)
+    {
         RiuPlotMainWindowTools::showPlotMainWindow();
         RiuPlotMainWindowTools::selectAsCurrentItem(importedData);
-	}
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

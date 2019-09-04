@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@
 CAF_PDM_SOURCE_INIT(RimEclipseCellColors, "ResultSlot");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors::RimEclipseCellColors()
 {
@@ -67,7 +67,7 @@ RimEclipseCellColors::RimEclipseCellColors()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors::~RimEclipseCellColors()
 {
@@ -79,13 +79,16 @@ RimEclipseCellColors::~RimEclipseCellColors()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                            const QVariant&            oldValue,
+                                            const QVariant&            newValue)
 {
     RimEclipseResultDefinition::fieldChangedByUi(changedField, oldValue, newValue);
 
-    // Update of legend config must happen after RimEclipseResultDefinition::fieldChangedByUi(), as this function modifies this->resultVariable()
+    // Update of legend config must happen after RimEclipseResultDefinition::fieldChangedByUi(), as this function modifies
+    // this->resultVariable()
     if (changedField == &m_resultVariableUiField)
     {
         if (oldValue != newValue)
@@ -115,7 +118,7 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
 {
@@ -136,7 +139,7 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
                 if (m_legendConfigData[i]->resultVariableName() == resultVarNameOfNewLegend)
                 {
                     this->m_legendConfigPtrField = m_legendConfigData[i];
-                    found = true;
+                    found                        = true;
                     break;
                 }
             }
@@ -144,18 +147,18 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
             // Not found ?
             if (!found)
             {
-                    RimRegularLegendConfig* newLegend = new RimRegularLegendConfig;
-                    newLegend->resultVariableName = resultVarNameOfNewLegend;
-                    m_legendConfigData.push_back(newLegend);
+                RimRegularLegendConfig* newLegend = new RimRegularLegendConfig;
+                newLegend->resultVariableName     = resultVarNameOfNewLegend;
+                m_legendConfigData.push_back(newLegend);
 
-                    this->m_legendConfigPtrField = newLegend;
+                this->m_legendConfigPtrField = newLegend;
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::initAfterRead()
 {
@@ -197,7 +200,7 @@ void RimEclipseCellColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
@@ -210,11 +213,11 @@ void RimEclipseCellColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOr
         uiTreeOrdering.add(m_legendConfigPtrField());
     }
 
-   uiTreeOrdering.skipRemainingChildren(true);
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::updateLegendCategorySettings()
 {
@@ -260,7 +263,7 @@ void RimEclipseCellColors::setReservoirView(RimEclipseView* ownerReservoirView)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipseCellColors::reservoirView()
 {
@@ -269,20 +272,20 @@ RimEclipseView* RimEclipseCellColors::reservoirView()
 
 bool operator<(const cvf::Color3ub first, const cvf::Color3ub second)
 {
-    if (first.r() != second.r()) return  first.r() < second.r();
-    if (first.g() != second.g()) return  first.g() < second.g();
-    if (first.b() != second.b()) return  first.b() < second.b();
+    if (first.r() != second.r()) return first.r() < second.r();
+    if (first.g() != second.g()) return first.g() < second.g();
+    if (first.b() != second.b()) return first.b() < second.b();
 
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class TupleCompare
 {
-public :
-    bool operator() (const std::tuple<QString, int, cvf::Color3ub>& t1, const std::tuple<QString, int, cvf::Color3ub>& t2) const
+public:
+    bool operator()(const std::tuple<QString, int, cvf::Color3ub>& t1, const std::tuple<QString, int, cvf::Color3ub>& t2) const
     {
         using namespace std;
         if (get<0>(t1) != get<0>(t2)) return get<0>(t1) < get<0>(t2);
@@ -293,35 +296,34 @@ public :
     }
 };
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCellColors::updateLegendData(RimEclipseCase*         rimEclipseCase, 
+void RimEclipseCellColors::updateLegendData(RimEclipseCase*         rimEclipseCase,
                                             int                     currentTimeStep,
-                                            RimRegularLegendConfig* legendConfig, 
+                                            RimRegularLegendConfig* legendConfig,
                                             RimTernaryLegendConfig* ternaryLegendConfig)
 {
     if (!legendConfig) legendConfig = this->legendConfig();
     if (!ternaryLegendConfig) ternaryLegendConfig = this->m_ternaryLegendConfig();
 
-    if ( this->hasResult() )
+    if (this->hasResult())
     {
-        if ( this->isFlowDiagOrInjectionFlooding() )
+        if (this->isFlowDiagOrInjectionFlooding())
         {
             CVF_ASSERT(currentTimeStep >= 0);
 
-            double globalMin, globalMax;
-            double globalPosClosestToZero, globalNegClosestToZero;
-            RigFlowDiagResults* flowResultsData = this->flowDiagSolution()->flowDiagResults();
-            RigFlowDiagResultAddress resAddr = this->flowDiagResAddress();
+            double                   globalMin, globalMax;
+            double                   globalPosClosestToZero, globalNegClosestToZero;
+            RigFlowDiagResults*      flowResultsData = this->flowDiagSolution()->flowDiagResults();
+            RigFlowDiagResultAddress resAddr         = this->flowDiagResAddress();
 
             flowResultsData->minMaxScalarValues(resAddr, currentTimeStep, &globalMin, &globalMax);
             flowResultsData->posNegClosestToZero(resAddr, currentTimeStep, &globalPosClosestToZero, &globalNegClosestToZero);
 
             double localMin, localMax;
             double localPosClosestToZero, localNegClosestToZero;
-            if ( this->hasDynamicResult() )
+            if (this->hasDynamicResult())
             {
                 flowResultsData->minMaxScalarValues(resAddr, currentTimeStep, &localMin, &localMax);
                 flowResultsData->posNegClosestToZero(resAddr, currentTimeStep, &localPosClosestToZero, &localNegClosestToZero);
@@ -338,29 +340,30 @@ void RimEclipseCellColors::updateLegendData(RimEclipseCase*         rimEclipseCa
             CVF_ASSERT(legendConfig);
 
             legendConfig->disableAllTimeStepsRange(true);
-            legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, 
-                                                         localPosClosestToZero, localNegClosestToZero);
+            legendConfig->setClosestToZeroValues(
+                globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
             legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
-            if ( this->hasCategoryResult() && m_reservoirView)
+            if (this->hasCategoryResult() && m_reservoirView)
             {
-                std::set<std::tuple<QString, int, cvf::Color3ub>, TupleCompare > categories;
-                //std::set<std::tuple<QString, int, cvf::Color3ub> > categories;
+                std::set<std::tuple<QString, int, cvf::Color3ub>, TupleCompare> categories;
+                // std::set<std::tuple<QString, int, cvf::Color3ub> > categories;
 
                 std::vector<QString> tracerNames = this->flowDiagSolution()->tracerNames();
-                int tracerIndex = 0;
-                for ( const auto& tracerName : tracerNames )
+                int                  tracerIndex = 0;
+                for (const auto& tracerName : tracerNames)
                 {
-                    RimSimWellInView* well = m_reservoirView->wellCollection()->findWell(RimFlowDiagSolution::removeCrossFlowEnding(tracerName));
+                    RimSimWellInView* well =
+                        m_reservoirView->wellCollection()->findWell(RimFlowDiagSolution::removeCrossFlowEnding(tracerName));
                     cvf::Color3ub color(cvf::Color3::GRAY);
-                    if ( well ) color = cvf::Color3ub(well->wellPipeColor());
+                    if (well) color = cvf::Color3ub(well->wellPipeColor());
 
                     categories.insert(std::make_tuple(tracerName, tracerIndex, color));
                     ++tracerIndex;
                 }
 
                 std::vector<std::tuple<QString, int, cvf::Color3ub>> reverseCategories;
-                for ( auto tupIt = categories.rbegin(); tupIt != categories.rend(); ++tupIt )
+                for (auto tupIt = categories.rbegin(); tupIt != categories.rend(); ++tupIt)
                 {
                     reverseCategories.push_back(*tupIt);
                 }
@@ -371,11 +374,11 @@ void RimEclipseCellColors::updateLegendData(RimEclipseCase*         rimEclipseCa
         else
         {
             CVF_ASSERT(rimEclipseCase);
-            if ( !rimEclipseCase ) return;
+            if (!rimEclipseCase) return;
 
             RigEclipseCaseData* eclipseCase = rimEclipseCase->eclipseCaseData();
             CVF_ASSERT(eclipseCase);
-            if ( !eclipseCase ) return;
+            if (!eclipseCase) return;
 
             RigCaseCellResultsData* cellResultsData = eclipseCase->results(this->porosityModel());
             CVF_ASSERT(cellResultsData);
@@ -388,10 +391,11 @@ void RimEclipseCellColors::updateLegendData(RimEclipseCase*         rimEclipseCa
 
             double localMin, localMax;
             double localPosClosestToZero, localNegClosestToZero;
-            if ( this->hasDynamicResult() && currentTimeStep >= 0)
+            if (this->hasDynamicResult() && currentTimeStep >= 0)
             {
                 cellResultsData->minMaxCellScalarValues(this->eclipseResultAddress(), currentTimeStep, localMin, localMax);
-                cellResultsData->posNegClosestToZero(this->eclipseResultAddress(), currentTimeStep, localPosClosestToZero, localNegClosestToZero);
+                cellResultsData->posNegClosestToZero(
+                    this->eclipseResultAddress(), currentTimeStep, localPosClosestToZero, localNegClosestToZero);
             }
             else
             {
@@ -405,29 +409,33 @@ void RimEclipseCellColors::updateLegendData(RimEclipseCase*         rimEclipseCa
             CVF_ASSERT(legendConfig);
 
             legendConfig->disableAllTimeStepsRange(false);
-            legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+            legendConfig->setClosestToZeroValues(
+                globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
             legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
-            if ( this->hasCategoryResult() )
+            if (this->hasCategoryResult())
             {
-                if ( this->resultType() == RiaDefines::FORMATION_NAMES )
+                if (this->resultType() == RiaDefines::FORMATION_NAMES)
                 {
                     const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
                     legendConfig->setNamedCategoriesInverse(fnVector);
                 }
-                else if ( this->resultType() == RiaDefines::DYNAMIC_NATIVE && this->resultVariable() == RiaDefines::completionTypeResultName() )
-                {   
-                    const std::vector<int>& visibleCategories = cellResultsData->uniqueCellScalarValues(this->eclipseResultAddress());
+                else if (this->resultType() == RiaDefines::DYNAMIC_NATIVE &&
+                         this->resultVariable() == RiaDefines::completionTypeResultName())
+                {
+                    const std::vector<int>& visibleCategories =
+                        cellResultsData->uniqueCellScalarValues(this->eclipseResultAddress());
 
-                    std::vector<RiaDefines::WellPathComponentType> supportedCompletionTypes =
-                        { RiaDefines::WELL_PATH, RiaDefines::FISHBONES, RiaDefines::PERFORATION_INTERVAL, RiaDefines::FRACTURE };
-                    
+                    std::vector<RiaDefines::WellPathComponentType> supportedCompletionTypes = {
+                        RiaDefines::WELL_PATH, RiaDefines::FISHBONES, RiaDefines::PERFORATION_INTERVAL, RiaDefines::FRACTURE};
+
                     RiaColorTables::WellPathComponentColors colors = RiaColorTables::wellPathComponentColors();
-                    
-                    std::vector< std::tuple<QString, int, cvf::Color3ub> > categories;
+
+                    std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
                     for (auto completionType : supportedCompletionTypes)
                     {
-                        if (std::find(visibleCategories.begin(), visibleCategories.end(), completionType) != visibleCategories.end())
+                        if (std::find(visibleCategories.begin(), visibleCategories.end(), completionType) !=
+                            visibleCategories.end())
                         {
                             QString categoryText = caf::AppEnum<RiaDefines::WellPathComponentType>::uiText(completionType);
                             categories.push_back(std::make_tuple(categoryText, completionType, colors[completionType]));
@@ -447,67 +455,69 @@ void RimEclipseCellColors::updateLegendData(RimEclipseCase*         rimEclipseCa
     // Ternary legend update
     {
         CVF_ASSERT(rimEclipseCase);
-        if ( !rimEclipseCase ) return;
+        if (!rimEclipseCase) return;
 
         RigEclipseCaseData* eclipseCase = rimEclipseCase->eclipseCaseData();
         CVF_ASSERT(eclipseCase);
-        if ( !eclipseCase ) return;
-
+        if (!eclipseCase) return;
 
         RigCaseCellResultsData* cellResultsData = eclipseCase->results(this->porosityModel());
 
         size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
-        if ( this->isTernarySaturationSelected() && maxTimeStepCount > 1 )
+        if (this->isTernarySaturationSelected() && maxTimeStepCount > 1)
         {
             RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
             {
                 RigEclipseResultAddress resAddr(RiaDefines::DYNAMIC_NATIVE, "SOIL");
 
-                if ( gridCellResults->ensureKnownResultLoaded(resAddr) )
+                if (gridCellResults->ensureKnownResultLoaded(resAddr))
                 {
                     double globalMin = 0.0;
                     double globalMax = 1.0;
-                    double localMin = 0.0;
-                    double localMax = 1.0;
+                    double localMin  = 0.0;
+                    double localMax  = 1.0;
 
                     cellResultsData->minMaxCellScalarValues(resAddr, globalMin, globalMax);
                     cellResultsData->minMaxCellScalarValues(resAddr, currentTimeStep, localMin, localMax);
 
-                    ternaryLegendConfig->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
+                    ternaryLegendConfig->setAutomaticRanges(
+                        RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
                 }
             }
 
             {
                 RigEclipseResultAddress resAddr(RiaDefines::DYNAMIC_NATIVE, "SGAS");
-                
-                if ( gridCellResults->ensureKnownResultLoaded(resAddr) )
+
+                if (gridCellResults->ensureKnownResultLoaded(resAddr))
                 {
                     double globalMin = 0.0;
                     double globalMax = 1.0;
-                    double localMin = 0.0;
-                    double localMax = 1.0;
+                    double localMin  = 0.0;
+                    double localMax  = 1.0;
 
                     cellResultsData->minMaxCellScalarValues(resAddr, globalMin, globalMax);
                     cellResultsData->minMaxCellScalarValues(resAddr, currentTimeStep, localMin, localMax);
 
-                    ternaryLegendConfig->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
+                    ternaryLegendConfig->setAutomaticRanges(
+                        RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
                 }
             }
 
             {
                 RigEclipseResultAddress resAddr(RiaDefines::DYNAMIC_NATIVE, "SWAT");
 
-                if ( gridCellResults->ensureKnownResultLoaded(resAddr) )
+                if (gridCellResults->ensureKnownResultLoaded(resAddr))
                 {
                     double globalMin = 0.0;
                     double globalMax = 1.0;
-                    double localMin = 0.0;
-                    double localMax = 1.0;
+                    double localMin  = 0.0;
+                    double localMax  = 1.0;
 
                     cellResultsData->minMaxCellScalarValues(resAddr, globalMin, globalMax);
                     cellResultsData->minMaxCellScalarValues(resAddr, currentTimeStep, localMin, localMax);
 
-                    ternaryLegendConfig->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
+                    ternaryLegendConfig->setAutomaticRanges(
+                        RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
                 }
             }
         }
@@ -515,7 +525,7 @@ void RimEclipseCellColors::updateLegendData(RimEclipseCase*         rimEclipseCa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::setResultVariable(const QString& val)
 {
@@ -525,7 +535,7 @@ void RimEclipseCellColors::setResultVariable(const QString& val)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimEclipseCellColors::legendConfig()
 {
@@ -533,7 +543,7 @@ RimRegularLegendConfig* RimEclipseCellColors::legendConfig()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimTernaryLegendConfig* RimEclipseCellColors::ternaryLegendConfig()
 {
@@ -541,7 +551,7 @@ RimTernaryLegendConfig* RimEclipseCellColors::ternaryLegendConfig()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::updateIconState()
 {
@@ -559,4 +569,3 @@ void RimEclipseCellColors::updateIconState()
     }
     uiCapability()->updateConnectedEditors();
 }
-

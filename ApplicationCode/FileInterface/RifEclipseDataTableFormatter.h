@@ -111,21 +111,21 @@ public:
 
     virtual ~RifEclipseDataTableFormatter();
 
-    int  columnSpacing() const;
-    void setColumnSpacing(int spacing);
+    int     columnSpacing() const;
+    void    setColumnSpacing(int spacing);
     QString tableRowPrependText() const;
     QString tableRowAppendText() const;
-    void setTableRowPrependText(const QString& text);
-    void setTableRowLineAppendText(const QString& text);
+    void    setTableRowPrependText(const QString& text);
+    void    setTableRowLineAppendText(const QString& text);
     QString commentPrefix() const;
-    void setCommentPrefix(const QString& commentPrefix);
-    void setUnlimitedDataRowWidth();
-    int  maxDataRowWidth() const;
+    void    setCommentPrefix(const QString& commentPrefix);
+    void    setUnlimitedDataRowWidth();
+    int     maxDataRowWidth() const;
 
     RifEclipseDataTableFormatter& keyword(const QString& keyword);
     RifEclipseDataTableFormatter& header(std::vector<RifEclipseOutputTableColumn> tableHeader);
     RifEclipseDataTableFormatter& add(const QString& str);
-    RifEclipseDataTableFormatter& add(double num);    
+    RifEclipseDataTableFormatter& add(double num);
     RifEclipseDataTableFormatter& add(int num);
     RifEclipseDataTableFormatter& add(size_t num);
     RifEclipseDataTableFormatter& addOneBasedCellIndex(size_t zeroBasedIndex);
@@ -150,7 +150,7 @@ protected:
     static QString format(double num, RifEclipseOutputTableDoubleFormatting doubleFormat);
     static QString format(int num);
     static QString format(size_t num);
-    QString formatColumn(const QString str, size_t columnIndex) const;
+    QString        formatColumn(const QString str, size_t columnIndex) const;
 
     void outputBuffer();
     void outputComment(RifEclipseOutputTableLine& comment);

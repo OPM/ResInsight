@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -37,11 +37,10 @@
 #include <QFileInfo>
 #include <QMdiSubWindow>
 
-
 CAF_CMD_SOURCE_INIT(RicSnapshotViewToFileFeature, "RicSnapshotViewToFileFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::saveSnapshotAs(const QString& fileName, RimViewWindow* viewWindow)
 {
@@ -53,7 +52,7 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs(const QString& fileName, RimVi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::saveSnapshotAs(const QString& fileName, const QImage& image)
 {
@@ -71,12 +70,12 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs(const QString& fileName, const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::saveToFile(const QImage& image, const QString& defaultFileBaseName)
 {
-    RiaApplication* app = RiaApplication::instance();
-    RimProject* proj = app->project();
+    RiaApplication* app  = RiaApplication::instance();
+    RimProject*     proj = app->project();
 
     QString startPath;
     if (!proj->fileName().isEmpty())
@@ -90,7 +89,7 @@ void RicSnapshotViewToFileFeature::saveToFile(const QImage& image, const QString
     }
 
     QString defaultAbsFileName = caf::Utils::constructFullFileName(startPath, defaultFileBaseName, ".png");
-    QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Export to File"), defaultAbsFileName);
+    QString fileName           = QFileDialog::getSaveFileName(nullptr, tr("Export to File"), defaultAbsFileName);
     if (fileName.isEmpty())
     {
         return;
@@ -103,7 +102,7 @@ void RicSnapshotViewToFileFeature::saveToFile(const QImage& image, const QString
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QIcon RicSnapshotViewToFileFeature::icon()
 {
@@ -111,7 +110,7 @@ QIcon RicSnapshotViewToFileFeature::icon()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicSnapshotViewToFileFeature::text()
 {
@@ -119,7 +118,7 @@ QString RicSnapshotViewToFileFeature::text()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSnapshotViewToFileFeature::isCommandEnabled()
 {
@@ -127,7 +126,7 @@ bool RicSnapshotViewToFileFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
 {
@@ -139,7 +138,7 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
     if (!viewWindow)
     {
         RiaLogging::error("No view window is available, nothing to do");
-        
+
         return;
     }
 
@@ -148,7 +147,7 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::setupActionLook(QAction* actionToSetup)
 {

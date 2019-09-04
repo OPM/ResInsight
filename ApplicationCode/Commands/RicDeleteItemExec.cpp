@@ -2,21 +2,20 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 
 #include "RicDeleteItemExec.h"
 #include "RicDeleteItemExecData.h"
@@ -52,17 +51,16 @@
 
 #include "RimFractureTemplateCollection.h"
 
+#include "Rim2dIntersectionViewCollection.h"
 #include "cafNotificationCenter.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmDocument.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafSelectionManager.h"
-#include "Rim2dIntersectionViewCollection.h"
-
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicDeleteItemExec::name()
 {
@@ -70,11 +68,12 @@ QString RicDeleteItemExec::name()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemExec::redo()
 {
-    caf::PdmFieldHandle* field = caf::PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
+    caf::PdmFieldHandle* field =
+        caf::PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
 
     caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>(field);
     if (listField)
@@ -99,7 +98,7 @@ void RicDeleteItemExec::redo()
 
         caf::PdmObjectHandle* parentObj = listField->ownerObject();
         parentObj->uiCapability()->updateConnectedEditors();
-        
+
         Rim3dView* view = nullptr;
         parentObj->firstAncestorOrThisOfType(view);
 
@@ -117,7 +116,7 @@ void RicDeleteItemExec::redo()
 
         RimEclipsePropertyFilterCollection* eclipsePropColl;
         parentObj->firstAncestorOrThisOfType(eclipsePropColl);
-        
+
         RimGeoMechPropertyFilterCollection* geoMechPropColl;
         parentObj->firstAncestorOrThisOfType(geoMechPropColl);
 
@@ -139,7 +138,7 @@ void RicDeleteItemExec::redo()
         else
         {
             RimCase* parentCase = dynamic_cast<RimCase*>(parentObj);
-            if ( parentCase ) // A view was deleted. Need to update the list of intersection views
+            if (parentCase) // A view was deleted. Need to update the list of intersection views
             {
                 parentCase->intersectionViewCollection()->syncFromExistingIntersections(true);
             }
@@ -152,7 +151,6 @@ void RicDeleteItemExec::redo()
         {
             view->scheduleCreateDisplayModelAndRedraw();
         }
-
 
         RimFractureTemplateCollection* fracTemplateColl;
         parentObj->firstAncestorOrThisOfType(fracTemplateColl);
@@ -175,7 +173,6 @@ void RicDeleteItemExec::redo()
                 }
             }
         }
-
 
         // Well paths
 
@@ -216,7 +213,7 @@ void RicDeleteItemExec::redo()
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateWellLogPlotToolBar();
         }
-        
+
         // Update due to delete plots
         // Make sure the plot collection disappears with the last plot
 
@@ -235,7 +232,7 @@ void RicDeleteItemExec::redo()
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateWellLogPlotToolBar();
         }
-        
+
         // Linked views
 
         RimViewLinkerCollection* viewLinkerCollection = nullptr;
@@ -260,13 +257,12 @@ void RicDeleteItemExec::redo()
         parentObj->firstAncestorOrThisOfType(formationNamesCollection);
         if (formationNamesCollection)
         {
-            for(caf::PdmObjectHandle* reffingObj :referringObjects)
+            for (caf::PdmObjectHandle* reffingObj : referringObjects)
             {
                 RimCase* aCase = dynamic_cast<RimCase*>(reffingObj);
                 if (aCase) aCase->updateFormationNamesData();
             }
         }
-
 
         RimSummaryPlotCollection* summaryPlotCollection = nullptr;
         parentObj->firstAncestorOrThisOfType(summaryPlotCollection);
@@ -324,16 +320,18 @@ void RicDeleteItemExec::redo()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemExec::undo()
 {
-    caf::PdmFieldHandle* field = caf::PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
+    caf::PdmFieldHandle* field =
+        caf::PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
 
     caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>(field);
     if (listField)
     {
-        caf::PdmObjectHandle* obj = caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString(m_commandData->m_deletedObjectAsXml(), caf::PdmDefaultObjectFactory::instance());
+        caf::PdmObjectHandle* obj = caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString(
+            m_commandData->m_deletedObjectAsXml(), caf::PdmDefaultObjectFactory::instance());
 
         listField->insertAt(m_commandData->m_indexToObject, obj);
 
@@ -347,7 +345,7 @@ void RicDeleteItemExec::undo()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicDeleteItemExec::RicDeleteItemExec(caf::NotificationCenter* notificationCenter)
     : CmdExecuteCommand(notificationCenter)
@@ -356,7 +354,7 @@ RicDeleteItemExec::RicDeleteItemExec(caf::NotificationCenter* notificationCenter
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicDeleteItemExecData* RicDeleteItemExec::commandData()
 {

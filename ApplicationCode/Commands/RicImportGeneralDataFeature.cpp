@@ -42,8 +42,7 @@ CAF_CMD_SOURCE_INIT(RicImportGeneralDataFeature, "RicImportGeneralDataFeature");
 ///
 //--------------------------------------------------------------------------------------------------
 RicImportGeneralDataFeature::OpenCaseResults
-    RicImportGeneralDataFeature::openEclipseFilesFromFileNames(const QStringList& fileNames, 
-                                                               bool doCreateDefaultPlot)
+    RicImportGeneralDataFeature::openEclipseFilesFromFileNames(const QStringList& fileNames, bool doCreateDefaultPlot)
 {
     CVF_ASSERT(!fileNames.empty());
 
@@ -241,8 +240,7 @@ bool RicImportGeneralDataFeature::openInputEclipseCaseFromFileNames(const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames(const QStringList& fileNames, 
-                                                               bool doCreateDefaultPlot)
+bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames(const QStringList& fileNames, bool doCreateDefaultPlot)
 {
     std::vector<RimSummaryCase*> newCases;
     if (RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(fileNames, doCreateDefaultPlot, &newCases))

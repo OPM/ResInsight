@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigWellPath.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -32,7 +33,6 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimTools.h"
-#include "Rim3dView.h"
 #include "RimWellPath.h"
 
 #include "RiuViewer.h"
@@ -44,54 +44,51 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
+#include "Rim2dIntersectionView.h"
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 #include "cvfPlane.h"
-#include "Rim2dIntersectionView.h"
 
-
-namespace caf {
-
-template<>
-void caf::AppEnum< RimIntersection::CrossSectionEnum >::setUp()
+namespace caf
 {
-    addItem(RimIntersection::CS_WELL_PATH,       "CS_WELL_PATH",       "Well Path");
+template<>
+void caf::AppEnum<RimIntersection::CrossSectionEnum>::setUp()
+{
+    addItem(RimIntersection::CS_WELL_PATH, "CS_WELL_PATH", "Well Path");
     addItem(RimIntersection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well");
-    addItem(RimIntersection::CS_POLYLINE,        "CS_POLYLINE",        "Polyline");
-    addItem(RimIntersection::CS_AZIMUTHLINE,     "CS_AZIMUTHLINE",     "Azimuth and Dip");
+    addItem(RimIntersection::CS_POLYLINE, "CS_POLYLINE", "Polyline");
+    addItem(RimIntersection::CS_AZIMUTHLINE, "CS_AZIMUTHLINE", "Azimuth and Dip");
     setDefault(RimIntersection::CS_WELL_PATH);
 }
 
 template<>
-void caf::AppEnum< RimIntersection::CrossSectionDirEnum >::setUp()
+void caf::AppEnum<RimIntersection::CrossSectionDirEnum>::setUp()
 {
-    addItem(RimIntersection::CS_VERTICAL,   "CS_VERTICAL",   "Vertical");
+    addItem(RimIntersection::CS_VERTICAL, "CS_VERTICAL", "Vertical");
     addItem(RimIntersection::CS_HORIZONTAL, "CS_HORIZONTAL", "Horizontal");
     addItem(RimIntersection::CS_TWO_POINTS, "CS_TWO_POINTS", "Defined by Two Points");
     setDefault(RimIntersection::CS_VERTICAL);
 }
-
-} 
-
+}
 
 CAF_PDM_SOURCE_INIT(RimIntersection, "CrossSection");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimIntersection::RimIntersection()
 {
     CAF_PDM_InitObject("Intersection", ":/CrossSection16x16.png", "", "");
 
-    CAF_PDM_InitField(&name,        "UserDescription",  QString("Intersection Name"), "Name", "", "", "");
-    CAF_PDM_InitField(&isActive,    "Active",           true, "Active", "", "", "");
+    CAF_PDM_InitField(&name, "UserDescription", QString("Intersection Name"), "Name", "", "", "");
+    CAF_PDM_InitField(&isActive, "Active", true, "Active", "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&type,           "Type",                "Type", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&direction,      "Direction",           "Direction", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&wellPath,       "WellPath",            "Well Path        ", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell",      "Simulation Well", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_userPolyline, "Points",              "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
+    CAF_PDM_InitFieldNoDefault(&type, "Type", "Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&direction, "Direction", "Direction", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&wellPath, "WellPath", "Well Path        ", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&simulationWell, "SimulationWell", "Simulation Well", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_userPolyline, "Points", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
 
     CAF_PDM_InitField(&m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth", "", "", "");
     m_azimuthAngle.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
@@ -100,14 +97,19 @@ RimIntersection::RimIntersection()
     m_dipAngle.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_customExtrusionPoints, "CustomExtrusionPoints", "", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_twoAzimuthPoints, "TwoAzimuthPoints", "Points", "", "Pick two points to define a line.\nUse Ctrl-C for copy and Ctrl-V for paste", "");
+    CAF_PDM_InitFieldNoDefault(&m_twoAzimuthPoints,
+                               "TwoAzimuthPoints",
+                               "Points",
+                               "",
+                               "Pick two points to define a line.\nUse Ctrl-C for copy and Ctrl-V for paste",
+                               "");
 
-    CAF_PDM_InitField         (&m_branchIndex,     "Branch",            -1,     "Branch", "", "", "");
-    CAF_PDM_InitField         (&m_extentLength,    "ExtentLength",      200.0,  "Extent Length", "", "", "");
-    CAF_PDM_InitField         (&m_lengthUp,        "lengthUp",          1000.0, "Length Up", "", "", "");
-    CAF_PDM_InitField         (&m_lengthDown,      "lengthDown",        1000.0, "Length Down", "", "", "");
-    
-    CAF_PDM_InitField         (&showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "");
+    CAF_PDM_InitField(&m_branchIndex, "Branch", -1, "Branch", "", "", "");
+    CAF_PDM_InitField(&m_extentLength, "ExtentLength", 200.0, "Extent Length", "", "", "");
+    CAF_PDM_InitField(&m_lengthUp, "lengthUp", 1000.0, "Length Up", "", "", "");
+    CAF_PDM_InitField(&m_lengthDown, "lengthDown", 1000.0, "Length Down", "", "", "");
+
+    CAF_PDM_InitField(&showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&inputPolyLineFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&inputPolyLineFromViewerEnabled);
@@ -125,42 +127,30 @@ RimIntersection::RimIntersection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimIntersection::~RimIntersection()
-{
-
-}
+RimIntersection::~RimIntersection() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                       const QVariant&            oldValue,
+                                       const QVariant&            newValue)
 {
-    if (changedField == &isActive ||
-        changedField == &type ||
-        changedField == &direction ||
-        changedField == &wellPath ||
-        changedField == &simulationWell ||
-        changedField == &m_branchIndex ||
-        changedField == &m_extentLength ||
-        changedField == &m_lengthUp ||
-        changedField == &m_lengthDown ||
-        changedField == &showInactiveCells)
+    if (changedField == &isActive || changedField == &type || changedField == &direction || changedField == &wellPath ||
+        changedField == &simulationWell || changedField == &m_branchIndex || changedField == &m_extentLength ||
+        changedField == &m_lengthUp || changedField == &m_lengthDown || changedField == &showInactiveCells)
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
-    if (changedField == &simulationWell 
-        || changedField == &isActive 
-        || changedField == &type)
+    if (changedField == &simulationWell || changedField == &isActive || changedField == &type)
     {
         recomputeSimulationWellBranchData();
     }
 
-    if (changedField == &simulationWell 
-        || changedField == &wellPath
-        || changedField == &m_branchIndex)
+    if (changedField == &simulationWell || changedField == &wellPath || changedField == &m_branchIndex)
     {
         updateName();
     }
@@ -175,36 +165,33 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         }
     }
 
-    if (changedField == &inputPolyLineFromViewerEnabled
-        || changedField == &m_userPolyline)
+    if (changedField == &inputPolyLineFromViewerEnabled || changedField == &m_userPolyline)
     {
         if (inputPolyLineFromViewerEnabled)
         {
-            inputExtrusionPointsFromViewerEnabled = false;
+            inputExtrusionPointsFromViewerEnabled  = false;
             inputTwoAzimuthPointsFromViewerEnabled = false;
         }
 
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
-    if (changedField == &inputExtrusionPointsFromViewerEnabled
-        || changedField == &m_customExtrusionPoints)
+    if (changedField == &inputExtrusionPointsFromViewerEnabled || changedField == &m_customExtrusionPoints)
     {
         if (inputExtrusionPointsFromViewerEnabled)
         {
-            inputPolyLineFromViewerEnabled = false;
+            inputPolyLineFromViewerEnabled         = false;
             inputTwoAzimuthPointsFromViewerEnabled = false;
         }
 
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
-    if (changedField == &inputTwoAzimuthPointsFromViewerEnabled
-        || changedField == &m_twoAzimuthPoints)
+    if (changedField == &inputTwoAzimuthPointsFromViewerEnabled || changedField == &m_twoAzimuthPoints)
     {
         if (inputTwoAzimuthPointsFromViewerEnabled)
         {
-            inputPolyLineFromViewerEnabled = false;
+            inputPolyLineFromViewerEnabled        = false;
             inputExtrusionPointsFromViewerEnabled = false;
         }
 
@@ -217,14 +204,14 @@ void RimIntersection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
-    if(changedField == &m_dipAngle)
+    if (changedField == &m_dipAngle)
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -294,9 +281,10 @@ void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                     bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -333,7 +321,7 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::
         updateSimulationWellCenterline();
 
         size_t branchCount = m_simulationWellBranchCenterlines.size();
-        
+
         options.push_back(caf::PdmOptionItemInfo("All", -1));
 
         for (size_t bIdx = 0; bIdx < branchCount; ++bIdx)
@@ -345,7 +333,7 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimIntersection::userDescriptionField()
 {
@@ -353,7 +341,7 @@ caf::PdmFieldHandle* RimIntersection::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimIntersection::objectToggleField()
 {
@@ -361,7 +349,7 @@ caf::PdmFieldHandle* RimIntersection::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSimWellInViewCollection* RimIntersection::simulationWellCollection() const
 {
@@ -377,40 +365,40 @@ RimSimWellInViewCollection* RimIntersection::simulationWellCollection() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::updateAzimuthLine()
 {
     if (m_twoAzimuthPoints().size() == 2)
     {
         double currentAzimuth = azimuthInRadians(m_twoAzimuthPoints()[1] - m_twoAzimuthPoints()[0]);
-        double newAzimuth = cvf::Math::toRadians(m_azimuthAngle);
-        double rotAngle = newAzimuth - currentAzimuth;
+        double newAzimuth     = cvf::Math::toRadians(m_azimuthAngle);
+        double rotAngle       = newAzimuth - currentAzimuth;
 
-        cvf::Mat4d rotMat = cvf::Mat4d::fromRotation(-cvf::Vec3d::Z_AXIS, rotAngle);
+        cvf::Mat4d rotMat             = cvf::Mat4d::fromRotation(-cvf::Vec3d::Z_AXIS, rotAngle);
         cvf::Mat4d transFromOriginMat = cvf::Mat4d::fromTranslation(m_twoAzimuthPoints()[0]);
-        cvf::Mat4d transToOriginMat = cvf::Mat4d::fromTranslation(-m_twoAzimuthPoints()[0]);
+        cvf::Mat4d transToOriginMat   = cvf::Mat4d::fromTranslation(-m_twoAzimuthPoints()[0]);
 
-        m_twoAzimuthPoints.v()[1] = m_twoAzimuthPoints()[1].getTransformedPoint(transFromOriginMat*rotMat*transToOriginMat);
+        m_twoAzimuthPoints.v()[1] = m_twoAzimuthPoints()[1].getTransformedPoint(transFromOriginMat * rotMat * transToOriginMat);
 
         m_twoAzimuthPoints.uiCapability()->updateConnectedEditors();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(cvf::Vec3d * flattenedPolylineStartPoint) const
+std::vector<std::vector<cvf::Vec3d>> RimIntersection::polyLines(cvf::Vec3d* flattenedPolylineStartPoint) const
 {
-    if (flattenedPolylineStartPoint)  *flattenedPolylineStartPoint = cvf::Vec3d::ZERO;
+    if (flattenedPolylineStartPoint) *flattenedPolylineStartPoint = cvf::Vec3d::ZERO;
 
-    std::vector< std::vector <cvf::Vec3d> > lines;
+    std::vector<std::vector<cvf::Vec3d>> lines;
 
     double horizontalProjectedLengthAlongWellPathToClipPoint = 0.0;
 
     if (type == CS_WELL_PATH)
     {
-        if (wellPath() && wellPath->wellPathGeometry() )
+        if (wellPath() && wellPath->wellPathGeometry())
         {
             lines.push_back(wellPath->wellPathGeometry()->m_wellPathPoints);
             RimCase* ownerCase = nullptr;
@@ -461,7 +449,7 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(cvf::Vec3d * 
 
             simulationWell->wellHeadTopBottomPosition(-1, &top, &bottom);
 
-            for ( size_t lIdx = 0; lIdx < lines.size(); ++lIdx )
+            for (size_t lIdx = 0; lIdx < lines.size(); ++lIdx)
             {
                 std::vector<cvf::Vec3d>& polyLine = lines[lIdx];
                 polyLine.insert(polyLine.begin(), top);
@@ -474,7 +462,7 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(cvf::Vec3d * 
             addExtents(polyLine);
         }
 
-        if (flattenedPolylineStartPoint && lines.size() && lines[0].size() > 1) 
+        if (flattenedPolylineStartPoint && lines.size() && lines[0].size() > 1)
         {
             (*flattenedPolylineStartPoint)[0] = horizontalProjectedLengthAlongWellPathToClipPoint - m_extentLength;
             (*flattenedPolylineStartPoint)[2] = lines[0][1].z(); // Depth of first point in first polyline
@@ -482,7 +470,7 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(cvf::Vec3d * 
     }
     else
     {
-        if ( flattenedPolylineStartPoint && lines.size() && lines[0].size() )
+        if (flattenedPolylineStartPoint && lines.size() && lines[0].size())
         {
             (*flattenedPolylineStartPoint)[2] = lines[0][0].z(); // Depth of first point in first polyline
         }
@@ -491,7 +479,7 @@ std::vector< std::vector <cvf::Vec3d> > RimIntersection::polyLines(cvf::Vec3d * 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RivIntersectionPartMgr* RimIntersection::intersectionPartMgr()
 {
@@ -501,7 +489,7 @@ RivIntersectionPartMgr* RimIntersection::intersectionPartMgr()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::rebuildGeometry()
 {
@@ -509,15 +497,15 @@ void RimIntersection::rebuildGeometry()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector <cvf::Vec3d> RimIntersection::polyLinesForExtrusionDirection() const
+std::vector<cvf::Vec3d> RimIntersection::polyLinesForExtrusionDirection() const
 {
     return m_customExtrusionPoints;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::updateSimulationWellCenterline() const
 {
@@ -539,22 +527,22 @@ void RimIntersection::updateSimulationWellCenterline() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
+void RimIntersection::addExtents(std::vector<cvf::Vec3d>& polyLine) const
 {
     size_t lineVxCount = polyLine.size();
-    
+
     if (lineVxCount == 0) return;
 
     // Add extent at end of well
     {
-        size_t endIdxOffset = lineVxCount > 3 ? 3: lineVxCount;
-        cvf::Vec3d endDirection = (polyLine[lineVxCount-1] - polyLine[lineVxCount-endIdxOffset]);
-        endDirection[2] = 0; // Remove z. make extent length be horizontally
+        size_t     endIdxOffset = lineVxCount > 3 ? 3 : lineVxCount;
+        cvf::Vec3d endDirection = (polyLine[lineVxCount - 1] - polyLine[lineVxCount - endIdxOffset]);
+        endDirection[2]         = 0; // Remove z. make extent length be horizontally
         if (endDirection.length() < 1e-2)
         {
-            endDirection = polyLine.back() - polyLine.front();
+            endDirection    = polyLine.back() - polyLine.front();
             endDirection[2] = 0;
 
             if (endDirection.length() < 1e-2)
@@ -572,12 +560,12 @@ void RimIntersection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
 
     // Add extent at start
     {
-        size_t endIdxOffset = lineVxCount > 3 ? 3: lineVxCount-1;
+        size_t     endIdxOffset   = lineVxCount > 3 ? 3 : lineVxCount - 1;
         cvf::Vec3d startDirection = (polyLine[0] - polyLine[endIdxOffset]);
-        startDirection[2] = 0; // Remove z. make extent length be horizontally
+        startDirection[2]         = 0; // Remove z. make extent length be horizontally
         if (startDirection.length() < 1e-2)
         {
-            startDirection = polyLine.front() - polyLine.back();
+            startDirection    = polyLine.front() - polyLine.back();
             startDirection[2] = 0;
 
             if (startDirection.length() < 1e-2)
@@ -595,7 +583,7 @@ void RimIntersection::addExtents(std::vector<cvf::Vec3d> &polyLine) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::updateWellExtentDefaultValue()
 {
@@ -613,7 +601,7 @@ void RimIntersection::updateWellExtentDefaultValue()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::updateName()
 {
@@ -621,7 +609,7 @@ void RimIntersection::updateName()
     {
         name = simulationWell()->name();
         if (branchIndex() != -1)
-        { 
+        {
             name = name() + " Branch " + QString::number(branchIndex() + 1);
         }
     }
@@ -639,7 +627,7 @@ void RimIntersection::updateName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RimIntersection::branchIndex() const
 {
@@ -659,7 +647,7 @@ int RimIntersection::branchIndex() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::setPushButtonText(bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute)
 {
@@ -677,7 +665,7 @@ void RimIntersection::setPushButtonText(bool buttonEnable, caf::PdmUiPushButtonE
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::setBaseColor(bool enable, caf::PdmUiListEditorAttribute* attribute)
 {
@@ -688,30 +676,31 @@ void RimIntersection::setBaseColor(bool enable, caf::PdmUiListEditorAttribute* a
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                            QString                    uiConfigName,
+                                            caf::PdmUiEditorAttribute* attribute)
 {
-
     caf::PdmUiDoubleSliderEditorAttribute* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
     if (doubleSliderAttrib)
     {
         if (field == &m_azimuthAngle)
         {
-            doubleSliderAttrib->m_minimum = 0;
-            doubleSliderAttrib->m_maximum = 360;
+            doubleSliderAttrib->m_minimum         = 0;
+            doubleSliderAttrib->m_maximum         = 360;
             doubleSliderAttrib->m_sliderTickCount = 360;
         }
         else if (field == &m_dipAngle)
         {
-            doubleSliderAttrib->m_minimum = 0;
-            doubleSliderAttrib->m_maximum = 180;
+            doubleSliderAttrib->m_minimum         = 0;
+            doubleSliderAttrib->m_maximum         = 180;
             doubleSliderAttrib->m_sliderTickCount = 180;
         }
     }
     else if (field == &inputPolyLineFromViewerEnabled)
     {
-        setPushButtonText(inputPolyLineFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute));
+        setPushButtonText(inputPolyLineFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute));
     }
     else if (field == &m_userPolyline)
     {
@@ -719,7 +708,7 @@ void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
     }
     else if (field == &inputTwoAzimuthPointsFromViewerEnabled)
     {
-        setPushButtonText(inputTwoAzimuthPointsFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute));
+        setPushButtonText(inputTwoAzimuthPointsFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute));
     }
     else if (field == &m_twoAzimuthPoints)
     {
@@ -727,7 +716,7 @@ void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
     }
     else if (field == &inputExtrusionPointsFromViewerEnabled)
     {
-        setPushButtonText(inputExtrusionPointsFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute));
+        setPushButtonText(inputExtrusionPointsFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute));
     }
     else if (field == &m_customExtrusionPoints)
     {
@@ -736,7 +725,7 @@ void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::appendPointToPolyLine(const cvf::Vec3d& point)
 {
@@ -748,7 +737,7 @@ void RimIntersection::appendPointToPolyLine(const cvf::Vec3d& point)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Rim2dIntersectionView* RimIntersection::correspondingIntersectionView()
 {
@@ -762,11 +751,10 @@ Rim2dIntersectionView* RimIntersection::correspondingIntersectionView()
         }
     }
     return nullptr;
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::appendPointToExtrusionDirection(const cvf::Vec3d& point)
 {
@@ -780,7 +768,7 @@ void RimIntersection::appendPointToExtrusionDirection(const cvf::Vec3d& point)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::appendPointToAzimuthLine(const cvf::Vec3d& point)
 {
@@ -808,7 +796,7 @@ void RimIntersection::appendPointToAzimuthLine(const cvf::Vec3d& point)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimIntersection::extrusionDirection() const
 {
@@ -816,17 +804,17 @@ cvf::Vec3d RimIntersection::extrusionDirection() const
 
     if (direction() == RimIntersection::CS_HORIZONTAL)
     {
-        std::vector< std::vector <cvf::Vec3d> > lines = this->polyLines();
+        std::vector<std::vector<cvf::Vec3d>> lines = this->polyLines();
         if (lines.size() > 0 && lines[0].size() > 1)
         {
-            std::vector <cvf::Vec3d> firstLine = lines[0];
+            std::vector<cvf::Vec3d> firstLine = lines[0];
 
             // Use first and last point of polyline to approximate orientation of polyline
             // Then cross with Z axis to find extrusion direction
 
             cvf::Vec3d polyLineDir = firstLine[firstLine.size() - 1] - firstLine[0];
-            cvf::Vec3d up = cvf::Vec3d::Z_AXIS;
-            dir = polyLineDir ^ up;
+            cvf::Vec3d up          = cvf::Vec3d::Z_AXIS;
+            dir                    = polyLineDir ^ up;
         }
     }
     else if (direction() == RimIntersection::CS_TWO_POINTS && m_customExtrusionPoints().size() > 1)
@@ -836,10 +824,10 @@ cvf::Vec3d RimIntersection::extrusionDirection() const
     else if (m_twoAzimuthPoints().size() == 2)
     {
         double dipInRad = cvf::Math::toRadians(m_dipAngle);
-        
+
         cvf::Vec3d azimutDirection = m_twoAzimuthPoints()[1] - m_twoAzimuthPoints()[0];
-        
-        cvf::Mat3d rotMat = cvf::Mat3d::fromRotation(azimutDirection, dipInRad);
+
+        cvf::Mat3d rotMat                           = cvf::Mat3d::fromRotation(azimutDirection, dipInRad);
         cvf::Vec3d vecPerpToRotVecInHorizontalPlane = azimutDirection ^ cvf::Vec3d::Z_AXIS;
 
         dir = vecPerpToRotVecInHorizontalPlane.getTransformedVector(rotMat);
@@ -849,7 +837,7 @@ cvf::Vec3d RimIntersection::extrusionDirection() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimIntersection::lengthUp() const
 {
@@ -857,7 +845,7 @@ double RimIntersection::lengthUp() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimIntersection::lengthDown() const
 {
@@ -865,7 +853,7 @@ double RimIntersection::lengthDown() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::setLengthDown(double lengthDown)
 {
@@ -873,7 +861,7 @@ void RimIntersection::setLengthDown(double lengthDown)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimIntersection::extentLength()
 {
@@ -881,7 +869,7 @@ double RimIntersection::extentLength()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::recomputeSimulationWellBranchData()
 {
@@ -895,7 +883,7 @@ void RimIntersection::recomputeSimulationWellBranchData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimIntersection::hasDefiningPoints() const
 {
@@ -903,7 +891,7 @@ bool RimIntersection::hasDefiningPoints() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::setLengthUp(double lengthUp)
 {
@@ -911,7 +899,7 @@ void RimIntersection::setLengthUp(double lengthUp)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
 {
@@ -924,7 +912,7 @@ void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
         rimView->scheduleCreateDisplayModelAndRedraw();
     }
 
-    Rim2dIntersectionView * iview = correspondingIntersectionView();
+    Rim2dIntersectionView* iview = correspondingIntersectionView();
     if (iview)
     {
         iview->scheduleGeometryRegen(RivCellSetEnum::ALL_CELLS);
@@ -933,10 +921,9 @@ void RimIntersection::rebuildGeometryAndScheduleCreateDisplayModel()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimIntersection::azimuthInRadians(cvf::Vec3d vec)
 {
     return cvf::GeometryTools::getAngle(-cvf::Vec3d::Z_AXIS, cvf::Vec3d::Y_AXIS, vec);
 }
-

@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
@@ -26,7 +25,6 @@
 #include "Rim3dWellLogCurveCollection.h"
 
 #include "cafPdmPointer.h"
-
 
 namespace cvf
 {
@@ -56,6 +54,7 @@ public:
                             const caf::DisplayCoordTransform* displayCoordTransform,
                             const cvf::BoundingBox&           wellPathClipBoundingBox,
                             bool                              isStaticResult = false);
+
 private:
     void append3dWellLogCurveToModel(cvf::ModelBasicList*              model,
                                      const caf::DisplayCoordTransform* displayCoordTransform,
@@ -76,7 +75,7 @@ private:
 
 private:
     std::map<Rim3dWellLogCurve::DrawPlane, cvf::ref<Riv3dWellLogDrawSurfaceGenerator>> m_3dWellLogDrawSurfaceGeometryGenerators;
-    
-    caf::PdmPointer<RimWellPath>                m_wellPath;
-    caf::PdmPointer<RimGridView>                m_gridView;
+
+    caf::PdmPointer<RimWellPath> m_wellPath;
+    caf::PdmPointer<RimGridView> m_gridView;
 };

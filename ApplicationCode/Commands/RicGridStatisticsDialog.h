@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -35,8 +35,8 @@ class RimEclipseView;
 class RimGridView;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RicGridStatisticsDialog : public QDialog
 {
@@ -46,20 +46,20 @@ public:
     RicGridStatisticsDialog(QWidget* parent);
     ~RicGridStatisticsDialog() override;
 
-    void                    setLabel(const QString& labelText);
-    void                    updateFromRimView(RimGridView* rimView);
-    QImage                  screenShotImage();
+    void   setLabel(const QString& labelText);
+    void   updateFromRimView(RimGridView* rimView);
+    QImage screenShotImage();
 
 private:
-    void                    setInfoText(RimGridView* eclipseView);
-    void                    setHistogramData(RimGridView* eclipseView);
+    void setInfoText(RimGridView* eclipseView);
+    void setHistogramData(RimGridView* eclipseView);
 
 private:
-    void                    createAndConnectToolbarActions();
-    void                    deletePlotItems(QwtPlot* plot);
-    static void             setMarkers(const Rim3dOverlayInfoConfig::HistogramData& histData, QwtPlot* plot);
-    static QwtPlotMarker*   createVerticalPlotMarker(const QColor& color, double xValue);
-    void                    adjustTextEditHeightToContent();
+    void                  createAndConnectToolbarActions();
+    void                  deletePlotItems(QwtPlot* plot);
+    static void           setMarkers(const Rim3dOverlayInfoConfig::HistogramData& histData, QwtPlot* plot);
+    static QwtPlotMarker* createVerticalPlotMarker(const QColor& color, double xValue);
+    void                  adjustTextEditHeightToContent();
 
 private slots:
     void slotDialogFinished();
@@ -67,13 +67,13 @@ private slots:
     void slotScreenShotToFile();
 
 private:
-    QToolBar*                           m_toolBar;
-    QWidget*                            m_mainViewWidget;
-    QLabel*                             m_label;
-    QTextEdit*                          m_textEdit;
-    QwtPlot*                            m_historgramPlot;
-    QwtPlot*                            m_aggregatedPlot;
-    QDialogButtonBox*                   m_buttons;
+    QToolBar*         m_toolBar;
+    QWidget*          m_mainViewWidget;
+    QLabel*           m_label;
+    QTextEdit*        m_textEdit;
+    QwtPlot*          m_historgramPlot;
+    QwtPlot*          m_aggregatedPlot;
+    QDialogButtonBox* m_buttons;
 
-    caf::PdmPointer<RimGridView>            m_currentRimView;
+    caf::PdmPointer<RimGridView> m_currentRimView;
 };

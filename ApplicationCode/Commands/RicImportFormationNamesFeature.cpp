@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimFormationNames.h"
@@ -27,7 +28,6 @@
 #include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "Rim3dView.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigFemPartResultsCollection.h"
@@ -38,11 +38,10 @@
 #include <QAction>
 #include <QFileDialog>
 
-
 CAF_CMD_SOURCE_INIT(RicImportFormationNamesFeature, "RicImportFormationNamesFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicImportFormationNamesFeature::isCommandEnabled()
 {
@@ -50,13 +49,17 @@ bool RicImportFormationNamesFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QStringList fileNames = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Formation Names", defaultDir, "Formation Names description File (*.lyr);;FMU Layer Zone Table(layer_zone_table.txt);;All Files (*.*)");
+    RiaApplication* app        = RiaApplication::instance();
+    QString         defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
+    QStringList     fileNames  = QFileDialog::getOpenFileNames(
+        Riu3DMainWindowTools::mainWindowWidget(),
+        "Import Formation Names",
+        defaultDir,
+        "Formation Names description File (*.lyr);;FMU Layer Zone Table(layer_zone_table.txt);;All Files (*.*)");
 
     if (fileNames.isEmpty()) return;
 
@@ -65,11 +68,11 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
 
     // Find or create the FomationNamesCollection
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject*                  proj        = RiaApplication::instance()->project();
     RimFormationNamesCollection* fomNameColl = proj->activeOilField()->formationNamesCollection();
     if (!fomNameColl)
     {
-        fomNameColl = new RimFormationNamesCollection;
+        fomNameColl                                      = new RimFormationNamesCollection;
         proj->activeOilField()->formationNamesCollection = fomNameColl;
     }
 
@@ -80,7 +83,7 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
 
     std::vector<RimCase*> cases;
     proj->allCases(cases);
-    
+
     if (!cases.empty())
     {
         Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
@@ -104,7 +107,7 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicImportFormationNamesFeature::setupActionLook(QAction* actionToSetup)
 {

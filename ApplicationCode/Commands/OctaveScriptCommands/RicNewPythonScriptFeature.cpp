@@ -45,16 +45,16 @@ CAF_CMD_SOURCE_INIT(RicNewPythonScriptFeature, "RicNewPythonScriptFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicNewPythonScriptFeature::isCommandEnabled()
 {
-    std::vector<RimCalcScript*>       calcScripts = RicScriptFeatureImpl::selectedScripts();
+    std::vector<RimCalcScript*>       calcScripts           = RicScriptFeatureImpl::selectedScripts();
     std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
     if (calcScripts.size() == 1u && calcScripts.front()->scriptType() == RimCalcScript::PYTHON)
     {
         return true;
-    }    
+    }
     else if (calcScriptCollections.size() == 1u && !calcScriptCollections.front()->directory().isEmpty())
     {
         return true;
-    }    
+    }
     return false;
 }
 
@@ -118,7 +118,9 @@ void RicNewPythonScriptFeature::onActionTriggered(bool isChecked)
         else
         {
             QTextStream stream(&file);
-            stream << "# Load ResInsight Processing Server Client Library\nimport rips\n# Connect to ResInsight instance\nresInsight = rips.Instance.find()\n# Example code\nprint(\"ResInsight version: \" + resInsight.app.versionString())\n";
+            stream << "# Load ResInsight Processing Server Client Library\nimport rips\n# Connect to ResInsight "
+                      "instance\nresInsight = rips.Instance.find()\n# Example code\nprint(\"ResInsight version: \" + "
+                      "resInsight.app.versionString())\n";
         }
 
         scriptColl->readContentFromDisc();
@@ -156,7 +158,3 @@ void RicNewPythonScriptFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Python Script");
 }
-
-
-
-

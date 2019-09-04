@@ -36,8 +36,20 @@ RimFractureContainment::RimFractureContainment()
     CAF_PDM_InitField(&m_topKLayer, "TopKLayer", 0, "  Top Layer", "", "Do not allow fracture to grow into this layer", "");
     CAF_PDM_InitField(&m_baseKLayer, "BaseKLayer", 0, "  Base Layer", "", "Do not allow fracture to grow into this layer", "");
 
-    CAF_PDM_InitField(&m_truncateAtFaults, "TruncateAtFaults", false, "Truncate At Faults", "", "If Fault Throw is larger than limit, truncate at fault", "");
-    CAF_PDM_InitField(&m_minimumFaultThrow, "FaultThrowValue", 0.0f, "  Minimum Fault Throw", "", "If Fault Throw is larger than limit, truncate at fault", "");
+    CAF_PDM_InitField(&m_truncateAtFaults,
+                      "TruncateAtFaults",
+                      false,
+                      "Truncate At Faults",
+                      "",
+                      "If Fault Throw is larger than limit, truncate at fault",
+                      "");
+    CAF_PDM_InitField(&m_minimumFaultThrow,
+                      "FaultThrowValue",
+                      0.0f,
+                      "  Minimum Fault Throw",
+                      "",
+                      "If Fault Throw is larger than limit, truncate at fault",
+                      "");
 }
 
 //--------------------------------------------------------------------------------------------------

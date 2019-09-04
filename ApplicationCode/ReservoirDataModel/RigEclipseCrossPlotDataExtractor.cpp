@@ -48,7 +48,7 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
 
     RigFormationNames* activeFormationNames = resultData->activeFormationNames();
 
-    const std::vector<std::vector<double>>*    catValuesForAllSteps = nullptr;
+    const std::vector<std::vector<double>>* catValuesForAllSteps = nullptr;
 
     if (xAddress.isValid() && yAddress.isValid())
     {
@@ -136,7 +136,7 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract(RigEclipseCa
                 {
                     if (activeFormationNames)
                     {
-                        int category = 0;
+                        int    category = 0;
                         size_t i(cvf::UNDEFINED_SIZE_T), j(cvf::UNDEFINED_SIZE_T), k(cvf::UNDEFINED_SIZE_T);
                         if (mainGrid->ijkFromCellIndex(globalCellIdx, &i, &j, &k))
                         {

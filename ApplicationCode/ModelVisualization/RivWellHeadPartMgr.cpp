@@ -3,22 +3,20 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
-
 
 #include "RivWellHeadPartMgr.h"
 
@@ -32,8 +30,8 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimSimWellInViewCollection.h"
 #include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
@@ -41,8 +39,8 @@
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivTextLabelSourceInfo.h"
 
-#include "cafEffectGenerator.h"
 #include "cafDisplayCoordTransform.h"
+#include "cafEffectGenerator.h"
 
 #include "cvfArrowGenerator.h"
 #include "cvfDrawableGeo.h"
@@ -53,38 +51,33 @@
 #include "cvfTransform.h"
 #include "cvfqtUtils.h"
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RivWellHeadPartMgr::RivWellHeadPartMgr(RimSimWellInView* well)
-: m_rimWell(well)
+    : m_rimWell(well)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivWellHeadPartMgr::~RivWellHeadPartMgr()
-{
-
-}
+RivWellHeadPartMgr::~RivWellHeadPartMgr() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex, 
-                                            const caf::DisplayCoordTransform * displayXf, 
-                                            bool doFlatten, 
-                                            double xOffset)
+void RivWellHeadPartMgr::buildWellHeadParts(size_t                            frameIndex,
+                                            const caf::DisplayCoordTransform* displayXf,
+                                            bool                              doFlatten,
+                                            double                            xOffset)
 {
     clearAllGeometry();
 
     if (!viewWithSettings()) return;
-    
+
     RimSimWellInView* well = m_rimWell;
-    
+
     double characteristicCellSize = viewWithSettings()->ownerCase()->characteristicCellSize();
 
     cvf::Vec3d whEndPos;
@@ -94,12 +87,12 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
 
         if (doFlatten)
         {
-            whEndPos.x() = xOffset;
-            whEndPos.y() = 0.0;
+            whEndPos.x()   = xOffset;
+            whEndPos.y()   = 0.0;
             whStartPos.x() = xOffset;
             whStartPos.y() = 0.0;
-            whEndPos   = displayXf->scaleToDisplaySize(whEndPos);
-            whStartPos = displayXf->scaleToDisplaySize(whStartPos);
+            whEndPos       = displayXf->scaleToDisplaySize(whEndPos);
+            whStartPos     = displayXf->scaleToDisplaySize(whStartPos);
             whEndPos.z() += characteristicCellSize;
         }
         else
@@ -114,8 +107,8 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
 
     const RigWellResultFrame& wellResultFrame = well->simWellData()->wellResultFrame(frameIndex);
 
-    double pipeRadius = m_rimWell->pipeRadius();
-    int pipeCrossSectionVxCount = m_rimWell->pipeCrossSectionVertexCount();
+    double pipeRadius              = m_rimWell->pipeRadius();
+    int    pipeCrossSectionVxCount = m_rimWell->pipeCrossSectionVertexCount();
 
     if (wellResultFrame.m_isOpen)
     {
@@ -140,10 +133,9 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
         pipeGeomGenerator->setPipeCenterCoords(wellHeadPipeCoords.p());
         pipeGeomGenerator->setCrossSectionVertexCount(pipeCrossSectionVxCount);
 
-
         pipeGeomGenerator->setRadius(pipeRadius);
 
-        cvf::ref<cvf::DrawableGeo> pipeSurface = pipeGeomGenerator->createPipeSurface();
+        cvf::ref<cvf::DrawableGeo> pipeSurface        = pipeGeomGenerator->createPipeSurface();
         cvf::ref<cvf::DrawableGeo> centerLineDrawable = pipeGeomGenerator->createCenterLine();
 
         if (pipeSurface.notNull())
@@ -173,7 +165,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
             part->setDrawable(centerLineDrawable.p());
 
             caf::MeshEffectGenerator meshGen(well->wellPipeColor());
-            cvf::ref<cvf::Effect> eff = meshGen.generateCachedEffect();
+            cvf::ref<cvf::Effect>    eff = meshGen.generateCachedEffect();
 
             part->setEffect(eff.p());
             part->setSourceInfo(sourceInfo.p());
@@ -184,7 +176,8 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
         }
     }
 
-    double arrowLength = characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
+    double arrowLength =
+        characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
 
     if (wellResultFrame.m_isOpen)
     {
@@ -194,7 +187,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
 
     cvf::Vec3d textPosition = arrowPosition;
     textPosition.z() += 1.2 * arrowLength;
-    
+
     cvf::Mat4f matr;
     if (wellResultFrame.m_productionType != RigWellResultFrame::PRODUCER)
     {
@@ -218,7 +211,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
     matr.setTranslation(cvf::Vec3f(arrowPosition));
 
     cvf::GeometryBuilderFaceList builder;
-    cvf::ArrowGenerator gen;
+    cvf::ArrowGenerator          gen;
     gen.setShaftRelativeRadius(0.5f);
     gen.setHeadRelativeRadius(1.0f);
     gen.setHeadRelativeLength(0.4f);
@@ -226,7 +219,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
     gen.generate(&builder);
 
     cvf::ref<cvf::Vec3fArray> vertices = builder.vertices();
-    cvf::ref<cvf::UIntArray> faceList = builder.faceList();
+    cvf::ref<cvf::UIntArray>  faceList = builder.faceList();
 
     size_t i;
     for (i = 0; i < vertices->size(); i++)
@@ -237,10 +230,9 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
     }
 
     cvf::ref<cvf::DrawableGeo> geo1 = new cvf::DrawableGeo;
-    geo1->setVertexArray(vertices.p());   
+    geo1->setVertexArray(vertices.p());
     geo1->setFromFaceList(*faceList);
     geo1->computeNormals();
-
 
     {
         cvf::ref<cvf::Part> part = new cvf::Part;
@@ -328,22 +320,22 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivWellHeadPartMgr::clearAllGeometry()
 {
-    m_wellHeadArrowPart = nullptr;
-    m_wellHeadLabelPart = nullptr;
-    m_wellHeadPipeCenterPart = nullptr;
+    m_wellHeadArrowPart       = nullptr;
+    m_wellHeadLabelPart       = nullptr;
+    m_wellHeadPipeCenterPart  = nullptr;
     m_wellHeadPipeSurfacePart = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                           size_t frameIndex, 
-                                                           const caf::DisplayCoordTransform * displayXf)
+void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                                           size_t                            frameIndex,
+                                                           const caf::DisplayCoordTransform* displayXf)
 {
     if (m_rimWell.isNull()) return;
     if (!viewWithSettings()) return;
@@ -356,26 +348,24 @@ void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
     if (m_wellHeadPipeCenterPart.notNull()) model->addPart(m_wellHeadPipeCenterPart.p());
     if (m_wellHeadPipeSurfacePart.notNull()) model->addPart(m_wellHeadPipeSurfacePart.p());
 
-    if (m_rimWell->showWellLabel() && 
-        m_wellHeadLabelPart.notNull())
+    if (m_rimWell->showWellLabel() && m_wellHeadLabelPart.notNull())
     {
         model->addPart(m_wellHeadLabelPart.p());
     }
-    
-    if (m_rimWell->showWellHead() &&
-        m_wellHeadArrowPart.notNull())
+
+    if (m_rimWell->showWellHead() && m_wellHeadArrowPart.notNull())
     {
         model->addPart(m_wellHeadArrowPart.p());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivWellHeadPartMgr::appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                           size_t frameIndex, 
-                                                           const caf::DisplayCoordTransform * displayXf,
-                                                           double xOffset)
+void RivWellHeadPartMgr::appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                                                    size_t                            frameIndex,
+                                                                    const caf::DisplayCoordTransform* displayXf,
+                                                                    double                            xOffset)
 {
     if (m_rimWell.isNull()) return;
     if (!viewWithSettings()) return;
@@ -388,21 +378,19 @@ void RivWellHeadPartMgr::appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBa
     if (m_wellHeadPipeCenterPart.notNull()) model->addPart(m_wellHeadPipeCenterPart.p());
     if (m_wellHeadPipeSurfacePart.notNull()) model->addPart(m_wellHeadPipeSurfacePart.p());
 
-    if (m_rimWell->showWellLabel() && 
-        m_wellHeadLabelPart.notNull())
+    if (m_rimWell->showWellLabel() && m_wellHeadLabelPart.notNull())
     {
         model->addPart(m_wellHeadLabelPart.p());
     }
 
-    if (m_rimWell->showWellHead() &&
-        m_wellHeadArrowPart.notNull())
+    if (m_rimWell->showWellHead() && m_wellHeadArrowPart.notNull())
     {
         model->addPart(m_wellHeadArrowPart.p());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RivWellHeadPartMgr::viewWithSettings()
 {
@@ -413,13 +401,12 @@ Rim3dView* RivWellHeadPartMgr::viewWithSettings()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSimWellInViewCollection* RivWellHeadPartMgr::simWellInViewCollection()
 {
     RimSimWellInViewCollection* wellCollection = nullptr;
-    if (m_rimWell)  m_rimWell->firstAncestorOrThisOfType(wellCollection);
+    if (m_rimWell) m_rimWell->firstAncestorOrThisOfType(wellCollection);
 
     return wellCollection;
 }
-

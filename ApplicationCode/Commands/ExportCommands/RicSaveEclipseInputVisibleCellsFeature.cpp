@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,14 +21,14 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "RicExportFeatureImpl.h"
 #include "RicEclipseCellResultToFileImpl.h"
+#include "RicExportFeatureImpl.h"
 #include "RicSaveEclipseInputVisibleCellsUi.h"
 
+#include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "Rim3dView.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
@@ -45,14 +45,15 @@ CAF_CMD_SOURCE_INIT(RicSaveEclipseInputVisibleCellsFeature, "RicSaveEclipseInput
 CAF_CMD_SOURCE_INIT(RicSaveEclipseInputActiveVisibleCellsFeature, "RicSaveEclipseInputActiveVisibleCellsFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseInputVisibleCellsFeature::openDialogAndExecuteCommand(RimEclipseView* view)
 {
     if (!view) return;
 
     RicSaveEclipseInputVisibleCellsUi exportSettings;
-    caf::PdmUiPropertyViewDialog propertyDialog(Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export FLUXNUM/MULTNUM", "");
+    caf::PdmUiPropertyViewDialog      propertyDialog(
+        Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export FLUXNUM/MULTNUM", "");
     RicExportFeatureImpl::configureForExport(propertyDialog.dialogButtonBox());
 
     if (propertyDialog.exec() == QDialog::Accepted)
@@ -62,14 +63,14 @@ void RicSaveEclipseInputVisibleCellsFeature::openDialogAndExecuteCommand(RimEcli
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSaveEclipseInputVisibleCellsFeature::executeCommand(RimEclipseView* view,
+void RicSaveEclipseInputVisibleCellsFeature::executeCommand(RimEclipseView*                          view,
                                                             const RicSaveEclipseInputVisibleCellsUi& exportSettings,
-                                                            const QString& logPrefix)
+                                                            const QString&                           logPrefix)
 {
     std::vector<double> values;
-    cvf::UByteArray visibleCells;
+    cvf::UByteArray     visibleCells;
     view->calculateCurrentTotalCellVisibility(&visibleCells, view->currentTimeStep());
     RigActiveCellInfo* activeCellInfo = view->eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
     values.resize(visibleCells.size());
@@ -102,7 +103,7 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand(RimEclipseView* view
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSaveEclipseInputVisibleCellsFeature::isCommandEnabled()
 {
@@ -110,7 +111,7 @@ bool RicSaveEclipseInputVisibleCellsFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseInputVisibleCellsFeature::onActionTriggered(bool isChecked)
 {
@@ -119,7 +120,7 @@ void RicSaveEclipseInputVisibleCellsFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseInputVisibleCellsFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -127,7 +128,7 @@ void RicSaveEclipseInputVisibleCellsFeature::setupActionLook(QAction* actionToSe
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicSaveEclipseInputVisibleCellsFeature::selectedView() const
 {
@@ -142,7 +143,7 @@ RimEclipseView* RicSaveEclipseInputVisibleCellsFeature::selectedView() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSaveEclipseInputActiveVisibleCellsFeature::isCommandEnabled()
 {
@@ -150,7 +151,7 @@ bool RicSaveEclipseInputActiveVisibleCellsFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseInputActiveVisibleCellsFeature::onActionTriggered(bool isChecked)
 {
@@ -159,7 +160,7 @@ void RicSaveEclipseInputActiveVisibleCellsFeature::onActionTriggered(bool isChec
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseInputActiveVisibleCellsFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -167,7 +168,7 @@ void RicSaveEclipseInputActiveVisibleCellsFeature::setupActionLook(QAction* acti
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicSaveEclipseInputActiveVisibleCellsFeature::selectedView()
 {
@@ -180,4 +181,3 @@ RimEclipseView* RicSaveEclipseInputActiveVisibleCellsFeature::selectedView()
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     return dynamic_cast<RimEclipseView*>(activeView);
 }
-

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,29 +22,27 @@
 #include "RimCase.h"
 #include "RimIntersection.h"
 
-CAF_PDM_SOURCE_INIT(Rim2dIntersectionViewCollection, "Intersection2dViewCollection"); 
+CAF_PDM_SOURCE_INIT(Rim2dIntersectionViewCollection, "Intersection2dViewCollection");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 Rim2dIntersectionViewCollection::Rim2dIntersectionViewCollection()
 {
     CAF_PDM_InitObject("2D Intersection Views", ":/CrossSection16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_intersectionViews,  "IntersectionViews", "Intersection Views", ":/CrossSection16x16.png", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        &m_intersectionViews, "IntersectionViews", "Intersection Views", ":/CrossSection16x16.png", "", "");
     m_intersectionViews.uiCapability()->setUiTreeHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionViewCollection::~Rim2dIntersectionViewCollection()
-{
-
-}
+Rim2dIntersectionViewCollection::~Rim2dIntersectionViewCollection() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<Rim2dIntersectionView*> Rim2dIntersectionViewCollection::views()
 {
@@ -52,9 +50,9 @@ std::vector<Rim2dIntersectionView*> Rim2dIntersectionViewCollection::views()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpdate )
+void Rim2dIntersectionViewCollection::syncFromExistingIntersections(bool doUpdate)
 {
     RimCase* parentCase = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(parentCase);
@@ -66,9 +64,9 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
 
     // Delete views without a valid intersection
 
-    for ( Rim2dIntersectionView* iv: m_intersectionViews )
+    for (Rim2dIntersectionView* iv : m_intersectionViews)
     {
-        if ( iv && !iv->intersection() )
+        if (iv && !iv->intersection())
         {
             delete iv;
         }
@@ -81,9 +79,9 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
     // Build map from intersection to view
 
     std::map<RimIntersection*, Rim2dIntersectionView*> intersectionToViewMap;
-    for (Rim2dIntersectionView* iv: m_intersectionViews)
+    for (Rim2dIntersectionView* iv : m_intersectionViews)
     {
-        CVF_ASSERT (iv && iv->intersection());
+        CVF_ASSERT(iv && iv->intersection());
         intersectionToViewMap[iv->intersection()] = iv;
     }
 
@@ -97,7 +95,7 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
         if (it == intersectionToViewMap.end())
         {
             Rim2dIntersectionView* newView = new Rim2dIntersectionView();
-            
+
             Rim3dView* view = nullptr;
             intersection->firstAncestorOrThisOfType(view);
             if (view)
@@ -106,7 +104,7 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
             }
 
             newView->setIntersection(intersection);
-            m_intersectionViews.push_back(newView);            
+            m_intersectionViews.push_back(newView);
         }
         else
         {
@@ -115,7 +113,7 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
     }
 
     if (doUpdate) this->updateConnectedEditors();
-    
+
     RimCase* rimCase = nullptr;
     firstAncestorOrThisOfType(rimCase);
 

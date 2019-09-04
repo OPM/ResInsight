@@ -2,34 +2,33 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicCopyIntersectionsToAllViewsInCaseFeature.h"
 
+#include "RimCase.h"
+#include "RimEclipseCase.h"
+#include "RimGridView.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
-#include "RimGridView.h"
-#include "RimCase.h"
-#include "RimGridView.h"
-#include "RimEclipseCase.h"
 
 #include "cafCmdExecCommandManager.h"
-#include "cafSelectionManagerTools.h"
 #include "cafPdmUiItem.h"
+#include "cafSelectionManagerTools.h"
 
 #include "cvfAssert.h"
 
@@ -37,21 +36,26 @@
 
 CAF_CMD_SOURCE_INIT(RicCopyIntersectionsToAllViewsInCaseFeature, "RicCopyIntersectionsToAllViewsInCaseFeature");
 
-
 //--------------------------------------------------------------------------------------------------
 /// Internal definitions
 //--------------------------------------------------------------------------------------------------
-enum SelectionComposition {SEL_INVALID, SEL_COLLECTION, SEL_INTERSECTIONS, SEL_INTERSECTION_BOXES, SEL_BOTH_INTERSECTION_TYPES };
+enum SelectionComposition
+{
+    SEL_INVALID,
+    SEL_COLLECTION,
+    SEL_INTERSECTIONS,
+    SEL_INTERSECTION_BOXES,
+    SEL_BOTH_INTERSECTION_TYPES
+};
 
-static RimIntersectionCollection*           selectedIntersectionCollection();
-static std::vector<RimIntersection*>        selectedIntersections();
-static std::vector<RimIntersectionBox*>     selectedIntersectionBoxes();
-static SelectionComposition                 selectionComposition();
-static RimCase*                             commonGridCase(std::vector<caf::PdmUiItem*> selectedItems);
-
+static RimIntersectionCollection*       selectedIntersectionCollection();
+static std::vector<RimIntersection*>    selectedIntersections();
+static std::vector<RimIntersectionBox*> selectedIntersectionBoxes();
+static SelectionComposition             selectionComposition();
+static RimCase*                         commonGridCase(std::vector<caf::PdmUiItem*> selectedItems);
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCopyIntersectionsToAllViewsInCaseFeature::isCommandEnabled()
 {
@@ -59,11 +63,11 @@ bool RicCopyIntersectionsToAllViewsInCaseFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCopyIntersectionsToAllViewsInCaseFeature::onActionTriggered(bool isChecked)
 {
-    RimCase* gridCase = nullptr;
+    RimCase*                     gridCase = nullptr;
     std::vector<caf::PdmUiItem*> selItems;
     caf::SelectionManager::instance()->selectedItems(selItems);
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(selItems.front());
@@ -79,7 +83,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::onActionTriggered(bool isCheck
             copyIntersectionBoxesToOtherViews(*gridCase, coll->intersectionBoxes());
         }
 
-        std::vector<RimIntersection*> selIntersections = selectedIntersections();
+        std::vector<RimIntersection*>    selIntersections     = selectedIntersections();
         std::vector<RimIntersectionBox*> selIntersectionBoxes = selectedIntersectionBoxes();
 
         if (compostion == SEL_INTERSECTIONS || compostion == SEL_BOTH_INTERSECTION_TYPES)
@@ -94,7 +98,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::onActionTriggered(bool isCheck
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCopyIntersectionsToAllViewsInCaseFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -103,23 +107,25 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::setupActionLook(QAction* actio
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews(RimCase& gridCase, std::vector<RimIntersection*> intersections)
+void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews(RimCase&                      gridCase,
+                                                                                std::vector<RimIntersection*> intersections)
 {
     for (RimIntersection* intersection : intersections)
     {
         for (Rim3dView* const view : gridCase.views())
         {
             RimGridView* currGridView = dynamic_cast<RimGridView*>(view);
-            RimGridView* parentView = nullptr;
+            RimGridView* parentView   = nullptr;
             intersection->firstAncestorOrThisOfType(parentView);
 
             if (currGridView && parentView != nullptr && parentView != currGridView)
             {
                 RimIntersectionCollection* destCollection = currGridView->crossSectionCollection();
 
-                RimIntersection* copy = dynamic_cast<RimIntersection*>(intersection->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+                RimIntersection* copy = dynamic_cast<RimIntersection*>(
+                    intersection->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
                 CVF_ASSERT(copy);
 
                 destCollection->appendIntersectionAndUpdate(copy);
@@ -133,23 +139,26 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews(
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionBoxesToOtherViews(RimCase& gridCase, std::vector<RimIntersectionBox*> intersectionBoxes)
+void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionBoxesToOtherViews(
+    RimCase&                         gridCase,
+    std::vector<RimIntersectionBox*> intersectionBoxes)
 {
     for (RimIntersectionBox* intersectionBox : intersectionBoxes)
     {
         for (Rim3dView* const view : gridCase.views())
         {
             RimGridView* currGridView = dynamic_cast<RimGridView*>(view);
-            RimGridView* parentView = nullptr;
+            RimGridView* parentView   = nullptr;
             intersectionBox->firstAncestorOrThisOfType(parentView);
 
             if (currGridView && parentView != nullptr && parentView != currGridView)
             {
                 RimIntersectionCollection* destCollection = currGridView->crossSectionCollection();
 
-                RimIntersectionBox* copy = dynamic_cast<RimIntersectionBox*>(intersectionBox->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+                RimIntersectionBox* copy = dynamic_cast<RimIntersectionBox*>(
+                    intersectionBox->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
                 CVF_ASSERT(copy);
 
                 destCollection->appendIntersectionBoxAndUpdate(copy);
@@ -159,7 +168,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionBoxesToOtherVi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimIntersectionCollection* selectedIntersectionCollection()
 {
@@ -168,7 +177,7 @@ RimIntersectionCollection* selectedIntersectionCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimIntersection*> selectedIntersections()
 {
@@ -176,7 +185,7 @@ std::vector<RimIntersection*> selectedIntersections()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimIntersectionBox*> selectedIntersectionBoxes()
 {
@@ -184,7 +193,7 @@ std::vector<RimIntersectionBox*> selectedIntersectionBoxes()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 SelectionComposition selectionComposition()
 {
@@ -194,8 +203,8 @@ SelectionComposition selectionComposition()
     RimCase* gridCase = commonGridCase(allSelectedObjects);
     if (gridCase && gridCase->gridViews().size() > 1)
     {
-        RimIntersectionCollection* selColl = selectedIntersectionCollection();
-        std::vector<RimIntersection*> selIntersections = selectedIntersections();
+        RimIntersectionCollection*       selColl              = selectedIntersectionCollection();
+        std::vector<RimIntersection*>    selIntersections     = selectedIntersections();
         std::vector<RimIntersectionBox*> selIntersectionBoxes = selectedIntersectionBoxes();
 
         if (selColl)
@@ -204,21 +213,24 @@ SelectionComposition selectionComposition()
         }
         else
         {
-            if (!selIntersections.empty() && !selIntersectionBoxes.empty()) return SEL_BOTH_INTERSECTION_TYPES;
-            else if (!selIntersections.empty())                             return SEL_INTERSECTIONS;
-            else if (!selIntersectionBoxes.empty())                         return SEL_INTERSECTION_BOXES;
+            if (!selIntersections.empty() && !selIntersectionBoxes.empty())
+                return SEL_BOTH_INTERSECTION_TYPES;
+            else if (!selIntersections.empty())
+                return SEL_INTERSECTIONS;
+            else if (!selIntersectionBoxes.empty())
+                return SEL_INTERSECTION_BOXES;
         }
     }
     return SEL_INVALID;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimCase* commonGridCase(std::vector<caf::PdmUiItem*> selectedItems)
 {
     RimCase* gridCase = nullptr;
-    
+
     for (caf::PdmUiItem* item : selectedItems)
     {
         caf::PdmObjectHandle* obj = dynamic_cast<caf::PdmObjectHandle*>(item);
@@ -230,8 +242,10 @@ RimCase* commonGridCase(std::vector<caf::PdmUiItem*> selectedItems)
         RimCase* itemCase = nullptr;
         obj->firstAncestorOrThisOfType(itemCase);
 
-        if (gridCase == nullptr)        gridCase = itemCase;
-        else if (gridCase != itemCase)  return nullptr;
+        if (gridCase == nullptr)
+            gridCase = itemCase;
+        else if (gridCase != itemCase)
+            return nullptr;
     }
     return gridCase;
 }

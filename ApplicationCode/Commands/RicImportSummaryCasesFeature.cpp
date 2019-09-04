@@ -74,9 +74,9 @@ bool RicImportSummaryCasesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
 {
-    RiaGuiApplication* app        = RiaGuiApplication::instance();
-    QString         pathCacheName = "INPUT_FILES";
-    QStringList     fileNames     = runRecursiveSummaryCaseFileSearchDialog("Import Summary Cases", pathCacheName);
+    RiaGuiApplication* app           = RiaGuiApplication::instance();
+    QString            pathCacheName = "INPUT_FILES";
+    QStringList        fileNames     = runRecursiveSummaryCaseFileSearchDialog("Import Summary Cases", pathCacheName);
 
     std::vector<RimSummaryCase*> cases;
     if (!fileNames.isEmpty()) createSummaryCasesFromFiles(fileNames, &cases);
@@ -122,7 +122,7 @@ void RicImportSummaryCasesFeature::setupActionLook(QAction* actionToSetup)
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStringList&            fileNames,
-                                                                     bool doCreateDefaultPlot,
+                                                                     bool                          doCreateDefaultPlot,
                                                                      std::vector<RimSummaryCase*>* newCases)
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();

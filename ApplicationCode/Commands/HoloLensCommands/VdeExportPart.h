@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfObject.h"
 #include "cvfPart.h"
 #include "cvfTextureImage.h"

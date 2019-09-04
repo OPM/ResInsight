@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@
 CAF_CMD_SOURCE_INIT(RicAddStoredWellAllocationPlotFeature, "RicAddStoredWellAllocationPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled()
 {
@@ -45,7 +45,8 @@ bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled()
         RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
         if (flowPlotColl)
         {
-            RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(caf::SelectionManager::instance()->selectedItem());
+            RimWellAllocationPlot* wellAllocationPlot =
+                dynamic_cast<RimWellAllocationPlot*>(caf::SelectionManager::instance()->selectedItem());
 
             if (flowPlotColl->defaultWellAllocPlot() == wellAllocationPlot)
             {
@@ -58,7 +59,7 @@ bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAddStoredWellAllocationPlotFeature::onActionTriggered(bool isChecked)
 {
@@ -67,14 +68,16 @@ void RicAddStoredWellAllocationPlotFeature::onActionTriggered(bool isChecked)
         RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
         if (flowPlotColl)
         {
-            RimWellAllocationPlot* sourceObject = dynamic_cast<RimWellAllocationPlot*>(caf::SelectionManager::instance()->selectedItem());
+            RimWellAllocationPlot* sourceObject =
+                dynamic_cast<RimWellAllocationPlot*>(caf::SelectionManager::instance()->selectedItem());
 
-            RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(sourceObject->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+            RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(
+                sourceObject->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
             CVF_ASSERT(wellAllocationPlot);
 
             flowPlotColl->addWellAllocPlotToStoredPlots(wellAllocationPlot);
             wellAllocationPlot->resolveReferencesRecursively();
-            
+
             wellAllocationPlot->loadDataAndUpdate();
 
             flowPlotColl->updateConnectedEditors();
@@ -86,10 +89,10 @@ void RicAddStoredWellAllocationPlotFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAddStoredWellAllocationPlotFeature::setupActionLook(QAction* actionToSetup)
 {
-    //actionToSetup->setIcon(QIcon(":/new_icon16x16.png"));
+    // actionToSetup->setIcon(QIcon(":/new_icon16x16.png"));
     actionToSetup->setText("Add Stored Well Allocation Plot");
 }

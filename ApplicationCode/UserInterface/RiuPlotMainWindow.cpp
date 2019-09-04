@@ -651,7 +651,7 @@ void RiuPlotMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 
     if (viewWindow && viewWindow != m_activePlotViewWindow)
     {
-        selectAsCurrentItem(viewWindow);        
+        selectAsCurrentItem(viewWindow);
         m_activePlotViewWindow = viewWindow;
     }
 
@@ -856,7 +856,7 @@ void RiuPlotMainWindow::tileSubWindows()
     m_mdiArea->setActivationOrder(currentActivationOrder);
     m_mdiArea->setActiveSubWindow(a);
 
-    storeSubWindowTiling(true);    
+    storeSubWindowTiling(true);
 }
 
 //--------------------------------------------------------------------------------------------------

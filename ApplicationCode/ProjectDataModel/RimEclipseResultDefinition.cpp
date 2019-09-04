@@ -29,9 +29,9 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultInfo.h"
 #include "RigFlowDiagResultAddress.h"
 #include "RigFlowDiagResults.h"
-#include "RigEclipseResultInfo.h"
 
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurve.h"

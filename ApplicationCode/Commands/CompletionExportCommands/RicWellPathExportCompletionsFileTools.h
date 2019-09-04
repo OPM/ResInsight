@@ -37,6 +37,5 @@ public:
 
     static std::shared_ptr<QFile> openFileForExport(const QString& folderName, const QString& fileName);
     static std::shared_ptr<QFile> openFileForExport(const QString& fullFileName);
-    static const RimWellPath* findWellPathFromExportName(const QString& wellNameForExport);
-  
+    static const RimWellPath*     findWellPathFromExportName(const QString& wellNameForExport);
 };

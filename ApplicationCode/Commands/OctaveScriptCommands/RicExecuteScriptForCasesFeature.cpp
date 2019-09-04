@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,8 @@
 
 #include "RiaApplication.h"
 
-#include "RimCase.h"
 #include "RimCalcScript.h"
+#include "RimCase.h"
 
 #include "RiuMainWindow.h"
 
@@ -34,7 +34,7 @@
 CAF_CMD_SOURCE_INIT(RicExecuteScriptForCasesFeature, "RicExecuteScriptForCasesFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicExecuteScriptForCasesFeature::isCommandEnabled()
 {
@@ -52,7 +52,7 @@ bool RicExecuteScriptForCasesFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExecuteScriptForCasesFeature::onActionTriggered(bool isChecked)
 {
@@ -61,8 +61,8 @@ void RicExecuteScriptForCasesFeature::onActionTriggered(bool isChecked)
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     mainWindow->showProcessMonitorDockPanel();
 
-    RiaApplication* app = RiaApplication::instance();
-    QString octavePath = app->octavePath();
+    RiaApplication* app        = RiaApplication::instance();
+    QString         octavePath = app->octavePath();
     if (!octavePath.isEmpty())
     {
         QStringList arguments = RimCalcScript::createCommandLineArguments(scriptAbsolutePath);
@@ -80,13 +80,14 @@ void RicExecuteScriptForCasesFeature::onActionTriggered(bool isChecked)
 
         if (caseIdsInSelection.size() > 0)
         {
-            RiaApplication::instance()->launchProcessForMultipleCases(octavePath, arguments, caseIdsInSelection, app->octaveProcessEnvironment());
+            RiaApplication::instance()->launchProcessForMultipleCases(
+                octavePath, arguments, caseIdsInSelection, app->octaveProcessEnvironment());
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExecuteScriptForCasesFeature::setupActionLook(QAction* actionToSetup)
 {

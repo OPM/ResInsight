@@ -30,13 +30,12 @@ class QwtPlotCurve;
 class RimRiuQwtPlotOwnerInterface
 {
 public:
-    virtual void detachAllCurves() = 0;
-    virtual void updateAxisScaling() = 0;
-    virtual void updateAxisDisplay() = 0;
-    virtual void updateZoomWindowFromQwt() = 0;
-    virtual void selectAxisInPropertyEditor(int axis) = 0;
+    virtual void detachAllCurves()                          = 0;
+    virtual void updateAxisScaling()                        = 0;
+    virtual void updateAxisDisplay()                        = 0;
+    virtual void updateZoomWindowFromQwt()                  = 0;
+    virtual void selectAxisInPropertyEditor(int axis)       = 0;
     virtual void setAutoZoomForAllAxes(bool enableAutoZoom) = 0;
-    
-    virtual caf::PdmObject* findRimPlotObjectFromQwtCurve(const QwtPlotCurve* curve) const = 0;
 
+    virtual caf::PdmObject* findRimPlotObjectFromQwtCurve(const QwtPlotCurve* curve) const = 0;
 };

@@ -2,44 +2,44 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicNewPltPlotFeature.h"
 
-#include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
+#include "RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RiaApplication.h"
 
 #include "RigWellLogCurveData.h"
 
+#include "Rim3dView.h"
+#include "RimEclipseResultCase.h"
+#include "RimMainPlotCollection.h"
+#include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
-#include "Rim3dView.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellPltPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
-#include "RimPltPlotCollection.h"
-#include "RimMainPlotCollection.h"
-#include "RimEclipseResultCase.h"
+#include "RimWellPltPlot.h"
 
-#include "RiuPlotMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -47,18 +47,17 @@
 
 #include <vector>
 
-
 CAF_CMD_SOURCE_INIT(RicNewPltPlotFeature, "RicNewPltPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewPltPlotFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
 
-    RimSimWellInView* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>();
-    RimWellPath* selectedWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>();
+    RimSimWellInView* simWell          = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>();
+    RimWellPath*      selectedWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>();
 
     bool enable = true;
 
@@ -72,17 +71,17 @@ bool RicNewPltPlotFeature::isCommandEnabled()
 
     if (simWell != nullptr)
     {
-        RimProject* proj = RiaApplication::instance()->project();
-        QString simWellName = simWell->name();
+        RimProject* proj        = RiaApplication::instance()->project();
+        QString     simWellName = simWell->name();
 
         RimWellPath* wellPath = proj->wellPathFromSimWellName(simWellName);
-        enable = wellPath != nullptr;
+        enable                = wellPath != nullptr;
     }
     return enable;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewPltPlotFeature::onActionTriggered(bool isChecked)
 {
@@ -91,8 +90,8 @@ void RicNewPltPlotFeature::onActionTriggered(bool isChecked)
     RimPltPlotCollection* pltPlotColl = proj->mainPlotCollection()->pltPlotCollection();
     if (pltPlotColl)
     {
-        QString wellPathName;
-        RimWellPath* wellPath = nullptr;
+        QString           wellPathName;
+        RimWellPath*      wellPath    = nullptr;
         RimSimWellInView* eclipseWell = nullptr;
 
         if ((wellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>()) != nullptr)
@@ -102,7 +101,7 @@ void RicNewPltPlotFeature::onActionTriggered(bool isChecked)
         else if ((eclipseWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>()) != nullptr)
         {
             wellPath = proj->wellPathFromSimWellName(eclipseWell->name());
-            if (!wellPath ) return;
+            if (!wellPath) return;
 
             wellPathName = wellPath->name();
         }
@@ -119,7 +118,7 @@ void RicNewPltPlotFeature::onActionTriggered(bool isChecked)
         pltPlotColl->addPlot(pltPlot);
         pltPlot->setDescription(plotName);
 
-        //pltPlot->applyInitialSelections();
+        // pltPlot->applyInitialSelections();
         pltPlot->loadDataAndUpdate();
         pltPlotColl->updateConnectedEditors();
 
@@ -130,7 +129,7 @@ void RicNewPltPlotFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewPltPlotFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -139,7 +138,7 @@ void RicNewPltPlotFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RicNewPltPlotFeature::selectedWellPath() const
 {
@@ -148,11 +147,11 @@ RimWellPath* RicNewPltPlotFeature::selectedWellPath() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimSimWellInView* RicNewPltPlotFeature::selectedSimulationWell(int * branchIndex) const
+RimSimWellInView* RicNewPltPlotFeature::selectedSimulationWell(int* branchIndex) const
 {
-    RiuSelectionItem* selItem = Riu3dSelectionManager::instance()->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
+    RiuSelectionItem*        selItem = Riu3dSelectionManager::instance()->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
     RiuSimWellSelectionItem* simWellSelItem = dynamic_cast<RiuSimWellSelectionItem*>(selItem);
     if (simWellSelItem)
     {
@@ -169,7 +168,7 @@ RimSimWellInView* RicNewPltPlotFeature::selectedSimulationWell(int * branchIndex
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewPltPlotFeature::caseAvailable() const
 {
@@ -178,4 +177,3 @@ bool RicNewPltPlotFeature::caseAvailable() const
 
     return cases.size() > 0;
 }
-

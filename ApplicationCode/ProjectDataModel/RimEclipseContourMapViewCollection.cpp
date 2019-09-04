@@ -1,12 +1,12 @@
 #include "RimEclipseContourMapViewCollection.h"
 
-#include "RimEclipseContourMapView.h"
 #include "RimCase.h"
+#include "RimEclipseContourMapView.h"
 
 CAF_PDM_SOURCE_INIT(RimEclipseContourMapViewCollection, "Eclipse2dViewCollection");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseContourMapViewCollection::RimEclipseContourMapViewCollection()
 {
@@ -17,15 +17,12 @@ RimEclipseContourMapViewCollection::RimEclipseContourMapViewCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimEclipseContourMapViewCollection::~RimEclipseContourMapViewCollection()
-{
-
-}
+RimEclipseContourMapViewCollection::~RimEclipseContourMapViewCollection() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseContourMapView*> RimEclipseContourMapViewCollection::views()
 {
@@ -39,4 +36,3 @@ void RimEclipseContourMapViewCollection::push_back(RimEclipseContourMapView* con
 {
     m_contourMapViews.push_back(contourMap);
 }
-

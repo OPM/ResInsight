@@ -43,7 +43,7 @@ bool RicVec3dPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObje
 
     cvf::Vec3d pickedPosition = eventObject.m_pickItemInfos.front().globalPickedPoint();
 
-    RimCase* ownerCase   = nullptr;
+    RimCase* ownerCase = nullptr;
     rimView->firstAncestorOrThisOfType(ownerCase);
     if (ownerCase)
     {
@@ -51,8 +51,8 @@ bool RicVec3dPickEventHandler::handle3dPickEvent(const Ric3dPickEvent& eventObje
         pickedPosition.z() += zPickOffset;
     }
 
-    cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-    cvf::Vec3d pickedPositionInUTM = transForm->transformToDomainCoord(pickedPosition);
+    cvf::ref<caf::DisplayCoordTransform> transForm           = rimView->displayCoordTransform();
+    cvf::Vec3d                           pickedPositionInUTM = transForm->transformToDomainCoord(pickedPosition);
 
     pickedPositionInUTM.z() *= -1.0;
 

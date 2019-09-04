@@ -21,8 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 
-#include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 #include "cvfObject.h"
 
@@ -68,7 +68,7 @@ class RiaArgumentParser;
 
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class RiaGuiApplication : public QApplication, public RiaApplication
@@ -90,88 +90,90 @@ public:
 
     RiaGuiApplication(int& argc, char** argv);
     ~RiaGuiApplication() override;
-    
-    bool                saveProject();
-    bool                saveProjectPromptForFileName();
-    bool                askUserToSaveModifiedProject();
-    bool                saveProjectAs(const QString& fileName);
 
-    void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
-    bool                useShaders() const;
-    bool                showPerformanceInfo() const;
+    bool saveProject();
+    bool saveProjectPromptForFileName();
+    bool askUserToSaveModifiedProject();
+    bool saveProjectAs(const QString& fileName);
 
-    RINavigationPolicy  navigationPolicy() const;
+    void runMultiCaseSnapshots(const QString&       templateProjectFileName,
+                               std::vector<QString> gridFileNames,
+                               const QString&       snapshotFolderName);
+    bool useShaders() const;
+    bool showPerformanceInfo() const;
 
-    RiuMainWindow*      getOrCreateAndShowMainWindow();
-    RiuMainWindow*      mainWindow();
-    RimViewWindow*      activePlotWindow() const;
+    RINavigationPolicy navigationPolicy() const;
 
-    RiuPlotMainWindow*  getOrCreateMainPlotWindow();
-    RiuPlotMainWindow*  getOrCreateAndShowMainPlotWindow();
-    RiuPlotMainWindow*  mainPlotWindow();
-    RiuMainWindowBase*  mainWindowByID(int mainWindowID);
+    RiuMainWindow* getOrCreateAndShowMainWindow();
+    RiuMainWindow* mainWindow();
+    RimViewWindow* activePlotWindow() const;
+
+    RiuPlotMainWindow* getOrCreateMainPlotWindow();
+    RiuPlotMainWindow* getOrCreateAndShowMainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow();
+    RiuMainWindowBase* mainWindowByID(int mainWindowID);
 
     static RimViewWindow* activeViewWindow();
 
-    bool                isMain3dWindowVisible() const;
-    bool                isMainPlotWindowVisible() const;
+    bool isMain3dWindowVisible() const;
+    bool isMainPlotWindowVisible() const;
 
-    void                closeMainWindowIfOpenButHidden();
-    void                closeMainPlotWindowIfOpenButHidden();
+    void closeMainWindowIfOpenButHidden();
+    void closeMainPlotWindowIfOpenButHidden();
 
     std::vector<QAction*> recentFileActions() const;
 
-    static void         clearAllSelections();
-    void                applyGuiPreferences(const RiaPreferences* oldPreferences = nullptr);
-    void                updateGrpcServer();
+    static void clearAllSelections();
+    void        applyGuiPreferences(const RiaPreferences* oldPreferences = nullptr);
+    void        updateGrpcServer();
 
     // Public RiaApplication overrides
-    void                initialize() override;
-    ApplicationStatus   handleArguments(cvf::ProgramOptions* progOpt) override;
-    int                 launchUnitTestsWithConsole() override;
-    void                addToRecentFiles(const QString& fileName) override;
-    void                showFormattedTextInMessageBoxOrConsole(const QString& errMsg) override;
-    void                launchGrpcServer() override;
+    void              initialize() override;
+    ApplicationStatus handleArguments(cvf::ProgramOptions* progOpt) override;
+    int               launchUnitTestsWithConsole() override;
+    void              addToRecentFiles(const QString& fileName) override;
+    void              showFormattedTextInMessageBoxOrConsole(const QString& errMsg) override;
+    void              launchGrpcServer() override;
 #ifdef ENABLE_GRPC
-    RiaGrpcServer*      grpcServer() const override;
+    RiaGrpcServer* grpcServer() const override;
 #endif
 protected:
     // Protected RiaApplication overrides
-    void                invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;    
-    void                onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) override;
-    void                onProjectBeingOpened() override;
-    void                onProjectOpeningError(const QString& errMsg);
-    void                onProjectOpened() override;
-    void                onProjectBeingClosed() override;
-    void                onProjectClosed() override;
-    void                startMonitoringWorkProgress(caf::UiProcess* uiProcess) override;
-    void                stopMonitoringWorkProgress() override;
-
-private:    
-    void                setWindowCaptionFromAppState();
-
-    void                createMainWindow();
-    void                deleteMainWindow();
-
-    void                createMainPlotWindow();
-    void                deleteMainPlotWindow();
-    
-    void                loadAndUpdatePlotData();
-    
-    void                storeTreeViewState();
-
-    bool                notify(QObject *, QEvent *) override;
-
-private slots:
-    void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void                runIdleProcessing();
-    void                onProgramExit();
+    void invokeProcessEvents(QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents) override;
+    void onFileSuccessfullyLoaded(const QString& fileName, RiaDefines::ImportFileType fileType) override;
+    void onProjectBeingOpened() override;
+    void onProjectOpeningError(const QString& errMsg);
+    void onProjectOpened() override;
+    void onProjectBeingClosed() override;
+    void onProjectClosed() override;
+    void startMonitoringWorkProgress(caf::UiProcess* uiProcess) override;
+    void stopMonitoringWorkProgress() override;
 
 private:
-    RiuMainWindow*                      m_mainWindow;
-    RiuPlotMainWindow*                  m_mainPlotWindow;
+    void setWindowCaptionFromAppState();
+
+    void createMainWindow();
+    void deleteMainWindow();
+
+    void createMainPlotWindow();
+    void deleteMainPlotWindow();
+
+    void loadAndUpdatePlotData();
+
+    void storeTreeViewState();
+
+    bool notify(QObject*, QEvent*) override;
+
+private slots:
+    void slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void runIdleProcessing();
+    void onProgramExit();
+
+private:
+    RiuMainWindow*     m_mainWindow;
+    RiuPlotMainWindow* m_mainPlotWindow;
 #ifdef ENABLE_GRPC
-    QPointer<QTimer>                    m_idleTimer;
+    QPointer<QTimer> m_idleTimer;
 #endif
 
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;

@@ -18,8 +18,8 @@
 #pragma once
 
 #include "cafPdmBase.h"
-#include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 #include <array>
 
@@ -47,26 +47,28 @@ enum AICDParameters
 class RimWellPathAicdParameters : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimWellPathAicdParameters();
     ~RimWellPathAicdParameters() override;
     bool isValid() const;
 
-    bool isOpen() const;
+    bool                                isOpen() const;
     std::array<double, AICD_NUM_PARAMS> doubleValues() const;
 
 protected:
-
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+                               QString                    uiConfigName,
+                               caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     std::set<const caf::PdmField<QString>*> stringFieldsWithNoValidDefault() const;
-    void setUnitLabels();
-    bool isMetric() const;
+    void                                    setUnitLabels();
+    bool                                    isMetric() const;
+
 private:
     caf::PdmField<bool> m_deviceOpen;
 
     std::array<caf::PdmField<QString>, AICD_NUM_PARAMS> m_aicdParameterFields;
 };
-

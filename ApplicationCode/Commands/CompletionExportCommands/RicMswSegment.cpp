@@ -261,4 +261,3 @@ bool RicMswSegment::operator<(const RicMswSegment& rhs) const
 {
     return startMD() < rhs.startMD();
 }
-

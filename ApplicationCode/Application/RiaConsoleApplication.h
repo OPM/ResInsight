@@ -40,10 +40,10 @@ public:
     ~RiaConsoleApplication() override;
 
     // Public RiaApplication overrides
-    void initialize() override;
+    void              initialize() override;
     ApplicationStatus handleArguments(cvf::ProgramOptions* progOpt) override;
-    void showFormattedTextInMessageBoxOrConsole(const QString& errMsg) override;
-    void launchGrpcServer() override;
+    void              showFormattedTextInMessageBoxOrConsole(const QString& errMsg) override;
+    void              launchGrpcServer() override;
 #ifdef ENABLE_GRPC
     RiaGrpcServer* grpcServer() const override;
 #endif
@@ -63,4 +63,3 @@ private:
     QPointer<QTimer> m_idleTimer;
 #endif
 };
-

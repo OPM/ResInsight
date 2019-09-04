@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2013 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,22 +23,22 @@
 
 //#define IMPL_DUMP_TO_FILE
 
-#include <QtCore/QVariant>
-#include <QtCore/QMap>
 #include <QtCore/QList>
+#include <QtCore/QMap>
 #include <QtCore/QString>
+#include <QtCore/QVariant>
 #include <QtScript/QScriptValue>
 
 #if IMPL_DUMP_TO_FILE
-#include <vector>
 #include <cvfVector3.h>
+#include <vector>
 #endif
 
 class QScriptEngine;
 
 // Encapsulate the JSON code in a namespace to avoid issues with JSON classes used in opm-parser
-namespace ResInsightInternalJson {
-
+namespace ResInsightInternalJson
+{
 class JsonReader
 {
 public:
@@ -52,15 +52,14 @@ public:
 class Json
 {
 public:
-    Json() {};
-    QString encode(const QMap<QString, QVariant>& map, bool prettify);
-    QMap<QString, QVariant> decode(const QString &jsonStr);
+    Json(){};
+    QString                 encode(const QMap<QString, QVariant>& map, bool prettify);
+    QMap<QString, QVariant> decode(const QString& jsonStr);
 
 private:
-    QScriptValue encodeInner(const QMap<QString,QVariant> &map, QScriptEngine* engine);
+    QScriptValue            encodeInner(const QMap<QString, QVariant>& map, QScriptEngine* engine);
     QMap<QString, QVariant> decodeInner(QScriptValue object);
-    QList<QVariant> decodeInnerToList(QScriptValue arrayValue);
+    QList<QVariant>         decodeInnerToList(QScriptValue arrayValue);
 };
-
 
 } // end ResInsightInternalJson

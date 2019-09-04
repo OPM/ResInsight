@@ -20,9 +20,9 @@
 
 #include "RiaFieldHandleTools.h"
 
+#include "RifReaderEnsembleStatisticsRft.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
-#include "RifReaderEnsembleStatisticsRft.h"
 #include "RimGridSummaryCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -33,8 +33,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
 CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection, "SummaryCaseSubCollection");
 
@@ -46,7 +46,7 @@ double EnsembleParameter::stdDeviation() const
     double N = static_cast<double>(values.size());
     if (N > 1 && isNumeric())
     {
-        double sumValues = 0.0;
+        double sumValues        = 0.0;
         double sumValuesSquared = 0.0;
         for (const QVariant& variant : values)
         {
@@ -81,7 +81,6 @@ double EnsembleParameter::normalizedStdDeviation() const
     }
     return normalisedStdDev;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -122,12 +121,10 @@ void EnsembleParameter::sortByBinnedVariation(std::vector<NameParameterPair>& pa
     }
 
     // Sort by variation bin (highest first) but keep name as sorting parameter when parameters have the same variation index
-    std::stable_sort(parameterVector.begin(), parameterVector.end(),
-        [&bins](const NameParameterPair& lhs, const NameParameterPair& rhs)
-        {
+    std::stable_sort(
+        parameterVector.begin(), parameterVector.end(), [&bins](const NameParameterPair& lhs, const NameParameterPair& rhs) {
             return lhs.second.variationBin > rhs.second.variationBin;
-        }
-    );
+        });
 }
 //--------------------------------------------------------------------------------------------------
 ///
@@ -173,8 +170,7 @@ void RimSummaryCaseCollection::removeCase(RimSummaryCase* summaryCase)
 
     if (m_isEnsemble && m_cases.size() != caseCountBeforeRemove)
     {
-        if(dynamic_cast<RimDerivedEnsembleCase*>(summaryCase) == nullptr)
-            calculateEnsembleParametersIntersectionHash();
+        if (dynamic_cast<RimDerivedEnsembleCase*>(summaryCase) == nullptr) calculateEnsembleParametersIntersectionHash();
     }
 }
 
@@ -198,11 +194,11 @@ void RimSummaryCaseCollection::addCase(RimSummaryCase* summaryCase, bool updateC
 
     if (m_isEnsemble)
     {
-        validateEnsembleCases({ summaryCase });
+        validateEnsembleCases({summaryCase});
         calculateEnsembleParametersIntersectionHash();
     }
 
-    if(updateCurveSets) updateReferringCurveSets();
+    if (updateCurveSets) updateReferringCurveSets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,7 +226,7 @@ QString RimSummaryCaseCollection::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCaseCollection::isEnsemble() const
 {
@@ -238,7 +234,7 @@ bool RimSummaryCaseCollection::isEnsemble() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::setAsEnsemble(bool isEnsemble)
 {
@@ -256,36 +252,36 @@ void RimSummaryCaseCollection::setAsEnsemble(bool isEnsemble)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::ensembleSummaryAddresses() const
 {
-   std::set<RifEclipseSummaryAddress> addresses;
-   size_t maxAddrCount = 0;
-   int maxAddrIndex = -1;
+    std::set<RifEclipseSummaryAddress> addresses;
+    size_t                             maxAddrCount = 0;
+    int                                maxAddrIndex = -1;
 
-   for (int i = 0; i < (int)m_cases.size(); i++)
-   {
-       RimSummaryCase* currCase = m_cases[i];
-       if (!currCase) continue;
+    for (int i = 0; i < (int)m_cases.size(); i++)
+    {
+        RimSummaryCase* currCase = m_cases[i];
+        if (!currCase) continue;
 
-       RifSummaryReaderInterface* reader = currCase->summaryReader();
-       if (!reader) continue;
+        RifSummaryReaderInterface* reader = currCase->summaryReader();
+        if (!reader) continue;
 
-       size_t addrCount = reader->allResultAddresses().size();
-       if (addrCount > maxAddrCount)
-       {
-           maxAddrCount = addrCount;
-           maxAddrIndex = (int)i;
-       }
-   }
+        size_t addrCount = reader->allResultAddresses().size();
+        if (addrCount > maxAddrCount)
+        {
+            maxAddrCount = addrCount;
+            maxAddrIndex = (int)i;
+        }
+    }
 
-   if (maxAddrIndex >= 0)
-   {
-       const std::set<RifEclipseSummaryAddress>& addrs = m_cases[maxAddrIndex]->summaryReader()->allResultAddresses();
-       addresses.insert(addrs.begin(), addrs.end());
-   }
-   return addresses;
+    if (maxAddrIndex >= 0)
+    {
+        const std::set<RifEclipseSummaryAddress>& addrs = m_cases[maxAddrIndex]->summaryReader()->allResultAddresses();
+        addresses.insert(addrs.begin(), addrs.end());
+    }
+    return addresses;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -333,7 +329,7 @@ RifReaderRftInterface* RimSummaryCaseCollection::rftStatisticsReader()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& paramName) const
 {
@@ -343,7 +339,7 @@ EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& par
     eParam.name = paramName;
 
     size_t numericValuesCount = 0;
-    size_t textValuesCount = 0;
+    size_t textValuesCount    = 0;
 
     // Prepare case realization params, and check types
     for (const auto& rimCase : allSummaryCases())
@@ -402,7 +398,7 @@ EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& par
                     val.setValue(QString::number(val.value<double>()));
                 }
             }
-            eParam.type = EnsembleParameter::TYPE_TEXT;
+            eParam.type     = EnsembleParameter::TYPE_TEXT;
             eParam.minValue = std::numeric_limits<double>::infinity();
             eParam.maxValue = -std::numeric_limits<double>::infinity();
         }
@@ -422,12 +418,12 @@ EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& par
             eParam.values.push_back(QVariant(val));
         }
     }
-    
+
     return eParam;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
 {
@@ -435,7 +431,7 @@ void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
 
     // Find ensemble parameters intersection
     std::set<QString> paramNames;
-    auto sumCases = allSummaryCases();
+    auto              sumCases = allSummaryCases();
 
     for (size_t i = 0; i < sumCases.size(); i++)
     {
@@ -443,30 +439,33 @@ void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
         if (!crp) continue;
 
         auto caseParamNames = crp->parameterNames();
-        
-        if (i == 0) paramNames = caseParamNames;
+
+        if (i == 0)
+            paramNames = caseParamNames;
         else
         {
             std::set<QString> newIntersection;
-            std::set_intersection(paramNames.begin(), paramNames.end(),
-                                  caseParamNames.begin(), caseParamNames.end(),
+            std::set_intersection(paramNames.begin(),
+                                  paramNames.end(),
+                                  caseParamNames.begin(),
+                                  caseParamNames.end(),
                                   std::inserter(newIntersection, newIntersection.end()));
 
-            if(paramNames.size() != newIntersection.size()) paramNames = newIntersection;
+            if (paramNames.size() != newIntersection.size()) paramNames = newIntersection;
         }
     }
 
     for (auto sumCase : sumCases)
     {
         auto crp = sumCase->caseRealizationParameters();
-        if(crp) crp->calculateParametersHash(paramNames);
+        if (crp) crp->calculateParametersHash(paramNames);
     }
 
     // Find common addess count
     for (const auto sumCase : sumCases)
     {
         const auto reader = sumCase->summaryReader();
-        if(!reader) continue;
+        if (!reader) continue;
         auto currAddrCount = reader->allResultAddresses().size();
 
         if (m_commonAddressCount == 0)
@@ -485,7 +484,7 @@ void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::clearEnsembleParametersHashes()
 {
@@ -497,7 +496,7 @@ void RimSummaryCaseCollection::clearEnsembleParametersHashes()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::loadDataAndUpdate()
 {
@@ -505,27 +504,29 @@ void RimSummaryCaseCollection::loadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCaseCollection::validateEnsembleCases(const std::vector<RimSummaryCase*> cases)
 {
     // Validate ensemble parameters
     try
     {
-        QString errors;
+        QString                errors;
         std::hash<std::string> paramsHasher;
-        size_t paramsHash = 0;
+        size_t                 paramsHash = 0;
 
         for (RimSummaryCase* rimCase : cases)
         {
             if (rimCase->caseRealizationParameters() == nullptr || rimCase->caseRealizationParameters()->parameters().empty())
             {
-                errors.append(QString("The case %1 has no ensemble parameters\n").arg(QFileInfo(rimCase->summaryHeaderFilename()).fileName()));
+                errors.append(QString("The case %1 has no ensemble parameters\n")
+                                  .arg(QFileInfo(rimCase->summaryHeaderFilename()).fileName()));
             }
             else
             {
                 QString paramNames;
-                for (std::pair<QString, RigCaseRealizationParameters::Value> paramPair : rimCase->caseRealizationParameters()->parameters())
+                for (std::pair<QString, RigCaseRealizationParameters::Value> paramPair :
+                     rimCase->caseRealizationParameters()->parameters())
                 {
                     paramNames.append(paramPair.first);
                 }
@@ -541,7 +542,6 @@ bool RimSummaryCaseCollection::validateEnsembleCases(const std::vector<RimSummar
                 }
             }
         }
-
 
         if (!errors.isEmpty())
         {
@@ -597,7 +597,7 @@ caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::onLoadDataAndUpdate()
 {
@@ -634,16 +634,18 @@ QString RimSummaryCaseCollection::nameAndItemCount() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::updateIcon()
 {
-    if (m_isEnsemble) setUiIconFromResourceString(":/SummaryEnsemble16x16.png");
-    else              setUiIconFromResourceString(":/SummaryGroup16x16.png");
+    if (m_isEnsemble)
+        setUiIconFromResourceString(":/SummaryEnsemble16x16.png");
+    else
+        setUiIconFromResourceString(":/SummaryGroup16x16.png");
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::initAfterRead()
 {
@@ -651,9 +653,11 @@ void RimSummaryCaseCollection::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimSummaryCaseCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                const QVariant&            oldValue,
+                                                const QVariant&            newValue)
 {
     if (changedField == &m_isEnsemble)
     {
@@ -662,7 +666,7 @@ void RimSummaryCaseCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -671,7 +675,7 @@ void RimSummaryCaseCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::setNameAsReadOnly()
 {

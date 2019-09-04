@@ -59,7 +59,8 @@ void RicHoloLensExportToFolderFeature::onActionTriggered(bool isChecked)
     RicHoloLensExportToFolderUi* featureUi = RiaApplication::instance()->project()->dialogData()->holoLensExportToFolderData();
     featureUi->setViewForExport(activeView);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, featureUi, "HoloLens - Export Data Folder", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    caf::PdmUiPropertyViewDialog propertyDialog(
+        nullptr, featureUi, "HoloLens - Export Data Folder", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     propertyDialog.resize(QSize(400, 330));
 
     if (propertyDialog.exec() == QDialog::Accepted && !featureUi->exportFolder().isEmpty())
@@ -106,11 +107,10 @@ void RicHoloLensExportToFolderFeature::onActionTriggered(bool isChecked)
         }
         */
 
-
         RimGridView* viewForExport = featureUi->viewForExport();
         if (!viewForExport) return;
 
-        QDir dir(featureUi->exportFolder());
+        QDir          dir(featureUi->exportFolder());
         const QString absOutputFolder = dir.absolutePath();
 
         VdeFileExporter exporter(absOutputFolder);

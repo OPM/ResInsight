@@ -80,7 +80,7 @@ void RimDataSourceForRftPlt::setAddress(const RifDataSourceForRftPlt& address)
 //--------------------------------------------------------------------------------------------------
 RifDataSourceForRftPlt RimDataSourceForRftPlt::address() const
 {
-    switch(m_sourceType())
+    switch (m_sourceType())
     {
         case RifDataSourceForRftPlt::OBSERVED:
             return RifDataSourceForRftPlt(m_sourceType(), m_wellLogFile);

@@ -19,14 +19,14 @@
 #include "RimWellLogExtractionCurveNameConfig.h"
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 
 CAF_PDM_SOURCE_INIT(RimWellLogExtractionCurveNameConfig, "RimWellLogExtractionCurveNameConfig");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellLogExtractionCurveNameConfig::RimWellLogExtractionCurveNameConfig(const RimNameConfigHolderInterface* configHolder)
     : RimNameConfig(configHolder)
@@ -37,13 +37,13 @@ RimWellLogExtractionCurveNameConfig::RimWellLogExtractionCurveNameConfig(const R
     CAF_PDM_InitField(&m_addProperty, "AddProperty", true, "Add Property Type", "", "", "");
     CAF_PDM_InitField(&m_addWellName, "AddWellName", true, "Add Well Name", "", "", "");
     CAF_PDM_InitField(&m_addTimestep, "AddTimeStep", true, "Add Time Step", "", "", "");
-    CAF_PDM_InitField(&m_addDate,     "AddDate",     true, "Add Date", "", "", "");
+    CAF_PDM_InitField(&m_addDate, "AddDate", true, "Add Date", "", "", "");
 
     m_customName = "Log Extraction";
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogExtractionCurveNameConfig::addCaseName() const
 {
@@ -51,7 +51,7 @@ bool RimWellLogExtractionCurveNameConfig::addCaseName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogExtractionCurveNameConfig::addProperty() const
 {
@@ -59,7 +59,7 @@ bool RimWellLogExtractionCurveNameConfig::addProperty() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogExtractionCurveNameConfig::addWellName() const
 {
@@ -67,7 +67,7 @@ bool RimWellLogExtractionCurveNameConfig::addWellName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogExtractionCurveNameConfig::addTimeStep() const
 {
@@ -75,7 +75,7 @@ bool RimWellLogExtractionCurveNameConfig::addTimeStep() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogExtractionCurveNameConfig::addDate() const
 {

@@ -65,7 +65,6 @@ void RicExportCompletionsForVisibleSimWellsFeature::setupActionLook(QAction* act
 {
     actionToSetup->setText("Export Completion Data for Visible Simulation Wells");
     actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
-
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,17 +20,15 @@
 
 #include "RicEclipseWellFeatureImpl.h"
 
-#include "RimSimWellInViewCollection.h"
 #include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
 
 #include <QAction>
-
-
 
 CAF_CMD_SOURCE_INIT(RicEclipseWellShowLabelFeature, "RicEclipseWellShowLabelFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowLabelFeature::onActionTriggered(bool isChecked)
 {
@@ -42,7 +40,7 @@ void RicEclipseWellShowLabelFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowLabelFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -52,7 +50,7 @@ void RicEclipseWellShowLabelFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowLabelFeature::isCommandEnabled()
 {
@@ -60,7 +58,7 @@ bool RicEclipseWellShowLabelFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowLabelFeature::isCommandChecked()
 {
@@ -75,17 +73,10 @@ bool RicEclipseWellShowLabelFeature::isCommandChecked()
     return false;
 }
 
-
-
-
-
-
-
-
 CAF_CMD_SOURCE_INIT(RicEclipseWellShowHeadFeature, "RicEclipseWellShowHeadFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowHeadFeature::onActionTriggered(bool isChecked)
 {
@@ -97,7 +88,7 @@ void RicEclipseWellShowHeadFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowHeadFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -107,7 +98,7 @@ void RicEclipseWellShowHeadFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowHeadFeature::isCommandEnabled()
 {
@@ -115,7 +106,7 @@ bool RicEclipseWellShowHeadFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowHeadFeature::isCommandChecked()
 {
@@ -130,18 +121,10 @@ bool RicEclipseWellShowHeadFeature::isCommandChecked()
     return false;
 }
 
-
-
-
-
-
-
-
-
 CAF_CMD_SOURCE_INIT(RicEclipseWellShowPipeFeature, "RicEclipseWellShowPipeFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowPipeFeature::onActionTriggered(bool isChecked)
 {
@@ -153,7 +136,7 @@ void RicEclipseWellShowPipeFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowPipeFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -163,7 +146,7 @@ void RicEclipseWellShowPipeFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowPipeFeature::isCommandEnabled()
 {
@@ -171,7 +154,7 @@ bool RicEclipseWellShowPipeFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowPipeFeature::isCommandChecked()
 {
@@ -186,18 +169,10 @@ bool RicEclipseWellShowPipeFeature::isCommandChecked()
     return false;
 }
 
-
-
-
-
-
-
-
 CAF_CMD_SOURCE_INIT(RicEclipseWellShowSpheresFeature, "RicEclipseWellShowSpheresFeature");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowSpheresFeature::onActionTriggered(bool isChecked)
 {
@@ -209,7 +184,7 @@ void RicEclipseWellShowSpheresFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowSpheresFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -219,7 +194,7 @@ void RicEclipseWellShowSpheresFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowSpheresFeature::isCommandEnabled()
 {
@@ -227,7 +202,7 @@ bool RicEclipseWellShowSpheresFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowSpheresFeature::isCommandChecked()
 {
@@ -242,17 +217,10 @@ bool RicEclipseWellShowSpheresFeature::isCommandChecked()
     return false;
 }
 
-
-
-
-
-
-
-
 CAF_CMD_SOURCE_INIT(RicEclipseWellShowWellCellsFeature, "RicEclipseWellShowWellCellsFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowWellCellsFeature::onActionTriggered(bool isChecked)
 {
@@ -264,7 +232,7 @@ void RicEclipseWellShowWellCellsFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowWellCellsFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -274,7 +242,7 @@ void RicEclipseWellShowWellCellsFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowWellCellsFeature::isCommandEnabled()
 {
@@ -282,7 +250,7 @@ bool RicEclipseWellShowWellCellsFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowWellCellsFeature::isCommandChecked()
 {
@@ -297,16 +265,10 @@ bool RicEclipseWellShowWellCellsFeature::isCommandChecked()
     return false;
 }
 
-
-
-
-
-
-
 CAF_CMD_SOURCE_INIT(RicEclipseWellShowWellCellFenceFeature, "RicEclipseWellShowWellCellFenceFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowWellCellFenceFeature::onActionTriggered(bool isChecked)
 {
@@ -318,7 +280,7 @@ void RicEclipseWellShowWellCellFenceFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowWellCellFenceFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -328,7 +290,7 @@ void RicEclipseWellShowWellCellFenceFeature::setupActionLook(QAction* actionToSe
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowWellCellFenceFeature::isCommandEnabled()
 {
@@ -336,7 +298,7 @@ bool RicEclipseWellShowWellCellFenceFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowWellCellFenceFeature::isCommandChecked()
 {

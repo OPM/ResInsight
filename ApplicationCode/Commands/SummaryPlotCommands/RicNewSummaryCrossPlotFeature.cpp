@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -28,11 +28,11 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -42,11 +42,10 @@
 
 #include <QAction>
 
-
 CAF_CMD_SOURCE_INIT(RicNewSummaryCrossPlotFeature, "RicNewSummaryCrossPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryCrossPlotFeature::isCommandEnabled()
 {
@@ -65,18 +64,17 @@ bool RicNewSummaryCrossPlotFeature::isCommandEnabled()
 
     for (auto item : selectedItems)
     {
-        RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(item);
+        RimSummaryCase*           sumCase  = dynamic_cast<RimSummaryCase*>(item);
         RimSummaryCaseCollection* sumGroup = dynamic_cast<RimSummaryCaseCollection*>(item);
 
         if (sumGroup && sumGroup->isEnsemble()) sumGroup = nullptr;
-        if (!sumCase && !sumGroup)
-            return false;
+        if (!sumCase && !sumGroup) return false;
     }
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
 {
@@ -84,8 +82,8 @@ void RicNewSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
     CVF_ASSERT(project);
 
     RimSummaryCrossPlotCollection* summaryCrossPlotColl = project->mainPlotCollection()->summaryCrossPlotCollection();
-    RimSummaryPlot* summaryPlot = summaryCrossPlotColl->createSummaryPlot();
-    
+    RimSummaryPlot*                summaryPlot          = summaryCrossPlotColl->createSummaryPlot();
+
     summaryCrossPlotColl->addSummaryPlot(summaryPlot);
     if (summaryPlot)
     {
@@ -99,11 +97,10 @@ void RicNewSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Summary Cross Plot");
     actionToSetup->setIcon(QIcon(":/SummaryXPlotLight16x16.png"));
 }
-

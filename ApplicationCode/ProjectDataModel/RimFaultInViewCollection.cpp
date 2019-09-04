@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,8 +20,8 @@
 #include "RimFaultInViewCollection.h"
 
 #include "RiaApplication.h"
-#include "RiaPreferences.h"
 #include "RiaColorTables.h"
+#include "RiaPreferences.h"
 
 #include "RigMainGrid.h"
 
@@ -41,22 +41,20 @@
 
 namespace caf
 {
-    template<>
-    void AppEnum< RimFaultInViewCollection::FaultFaceCullingMode >::setUp()
-    {
-        addItem(RimFaultInViewCollection::FAULT_BACK_FACE_CULLING,  "FAULT_BACK_FACE_CULLING",    "Cell behind fault");
-        addItem(RimFaultInViewCollection::FAULT_FRONT_FACE_CULLING, "FAULT_FRONT_FACE_CULLING",   "Cell in front of fault");
-        addItem(RimFaultInViewCollection::FAULT_NO_FACE_CULLING,    "FAULT_NO_FACE_CULLING",      "Show both");
-        setDefault(RimFaultInViewCollection::FAULT_NO_FACE_CULLING);
-    }
+template<>
+void AppEnum<RimFaultInViewCollection::FaultFaceCullingMode>::setUp()
+{
+    addItem(RimFaultInViewCollection::FAULT_BACK_FACE_CULLING, "FAULT_BACK_FACE_CULLING", "Cell behind fault");
+    addItem(RimFaultInViewCollection::FAULT_FRONT_FACE_CULLING, "FAULT_FRONT_FACE_CULLING", "Cell in front of fault");
+    addItem(RimFaultInViewCollection::FAULT_NO_FACE_CULLING, "FAULT_NO_FACE_CULLING", "Show both");
+    setDefault(RimFaultInViewCollection::FAULT_NO_FACE_CULLING);
 }
-
-
+}
 
 CAF_PDM_SOURCE_INIT(RimFaultInViewCollection, "Faults");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFaultInViewCollection::RimFaultInViewCollection()
 {
@@ -69,14 +67,27 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     CAF_PDM_InitField(&showOppositeFaultFaces, "ShowOppositeFaultFaces", true, "Show Opposite Faces", "", "", "");
     CAF_PDM_InitField(&m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters", "", "", "");
 
-    CAF_PDM_InitField(&faultResult, "FaultFaceCulling", caf::AppEnum<RimFaultInViewCollection::FaultFaceCullingMode>(RimFaultInViewCollection::FAULT_BACK_FACE_CULLING), "Dynamic Face Selection", "", "", "");
+    CAF_PDM_InitField(
+        &faultResult,
+        "FaultFaceCulling",
+        caf::AppEnum<RimFaultInViewCollection::FaultFaceCullingMode>(RimFaultInViewCollection::FAULT_BACK_FACE_CULLING),
+        "Dynamic Face Selection",
+        "",
+        "",
+        "");
 
     CAF_PDM_InitField(&showFaultLabel, "ShowFaultLabel", false, "Show Labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
     CAF_PDM_InitField(&faultLabelColor, "FaultLabelColor", defWellLabelColor, "Label Color", "", "", "");
 
     CAF_PDM_InitField(&showNNCs, "ShowNNCs", true, "Show NNCs", "", "", "");
-    CAF_PDM_InitField(&hideNncsWhenNoResultIsAvailable, "HideNncsWhenNoResultIsAvailable", true, "Hide NNC Geometry if No NNC Result is Available", "", "", "");
+    CAF_PDM_InitField(&hideNncsWhenNoResultIsAvailable,
+                      "HideNncsWhenNoResultIsAvailable",
+                      true,
+                      "Hide NNC Geometry if No NNC Result is Available",
+                      "",
+                      "",
+                      "");
 
     CAF_PDM_InitFieldNoDefault(&noCommonAreaNnncCollection, "NoCommonAreaNnncCollection", "NNCs With No Common Area", "", "", "");
     noCommonAreaNnncCollection = new RimNoCommonAreaNncCollection;
@@ -87,54 +98,46 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFaultInViewCollection::~RimFaultInViewCollection()
 {
-   faults.deleteAllChildObjects();
+    faults.deleteAllChildObjects();
 
-   delete noCommonAreaNnncCollection();
+    delete noCommonAreaNnncCollection();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimFaultInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimFaultInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                const QVariant&            oldValue,
+                                                const QVariant&            newValue)
 {
     this->updateUiIconFromToggleField();
-    
+
     if (&faultLabelColor == changedField)
     {
         parentView()->scheduleReservoirGridGeometryRegen();
         parentView()->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
-    if (&showFaultFaces == changedField ||
-        &showOppositeFaultFaces == changedField ||
-        &showFaultCollection == changedField ||
-        &showFaultLabel == changedField ||
-        &m_showFaultsOutsideFilters == changedField ||
-        &faultLabelColor == changedField ||
-        &faultResult == changedField ||
-        &showNNCs == changedField ||
-        &hideNncsWhenNoResultIsAvailable == changedField
-        )
+    if (&showFaultFaces == changedField || &showOppositeFaultFaces == changedField || &showFaultCollection == changedField ||
+        &showFaultLabel == changedField || &m_showFaultsOutsideFilters == changedField || &faultLabelColor == changedField ||
+        &faultResult == changedField || &showNNCs == changedField || &hideNncsWhenNoResultIsAvailable == changedField)
     {
         parentView()->scheduleCreateDisplayModelAndRedraw();
         parentView()->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
-
     if (&showFaultLabel == changedField)
     {
         RiuMainWindow::instance()->refreshDrawStyleActions();
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimFaultInViewCollection::objectToggleField()
 {
@@ -142,7 +145,7 @@ caf::PdmFieldHandle* RimFaultInViewCollection::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFaultInView* RimFaultInViewCollection::findFaultByName(QString name)
 {
@@ -155,7 +158,6 @@ RimFaultInView* RimFaultInViewCollection::findFaultByName(QString name)
     }
     return nullptr;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// A comparing function used to sort Faults in the RimFaultCollection::syncronizeFaults() method
@@ -170,11 +172,11 @@ bool faultComparator(const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::syncronizeFaults()
 {
-    if (!(parentView() && parentView()->mainGrid()) ) return;
+    if (!(parentView() && parentView()->mainGrid())) return;
 
     const caf::ColorTable& colorTable = RiaColorTables::faultsPaletteColors();
 
@@ -197,8 +199,7 @@ void RimFaultInViewCollection::syncronizeFaults()
                 undefinedFaults = sortedFaults[i];
             }
 
-            if(faultName.startsWith(RiaDefines::undefinedGridFaultName(), Qt::CaseInsensitive) 
-               && faultName.contains("Inactive"))
+            if (faultName.startsWith(RiaDefines::undefinedGridFaultName(), Qt::CaseInsensitive) && faultName.contains("Inactive"))
             {
                 undefinedFaultsWInactive = sortedFaults[i];
             }
@@ -210,7 +211,7 @@ void RimFaultInViewCollection::syncronizeFaults()
             rigFaults.push_back(undefinedFaults.p());
         }
 
-        if(undefinedFaultsWInactive.notNull())
+        if (undefinedFaultsWInactive.notNull())
         {
             sortedFaults.erase(undefinedFaultsWInactive.p());
             rigFaults.push_back(undefinedFaultsWInactive.p());
@@ -222,10 +223,9 @@ void RimFaultInViewCollection::syncronizeFaults()
         }
     }
 
+    // Find faults with
 
-    // Find faults with 
-
-    std::vector<caf::PdmPointer<RimFaultInView> > newFaults;
+    std::vector<caf::PdmPointer<RimFaultInView>> newFaults;
 
     // Find corresponding fault from data model, or create a new
     for (size_t fIdx = 0; fIdx < rigFaults.size(); ++fIdx)
@@ -234,12 +234,11 @@ void RimFaultInViewCollection::syncronizeFaults()
 
         if (!rimFault)
         {
-            rimFault = new RimFaultInView();
+            rimFault             = new RimFaultInView();
             rimFault->faultColor = colorTable.cycledColor3f(fIdx);
-            QString faultName = rigFaults[fIdx]->name();
+            QString faultName    = rigFaults[fIdx]->name();
 
-            if (faultName.startsWith(RiaDefines::undefinedGridFaultName(), Qt::CaseInsensitive) 
-                && faultName.contains("Inactive"))
+            if (faultName.startsWith(RiaDefines::undefinedGridFaultName(), Qt::CaseInsensitive) && faultName.contains("Inactive"))
             {
                 rimFault->showFault = false; // Turn fault against inactive cells off by default
             }
@@ -259,7 +258,7 @@ void RimFaultInViewCollection::syncronizeFaults()
     // NNCs
     this->noCommonAreaNnncCollection()->noCommonAreaNncs().deleteAllChildObjects();
 
-    RigMainGrid* mainGrid = parentView()->mainGrid();
+    RigMainGrid*                mainGrid       = parentView()->mainGrid();
     std::vector<RigConnection>& nncConnections = mainGrid->nncData()->connections();
     for (size_t connIndex = 0; connIndex < nncConnections.size(); connIndex++)
     {
@@ -269,10 +268,11 @@ void RimFaultInViewCollection::syncronizeFaults()
 
             QString firstConnectionText;
             QString secondConnectionText;
-            
+
             {
-                size_t gridLocalCellIndex;
-                const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConnections[connIndex].m_c1GlobIdx, &gridLocalCellIndex);
+                size_t             gridLocalCellIndex;
+                const RigGridBase* hostGrid =
+                    mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConnections[connIndex].m_c1GlobIdx, &gridLocalCellIndex);
 
                 size_t i, j, k;
                 if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
@@ -281,10 +281,10 @@ void RimFaultInViewCollection::syncronizeFaults()
                     i++;
                     j++;
                     k++;
-                     
+
                     if (!hostGrid->isMainGrid())
                     {
-                        QString gridName = QString::fromStdString(hostGrid->gridName());
+                        QString gridName    = QString::fromStdString(hostGrid->gridName());
                         firstConnectionText = gridName + " ";
                     }
                     firstConnectionText += QString("[%1 %2 %3] - ").arg(i).arg(j).arg(k);
@@ -292,8 +292,9 @@ void RimFaultInViewCollection::syncronizeFaults()
             }
 
             {
-                size_t gridLocalCellIndex;
-                const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConnections[connIndex].m_c2GlobIdx, &gridLocalCellIndex);
+                size_t             gridLocalCellIndex;
+                const RigGridBase* hostGrid =
+                    mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConnections[connIndex].m_c2GlobIdx, &gridLocalCellIndex);
 
                 size_t i, j, k;
                 if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
@@ -305,7 +306,7 @@ void RimFaultInViewCollection::syncronizeFaults()
 
                     if (!hostGrid->isMainGrid())
                     {
-                        QString gridName = QString::fromStdString(hostGrid->gridName());
+                        QString gridName     = QString::fromStdString(hostGrid->gridName());
                         secondConnectionText = gridName + " ";
                     }
                     secondConnectionText += QString("[%1 %2 %3]").arg(i).arg(j).arg(k);
@@ -321,7 +322,7 @@ void RimFaultInViewCollection::syncronizeFaults()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimFaultInViewCollection::isGridVisualizationMode() const
 {
@@ -329,7 +330,7 @@ bool RimFaultInViewCollection::isGridVisualizationMode() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -354,22 +355,21 @@ void RimFaultInViewCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
     caf::PdmUiGroup* nncViz = uiOrdering.addNewGroup("NNC Visibility");
     nncViz->add(&showNNCs);
     nncViz->add(&hideNncsWhenNoResultIsAvailable);
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimFaultInViewCollection::parentView() const
 {
     RimEclipseView* view = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(view);
-    
+
     return view;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimFaultInViewCollection::isShowingFaultsAndFaultsOutsideFilters() const
 {
@@ -385,4 +385,3 @@ void RimFaultInViewCollection::setShowFaultsOutsideFilter(bool show)
 {
     m_showFaultsOutsideFilters = show;
 }
-

@@ -64,7 +64,7 @@ void RicToggleMeasurementModeFeature::onActionTriggered(bool isChecked)
     {
         meas->setMeasurementMode(RimMeasurement::MEASURE_REGULAR);
     }
-    
+
     refreshActionLook();
     refreshPolyMeasuremeantActionLook();
 }
@@ -92,7 +92,7 @@ void RicToggleMeasurementModeFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicToggleMeasurementModeFeature::isCommandChecked()
 {

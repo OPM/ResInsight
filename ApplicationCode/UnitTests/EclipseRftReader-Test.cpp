@@ -1,18 +1,18 @@
 #include "gtest/gtest.h"
 
-#include "RifReaderEclipseRft.h"
 #include "RifEclipseRftAddress.h"
+#include "RifReaderEclipseRft.h"
 
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-//TEST(RifReaderEclipseRftTest, TestRifEclipseRftAddress)
+// TEST(RifReaderEclipseRftTest, TestRifEclipseRftAddress)
 TEST(DISABLED_RifReaderEclipseRftTest, TestRifEclipseRftAddress)
 {
     QString filename = "C:\\Users\\Rebecca Cox\\Dropbox\\norne\\norne\\NORNE_ATW2013.RFT";
-    
+
     RifReaderEclipseRft reader(filename);
 
     std::set<RifEclipseRftAddress> addresses = reader.eclipseRftAddresses();

@@ -18,15 +18,15 @@
 
 #include "RicCreateTemporaryLgrFeature.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaCellDividingTools.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
-#include "RicDeleteTemporaryLgrsFeature.h"
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeature.h"
 #include "ExportCommands/RicExportLgrFeature.h"
 #include "ExportCommands/RicExportLgrUi.h"
+#include "RicDeleteTemporaryLgrsFeature.h"
 
 #include "RifEclipseDataTableFormatter.h"
 
@@ -50,8 +50,8 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
 
-#include "RiuPlotMainWindow.h"
 #include "Riu3dSelectionManager.h"
+#include "RiuPlotMainWindow.h"
 
 #include <QAction>
 #include <QDir>
@@ -81,7 +81,7 @@ void RicCreateTemporaryLgrFeature::createLgrsForWellPaths(std::vector<RimWellPat
                                                           caf::VecIjk                                        lgrCellCounts,
                                                           Lgr::SplitType                                     splitType,
                                                           const std::set<RigCompletionData::CompletionType>& completionTypes,
-                                                          QStringList*                                       wellsIntersectingOtherLgrs)
+                                                          QStringList* wellsIntersectingOtherLgrs)
 {
     auto               eclipseCaseData        = eclipseCase->eclipseCaseData();
     RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo(RiaDefines::MATRIX_MODEL);
@@ -103,7 +103,6 @@ void RicCreateTemporaryLgrFeature::createLgrsForWellPaths(std::vector<RimWellPat
         }
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -165,23 +164,18 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
     auto dialogData = RicExportLgrFeature::openDialog(dialogTitle, defaultEclipseCase, defaultTimeStep, true);
     if (dialogData)
     {
-        auto   eclipseCase     = dialogData->caseToApply();
-        auto   lgrCellCounts   = dialogData->lgrCellCount();
-        size_t timeStep        = dialogData->timeStep();
-        auto   splitType       = dialogData->splitType();
+        auto       eclipseCase     = dialogData->caseToApply();
+        auto       lgrCellCounts   = dialogData->lgrCellCount();
+        size_t     timeStep        = dialogData->timeStep();
+        auto       splitType       = dialogData->splitType();
         const auto completionTypes = dialogData->completionTypes();
 
         RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(eclipseCase);
 
         QStringList wellsIntersectingOtherLgrs;
 
-        createLgrsForWellPaths(wellPaths,
-                                eclipseCase,
-                                timeStep,
-                                lgrCellCounts,
-                                splitType,
-                                completionTypes,
-                                &wellsIntersectingOtherLgrs);
+        createLgrsForWellPaths(
+            wellPaths, eclipseCase, timeStep, lgrCellCounts, splitType, completionTypes, &wellsIntersectingOtherLgrs);
 
         updateViews(eclipseCase);
 
@@ -250,7 +244,7 @@ void RicCreateTemporaryLgrFeature::createLgr(const LgrInfo& lgrInfo, RigMainGrid
                 size_t mainI = lgrInfo.mainGridStartCell.i() + lgrI / lgrSizePerMainCell.i();
 
                 size_t mainCellIndex = mainGrid->cellIndexFromIJK(mainI, mainJ, mainK);
-                auto& mainGridCell = mainGrid->globalCellArray()[mainCellIndex];
+                auto&  mainGridCell  = mainGrid->globalCellArray()[mainCellIndex];
                 mainGridCell.setSubGrid(localGrid);
 
                 RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
@@ -345,4 +339,3 @@ void RicCreateTemporaryLgrFeature::computeCachedData(RimEclipseCase* eclipseCase
         }
     }
 }
-

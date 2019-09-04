@@ -66,9 +66,9 @@ void RicWellPathFractureReportItem::setData(double trans, size_t connCount, doub
 void RicWellPathFractureReportItem::setWidthAndConductivity(double width, double conductivity)
 {
     m_wf = width;
- 
+
     double permeability = RigTransmissibilityEquations::permeability(conductivity, width);
-    m_kf = permeability;
+    m_kf                = permeability;
 
     m_kfwf = conductivity;
 }
@@ -125,7 +125,13 @@ void RicWellPathFractureReportItem::setUnitSystem(RiaEclipseUnitTools::UnitSyste
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::setPressureDepletionParameters(bool performPDDScaling, QString timeStepString, QString wbhpString, double userWBHP, double actualWBHP, double minPressureDrop, double maxPressureDrop)
+void RicWellPathFractureReportItem::setPressureDepletionParameters(bool    performPDDScaling,
+                                                                   QString timeStepString,
+                                                                   QString wbhpString,
+                                                                   double  userWBHP,
+                                                                   double  actualWBHP,
+                                                                   double  minPressureDrop,
+                                                                   double  maxPressureDrop)
 {
     m_performPressureDepletionScaling  = performPDDScaling;
     m_pressureDepletionTimeStepString  = timeStepString;
@@ -233,7 +239,7 @@ double RicWellPathFractureReportItem::km() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RicWellPathFractureReportItem::kmxf() const
 {

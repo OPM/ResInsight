@@ -24,8 +24,8 @@
 
 #include "RiuPlotMainWindow.h"
 
-#include "RimWellPath.h"
 #include "RimProject.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
 #include "cafSelectionManager.h"
@@ -39,13 +39,13 @@ CAF_CMD_SOURCE_INIT(RicExportCompletionsForVisibleWellPathsFeature, "RicExportCo
 //--------------------------------------------------------------------------------------------------
 bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled()
 {
-    bool foundWellPathCollection = false;
+    bool                         foundWellPathCollection = false;
     std::vector<caf::PdmObject*> selectedObjects;
     caf::SelectionManager::instance()->objectsByType(&selectedObjects);
     for (caf::PdmObject* object : selectedObjects)
     {
         RimWellPathCollection* wellPathCollection;
-        
+
         object->firstAncestorOrThisOfType(wellPathCollection);
         if (wellPathCollection)
         {
@@ -53,7 +53,7 @@ bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled()
             break;
         }
     }
-    
+
     if (!foundWellPathCollection)
     {
         return false;
@@ -90,7 +90,6 @@ void RicExportCompletionsForVisibleWellPathsFeature::setupActionLook(QAction* ac
 {
     actionToSetup->setText("Export Completion Data for Visible Well Paths");
     actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,7 +134,7 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
         }
         else
         {
-            // No well path or well path collection selected 
+            // No well path or well path collection selected
 
             auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
             for (const auto& w : allWellPaths)
@@ -145,7 +144,6 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
                     wellPaths.push_back(w);
                 }
             }
-
         }
     }
 

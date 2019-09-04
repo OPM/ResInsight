@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -34,16 +34,15 @@
 #include "cafPdmObjectGroup.h"
 #include "cafPdmObjectHandle.h"
 
+#include <QAction>
 #include <QClipboard>
 #include <QString>
-#include <QAction>
-
-
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicPasteFeatureImpl::populateObjectGroupFromReferences(const std::vector<QString>& referenceList, caf::PdmObjectGroup* objectGroup)
+void RicPasteFeatureImpl::populateObjectGroupFromReferences(const std::vector<QString>& referenceList,
+                                                            caf::PdmObjectGroup*        objectGroup)
 {
     caf::PdmObjectHandle* referenceRoot = RiaApplication::instance()->project();
 
@@ -60,7 +59,7 @@ void RicPasteFeatureImpl::populateObjectGroupFromReferences(const std::vector<QS
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteFeatureImpl::referencesFromClipboard(std::vector<QString>& referenceList)
 {
@@ -74,7 +73,7 @@ void RicPasteFeatureImpl::referencesFromClipboard(std::vector<QString>& referenc
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteFeatureImpl::findObjectsFromClipboardRefs(caf::PdmObjectGroup* objectGroup)
 {
@@ -85,7 +84,7 @@ void RicPasteFeatureImpl::findObjectsFromClipboardRefs(caf::PdmObjectGroup* obje
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RicPasteFeatureImpl::findGridCaseGroup(caf::PdmObjectHandle* objectHandle)
 {
@@ -93,8 +92,7 @@ RimIdenticalGridCaseGroup* RicPasteFeatureImpl::findGridCaseGroup(caf::PdmObject
     {
         return dynamic_cast<RimIdenticalGridCaseGroup*>(objectHandle);
     }
-    else if (dynamic_cast<RimCaseCollection*>(objectHandle) ||
-             dynamic_cast<RimEclipseCase*>(objectHandle))
+    else if (dynamic_cast<RimCaseCollection*>(objectHandle) || dynamic_cast<RimEclipseCase*>(objectHandle))
     {
         RimIdenticalGridCaseGroup* gridCaseGroup = nullptr;
         objectHandle->firstAncestorOrThisOfType(gridCaseGroup);
@@ -106,7 +104,7 @@ RimIdenticalGridCaseGroup* RicPasteFeatureImpl::findGridCaseGroup(caf::PdmObject
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RicPasteFeatureImpl::findEclipseCase(caf::PdmObjectHandle* objectHandle)
 {
@@ -125,7 +123,7 @@ RimEclipseCase* RicPasteFeatureImpl::findEclipseCase(caf::PdmObjectHandle* objec
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase* RicPasteFeatureImpl::findGeoMechCase(caf::PdmObjectHandle* objectHandle)
 {
@@ -140,7 +138,7 @@ RimGeoMechCase* RicPasteFeatureImpl::findGeoMechCase(caf::PdmObjectHandle* objec
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteFeatureImpl::setIconAndShortcuts(QAction* action)
 {
@@ -152,12 +150,12 @@ void RicPasteFeatureImpl::setIconAndShortcuts(QAction* action)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicPasteFeatureImpl::clearClipboard()
 {
     QClipboard* clipboard = QApplication::clipboard();
     if (!clipboard) return;
-    
+
     clipboard->clear();
 }

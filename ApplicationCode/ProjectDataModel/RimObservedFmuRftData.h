@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include "RimNamedObject.h"
 #include "RifReaderFmuRft.h"
+#include "RimNamedObject.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -32,19 +32,18 @@ class RimObservedFmuRftData : public RimNamedObject
 public:
     RimObservedFmuRftData();
 
-	void setDirectoryPath(const QString& path);
-	void createRftReaderInterface();
+    void                   setDirectoryPath(const QString& path);
+    void                   createRftReaderInterface();
     RifReaderRftInterface* rftReader();
 
-	bool hasWell(const QString& wellPathName) const;
-	std::vector<QString> wells() const;
+    bool                 hasWell(const QString& wellPathName) const;
+    std::vector<QString> wells() const;
 
     std::vector<std::pair<double, double>> derivedWellPathTvdMd(const QString& wellPathName) const;
 
 private:
     cvf::ref<RifReaderFmuRft> m_fmuRftReader;
 
-	caf::PdmField<QString>                        m_directoryPath;
+    caf::PdmField<QString>                        m_directoryPath;
     caf::PdmProxyValueField<std::vector<QString>> m_wells;
 };
-

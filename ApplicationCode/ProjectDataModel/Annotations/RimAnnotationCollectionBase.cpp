@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,24 +20,23 @@
 
 #include "RiaApplication.h"
 
-#include "RimTextAnnotation.h"
-#include "RimReachCircleAnnotation.h"
 #include "RimPolylinesAnnotation.h"
+#include "RimReachCircleAnnotation.h"
+#include "RimTextAnnotation.h"
 
-#include "RimProject.h"
-#include "RimGridView.h"
-#include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationGroupCollection.h"
+#include "RimAnnotationInViewCollection.h"
+#include "RimGridView.h"
+#include "RimProject.h"
 
 #include "QMessageBox"
-#include <QString>
 #include "RiaColorTables.h"
-
+#include <QString>
 
 CAF_PDM_SOURCE_INIT(RimAnnotationCollectionBase, "RimAnnotationCollectionBase");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimAnnotationCollectionBase::RimAnnotationCollectionBase()
 {
@@ -54,13 +53,10 @@ RimAnnotationCollectionBase::RimAnnotationCollectionBase()
     m_textAnnotations->uiCapability()->setUiIconFromResourceString(":/TextAnnotation16x16.png");
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationCollectionBase::~RimAnnotationCollectionBase()
-{
-}
+RimAnnotationCollectionBase::~RimAnnotationCollectionBase() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -109,16 +105,16 @@ void RimAnnotationCollectionBase::onAnnotationDeleted()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationCollectionBase::scheduleRedrawOfRelevantViews()
 {
     // Todo: Do a Bounding Box check to see if this annotation actually is relevant for the view
 
     auto views = gridViewsContainingAnnotations();
-    if ( !views.empty() )
+    if (!views.empty())
     {
-        for ( auto& view : views )
+        for (auto& view : views)
         {
             view->scheduleCreateDisplayModelAndRedraw();
         }

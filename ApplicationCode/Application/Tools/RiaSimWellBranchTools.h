@@ -49,7 +49,8 @@ public:
                                                                 const caf::PdmField<bool>& branchDetectionField,
                                                                 const caf::PdmField<int>&  branchIndexField);
 
-    static void appendSimWellBranchFieldsIfRequiredFromSimWellName(caf::PdmUiOrdering* uiOrdering, const QString& simWellName,
+    static void appendSimWellBranchFieldsIfRequiredFromSimWellName(caf::PdmUiOrdering*        uiOrdering,
+                                                                   const QString&             simWellName,
                                                                    const caf::PdmField<bool>& branchDetectionField,
                                                                    const caf::PdmField<int>&  branchIndexField);
 

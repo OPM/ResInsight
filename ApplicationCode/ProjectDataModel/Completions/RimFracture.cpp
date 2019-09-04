@@ -245,22 +245,17 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     {
         RicNewStimPlanFractureTemplateFeature::createNewTemplateForFractureAndUpdate(this);
     }
-    if (   changedField == &m_azimuth 
-        || changedField == &m_fractureTemplate 
-        || changedField == &m_stimPlanTimeIndexToPlot 
-        || changedField == this->objectToggleField() 
-        || changedField == &m_dip 
-        || changedField == &m_tilt 
-        || changedField == &m_perforationLength)
+    if (changedField == &m_azimuth || changedField == &m_fractureTemplate || changedField == &m_stimPlanTimeIndexToPlot ||
+        changedField == this->objectToggleField() || changedField == &m_dip || changedField == &m_tilt ||
+        changedField == &m_perforationLength)
     {
         clearCachedNonDarcyProperties();
 
         RimEclipseCase* eclipseCase = nullptr;
         this->firstAncestorOrThisOfType(eclipseCase);
-        if ( eclipseCase )
+        if (eclipseCase)
         {
-            RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
-                eclipseCase);
+            RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(eclipseCase);
         }
         else
         {
@@ -360,7 +355,7 @@ double RimFracture::startMD() const
 {
     if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
     {
-        return fractureMD() - 0.5*perforationLength();
+        return fractureMD() - 0.5 * perforationLength();
     }
     else
     {
@@ -717,10 +712,10 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field,
 
     if (field == &m_createEllipseFractureTemplate)
     {
-        auto myAttr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+        auto myAttr          = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
         myAttr->m_buttonText = "Ellipse Template";
     }
-    
+
     if (field == &m_createStimPlanFractureTemplate)
     {
         auto myAttr          = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);

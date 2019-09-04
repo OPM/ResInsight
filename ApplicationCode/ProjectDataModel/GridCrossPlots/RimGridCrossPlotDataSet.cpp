@@ -41,10 +41,10 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimFormationNames.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridView.h"
-#include "RimFormationNames.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTools.h"
@@ -103,7 +103,7 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     m_yAxisProperty = new RimEclipseResultDefinition(caf::PdmUiItemInfo::TOP);
     m_yAxisProperty.uiCapability()->setUiHidden(true);
     m_yAxisProperty.uiCapability()->setUiTreeChildrenHidden(true);
-    
+
     m_yAxisProperty->setTernaryEnabled(false);
 
     CAF_PDM_InitFieldNoDefault(&m_groupingProperty, "GroupingProperty", "Data Grouping Property", "", "", "");
@@ -496,8 +496,7 @@ void RimGridCrossPlotDataSet::assignCurveDataGroups(const RigEclipseCrossPlotRes
 {
     m_groupedResults.clear();
 
-    if (groupingEnabled() &&
-        (result.groupValuesContinuous.empty() && result.groupValuesDiscrete.empty()))
+    if (groupingEnabled() && (result.groupValuesContinuous.empty() && result.groupValuesDiscrete.empty()))
     {
         // Basis for group determination (i.e. formation list) may have been deleted since the grouping was assigned.
         m_grouping = NO_GROUPING;
@@ -804,8 +803,8 @@ void RimGridCrossPlotDataSet::defineUiOrdering(QString uiConfigName, caf::PdmUiO
 ///
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotDataSet::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                const QVariant&            oldValue,
-                                                const QVariant&            newValue)
+                                               const QVariant&            oldValue,
+                                               const QVariant&            newValue)
 {
     if (changedField == &m_case)
     {
@@ -894,7 +893,7 @@ void RimGridCrossPlotDataSet::childFieldChangedByUi(const caf::PdmFieldHandle* c
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimGridCrossPlotDataSet::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                              bool*                      useOptionsOnly)
+                                                                             bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -1100,7 +1099,8 @@ void RimGridCrossPlotDataSet::exportFormattedData(RifEclipseDataTableFormatter& 
     }
     else
     {
-        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn(xTitle), RifEclipseOutputTableColumn(yTitle)};
+        std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn(xTitle),
+                                                           RifEclipseOutputTableColumn(yTitle)};
         formatter.header(header);
     }
 
@@ -1156,7 +1156,7 @@ bool RimGridCrossPlotDataSet::isYAxisLogarithmic() const
 ///
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotDataSet::configureForPressureSaturationCurves(RimEclipseResultCase* eclipseCase,
-                                                                    const QString&        dynamicResultName)
+                                                                   const QString&        dynamicResultName)
 {
     m_case = eclipseCase;
 
@@ -1294,8 +1294,8 @@ void RimGridCrossPlotDataSet::setDefaults()
 ///
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotDataSet::defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                                     QString                    uiConfigName,
-                                                     caf::PdmUiEditorAttribute* attribute)
+                                                    QString                    uiConfigName,
+                                                    caf::PdmUiEditorAttribute* attribute)
 {
 }
 

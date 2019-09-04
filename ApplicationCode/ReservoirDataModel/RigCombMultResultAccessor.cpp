@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,13 +21,12 @@
 
 #include "RigGridBase.h"
 
-#include <cmath>
 #include "RigCell.h"
 #include "RigMainGrid.h"
-
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigCombMultResultAccessor::RigCombMultResultAccessor(const RigGridBase* grid)
     : m_grid(grid)
@@ -35,12 +34,14 @@ RigCombMultResultAccessor::RigCombMultResultAccessor(const RigGridBase* grid)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigCombMultResultAccessor::setMultResultAccessors(
-    RigResultAccessor* multXPosAccessor, RigResultAccessor* multXNegAccessor, 
-    RigResultAccessor* multYPosAccessor, RigResultAccessor* multYNegAccessor, 
-    RigResultAccessor* multZPosAccessor, RigResultAccessor* multZNegAccessor)
+void RigCombMultResultAccessor::setMultResultAccessors(RigResultAccessor* multXPosAccessor,
+                                                       RigResultAccessor* multXNegAccessor,
+                                                       RigResultAccessor* multYPosAccessor,
+                                                       RigResultAccessor* multYNegAccessor,
+                                                       RigResultAccessor* multZPosAccessor,
+                                                       RigResultAccessor* multZNegAccessor)
 {
     m_multXPosAccessor = multXPosAccessor;
     m_multXNegAccessor = multXNegAccessor;
@@ -51,7 +52,7 @@ void RigCombMultResultAccessor::setMultResultAccessors(
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigCombMultResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 {
@@ -61,7 +62,7 @@ double RigCombMultResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigCombMultResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
@@ -80,7 +81,7 @@ double RigCombMultResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf:
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigCombMultResultAccessor::nativeMultScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
@@ -138,8 +139,8 @@ double RigCombMultResultAccessor::nativeMultScalar(size_t gridLocalCellIndex, cv
             }
             break;
         }
-    default:
-        break;
+        default:
+            break;
     }
 
     // FaceScalar with value HUGE_VAL means value outside valid IJK-range. Clamp to 1.0 as this means no change in MULT factor.
@@ -152,7 +153,7 @@ double RigCombMultResultAccessor::nativeMultScalar(size_t gridLocalCellIndex, cv
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigCombMultResultAccessor::cellScalarGlobIdx(size_t globCellIndex) const
 {
@@ -162,11 +163,10 @@ double RigCombMultResultAccessor::cellScalarGlobIdx(size_t globCellIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigCombMultResultAccessor::cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
     size_t gridLocalCellIndex = m_grid->mainGrid()->cell(globCellIndex).gridLocalCellIndex();
     return this->cellFaceScalar(gridLocalCellIndex, faceId);
 }
-

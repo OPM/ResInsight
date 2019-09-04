@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,15 +24,14 @@
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 
-#include "RimContextCommandBuilder.h"
 #include "RimCase.h"
+#include "RimContextCommandBuilder.h"
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuTextDialog.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
-
 
 #include "cvfColor3.h"
 
@@ -44,12 +43,11 @@
 #include "qwt_plot_layout.h"
 #include "qwt_scale_engine.h"
 
-#include <QMenu>
 #include <QContextMenuEvent>
-
+#include <QMenu>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuResultQwtPlot::RiuResultQwtPlot(QWidget* parent)
     : RiuDockedQwtPlot(parent)
@@ -58,7 +56,7 @@ RiuResultQwtPlot::RiuResultQwtPlot(QWidget* parent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuResultQwtPlot::~RiuResultQwtPlot()
 {
@@ -66,9 +64,13 @@ RiuResultQwtPlot::~RiuResultQwtPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuResultQwtPlot::addCurve(const RimCase* rimCase, const QString& curveName, const cvf::Color3f& curveColor, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
+void RiuResultQwtPlot::addCurve(const RimCase*                rimCase,
+                                const QString&                curveName,
+                                const cvf::Color3f&           curveColor,
+                                const std::vector<QDateTime>& dateTimes,
+                                const std::vector<double>&    timeHistoryValues)
 {
     if (dateTimes.empty() || timeHistoryValues.empty())
     {
@@ -85,13 +87,13 @@ void RiuResultQwtPlot::addCurve(const RimCase* rimCase, const QString& curveName
     plotCurve->attach(this);
     m_plotCurves.push_back(plotCurve);
 
-    this->setAxisScale( QwtPlot::xTop, QwtDate::toDouble(dateTimes.front()), QwtDate::toDouble(dateTimes.back()));
+    this->setAxisScale(QwtPlot::xTop, QwtDate::toDouble(dateTimes.front()), QwtDate::toDouble(dateTimes.back()));
     this->applyFontSizes(false);
 
     this->replot();
 
     int caseId = rimCase->caseId;
-    
+
     m_caseNames[caseId] = rimCase->caseUserDescription;
     m_curveNames[caseId].push_back(curveName);
     m_curveData[caseId].push_back(timeHistoryValues);
@@ -99,9 +101,13 @@ void RiuResultQwtPlot::addCurve(const RimCase* rimCase, const QString& curveName
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuResultQwtPlot::addCurve(const RimCase* rimCase, const QString& curveName, const cvf::Color3f& curveColor, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues)
+void RiuResultQwtPlot::addCurve(const RimCase*             rimCase,
+                                const QString&             curveName,
+                                const cvf::Color3f&        curveColor,
+                                const std::vector<double>& frameTimes,
+                                const std::vector<double>& timeHistoryValues)
 {
     std::vector<QDateTime> dateTimes;
 
@@ -114,7 +120,7 @@ void RiuResultQwtPlot::addCurve(const RimCase* rimCase, const QString& curveName
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuResultQwtPlot::deleteAllCurves()
 {
@@ -133,7 +139,7 @@ void RiuResultQwtPlot::deleteAllCurves()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuResultQwtPlot::sizeHint() const
 {
@@ -141,7 +147,7 @@ QSize RiuResultQwtPlot::sizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuResultQwtPlot::minimumSizeHint() const
 {
@@ -149,11 +155,11 @@ QSize RiuResultQwtPlot::minimumSizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuResultQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 {
-    QMenu menu;
+    QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
     menuBuilder << "RicNewGridTimeHistoryCurveFeature";
@@ -172,7 +178,7 @@ void RiuResultQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuResultQwtPlot::setDefaults()
 {
@@ -187,32 +193,32 @@ void RiuResultQwtPlot::setDefaults()
     QString timeFormat = RiaApplication::instance()->preferences()->timeFormat();
 
     RiuQwtPlotTools::enableDateBasedBottomXAxis(this, dateFormat, timeFormat);
-    
+
     setAxisMaxMinor(QwtPlot::xBottom, 2);
     setAxisMaxMinor(QwtPlot::yLeft, 3);
 
     applyFontSizes(false);
 
-    // The legend will be deleted in the destructor of the plot or when 
+    // The legend will be deleted in the destructor of the plot or when
     // another legend is inserted.
     QwtLegend* legend = new QwtLegend(this);
     this->insertLegend(legend, BottomLegend);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiuResultQwtPlot::asciiDataForUiSelectedCurves() const
 {
     QString out;
- 
+
     for (std::pair<int, QString> caseIdAndName : m_caseNames)
     {
         int caseId = caseIdAndName.first;
         out += "Case: " + caseIdAndName.second;
         out += "\n";
 
-        for (size_t i = 0; i < m_timeSteps.at(caseId).size(); i++) //time steps & data points
+        for (size_t i = 0; i < m_timeSteps.at(caseId).size(); i++) // time steps & data points
         {
             if (i == 0)
             {
@@ -224,7 +230,8 @@ QString RiuResultQwtPlot::asciiDataForUiSelectedCurves() const
             }
             out += "\n";
 
-            QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(m_timeSteps.at(caseId)[i], "yyyy-MM-dd hh:mm:ss ");
+            QString dateString =
+                RiaQDateTimeTools::toStringUsingApplicationLocale(m_timeSteps.at(caseId)[i], "yyyy-MM-dd hh:mm:ss ");
 
             out += dateString;
 
@@ -240,7 +247,7 @@ QString RiuResultQwtPlot::asciiDataForUiSelectedCurves() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuResultQwtPlot::slotCurrentPlotDataInTextDialog()
 {

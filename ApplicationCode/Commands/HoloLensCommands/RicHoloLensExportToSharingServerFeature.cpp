@@ -17,8 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicHoloLensExportToSharingServerFeature.h"
-#include "RicHoloLensSessionManager.h"
 #include "RicHoloLensSession.h"
+#include "RicHoloLensSessionManager.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
@@ -63,7 +63,6 @@ void RicHoloLensExportToSharingServerFeature::onActionTriggered(bool isChecked)
         RiaLogging::error("No active view");
         return;
     }
-
 
     session->updateSessionDataFromView(*activeView);
 }

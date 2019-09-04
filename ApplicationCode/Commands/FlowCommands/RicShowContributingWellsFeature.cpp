@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@
 CAF_CMD_SOURCE_INIT(RicShowContributingWellsFeature, "RicShowContributingWellsFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicShowContributingWellsFeature::isCommandEnabled()
 {
@@ -44,8 +44,8 @@ bool RicShowContributingWellsFeature::isCommandEnabled()
     caf::SelectionManager::instance()->objectsByType(&collection);
     if (collection.size() == 1)
     {
-        RimSimWellInView* well = collection[0];
-        RimEclipseView* eclipseView = nullptr;
+        RimSimWellInView* well        = collection[0];
+        RimEclipseView*   eclipseView = nullptr;
         well->firstAncestorOrThisOfType(eclipseView);
 
         if (eclipseView)
@@ -73,7 +73,7 @@ bool RicShowContributingWellsFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
 {
@@ -82,14 +82,15 @@ void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
 
     CAF_ASSERT(collection.size() == 1);
 
-    RimSimWellInView* well = collection[0];
-    RimEclipseView* eclipseView = nullptr;
+    RimSimWellInView* well        = collection[0];
+    RimEclipseView*   eclipseView = nullptr;
     well->firstAncestorOrThisOfTypeAsserted(eclipseView);
 
     RimEclipseResultCase* eclipseResultCase = nullptr;
     well->firstAncestorOrThisOfTypeAsserted(eclipseResultCase);
 
-    RimEclipseView* modifiedView = RicShowContributingWellsFeatureImpl::manipulateSelectedView(eclipseResultCase, well->name(), eclipseView->currentTimeStep());
+    RimEclipseView* modifiedView = RicShowContributingWellsFeatureImpl::manipulateSelectedView(
+        eclipseResultCase, well->name(), eclipseView->currentTimeStep());
     if (modifiedView)
     {
         modifiedView->createDisplayModelAndRedraw();
@@ -102,7 +103,7 @@ void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicShowContributingWellsFeature::setupActionLook(QAction* actionToSetup)
 {

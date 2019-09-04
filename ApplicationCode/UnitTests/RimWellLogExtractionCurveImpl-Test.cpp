@@ -5,9 +5,8 @@
 #include <cmath> // Needed for HUGE_VAL on Linux
 #include <numeric>
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RimWellLogExtractionCurveImplTest, StripOffInvalidValAtEndsOfVector)
 {
@@ -26,9 +25,8 @@ TEST(RimWellLogExtractionCurveImplTest, StripOffInvalidValAtEndsOfVector)
     EXPECT_EQ(4, static_cast<int>(valuesIntervals[0].second));
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RimWellLogExtractionCurveImplTest, StripOffHugeValAtEndsAndInteriorOfVector)
 {
@@ -50,4 +48,3 @@ TEST(RimWellLogExtractionCurveImplTest, StripOffHugeValAtEndsAndInteriorOfVector
     EXPECT_EQ(5, static_cast<int>(valuesIntervals[1].first));
     EXPECT_EQ(6, static_cast<int>(valuesIntervals[1].second));
 }
-

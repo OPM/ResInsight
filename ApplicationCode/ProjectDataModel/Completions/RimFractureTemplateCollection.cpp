@@ -1,25 +1,25 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFractureTemplateCollection.h"
 
-#include "RiaLogging.h"
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RigStatisticsMath.h"
 
@@ -44,20 +44,22 @@
 
 #include <map>
 
-
-
 CAF_PDM_SOURCE_INIT(RimFractureTemplateCollection, "FractureDefinitionCollection");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplateCollection::RimFractureTemplateCollection()
 {
     CAF_PDM_InitObject("Fracture Templates", ":/FractureTemplates16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_defaultUnitsForFracTemplates, "DefaultUnitForTemplates",
+    CAF_PDM_InitField(&m_defaultUnitsForFracTemplates,
+                      "DefaultUnitForTemplates",
                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC),
-                      "Default unit system for fracture templates", "", "", "");
+                      "Default unit system for fracture templates",
+                      "",
+                      "",
+                      "");
 
     CAF_PDM_InitFieldNoDefault(&m_fractureDefinitions, "FractureDefinitions", "", "", "", "");
     m_fractureDefinitions.uiCapability()->setUiHidden(true);
@@ -67,7 +69,7 @@ RimFractureTemplateCollection::RimFractureTemplateCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplateCollection::~RimFractureTemplateCollection()
 {
@@ -75,7 +77,7 @@ RimFractureTemplateCollection::~RimFractureTemplateCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate* RimFractureTemplateCollection::fractureTemplate(int id) const
 {
@@ -87,7 +89,7 @@ RimFractureTemplate* RimFractureTemplateCollection::fractureTemplate(int id) con
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimFractureTemplate*> RimFractureTemplateCollection::fractureTemplates() const
 {
@@ -111,12 +113,12 @@ RimEllipseFractureTemplate* RimFractureTemplateCollection::addDefaultEllipseTemp
     ellipseFractureTemplate->setName("Ellipse Fracture Template");
     ellipseFractureTemplate->setUnitSystem(defaultUnitSystemType());
     ellipseFractureTemplate->setDefaultValuesFromUnit();
-    
+
     return ellipseFractureTemplate;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::addFractureTemplate(RimFractureTemplate* templ)
 {
@@ -125,7 +127,7 @@ void RimFractureTemplateCollection::addFractureTemplate(RimFractureTemplate* tem
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaEclipseUnitTools::UnitSystemType RimFractureTemplateCollection::defaultUnitSystemType() const
 {
@@ -133,7 +135,7 @@ RiaEclipseUnitTools::UnitSystemType RimFractureTemplateCollection::defaultUnitSy
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 {
@@ -147,7 +149,7 @@ void RimFractureTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate* RimFractureTemplateCollection::firstFractureOfUnit(RiaEclipseUnitTools::UnitSystem unitSet) const
 {
@@ -163,15 +165,15 @@ RimFractureTemplate* RimFractureTemplateCollection::firstFractureOfUnit(RiaEclip
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<QString, QString> > RimFractureTemplateCollection::resultNamesAndUnits() const
+std::vector<std::pair<QString, QString>> RimFractureTemplateCollection::resultNamesAndUnits() const
 {
-    std::set<std::pair<QString, QString> > nameSet;
+    std::set<std::pair<QString, QString>> nameSet;
 
     for (const RimFractureTemplate* f : m_fractureDefinitions())
     {
-        std::vector<std::pair<QString, QString> > namesAndUnits = f->uiResultNamesWithUnit();
+        std::vector<std::pair<QString, QString>> namesAndUnits = f->uiResultNamesWithUnit();
 
         for (const auto& nameAndUnit : namesAndUnits)
         {
@@ -185,10 +187,14 @@ std::vector<std::pair<QString, QString> > RimFractureTemplateCollection::resultN
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplateCollection::computeMinMax(const QString& uiResultName, const QString& unit, double* minValue,
-                                                  double* maxValue, double* posClosestToZero, double* negClosestToZero) const
+void RimFractureTemplateCollection::computeMinMax(const QString& uiResultName,
+                                                  const QString& unit,
+                                                  double*        minValue,
+                                                  double*        maxValue,
+                                                  double*        posClosestToZero,
+                                                  double*        negClosestToZero) const
 {
     MinMaxAccumulator minMaxAccumulator;
     PosNegAccumulator posNegAccumulator;
@@ -208,7 +214,7 @@ void RimFractureTemplateCollection::computeMinMax(const QString& uiResultName, c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUnit()
 {
@@ -231,10 +237,11 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
                 {
                     if (!templateWithMatchingUnit)
                     {
-                        templateWithMatchingUnit = dynamic_cast<RimFractureTemplate*>(fractureTemplate->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+                        templateWithMatchingUnit = dynamic_cast<RimFractureTemplate*>(
+                            fractureTemplate->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
 
                         auto currentUnit = fractureTemplate->fractureTemplateUnit();
-                        auto neededUnit = RiaEclipseUnitTools::UNITS_UNKNOWN;
+                        auto neededUnit  = RiaEclipseUnitTools::UNITS_UNKNOWN;
                         if (currentUnit == RiaEclipseUnitTools::UNITS_METRIC)
                         {
                             neededUnit = RiaEclipseUnitTools::UNITS_FIELD;
@@ -270,7 +277,7 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::loadAndUpdateData()
 {
@@ -285,7 +292,7 @@ void RimFractureTemplateCollection::loadAndUpdateData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
@@ -306,7 +313,7 @@ void RimFractureTemplateCollection::updateFilePathsFromProjectPath(const QString
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::initAfterRead()
 {
@@ -323,12 +330,13 @@ void RimFractureTemplateCollection::initAfterRead()
         bool setAllShowMeshToFalseOnAllEclipseViews = false;
 
         std::vector<RimWellPathFracture*> wellPathFractures;
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+        RimWellPathCollection*            wellPathCollection = RimTools::wellPathCollection();
         wellPathCollection->descendantsIncludingThisOfType(wellPathFractures);
 
         for (RimWellPathFracture* fracture : wellPathFractures)
         {
-            RimStimPlanFractureTemplate* stimPlanFractureTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate());
+            RimStimPlanFractureTemplate* stimPlanFractureTemplate =
+                dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate());
             if (stimPlanFractureTemplate)
             {
                 if (stimPlanFractureTemplate->showStimPlanMesh() == false)
@@ -340,7 +348,7 @@ void RimFractureTemplateCollection::initAfterRead()
         }
 
         std::vector<RimEclipseView*> eclipseViews;
-        
+
         std::vector<RimCase*> rimCases;
         proj->allCases(rimCases);
 
@@ -364,7 +372,7 @@ void RimFractureTemplateCollection::initAfterRead()
                 continue;
             }
 
-            //Find all fractures in all simWells
+            // Find all fractures in all simWells
             std::map<RimStimPlanFractureTemplate*, bool> stimPlanFractureTemplatesInView;
 
             std::vector<RimFracture*> fractures;
@@ -376,7 +384,8 @@ void RimFractureTemplateCollection::initAfterRead()
 
             for (RimFracture* fracture : fractures)
             {
-                RimStimPlanFractureTemplate* stimPlanFractureTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate());
+                RimStimPlanFractureTemplate* stimPlanFractureTemplate =
+                    dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate());
                 if (stimPlanFractureTemplate)
                 {
                     stimPlanFractureTemplatesInView[stimPlanFractureTemplate];
@@ -416,11 +425,11 @@ void RimFractureTemplateCollection::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RimFractureTemplateCollection::nextFractureTemplateId()
 {
-    int newId = m_nextValidFractureTemplateId;
+    int newId                     = m_nextValidFractureTemplateId;
     m_nextValidFractureTemplateId = m_nextValidFractureTemplateId + 1;
 
     return newId;

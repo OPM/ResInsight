@@ -20,7 +20,6 @@
 
 #include <algorithm>
 
-
 //==================================================================================================
 //
 //
@@ -30,16 +29,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VdePacketDirectory::VdePacketDirectory()
-{
-}
+VdePacketDirectory::VdePacketDirectory() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void VdePacketDirectory::addPacket(std::unique_ptr<VdeArrayDataPacket> packet)
 {
-    const int id = packet->arrayId();
+    const int id        = packet->arrayId();
     m_idToPacketMap[id] = std::move(packet);
 }
 
@@ -74,7 +71,7 @@ void VdePacketDirectory::pruneUnreferencedPackets(const std::vector<int>& packet
     std::sort(sortedPacketsIdsInUse.begin(), sortedPacketsIdsInUse.end());
 
     IdToPacketMap_T::const_iterator it = m_idToPacketMap.cbegin();
-    while (it != m_idToPacketMap.cend()) 
+    while (it != m_idToPacketMap.cend())
     {
         const int packetId = it->first;
         if (!std::binary_search(sortedPacketsIdsInUse.begin(), sortedPacketsIdsInUse.end(), packetId))
@@ -107,5 +104,3 @@ bool VdePacketDirectory::getPacketsAsCombinedBuffer(const std::vector<int>& pack
 
     return true;
 }
-
-

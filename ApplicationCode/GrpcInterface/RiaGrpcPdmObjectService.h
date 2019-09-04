@@ -20,7 +20,6 @@
 #include "PdmObject.grpc.pb.h"
 #include "RiaGrpcServiceInterface.h"
 
-
 #include <grpcpp/grpcpp.h>
 #include <vector>
 
@@ -42,9 +41,9 @@ public:
                                     const rips::PdmChildObjectRequest* request,
                                     rips::PdmObjectArray*              reply) override;
 
-    grpc::Status CreateChildPdmObject(grpc::ServerContext*                   context,
-                                   const rips::CreatePdmChildObjectRequest*  request,
-                                   rips::PdmObject*                          reply) override;
+    grpc::Status CreateChildPdmObject(grpc::ServerContext*                     context,
+                                      const rips::CreatePdmChildObjectRequest* request,
+                                      rips::PdmObject*                         reply) override;
 
     grpc::Status
         UpdateExistingPdmObject(grpc::ServerContext* context, const rips::PdmObject* request, rips::Empty* response) override;

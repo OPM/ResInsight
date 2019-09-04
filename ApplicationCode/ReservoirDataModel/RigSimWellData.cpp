@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@
 #include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigSimWellData::RigSimWellData()
     : m_isMultiSegmentWell(false)
@@ -31,7 +31,7 @@ RigSimWellData::RigSimWellData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RigWellResultFrame& RigSimWellData::wellResultFrame(size_t resultTimeStepIndex) const
 {
@@ -44,7 +44,7 @@ const RigWellResultFrame& RigSimWellData::wellResultFrame(size_t resultTimeStepI
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigSimWellData::computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& simulationTimeSteps)
 {
@@ -59,7 +59,6 @@ void RigSimWellData::computeMappingFromResultTimeIndicesToWellTimeIndices(const 
         for (size_t i = 0; i < m_wellCellsTimeSteps.size(); i++)
         {
             qDebug() << m_wellCellsTimeSteps[i].m_timestamp.toString();
-
         }
 
         qDebug() << "Result TimeStamps";
@@ -72,14 +71,14 @@ void RigSimWellData::computeMappingFromResultTimeIndicesToWellTimeIndices(const 
     size_t wellTimeStepIndex = 0;
     for (size_t resultTimeStepIndex = 0; resultTimeStepIndex < simulationTimeSteps.size(); resultTimeStepIndex++)
     {
-        while ( wellTimeStepIndex < m_wellCellsTimeSteps.size() &&
-                m_wellCellsTimeSteps[wellTimeStepIndex].m_timestamp < simulationTimeSteps[resultTimeStepIndex])
+        while (wellTimeStepIndex < m_wellCellsTimeSteps.size() &&
+               m_wellCellsTimeSteps[wellTimeStepIndex].m_timestamp < simulationTimeSteps[resultTimeStepIndex])
         {
             wellTimeStepIndex++;
         }
 
-        if (   wellTimeStepIndex < m_wellCellsTimeSteps.size() 
-            && m_wellCellsTimeSteps[wellTimeStepIndex].m_timestamp == simulationTimeSteps[resultTimeStepIndex])
+        if (wellTimeStepIndex < m_wellCellsTimeSteps.size() &&
+            m_wellCellsTimeSteps[wellTimeStepIndex].m_timestamp == simulationTimeSteps[resultTimeStepIndex])
         {
             m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex] = wellTimeStepIndex;
         }
@@ -91,7 +90,7 @@ void RigSimWellData::computeMappingFromResultTimeIndicesToWellTimeIndices(const 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigSimWellData::hasWellResult(size_t resultTimeStepIndex) const
 {
@@ -106,7 +105,7 @@ bool RigSimWellData::hasWellResult(size_t resultTimeStepIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigSimWellData::hasAnyValidCells(size_t resultTimeStepIndex) const
 {
@@ -117,15 +116,15 @@ bool RigSimWellData::hasAnyValidCells(size_t resultTimeStepIndex) const
 
     size_t wellTimeStepIndex = m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex];
 
-    if( wellTimeStepIndex == cvf::UNDEFINED_SIZE_T) return false;
-    
+    if (wellTimeStepIndex == cvf::UNDEFINED_SIZE_T) return false;
+
     if (wellResultFrame(resultTimeStepIndex).m_wellHead.isCell()) return true;
 
-    const std::vector<RigWellResultBranch> &resBranches = wellResultFrame(resultTimeStepIndex).m_wellResultBranches;
+    const std::vector<RigWellResultBranch>& resBranches = wellResultFrame(resultTimeStepIndex).m_wellResultBranches;
 
-    for ( size_t i = 0 ; i < resBranches.size(); ++i )
+    for (size_t i = 0; i < resBranches.size(); ++i)
     {
-        for (size_t cIdx = 0; cIdx < resBranches[i].m_branchResultPoints.size(); ++cIdx )
+        for (size_t cIdx = 0; cIdx < resBranches[i].m_branchResultPoints.size(); ++cIdx)
         {
             if (resBranches[i].m_branchResultPoints[cIdx].isCell()) return true;
         }
@@ -135,44 +134,40 @@ bool RigSimWellData::hasAnyValidCells(size_t resultTimeStepIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 
-bool operator== (const RigWellResultPoint& p1, const RigWellResultPoint& p2)
+bool operator==(const RigWellResultPoint& p1, const RigWellResultPoint& p2)
 {
-    return 
-        p1.m_gridIndex == p2.m_gridIndex 
-        && p1.m_gridCellIndex == p2.m_gridCellIndex
-        && p1.m_ertBranchId == p2.m_ertBranchId
-        && p1.m_ertSegmentId == p2.m_ertSegmentId;
+    return p1.m_gridIndex == p2.m_gridIndex && p1.m_gridCellIndex == p2.m_gridCellIndex && p1.m_ertBranchId == p2.m_ertBranchId &&
+           p1.m_ertSegmentId == p2.m_ertSegmentId;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigSimWellData::computeStaticWellCellPath() const
 {
     if (m_wellCellsTimeSteps.size() == 0) return;
 
     // Mapping of Branch ERT ID to ResultPoint list
-    std::map < int, std::list< RigWellResultPoint > > staticWellBranches;
+    std::map<int, std::list<RigWellResultPoint>> staticWellBranches;
 
     // Add ResultCell data from the first timestep to the final result.
 
     for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[0].m_wellResultBranches.size(); ++bIdx)
     {
-        int branchErtId = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
-        const std::vector<RigWellResultPoint>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
-       
-        std::list< RigWellResultPoint >& branch =  staticWellBranches[branchErtId];
+        int                                    branchErtId = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
+        const std::vector<RigWellResultPoint>& frameCells =
+            m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
 
-        for(size_t cIdx = 0; cIdx < frameCells.size(); ++cIdx)
+        std::list<RigWellResultPoint>& branch = staticWellBranches[branchErtId];
+
+        for (size_t cIdx = 0; cIdx < frameCells.size(); ++cIdx)
         {
             branch.push_back(frameCells[cIdx]);
         }
     }
-
-
 
     for (size_t tIdx = 1; tIdx < m_wellCellsTimeSteps.size(); ++tIdx)
     {
@@ -180,23 +175,28 @@ void RigSimWellData::computeStaticWellCellPath() const
 
         for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[tIdx].m_wellResultBranches.size(); ++bIdx)
         {
-            int branchId = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_ertBranchId;
-            const std::vector<RigWellResultPoint>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
+            int                                    branchId = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_ertBranchId;
+            const std::vector<RigWellResultPoint>& resBranch =
+                m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
 
-            std::list< RigWellResultPoint >& stBranch =  staticWellBranches[branchId];
-            std::list< RigWellResultPoint >::iterator sEndIt;
-            size_t  rStartIdx = -1;
-            size_t  rEndIdx = -1;
+            std::list<RigWellResultPoint>&          stBranch = staticWellBranches[branchId];
+            std::list<RigWellResultPoint>::iterator sEndIt;
+            size_t                                  rStartIdx = -1;
+            size_t                                  rEndIdx   = -1;
 
             // First detect if we have cells on the start of the result frame, that is not in the static frame
             {
-                sEndIt = stBranch.begin();
+                sEndIt     = stBranch.begin();
                 bool found = false;
                 if (!stBranch.empty())
                 {
                     for (rEndIdx = 0; !found && rEndIdx < resBranch.size(); ++rEndIdx)
                     {
-                        if ((*sEndIt) == (resBranch[rEndIdx])) { found = true; break; }
+                        if ((*sEndIt) == (resBranch[rEndIdx]))
+                        {
+                            found = true;
+                            break;
+                        }
                     }
                 }
 
@@ -211,7 +211,7 @@ void RigSimWellData::computeStaticWellCellPath() const
                         }
                     }
                 }
-                else 
+                else
                 {
                     // The result probably starts later in the well
                     rEndIdx = 0;
@@ -221,23 +221,27 @@ void RigSimWellData::computeStaticWellCellPath() const
             }
 
             // Now find all result cells in ranges between pairs in the static path
-            // If the result has items that "compete" with those in the static path, 
-            // those items are inserted after the ones in the static path. This 
-            // is not neccesarily correct. They could be in front, and also merged in 
-            // strange ways. A geometric test could make this more robust, but we will 
+            // If the result has items that "compete" with those in the static path,
+            // those items are inserted after the ones in the static path. This
+            // is not neccesarily correct. They could be in front, and also merged in
+            // strange ways. A geometric test could make this more robust, but we will
             // not solve before we see that it actually ends up as a problem
 
-            if (sEndIt !=  stBranch.end()) ++sEndIt;
-            for ( ; sEndIt != stBranch.end() ; ++sEndIt)
+            if (sEndIt != stBranch.end()) ++sEndIt;
+            for (; sEndIt != stBranch.end(); ++sEndIt)
             {
                 bool found = false;
                 for (rEndIdx += 1; !found && rEndIdx < resBranch.size(); ++rEndIdx)
                 {
-                    if ((*sEndIt) == (resBranch[rEndIdx])) { found = true; break; }
+                    if ((*sEndIt) == (resBranch[rEndIdx]))
+                    {
+                        found = true;
+                        break;
+                    }
                 }
 
                 if (found)
-                 {
+                {
                     if (rEndIdx - rStartIdx > 1)
                     {
                         // Found cell range in result that we do not have in the static result, merge them in
@@ -264,9 +268,9 @@ void RigSimWellData::computeStaticWellCellPath() const
         }
     }
 
-    // Populate the static well info 
+    // Populate the static well info
 
-    std::map < int, std::list< RigWellResultPoint > >::iterator bIt;
+    std::map<int, std::list<RigWellResultPoint>>::iterator bIt;
 
     m_staticWellCells.m_wellResultBranches.clear();
     m_staticWellCells.m_wellHead = m_wellCellsTimeSteps[0].m_wellHead;
@@ -274,11 +278,11 @@ void RigSimWellData::computeStaticWellCellPath() const
     for (bIt = staticWellBranches.begin(); bIt != staticWellBranches.end(); ++bIt)
     {
         // Copy from first time step
-        RigWellResultBranch rigBranch; 
+        RigWellResultBranch rigBranch;
         rigBranch.m_ertBranchId = bIt->first;
 
-        std::list< RigWellResultPoint >& branch =  bIt->second;
-        std::list< RigWellResultPoint >::iterator cIt;
+        std::list<RigWellResultPoint>&          branch = bIt->second;
+        std::list<RigWellResultPoint>::iterator cIt;
         for (cIt = branch.begin(); cIt != branch.end(); ++cIt)
         {
             rigBranch.m_branchResultPoints.push_back(*cIt);
@@ -289,7 +293,7 @@ void RigSimWellData::computeStaticWellCellPath() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigSimWellData::setMultiSegmentWell(bool isMultiSegmentWell)
 {
@@ -297,16 +301,15 @@ void RigSimWellData::setMultiSegmentWell(bool isMultiSegmentWell)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigSimWellData::isMultiSegmentWell() const
 {
     return m_isMultiSegmentWell;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigWellResultFrame::WellProductionType RigSimWellData::wellProductionType(size_t resultTimeStepIndex) const
 {
@@ -322,7 +325,7 @@ RigWellResultFrame::WellProductionType RigSimWellData::wellProductionType(size_t
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RigWellResultFrame& RigSimWellData::staticWellCells() const
 {
@@ -336,7 +339,7 @@ const RigWellResultFrame& RigSimWellData::staticWellCells() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigSimWellData::isOpen(size_t resultTimeStepIndex) const
 {
@@ -352,7 +355,7 @@ bool RigSimWellData::isOpen(size_t resultTimeStepIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RigWellResultPoint* RigWellResultFrame::findResultCellWellHeadIncluded(size_t gridIndex, size_t gridCellIndex) const
 {
@@ -362,11 +365,11 @@ const RigWellResultPoint* RigWellResultFrame::findResultCellWellHeadIncluded(siz
     // If we could not find the cell among the real connections, we try the wellhead.
     // The wellhead does however not have a real connection state, and is rendering using pipe color
     // https://github.com/OPM/ResInsight/issues/4328
-    
+
     // This behavior was different prior to release 2019.04 and was rendered as a closed connection (gray)
     // https://github.com/OPM/ResInsight/issues/712
 
-    if (m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex )
+    if (m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex)
     {
         return &m_wellHead;
     }
@@ -397,17 +400,17 @@ const RigWellResultPoint* RigWellResultFrame::findResultCellWellHeadExcluded(siz
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigWellResultPoint RigWellResultFrame::wellHeadOrStartCell() const
 {
     if (m_wellHead.isCell()) return m_wellHead;
 
-    for ( const RigWellResultBranch& resBranch : m_wellResultBranches )
+    for (const RigWellResultBranch& resBranch : m_wellResultBranches)
     {
-        for ( const RigWellResultPoint& wrp: resBranch.m_branchResultPoints )
+        for (const RigWellResultPoint& wrp : resBranch.m_branchResultPoints)
         {
-            if ( wrp.isCell() ) return wrp;
+            if (wrp.isCell()) return wrp;
         }
     }
 

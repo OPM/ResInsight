@@ -19,8 +19,8 @@
 #pragma once
 
 #include "ExportCommands/RicLgrSplitType.h"
-#include "RigCompletionDataGridCell.h"
 #include "RigCompletionData.h"
+#include "RigCompletionDataGridCell.h"
 
 #include "cafCmdFeature.h"
 #include "cafVecIjk.h"

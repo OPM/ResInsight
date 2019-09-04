@@ -24,7 +24,6 @@
 
 class RicHoloLensSession;
 
-
 //==================================================================================================
 //
 //
@@ -35,21 +34,20 @@ class RicHoloLensSessionManager : private RicHoloLensSessionObserver
 public:
     static RicHoloLensSessionManager* instance();
 
-    bool                createSession(const QString& serverUrl, const QString& sessionName, const QString& sessionPinCode);
-    bool                createDummyFileBackedSession();
-    void                terminateSession();
+    bool createSession(const QString& serverUrl, const QString& sessionName, const QString& sessionPinCode);
+    bool createDummyFileBackedSession();
+    void terminateSession();
 
     RicHoloLensSession* session();
 
-    static void         refreshToolbarState();
+    static void refreshToolbarState();
 
 private:
-    void        handleSessionNotification(const RicHoloLensSession* session, Notification notification) override;
+    void handleSessionNotification(const RicHoloLensSession* session, Notification notification) override;
 
 private:
     RicHoloLensSessionManager();
 
 private:
-    QPointer<RicHoloLensSession>  m_session;
+    QPointer<RicHoloLensSession> m_session;
 };
-

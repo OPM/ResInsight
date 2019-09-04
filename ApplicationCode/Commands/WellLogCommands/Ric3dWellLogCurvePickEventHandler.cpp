@@ -44,7 +44,7 @@ bool Ric3dWellLogCurvePickEventHandler::handle3dPickEvent(const Ric3dPickEvent& 
     if (eventObject.m_pickItemInfos.empty()) return false;
 
     const auto&      firstPickedItem = eventObject.m_pickItemInfos.front();
-    const cvf::Part* firstPickedPart            = firstPickedItem.pickedPart();
+    const cvf::Part* firstPickedPart = firstPickedItem.pickedPart();
 
     const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(firstPickedPart->sourceInfo());
     if (sourceInfo)
@@ -54,20 +54,19 @@ bool Ric3dWellLogCurvePickEventHandler::handle3dPickEvent(const Ric3dPickEvent& 
         {
             RimWellPath* wellPath;
             curveCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
-            QString wellPathName = wellPath->name();
-            cvf::Vec3d closestPoint;
-            double measuredDepthAtPoint;
-            double valueAtPoint;
-            Rim3dWellLogCurve* curve = curveCollection->checkForCurveIntersection( firstPickedItem.globalPickedPoint(), 
-                                                                                  &closestPoint, 
-                                                                                  &measuredDepthAtPoint, 
-                                                                                  &valueAtPoint);
+            QString            wellPathName = wellPath->name();
+            cvf::Vec3d         closestPoint;
+            double             measuredDepthAtPoint;
+            double             valueAtPoint;
+            Rim3dWellLogCurve* curve = curveCollection->checkForCurveIntersection(
+                firstPickedItem.globalPickedPoint(), &closestPoint, &measuredDepthAtPoint, &valueAtPoint);
             if (curve)
             {
                 RiuMainWindow::instance()->selectAsCurrentItem(curve);
 
                 QString curveText;
-                curveText += QString("Curve name : %1\n").arg(curve->name());;
+                curveText += QString("Curve name : %1\n").arg(curve->name());
+                ;
                 curveText += QString("Well path name: %1\n").arg(wellPathName);
                 curveText += QString("Measured depth: %1\n").arg(measuredDepthAtPoint);
                 curveText += QString("%1 at depth: %2\n").arg(curve->resultPropertyString()).arg(valueAtPoint);

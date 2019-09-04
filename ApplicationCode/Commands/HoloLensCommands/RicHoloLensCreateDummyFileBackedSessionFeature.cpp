@@ -38,7 +38,7 @@ bool RicHoloLensCreateDummyFiledBackedSessionFeature::isCommandEnabled()
 void RicHoloLensCreateDummyFiledBackedSessionFeature::onActionTriggered(bool isChecked)
 {
     RicHoloLensSessionManager::instance()->createDummyFileBackedSession();
-    
+
     RicHoloLensSessionManager::refreshToolbarState();
 }
 

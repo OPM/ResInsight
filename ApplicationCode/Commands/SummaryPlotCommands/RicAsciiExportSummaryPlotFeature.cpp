@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -39,13 +39,10 @@
 #include <QFileDialog>
 #include <QFileInfo>
 
-
-
-
 CAF_CMD_SOURCE_INIT(RicAsciiExportSummaryPlotFeature, "RicAsciiExportSummaryPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicAsciiExportSummaryPlotFeature::isCommandEnabled()
 {
@@ -53,7 +50,7 @@ bool RicAsciiExportSummaryPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
@@ -70,11 +67,11 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
     if (selectedSummaryPlots.size() == 1)
     {
         RimSummaryPlot* summaryPlot = selectedSummaryPlots.at(0);
-        QString fileName = getFileNameFromUserDialog(summaryPlot->description(), defaultDir);
+        QString         fileName    = getFileNameFromUserDialog(summaryPlot->description(), defaultDir);
         if (fileName.isEmpty()) return;
 
         caf::ProgressInfo pi(selectedSummaryPlots.size(), QString("Exporting plot data to ASCII"));
-        size_t progress = 0;
+        size_t            progress = 0;
 
         RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(fileName, summaryPlot, result.period);
 
@@ -91,17 +88,17 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
         }
 
         QString saveDir;
-        bool writeFiles = caf::Utils::getSaveDirectoryAndCheckOverwriteFiles(defaultDir, fileNames, &saveDir);
+        bool    writeFiles = caf::Utils::getSaveDirectoryAndCheckOverwriteFiles(defaultDir, fileNames, &saveDir);
         if (!writeFiles) return;
 
         caf::ProgressInfo pi(selectedSummaryPlots.size(), QString("Exporting plot data to ASCII"));
-        size_t progress = 0;
+        size_t            progress = 0;
 
         RiaLogging::info(QString("Writing to directory %1").arg(saveDir));
         for (RimSummaryPlot* summaryPlot : selectedSummaryPlots)
         {
             QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename(summaryPlot->description()) + ".ascii";
-            RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(fileName, summaryPlot, result.period); 
+            RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(fileName, summaryPlot, result.period);
             progress++;
             pi.setProgress(progress);
         }
@@ -109,7 +106,7 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicAsciiExportSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -118,7 +115,7 @@ void RicAsciiExportSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicAsciiExportSummaryPlotFeature::defaultExportDir()
 {
@@ -126,17 +123,18 @@ QString RicAsciiExportSummaryPlotFeature::defaultExportDir()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicAsciiExportSummaryPlotFeature::getFileNameFromUserDialog(const QString& fileNameCandidate, const QString& defaultDir)
 {
     QString defaultFileName = defaultDir + "/" + caf::Utils::makeValidFileBasename(fileNameCandidate) + ".ascii";
-    QString fileName = QFileDialog::getSaveFileName(nullptr, "Select File for Summary Plot Export", defaultFileName, "Text File(*.ascii);;All files(*.*)");
+    QString fileName        = QFileDialog::getSaveFileName(
+        nullptr, "Select File for Summary Plot Export", defaultFileName, "Text File(*.ascii);;All files(*.*)");
     return fileName;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicAsciiExportSummaryPlotFeature::exportTextToFile(const QString& fileName, const QString& text)
 {
@@ -158,11 +156,11 @@ bool RicAsciiExportSummaryPlotFeature::exportTextToFile(const QString& fileName,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(const QString& fileName,
+bool RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(const QString&        fileName,
                                                                  const RimSummaryPlot* summaryPlot,
-                                                                 DateTimePeriod resamplingPeriod)
+                                                                 DateTimePeriod        resamplingPeriod)
 {
     QString text = summaryPlot->description();
     text.append(summaryPlot->asciiDataForPlotExport(resamplingPeriod));
@@ -170,4 +168,3 @@ bool RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(const QString& 
 
     return exportTextToFile(fileName, text);
 }
-

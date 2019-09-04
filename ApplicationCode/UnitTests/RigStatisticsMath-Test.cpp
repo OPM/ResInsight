@@ -3,17 +3,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,9 +22,8 @@
 
 #include "RigStatisticsMath.h"
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RigStatisticsMath, BasicTest)
 {
@@ -50,17 +49,16 @@ TEST(RigStatisticsMath, BasicTest)
     double min, max, sum, range, mean, stdev;
     RigStatisticsMath::calculateBasicStatistics(values, &min, &max, &sum, &range, &mean, &stdev);
 
-    EXPECT_DOUBLE_EQ(-98649.8109937874000, min   );
-    EXPECT_DOUBLE_EQ(99372.9362079615000 , max   );
-    EXPECT_DOUBLE_EQ(212079.46728689762  , sum   );
-    EXPECT_DOUBLE_EQ(198022.7472017490000, range );
-    EXPECT_DOUBLE_EQ(16313.8051759152000 , mean  );
-    EXPECT_DOUBLE_EQ(66104.391542887200  , stdev );
+    EXPECT_DOUBLE_EQ(-98649.8109937874000, min);
+    EXPECT_DOUBLE_EQ(99372.9362079615000, max);
+    EXPECT_DOUBLE_EQ(212079.46728689762, sum);
+    EXPECT_DOUBLE_EQ(198022.7472017490000, range);
+    EXPECT_DOUBLE_EQ(16313.8051759152000, mean);
+    EXPECT_DOUBLE_EQ(66104.391542887200, stdev);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RigStatisticsMath, RankPercentiles)
 {
@@ -90,17 +88,14 @@ TEST(RigStatisticsMath, RankPercentiles)
     pValPos.push_back(90);
     std::vector<double> pVals = RigStatisticsMath::calculateNearestRankPercentiles(values, pValPos);
 
-    EXPECT_DOUBLE_EQ( -76092.8157632591000, pVals[0]);
-    EXPECT_DOUBLE_EQ( 2788.2723335651900  , pVals[1]);
-    EXPECT_DOUBLE_EQ( 6391.979999097290   , pVals[2]);
-    EXPECT_DOUBLE_EQ( 96161.7546348456000 , pVals[3]);
+    EXPECT_DOUBLE_EQ(-76092.8157632591000, pVals[0]);
+    EXPECT_DOUBLE_EQ(2788.2723335651900, pVals[1]);
+    EXPECT_DOUBLE_EQ(6391.979999097290, pVals[2]);
+    EXPECT_DOUBLE_EQ(96161.7546348456000, pVals[3]);
 }
 
-
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RigStatisticsMath, HistogramPercentiles)
 {
@@ -123,11 +118,10 @@ TEST(RigStatisticsMath, HistogramPercentiles)
     values.push_back(HUGE_VAL);
     values.push_back(-57020.4389966513000);
 
-
     double min, max, range, mean, stdev;
     RigStatisticsMath::calculateBasicStatistics(values, &min, &max, nullptr, &range, &mean, &stdev);
 
-    std::vector<size_t> histogram;
+    std::vector<size_t>    histogram;
     RigHistogramCalculator histCalc(min, max, 100, &histogram);
     histCalc.addData(values);
 
@@ -136,14 +130,13 @@ TEST(RigStatisticsMath, HistogramPercentiles)
     p50 = histCalc.calculatePercentil(0.5);
     p90 = histCalc.calculatePercentil(0.9);
 
-    EXPECT_DOUBLE_EQ( -76273.240559989776, p10);
-    EXPECT_DOUBLE_EQ( 5312.1312871307755  , p50);
-    EXPECT_DOUBLE_EQ( 94818.413022321271 , p90);
+    EXPECT_DOUBLE_EQ(-76273.240559989776, p10);
+    EXPECT_DOUBLE_EQ(5312.1312871307755, p50);
+    EXPECT_DOUBLE_EQ(94818.413022321271, p90);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RigStatisticsMath, InterpolatedPercentiles)
 {
@@ -166,7 +159,6 @@ TEST(RigStatisticsMath, InterpolatedPercentiles)
     values.push_back(HUGE_VAL);
     values.push_back(-57020.4389966513000);
 
-
     std::vector<double> pValPos;
     pValPos.push_back(10);
     pValPos.push_back(40);
@@ -174,19 +166,19 @@ TEST(RigStatisticsMath, InterpolatedPercentiles)
     pValPos.push_back(90);
     std::vector<double> pVals = RigStatisticsMath::calculateInterpolatedPercentiles(values, pValPos);
 
-    EXPECT_DOUBLE_EQ( -72278.340409937548,  pVals[0]);
-    EXPECT_DOUBLE_EQ(  -2265.6006907818719, pVals[1]);
-    EXPECT_DOUBLE_EQ(   6391.9799990972897, pVals[2]);
-    EXPECT_DOUBLE_EQ(  93073.49128098879,   pVals[3]);
+    EXPECT_DOUBLE_EQ(-72278.340409937548, pVals[0]);
+    EXPECT_DOUBLE_EQ(-2265.6006907818719, pVals[1]);
+    EXPECT_DOUBLE_EQ(6391.9799990972897, pVals[2]);
+    EXPECT_DOUBLE_EQ(93073.49128098879, pVals[3]);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RigStatisticsMath, Accumulators)
 {
     std::vector<double> values;
-    
+
     const double v1 = 2788.2723335651900;
     const double v2 = 68778.6851686236000;
     const double v3 = -98649.8109937874000;

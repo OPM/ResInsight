@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,61 +23,58 @@
 #include "RimViewWindow.h"
 #include "RiuMainWindowBase.h"
 
-CAF_PDM_XML_SOURCE_INIT(RimMdiWindowController, "MdiWindowController"); 
+CAF_PDM_XML_SOURCE_INIT(RimMdiWindowController, "MdiWindowController");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimMdiWindowController::RimMdiWindowController()
 {
-    CAF_PDM_InitField(&m_mainWindowID, "MainWindowID", -1, "", "", "", "" );
-    CAF_PDM_InitField(& m_x          , "xPos",         -1, "", "", "", "" );
-    CAF_PDM_InitField(& m_y          , "yPos",         -1, "", "", "", "" );
-    CAF_PDM_InitField(& m_width      , "Width",        -1, "", "", "", "" );
-    CAF_PDM_InitField(& m_height     , "Height",       -1, "", "", "", "" );
-    CAF_PDM_InitField(& m_isMaximized, "IsMaximized",  false, "", "", "", "" );
+    CAF_PDM_InitField(&m_mainWindowID, "MainWindowID", -1, "", "", "", "");
+    CAF_PDM_InitField(&m_x, "xPos", -1, "", "", "", "");
+    CAF_PDM_InitField(&m_y, "yPos", -1, "", "", "", "");
+    CAF_PDM_InitField(&m_width, "Width", -1, "", "", "", "");
+    CAF_PDM_InitField(&m_height, "Height", -1, "", "", "", "");
+    CAF_PDM_InitField(&m_isMaximized, "IsMaximized", false, "", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimMdiWindowController::~RimMdiWindowController()
-{
-
-}
+RimMdiWindowController::~RimMdiWindowController() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimMdiWindowController::setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry)
 {
     m_mainWindowID = windowGeometry.mainWindowID;
-    m_x           = windowGeometry.x;
-    m_y           = windowGeometry.y;
-    m_width       = windowGeometry.width;
-    m_height      = windowGeometry.height;
-    m_isMaximized = windowGeometry.isMaximized;
+    m_x            = windowGeometry.x;
+    m_y            = windowGeometry.y;
+    m_width        = windowGeometry.width;
+    m_height       = windowGeometry.height;
+    m_isMaximized  = windowGeometry.isMaximized;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimMdiWindowGeometry RimMdiWindowController::mdiWindowGeometry()
 {
     RimMdiWindowGeometry windowGeometry;
 
     windowGeometry.mainWindowID = m_mainWindowID;
-    windowGeometry.x           = m_x           ;
-    windowGeometry.y           = m_y           ;
-    windowGeometry.width       = m_width       ;
-    windowGeometry.height      = m_height      ;
-    windowGeometry.isMaximized = m_isMaximized ;
+    windowGeometry.x            = m_x;
+    windowGeometry.y            = m_y;
+    windowGeometry.width        = m_width;
+    windowGeometry.height       = m_height;
+    windowGeometry.isMaximized  = m_isMaximized;
 
     return windowGeometry;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimMdiWindowController::handleViewerDeletion()
 {
@@ -91,7 +88,7 @@ void RimMdiWindowController::handleViewerDeletion()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimMdiWindowController::removeWindowFromMDI()
 {
@@ -100,17 +97,17 @@ void RimMdiWindowController::removeWindowFromMDI()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RimMdiWindowController::viewPdmObject()
 {
-    RimViewWindow * viewWindowObj;
+    RimViewWindow* viewWindowObj;
     this->firstAncestorOrThisOfType(viewWindowObj);
     return viewWindowObj;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QWidget* RimMdiWindowController::viewWidget()
 {
@@ -118,7 +115,7 @@ QWidget* RimMdiWindowController::viewWidget()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuMainWindowBase* RimMdiWindowController::getMainWindow()
 {
@@ -130,29 +127,29 @@ RiuMainWindowBase* RimMdiWindowController::getMainWindow()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimMdiWindowController::setupBeforeSave()
 {
-    if ( viewWidget() && getMainWindow() )
+    if (viewWidget() && getMainWindow())
     {
         this->setMdiWindowGeometry(getMainWindow()->windowGeometryForViewer(viewWidget()));
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimMdiWindowController::updateViewerWidget()
 {
-    RiuMainWindowBase* mainWindow =  getMainWindow();
-    if ( !mainWindow ) return;
+    RiuMainWindowBase* mainWindow = getMainWindow();
+    if (!mainWindow) return;
 
-    if ( viewPdmObject()->isWindowVisible() )
+    if (viewPdmObject()->isWindowVisible())
     {
-        if ( !viewWidget() )
+        if (!viewWidget())
         {
-            QWidget * viewWidget = viewPdmObject()->createViewWidget(mainWindow);
+            QWidget* viewWidget = viewPdmObject()->createViewWidget(mainWindow);
 
             mainWindow->addViewer(viewWidget, this->mdiWindowGeometry());
             mainWindow->setActiveViewer(viewWidget);
@@ -168,7 +165,7 @@ void RimMdiWindowController::updateViewerWidget()
     }
     else
     {
-        if ( viewWidget() )
+        if (viewWidget())
         {
             this->setMdiWindowGeometry(mainWindow->windowGeometryForViewer(viewWidget()));
 
@@ -178,4 +175,3 @@ void RimMdiWindowController::updateViewerWidget()
         }
     }
 }
-

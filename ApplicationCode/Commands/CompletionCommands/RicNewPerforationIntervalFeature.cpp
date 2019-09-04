@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,8 +23,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
-#include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
+#include "RimPerforationInterval.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
 
@@ -32,12 +32,10 @@
 
 #include <QAction>
 
-
 CAF_CMD_SOURCE_INIT(RicNewPerforationIntervalFeature, "RicNewPerforationIntervalFeature");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewPerforationIntervalFeature::isCommandEnabled()
 {
@@ -45,7 +43,7 @@ bool RicNewPerforationIntervalFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewPerforationIntervalFeature::onActionTriggered(bool isChecked)
 {
@@ -71,7 +69,7 @@ void RicNewPerforationIntervalFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewPerforationIntervalFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -80,10 +78,10 @@ void RicNewPerforationIntervalFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimPerforationCollection* RicNewPerforationIntervalFeature::selectedPerforationCollection()
-{    
+{
     std::vector<caf::PdmUiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems(selectedItems);
     if (selectedItems.size() != 1u) return nullptr;
@@ -91,21 +89,18 @@ RimPerforationCollection* RicNewPerforationIntervalFeature::selectedPerforationC
     caf::PdmUiItem* pdmUiItem = selectedItems.front();
 
     RimPerforationCollection* perforationCollection = nullptr;
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
+    caf::PdmObjectHandle*     objHandle             = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (objHandle)
     {
         objHandle->firstAncestorOrThisOfType(perforationCollection);
 
-        if (perforationCollection)
-            return perforationCollection;
-        
+        if (perforationCollection) return perforationCollection;
+
         RimWellPath* wellPath = dynamic_cast<RimWellPath*>(objHandle);
-        if (wellPath)
-            return wellPath->perforationIntervalCollection();
+        if (wellPath) return wellPath->perforationIntervalCollection();
 
         RimWellPathCompletions* completions = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
-        if (completions)
-            return completions->perforationCollection();
+        if (completions) return completions->perforationCollection();
     }
     return nullptr;
 }

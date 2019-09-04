@@ -25,26 +25,24 @@
 
 CAF_PDM_SOURCE_INIT(RimValveTemplateCollection, "ValveTemplateCollection");
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimValveTemplateCollection::RimValveTemplateCollection()
 {
     CAF_PDM_InitObject("Valve Templates", ":/ICDValve16x16.png", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_valveDefinitions, "ValveDefinitions",  "", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_defaultUnitsForValveTemplates, "ValveUnits", "Default unit system for valve templates", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_valveDefinitions, "ValveDefinitions", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(
+        &m_defaultUnitsForValveTemplates, "ValveUnits", "Default unit system for valve templates", "", "", "");
     m_defaultUnitsForValveTemplates = RiaEclipseUnitTools::UNITS_METRIC;
     m_valveDefinitions.uiCapability()->setUiHidden(true);
-    addDefaultValveTemplates();    
+    addDefaultValveTemplates();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimValveTemplateCollection::~RimValveTemplateCollection()
-{
-}
+RimValveTemplateCollection::~RimValveTemplateCollection() {}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -20,8 +20,8 @@
 
 #include "RiuMainWindow.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaBaseDefs.h"
+#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTest.h"
 #include "RiaRegressionTestRunner.h"
@@ -1975,7 +1975,7 @@ void RiuMainWindow::tileSubWindows()
         }
         return lhs->frameGeometry().topLeft().rx() > rhs->frameGeometry().topLeft().rx();
     });
-    
+
     // Based on workaround described here
     // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
 
@@ -1993,7 +1993,7 @@ void RiuMainWindow::tileSubWindows()
     m_mdiArea->tileSubWindows();
     // Set back the original activation order to avoid messing with the standard ordering
     m_mdiArea->setActivationOrder(currentActivationOrder);
-    m_mdiArea->setActiveSubWindow(a);  
+    m_mdiArea->setActiveSubWindow(a);
     setBlockSlotSubWindowActivated(prevActivationBlock);
 
     storeSubWindowTiling(true);

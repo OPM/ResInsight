@@ -40,7 +40,7 @@ public:
     void    updateCurrentTimeStepAndRedraw() override;
     bool    isGridVisualizationMode() const override;
 
-    bool    isTimeStepDependentDataVisible() const override;
+    bool isTimeStepDependentDataVisible() const override;
 
 protected:
     void initAfterRead() override;
@@ -74,6 +74,5 @@ private:
     caf::PdmField<bool>                                 m_showScaleLegend;
     cvf::Vec3d                                          m_cameraPositionLastUpdate;
 
-    const static cvf::Mat4d                             sm_defaultViewMatrix;
+    const static cvf::Mat4d sm_defaultViewMatrix;
 };
-

@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,37 +23,33 @@
 
 #include "RifJsonEncodeDecode.h"
 
+#include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QMap>
-#include <QDebug>
 
 CAF_PDM_SOURCE_INIT(RimOilFieldEntry, "RimOilFieldEntry");
 
-
-
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimOilFieldEntry::RimOilFieldEntry()
 {
     CAF_PDM_InitObject("OilFieldEntry", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&name,       "OilFieldName",      "Oil Field Name", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&edmId,      "EdmId",             "Edm ID", "", "", "");
-    CAF_PDM_InitField(&selected,            "Selected", false,    "Selected", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&name, "OilFieldName", "Oil Field Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&edmId, "EdmId", "Edm ID", "", "", "");
+    CAF_PDM_InitField(&selected, "Selected", false, "Selected", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&wellsFilePath,      "wellsFilePath",             "Wells File Path", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&wellsFilePath, "wellsFilePath", "Wells File Path", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&wells, "Wells", "",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&wells, "Wells", "", "", "", "");
     wells.uiCapability()->setUiHidden(true);
     wells.uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimOilFieldEntry::~RimOilFieldEntry()
 {
@@ -61,7 +57,7 @@ RimOilFieldEntry::~RimOilFieldEntry()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimOilFieldEntry::userDescriptionField()
 {
@@ -69,7 +65,7 @@ caf::PdmFieldHandle* RimOilFieldEntry::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimOilFieldEntry::objectToggleField()
 {
@@ -77,9 +73,11 @@ caf::PdmFieldHandle* RimOilFieldEntry::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimOilFieldEntry::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimOilFieldEntry::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                        const QVariant&            oldValue,
+                                        const QVariant&            newValue)
 {
     if (changedField == &selected)
     {
@@ -88,7 +86,7 @@ void RimOilFieldEntry::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimOilFieldEntry::initAfterRead()
 {
@@ -98,7 +96,7 @@ void RimOilFieldEntry::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimOilFieldEntry::updateEnabledState()
 {
@@ -115,7 +113,7 @@ void RimOilFieldEntry::updateEnabledState()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPathEntry* RimOilFieldEntry::find(const QString& entryName, RimWellPathEntry::WellTypeEnum wellPathType)
 {

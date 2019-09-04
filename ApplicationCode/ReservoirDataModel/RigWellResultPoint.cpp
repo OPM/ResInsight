@@ -19,7 +19,7 @@
 #include "RigWellResultPoint.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigWellResultPoint::RigWellResultPoint()
     : m_gridIndex(cvf::UNDEFINED_SIZE_T)
@@ -37,7 +37,7 @@ RigWellResultPoint::RigWellResultPoint()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigWellResultPoint::isPointValid() const
 {
@@ -45,7 +45,7 @@ bool RigWellResultPoint::isPointValid() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigWellResultPoint::isCell() const
 {
@@ -53,7 +53,7 @@ bool RigWellResultPoint::isCell() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigWellResultPoint::isValid() const
 {
@@ -61,23 +61,17 @@ bool RigWellResultPoint::isValid() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigWellResultPoint::isEqual(const RigWellResultPoint& other) const
 {
-    return (   m_gridIndex      == other.m_gridIndex
-            && m_gridCellIndex  == other.m_gridCellIndex
-            && m_isOpen         == other.m_isOpen
-            && m_ertBranchId    == other.m_ertBranchId
-            && m_ertSegmentId   == other.m_ertSegmentId
-            && m_flowRate       == other.m_flowRate
-            && m_oilRate        == other.m_oilRate
-            && m_gasRate        == other.m_gasRate
-            && m_waterRate      == other.m_waterRate);
+    return (m_gridIndex == other.m_gridIndex && m_gridCellIndex == other.m_gridCellIndex && m_isOpen == other.m_isOpen &&
+            m_ertBranchId == other.m_ertBranchId && m_ertSegmentId == other.m_ertSegmentId && m_flowRate == other.m_flowRate &&
+            m_oilRate == other.m_oilRate && m_gasRate == other.m_gasRate && m_waterRate == other.m_waterRate);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigWellResultPoint::flowRate() const
 {
@@ -92,7 +86,7 @@ double RigWellResultPoint::flowRate() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigWellResultPoint::oilRate() const
 {
@@ -107,7 +101,7 @@ double RigWellResultPoint::oilRate() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigWellResultPoint::gasRate() const
 {
@@ -122,7 +116,7 @@ double RigWellResultPoint::gasRate() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigWellResultPoint::waterRate() const
 {
@@ -137,10 +131,9 @@ double RigWellResultPoint::waterRate() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigWellResultPoint::connectionFactor() const
 {
     return m_connectionFactor;
 }
-

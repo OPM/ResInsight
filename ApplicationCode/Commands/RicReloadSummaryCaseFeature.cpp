@@ -23,8 +23,8 @@
 #include "RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
+#include "RimObservedSummaryData.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"

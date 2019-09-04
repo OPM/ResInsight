@@ -27,6 +27,7 @@ class RigFemResultAddress;
 class RimFemResultObserver : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     virtual std::vector<RigFemResultAddress> observedResults() const = 0;
 };

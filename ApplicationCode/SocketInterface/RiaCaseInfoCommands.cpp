@@ -3,36 +3,36 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaSocketCommand.h"
 
-#include "RiaSocketServer.h"
-#include "RiaSocketTools.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaSocketServer.h"
+#include "RiaSocketTools.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-#include "RigGeoMechCaseData.h"
-#include "RigFemPartCollection.h"
 #include "RigFemPart.h"
+#include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
+#include "RigGeoMechCaseData.h"
+#include "RigMainGrid.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
@@ -52,20 +52,19 @@
 
 #include <array>
 
-
-
-
 //--------------------------------------------------------------------------------------------------
 /// OBSOLETE, to be deleted
 //--------------------------------------------------------------------------------------------------
-class RiaGetMainGridDimensions: public RiaSocketCommand
+class RiaGetMainGridDimensions : public RiaSocketCommand
 {
 public:
-    static QString commandName () { return QString("GetMainGridDimensions"); }
-
-    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
+    static QString commandName()
     {
+        return QString("GetMainGridDimensions");
+    }
 
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
+    {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         if (!rimCase) return true;
 
@@ -88,19 +87,21 @@ public:
     }
 };
 
-static bool RiaGetMainGridDimensions_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetMainGridDimensions>(RiaGetMainGridDimensions::commandName());
-
-
+static bool RiaGetMainGridDimensions_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetMainGridDimensions>(RiaGetMainGridDimensions::commandName());
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RiaGetActiveCellInfo: public RiaSocketCommand
+class RiaGetActiveCellInfo : public RiaSocketCommand
 {
 public:
-    static QString commandName () { return QString("GetActiveCellInfo"); }
+    static QString commandName()
+    {
+        return QString("GetActiveCellInfo");
+    }
 
-    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         if (!rimCase) return true;
@@ -119,23 +120,24 @@ public:
         // Write data back to octave: columnCount, bytesPrTimestep, GridNr I J K ParentGridNr PI PJ PK CoarseBoxIdx
 
         std::array<std::vector<qint32>, 9> activeCellInfo;
-        if (!(rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid()) )
+        if (!(rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid()))
         {
             // No data available
-            socketStream << (quint64)0 << (quint64)0 ;
+            socketStream << (quint64)0 << (quint64)0;
             return true;
         }
 
-        calculateMatrixModelActiveCellInfo(rimCase, porosityModel,
-            activeCellInfo[0],
-            activeCellInfo[1],
-            activeCellInfo[2],
-            activeCellInfo[3],
-            activeCellInfo[4],
-            activeCellInfo[5],
-            activeCellInfo[6],
-            activeCellInfo[7],
-            activeCellInfo[8]);
+        calculateMatrixModelActiveCellInfo(rimCase,
+                                           porosityModel,
+                                           activeCellInfo[0],
+                                           activeCellInfo[1],
+                                           activeCellInfo[2],
+                                           activeCellInfo[3],
+                                           activeCellInfo[4],
+                                           activeCellInfo[5],
+                                           activeCellInfo[6],
+                                           activeCellInfo[7],
+                                           activeCellInfo[8]);
 
         // First write column count
         quint64 columnCount = (quint64)9;
@@ -143,18 +145,29 @@ public:
 
         // then the byte-size of the size of one column
         size_t  timestepResultCount = activeCellInfo[0].size();
-        quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(qint32));
+        quint64 timestepByteCount   = (quint64)(timestepResultCount * sizeof(qint32));
         socketStream << timestepByteCount;
 
         for (size_t tIdx = 0; tIdx < columnCount; ++tIdx)
         {
-            RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)activeCellInfo[tIdx].data(), timestepByteCount);
+            RiaSocketTools::writeBlockData(
+                server, server->currentClient(), (const char*)activeCellInfo[tIdx].data(), timestepByteCount);
         }
 
         return true;
     }
 
-    static void calculateMatrixModelActiveCellInfo(RimEclipseCase* reservoirCase, RiaDefines::PorosityModelType porosityModel, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK, std::vector<qint32>& globalCoarseningBoxIdx)
+    static void calculateMatrixModelActiveCellInfo(RimEclipseCase*               reservoirCase,
+                                                   RiaDefines::PorosityModelType porosityModel,
+                                                   std::vector<qint32>&          gridNumber,
+                                                   std::vector<qint32>&          cellI,
+                                                   std::vector<qint32>&          cellJ,
+                                                   std::vector<qint32>&          cellK,
+                                                   std::vector<qint32>&          parentGridNumber,
+                                                   std::vector<qint32>&          hostCellI,
+                                                   std::vector<qint32>&          hostCellJ,
+                                                   std::vector<qint32>&          hostCellK,
+                                                   std::vector<qint32>&          globalCoarseningBoxIdx)
     {
         gridNumber.clear();
         cellI.clear();
@@ -171,8 +184,8 @@ public:
             return;
         }
 
-        RigActiveCellInfo* actCellInfo = reservoirCase->eclipseCaseData()->activeCellInfo(porosityModel);
-        size_t numMatrixModelActiveCells = actCellInfo->reservoirActiveCellCount();
+        RigActiveCellInfo* actCellInfo               = reservoirCase->eclipseCaseData()->activeCellInfo(porosityModel);
+        size_t             numMatrixModelActiveCells = actCellInfo->reservoirActiveCellCount();
 
         gridNumber.reserve(numMatrixModelActiveCells);
         cellI.reserve(numMatrixModelActiveCells);
@@ -185,7 +198,6 @@ public:
         globalCoarseningBoxIdx.reserve(numMatrixModelActiveCells);
 
         const std::vector<RigCell>& reservoirCells = reservoirCase->eclipseCaseData()->mainGrid()->globalCellArray();
-
 
         std::vector<size_t> globalCoarseningBoxIndexStart;
         {
@@ -200,9 +212,7 @@ public:
                 size_t localCoarseningBoxCount = grid->coarseningBoxCount();
                 globalCoarseningBoxCount += localCoarseningBoxCount;
             }
-
         }
-
 
         for (size_t cIdx = 0; cIdx < reservoirCells.size(); ++cIdx)
         {
@@ -215,33 +225,33 @@ public:
                 size_t i, j, k;
                 grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
 
-                size_t pi, pj, pk;
+                size_t       pi, pj, pk;
                 RigGridBase* parentGrid = nullptr;
 
                 if (grid->isMainGrid())
                 {
-                    pi = i;
-                    pj = j;
-                    pk = k;
+                    pi         = i;
+                    pj         = j;
+                    pk         = k;
                     parentGrid = grid;
                 }
                 else
                 {
                     size_t parentCellIdx = reservoirCells[cIdx].parentCellIndex();
-                    parentGrid = (static_cast<RigLocalGrid*>(grid))->parentGrid();
+                    parentGrid           = (static_cast<RigLocalGrid*>(grid))->parentGrid();
                     CVF_ASSERT(parentGrid != nullptr);
                     parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
                 }
 
                 gridNumber.push_back(static_cast<qint32>(grid->gridIndex()));
-                cellI.push_back(static_cast<qint32>(i + 1));        // NB: 1-based index in Octave
-                cellJ.push_back(static_cast<qint32>(j + 1));        // NB: 1-based index in Octave
-                cellK.push_back(static_cast<qint32>(k + 1));        // NB: 1-based index in Octave
+                cellI.push_back(static_cast<qint32>(i + 1)); // NB: 1-based index in Octave
+                cellJ.push_back(static_cast<qint32>(j + 1)); // NB: 1-based index in Octave
+                cellK.push_back(static_cast<qint32>(k + 1)); // NB: 1-based index in Octave
 
                 parentGridNumber.push_back(static_cast<qint32>(parentGrid->gridIndex()));
-                hostCellI.push_back(static_cast<qint32>(pi + 1));   // NB: 1-based index in Octave
-                hostCellJ.push_back(static_cast<qint32>(pj + 1));   // NB: 1-based index in Octave
-                hostCellK.push_back(static_cast<qint32>(pk + 1));   // NB: 1-based index in Octave
+                hostCellI.push_back(static_cast<qint32>(pi + 1)); // NB: 1-based index in Octave
+                hostCellJ.push_back(static_cast<qint32>(pj + 1)); // NB: 1-based index in Octave
+                hostCellK.push_back(static_cast<qint32>(pk + 1)); // NB: 1-based index in Octave
 
                 size_t coarseningIdx = reservoirCells[cIdx].coarseningBoxIndex();
                 if (coarseningIdx != cvf::UNDEFINED_SIZE_T)
@@ -259,18 +269,21 @@ public:
     }
 };
 
-static bool RiaGetActiveCellInfo_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellInfo>(RiaGetActiveCellInfo::commandName());
-
+static bool RiaGetActiveCellInfo_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellInfo>(RiaGetActiveCellInfo::commandName());
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class RiaGetCoarseningInfo : public RiaSocketCommand
 {
 public:
-    static QString commandName () { return QString("GetCoarseningInfo"); }
+    static QString commandName()
+    {
+        return QString("GetCoarseningInfo");
+    }
 
-    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
 
@@ -331,18 +344,21 @@ public:
     }
 };
 
-static bool RiaGetCoarseningInfo_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCoarseningInfo>(RiaGetCoarseningInfo::commandName());
-
+static bool RiaGetCoarseningInfo_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetCoarseningInfo>(RiaGetCoarseningInfo::commandName());
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class RiaGetGridDimensions : public RiaSocketCommand
 {
 public:
-    static QString commandName () { return QString("GetGridDimensions"); }
+    static QString commandName()
+    {
+        return QString("GetGridDimensions");
+    }
 
-    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
 
@@ -362,7 +378,6 @@ public:
         }
 
         // Write data back to octave: I, J, K dimensions
-
 
         if (rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid())
         {
@@ -390,17 +405,19 @@ public:
     }
 };
 
-static bool RiaGetGridDimensions_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridDimensions>(RiaGetGridDimensions::commandName());
-
-
+static bool RiaGetGridDimensions_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridDimensions>(RiaGetGridDimensions::commandName());
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class RiaGetTimeStepDates : public RiaSocketCommand
 {
 public:
-    static QString commandName () { return QString("GetTimeStepDates"); }
+    static QString commandName()
+    {
+        return QString("GetTimeStepDates");
+    }
     bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
@@ -423,7 +440,7 @@ public:
         if (rimCase && rimCase->eclipseCaseData())
         {
             rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&addrToMaxTimeStepCountResult);
-            if ( !addrToMaxTimeStepCountResult.isValid())
+            if (!addrToMaxTimeStepCountResult.isValid())
             {
                 canFetchData = false;
             }
@@ -433,7 +450,7 @@ public:
         if (!canFetchData)
         {
             quint64 timeStepCount = 0;
-            quint64 byteCount = sizeof(quint64);
+            quint64 byteCount     = sizeof(quint64);
 
             socketStream << byteCount;
             socketStream << timeStepCount;
@@ -441,10 +458,12 @@ public:
             return true;
         }
 
-        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->timeStepDates(RigEclipseResultAddress(addrToMaxTimeStepCountResult));
+        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()
+                                                   ->results(RiaDefines::MATRIX_MODEL)
+                                                   ->timeStepDates(RigEclipseResultAddress(addrToMaxTimeStepCountResult));
 
         quint64 timeStepCount = timeStepDates.size();
-        quint64 byteCount = sizeof(quint64) + 6 * timeStepCount * sizeof(qint32);
+        quint64 byteCount     = sizeof(quint64) + 6 * timeStepCount * sizeof(qint32);
 
         socketStream << byteCount;
         socketStream << timeStepCount;
@@ -474,20 +493,21 @@ public:
 
         return true;
     }
-
 };
 
-static bool RiaGetTimeStepDates_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetTimeStepDates>(RiaGetTimeStepDates::commandName());
-
-
+static bool RiaGetTimeStepDates_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetTimeStepDates>(RiaGetTimeStepDates::commandName());
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class RiaGetTimeStepDays : public RiaSocketCommand
 {
 public:
-    static QString commandName () { return QString("GetTimeStepDays"); }
+    static QString commandName()
+    {
+        return QString("GetTimeStepDays");
+    }
     bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
@@ -510,7 +530,7 @@ public:
         if (rimCase && rimCase->eclipseCaseData())
         {
             rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&addrToMaxTimeStepCountResult);
-            if (!addrToMaxTimeStepCountResult.isValid() )
+            if (!addrToMaxTimeStepCountResult.isValid())
             {
                 canFetchData = false;
             }
@@ -520,7 +540,7 @@ public:
         if (!canFetchData)
         {
             quint64 timeStepCount = 0;
-            quint64 byteCount = sizeof(quint64);
+            quint64 byteCount     = sizeof(quint64);
 
             socketStream << byteCount;
             socketStream << timeStepCount;
@@ -528,10 +548,11 @@ public:
             return true;
         }
 
-        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart(addrToMaxTimeStepCountResult);
+        std::vector<double> daysSinceSimulationStart =
+            rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart(addrToMaxTimeStepCountResult);
 
         quint64 timeStepCount = daysSinceSimulationStart.size();
-        quint64 byteCount = sizeof(quint64) + timeStepCount * sizeof(qint32);
+        quint64 byteCount     = sizeof(quint64) + timeStepCount * sizeof(qint32);
 
         socketStream << byteCount;
         socketStream << timeStepCount;
@@ -543,18 +564,21 @@ public:
 
         return true;
     }
-
 };
 
-static bool RiaGetTimeStepDays_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetTimeStepDays>(RiaGetTimeStepDays::commandName());
+static bool RiaGetTimeStepDays_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetTimeStepDays>(RiaGetTimeStepDays::commandName());
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RiaGetSelectedCells: public RiaSocketCommand
+class RiaGetSelectedCells : public RiaSocketCommand
 {
 public:
-    static QString commandName () { return QString("GetSelectedCells"); }
+    static QString commandName()
+    {
+        return QString("GetSelectedCells");
+    }
 
     bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
@@ -567,31 +591,28 @@ public:
         // Write data back to octave: column count, bytes per column, caseId, gridNumber, cellI, cellJ, cellK
 
         std::array<std::vector<qint32>, 5> selectedCellInfo;
-        getSelectedCells(rimCase,
-                         selectedCellInfo[0],
-                         selectedCellInfo[1],
-                         selectedCellInfo[2],
-                         selectedCellInfo[3],
-                         selectedCellInfo[4]);
+        getSelectedCells(
+            rimCase, selectedCellInfo[0], selectedCellInfo[1], selectedCellInfo[2], selectedCellInfo[3], selectedCellInfo[4]);
 
         // First write column count
         quint64 columnCount = 5;
         socketStream << columnCount;
 
         // then the byte-size of the size of one column
-        quint64 columnByteCount = (quint64)(selectedCellInfo[0].size()*sizeof(qint32));
+        quint64 columnByteCount = (quint64)(selectedCellInfo[0].size() * sizeof(qint32));
         socketStream << columnByteCount;
 
         // Write back table data
         for (size_t tIdx = 0; tIdx < columnCount; ++tIdx)
         {
-            RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)selectedCellInfo[tIdx].data(), columnByteCount);
+            RiaSocketTools::writeBlockData(
+                server, server->currentClient(), (const char*)selectedCellInfo[tIdx].data(), columnByteCount);
         }
 
         return true;
     }
 
-    static void getSelectedCells(const RimCase* reservoirCase,
+    static void getSelectedCells(const RimCase*       reservoirCase,
                                  std::vector<qint32>& caseNumber,
                                  std::vector<qint32>& gridNumber,
                                  std::vector<qint32>& cellI,
@@ -605,23 +626,29 @@ public:
         {
             size_t i, j, k;
             size_t gridIndex;
-            int caseId;
-            bool validIndex = true;
+            int    caseId;
+            bool   validIndex = true;
             if (item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
             {
                 const RiuEclipseSelectionItem* eclipseItem = static_cast<const RiuEclipseSelectionItem*>(item);
 
-                eclipseItem->m_view->eclipseCase()->eclipseCaseData()->grid(eclipseItem->m_gridIndex)->ijkFromCellIndex(eclipseItem->m_gridLocalCellIndex, &i, &j, &k);
+                eclipseItem->m_view->eclipseCase()
+                    ->eclipseCaseData()
+                    ->grid(eclipseItem->m_gridIndex)
+                    ->ijkFromCellIndex(eclipseItem->m_gridLocalCellIndex, &i, &j, &k);
                 gridIndex = eclipseItem->m_gridIndex;
-                caseId = eclipseItem->m_view->eclipseCase()->caseId;
+                caseId    = eclipseItem->m_view->eclipseCase()->caseId;
             }
             else if (item->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT)
             {
                 const RiuGeoMechSelectionItem* geomechItem = static_cast<const RiuGeoMechSelectionItem*>(item);
-                validIndex = geomechItem->m_view->femParts()->part(geomechItem->m_gridIndex)->getOrCreateStructGrid()->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
+                validIndex                                 = geomechItem->m_view->femParts()
+                                 ->part(geomechItem->m_gridIndex)
+                                 ->getOrCreateStructGrid()
+                                 ->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
                 CVF_ASSERT(validIndex);
                 gridIndex = geomechItem->m_gridIndex;
-                caseId = geomechItem->m_view->geoMechCase()->caseId;
+                caseId    = geomechItem->m_view->geoMechCase()->caseId;
             }
             else
             {
@@ -640,4 +667,5 @@ public:
     }
 };
 
-static bool RiaGetSelectedCells_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetSelectedCells>(RiaGetSelectedCells::commandName());
+static bool RiaGetSelectedCells_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetSelectedCells>(RiaGetSelectedCells::commandName());

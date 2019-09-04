@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,14 +20,14 @@
 
 #include "RiaStdStringTools.h"
 
-#include "RimFishbonesCollection.h"
 #include "RimFishboneWellPathCollection.h"
+#include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
-#include "RimWellPathFractureCollection.h"
-#include "RimWellPathFracture.h"
 #include "RimWellPathComponentInterface.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
 #include "RimWellPathValve.h"
 
 #include "cvfAssert.h"
@@ -43,58 +43,55 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal constants
 //--------------------------------------------------------------------------------------------------
-#define DOUBLE_INF  std::numeric_limits<double>::infinity()
+#define DOUBLE_INF std::numeric_limits<double>::infinity()
 
+namespace caf
+{
+template<>
+void RimWellPathCompletions::WellTypeEnum::setUp()
+{
+    addItem(RimWellPathCompletions::OIL, "OIL", "Oil");
+    addItem(RimWellPathCompletions::GAS, "GAS", "Gas");
+    addItem(RimWellPathCompletions::WATER, "WATER", "Water");
+    addItem(RimWellPathCompletions::LIQUID, "LIQUID", "Liquid");
 
-namespace caf {
+    setDefault(RimWellPathCompletions::OIL);
+}
 
-    template<>
-    void RimWellPathCompletions::WellTypeEnum::setUp()
-    {
-        addItem(RimWellPathCompletions::OIL, "OIL", "Oil");
-        addItem(RimWellPathCompletions::GAS, "GAS", "Gas");
-        addItem(RimWellPathCompletions::WATER, "WATER", "Water");
-        addItem(RimWellPathCompletions::LIQUID, "LIQUID", "Liquid");
+template<>
+void RimWellPathCompletions::GasInflowEnum::setUp()
+{
+    addItem(RimWellPathCompletions::STANDARD_EQ, "STD", "Standard");
+    addItem(RimWellPathCompletions::RUSSELL_GOODRICH, "R-G", "Russell-Goodrich");
+    addItem(RimWellPathCompletions::DRY_GAS_PSEUDO_PRESSURE, "P-P", "Dry Gas Pseudo-Pressure");
+    addItem(RimWellPathCompletions::GENERALIZED_PSEUDO_PRESSURE, "GPP", "Generalized Pseudo-Pressure");
 
-        setDefault(RimWellPathCompletions::OIL);
-    }
+    setDefault(RimWellPathCompletions::STANDARD_EQ);
+}
 
-    template<>
-    void RimWellPathCompletions::GasInflowEnum::setUp()
-    {
-        addItem(RimWellPathCompletions::STANDARD_EQ, "STD", "Standard");
-        addItem(RimWellPathCompletions::RUSSELL_GOODRICH, "R-G", "Russell-Goodrich");
-        addItem(RimWellPathCompletions::DRY_GAS_PSEUDO_PRESSURE, "P-P", "Dry Gas Pseudo-Pressure");
-        addItem(RimWellPathCompletions::GENERALIZED_PSEUDO_PRESSURE, "GPP", "Generalized Pseudo-Pressure");
+template<>
+void RimWellPathCompletions::AutomaticWellShutInEnum::setUp()
+{
+    addItem(RimWellPathCompletions::ISOLATE_FROM_FORMATION, "SHUT", "Isolate from Formation");
+    addItem(RimWellPathCompletions::STOP_ABOVE_FORMATION, "STOP", "Stop above Formation");
 
-        setDefault(RimWellPathCompletions::STANDARD_EQ);
-    }
+    setDefault(RimWellPathCompletions::STOP_ABOVE_FORMATION);
+}
 
-    template<>
-    void RimWellPathCompletions::AutomaticWellShutInEnum::setUp()
-    {
-        addItem(RimWellPathCompletions::ISOLATE_FROM_FORMATION, "SHUT", "Isolate from Formation");
-        addItem(RimWellPathCompletions::STOP_ABOVE_FORMATION, "STOP", "Stop above Formation");
+template<>
+void RimWellPathCompletions::HydrostaticDensityEnum::setUp()
+{
+    addItem(RimWellPathCompletions::SEGMENTED, "SEG", "Segmented");
+    addItem(RimWellPathCompletions::AVERAGED, "AVG", "Averaged");
 
-        setDefault(RimWellPathCompletions::STOP_ABOVE_FORMATION);
-    }
-
-    template<>
-    void RimWellPathCompletions::HydrostaticDensityEnum::setUp()
-    {
-        addItem(RimWellPathCompletions::SEGMENTED, "SEG", "Segmented");
-        addItem(RimWellPathCompletions::AVERAGED, "AVG", "Averaged");
-        
-        setDefault(RimWellPathCompletions::SEGMENTED);
-    }
-
-    }
-
+    setDefault(RimWellPathCompletions::SEGMENTED);
+}
+}
 
 CAF_PDM_SOURCE_INIT(RimWellPathCompletions, "WellPathCompletions");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPathCompletions::RimWellPathCompletions()
 {
@@ -128,7 +125,7 @@ RimWellPathCompletions::RimWellPathCompletions()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RimWellPathCompletions::fishbonesCollection() const
 {
@@ -138,7 +135,7 @@ RimFishbonesCollection* RimWellPathCompletions::fishbonesCollection() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimPerforationCollection* RimWellPathCompletions::perforationCollection() const
 {
@@ -148,16 +145,16 @@ RimPerforationCollection* RimWellPathCompletions::perforationCollection() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletions::setWellNameForExport(const QString& name)
 {
-    auto n = name;
+    auto n              = name;
     m_wellNameForExport = n.remove(' ');
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletions::updateWellPathNameHasChanged(const QString& newWellPathName, const QString& previousWellPathName)
 {
@@ -168,7 +165,7 @@ void RimWellPathCompletions::updateWellPathNameHasChanged(const QString& newWell
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletions::wellNameForExport() const
 {
@@ -176,7 +173,7 @@ QString RimWellPathCompletions::wellNameForExport() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletions::wellGroupNameForExport() const
 {
@@ -184,7 +181,7 @@ QString RimWellPathCompletions::wellGroupNameForExport() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletions::referenceDepthForExport() const
 {
@@ -197,22 +194,26 @@ QString RimWellPathCompletions::referenceDepthForExport() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletions::wellTypeNameForExport() const
 {
     switch (m_preferredFluidPhase.v())
     {
-    case OIL:       return "OIL";
-    case GAS:       return "GAS";
-    case WATER:     return "WATER";
-    case LIQUID:    return "LIQ";
+        case OIL:
+            return "OIL";
+        case GAS:
+            return "GAS";
+        case WATER:
+            return "WATER";
+        case LIQUID:
+            return "LIQ";
     }
     return "";
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() const
 {
@@ -261,7 +262,7 @@ std::vector<const RimWellPathComponentInterface*> RimWellPathCompletions::allCom
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathCompletions::hasCompletions() const
 {
@@ -271,8 +272,7 @@ bool RimWellPathCompletions::hasCompletions() const
     }
 
     return !fishbonesCollection()->allFishbonesSubs().empty() ||
-           !fishbonesCollection()->wellPathCollection()->wellPaths().empty() ||
-           !perforationCollection()->perforations().empty();
+           !fishbonesCollection()->wellPathCollection()->wellPaths().empty() || !perforationCollection()->perforations().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,7 +332,7 @@ QString RimWellPathCompletions::fluidInPlaceRegionForExport() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletions::setUnitSystemSpecificDefaults()
 {
@@ -349,7 +349,6 @@ QRegExp RimWellPathCompletions::wellNameForExportRegExp()
     QRegExp rx("[\\w\\-\\_]{1,8}");
     return rx;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -371,10 +370,10 @@ void RimWellPathCompletions::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletions::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
-{ 
+{
     uiTreeOrdering.skipRemainingChildren(true);
 
     if (!perforationCollection()->perforations().empty())
@@ -382,8 +381,7 @@ void RimWellPathCompletions::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
         uiTreeOrdering.add(&m_perforationCollection);
     }
 
-    if (!fishbonesCollection()->allFishbonesSubs().empty() ||
-        !fishbonesCollection()->wellPathCollection()->wellPaths().empty())
+    if (!fishbonesCollection()->allFishbonesSubs().empty() || !fishbonesCollection()->wellPathCollection()->wellPaths().empty())
     {
         uiTreeOrdering.add(&m_fishbonesCollection);
     }
@@ -395,9 +393,11 @@ void RimWellPathCompletions::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCompletions::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimWellPathCompletions::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                              const QVariant&            oldValue,
+                                              const QVariant&            newValue)
 {
     if (changedField == &m_referenceDepth)
     {
@@ -411,7 +411,7 @@ void RimWellPathCompletions::fieldChangedByUi(const caf::PdmFieldHandle* changed
             else
             {
                 // Wrong decimal sign entered, replace , by .
-                auto text = m_referenceDepth.v();
+                auto text        = m_referenceDepth.v();
                 m_referenceDepth = text.replace(',', '.');
             }
         }
@@ -435,12 +435,12 @@ void RimWellPathCompletions::defineEditorAttribute(const caf::PdmFieldHandle* fi
     else if (field == &m_drainageRadiusForPI && lineEditorAttr)
     {
         caf::PdmDoubleStringValidator* validator = new caf::PdmDoubleStringValidator("1*");
-        lineEditorAttr->validator = validator;
+        lineEditorAttr->validator                = validator;
     }
     else if (field == &m_wellBoreFluidPVTTable && lineEditorAttr)
     {
         // Positive integer
-        QIntValidator* validator = new QIntValidator(0, std::numeric_limits<int>::max(), nullptr);
+        QIntValidator* validator  = new QIntValidator(0, std::numeric_limits<int>::max(), nullptr);
         lineEditorAttr->validator = validator;
     }
     else if (field == &m_fluidInPlaceRegion && lineEditorAttr)
@@ -448,12 +448,11 @@ void RimWellPathCompletions::defineEditorAttribute(const caf::PdmFieldHandle* fi
         // Any integer
         QIntValidator* validator  = new QIntValidator(-std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), nullptr);
         lineEditorAttr->validator = validator;
-
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletions::formatStringForExport(const QString& text, const QString& defaultValue) const
 {

@@ -17,8 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RigGridCrossPlotCurveGrouping.h"
 #include "RigEclipseCrossPlotDataExtractor.h"
+#include "RigGridCrossPlotCurveGrouping.h"
 
 #include "RimCheckableNamedObject.h"
 #include "RimNameConfig.h"
@@ -31,7 +31,7 @@
 #include "cafPdmPtrField.h"
 
 // Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"    
+#include "cafPdmFieldCvfColor.h"
 
 #include <cvfArray.h>
 
@@ -105,14 +105,14 @@ public:
     QString groupParameter() const;
     void    detachAllCurves();
     void    cellFilterViewUpdated();
-    
+
     RimRegularLegendConfig* legendConfig() const;
 
-    std::vector< RimGridCrossPlotCurve*> curves() const;
+    std::vector<RimGridCrossPlotCurve*> curves() const;
 
-    QString              caseNameString() const;
-    QString              axisVariableString() const;
-    QString              timeStepString() const;
+    QString caseNameString() const;
+    QString axisVariableString() const;
+    QString timeStepString() const;
 
     std::map<NameComponents, QString> nameComponents() const;
 
@@ -133,15 +133,15 @@ public:
     void destroyCurves();
 
     size_t visibleCurveCount() const;
-    size_t sampleCount() const;    
+    size_t sampleCount() const;
 
 protected:
     void initAfterRead() override;
     void onLoadDataAndUpdate(bool updateParentPlot);
 
-    void assignCurveDataGroups(const RigEclipseCrossPlotResult& result);
-    void createCurves(const RigEclipseCrossPlotResult& result);
-    void fillCurveDataInExistingCurves(const RigEclipseCrossPlotResult& result);
+    void    assignCurveDataGroups(const RigEclipseCrossPlotResult& result);
+    void    createCurves(const RigEclipseCrossPlotResult& result);
+    void    fillCurveDataInExistingCurves(const RigEclipseCrossPlotResult& result);
     QString createGroupName(size_t curveIndex) const;
 
     std::map<int, cvf::UByteArray> calculateCellVisibility(RimEclipseCase* eclipseCase) const;
@@ -152,11 +152,13 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                         bool*                      useOptionsOnly) override;
-    void triggerPlotNameUpdateAndReplot();
-    void updateDataSetName();
-    void performAutoNameUpdate() override;
-    void setDefaults();
-    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                          triggerPlotNameUpdateAndReplot();
+    void                          updateDataSetName();
+    void                          performAutoNameUpdate() override;
+    void                          setDefaults();
+    void                          defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                        QString                    uiConfigName,
+                                                        caf::PdmUiEditorAttribute* attribute) override;
 
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
@@ -164,7 +166,6 @@ protected:
     void filterInvalidCurveValues(RigEclipseCrossPlotResult* result);
 
 private:
-   
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmPtrField<RimGridView*>                  m_cellFilterView;
@@ -177,10 +178,10 @@ private:
 
     caf::PdmChildArrayField<RimGridCrossPlotCurve*> m_crossPlotCurves;
 
-    std::map<int, RigEclipseCrossPlotResult>        m_groupedResults;
-    
-    caf::PdmField<bool>                             m_useCustomColor;
-    caf::PdmField<cvf::Color3f>                     m_customColor;
-    caf::PdmChildField<RimPlotCellFilterCollection*> m_plotCellFilterCollection;;
-    
+    std::map<int, RigEclipseCrossPlotResult> m_groupedResults;
+
+    caf::PdmField<bool>                              m_useCustomColor;
+    caf::PdmField<cvf::Color3f>                      m_customColor;
+    caf::PdmChildField<RimPlotCellFilterCollection*> m_plotCellFilterCollection;
+    ;
 };

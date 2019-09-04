@@ -19,14 +19,14 @@
 #include "RimWellLogRftCurveNameConfig.h"
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 
 CAF_PDM_SOURCE_INIT(RimWellLogRftCurveNameConfig, "RimWellLogRftCurveNameConfig");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellLogRftCurveNameConfig::RimWellLogRftCurveNameConfig(const RimNameConfigHolderInterface* configHolder)
     : RimNameConfig(configHolder)
@@ -34,4 +34,3 @@ RimWellLogRftCurveNameConfig::RimWellLogRftCurveNameConfig(const RimNameConfigHo
     CAF_PDM_InitObject("Well Log Rft Curve Name Generator", "", "", "");
     m_customName = "Rft Curve";
 }
-

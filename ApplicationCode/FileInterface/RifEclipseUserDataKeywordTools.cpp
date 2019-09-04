@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@
 #include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(const std::string& identifier)
 {
@@ -35,29 +35,39 @@ std::vector<size_t> RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeywo
     char firstLetter = identifier[0];
     switch (firstLetter)
     {
-        case 'B': return { 3 };     // Block triplet
-        case 'C': return { 1, 3 };  // Well Name and completion triplet
-        case 'G': return { 1 };     // Group
-        case 'R': return { 1 };     // Region number
-        case 'S': return { 1, 1 };  // Well name and segment number
-        case 'W': return { 1 };     // Well Name
+        case 'B':
+            return {3}; // Block triplet
+        case 'C':
+            return {1, 3}; // Well Name and completion triplet
+        case 'G':
+            return {1}; // Group
+        case 'R':
+            return {1}; // Region number
+        case 'S':
+            return {1, 1}; // Well name and segment number
+        case 'W':
+            return {1}; // Well Name
     }
 
     std::string firstTwoLetters = identifier.substr(0, 2);
 
-    if      (firstTwoLetters == "LB") return { 1, 3 };      // LGR name and block triplet
-    else if (firstTwoLetters == "LC") return { 1, 1, 3 };   // LGR name, well name and block triplet
-    else if (firstTwoLetters == "LW") return { 1, 1 };      // LGR name and well name
+    if (firstTwoLetters == "LB")
+        return {1, 3}; // LGR name and block triplet
+    else if (firstTwoLetters == "LC")
+        return {1, 1, 3}; // LGR name, well name and block triplet
+    else if (firstTwoLetters == "LW")
+        return {1, 1}; // LGR name and well name
 
-    return { };
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<std::string>> RifEclipseUserDataKeywordTools::buildColumnHeaderText(const std::vector<std::string>& quantityNames,
-                                                                                            const std::vector<std::vector<std::string>>& restOfHeaderRows,
-                                                                                            std::vector<std::string>* errorText)
+std::vector<std::vector<std::string>>
+    RifEclipseUserDataKeywordTools::buildColumnHeaderText(const std::vector<std::string>&              quantityNames,
+                                                          const std::vector<std::vector<std::string>>& restOfHeaderRows,
+                                                          std::vector<std::string>*                    errorText)
 {
     std::vector<std::vector<std::string>> tableHeaderText;
 
@@ -75,7 +85,7 @@ std::vector<std::vector<std::string>> RifEclipseUserDataKeywordTools::buildColum
         {
             std::string text = "Detected too few header lines";
             if (errorText) errorText->push_back(text);
-            
+
             return std::vector<std::vector<std::string>>();
         }
 
@@ -109,7 +119,7 @@ std::vector<std::vector<std::string>> RifEclipseUserDataKeywordTools::buildColum
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataKeywordTools::isTime(const std::string& identifier)
 {
@@ -117,7 +127,7 @@ bool RifEclipseUserDataKeywordTools::isTime(const std::string& identifier)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataKeywordTools::isDate(const std::string& identifier)
 {
@@ -125,7 +135,7 @@ bool RifEclipseUserDataKeywordTools::isDate(const std::string& identifier)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataKeywordTools::isDays(const std::string& identifier)
 {
@@ -133,7 +143,7 @@ bool RifEclipseUserDataKeywordTools::isDays(const std::string& identifier)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataKeywordTools::isYears(const std::string& identifier)
 {
@@ -141,7 +151,7 @@ bool RifEclipseUserDataKeywordTools::isYears(const std::string& identifier)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataKeywordTools::isYearX(const std::string& identifier)
 {
@@ -149,123 +159,124 @@ bool RifEclipseUserDataKeywordTools::isYearX(const std::string& identifier)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(const std::string quantityName, const std::vector<std::string>& columnHeaderText)
+RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(const std::string               quantityName,
+                                                                            const std::vector<std::string>& columnHeaderText)
 {
     RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::identifyCategory(quantityName);
-    
+
     if (category == RifEclipseSummaryAddress::SUMMARY_INVALID)
     {
         return RifEclipseSummaryAddress::importedAddress(quantityName);
     }
 
-    int         regionNumber = -1;
-    int         regionNumber2 = -1;
-    std::string wellGroupName = "";
-    std::string wellName = "";
+    int         regionNumber      = -1;
+    int         regionNumber2     = -1;
+    std::string wellGroupName     = "";
+    std::string wellName          = "";
     int         wellSegmentNumber = -1;
-    std::string lgrName = "";
-    int         cellI = -1;
-    int         cellJ = -1;
-    int         cellK = -1;
-    int         aquiferNumber = -1;
-    bool        isErrorResult = false;
+    std::string lgrName           = "";
+    int         cellI             = -1;
+    int         cellJ             = -1;
+    int         cellK             = -1;
+    int         aquiferNumber     = -1;
+    bool        isErrorResult     = false;
 
     switch (category)
     {
-    case RifEclipseSummaryAddress::SUMMARY_FIELD:
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
-    {
-        if (columnHeaderText.size() > 0)
+        case RifEclipseSummaryAddress::SUMMARY_FIELD:
+            break;
+        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
         {
-            aquiferNumber = RiaStdStringTools::toInt(columnHeaderText[0]);
+            if (columnHeaderText.size() > 0)
+            {
+                aquiferNumber = RiaStdStringTools::toInt(columnHeaderText[0]);
+            }
+            break;
         }
-        break;
-    }
-    case RifEclipseSummaryAddress::SUMMARY_NETWORK:
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_MISC:
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_REGION:
-    {
-        if (columnHeaderText.size() > 0)
+        case RifEclipseSummaryAddress::SUMMARY_NETWORK:
+            break;
+        case RifEclipseSummaryAddress::SUMMARY_MISC:
+            break;
+        case RifEclipseSummaryAddress::SUMMARY_REGION:
         {
-            regionNumber = RiaStdStringTools::toInt(columnHeaderText[0]);
+            if (columnHeaderText.size() > 0)
+            {
+                regionNumber = RiaStdStringTools::toInt(columnHeaderText[0]);
+            }
+            break;
         }
-        break;
-    }
-    case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
-    {
-        if (columnHeaderText.size() > 0)
+        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
+            break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
         {
-            wellGroupName = columnHeaderText[0];
+            if (columnHeaderText.size() > 0)
+            {
+                wellGroupName = columnHeaderText[0];
+            }
+            break;
         }
-        break;
-    }
-    case RifEclipseSummaryAddress::SUMMARY_WELL:
-    {
-        if (columnHeaderText.size() > 0)
+        case RifEclipseSummaryAddress::SUMMARY_WELL:
         {
-            wellName = columnHeaderText[0];
+            if (columnHeaderText.size() > 0)
+            {
+                wellName = columnHeaderText[0];
+            }
+            break;
         }
-        break;
-    }
-    case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
-    {
-        if (columnHeaderText.size() > 1)
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
         {
-            wellName = columnHeaderText[0];
+            if (columnHeaderText.size() > 1)
+            {
+                wellName = columnHeaderText[0];
 
-            RifEclipseUserDataKeywordTools::extractThreeInts(&cellI, &cellJ, &cellK, columnHeaderText[1]);
+                RifEclipseUserDataKeywordTools::extractThreeInts(&cellI, &cellJ, &cellK, columnHeaderText[1]);
+            }
+            break;
         }
         break;
-    }
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
-        if (columnHeaderText.size() > 1)
-        {
-            wellName = columnHeaderText[0];
-            lgrName  = columnHeaderText[1];
-        }
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
-        if (columnHeaderText.size() > 2)
-        {
-            wellName = columnHeaderText[0];
-            lgrName  = columnHeaderText[1];
+        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+            if (columnHeaderText.size() > 1)
+            {
+                wellName = columnHeaderText[0];
+                lgrName  = columnHeaderText[1];
+            }
+            break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
+            if (columnHeaderText.size() > 2)
+            {
+                wellName = columnHeaderText[0];
+                lgrName  = columnHeaderText[1];
 
-            RifEclipseUserDataKeywordTools::extractThreeInts(&cellI, &cellJ, &cellK, columnHeaderText[2]);
-        }
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
-        if (columnHeaderText.size() > 1)
-        {
-            wellName                                   = columnHeaderText[0];
-            wellSegmentNumber = RiaStdStringTools::toInt(columnHeaderText[1]);
-        }
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_BLOCK:
-        if (columnHeaderText.size() > 0)
-        {
-            RifEclipseUserDataKeywordTools::extractThreeInts(&cellI, &cellJ, &cellK, columnHeaderText[0]);
-        }
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
-        if (columnHeaderText.size() > 1)
-        {
-            lgrName = columnHeaderText[0];
+                RifEclipseUserDataKeywordTools::extractThreeInts(&cellI, &cellJ, &cellK, columnHeaderText[2]);
+            }
+            break;
+        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
+            if (columnHeaderText.size() > 1)
+            {
+                wellName          = columnHeaderText[0];
+                wellSegmentNumber = RiaStdStringTools::toInt(columnHeaderText[1]);
+            }
+            break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
+            if (columnHeaderText.size() > 0)
+            {
+                RifEclipseUserDataKeywordTools::extractThreeInts(&cellI, &cellJ, &cellK, columnHeaderText[0]);
+            }
+            break;
+        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
+            if (columnHeaderText.size() > 1)
+            {
+                lgrName = columnHeaderText[0];
 
-            RifEclipseUserDataKeywordTools::extractThreeInts(&cellI, &cellJ, &cellK, columnHeaderText[1]);
-        }
-        break;
-    case RifEclipseSummaryAddress::SUMMARY_CALCULATED:
-        break;
-    default:
-        break;
+                RifEclipseUserDataKeywordTools::extractThreeInts(&cellI, &cellJ, &cellK, columnHeaderText[1]);
+            }
+            break;
+        case RifEclipseSummaryAddress::SUMMARY_CALCULATED:
+            break;
+        default:
+            break;
     }
 
     return RifEclipseSummaryAddress(category,
@@ -281,11 +292,10 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
                                     cellK,
                                     aquiferNumber,
                                     isErrorResult);
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataKeywordTools::isStepType(const std::string& identifier)
 {
@@ -293,7 +303,7 @@ bool RifEclipseUserDataKeywordTools::isStepType(const std::string& identifier)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RifEclipseUserDataKeywordTools::computeRequiredHeaderLineCount(const std::vector<std::string>& words)
 {
@@ -315,29 +325,29 @@ size_t RifEclipseUserDataKeywordTools::computeRequiredHeaderLineCount(const std:
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataKeywordTools::knownKeywordsWithZeroRequiredHeaderLines(const std::string& identifier)
 {
     if (identifier.find("DAY") != std::string::npos) return true;
     if (identifier.find("MONTH") != std::string::npos) return true;
     if (identifier.find("YEAR") != std::string::npos) return true;
-    
+
     if (identifier.find("DATE") != std::string::npos) return true;
     if (identifier.find("TIME") != std::string::npos) return true;
-    
+
     if (identifier.find("ELAPSED") != std::string::npos) return true;
 
     if (identifier.find("NEWTON") != std::string::npos) return true;
-    
+
     if (identifier.find("NLINSMIN") != std::string::npos) return true;
     if (identifier.find("NLINSMAX") != std::string::npos) return true;
-    
+
     if (identifier.find("MLINEARS") != std::string::npos) return true;
-    
+
     if (identifier.find("MSUMLINS") != std::string::npos) return true;
     if (identifier.find("MSUMNEWT") != std::string::npos) return true;
-   
+
     if (identifier.find("TCPU") != std::string::npos) return true;
     if (identifier.find("TCPUTS") != std::string::npos) return true;
     if (identifier.find("TCPUDAY") != std::string::npos) return true;
@@ -349,7 +359,7 @@ bool RifEclipseUserDataKeywordTools::knownKeywordsWithZeroRequiredHeaderLines(co
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifEclipseUserDataKeywordTools::extractThreeInts(int* cellI, int* cellJ, int* cellK, const std::string& line)
 {
@@ -361,4 +371,3 @@ void RifEclipseUserDataKeywordTools::extractThreeInts(int* cellI, int* cellJ, in
         *cellK = RiaStdStringTools::toInt(words[2]);
     }
 }
-

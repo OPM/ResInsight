@@ -18,9 +18,9 @@
 
 #include "RicSummaryCurveCreator.h"
 
-#include "RiaGuiApplication.h"
 #include "RiaColorTables.h"
 #include "RiaCurveSetDefinition.h"
+#include "RiaGuiApplication.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RicSelectSummaryPlotUI.h"
@@ -33,8 +33,8 @@
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimMainPlotCollection.h"
-#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
+#include "RimObservedSummaryData.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCalculationCollection.h"
@@ -526,7 +526,6 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
     m_previewPlot->updateConnectedEditors();
     m_previewPlot->summaryCurveCollection()->updateConnectedEditors();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -41,7 +41,6 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
     const cvf::Vec3d up(0, 0, 1);
     const cvf::Vec3d rotatedUp = up.getTransformedVector(cvf::Mat3d::fromRotation(cvf::Vec3d(0.0, 1.0, 0.0), planeAngle));
 
-
     const cvf::Vec3d dominantDirection = estimateDominantDirectionInXYPlane(vertices);
 
     const cvf::Vec3d projectionPlaneNormal = (up ^ dominantDirection).getNormalized();
@@ -64,17 +63,16 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
         pointNormals.push_back(normal);
         sumDotWithRotatedUp += normal * rotatedUp;
     }
-    
+
     pointNormals.push_back(pointNormals.back());
 
     if (sumDotWithRotatedUp < 0.0)
     {
         for (cvf::Vec3d& normal : pointNormals)
         {
-            normal *= -1.0;            
+            normal *= -1.0;
         }
     }
-
 
     return interpolateUndefinedNormals(up, pointNormals, vertices);
 }
@@ -83,7 +81,9 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
 /// Lets you estimate MD values from an existing md/tvd relationship and a new set of TVD-values
 /// Requires the points to be ordered from the start/top of the well path to the end/bottom.
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd(const std::vector<double>& originalMdValues, const std::vector<double>& originalTvdValues, const std::vector<double>& tvdValuesToInterpolateFrom)
+std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd(const std::vector<double>& originalMdValues,
+                                                                   const std::vector<double>& originalTvdValues,
+                                                                   const std::vector<double>& tvdValuesToInterpolateFrom)
 {
     CVF_ASSERT(!originalMdValues.empty());
     if (originalMdValues.size() < 2u)
@@ -100,16 +100,16 @@ std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd(const std::ve
     for (size_t i = 0; i < segmentStartIndices.size(); ++i)
     {
         double currentTVDValue = tvdValuesToInterpolateFrom[i];
-        double startMD = spline.points().front().x();
-        double endMD = spline.points().back().y();
+        double startMD         = spline.points().front().x();
+        double endMD           = spline.points().back().y();
         if (segmentStartIndices[i] != -1)
         {
             int startIndex = segmentStartIndices[i];
-            int endIndex = startIndex + 1;
+            int endIndex   = startIndex + 1;
 
             // Search interval for best MD value
             startMD = spline.points()[startIndex].x();
-            endMD = spline.points().back().y();
+            endMD   = spline.points().back().y();
 
             if (endIndex < spline.points().size())
             {
@@ -134,7 +134,9 @@ std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd(const std::ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RigWellPathGeometryTools::findSplineSegmentsContainingRoots(const QwtSpline& spline, const std::vector<double>& tvdValuesToInterpolateFrom)
+std::vector<int>
+    RigWellPathGeometryTools::findSplineSegmentsContainingRoots(const QwtSpline&           spline,
+                                                                const std::vector<double>& tvdValuesToInterpolateFrom)
 {
     std::vector<int> segmentStartIndices;
     segmentStartIndices.reserve(tvdValuesToInterpolateFrom.size());
@@ -143,7 +145,7 @@ std::vector<int> RigWellPathGeometryTools::findSplineSegmentsContainingRoots(con
     for (double tvdValue : tvdValuesToInterpolateFrom)
     {
         int currentSplineStartIndex = lastSplineStartIndex;
-       
+
         bool foundMatch = false;
         // Increment current_it until we find an interval containing our TVD
         while (currentSplineStartIndex < spline.points().size() - 2)
@@ -186,7 +188,7 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(co
     std::vector<cvf::Vec3d> interpolated(normals);
     cvf::Vec3d              lastNormalNonInterpolated(0, 0, 0);
     cvf::Vec3d              lastNormalAny(0, 0, 0);
-    double distanceFromLast = 0.0;
+    double                  distanceFromLast = 0.0;
 
     for (size_t i = 0; i < normals.size(); ++i)
     {
@@ -200,7 +202,7 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(co
         if (currentNormal.length() == 0.0) // Undefined. Need to estimate from neighbors.
         {
             currentInterpolated = true;
-            currentNormal = planeNormal; // By default use the plane normal
+            currentNormal       = planeNormal; // By default use the plane normal
 
             cvf::Vec3d nextNormal(0, 0, 0);
             double     distanceToNext = 0.0;
@@ -231,9 +233,9 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(co
         if (!currentInterpolated)
         {
             lastNormalNonInterpolated = currentNormal;
-            distanceFromLast = 0.0; // Reset distance
+            distanceFromLast          = 0.0; // Reset distance
         }
-        lastNormalAny = currentNormal;
+        lastNormalAny   = currentNormal;
         interpolated[i] = currentNormal;
     }
     return interpolated;
@@ -252,7 +254,7 @@ cvf::Vec3d RigWellPathGeometryTools::estimateDominantDirectionInXYPlane(const st
         }
         directionSum += vec;
     }
-    
+
     if (directionSum.length() < 1.0e-8)
     {
         directionSum = cvf::Vec3d(0, -1, 0);
@@ -284,23 +286,23 @@ double RigWellPathGeometryTools::solveForX(const QwtSpline& spline, double minX,
         {
             break;
         }
-        
+
         if (std::fabs(fc) < std::fabs(fd))
         {
-            b = d;
+            b  = d;
             fb = fd;
-            d = c;
+            d  = c;
             fd = fc;
-            c = b - (b - a) / phi;
+            c  = b - (b - a) / phi;
             fc = spline.value(c) - y;
         }
         else
         {
-            a = c;
+            a  = c;
             fa = fc;
-            c = d;
+            c  = d;
             fc = fd;
-            d = a + (b - a) / phi;
+            d  = a + (b - a) / phi;
             fd = spline.value(d) - y;
         }
     }
@@ -310,7 +312,8 @@ double RigWellPathGeometryTools::solveForX(const QwtSpline& spline, double minX,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtSpline RigWellPathGeometryTools::createSpline(const std::vector<double>& originalMdValues, const std::vector<double>& originalTvdValues)
+QwtSpline RigWellPathGeometryTools::createSpline(const std::vector<double>& originalMdValues,
+                                                 const std::vector<double>& originalTvdValues)
 {
     QPolygonF polygon;
     for (size_t i = 0; i < originalMdValues.size(); ++i)
@@ -318,7 +321,7 @@ QwtSpline RigWellPathGeometryTools::createSpline(const std::vector<double>& orig
         polygon << QPointF(originalMdValues[i], originalTvdValues[i]);
     }
     QwtSplineCurveFitter curveFitter;
-    QPolygonF splinePoints = curveFitter.fitCurve(polygon);
+    QPolygonF            splinePoints = curveFitter.fitCurve(polygon);
 
     // Extend spline from 0.0 to a large value for MD
     // This is to force a specific and known extrapolation.
@@ -328,21 +331,21 @@ QwtSpline RigWellPathGeometryTools::createSpline(const std::vector<double>& orig
         double x2 = splinePoints[1].x();
         double y1 = splinePoints[0].y();
         double y2 = splinePoints[1].y();
-        double M = (y2 - y1) / (x2 - x1);
+        double M  = (y2 - y1) / (x2 - x1);
 
         QPointF startPoint(0.0f, M * (0.0f - x1) + y1);
         splinePoints.push_front(startPoint);
     }
     {
-        int N = splinePoints.size() - 1;
-        double x1 = splinePoints[N - 1].x();
-        double x2 = splinePoints[N].x();
-        double y1 = splinePoints[N - 1].y();
-        double y2 = splinePoints[N].y();
-        double M = (y2 - y1) / (x2 - x1);
+        int    N    = splinePoints.size() - 1;
+        double x1   = splinePoints[N - 1].x();
+        double x2   = splinePoints[N].x();
+        double y1   = splinePoints[N - 1].y();
+        double y2   = splinePoints[N].y();
+        double M    = (y2 - y1) / (x2 - x1);
         double endX = 2.0 * splinePoints[N].x();
 
-        QPointF endPoint(endX, M  * (endX - x1) + y1);
+        QPointF endPoint(endX, M * (endX - x1) + y1);
         splinePoints.push_back(endPoint);
     }
 

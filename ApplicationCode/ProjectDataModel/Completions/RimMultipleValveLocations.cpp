@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018- Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -32,15 +32,16 @@
 
 CAF_PDM_SOURCE_INIT(RimMultipleValveLocations, "RimMultipleValveLocations");
 
-namespace caf {
-    template<>
-    void AppEnum<RimMultipleValveLocations::LocationType>::setUp()
-    {
-        addItem(RimMultipleValveLocations::VALVE_COUNT, "VALVE_COUNT", "Start/End/Number");
-        addItem(RimMultipleValveLocations::VALVE_SPACING, "VALVE_SPACING", "Start/End/Spacing");
-        addItem(RimMultipleValveLocations::VALVE_CUSTOM, "VALVE_CUSTOM", "User Specification");
-        setDefault(RimMultipleValveLocations::VALVE_COUNT);
-    }
+namespace caf
+{
+template<>
+void AppEnum<RimMultipleValveLocations::LocationType>::setUp()
+{
+    addItem(RimMultipleValveLocations::VALVE_COUNT, "VALVE_COUNT", "Start/End/Number");
+    addItem(RimMultipleValveLocations::VALVE_SPACING, "VALVE_SPACING", "Start/End/Spacing");
+    addItem(RimMultipleValveLocations::VALVE_CUSTOM, "VALVE_CUSTOM", "User Specification");
+    setDefault(RimMultipleValveLocations::VALVE_COUNT);
+}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,8 +51,8 @@ RimMultipleValveLocations::RimMultipleValveLocations()
 {
     CAF_PDM_InitObject("RimMultipleValveLocations", ":/FishBoneGroup16x16.png", "", "");
 
-
-    CAF_PDM_InitField(&m_locationType, "LocationMode", caf::AppEnum<LocationType>(VALVE_COUNT), "Location Defined By", "", "", "");
+    CAF_PDM_InitField(
+        &m_locationType, "LocationMode", caf::AppEnum<LocationType>(VALVE_COUNT), "Location Defined By", "", "", "");
     CAF_PDM_InitField(&m_rangeStart, "RangeStart", 100.0, "Start MD [m]", "", "", "");
     m_rangeStart.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
 
@@ -73,9 +74,9 @@ RimMultipleValveLocations::RimMultipleValveLocations()
 void RimMultipleValveLocations::perforationIntervalUpdated()
 {
     double existingRangeStart = m_rangeStart();
-    double existingRangeEnd = m_rangeEnd();
-    m_rangeStart = cvf::Math::clamp(m_rangeStart(), perforationStartMD(), perforationEndMD());
-    m_rangeEnd   = cvf::Math::clamp(m_rangeEnd(), perforationStartMD(), perforationEndMD());
+    double existingRangeEnd   = m_rangeEnd();
+    m_rangeStart              = cvf::Math::clamp(m_rangeStart(), perforationStartMD(), perforationEndMD());
+    m_rangeEnd                = cvf::Math::clamp(m_rangeEnd(), perforationStartMD(), perforationEndMD());
     if (existingRangeStart != m_rangeStart() || existingRangeEnd != m_rangeEnd())
     {
         computeRangesAndLocations();
@@ -138,7 +139,7 @@ void RimMultipleValveLocations::computeRangesAndLocations()
         if (m_rangeValveSpacing < minimumSpacingMeters())
         {
             m_rangeValveSpacing = minimumSpacingMeters();
-            m_rangeValveCount = rangeCountFromSpacing();
+            m_rangeValveCount   = rangeCountFromSpacing();
         }
     }
     else if (m_locationType == VALVE_SPACING)
@@ -157,7 +158,7 @@ void RimMultipleValveLocations::computeRangesAndLocations()
             if (rigWellPathGeo && rigWellPathGeo->m_measuredDepths.size() > 1)
             {
                 double firstWellPathMD = rigWellPathGeo->m_measuredDepths.front();
-                double lastWellPathMD = rigWellPathGeo->m_measuredDepths.back();
+                double lastWellPathMD  = rigWellPathGeo->m_measuredDepths.back();
 
                 double overlapStart = std::max(firstWellPathMD, m_rangeStart());
                 double overlapEnd   = std::min(lastWellPathMD, m_rangeEnd());
@@ -175,13 +176,17 @@ void RimMultipleValveLocations::computeRangesAndLocations()
 
         m_locationOfValves = validMeasuredDepths;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultipleValveLocations::initFields(LocationType locationType, double rangeStart, double rangeEnd, double valveSpacing, int valveCount, const std::vector<double>& locationOfValves)
+void RimMultipleValveLocations::initFields(LocationType               locationType,
+                                           double                     rangeStart,
+                                           double                     rangeEnd,
+                                           double                     valveSpacing,
+                                           int                        valveCount,
+                                           const std::vector<double>& locationOfValves)
 {
     if (locationType != VALVE_UNDEFINED)
     {
@@ -191,13 +196,13 @@ void RimMultipleValveLocations::initFields(LocationType locationType, double ran
     {
         m_rangeStart = rangeStart;
     }
-    if (rangeEnd!= std::numeric_limits<double>::infinity())
+    if (rangeEnd != std::numeric_limits<double>::infinity())
     {
         m_rangeEnd = rangeEnd;
     }
     if (valveSpacing != std::numeric_limits<double>::infinity())
     {
-        m_rangeValveSpacing = valveSpacing;      
+        m_rangeValveSpacing = valveSpacing;
     }
     if (valveCount != -1)
     {
@@ -292,7 +297,9 @@ void RimMultipleValveLocations::defineUiOrdering(QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultipleValveLocations::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimMultipleValveLocations::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                 const QVariant&            oldValue,
+                                                 const QVariant&            newValue)
 {
     bool recomputeLocations = false;
 
@@ -304,14 +311,12 @@ void RimMultipleValveLocations::fieldChangedByUi(const caf::PdmFieldHandle* chan
         }
     }
 
-    if (changedField == &m_rangeStart ||
-        changedField == &m_rangeEnd ||
-        changedField == &m_rangeValveCount ||
+    if (changedField == &m_rangeStart || changedField == &m_rangeEnd || changedField == &m_rangeValveCount ||
         changedField == &m_rangeValveSpacing)
     {
         recomputeLocations = true;
-        m_rangeStart = cvf::Math::clamp(m_rangeStart(), perforationStartMD(), perforationEndMD());
-        m_rangeEnd   = cvf::Math::clamp(m_rangeEnd(),   perforationStartMD(), perforationEndMD());
+        m_rangeStart       = cvf::Math::clamp(m_rangeStart(), perforationStartMD(), perforationEndMD());
+        m_rangeEnd         = cvf::Math::clamp(m_rangeEnd(), perforationStartMD(), perforationEndMD());
     }
 
     if (changedField == &m_rangeValveSpacing)
@@ -323,11 +328,13 @@ void RimMultipleValveLocations::fieldChangedByUi(const caf::PdmFieldHandle* chan
         if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
         {
             double minimumDistanceFeet = RiaEclipseUnitTools::meterToFeet(minimumDistanceMeter);
-            m_rangeValveSpacing = cvf::Math::clamp(m_rangeValveSpacing(), minimumDistanceFeet, std::max(m_rangeValveSpacing(), minimumDistanceFeet));
+            m_rangeValveSpacing        = cvf::Math::clamp(
+                m_rangeValveSpacing(), minimumDistanceFeet, std::max(m_rangeValveSpacing(), minimumDistanceFeet));
         }
         else
         {
-            m_rangeValveSpacing = cvf::Math::clamp(m_rangeValveSpacing(), minimumDistanceMeter, std::max(m_rangeValveSpacing(), minimumDistanceMeter));
+            m_rangeValveSpacing = cvf::Math::clamp(
+                m_rangeValveSpacing(), minimumDistanceMeter, std::max(m_rangeValveSpacing(), minimumDistanceMeter));
         }
     }
 
@@ -354,10 +361,9 @@ void RimMultipleValveLocations::fieldChangedByUi(const caf::PdmFieldHandle* chan
             {
                 valve->multipleValveGeometryUpdated();
             }
-            
         }
     }
-    
+
     if (pdmParent)
     {
         pdmParent->updateConnectedEditors();
@@ -427,7 +433,6 @@ double RimMultipleValveLocations::perforationEndMD() const
     }
     return std::numeric_limits<double>::infinity();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///

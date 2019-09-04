@@ -20,7 +20,6 @@
 
 #include "RigCompletionData.h"
 
-
 #include "cvfObject.h"
 
 #include <map>

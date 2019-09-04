@@ -49,11 +49,11 @@ void RicNewValveAtMeasuredDepthFeature::onActionTriggered(bool isChecked)
 
     if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
 
-    RimPerforationInterval* perfInterval = dynamic_cast<RimPerforationInterval*>(wellPathSelItem->m_wellPathComponent);
-    double                  measuredDepth       = wellPathSelItem->m_measuredDepth;
+    RimPerforationInterval* perfInterval  = dynamic_cast<RimPerforationInterval*>(wellPathSelItem->m_wellPathComponent);
+    double                  measuredDepth = wellPathSelItem->m_measuredDepth;
 
     RimWellPathValve* valve = new RimWellPathValve;
-    
+
     std::vector<RimWellPathValve*> existingValves = perfInterval->valves();
     valve->setName(QString("Valve #%1").arg(existingValves.size() + 1));
 
@@ -89,7 +89,7 @@ void RicNewValveAtMeasuredDepthFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewValveAtMeasuredDepthFeature::isCommandEnabled() 
+bool RicNewValveAtMeasuredDepthFeature::isCommandEnabled()
 {
     if (wellPathSelectionItem() && dynamic_cast<RimPerforationInterval*>(wellPathSelectionItem()->m_wellPathComponent))
     {
@@ -111,4 +111,3 @@ RiuWellPathSelectionItem* RicNewValveAtMeasuredDepthFeature::wellPathSelectionIt
 
     return wellPathItem;
 }
-

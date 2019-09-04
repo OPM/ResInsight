@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,22 +22,25 @@
 #include "cafPdmUiPropertyView.h"
 
 #include <QBoxLayout>
+#include <QDebug>
 #include <QDialogButtonBox>
 #include <QStringList>
 #include <QTabWidget>
 #include <QWidget>
-#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RiuPropertyViewTabWidget::RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObject* object, const QString& windowTitle, const QStringList& uiConfigNameForTabs)
+RiuPropertyViewTabWidget::RiuPropertyViewTabWidget(QWidget*           parent,
+                                                   caf::PdmObject*    object,
+                                                   const QString&     windowTitle,
+                                                   const QStringList& uiConfigNameForTabs)
     : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     setWindowTitle(windowTitle);
 
     QTabWidget* tabWidget = new QTabWidget;
-    
+
     for (int i = 0; i < uiConfigNameForTabs.size(); i++)
     {
         QHBoxLayout* widgetLayout = new QHBoxLayout;
@@ -68,11 +71,10 @@ RiuPropertyViewTabWidget::RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObje
     connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
     dialogLayout->addWidget(m_dialogButtonBox);
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiuPropertyViewTabWidget::~RiuPropertyViewTabWidget()
 {
@@ -98,11 +100,10 @@ QSize RiuPropertyViewTabWidget::minimumSizeHint() const
     }
 
     return maxSizeHint;
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QSize RiuPropertyViewTabWidget::sizeHint() const
 {
@@ -110,7 +111,7 @@ QSize RiuPropertyViewTabWidget::sizeHint() const
 
     for (auto w : m_pageWidgets)
     {
-        //qDebug() << "tab size hint" << w->sizeHint();
+        // qDebug() << "tab size hint" << w->sizeHint();
 
         QSize pageSize = w->sizeHint();
         pageSize += QSize(0, 100);

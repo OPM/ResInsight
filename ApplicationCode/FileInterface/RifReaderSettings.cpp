@@ -2,31 +2,29 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 
 #include "RifReaderSettings.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
 
-
 CAF_PDM_SOURCE_INIT(RifReaderSettings, "RifReaderSettings");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifReaderSettings::RifReaderSettings()
 {
@@ -41,9 +39,14 @@ RifReaderSettings::RifReaderSettings()
     CAF_PDM_InitField(&importAdvancedMswData, "importAdvancedMswData", false, "Import Advanced MSW Data", "", "", "");
     importAdvancedMswData.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&useResultIndexFile, "useResultIndexFile", false, "Use Result Index File", "",
+    CAF_PDM_InitField(&useResultIndexFile,
+                      "useResultIndexFile",
+                      false,
+                      "Use Result Index File",
+                      "",
                       "After import of a result file, store index data in an index file in the same folder as the result file.\n"
-                      "Import of result data if a result index file is present, will reduce file parsing significantly.", "");
+                      "Import of result data if a result index file is present, will reduce file parsing significantly.",
+                      "");
 
     useResultIndexFile.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
@@ -61,14 +64,13 @@ RifReaderSettings::RifReaderSettings()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RifReaderSettings::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RifReaderSettings::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                              QString                    uiConfigName,
+                                              caf::PdmUiEditorAttribute* attribute)
 {
-    if (field == &importFaults ||
-        field == &importAdvancedMswData ||
-        field == &importNNCs ||
-        field == &useResultIndexFile ||
+    if (field == &importFaults || field == &importAdvancedMswData || field == &importNNCs || field == &useResultIndexFile ||
         field == &skipWellData)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
@@ -80,7 +82,7 @@ void RifReaderSettings::defineEditorAttribute(const caf::PdmFieldHandle* field, 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifReaderSettings::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {

@@ -1,32 +1,32 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicGeoMechPropertyFilterNewInViewFeature.h"
 
-#include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterFeatureImpl.h"
+#include "RicGeoMechPropertyFilterNewExec.h"
 
 #include "RiaApplication.h"
 
+#include "Rim3dView.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
-#include "Rim3dView.h"
 
 #include "cafCmdExecCommandManager.h"
 
@@ -35,13 +35,13 @@
 CAF_CMD_SOURCE_INIT(RicGeoMechPropertyFilterNewInViewFeature, "RicGeoMechPropertyFilterNewInViewFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicGeoMechPropertyFilterNewInViewFeature::isCommandEnabled()
 {
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (!view) return false;
-    
+
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
     if (!geoMechView) return false;
 
@@ -58,7 +58,7 @@ bool RicGeoMechPropertyFilterNewInViewFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGeoMechPropertyFilterNewInViewFeature::onActionTriggered(bool isChecked)
 {
@@ -72,7 +72,7 @@ void RicGeoMechPropertyFilterNewInViewFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicGeoMechPropertyFilterNewInViewFeature::setupActionLook(QAction* actionToSetup)
 {

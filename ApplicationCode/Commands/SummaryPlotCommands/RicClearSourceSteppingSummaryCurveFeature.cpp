@@ -27,8 +27,8 @@
 
 #include "cafSelectionManager.h"
 
-#include <QAction>
 #include "RimEnsembleCurveSetCollection.h"
+#include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicClearSourceSteppingSummaryCurveFeature, "RicClearSourceSteppingSummaryCurveFeature");
 
@@ -48,8 +48,8 @@ bool RicClearSourceSteppingSummaryCurveFeature::isCommandEnabled()
         c->firstAncestorOrThisOfTypeAsserted(summaryPlot);
         if (summaryPlot)
         {
-            if (summaryPlot->ensembleCurveSetCollection()->curveSetForSourceStepping()
-                || summaryPlot->summaryCurveCollection()->curveForSourceStepping())
+            if (summaryPlot->ensembleCurveSetCollection()->curveSetForSourceStepping() ||
+                summaryPlot->summaryCurveCollection()->curveForSourceStepping())
             {
                 return true;
             }

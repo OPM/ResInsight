@@ -20,15 +20,15 @@
 
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
-#include "RimEclipseContourMapView.h"
-#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseContourMapView.h"
+#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
-#include "RimGeoMechContourMapView.h"
-#include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechContourMapView.h"
+#include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechView.h"
 
 #include "RimFaultInViewCollection.h"
@@ -52,10 +52,12 @@ CAF_CMD_SOURCE_INIT(RicNewContourMapViewFeature, "RicNewContourMapViewFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicNewContourMapViewFeature::isCommandEnabled()
 {
-    bool selectedView          = caf::SelectionManager::instance()->selectedItemOfType<RimGridView>() != nullptr;
-    bool selectedCase          = caf::SelectionManager::instance()->selectedItemOfType<RimCase>() != nullptr;
-    bool selectedEclipseContourMapCollection = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapViewCollection>();
-    bool selectedGeoMechContourMapCollection = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapViewCollection>();
+    bool selectedView = caf::SelectionManager::instance()->selectedItemOfType<RimGridView>() != nullptr;
+    bool selectedCase = caf::SelectionManager::instance()->selectedItemOfType<RimCase>() != nullptr;
+    bool selectedEclipseContourMapCollection =
+        caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapViewCollection>();
+    bool selectedGeoMechContourMapCollection =
+        caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapViewCollection>();
     return selectedView || selectedCase || selectedEclipseContourMapCollection || selectedGeoMechContourMapCollection;
 }
 
@@ -138,10 +140,10 @@ void RicNewContourMapViewFeature::onActionTriggered(bool isChecked)
 void RicNewContourMapViewFeature::setupActionLook(QAction* actionToSetup)
 {
     bool contourMapSelected = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>() != nullptr ||
-        caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapView>() != nullptr;
+                              caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapView>() != nullptr;
 
     bool viewSelected = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>() != nullptr ||
-        caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>() != nullptr;
+                        caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>() != nullptr;
 
     if (contourMapSelected)
     {
@@ -161,8 +163,9 @@ void RicNewContourMapViewFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFromExistingContourMap(RimEclipseCase*    eclipseCase,
-                                                                                         RimEclipseContourMapView* existingContourMap)
+RimEclipseContourMapView*
+    RicNewContourMapViewFeature::createEclipseContourMapFromExistingContourMap(RimEclipseCase*           eclipseCase,
+                                                                               RimEclipseContourMapView* existingContourMap)
 {
     RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>(
         existingContourMap->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
@@ -188,10 +191,12 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFrom3dView(RimEclipseCase*       eclipseCase,
-                                                                             const RimEclipseView* sourceView)
+                                                                                         const RimEclipseView* sourceView)
 {
-    RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>(sourceView->xmlCapability()->copyAndCastByXmlSerialization(
-        RimEclipseContourMapView::classKeywordStatic(), sourceView->classKeyword(), caf::PdmDefaultObjectFactory::instance()));
+    RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>(
+        sourceView->xmlCapability()->copyAndCastByXmlSerialization(RimEclipseContourMapView::classKeywordStatic(),
+                                                                   sourceView->classKeyword(),
+                                                                   caf::PdmDefaultObjectFactory::instance()));
     CVF_ASSERT(contourMap);
 
     contourMap->setEclipseCase(eclipseCase);

@@ -662,7 +662,8 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart(const RimE
 
     RimEclipseCase* eclipseCase = nullptr;
     activeView.firstAncestorOrThisOfType(eclipseCase);
-    auto reservoirCellIndicesOpenForFlow = RimFractureContainmentTools::reservoirCellIndicesOpenForFlow(eclipseCase, m_rimFracture);
+    auto reservoirCellIndicesOpenForFlow =
+        RimFractureContainmentTools::reservoirCellIndicesOpenForFlow(eclipseCase, m_rimFracture);
 
     for (size_t resCellIdx : cellCandidates)
     {
@@ -960,8 +961,10 @@ void RivWellFracturePartMgr::appendFracturePerforationLengthParts(const RimEclip
         cvf::Collection<cvf::Part>    parts;
 
         RivPipeGeometryGenerator geoGenerator;
-        geoGenerator.cylinderWithCenterLineParts(
-            &parts, displayCoords, RiaColorTables::wellPathComponentColors()[RiaDefines::PERFORATION_INTERVAL], perforationRadius);
+        geoGenerator.cylinderWithCenterLineParts(&parts,
+                                                 displayCoords,
+                                                 RiaColorTables::wellPathComponentColors()[RiaDefines::PERFORATION_INTERVAL],
+                                                 perforationRadius);
 
         for (auto part : parts)
         {

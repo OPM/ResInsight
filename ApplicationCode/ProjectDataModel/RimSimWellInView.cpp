@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,16 +27,16 @@
 #include "RigSimWellData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 
+#include "Rim2dIntersectionView.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimPropertyFilterCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimIntersection.h"
-#include "Rim2dIntersectionView.h"
 
 #include "RiuMainWindow.h"
 
@@ -45,37 +45,35 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfMath.h"
 
-
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionView* corresponding2dIntersectionView(RimSimWellInView *simWellInView);
-
+Rim2dIntersectionView* corresponding2dIntersectionView(RimSimWellInView* simWellInView);
 
 CAF_PDM_SOURCE_INIT(RimSimWellInView, "Well");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView::RimSimWellInView()
 {
     CAF_PDM_InitObject("Well", ":/Well.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&name,           "WellName", "Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&name, "WellName", "Name", "", "", "");
 
-    CAF_PDM_InitField(&showWell,                "ShowWell",             true,   "Show well ", "", "", "");
+    CAF_PDM_InitField(&showWell, "ShowWell", true, "Show well ", "", "", "");
 
-    CAF_PDM_InitField(&showWellLabel,           "ShowWellLabel",        true,   "Label", "", "", "");
-    CAF_PDM_InitField(&showWellHead,            "ShowWellHead",         true,   "Well Head", "", "", "");
-    CAF_PDM_InitField(&showWellPipe,            "ShowWellPipe",         true,   "Pipe", "", "", "");
-    CAF_PDM_InitField(&showWellSpheres,         "ShowWellSpheres",      false,  "Spheres", "", "", "");
+    CAF_PDM_InitField(&showWellLabel, "ShowWellLabel", true, "Label", "", "", "");
+    CAF_PDM_InitField(&showWellHead, "ShowWellHead", true, "Well Head", "", "", "");
+    CAF_PDM_InitField(&showWellPipe, "ShowWellPipe", true, "Pipe", "", "", "");
+    CAF_PDM_InitField(&showWellSpheres, "ShowWellSpheres", false, "Spheres", "", "", "");
 
-    CAF_PDM_InitField(&wellHeadScaleFactor,     "WellHeadScaleFactor",  1.0,    "Well Head Scale", "", "", "");
-    CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Pipe Radius Scale", "", "", "");
-    CAF_PDM_InitField(&wellPipeColor,           "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Pipe Color", "", "", "");
+    CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScaleFactor", 1.0, "Well Head Scale", "", "", "");
+    CAF_PDM_InitField(&pipeScaleFactor, "WellPipeRadiusScale", 1.0, "Pipe Radius Scale", "", "", "");
+    CAF_PDM_InitField(&wellPipeColor, "WellPipeColor", cvf::Color3f(0.588f, 0.588f, 0.804f), "Pipe Color", "", "", "");
 
-    CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        false,  "Well Cells", "", "", "");
-    CAF_PDM_InitField(&showWellCellFence,       "ShowWellCellFence",    false,  "Well Cell Fence", "", "", "");
+    CAF_PDM_InitField(&showWellCells, "ShowWellCells", false, "Well Cells", "", "", "");
+    CAF_PDM_InitField(&showWellCellFence, "ShowWellCellFence", false, "Well Cell Fence", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&simwellFractureCollection, "FractureCollection", "Fractures", "", "", "");
 
@@ -84,11 +82,11 @@ RimSimWellInView::RimSimWellInView()
 
     m_resultWellIndex = cvf::UNDEFINED_SIZE_T;
 
-    simwellFractureCollection= new RimSimWellFractureCollection();
+    simwellFractureCollection = new RimSimWellFractureCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView::~RimSimWellInView()
 {
@@ -96,7 +94,7 @@ RimSimWellInView::~RimSimWellInView()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSimWellInView::userDescriptionField()
 {
@@ -104,34 +102,30 @@ caf::PdmFieldHandle* RimSimWellInView::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimSimWellInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                        const QVariant&            oldValue,
+                                        const QVariant&            newValue)
 {
     RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);
     if (reservoirView)
     {
-        if (&showWellLabel == changedField ||
-            &showWellHead == changedField ||
-            &showWellPipe == changedField ||
-            &showWellSpheres == changedField ||
-            &wellPipeColor == changedField)
+        if (&showWellLabel == changedField || &showWellHead == changedField || &showWellPipe == changedField ||
+            &showWellSpheres == changedField || &wellPipeColor == changedField)
         {
             reservoirView->scheduleCreateDisplayModelAndRedraw();
             schedule2dIntersectionViewUpdate();
         }
-        else if (&showWell == changedField ||
-                 &showWellCells == changedField ||
-                 &showWellCellFence == changedField)
-             
+        else if (&showWell == changedField || &showWellCells == changedField || &showWellCellFence == changedField)
+
         {
             reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             reservoirView->scheduleCreateDisplayModelAndRedraw();
             schedule2dIntersectionViewUpdate();
         }
-        else if (   &pipeScaleFactor == changedField
-                 || &wellHeadScaleFactor == changedField)
+        else if (&pipeScaleFactor == changedField || &wellHeadScaleFactor == changedField)
         {
             reservoirView->scheduleSimWellGeometryRegen();
             reservoirView->scheduleCreateDisplayModelAndRedraw();
@@ -155,7 +149,7 @@ void RimSimWellInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSimWellInView::objectToggleField()
 {
@@ -163,7 +157,7 @@ caf::PdmFieldHandle* RimSimWellInView::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<const RigWellPath*> RimSimWellInView::wellPipeBranches() const
 {
@@ -185,14 +179,12 @@ std::vector<const RigWellPath*> RimSimWellInView::wellPipeBranches() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::calculateWellPipeStaticCenterLine(std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
                                                          std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds)
 {
-    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(this,
-                                                                             pipeBranchesCLCoords, 
-                                                                             pipeBranchesCellIds);
+    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(this, pipeBranchesCLCoords, pipeBranchesCellIds);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,26 +192,25 @@ void RimSimWellInView::calculateWellPipeStaticCenterLine(std::vector<std::vector
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::wellHeadTopBottomPosition(int frameIndex, cvf::Vec3d* top, cvf::Vec3d* bottom)
 {
-
     RimEclipseView* m_rimReservoirView;
     firstAncestorOrThisOfTypeAsserted(m_rimReservoirView);
-    
+
     RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->eclipseCaseData();
 
     const RigWellResultFrame* wellResultFramePtr = nullptr;
-    const RigCell* whCellPtr = nullptr;
+    const RigCell*            whCellPtr          = nullptr;
 
     if (frameIndex >= 0)
     {
-        if ( !this->simWellData()->hasAnyValidCells(frameIndex) ) return;
+        if (!this->simWellData()->hasAnyValidCells(frameIndex)) return;
 
         wellResultFramePtr = &(this->simWellData()->wellResultFrame(frameIndex));
-        whCellPtr = &(rigReservoir->cellFromWellResultCell(wellResultFramePtr->wellHeadOrStartCell()));
+        whCellPtr          = &(rigReservoir->cellFromWellResultCell(wellResultFramePtr->wellHeadOrStartCell()));
     }
     else
     {
         wellResultFramePtr = &(this->simWellData()->staticWellCells());
-        whCellPtr = &(rigReservoir->cellFromWellResultCell(wellResultFramePtr->wellHeadOrStartCell()));
+        whCellPtr          = &(rigReservoir->cellFromWellResultCell(wellResultFramePtr->wellHeadOrStartCell()));
     }
 
     const RigCell& whCell = *whCellPtr;
@@ -230,7 +221,7 @@ void RimSimWellInView::wellHeadTopBottomPosition(int frameIndex, cvf::Vec3d* top
 
     // Compute well head based on the z position of the top of the K column the well head is part of
     (*top) = (*bottom);
-    if ( m_rimReservoirView->wellCollection()->wellHeadPosition() == RimSimWellInViewCollection::WELLHEAD_POS_TOP_COLUMN )
+    if (m_rimReservoirView->wellCollection()->wellHeadPosition() == RimSimWellInViewCollection::WELLHEAD_POS_TOP_COLUMN)
     {
         // Position well head at top active cell of IJ-column
 
@@ -238,20 +229,20 @@ void RimSimWellInView::wellHeadTopBottomPosition(int frameIndex, cvf::Vec3d* top
         rigReservoir->mainGrid()->ijkFromCellIndex(whCell.mainGridCellIndex(), &i, &j, &k);
 
         size_t kIndexWellHeadCell = k;
-        k = 0;
+        k                         = 0;
 
         size_t topActiveCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK(i, j, k);
-        while ( k < kIndexWellHeadCell && !m_rimReservoirView->currentActiveCellInfo()->isActive(topActiveCellIndex) )
+        while (k < kIndexWellHeadCell && !m_rimReservoirView->currentActiveCellInfo()->isActive(topActiveCellIndex))
         {
             k++;
             topActiveCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK(i, j, k);
         }
 
         const RigCell& topActiveCell = rigReservoir->mainGrid()->cell(topActiveCellIndex);
-        cvf::Vec3d topCellPos = topActiveCell.faceCenter(cvf::StructGridInterface::NEG_K);
+        cvf::Vec3d     topCellPos    = topActiveCell.faceCenter(cvf::StructGridInterface::NEG_K);
 
         // Modify position if top active cell is closer to sea than well head
-        if ( kIndexWellHeadCell > k )
+        if (kIndexWellHeadCell > k)
         {
             top->z() = topCellPos.z();
         }
@@ -267,7 +258,7 @@ void RimSimWellInView::wellHeadTopBottomPosition(int frameIndex, cvf::Vec3d* top
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimSimWellInView::pipeRadius()
 {
@@ -275,7 +266,7 @@ double RimSimWellInView::pipeRadius()
     firstAncestorOrThisOfTypeAsserted(reservoirView);
 
     RigEclipseCaseData* rigReservoir = reservoirView->eclipseCase()->eclipseCaseData();
-    
+
     double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
 
     double pipeRadius = reservoirView->wellCollection()->pipeScaleFactor() * this->pipeScaleFactor() * characteristicCellSize;
@@ -284,7 +275,7 @@ double RimSimWellInView::pipeRadius()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RimSimWellInView::pipeCrossSectionVertexCount()
 {
@@ -294,7 +285,7 @@ int RimSimWellInView::pipeCrossSectionVertexCount()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::intersectsDynamicWellCellsFilteredCells(size_t frameIndex) const
 {
@@ -308,26 +299,22 @@ bool RimSimWellInView::intersectsDynamicWellCellsFilteredCells(size_t frameIndex
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RimSimWellInView::intersectsWellCellsFilteredCells(const RigWellResultFrame &wrsf, size_t frameIndex) const
+bool RimSimWellInView::intersectsWellCellsFilteredCells(const RigWellResultFrame& wrsf, size_t frameIndex) const
 {
     RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);
     if (!reservoirView) return false;
 
     const std::vector<RivCellSetEnum>& visGridParts = reservoirView->visibleGridParts();
-    RivReservoirViewPartMgr* rvMan = reservoirView->reservoirGridPartManager();
-
+    RivReservoirViewPartMgr*           rvMan        = reservoirView->reservoirGridPartManager();
 
     for (const RivCellSetEnum& visGridPart : visGridParts)
     {
-        if (visGridPart == ALL_WELL_CELLS
-            || visGridPart == VISIBLE_WELL_CELLS
-            || visGridPart == VISIBLE_WELL_FENCE_CELLS
-            || visGridPart == VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER
-            || visGridPart == VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER
-            )
+        if (visGridPart == ALL_WELL_CELLS || visGridPart == VISIBLE_WELL_CELLS || visGridPart == VISIBLE_WELL_FENCE_CELLS ||
+            visGridPart == VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER ||
+            visGridPart == VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER)
         {
             // Exclude all cells related to well cells
             continue;
@@ -335,7 +322,7 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells(const RigWellResultFrame
 
         // First check the wellhead:
 
-        size_t gridIndex = wrsf.m_wellHead.m_gridIndex;
+        size_t gridIndex     = wrsf.m_wellHead.m_gridIndex;
         size_t gridCellIndex = wrsf.m_wellHead.m_gridCellIndex;
 
         if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
@@ -357,7 +344,7 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells(const RigWellResultFrame
             {
                 if (wellResultPoint.isCell())
                 {
-                    gridIndex = wellResultPoint.m_gridIndex;
+                    gridIndex     = wellResultPoint.m_gridIndex;
                     gridCellIndex = wellResultPoint.m_gridCellIndex;
 
                     const cvf::UByteArray* cellVisibility = rvMan->cellVisibility(visGridPart, gridIndex, frameIndex);
@@ -374,11 +361,11 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells(const RigWellResultFrame
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::schedule2dIntersectionViewUpdate()
 {
-     Rim2dIntersectionView* intersectionView = corresponding2dIntersectionView(this);
+    Rim2dIntersectionView* intersectionView = corresponding2dIntersectionView(this);
     if (intersectionView)
     {
         intersectionView->scheduleCreateDisplayModelAndRedraw();
@@ -386,7 +373,7 @@ void RimSimWellInView::schedule2dIntersectionViewUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::intersectsStaticWellCellsFilteredCells() const
 {
@@ -402,7 +389,7 @@ bool RimSimWellInView::intersectsStaticWellCellsFilteredCells() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -411,7 +398,7 @@ void RimSimWellInView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
     appearanceGroup->add(&showWellHead);
     appearanceGroup->add(&showWellPipe);
     appearanceGroup->add(&showWellSpheres);
-    
+
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well Cells and Fence");
     filterGroup->add(&showWellCells);
     filterGroup->add(&showWellCellFence);
@@ -428,7 +415,7 @@ void RimSimWellInView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
@@ -448,12 +435,13 @@ void RimSimWellInView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderi
 
         return;
     }
-    
+
     const RimSimWellInViewCollection* wellColl = nullptr;
     this->firstAncestorOrThisOfType(wellColl);
     if (!wellColl) return;
 
-    if (wellColl->showWellsIntersectingVisibleCells() && !this->intersectsDynamicWellCellsFilteredCells(static_cast<size_t>(reservoirView->currentTimeStep())))
+    if (wellColl->showWellsIntersectingVisibleCells() &&
+        !this->intersectsDynamicWellCellsFilteredCells(static_cast<size_t>(reservoirView->currentTimeStep())))
     {
         // Mark well as read only if well is not intersecting visible cells
 
@@ -465,9 +453,8 @@ void RimSimWellInView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderi
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isWellCellsVisible() const
 {
@@ -477,20 +464,16 @@ bool RimSimWellInView::isWellCellsVisible() const
     if (reservoirView == nullptr) return false;
     if (this->simWellData() == nullptr) return false;
 
-    if (!reservoirView->wellCollection()->isActive())
-        return false;
+    if (!reservoirView->wellCollection()->isActive()) return false;
 
-    if (!this->showWell())
-        return false;
+    if (!this->showWell()) return false;
 
-    if (!this->showWellCells())
-        return false;
+    if (!this->showWellCells()) return false;
 
-    if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
-        return true;
+    if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this)) return true;
 
-    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells()
-        && reservoirView->rangeFilterCollection()->hasActiveFilters())
+    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
+        reservoirView->rangeFilterCollection()->hasActiveFilters())
     {
         return intersectsStaticWellCellsFilteredCells();
     }
@@ -501,7 +484,7 @@ bool RimSimWellInView::isWellCellsVisible() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isWellPipeVisible(size_t frameIndex) const
 {
@@ -522,22 +505,17 @@ bool RimSimWellInView::isWellPipeVisible(size_t frameIndex) const
         return false;
     }
 
-    if (!reservoirView->wellCollection()->isActive())
-        return false;
+    if (!reservoirView->wellCollection()->isActive()) return false;
 
-    if (!this->showWell())
-        return false;
+    if (!this->showWell()) return false;
 
-    if (!this->showWellPipe())
-        return false;
+    if (!this->showWellPipe()) return false;
 
+    if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this)) return true;
 
-    if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
-        return true;
-
-    if (   reservoirView->wellCollection()->showWellsIntersectingVisibleCells()
-        && (   reservoirView->rangeFilterCollection()->hasActiveFilters()
-            || reservoirView->propertyFilterCollection()->hasActiveFilters()) )
+    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
+        (reservoirView->rangeFilterCollection()->hasActiveFilters() ||
+         reservoirView->propertyFilterCollection()->hasActiveFilters()))
     {
         return intersectsDynamicWellCellsFilteredCells(frameIndex);
     }
@@ -548,7 +526,7 @@ bool RimSimWellInView::isWellPipeVisible(size_t frameIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isWellSpheresVisible(size_t frameIndex) const
 {
@@ -569,20 +547,16 @@ bool RimSimWellInView::isWellSpheresVisible(size_t frameIndex) const
         return false;
     }
 
-    if (!reservoirView->wellCollection()->isActive())
-        return false;
+    if (!reservoirView->wellCollection()->isActive()) return false;
 
-    if (!this->showWell())
-        return false;
+    if (!this->showWell()) return false;
 
-    if (!this->showWellSpheres())
-        return false;
+    if (!this->showWellSpheres()) return false;
 
-    if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this))
-        return true;
+    if (reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell(this)) return true;
 
-    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells()
-        && reservoirView->rangeFilterCollection()->hasActiveFilters())
+    if (reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
+        reservoirView->rangeFilterCollection()->hasActiveFilters())
     {
         return intersectsDynamicWellCellsFilteredCells(frameIndex);
     }
@@ -593,7 +567,7 @@ bool RimSimWellInView::isWellSpheresVisible(size_t frameIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isUsingCellCenterForPipe() const
 {
@@ -604,16 +578,16 @@ bool RimSimWellInView::isUsingCellCenterForPipe() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::setSimWellData(RigSimWellData* simWellData, size_t resultWellIndex)
 {
-    m_simWellData = simWellData;
+    m_simWellData     = simWellData;
     m_resultWellIndex = resultWellIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigSimWellData* RimSimWellInView::simWellData()
 {
@@ -621,7 +595,7 @@ RigSimWellData* RimSimWellInView::simWellData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RigSimWellData* RimSimWellInView::simWellData() const
 {
@@ -629,7 +603,7 @@ const RigSimWellData* RimSimWellInView::simWellData() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RimSimWellInView::resultWellIndex() const
 {
@@ -639,7 +613,7 @@ size_t RimSimWellInView::resultWellIndex() const
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionView* corresponding2dIntersectionView(RimSimWellInView *simWellInView)
+Rim2dIntersectionView* corresponding2dIntersectionView(RimSimWellInView* simWellInView)
 {
     Rim3dView* tdView;
     simWellInView->firstAncestorOrThisOfType(tdView);

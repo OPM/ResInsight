@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,33 +27,31 @@
 CAF_PDM_SOURCE_INIT(RimFaultInView, "Fault");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFaultInView::RimFaultInView()
 {
     CAF_PDM_InitObject("RimFault", ":/draw_style_faults_24x24.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&name,       "FaultName",             "Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&name, "FaultName", "Name", "", "", "");
     name.uiCapability()->setUiHidden(true);
     name.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&showFault,         "ShowFault",      true, "Show Fault", "", "", "");
+    CAF_PDM_InitField(&showFault, "ShowFault", true, "Show Fault", "", "", "");
     showFault.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&faultColor,       "Color",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Fault Color", "", "", "");
+    CAF_PDM_InitField(&faultColor, "Color", cvf::Color3f(0.588f, 0.588f, 0.804f), "Fault Color", "", "", "");
 
     m_rigFault = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimFaultInView::~RimFaultInView()
-{
-}
+RimFaultInView::~RimFaultInView() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimFaultInView::userDescriptionField()
 {
@@ -61,7 +59,7 @@ caf::PdmFieldHandle* RimFaultInView::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFaultInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
@@ -73,7 +71,7 @@ void RimFaultInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
         this->firstAncestorOrThisOfType(reservoirView);
 
-        if (reservoirView) 
+        if (reservoirView)
         {
             reservoirView->scheduleCreateDisplayModelAndRedraw();
             reservoirView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
@@ -82,7 +80,7 @@ void RimFaultInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFaultInView::initAfterRead()
 {
@@ -90,7 +88,7 @@ void RimFaultInView::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimFaultInView::objectToggleField()
 {
@@ -98,7 +96,7 @@ caf::PdmFieldHandle* RimFaultInView::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFaultInView::setFaultGeometry(const RigFault* faultGeometry)
 {
@@ -108,10 +106,9 @@ void RimFaultInView::setFaultGeometry(const RigFault* faultGeometry)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RigFault* RimFaultInView::faultGeometry() const
 {
     return m_rigFault;
 }
-

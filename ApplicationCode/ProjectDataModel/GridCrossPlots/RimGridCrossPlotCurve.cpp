@@ -34,9 +34,9 @@
 #include <QPointF>
 #include <QVector>
 
+#include "qwt_graphic.h"
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
-#include "qwt_graphic.h"
 
 #include <random>
 
@@ -50,7 +50,7 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
     , m_groupIndex(0)
 {
     CAF_PDM_InitObject("Cross Plot Points", ":/WellLogCurve16x16.png", "", "");
-   
+
     setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
     setSymbol(RiuQwtSymbol::SYMBOL_NONE);
     setSymbolSize(4);
@@ -62,7 +62,7 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
 void RimGridCrossPlotCurve::setGroupingInformation(int dataSetIndex, int groupIndex)
 {
     m_dataSetIndex = dataSetIndex;
-    m_groupIndex = groupIndex;
+    m_groupIndex   = groupIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ void RimGridCrossPlotCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::updateLegendsInPlot() 
+void RimGridCrossPlotCurve::updateLegendsInPlot()
 {
     RimGridCrossPlot* plot = nullptr;
     this->firstAncestorOrThisOfType(plot);

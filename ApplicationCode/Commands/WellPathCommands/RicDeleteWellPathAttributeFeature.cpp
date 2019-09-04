@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Equinor ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@
 CAF_CMD_SOURCE_INIT(RicDeleteWellPathAttributeFeature, "RicDeleteWellPathAttributeFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteWellPathAttributeFeature::isCommandEnabled()
 {
@@ -37,7 +37,7 @@ bool RicDeleteWellPathAttributeFeature::isCommandEnabled()
         std::vector<RimWellPathAttribute*> objects;
         caf::SelectionManager::instance()->objectsByType(&objects, caf::SelectionManager::FIRST_LEVEL);
 
-        if ( objects.size() > 0 )
+        if (objects.size() > 0)
         {
             return true;
         }
@@ -47,14 +47,13 @@ bool RicDeleteWellPathAttributeFeature::isCommandEnabled()
         {
             return true;
         }
-
     }
 
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicDeleteWellPathAttributeFeature::onActionTriggered(bool isChecked)
 {
@@ -62,7 +61,7 @@ void RicDeleteWellPathAttributeFeature::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&attributes, caf::SelectionManager::FIRST_LEVEL);
     RimWellPathAttributeCollection* wellPathAttributeCollection = nullptr;
     if (attributes.size() > 0)
-    {               
+    {
         attributes[0]->firstAncestorOrThisOfTypeAsserted(wellPathAttributeCollection);
         for (RimWellPathAttribute* attributeToDelete : attributes)
         {
@@ -99,7 +98,7 @@ void RicDeleteWellPathAttributeFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicDeleteWellPathAttributeFeature::setupActionLook(QAction* actionToSetup)
 {

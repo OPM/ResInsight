@@ -44,7 +44,7 @@ RicExportWellPathsUi::RicExportWellPathsUi()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportWellPathsUi::setExportFolder(const QString& exportFolder)
 {
@@ -71,8 +71,8 @@ double RicExportWellPathsUi::mdStepSize() const
 ///
 //--------------------------------------------------------------------------------------------------
 void RicExportWellPathsUi::defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute)
+                                                 QString                    uiConfigName,
+                                                 caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_exportFolder)
     {

@@ -86,6 +86,6 @@ private:
     MeasurementMode            m_measurementMode;
     std::vector<Vec3d>         m_pointsInDomainCoords;
     caf::PdmPointer<Rim3dView> m_sourceView;
-    
+
     QPointer<RiuMeasurementEventFilter> m_eventFilter;
 };

@@ -716,8 +716,7 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
             if (eclipseCase)
             {
                 size_t nativeTimeStepIndex = eclipseCase->uiToNativeTimeStepIndex(timeStepIndex);
-                m_NNCGenerator->textureCoordinates(
-                    m_NNCTextureCoords.p(), mapper, resultType, eclResAddr, nativeTimeStepIndex);
+                m_NNCGenerator->textureCoordinates(m_NNCTextureCoords.p(), mapper, resultType, eclResAddr, nativeTimeStepIndex);
             }
         }
 

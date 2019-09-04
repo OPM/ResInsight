@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include "cvfMath.h"
 #include "cvfObject.h"
 
@@ -67,8 +66,11 @@ public:
 public:
     RigWellPathFormations(const std::vector<RigWellPathFormation>& formations, const QString& filePath, const QString& key);
 
-    void depthAndFormationNamesUpToLevel(FormationLevel level, std::vector<QString>* names, std::vector<double>* depths,
-                                         bool includeFluids, RimWellLogPlot::DepthTypeEnum depthType) const;
+    void depthAndFormationNamesUpToLevel(FormationLevel                level,
+                                         std::vector<QString>*         names,
+                                         std::vector<double>*          depths,
+                                         bool                          includeFluids,
+                                         RimWellLogPlot::DepthTypeEnum depthType) const;
 
     std::vector<FormationLevel> formationsLevelsPresent() const;
 
@@ -93,7 +95,11 @@ private:
     struct LevelAndName
     {
         LevelAndName() = default;
-        LevelAndName(RigWellPathFormations::FormationLevel level, QString name) : level(level), name(name) {}
+        LevelAndName(RigWellPathFormations::FormationLevel level, QString name)
+            : level(level)
+            , name(name)
+        {
+        }
 
         RigWellPathFormations::FormationLevel level;
         QString                               name;
@@ -107,18 +113,24 @@ private:
 
 private:
     void evaluateFormations(const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
-                            const FormationLevel& maxLevel, std::vector<QString>* names, std::vector<double>* depths,
-                            RimWellLogPlot::DepthTypeEnum depthType) const;
+                            const FormationLevel&                                               maxLevel,
+                            std::vector<QString>*                                               names,
+                            std::vector<double>*                                                depths,
+                            RimWellLogPlot::DepthTypeEnum                                       depthType) const;
 
-    void evaluateFluids(const std::vector<RigWellPathFormation>& fluidFormations, std::vector<QString>* names,
-                        std::vector<double>* depths, RimWellLogPlot::DepthTypeEnum depthType) const;
+    void evaluateFluids(const std::vector<RigWellPathFormation>& fluidFormations,
+                        std::vector<QString>*                    names,
+                        std::vector<double>*                     depths,
+                        RimWellLogPlot::DepthTypeEnum            depthType) const;
 
     void evaluateFormationsForOnePosition(const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
-                                          const FormationLevel& maxLevel, const PickPosition& position,
-                                          std::map<double, LevelAndName, DepthComp>* uniqueListMaker,
-                                          RimWellLogPlot::DepthTypeEnum              depthType) const;
+                                          const FormationLevel&                                               maxLevel,
+                                          const PickPosition&                                                 position,
+                                          std::map<double, LevelAndName, DepthComp>*                          uniqueListMaker,
+                                          RimWellLogPlot::DepthTypeEnum                                       depthType) const;
 
-    void depthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>* names, std::vector<double>* measuredDepths,
+    void depthAndFormationNamesWithoutDuplicatesOnDepth(std::vector<QString>*         names,
+                                                        std::vector<double>*          measuredDepths,
                                                         RimWellLogPlot::DepthTypeEnum depthType) const;
 
     bool           isFluid(QString formationName);

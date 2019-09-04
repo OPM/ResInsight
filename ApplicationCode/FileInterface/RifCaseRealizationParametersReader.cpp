@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,30 +22,30 @@
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
 
+#include <QDir>
 #include <QString>
 #include <QStringList>
-#include <QDir>
 
 #include <functional>
 
 //--------------------------------------------------------------------------------------------------
 /// Constants
 //--------------------------------------------------------------------------------------------------
-#define PARAMETERS_FILE_NAME    "parameters.txt"
-#define RUNSPEC_FILE_NAME       "runspecification.xml"
+#define PARAMETERS_FILE_NAME "parameters.txt"
+#define RUNSPEC_FILE_NAME "runspecification.xml"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifCaseRealizationReader::RifCaseRealizationReader(const QString& fileName)
 {
     m_parameters = std::shared_ptr<RigCaseRealizationParameters>(new RigCaseRealizationParameters());
-    m_fileName = fileName;
-    m_file = nullptr;
+    m_fileName   = fileName;
+    m_file       = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifCaseRealizationReader::~RifCaseRealizationReader()
 {
@@ -53,7 +53,7 @@ RifCaseRealizationReader::~RifCaseRealizationReader()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::shared_ptr<RigCaseRealizationParameters> RifCaseRealizationReader::parameters() const
 {
@@ -61,7 +61,7 @@ const std::shared_ptr<RigCaseRealizationParameters> RifCaseRealizationReader::pa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<RifCaseRealizationReader> RifCaseRealizationReader::createReaderFromFileName(const QString& fileName)
 {
@@ -79,7 +79,7 @@ std::shared_ptr<RifCaseRealizationReader> RifCaseRealizationReader::createReader
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QFile* RifCaseRealizationReader::openFile()
 {
@@ -96,7 +96,7 @@ QFile* RifCaseRealizationReader::openFile()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifCaseRealizationReader::closeFile()
 {
@@ -109,16 +109,16 @@ void RifCaseRealizationReader::closeFile()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifCaseRealizationParametersReader::RifCaseRealizationParametersReader(const QString& fileName) :
-    RifCaseRealizationReader(fileName)
+RifCaseRealizationParametersReader::RifCaseRealizationParametersReader(const QString& fileName)
+    : RifCaseRealizationReader(fileName)
 {
     m_textStream = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifCaseRealizationParametersReader::~RifCaseRealizationParametersReader()
 {
@@ -129,12 +129,12 @@ RifCaseRealizationParametersReader::~RifCaseRealizationParametersReader()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifCaseRealizationParametersReader::parse()
 {
-    int             lineNo = 0;
-    QTextStream*    dataStream = openDataStream();
+    int          lineNo     = 0;
+    QTextStream* dataStream = openDataStream();
 
     try
     {
@@ -150,7 +150,7 @@ void RifCaseRealizationParametersReader::parse()
                 throw FileParseException(QString("RifEnsembleParametersReader: Invalid file format in line %1").arg(lineNo));
             }
 
-            QString& name = cols[0];
+            QString& name     = cols[0];
             QString& strValue = cols[1];
 
             if (RiaStdStringTools::startsWithAlphabetic(strValue.toStdString()))
@@ -161,14 +161,16 @@ void RifCaseRealizationParametersReader::parse()
             {
                 if (!RiaStdStringTools::isNumber(strValue.toStdString(), QLocale::c().decimalPoint().toLatin1()))
                 {
-                    throw FileParseException(QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(lineNo));
+                    throw FileParseException(
+                        QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(lineNo));
                 }
 
-                bool parseOk = true;
-                double value = QLocale::c().toDouble(strValue, &parseOk);
+                bool   parseOk = true;
+                double value   = QLocale::c().toDouble(strValue, &parseOk);
                 if (!parseOk)
                 {
-                    throw FileParseException(QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(lineNo));
+                    throw FileParseException(
+                        QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(lineNo));
                 }
 
                 m_parameters->addParameter(name, value);
@@ -185,7 +187,7 @@ void RifCaseRealizationParametersReader::parse()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QTextStream* RifCaseRealizationParametersReader::openDataStream()
 {
@@ -196,7 +198,7 @@ QTextStream* RifCaseRealizationParametersReader::openDataStream()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifCaseRealizationParametersReader::closeDataStream()
 {
@@ -209,16 +211,16 @@ void RifCaseRealizationParametersReader::closeDataStream()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RifCaseRealizationRunspecificationReader::RifCaseRealizationRunspecificationReader(const QString& fileName) :
-    RifCaseRealizationReader(fileName)
+RifCaseRealizationRunspecificationReader::RifCaseRealizationRunspecificationReader(const QString& fileName)
+    : RifCaseRealizationReader(fileName)
 {
     m_xmlStream = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RifCaseRealizationRunspecificationReader::~RifCaseRealizationRunspecificationReader()
 {
@@ -229,11 +231,11 @@ RifCaseRealizationRunspecificationReader::~RifCaseRealizationRunspecificationRea
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifCaseRealizationRunspecificationReader::parse()
 {
-    auto xml = openDataStream();
+    auto    xml = openDataStream();
     QString paramName;
 
     while (!xml->atEnd())
@@ -252,7 +254,7 @@ void RifCaseRealizationRunspecificationReader::parse()
                 paramName = xml->readElementText();
             }
 
-            if(xml->name() == "value")
+            if (xml->name() == "value")
             {
                 QString paramStrValue = xml->readElementText();
 
@@ -266,14 +268,16 @@ void RifCaseRealizationRunspecificationReader::parse()
                 {
                     if (!RiaStdStringTools::isNumber(paramStrValue.toStdString(), QLocale::c().decimalPoint().toLatin1()))
                     {
-                        throw FileParseException(QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(xml->lineNumber()));
+                        throw FileParseException(
+                            QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(xml->lineNumber()));
                     }
 
-                    bool parseOk = true;
-                    double value = QLocale::c().toDouble(paramStrValue, &parseOk);
+                    bool   parseOk = true;
+                    double value   = QLocale::c().toDouble(paramStrValue, &parseOk);
                     if (!parseOk)
                     {
-                        throw FileParseException(QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(xml->lineNumber()));
+                        throw FileParseException(
+                            QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(xml->lineNumber()));
                     }
 
                     m_parameters->addParameter(paramName, value);
@@ -291,9 +295,9 @@ void RifCaseRealizationRunspecificationReader::parse()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QXmlStreamReader * RifCaseRealizationRunspecificationReader::openDataStream()
+QXmlStreamReader* RifCaseRealizationRunspecificationReader::openDataStream()
 {
     auto file = openFile();
 
@@ -302,7 +306,7 @@ QXmlStreamReader * RifCaseRealizationRunspecificationReader::openDataStream()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RifCaseRealizationRunspecificationReader::closeDataStream()
 {
@@ -315,18 +319,20 @@ void RifCaseRealizationRunspecificationReader::closeDataStream()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RifCaseRealizationParametersFileLocator::locate(const QString& modelPath)
 {
-    int         MAX_LEVELS_UP = 3;
-    int         dirLevel = 0;
+    int MAX_LEVELS_UP = 3;
+    int dirLevel      = 0;
 
-    QDir        qdir(modelPath);
+    QDir qdir(modelPath);
 
     const QFileInfo dir(modelPath);
-    if (dir.isFile()) qdir.cdUp();
-    else if (!dir.isDir()) return "";
+    if (dir.isFile())
+        qdir.cdUp();
+    else if (!dir.isDir())
+        return "";
 
     do
     {

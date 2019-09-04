@@ -28,13 +28,13 @@
 
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseView.h"
 #include "RimFractureTemplate.h"
 #include "RimProject.h"
+#include "RimStimPlanColors.h"
 #include "RimWellPath.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
-#include "RimEclipseView.h"
-#include "RimStimPlanColors.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -47,9 +47,8 @@
 
 CAF_CMD_SOURCE_INIT(RicCreateMultipleFracturesFeature, "RicCreateMultipleFracturesFeature");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCreateMultipleFracturesFeature::appendFractures()
 {
@@ -57,7 +56,7 @@ void RicCreateMultipleFracturesFeature::appendFractures()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCreateMultipleFracturesFeature::replaceFractures()
 {
@@ -65,7 +64,7 @@ void RicCreateMultipleFracturesFeature::replaceFractures()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::pair<cvf::Vec3st, cvf::Vec3st> RicCreateMultipleFracturesFeature::ijkRangeForGrid(RimEclipseCase* gridCase) const
 {
@@ -183,8 +182,8 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
                 firstSourceCase = proj->eclipseCases().front();
 
                 auto ijkRange = ijkRangeForGrid(firstSourceCase);
-                int topK  = static_cast<int>(ijkRange.first.z());
-                int baseK = static_cast<int>(ijkRange.second.z());
+                int  topK     = static_cast<int>(ijkRange.first.z());
+                int  baseK    = static_cast<int>(ijkRange.second.z());
 
                 double minimumDistanceFromTip = 100.0;
                 int    maxFractureCount       = 100;
@@ -209,7 +208,8 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
         // Selected well paths
         std::vector<RimWellPath*> selWells = caf::selectedObjectsByTypeStrict<RimWellPath*>();
         multipleFractionsUi->clearWellPaths();
-        for (auto wellPath : selWells) multipleFractionsUi->addWellPath(wellPath);
+        for (auto wellPath : selWells)
+            multipleFractionsUi->addWellPath(wellPath);
 
         caf::PdmUiPropertyViewDialog propertyDialog(
             Riu3DMainWindowTools::mainWindowWidget(), multipleFractionsUi, "Create Multiple Fractures", "");
@@ -224,7 +224,8 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
         dialogButtonBox->clear();
 
         {
-            QPushButton* pushButton = dialogButtonBox->addButton(RiuCreateMultipleFractionsUi::REPLACE_FRACTURES_BUTTON_TEXT, QDialogButtonBox::ActionRole);
+            QPushButton* pushButton = dialogButtonBox->addButton(RiuCreateMultipleFractionsUi::REPLACE_FRACTURES_BUTTON_TEXT,
+                                                                 QDialogButtonBox::ActionRole);
             connect(pushButton, SIGNAL(clicked()), this, SLOT(slotDeleteAndAppendFractures()));
             pushButton->setDefault(false);
             pushButton->setAutoDefault(false);
@@ -232,7 +233,8 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
         }
 
         {
-            QPushButton* pushButton = dialogButtonBox->addButton(RiuCreateMultipleFractionsUi::ADD_FRACTURES_BUTTON_TEXT, QDialogButtonBox::ActionRole);
+            QPushButton* pushButton =
+                dialogButtonBox->addButton(RiuCreateMultipleFractionsUi::ADD_FRACTURES_BUTTON_TEXT, QDialogButtonBox::ActionRole);
             connect(pushButton, SIGNAL(clicked()), this, SLOT(slotAppendFractures()));
             pushButton->setDefault(false);
             pushButton->setAutoDefault(false);

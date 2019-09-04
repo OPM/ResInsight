@@ -59,8 +59,8 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
-#include "RimObservedSummaryData.h"
 #include "RimObservedDataCollection.h"
+#include "RimObservedSummaryData.h"
 #include "RimOilField.h"
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
@@ -116,13 +116,13 @@
 #include <QDir>
 #include <QErrorMessage>
 #include <QFileDialog>
+#include <QGridLayout>
 #include <QMdiSubWindow>
 #include <QMessageBox>
 #include <QProcessEnvironment>
-#include <QTreeView>
-#include <QTextEdit>
-#include <QGridLayout>
 #include <QPushButton>
+#include <QTextEdit>
+#include <QTreeView>
 
 #include <iostream>
 
@@ -156,7 +156,6 @@ void AppEnum<RiaGuiApplication::RINavigationPolicy>::setUp()
 ///
 //==================================================================================================
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -179,14 +178,14 @@ RiaGuiApplication* RiaGuiApplication::instance()
 ///
 //--------------------------------------------------------------------------------------------------
 RiaGuiApplication::RiaGuiApplication(int& argc, char** argv)
-    : QApplication(argc, argv)   
+    : QApplication(argc, argv)
     , RiaApplication()
     , m_mainWindow(nullptr)
     , m_mainPlotWindow(nullptr)
 {
     setWindowIcon(QIcon(":/AppLogo48x48.png"));
 
-    m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);  
+    m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);
 
     connect(this, SIGNAL(aboutToQuit()), this, SLOT(onProgramExit()));
 }
@@ -197,7 +196,7 @@ RiaGuiApplication::RiaGuiApplication(int& argc, char** argv)
 RiaGuiApplication::~RiaGuiApplication()
 {
     deleteMainPlotWindow();
-    deleteMainWindow();  
+    deleteMainWindow();
 
     RiaLogging::deleteLoggerInstance();
 }
@@ -576,7 +575,6 @@ void RiaGuiApplication::initialize()
     RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(m_mainWindow->messagePanel()));
     RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
     m_socketServer = new RiaSocketServer(this);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -595,11 +593,11 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::Progra
 
     if (progOpt->option("help") || progOpt->option("?"))
     {
-        this->showFormattedTextInMessageBoxOrConsole("The current command line options in ResInsight are:\n"
-                                                     + this->commandLineParameterHelp());
+        this->showFormattedTextInMessageBoxOrConsole("The current command line options in ResInsight are:\n" +
+                                                     this->commandLineParameterHelp());
         return RiaApplication::EXIT_COMPLETED;
     }
-    
+
     // Unit testing
     // --------------------------------------------------------
     if (cvf::Option o = progOpt->option("unittest"))
@@ -660,7 +658,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::Progra
 
     if (cvf::Option o = progOpt->option("summaryplot"))
     {
-        RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( cvfqt::Utils::toQStringList(o.values()));
+        RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine(cvfqt::Utils::toQStringList(o.values()));
     }
 
     QString projectFileName;
@@ -949,7 +947,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments(cvf::Progra
 //--------------------------------------------------------------------------------------------------
 int RiaGuiApplication::launchUnitTestsWithConsole()
 {
-    // Following code is taken from cvfAssert.cpp
+// Following code is taken from cvfAssert.cpp
 #ifdef WIN32
     {
         // Allocate a new console for this app
@@ -1219,7 +1217,7 @@ void RiaGuiApplication::clearAllSelections()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::showFormattedTextInMessageBoxOrConsole(const QString& text)
 {
@@ -1232,11 +1230,11 @@ void RiaGuiApplication::showFormattedTextInMessageBoxOrConsole(const QString& te
 
     QTextEdit* textEdit = new QTextEdit(&dlg);
     layout->addWidget(textEdit, 0, 1, 1, 2);
-    layout->setColumnStretch(1,3);
+    layout->setColumnStretch(1, 3);
 
     QPushButton* okButton = new QPushButton;
     okButton->setText("Ok");
-    layout->addWidget(okButton,2,2);
+    layout->addWidget(okButton, 2, 2);
     QObject::connect(okButton, SIGNAL(clicked()), &dlg, SLOT(accept()));
 
     // Convert text to text edit friendly format
@@ -1251,12 +1249,11 @@ void RiaGuiApplication::showFormattedTextInMessageBoxOrConsole(const QString& te
 
     // Resize dialog to fit text etc.
     textEdit->document()->adjustSize();
-    QSizeF docSize =  textEdit->document()->size();
-    dlg.resize( 20 + docSize.width() + 2*layout->margin(), 
-               20 + docSize.height() + 2*layout->margin() + layout->spacing() + okButton->sizeHint().height());
+    QSizeF docSize = textEdit->document()->size();
+    dlg.resize(20 + docSize.width() + 2 * layout->margin(),
+               20 + docSize.height() + 2 * layout->margin() + layout->spacing() + okButton->sizeHint().height());
 
     dlg.exec();
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1656,7 +1653,7 @@ void RiaGuiApplication::applyGuiPreferences(const RiaPreferences* oldPreferences
 void RiaGuiApplication::updateGrpcServer()
 {
 #ifdef ENABLE_GRPC
-    bool isGrpcRunning = m_grpcServer != nullptr && m_grpcServer->isRunning();
+    bool isGrpcRunning     = m_grpcServer != nullptr && m_grpcServer->isRunning();
     bool shouldItBeRunning = m_preferences->enableGrpcServer();
     if (isGrpcRunning && !shouldItBeRunning)
     {
@@ -1746,11 +1743,11 @@ void RiaGuiApplication::runIdleProcessing()
         closeProject();
         m_grpcServer->quit();
         QCoreApplication::quit();
-    }    
+    }
     else if (!caf::ProgressInfoStatic::isRunning())
     {
         static int idleIterationCount = 0;
-        int iterationInterval = 0;
+        int        iterationInterval  = 0;
         if (m_grpcServer->processAllQueuedRequests() > 0)
         {
             idleIterationCount = 0;
@@ -1775,8 +1772,8 @@ void RiaGuiApplication::runIdleProcessing()
 ///
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::runMultiCaseSnapshots(const QString&       templateProjectFileName,
-                                           std::vector<QString> gridFileNames,
-                                           const QString&       snapshotFolderName)
+                                              std::vector<QString> gridFileNames,
+                                              const QString&       snapshotFolderName)
 {
     if (!m_mainWindow) return;
 

@@ -28,7 +28,6 @@
 #include "RimSimWellFracture.h"
 #include "RimStimPlanFractureTemplate.h"
 
-
 #include "cvfMath.h"
 #include "cvfMatrix4.h"
 

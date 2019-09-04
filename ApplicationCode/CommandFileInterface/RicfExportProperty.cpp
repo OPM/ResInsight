@@ -111,8 +111,7 @@ RicfCommandResponse RicfExportProperty::execute()
 
     QString errMsg;
     if (!RicEclipseCellResultToFileImpl::writePropertyToTextFile(
-        filePath, eclipseCase->eclipseCaseData(), m_timeStepIndex, m_propertyName, eclipseKeyword, m_undefinedValue,
-        &errMsg))
+            filePath, eclipseCase->eclipseCaseData(), m_timeStepIndex, m_propertyName, eclipseKeyword, m_undefinedValue, &errMsg))
     {
         return RicfCommandResponse(RicfCommandResponse::COMMAND_ERROR, errMsg);
     }

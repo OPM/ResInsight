@@ -46,7 +46,7 @@ void RiaWeightedHarmonicMeanCalculator::addValueAndWeight(double value, double w
 ///
 //--------------------------------------------------------------------------------------------------
 double RiaWeightedHarmonicMeanCalculator::weightedMean() const
-{    
+{
     if (validAggregatedWeight())
     {
         return m_aggregatedWeight / m_aggregatedWeightedValue;

@@ -2,27 +2,25 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-
 #include "cafPdmPointer.h"
 #include "cvfStructGrid.h"
-
 
 class RimEclipseView;
 class RimEclipseCellColors;
@@ -30,8 +28,9 @@ class Rim2dIntersectionView;
 class QString;
 class RigEclipseCaseData;
 
-namespace cvf {
-    class Part;
+namespace cvf
+{
+class Part;
 }
 
 //==================================================================================================
@@ -52,7 +51,7 @@ public:
     QString mainResultText();
 
     QString geometrySelectionText(QString itemSeparator);
-    
+
 private:
     void appendDetails(QString& text, const QString& details);
 
@@ -69,10 +68,15 @@ private:
 
     QString cellResultText(RimEclipseCellColors* resultColors);
 
-    void appendTextFromResultColors(RigEclipseCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimEclipseCellColors* resultColors, QString* resultInfoText);
+    void appendTextFromResultColors(RigEclipseCaseData*   eclipseCase,
+                                    size_t                gridIndex,
+                                    size_t                cellIndex,
+                                    size_t                timeStepIndex,
+                                    RimEclipseCellColors* resultColors,
+                                    QString*              resultInfoText);
 
 private:
-    caf::PdmPointer<RimEclipseView> m_reservoirView;
+    caf::PdmPointer<RimEclipseView>        m_reservoirView;
     caf::PdmPointer<Rim2dIntersectionView> m_2dIntersectionView;
 
     size_t m_gridIndex;
@@ -81,7 +85,7 @@ private:
 
     cvf::StructGridInterface::FaceType m_face;
 
-    size_t      m_nncIndex;
+    size_t m_nncIndex;
 
     cvf::Vec3d m_intersectionPointInDisplay;
 };

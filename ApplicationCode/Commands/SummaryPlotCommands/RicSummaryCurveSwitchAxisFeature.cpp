@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,31 +27,30 @@
 
 #include <QAction>
 
-
 CAF_CMD_SOURCE_INIT(RicSummaryCurveSwitchAxisFeature, "RicSummaryCurveSwitchAxisFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSummaryCurveSwitchAxisFeature::isCommandEnabled()
 {
-    std::vector<RimSummaryCurve*>           summaryCurves;
-    std::vector<RimAsciiDataCurve*>         asciiDataCurves;
-    std::vector<RimGridTimeHistoryCurve*>   gridTimeHistoryCurves;
+    std::vector<RimSummaryCurve*>         summaryCurves;
+    std::vector<RimAsciiDataCurve*>       asciiDataCurves;
+    std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves;
 
     RicSummaryCurveSwitchAxisFeature::extractSelectedCurves(&summaryCurves, &asciiDataCurves, &gridTimeHistoryCurves);
-    
+
     return summaryCurves.size() || asciiDataCurves.size() || gridTimeHistoryCurves.size();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimSummaryCurve*>           summaryCurves;
-    std::vector<RimAsciiDataCurve*>         asciiDataCurves;
-    std::vector<RimGridTimeHistoryCurve*>   gridTimeHistoryCurves;
+    std::vector<RimSummaryCurve*>         summaryCurves;
+    std::vector<RimAsciiDataCurve*>       asciiDataCurves;
+    std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves;
 
     RicSummaryCurveSwitchAxisFeature::extractSelectedCurves(&summaryCurves, &asciiDataCurves, &gridTimeHistoryCurves);
 
@@ -59,7 +58,7 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
     {
         RiaDefines::PlotAxis plotAxis = summaryCurve->axisY();
 
-        if ( plotAxis == RiaDefines::PLOT_AXIS_LEFT )
+        if (plotAxis == RiaDefines::PLOT_AXIS_LEFT)
         {
             summaryCurve->setLeftOrRightAxisY(RiaDefines::PLOT_AXIS_RIGHT);
         }
@@ -73,7 +72,7 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
 
         RimSummaryPlot* plot = nullptr;
         summaryCurve->firstAncestorOrThisOfType(plot);
-        if ( plot ) plot->updateAxes();
+        if (plot) plot->updateAxes();
     }
 
     for (RimAsciiDataCurve* asciiCurve : asciiDataCurves)
@@ -119,7 +118,7 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveSwitchAxisFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -127,10 +126,10 @@ void RicSummaryCurveSwitchAxisFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Solo curves means selected curves that does not have a selected curve filter as parent 
+/// Solo curves means selected curves that does not have a selected curve filter as parent
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveSwitchAxisFeature::extractSelectedCurves(std::vector<RimSummaryCurve*>* summaryCurves,
-                                                             std::vector<RimAsciiDataCurve*>* asciiDataCurves,
+void RicSummaryCurveSwitchAxisFeature::extractSelectedCurves(std::vector<RimSummaryCurve*>*         summaryCurves,
+                                                             std::vector<RimAsciiDataCurve*>*       asciiDataCurves,
                                                              std::vector<RimGridTimeHistoryCurve*>* gridTimeHistoryCurves)
 {
     summaryCurves->clear();

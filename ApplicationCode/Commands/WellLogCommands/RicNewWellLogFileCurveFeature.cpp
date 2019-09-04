@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -41,20 +41,21 @@
 
 #include <vector>
 
-
 CAF_CMD_SOURCE_INIT(RicNewWellLogFileCurveFeature, "RicNewWellLogFileCurveFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogFileCurveFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
-    return (caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellLogTrack>() != nullptr && wellLogFilesAvailable()) || RicWellLogTools::selectedWellPathWithLogFile() != nullptr;
+    return (caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellLogTrack>() != nullptr &&
+            wellLogFilesAvailable()) ||
+           RicWellLogTools::selectedWellPathWithLogFile() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
 {
@@ -68,8 +69,8 @@ void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
         RimWellPath* wellPath = RicWellLogTools::selectedWellPathWithLogFile();
         if (wellPath)
         {
-            RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-            RimWellLogFileCurve* plotCurve = RicWellLogTools::addFileCurve(newWellLogPlotTrack);
+            RimWellLogTrack*     newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+            RimWellLogFileCurve* plotCurve           = RicWellLogTools::addFileCurve(newWellLogPlotTrack);
             plotCurve->setWellPath(wellPath);
 
             if (wellPath->wellLogFiles().size() == 1)
@@ -82,7 +83,7 @@ void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogFileCurveFeature::setupActionLook(QAction* actionToSetup)
 {
@@ -91,7 +92,7 @@ void RicNewWellLogFileCurveFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable()
 {
