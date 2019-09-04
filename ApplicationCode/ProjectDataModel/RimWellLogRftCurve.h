@@ -96,7 +96,7 @@ private:
     std::vector<double>  xValues();
     std::vector<double>  tvDepthValues();
     std::vector<double>  measuredDepthValues();
-    std::vector<double>  interpolatedMeasuredDepthValuesFromObservedData(const std::vector<double>& tvDepthValues);
+    std::vector<double> interpolatedMeasuredDepthValuesFromWellPathOrObservedData(const std::vector<double>& tvDepthValues);
 
 private:
     caf::PdmPtrField<RimEclipseResultCase*>     m_eclipseResultCase;

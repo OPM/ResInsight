@@ -18,15 +18,18 @@
 
 #pragma once
 
-#include <vector>
-
 #include "cvfBase.h"
 #include "cvfVector3.h"
+
+#include <qwt_curve_fitter.h>
+#include <qwt_spline.h>
+
+#include <vector>
 
 class RigWellPath;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class RigWellPathGeometryTools
 {
@@ -38,16 +41,20 @@ public:
     };
 
 public:
-    static std::vector<cvf::Vec3d> calculateLineSegmentNormals(const std::vector<cvf::Vec3d>& vertices,
-                                                               double                         angle);
-    static std::vector<double> interpolateMdFromTvd(const std::vector<double>& originalMdValues, const std::vector<double>& originalTvdValues, const std::vector<double>& tvdValuesToInterpolateFrom);
+    static std::vector<cvf::Vec3d> calculateLineSegmentNormals(const std::vector<cvf::Vec3d>& vertices, double angle);
+    static std::vector<double>     interpolateMdFromTvd(const std::vector<double>& originalMdValues,
+                                                        const std::vector<double>& originalTvdValues,
+                                                        const std::vector<double>& tvdValuesToInterpolateFrom);
 
 private:
-    static std::vector<cvf::Vec3d> interpolateUndefinedNormals(const cvf::Vec3d& planeNormal,
+    static std::vector<cvf::Vec3d> interpolateUndefinedNormals(const cvf::Vec3d&              planeNormal,
                                                                const std::vector<cvf::Vec3d>& normals,
                                                                const std::vector<cvf::Vec3d>& vertices);
-    static cvf::Vec3d estimateDominantDirectionInXYPlane(const std::vector<cvf::Vec3d>& vertices);
+    static cvf::Vec3d              estimateDominantDirectionInXYPlane(const std::vector<cvf::Vec3d>& vertices);
 
-    static double linearInterpolation(const std::vector<double>& xValues, const std::vector<double>& yValues, int valueIndex, double x);
+    static double solveForX(const QwtSpline& spline, double minX, double maxX, double y);
 
+    static QwtSpline createSpline(const std::vector<double>& originalMdValues, const std::vector<double>& originalTvdValues);
+    static std::vector<int> findSplineSegmentsContainingRoots(const QwtSpline&           spline,
+                                                              const std::vector<double>& tvdValuesToInterpolateFrom);
 };

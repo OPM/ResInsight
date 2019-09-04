@@ -20,8 +20,12 @@
 
 #include "RigWellPathGeometryTools.h"
 
+#include <algorithm>
 #include <vector>
 #include <complex>
+
+#define TOLERANCE 1.0e-7
+#define SOLVER_TOLERANCE 
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -36,7 +40,7 @@ TEST(RigWellPathGeometryTools, VerticalPath)
     EXPECT_EQ(fullTVDValues.size(), fullMDValues.size());
     for (size_t i = 0; i < fullTVDValues.size(); ++i)
     {
-        EXPECT_DOUBLE_EQ(fullTVDValues[i], fullMDValues[i]);
+        EXPECT_NEAR(fullTVDValues[i], fullMDValues[i], TOLERANCE);
     }
 }
 
@@ -45,12 +49,13 @@ TEST(RigWellPathGeometryTools, LinearPath)
     std::vector<double> mdValues = {100, 500, 1000};
     std::vector<double> tvdValues = {50, 250, 500};
     std::vector<double> fullTVDValues = {50, 100, 150, 200, 250, 300, 350, 400, 450, 500};
+
     std::vector<double> fullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd(mdValues, tvdValues, fullTVDValues);
 
     EXPECT_EQ(fullTVDValues.size(), fullMDValues.size());
     for (size_t i = 0; i < fullTVDValues.size(); ++i)
     {
-        EXPECT_DOUBLE_EQ(2.0*fullTVDValues[i], fullMDValues[i]);
+        EXPECT_NEAR(2.0*fullTVDValues[i], fullMDValues[i], TOLERANCE);
     }
 }
 
@@ -73,11 +78,15 @@ TEST(RigWellPathGeometryTools, QuadraticPath)
     {
         fullTvdValues.push_back(quadraticFunction(md));
     }
+    
     std::vector<double> estimatedFullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd(mdValues, tvdValues, fullTvdValues);
     EXPECT_EQ(estimatedFullMDValues.size(), fullMDValues.size());
     for (size_t i = 0; i < estimatedFullMDValues.size(); ++i)
     {
-        EXPECT_DOUBLE_EQ(fullMDValues[i], estimatedFullMDValues[i]);
+        if (std::find(mdValues.begin(), mdValues.end(), estimatedFullMDValues[i]) != mdValues.end())
+        {
+            EXPECT_NEAR(fullMDValues[i], estimatedFullMDValues[i], TOLERANCE);
+        }
     }
 }
 
@@ -87,6 +96,32 @@ double cubicFunction(double x)
 }
 
 TEST(RigWellPathGeometryTools, CubicPath)
+{
+    std::vector<double> mdValues = {100, 300, 700, 1000};
+    std::vector<double> tvdValues;
+    for (double md : mdValues)
+    {
+        tvdValues.push_back(cubicFunction(md));
+    }
+    std::vector<double> fullMDValues = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+    std::vector<double> fullTvdValues;
+    for (double md : fullMDValues)
+    {
+        fullTvdValues.push_back(cubicFunction(md));
+    }
+
+    std::vector<double> estimatedFullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd(mdValues, tvdValues, fullTvdValues);
+    EXPECT_EQ(estimatedFullMDValues.size(), fullMDValues.size());
+    for (size_t i = 0; i < estimatedFullMDValues.size(); ++i)
+    {
+        if (std::find(mdValues.begin(), mdValues.end(), estimatedFullMDValues[i]) != mdValues.end())
+        {
+            EXPECT_NEAR(fullMDValues[i], estimatedFullMDValues[i], TOLERANCE);
+        }
+    }
+}
+
+TEST(RigWellPathGeometryTools, CubicPathPoorSampling)
 {
     std::vector<double> mdValues = {100, 300, 600, 1000};
     std::vector<double> tvdValues;
@@ -100,10 +135,14 @@ TEST(RigWellPathGeometryTools, CubicPath)
     {
         fullTvdValues.push_back(cubicFunction(md));
     }
+
     std::vector<double> estimatedFullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd(mdValues, tvdValues, fullTvdValues);
     EXPECT_EQ(estimatedFullMDValues.size(), fullMDValues.size());
     for (size_t i = 0; i < estimatedFullMDValues.size(); ++i)
     {
-        EXPECT_DOUBLE_EQ(fullMDValues[i], estimatedFullMDValues[i]);
+        if (std::find(mdValues.begin(), mdValues.end(), estimatedFullMDValues[i]) != mdValues.end())
+        {
+            EXPECT_NEAR(fullMDValues[i], estimatedFullMDValues[i], TOLERANCE);
+        }
     }
 }

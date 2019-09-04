@@ -409,7 +409,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
         if (tvDepthVector.size() != measuredDepthVector.size())
         {
-            measuredDepthVector = interpolatedMeasuredDepthValuesFromObservedData(tvDepthVector);
+            measuredDepthVector = interpolatedMeasuredDepthValuesFromWellPathOrObservedData(tvDepthVector);
             if (measuredDepthVector.size() == tvDepthVector.size())
             {
                 m_derivingMDFromObservedData = true;
@@ -900,23 +900,34 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::interpolatedMeasuredDepthValuesFromObservedData(const std::vector<double>& tvDepthValues)
+std::vector<double> RimWellLogRftCurve::interpolatedMeasuredDepthValuesFromWellPathOrObservedData(const std::vector<double>& tvDepthValues)
 {
+    RimProject*  proj = RiaApplication::instance()->project();
+    RimWellPath* wellPath = proj->wellPathByName(m_wellName);
+
     std::vector<double> interpolatedMdValues;
-    if (m_observedFmuRftData)
+    if (wellPath)
+    {
+        const std::vector<double>& mdValuesOfWellPath  = wellPath->wellPathGeometry()->measureDepths();
+        std::vector<double>        tvdValuesOfWellPath = wellPath->wellPathGeometry()->trueVerticalDepths();
+
+        interpolatedMdValues = RigWellPathGeometryTools::interpolateMdFromTvd(mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues);
+        CVF_ASSERT(interpolatedMdValues.size() == tvDepthValues.size());
+    }
+    else if (m_observedFmuRftData)
     {
         RifReaderRftInterface* reader = m_observedFmuRftData->rftReader();
         if (reader)
         {
-            std::vector<double>    tvdValuesOfObbservedData;
-            std::vector<double>    mdValuesOfObbservedData;
+            std::vector<double>    tvdValuesOfObservedData;
+            std::vector<double>    mdValuesOfObservedData;
 
             RifEclipseRftAddress tvdAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::TVD);
             RifEclipseRftAddress mdAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::MD);
 
-            reader->values(tvdAddress, &tvdValuesOfObbservedData);
-            reader->values(mdAddress, &mdValuesOfObbservedData);
-            interpolatedMdValues = RigWellPathGeometryTools::interpolateMdFromTvd(mdValuesOfObbservedData, tvdValuesOfObbservedData, tvDepthValues);
+            reader->values(tvdAddress, &tvdValuesOfObservedData);
+            reader->values(mdAddress, &mdValuesOfObservedData);
+            interpolatedMdValues = RigWellPathGeometryTools::interpolateMdFromTvd(mdValuesOfObservedData, tvdValuesOfObservedData, tvDepthValues);
             CVF_ASSERT(interpolatedMdValues.size() == tvDepthValues.size());
         }
     }
