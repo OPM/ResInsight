@@ -56,7 +56,6 @@
 
 #include <qwt_plot.h>
 
-#include <QDebug>
 #include <QString>
 
 #include <numeric>
@@ -912,20 +911,8 @@ std::vector<double> RimWellLogRftCurve::interpolatedMeasuredDepthValuesFromWellP
         const std::vector<double>& mdValuesOfWellPath  = wellPath->wellPathGeometry()->measureDepths();
         std::vector<double>        tvdValuesOfWellPath = wellPath->wellPathGeometry()->trueVerticalDepths();
 
-        qDebug() << "-------------- Well Path: ----------------";
-        for (size_t i = 0; i < mdValuesOfWellPath.size(); ++i)
-        {
-            qDebug() << mdValuesOfWellPath[i] << ", " << tvdValuesOfWellPath[i];
-        }
-
-        qDebug() << "-------------- Interpolated: ----------------";
         interpolatedMdValues = RigWellPathGeometryTools::interpolateMdFromTvd(mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues);
         CVF_ASSERT(interpolatedMdValues.size() == tvDepthValues.size());
-        for (size_t i = 0; i < mdValuesOfWellPath.size(); ++i)
-        {
-            qDebug() << interpolatedMdValues[i] << ", " << tvDepthValues[i];
-        }
-
     }
     else if (m_observedFmuRftData)
     {
