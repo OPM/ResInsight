@@ -56,7 +56,6 @@ RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
     Q_ASSERT(plotDefinition);
     m_plotDefinition = plotDefinition;
 
-    new RiuPlotObjectPicker(m_plotTitle, m_plotDefinition);
 
     QPalette newPalette(palette());
     newPalette.setColor(QPalette::Background, Qt::white);
@@ -73,6 +72,8 @@ RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
     m_scrollBar = new QScrollBar(this);
     m_scrollBar->setOrientation(Qt::Vertical);
     m_scrollBar->setVisible(true);
+
+    new RiuPlotObjectPicker(m_plotTitle, m_plotDefinition);
 
     this->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     
