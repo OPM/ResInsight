@@ -38,6 +38,7 @@
 #pragma once
 
 #include "cvfSystem.h"
+#include "cvfBase.h"
 
 #include <set>
 
