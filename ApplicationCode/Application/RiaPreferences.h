@@ -89,6 +89,7 @@ public: // Pdm Fields
     caf::PdmField<bool>     octaveShowHeaderInfoWhenExecutingScripts;
     
     caf::PdmField<QString>  pythonExecutable;
+    caf::PdmField<bool>     showPythonDebugInfo;
 
     caf::PdmField<QString>  ssihubAddress;
 

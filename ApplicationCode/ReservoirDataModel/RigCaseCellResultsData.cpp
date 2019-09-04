@@ -437,7 +437,12 @@ const RigActiveCellInfo* RigCaseCellResultsData::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::recalculateStatistics(const RigEclipseResultAddress& resVarAddr)
 {
-    m_statisticsDataCache[findScalarResultIndexFromAddress(resVarAddr)]->clearAllStatistics();
+    size_t scalarResultIndex = findScalarResultIndexFromAddress(resVarAddr);
+    CVF_TIGHT_ASSERT(scalarResultIndex < m_cellScalarResults.size());
+    if (scalarResultIndex < m_cellScalarResults.size())
+    {
+        m_statisticsDataCache[scalarResultIndex]->clearAllStatistics();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

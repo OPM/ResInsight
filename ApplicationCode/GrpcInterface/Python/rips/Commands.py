@@ -10,14 +10,13 @@ import Commands_pb2_grpc as CmdRpc
 import rips.Case
 
 class Commands:
-    """Command executor which can run ResInsight Command File commands nearly verbatim
-    
-    Documentation Command File Interface:
-        https://resinsight.org/docs/commandfile/
+    """Command executor which can run ResInsight Command File commands nearly verbatim. See    
+    [ Command File Interface ]({{< ref "commandfile.md" >}})
 
     The differences are:
-        * Enum values have to be provided as strings. I.e. "ALL" instead of ALL.
-        * Booleans have to be specified as correct Python. True instead of true.
+
+    - Enum values have to be provided as strings. I.e. "ALL" instead of ALL.
+    - Booleans have to be specified as correct Python. True instead of true.
     
     """
     def __init__(self, channel):
@@ -263,6 +262,19 @@ class Commands:
         return self.__execute(createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(caseIds=caseIds))
 
     def exportFlowCharacteristics(self, caseId, timeSteps, injectors, producers, fileName, minimumCommunication=0.0, aquiferCellThreshold=0.1):
+        """ Export Flow Characteristics data to text file in CSV format
+
+        Parameter                 | Description                                   | Type
+        ------------------------- | --------------------------------------------- | -----
+        caseId                    | ID of case                                    | Integer          
+        timeSteps                 | Time step indices                             | List of Integer  
+        injectors                 | Injector names                                | List of Strings  
+        producers                 | Producer names                                | List of Strings  
+        fileName                  | Export file name                              | Integer          
+        minimumCommunication      | Minimum Communication, defaults to 0.0        | Integer          
+        aquiferCellThreshold      | Aquifer Cell Threshold, defaults to 0.1       | Integer          
+
+        """
         if isinstance(timeSteps, int):
             timeSteps = [timeSteps]
         if isinstance(injectors, str):

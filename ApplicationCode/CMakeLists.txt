@@ -13,8 +13,8 @@ if (RESINSIGHT_BUILD_WITH_QT5)
 endif(RESINSIGHT_BUILD_WITH_QT5)
 
 if (Qt5Core_FOUND)
-    find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Network Script Widgets)
-    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Script Qt5::Widgets)
+    find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Network Script Widgets Xml Concurrent PrintSupport)
+    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Script Qt5::Widgets Qt5::Xml Qt5::Concurrent Qt5::PrintSupport)
 else()
     set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript)
     find_package(Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED} REQUIRED)
@@ -713,7 +713,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 				add_custom_command(
 					TARGET ResInsight
 					POST_BUILD
-					COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install --target=${GRPC_PYTHON_SOURCE_PATH} grpcio
+					COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
 				)
 			endif()
 			install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)

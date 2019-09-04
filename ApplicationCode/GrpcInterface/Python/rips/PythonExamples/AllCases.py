@@ -1,6 +1,6 @@
 ###################################################################################
 # This example will connect to ResInsight, retrieve a list of cases and print info
-# Also creates a new view for all cases
+# 
 ###################################################################################
 
 # Import the ResInsight Processing Server Module
@@ -16,7 +16,11 @@ if resInsight is not None:
     for case in cases:
         print("Case name: " + case.name)
         print("Case grid path: " + case.gridPath())
-        # Create a new view
-        view = case.createView()
+        
+        timesteps = case.timeSteps()
+        for t in timesteps:
+            print("Year: " + str(t.year))
+            print("Month: " + str(t.month))
+        
     
 
